@@ -69,6 +69,7 @@ export const FALL_BACK_LANGUAGE = 'en';
 export const STORAGE_KEYS = {
   token: 'AUTH_TOKEN',
   activeCompanyUniqueName: 'ACTIVE_COMPANY_UNIQUE_NAME',
+  googleEmail: 'GOOGLE_USER_EMAIL'
 };
 
 // APP events constants

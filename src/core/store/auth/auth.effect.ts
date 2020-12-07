@@ -14,11 +14,12 @@ export const authEffects = (dispatch: Dispatch) => ({
    * set google login action
    * @returns {Promise<void>}
    */
-  async googleLoginAction(payload: string) {
+  async googleLoginAction(payload) {
     dispatch.auth.setGoogleLoginRequest();
     try {
-      const response = await AuthService.submitGoogleAuthToken(payload);
+      const response = await AuthService.submitGoogleAuthToken(payload.token);
       await AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
+      await AsyncStorage.setItem(STORAGE_KEYS.googleEmail, payload.email ? payload.email : '');
 
       // get state details
       await dispatch.common.getStateDetailsAction();

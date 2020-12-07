@@ -22,8 +22,9 @@ export const companyEffects = (dispatch: Dispatch) => ({
   async getCompanyListAndBranchAction() {
     // dispatch.company.getCompanyList();
     try {
-      const response = await CompanyService.getCompanyList();
-      debugger
+      const companyList = await CompanyService.getCompanyList();
+      const companyBranches = await CompanyService.getCompanyBranches();
+
      // dispatch.company.setCompanyDetailsResponse(response.body as Company);
     } catch (error) {
       

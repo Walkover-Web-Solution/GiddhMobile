@@ -11,6 +11,7 @@ import Incoming from '../assets/images/icons/incoming.svg';
 import Outgoing from '../assets/images/icons/outgoing.svg';
 import Search from '../assets/images/icons/search.svg';
 import Plus from '../assets/images/icons/plus.svg';
+import ArrowRight from '../assets/images/icons/arrowRight.svg';
 
 const IconProvider = (source: ImageRequireSource) => ({
   toReactElement: ({...style}) => <Image style={style} source={source} />,
@@ -47,6 +48,7 @@ export const GdSVGIcons = {
   outgoing: Outgoing,
   search: Search,
   plus: Plus,
+  arrowRight: ArrowRight
 };
 
 export const GdImages = {

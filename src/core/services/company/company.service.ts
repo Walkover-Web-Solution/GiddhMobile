@@ -20,7 +20,11 @@ export class CompanyService {
       return res.data;
     });
   }
-
+  static getCompanyBranches() {
+    return httpInstance.get(companyUrls.companyBranch).then((res) => {
+      return res.data;
+    });
+  }
 
   // static getCompanyList(): Promise<BaseResponse<Company>> {
   //   let url = companyUrls.companyList

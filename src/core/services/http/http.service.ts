@@ -35,6 +35,10 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
       // replace company uniqueName in url with active company from storage
         reqConfig.url = reqConfig.url?.replace(':companyUniqueName', activeCompany);
     }
+    if(reqConfig.url.includes(':companyEmail')){
+      const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      reqConfig.url = reqConfig.url?.replace(':companyEmail', activeEmail);
+    }
   }
   return {...reqConfig, headers};
 });
