@@ -46,7 +46,7 @@ class Login extends React.Component<any, any> {
       const userInfo = await GoogleSignin.getCurrentUser();
       
       debugger
-      this.props.googleLogin(getGoogleToken.accessToken);
+      this.props.googleLogin({token: getGoogleToken.accessToken, email: userInfo.user.email});
     } catch (error) {
       this.setState({showLoader: false});
       console.log('Message', error.message);

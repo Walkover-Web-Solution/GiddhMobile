@@ -8,4 +8,5 @@ export default {
   More: 'more',
   Transaction: 'transaction',
   BigButton: 'bigButton',
+  
 };
