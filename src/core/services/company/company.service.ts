@@ -14,24 +14,21 @@ export class CompanyService {
     });
   }
 
-
+/**
+   * get company List
+   */
   static getCompanyList() {
     return httpInstance.get(companyUrls.companyList).then((res) => {
       return res.data;
     });
   }
+
+  /**
+   * get company Branch
+   */
   static getCompanyBranches() {
     return httpInstance.get(companyUrls.companyBranch).then((res) => {
       return res.data;
     });
   }
-
-  // static getCompanyList(): Promise<BaseResponse<Company>> {
-  //   let url = companyUrls.companyList
-  //   return httpInstance.get(url).then((res) => {
-  //     return res.data;
-  //   }).catch((err)=>{
-  //       alert(err)
-  //   });
-  // }
 }
