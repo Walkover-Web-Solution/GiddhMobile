@@ -28,6 +28,9 @@ import Trigger from '../assets/images/icons/trigger.svg';
 import Lock from '../assets/images/icons/Lock.svg';
 import Help from '../assets/images/icons/help.svg';
 import Phone from '../assets/images/icons/phone.svg';
+import Location from '../assets/images/icons/address.svg';
+import Product from '../assets/images/icons/Product.svg';
+import Gstin from '../assets/images/icons/gstin.svg';
 
 const IconProvider = (source: ImageRequireSource) => ({
   toReactElement: ({...style}) => <Image style={style} source={source} />,
@@ -81,6 +84,9 @@ export const GdSVGIcons = {
   lock: Lock,
   help: Help,
   phone: Phone,
+  location: Location,
+  gstin: Gstin,
+  product: Product,
 };
 
 export const GdImages = {

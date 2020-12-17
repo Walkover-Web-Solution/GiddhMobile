@@ -130,7 +130,6 @@ class Login extends React.Component<any, any> {
             <View style={style.formInput}>
               <GDRoundedInput icon="email" label="Company Name" value="" placeholder="sampleaddress@mail.com" />
               <GDRoundedInput icon="lock" label="Company Name" value="" placeholder="********" />
-              {/*<Input style={style.formInput} secureTextEntry={true} />*/}
             </View>
 
             <View style={style.loginButtonContainer}>
@@ -140,17 +139,6 @@ class Login extends React.Component<any, any> {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* {!this.state.keyboard && (
-            <View style={style.troubleLoginContainer}>
-              <View style={style.seperator}>
-                <Text style={style.bottomTextStyle}>Trouble logging in?</Text>
-                <Text style={style.bottomTextStyleLink}>Click here</Text>
-              </View>
-              <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text>
-              <Text style={style.bottomTextStyleLink}>Create a new account</Text>
-            </View>
-          )} */}
           <View style={style.troubleLoginContainer}>
             <View style={style.seperator}>
               <Text style={style.bottomTextStyle}>Trouble logging in?</Text>

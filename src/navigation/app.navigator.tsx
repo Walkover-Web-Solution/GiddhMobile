@@ -5,6 +5,7 @@ import {HomeNavigator} from '@/navigation/home.navigator';
 import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {AuthStack} from './auth.navigator';
+import {CompanyInfoStack} from './companyInfo.navigator';
 import style from '@/screens/Inventory/style';
 
 const navigatorTheme = {
@@ -22,7 +23,8 @@ const AppNavigator = (props: any): React.ReactElement => {
       {
         <NavigationContainer theme={navigatorTheme}>
           {/* {!token ? <AuthStack /> : <HomeNavigator />} */}
-          <AuthStack />
+          {/* <AuthStack /> */}
+          <CompanyInfoStack />
         </NavigationContainer>
       }
     </SafeAreaView>

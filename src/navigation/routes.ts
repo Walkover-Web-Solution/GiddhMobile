@@ -11,4 +11,6 @@ export default {
   Transaction: 'transaction',
   BigButton: 'bigButton',
   Welcome: 'Welcome',
+  CompanyInfoOne: 'CompanyInfoOne',
+  CompanyInfoTwo: 'CompanyInfoTwo',
 };
