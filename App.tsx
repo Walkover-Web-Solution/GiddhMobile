@@ -7,12 +7,16 @@ import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import AppNavigator from '@/navigation/app.navigator';
 import {Provider} from 'react-redux';
-import {store} from '@/core/store';
+// import {store} from '@/core/store';
 import '@/utils/i18n';
 import AsyncStorage from '@react-native-community/async-storage';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {DeviceEventEmitter, EmitterSubscription} from 'react-native';
 import { default as mapping } from './mappings.json';
+import { PersistGate } from 'redux-persist/integration/react'
+
+import configureStore from './src/redux/store';
+const {store, persistor} = configureStore();
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -48,10 +52,12 @@ export default class App extends React.Component<any> {
   }
 
   render() {
+
     return (
       <SafeAreaProvider>
         <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
+        <PersistGate loading={null} persistor={persistor}>
           <AppearanceProvider>
             <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
               <SafeAreaProvider>
@@ -59,8 +65,11 @@ export default class App extends React.Component<any> {
               </SafeAreaProvider>
             </ApplicationProvider>
           </AppearanceProvider>
+          </PersistGate>
         </Provider>
       </SafeAreaProvider>
     );
   }
+
+  
 }

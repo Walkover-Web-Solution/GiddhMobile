@@ -40,7 +40,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
   };
 };
 

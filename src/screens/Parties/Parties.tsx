@@ -110,7 +110,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
 const mapStateToProps = (state: RootState) => {
   return {
-    activeCompany: state.company.activeCompany,
+    activeCompany: 'state.company.activeCompany',
   };
 };
 export default connect(mapStateToProps)(PartiesScreen);

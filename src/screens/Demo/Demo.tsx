@@ -33,9 +33,9 @@ export class DemoScreen extends React.Component<Props, {}> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
-    countries: state.common.countries,
-    isCountriesLoading: state.common.isCountriesLoading,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    // countries: state.common.countries,
+    // isCountriesLoading: state.common.isCountriesLoading,
   };
 };
 
