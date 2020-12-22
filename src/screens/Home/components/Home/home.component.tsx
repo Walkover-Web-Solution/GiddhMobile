@@ -39,10 +39,10 @@ const BadgeTabs: BadgeTab[] = [
     label: 'Transactions',
     isActive: false,
   },
-  // {
-  //   label: 'Inventory',
-  //   isActive: false,
-  // },
+  {
+    label: 'Inventory',
+    isActive: false,
+  },
 ];
 
 class HomeComponent extends React.Component<HomeComponentProp, HomeComponentState> {
@@ -53,6 +53,7 @@ class HomeComponent extends React.Component<HomeComponentProp, HomeComponentStat
   }
 
   renderElement() {
+    // return <Inventory />;
     //You can add N number of Views here in if-else condition
     if (this.state.val === 0) {
       //Return the FirstScreen as a child to set in Parent View
@@ -98,10 +99,10 @@ class HomeComponent extends React.Component<HomeComponentProp, HomeComponentStat
           </View>
           <View
             style={{
-              // marginLeft: 15,
-              // marginRight: 15,
-              marginLeft: 70,
-              marginRight: 70,
+              marginLeft: 15,
+              marginRight: 15,
+              // marginLeft: 70,
+              // marginRight: 70,
               marginTop: 10,
               display: 'flex',
               justifyContent: 'space-around',

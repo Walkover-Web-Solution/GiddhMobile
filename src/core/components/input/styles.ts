@@ -38,7 +38,6 @@ export default StyleSheet.create({
   },
   iconBox: {
     backgroundColor: '#fefefe',
-    flexGrow: 0.03,
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
     marginRight: 10,

@@ -13,17 +13,16 @@ export default StyleSheet.create({
   },
   loginContainer: {
     flex: 1,
-    display: 'flex',
+
     paddingHorizontal: 30,
-    alignContent: 'space-around',
-    paddingVertical: 50,
+
+    paddingBottom: 50,
   },
   socialLoginContainer: {
     flexDirection: 'column',
-    display: 'flex',
     paddingVertical: 10,
     justifyContent: 'center',
-    flex: 1.2,
+    // flex: 1.2,
   },
 
   logoStyle: {
@@ -34,13 +33,12 @@ export default StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
-    display: 'flex',
   },
   loginTextStyle: {
     fontSize: 26,
     fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
     fontWeight: 'bold',
-    marginBottom: 30,
+    // marginBottom: 30,
     color: colors.TEXT_HEADING,
   },
   gmailButton: {
@@ -59,7 +57,6 @@ export default StyleSheet.create({
   seperator: {
     flexDirection: 'row',
     alignItems: 'center',
-    display: 'flex',
   },
   horizontalRule: {
     borderBottomColor: colors.INPUT_COLOR,
@@ -71,8 +68,6 @@ export default StyleSheet.create({
   },
 
   loginFormContainer: {
-    flex: 2,
-    display: 'flex',
     justifyContent: 'center',
   },
 
@@ -103,9 +98,8 @@ export default StyleSheet.create({
     color: colors.TEXT_NORMAL,
   },
   troubleLoginContainer: {
-    display: 'flex',
     justifyContent: 'center',
-    paddingTop: 20,
+    marginTop: 80,
   },
   bottomTextStyle: {
     marginBottom: 5,

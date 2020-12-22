@@ -7,6 +7,7 @@ import {BigButton} from '@/core/components/big-button/big-button.component';
 import {InventoryScreen} from '@/screens/Inventory/Inventory';
 import {PartiesScreen} from '@/screens/Parties/Parties';
 import {MoreScreen} from '@/screens/More/More';
+import MoreStack from './more.navigator';
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -36,8 +37,6 @@ export const HomeNavigator = () => (
     <Screen name={Routes.Home} component={HomeScreen} />
     {/* <Screen name={Routes.Parties} component={PartiesScreen} /> */}
     {/* <Screen name={Routes.Add} component={HomeScreen} /> */}
-    <Screen name={Routes.More} component={MoreScreen} />
-
-    
+    <Screen name={Routes.More} component={MoreStack} />
   </Navigator>
 );

@@ -2,7 +2,6 @@ import {AuthState} from '@/core/store/auth/index';
 import {LoginResponse} from '@/models/interfaces/login';
 
 export const authReducer = {
-  
   login(state: AuthState, payload: boolean): AuthState {
     return {
       ...state,

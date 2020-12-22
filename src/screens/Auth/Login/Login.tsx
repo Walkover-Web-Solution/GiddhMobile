@@ -3,7 +3,8 @@ import {Text} from '@ui-kitten/components';
 import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {Image, View} from 'react-native';
+
+import {Image, View, TouchableOpacity, Keyboard} from 'react-native';
 import {GDButton} from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
@@ -18,11 +19,13 @@ import {WEBCLIENT_ID} from '@/env.json';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
 import {googleLogin} from './LoginAction'
+
 class Login extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
       showLoader: false,
+      keyboard: false,
     };
   }
 
@@ -31,6 +34,13 @@ class Login extends React.Component<any, any> {
     GoogleSignin.configure({
       webClientId: `${WEBCLIENT_ID}`,
     });
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+  }
+  
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
   }
 
   _googleSignIn = async () => {
@@ -40,12 +50,9 @@ class Login extends React.Component<any, any> {
         showPlayServicesUpdateDialog: true,
       });
       await GoogleSignin.signIn();
-      debugger
       this.setState({showLoader: true});
       const getGoogleToken = await GoogleSignin.getTokens();
       const userInfo = await GoogleSignin.getCurrentUser();
-      
-      debugger
       this.props.googleLogin(getGoogleToken.accessToken, userInfo.user.email);
     } catch (error) {
       this.setState({showLoader: false});
@@ -72,6 +79,14 @@ class Login extends React.Component<any, any> {
     }
   };
 
+  _keyboardDidShow = () => {
+    this.setState({keyboard: true});
+  };
+
+  _keyboardDidHide = () => {
+    this.setState({keyboard: false});
+  };
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -84,66 +99,55 @@ class Login extends React.Component<any, any> {
       );
     } else {
       return (
-        <GDContainer>
-          <View style={style.backgroundContainer}>
-            <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
+        <View style={style.loginContainer}>
+          <View style={[style.socialLoginContainer, {marginTop: this.state.keyboard ? 10 : 50}]}>
+            <View style={style.titleContainer}>
+              <Text style={style.loginTextStyle}>Login to </Text>
+              <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
+            </View>
 
-            <View style={style.loginContainer}>
-              <View style={style.socialLoginContainer}>
-                <View style={style.titleContainer}>
-                  <Text style={style.loginTextStyle}>Loagin to </Text>
-                  <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
-                </View>
+            <LoginButton
+              size={ButtonSize.medium}
+              label={'Sign in with Google'}
+              style={[style.gmailButton, {marginTop: this.state.keyboard ? 15 : 30}]}
+              onPress={this._googleSignIn}
+              icon="gmail"
+            />
 
-                <LoginButton
-                  size={ButtonSize.small}
-                  label={'Sign in with Google'}
-                  style={style.gmailButton}
-                  onPress={this._googleSignIn}
-                  icon="gmail"
-                />
+            <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" />
+          </View>
 
-                <LoginButton
-                  size={ButtonSize.medium}
-                  label={'Sign in with apple'}
-                  style={style.appleButton}
-                  icon="apple"
-                />
-              </View>
+          <View style={style.seperator}>
+            <Text style={style.forgotStyle}>or</Text>
+            <View style={style.horizontalRule} />
+          </View>
 
-              <View style={style.seperator}>
-                <Text style={style.forgotStyle}>or</Text>
-                <View style={style.horizontalRule} />
-              </View>
+          <View style={[style.loginFormContainer, {marginTop: this.state.keyboard ? 10 : 30}]}>
+            <View>
+              <Text style={style.registerStyle}>Registered Email ID</Text>
+            </View>
 
-              <View style={style.loginFormContainer}>
-                <View>
-                  <Text style={style.registerStyle}>Registered Email ID</Text>
-                </View>
+            <View style={style.formInput}>
+              <GDRoundedInput icon="email" label="Company Name" value="" placeholder="sampleaddress@mail.com" />
+              <GDRoundedInput icon="lock" label="Company Name" value="" placeholder="********" />
+            </View>
 
-                <View style={style.formInput}>
-                  <GDRoundedInput icon="email" label="Company Name" value="" placeholder="sampleaddress@mail.com" />
-                  <GDRoundedInput icon="lock" label="Company Name" value="" placeholder="********" />
-                  {/*<Input style={style.formInput} secureTextEntry={true} />*/}
-                </View>
-
-                <View style={style.loginButtonContainer}>
-                  <GDButton size={ButtonSize.medium} style={style.loginButtonStyle} label={'Login'} />
-                  <Text style={style.forgotStyle}>Forgot password?</Text>
-                </View>
-              </View>
-
-              <View style={style.troubleLoginContainer}>
-                <View style={style.seperator}>
-                  <Text style={style.bottomTextStyle}>Trouble logging in?</Text>
-                  <Text style={style.bottomTextStyleLink}>Click here</Text>
-                </View>
-                <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text>
-                <Text style={style.bottomTextStyleLink}>Create a new account</Text>
-              </View>
+            <View style={style.loginButtonContainer}>
+              <GDButton size={ButtonSize.medium} style={style.loginButtonStyle} label={'Login'} />
+              <TouchableOpacity onPress={() => this.props.navigation.navigate('Password')}>
+                <Text style={style.forgotStyle}>Forgot password?</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </GDContainer>
+          <View style={style.troubleLoginContainer}>
+            <View style={style.seperator}>
+              <Text style={style.bottomTextStyle}>Trouble logging in?</Text>
+              <Text style={style.bottomTextStyleLink}>Click here</Text>
+            </View>
+            <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text>
+            <Text style={style.bottomTextStyleLink}>Create a new account</Text>
+          </View>
+        </View>
       );
     }
   }
@@ -163,5 +167,13 @@ function mapDispatchToProps(dispatch) {
       }
     };
   }
+
+
+// const mapDispatchToProps = (dispatch: Dispatch) => {
+//   return {
+//     login: dispatch.auth.loginAction,
+//     googleLogin: dispatch.auth.googleLoginAction,
+//   };
+// };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

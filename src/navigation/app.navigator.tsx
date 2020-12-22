@@ -5,9 +5,10 @@ import {HomeNavigator} from '@/navigation/home.navigator';
 import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {AuthStack} from './auth.navigator';
-import style from '@/screens/Inventory/style';
 import configureStore from '../redux/store';
 const {store, persistor} = configureStore();
+import {CompanyInfoStack} from './companyInfo.navigator';
+import style from '@/screens/Inventory/style';
 
 const navigatorTheme = {
   ...DefaultTheme,
