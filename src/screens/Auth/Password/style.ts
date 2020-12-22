@@ -1,6 +1,8 @@
-import {StyleSheet, Platform} from 'react-native';
+import {StyleSheet, Dimensions, Platform} from 'react-native';
 import colors from '@/utils/colors';
 import {GD_FONT_SIZE} from '@/utils/constants';
+
+const {width, height} = Dimensions.get('window');
 
 export default StyleSheet.create({
   backgroundContainer: {
@@ -20,7 +22,13 @@ export default StyleSheet.create({
     justifyContent: 'center',
     flex: 1.8,
   },
-
+  upperContainer: {
+    backgroundColor: '#e0e0e0',
+    width: width,
+    height: height * 0.1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   logoStyle: {
     resizeMode: 'contain',
     height: 16,

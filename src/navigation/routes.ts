@@ -1,6 +1,8 @@
 export default {
   Home: 'home',
   Login: 'login',
+  Password: 'Password',
+  Otp: 'Otp',
   Dashboard: 'dashboard',
   Inventory: 'inventory',
   Add: 'add',
@@ -8,5 +10,7 @@ export default {
   More: 'more',
   Transaction: 'transaction',
   BigButton: 'bigButton',
-  
+  Welcome: 'Welcome',
+  CompanyInfoOne: 'CompanyInfoOne',
+  CompanyInfoTwo: 'CompanyInfoTwo',
 };

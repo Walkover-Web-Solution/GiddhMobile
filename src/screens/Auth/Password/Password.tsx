@@ -62,11 +62,10 @@ class Login extends React.Component<any, any> {
   render() {
     return (
       <GDContainer>
-        <View>
-          <Image style={style.logoStyle} source={GdImages.icons.logoGiddh} />
-        </View>
         <View style={style.backgroundContainer}>
-          <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
+          <View style={style.upperContainer}>
+            <Image style={style.logoStyle} source={GdImages.icons.logoGiddh} />
+          </View>
 
           <View style={style.loginContainer}>
             <View style={style.loginFormContainer}>
@@ -82,7 +81,12 @@ class Login extends React.Component<any, any> {
               </View>
 
               <View style={style.loginButtonContainer}>
-                <GDButton size={ButtonSize.medium} style={style.requestButtonStyle} label={'Request'} />
+                <GDButton
+                  size={ButtonSize.medium}
+                  style={style.requestButtonStyle}
+                  label={'Request'}
+                  onPress={() => this.props.navigation.navigate('Otp')}
+                />
                 <Text style={style.loginStyle}>Back to Login</Text>
               </View>
             </View>
