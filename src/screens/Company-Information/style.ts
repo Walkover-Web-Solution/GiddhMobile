@@ -19,7 +19,13 @@ export default StyleSheet.create({
     bottom: 10,
     alignSelf: 'center',
   },
-  buttonContainer: {flexDirection: 'row', position: 'absolute', bottom: 10, alignSelf: 'center'},
+  buttonContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    top: height * 0.89,
+    height: height * 0.1,
+    alignSelf: 'center',
+  },
   buttonTwo: {
     height: 50,
     width: '50%',

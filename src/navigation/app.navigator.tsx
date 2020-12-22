@@ -22,9 +22,9 @@ const AppNavigator = (props: any): React.ReactElement => {
     <SafeAreaView style={{flex: 1}}>
       {
         <NavigationContainer theme={navigatorTheme}>
-          {/* {!token ? <AuthStack /> : <HomeNavigator />} */}
+          {!token ? <AuthStack /> : <HomeNavigator />}
           {/* <AuthStack /> */}
-          <CompanyInfoStack />
+          {/* <CompanyInfoStack /> */}
         </NavigationContainer>
       }
     </SafeAreaView>

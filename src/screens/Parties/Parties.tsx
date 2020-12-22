@@ -35,6 +35,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   componentDidMount() {
     //get parties data
+
     this.getPartiesSundryDebtors();
     this.getPartiesSundryCreditors();
   }
@@ -84,7 +85,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   private async getPartiesSundryDebtors() {
     try {
       const parties = await CommonService.getPartiesSundryDebtors();
-
+      // console.log('debtors are', parties);
       this.setState({
         partiesDebtData: parties.body,
       });
@@ -96,6 +97,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   private async getPartiesSundryCreditors() {
     try {
       const parties = await CommonService.getPartiesSundryCreditors();
+      // console.log('creditors are', parties);
       this.setState({
         partiesCredData: parties.body,
       });

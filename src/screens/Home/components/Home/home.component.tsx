@@ -110,7 +110,12 @@ class HomeComponent extends React.Component<HomeComponentProp, HomeComponentStat
               marginBottom: 15,
             }}>
             {this.state.badgeTabs.map((tab: BadgeTab, index: number) => (
-              <BadgeButton label={tab.label} onPress={() => this.selectedTab(tab, index)} isActive={tab.isActive} />
+              <BadgeButton
+                label={tab.label}
+                key={tab.label}
+                onPress={() => this.selectedTab(tab, index)}
+                isActive={tab.isActive}
+              />
             ))}
           </View>
           <ScrollView>

@@ -15,6 +15,7 @@ import {DeviceEventEmitter, EmitterSubscription} from 'react-native';
 import {default as mapping} from './mappings.json';
 import CompanyInfoOne from '@/screens/Company-Information/CompanyInfo-One';
 import CompanyInfoTwo from '@/screens/Company-Information/CompanyInfo-Two';
+import Invoice from '@/screens/Invoices/Invoice';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -57,7 +58,7 @@ export default class App extends React.Component<any> {
             <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
               <SafeAreaProvider>
                 <AppNavigator />
-                {/* <CompanyInfoOne /> */}
+                {/* <Invoice /> */}
               </SafeAreaProvider>
             </ApplicationProvider>
           </AppearanceProvider>
