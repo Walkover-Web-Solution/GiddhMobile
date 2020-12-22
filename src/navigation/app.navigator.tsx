@@ -6,6 +6,8 @@ import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {AuthStack} from './auth.navigator';
 import style from '@/screens/Inventory/style';
+import configureStore from '../redux/store';
+const {store, persistor} = configureStore();
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -24,7 +26,7 @@ const AppNavigator = (props: any): React.ReactElement => {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    token: state.auth.token,
+    token: state.LoginReducer.token,
   };
 };
 

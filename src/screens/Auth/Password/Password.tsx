@@ -95,7 +95,7 @@ class Login extends React.Component<any, any> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
   };
 };
 

@@ -17,7 +17,7 @@ import {GdImages} from '@/utils/icons-pack';
 import {WEBCLIENT_ID} from '@/env.json';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
-
+import {googleLogin} from './LoginAction'
 class Login extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -46,7 +46,7 @@ class Login extends React.Component<any, any> {
       const userInfo = await GoogleSignin.getCurrentUser();
       
       debugger
-      this.props.googleLogin({token: getGoogleToken.accessToken, email: userInfo.user.email});
+      this.props.googleLogin(getGoogleToken.accessToken, userInfo.user.email);
     } catch (error) {
       this.setState({showLoader: false});
       console.log('Message', error.message);
@@ -151,15 +151,17 @@ class Login extends React.Component<any, any> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    login: dispatch.auth.loginAction,
-    googleLogin: dispatch.auth.googleLoginAction,
-  };
-};
+
+function mapDispatchToProps(dispatch) {
+    return {
+      googleLogin: (token, email) => {
+        dispatch(googleLogin(token, email));
+      }
+    };
+  }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
