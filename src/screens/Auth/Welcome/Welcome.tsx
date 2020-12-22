@@ -130,14 +130,14 @@ class Welcome extends React.Component<any, any> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    login: dispatch.auth.loginAction,
-    googleLogin: dispatch.auth.googleLoginAction,
+    // login: dispatch.auth.loginAction,
+    // googleLogin: dispatch.auth.googleLoginAction,
   };
 };
 
