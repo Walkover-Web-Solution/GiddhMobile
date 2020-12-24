@@ -5,6 +5,8 @@ import {HomeNavigator} from '@/navigation/home.navigator';
 import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {AuthStack} from './auth.navigator';
+import configureStore from '../redux/store';
+const {store, persistor} = configureStore();
 import {CompanyInfoStack} from './companyInfo.navigator';
 import style from '@/screens/Inventory/style';
 
@@ -20,20 +22,14 @@ const AppNavigator = (props: any): React.ReactElement => {
   const {token} = props;
   return (
     <SafeAreaView style={{flex: 1}}>
-      {
-        <NavigationContainer theme={navigatorTheme}>
-          {!token ? <AuthStack /> : <HomeNavigator />}
-          {/* <AuthStack /> */}
-          {/* <CompanyInfoStack /> */}
-        </NavigationContainer>
-      }
+      {<NavigationContainer theme={navigatorTheme}>{!token ? <AuthStack /> : <HomeNavigator />}</NavigationContainer>}
     </SafeAreaView>
   );
 };
 
 const mapStateToProps = (state: RootState) => {
   return {
-    token: state.auth.token,
+    token: state.LoginReducer.token,
   };
 };
 

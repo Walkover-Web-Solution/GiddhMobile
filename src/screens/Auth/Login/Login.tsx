@@ -3,6 +3,7 @@ import {Text} from '@ui-kitten/components';
 import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
+
 import {Image, View, TouchableOpacity, Keyboard} from 'react-native';
 import {GDButton} from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
@@ -17,6 +18,7 @@ import {GdImages} from '@/utils/icons-pack';
 import {WEBCLIENT_ID} from '@/env.json';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
+import {googleLogin} from './LoginAction'
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -35,6 +37,7 @@ class Login extends React.Component<any, any> {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
+  
   componentWillUnmount() {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
@@ -47,13 +50,10 @@ class Login extends React.Component<any, any> {
         showPlayServicesUpdateDialog: true,
       });
       await GoogleSignin.signIn();
-      debugger;
       this.setState({showLoader: true});
       const getGoogleToken = await GoogleSignin.getTokens();
       const userInfo = await GoogleSignin.getCurrentUser();
-
-      debugger;
-      this.props.googleLogin({token: getGoogleToken.accessToken, email: userInfo.user.email});
+      this.props.googleLogin(getGoogleToken.accessToken, userInfo.user.email);
     } catch (error) {
       this.setState({showLoader: false});
       console.log('Message', error.message);
@@ -155,15 +155,25 @@ class Login extends React.Component<any, any> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    login: dispatch.auth.loginAction,
-    googleLogin: dispatch.auth.googleLoginAction,
-  };
-};
+
+function mapDispatchToProps(dispatch) {
+    return {
+      googleLogin: (token, email) => {
+        dispatch(googleLogin(token, email));
+      }
+    };
+  }
+
+
+// const mapDispatchToProps = (dispatch: Dispatch) => {
+//   return {
+//     login: dispatch.auth.loginAction,
+//     googleLogin: dispatch.auth.googleLoginAction,
+//   };
+// };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
