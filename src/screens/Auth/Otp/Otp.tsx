@@ -67,7 +67,7 @@ const styles = StyleSheet.create({});
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
   };
 };
 

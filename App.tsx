@@ -7,15 +7,17 @@ import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import AppNavigator from '@/navigation/app.navigator';
 import {Provider} from 'react-redux';
-import {store} from '@/core/store';
+// import {store} from '@/core/store';
 import '@/utils/i18n';
 import AsyncStorage from '@react-native-community/async-storage';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {DeviceEventEmitter, EmitterSubscription} from 'react-native';
 import {default as mapping} from './mappings.json';
-import CompanyInfoOne from '@/screens/Company-Information/CompanyInfo-One';
-import CompanyInfoTwo from '@/screens/Company-Information/CompanyInfo-Two';
+import {PersistGate} from 'redux-persist/integration/react';
+
+import configureStore from './src/redux/store';
 import Invoice from '@/screens/Invoices/Invoice';
+const {store, persistor} = configureStore();
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -30,10 +32,10 @@ export default class App extends React.Component<any> {
     // check if token is present, means user is logged in
     if (token) {
       // get user's state details actions
-      await store.dispatch.common.getStateDetailsAction();
+      // await store.dispatch.common.getStateDetailsAction();
       // get active company details
-      await store.dispatch.company.getCompanyDetailsAction();
-      await store.dispatch.company.getCompanyListAndBranchAction();
+      // await store.dispatch.company.getCompanyDetailsAction();
+      // await store.dispatch.company.getCompanyListAndBranchAction();
     }
 
     // listen for invalid auth token event
@@ -54,14 +56,16 @@ export default class App extends React.Component<any> {
       <SafeAreaProvider>
         <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
-          <AppearanceProvider>
-            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
-              <SafeAreaProvider>
-                <AppNavigator />
-                {/* <Invoice /> */}
-              </SafeAreaProvider>
-            </ApplicationProvider>
-          </AppearanceProvider>
+          <PersistGate loading={null} persistor={persistor}>
+            <AppearanceProvider>
+              <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
+                <SafeAreaProvider>
+                  <AppNavigator />
+                  {/* <Invoice /> */}
+                </SafeAreaProvider>
+              </ApplicationProvider>
+            </AppearanceProvider>
+          </PersistGate>
         </Provider>
       </SafeAreaProvider>
     );

@@ -27,7 +27,7 @@ export default StyleSheet.create({
   },
   labelStyle: {
     color: colors.LABEL_COLOR,
-    fontSize: GD_FONT_SIZE.large,
+    fontSize: GD_FONT_SIZE.normal,
   },
   labelStyleSmall: {
     fontSize: GD_FONT_SIZE.small,
@@ -37,6 +37,7 @@ export default StyleSheet.create({
     paddingLeft: 1,
   },
   iconBox: {
+    backgroundColor: '#fefefe',
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
     marginRight: 10,
