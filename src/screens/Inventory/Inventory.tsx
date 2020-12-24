@@ -46,8 +46,8 @@ const mapStateToProps = (state: RootState) => {
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    getCountriesAction: dispatch.common.getCountriesAction,
-    logoutAction: dispatch.auth.logoutAction,
+    // getCountriesAction: dispatch.common.getCountriesAction,
+    // logoutAction: dispatch.auth.logoutAction,
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(InventoryScreen);

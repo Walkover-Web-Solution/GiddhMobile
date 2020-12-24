@@ -18,7 +18,7 @@ import {GdImages} from '@/utils/icons-pack';
 import {WEBCLIENT_ID} from '@/env.json';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
-import {googleLogin} from './LoginAction'
+import {googleLogin} from './LoginAction';
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -37,7 +37,7 @@ class Login extends React.Component<any, any> {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
-  
+
   componentWillUnmount() {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
@@ -159,15 +159,13 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-
 function mapDispatchToProps(dispatch) {
-    return {
-      googleLogin: (token, email) => {
-        dispatch(googleLogin(token, email));
-      }
-    };
-  }
-
+  return {
+    googleLogin: (token, email) => {
+      dispatch(googleLogin(token, email));
+    },
+  };
+}
 
 // const mapDispatchToProps = (dispatch: Dispatch) => {
 //   return {

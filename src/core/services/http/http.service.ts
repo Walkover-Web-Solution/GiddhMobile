@@ -9,7 +9,7 @@ const httpInstance = axios.create({
   timeout: HTTP_REQUEST_TIME_OUT,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   },
 });
 
@@ -28,14 +28,14 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
       ...headers,
       'session-id': token,
     };
-    
+
     // get active company from storage
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     if (activeCompany) {
       // replace company uniqueName in url with active company from storage
-        reqConfig.url = reqConfig.url?.replace(':companyUniqueName', activeCompany);
+      reqConfig.url = reqConfig.url?.replace(':companyUniqueName', activeCompany);
     }
-    if(reqConfig.url.includes(':companyEmail')){
+    if (reqConfig.url.includes(':companyEmail')) {
       const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
       reqConfig.url = reqConfig.url?.replace(':companyEmail', activeEmail);
     }
@@ -49,7 +49,7 @@ httpInstance.interceptors.response.use(
   (error) => {
     if (error.response.status === 401) {
       // emit invalid auth token event and do logout
-      DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {  });
+      DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
     }
     return Promise.reject(error.response);
   },
