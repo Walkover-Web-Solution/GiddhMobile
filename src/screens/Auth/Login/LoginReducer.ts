@@ -5,19 +5,20 @@ import { REHYDRATE } from 'redux-persist';
 const initialState = {
     isAuthenticatingUser: false,
     error: undefined, 
-    token: undefined
+    token: undefined,
+    isUserAuthenticated: false
 }
 
 export default (state = initialState, action: Action) => {
 
     switch (action.type) {
         case REHYDRATE:
-            if (action.payload && action.payload.commonReducer) {
-                const commonReducer = action.payload.commonReducer;
+            if (action.payload && action.payload.LoginReducer) {
+                const LoginReducer = action.payload.LoginReducer;
 
                 return {
                     ...state,
-                    ...commonReducer,
+                    ...LoginReducer,
                     isAuthenticatingUser: false,
                     // Ensure isConnecting is reset to false on app restart
                 };
@@ -36,13 +37,15 @@ export default (state = initialState, action: Action) => {
                 ...state,
                 isAuthenticatingUser: false,
                 error: '',
-                token: action.payload.token
+                token: action.payload.token,
+                isUserAuthenticated: true
             };
         case ActionConstants.GOOGLE_USER_LOGIN_FAILURE:
             return {
                 ...state,
                 isAuthenticatingUser: false,
-                error: action.payload
+                error: action.payload,
+                isUserAuthenticated: false
             };
         default: return state;
     }

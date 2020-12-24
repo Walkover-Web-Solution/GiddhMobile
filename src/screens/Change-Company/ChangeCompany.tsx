@@ -3,7 +3,7 @@ import {GDContainer} from '@/core/components/container/container.component';
 import {View, Text, TouchableOpacity, FlatList} from 'react-native';
 import style from './style';
 import {GdSVGIcons, GdIconsPack} from '@/utils/icons-pack';
-
+import {connect} from 'react-redux'
 interface Props {
   navigation: any;
 }
@@ -45,14 +45,14 @@ export class ChangeCompany extends React.Component<Props> {
         <View style={style.container}>
           <Text style={{fontSize: 20, fontWeight: 'bold', margin: 20}}>Switch Company</Text>
           <FlatList
-            data={this.listData}
+            data={this.props.comapnyList}
             showsVerticalScrollIndicator={false}
             renderItem={({item}) => (
               <TouchableOpacity style={style.listItem} delayPressIn={0}>
-                <Text style={style.listItemName}>{item.item_name}</Text>
+                <Text style={style.listItemName}>{item.name}</Text>
               </TouchableOpacity>
             )}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.name}
           />
           <TouchableOpacity
             style={{
@@ -71,4 +71,18 @@ export class ChangeCompany extends React.Component<Props> {
   }
 }
 
-export default ChangeCompany;
+function mapStateToProps(state) {
+  const { commonReducer } = state;
+  return {
+    ...commonReducer,
+  };
+
+}
+function mapDispatchToProps(dispatch) {
+  return {
+   
+  };
+}
+
+const MyComponent = connect(mapStateToProps, mapDispatchToProps)(ChangeCompany);
+export default MyComponent

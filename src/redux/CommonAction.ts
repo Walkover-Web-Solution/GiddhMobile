@@ -1,13 +1,22 @@
 import * as Actions from './ActionConstants';
-import { Action } from '../util/types';
 
 
-export function loginUser(username, password): Action {
+export function getCompanyAndBranches() {
   return {
-    type: Actions.USER_LOGIN,
+    type: Actions.GET_COMPANY_BRANCH_LIST,
     payload: {
-      username: username,
-      password: password
-    }
+        }
+  }
+}
+
+export function getCompanyAndBranchesFailure() {
+  return {
+    type: Actions.GET_COMPANY_BRANCH_LIST_FAILURE
+  }
+}
+export function getCompanyAndBranchesSuccess(payload) {
+  return {
+    type: Actions.GET_COMPANY_BRANCH_LIST_SUCCESS,
+    payload: payload
   }
 }

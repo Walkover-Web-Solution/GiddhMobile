@@ -19,15 +19,15 @@ const navigatorTheme = {
 };
 
 const AppNavigator = (props: any): React.ReactElement => {
-  const {token} = props;
+  const {isUserAuthenticated} = props;
   return <SafeAreaView style={{flex:1}}>
-{      <NavigationContainer theme={navigatorTheme}>{!token ? <AuthStack /> : <HomeNavigator />}</NavigationContainer>}
+{      <NavigationContainer theme={navigatorTheme}>{!isUserAuthenticated ? <AuthStack /> : <HomeNavigator />}</NavigationContainer>}
   </SafeAreaView>
 };
 
 const mapStateToProps = (state: RootState) => {
   return {
-    token: state.LoginReducer.token,
+    isUserAuthenticated: state.LoginReducer.isUserAuthenticated,
   };
 };
 
