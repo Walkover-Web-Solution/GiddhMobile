@@ -40,6 +40,7 @@ companyShortText:{
   textAlign: 'center',
   fontSize: 11,
   fontFamily: Platform.OS === 'ios' ? 'OpelSans-Bold' : 'Opel-Sans-Bold',
+  textTransform: 'uppercase'
 },
 companyShortView:{
   backgroundColor:colors.SECONDARY,

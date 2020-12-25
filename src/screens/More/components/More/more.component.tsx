@@ -10,6 +10,10 @@ import OtherList from '@/screens/More/components/More/other-list.component';
 import {BadgeTab} from '@/models/interfaces/badge-tabs';
 import style from './style';
 import {GdSVGIcons} from '@/utils/icons-pack';
+import _ from 'lodash';
+import { company } from '../../../../core/store/company/index';
+import AsyncStorage from '@react-native-community/async-storage';
+import {STORAGE_KEYS} from '@/utils/constants';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -18,6 +22,7 @@ type MoreComponentProp = WithTranslation &
     getCountriesAction: Function;
     logoutAction: Function;
     navigation: any;
+    companyList: any
   };
 
 type MoreComponentState = {
@@ -27,8 +32,14 @@ type MoreComponentState = {
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
   constructor(props: MoreComponentProp) {
     super(props);
+    this.state = {
+      activeCompany: ''
+    }
   }
-
+  
+  componentDidMount() {
+    this._getActiveCompany();
+  }
   changeLanguage = () => {
     this.props.i18n.changeLanguage('hi');
   };
@@ -41,7 +52,18 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     tab.isActive = !tab.isActive;
     this.state.badgeTabs[index] = tab;
     this.setState({badgeTabs: this.state.badgeTabs});
-  };
+  }
+
+  async _getActiveCompany() {
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+    debugger
+    var result = _.find(this.props.companyList, function(item) {
+      return item.uniqueName == activeCompany;
+    });
+    if (result){
+      this.setState({activeCompany: result})
+    }
+  }
 
   render() {
     const {navigation} = this.props;
@@ -49,10 +71,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       <ScrollView>
         <View style={style.companyView}>
           <View style={style.companyShortView}>
-            <Text style={style.companyShortText}>WW</Text>
+            <Text style={style.companyShortText}>{this.state.activeCompany ? this.state.activeCompany.name.split(" ").map((n)=>n[0]).join("") : ''}</Text>
           </View>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
-            <Text style={style.companyNameText}>Walkover Web Solutions</Text>
+            <Text style={style.companyNameText}>{this.state.activeCompany ? this.state.activeCompany.name : ''}</Text>
             <TouchableOpacity delayPressIn={0} onPress={() => navigation.navigate('ChangeCompany')}>
               <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} />
             </TouchableOpacity>
