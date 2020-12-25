@@ -14,7 +14,7 @@ import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {DeviceEventEmitter, EmitterSubscription} from 'react-native';
 import {default as mapping} from './mappings.json';
 import {PersistGate} from 'redux-persist/integration/react';
-
+import BaseContainer from './src/BaseContainer/BaseContainer';
 import configureStore from './src/redux/store';
 import Invoice from '@/screens/Invoices/Invoice';
 const {store, persistor} = configureStore();
@@ -41,7 +41,7 @@ export default class App extends React.Component<any> {
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken, () => {
       // fire logout action
-      store.dispatch.auth.logout();
+      // store.dispatch.auth.logout();
     });
   }
 
@@ -60,7 +60,7 @@ export default class App extends React.Component<any> {
             <AppearanceProvider>
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
-                  <AppNavigator />
+                  <BaseContainer />
                   {/* <Invoice /> */}
                 </SafeAreaProvider>
               </ApplicationProvider>

@@ -27,6 +27,9 @@ export class MoreScreen extends React.Component<Props, {}> {
           getCountriesAction={this.props.getCountriesAction}
           isCountriesLoading={this.props.isCountriesLoading}
           logoutAction={this.props.logoutAction}
+          companyList = {this.props.comapnyList}
+          branchList = {this.props.branchList}
+
         />
       </GDContainer>
     );
@@ -34,8 +37,11 @@ export class MoreScreen extends React.Component<Props, {}> {
 }
 
 const mapStateToProps = (state: RootState) => {
+  const { commonReducer, LoginReducer } = state;
+
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    ...commonReducer
     // countries: state.common.countries,
     // isCountriesLoading: state.common.isCountriesLoading,
   };

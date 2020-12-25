@@ -13,7 +13,7 @@ const {height, width} = Dimensions.get('window');
 
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
-    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     console.log(activeCompany);
   };
   render() {

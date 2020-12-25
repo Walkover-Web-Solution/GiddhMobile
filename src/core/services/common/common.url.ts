@@ -8,7 +8,7 @@ export const commonUrls = {
   ),
   customer_vendor_report_sundry_creditors: createEndpoint(
     'v2/company/:companyUniqueName/groups/sundrycreditors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=false',
-  )
+  ),
   // customer_: createEndpoint(
   //   'v2/companies/:companyUniqueName/groups/sundrycreditors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=false',
   // ),

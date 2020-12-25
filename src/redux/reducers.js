@@ -8,7 +8,6 @@ import {auth} from '@/core/store/auth';
 import {common} from '@/core/store/common';
 import persistPlugin from '@rematch/persist';
 import AsyncStorage from '@react-native-community/async-storage';
-import {company} from '@/core/store/company';
 
 
 export default combineReducers ({
