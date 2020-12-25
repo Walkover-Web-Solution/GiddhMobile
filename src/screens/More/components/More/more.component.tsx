@@ -14,6 +14,7 @@ import _ from 'lodash';
 import { company } from '../../../../core/store/company/index';
 import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -76,6 +77,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
             <Text style={style.companyNameText}>{this.state.activeCompany ? this.state.activeCompany.name : ''}</Text>
             <TouchableOpacity delayPressIn={0} onPress={() => navigation.navigate('ChangeCompany')}>
+              <Icon name={'apple'} size ={30} color={'red'}/>
               <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} />
             </TouchableOpacity>
           </View>
