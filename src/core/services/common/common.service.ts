@@ -21,9 +21,9 @@ export class CommonService {
    * @returns {Promise<BaseResponse<UserStateDetails[]>>}
    */
   static getStateDetails(): Promise<BaseResponse<UserStateDetails>> {
-      return httpInstance.get(commonUrls.stateDetails).then((res) => {
-        return res.data;
-      });
+    return httpInstance.get(commonUrls.stateDetails).then((res) => {
+      return res.data;
+    });
   }
 
   /**
@@ -31,9 +31,9 @@ export class CommonService {
    * @returns {Promise<BaseResponse<Country[]>>}
    */
   static getPartiesSundryCreditors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
-      return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
-        return res.data;
-      });
+    return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
+      return res.data;
+    });
   }
 
   /**
@@ -42,6 +42,11 @@ export class CommonService {
    */
   static getPartiesSundryDebtors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_debtors, {}).then((res) => {
+      return res.data;
+    });
+  }
+  static getTransactions() {
+    return httpInstance.post(commonUrls.customer_transactions, {}).then((res) => {
       return res.data;
     });
   }

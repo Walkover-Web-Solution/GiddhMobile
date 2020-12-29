@@ -13,6 +13,10 @@ const {height, width} = Dimensions.get('window');
 
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
+    console.log(activeCompany);
+  };
+  func2 = async () => {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     console.log(activeCompany);
   };
@@ -109,6 +113,18 @@ export class Invoice extends React.Component<any, any> {
           onPress={this.func1}>
           <Text>Press</Text>
         </TouchableOpacity>
+        {/* <TouchableOpacity
+          delayPressIn={0}
+          style={{
+            height: 60,
+            width: 120,
+            backgroundColor: 'pink',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={this.func1}>
+          <Text>Press 1</Text>
+        </TouchableOpacity> */}
       </View>
     );
   }

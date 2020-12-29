@@ -2,7 +2,7 @@ import React from 'react';
 import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
 import {FlatList, SafeAreaView, Text, TouchableOpacity, View} from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
-import {GdSVGIcons} from '@/utils/icons-pack';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 type MenuListProp = WithTranslation & WithTranslationProps & {navigation: any};
 
@@ -13,33 +13,33 @@ class MenuList extends React.Component<MenuListProp, MenuListState> {
     {
       id: 1,
       item_name: 'GSTR',
-      icon: <GdSVGIcons.gstr color={'#F8B100'} style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'gstr'} size={20} color={'#5773FF'} />,
     },
     {
       id: 2,
       item_name: 'Reports',
-      icon: <GdSVGIcons.report style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'report'} size={20} color={'#5773FF'} />,
     },
     {
       id: 3,
       item_name: 'Invoice Management',
-      icon: <GdSVGIcons.back style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'gstin'} size={20} color={'#5773FF'} />,
     },
     {
       id: 4,
       item_name: 'Purchase Management',
-      icon: <GdSVGIcons.purchase style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'purchase'} size={20} color={'#5773FF'} />,
     },
     {
       id: 5,
       item_name: 'Settings',
-      icon: <GdSVGIcons.currency color={'#F8B100'} style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'settings'} size={20} color={'#5773FF'} />,
       Screen: 'Settings',
     },
     {
       id: 6,
       item_name: 'Inventory',
-      icon: <GdSVGIcons.inventory style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'inventory'} size={20} color={'#5773FF'} />,
     },
   ];
 

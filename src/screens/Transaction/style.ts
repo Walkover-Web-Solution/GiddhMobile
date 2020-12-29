@@ -20,6 +20,10 @@ export default StyleSheet.create({
   dateRangePickerStyle: {
     width: '71%',
   },
+  alignLoader: {
+    alignItems: 'center',
+    marginTop: 150,
+  },
 
   iconPlacingStyle: {
     display: 'flex',

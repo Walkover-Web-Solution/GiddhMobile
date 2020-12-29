@@ -33,13 +33,13 @@ export function* getCompanyAndBranches() {
     const branchesResponse = yield call(CommonService.getCompanyBranches);
     if (branchesResponse && branchesResponse.status == 'success') {
       companyData.branchList = branchesResponse.body;
-      const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchName);
+      const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
       if (!activeBranch) {
         if (branchesResponse.body && branchesResponse.body.length > 0) {
           let defaultBranch = branchesResponse.body[0];
           if (defaultBranch.alias) {
             console.log('yes its true');
-            yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchName, defaultBranch.alias);
+            yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.alias);
           }
         }
       }
