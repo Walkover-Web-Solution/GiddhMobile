@@ -4,6 +4,7 @@ import {FlatList, SafeAreaView, Text, View} from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
 import {GdSVGIcons} from '@/utils/icons-pack';
 import {AutocompleteItem} from '@ui-kitten/components';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 type MoreListProp = WithTranslation & WithTranslationProps & {};
 
@@ -14,22 +15,22 @@ class MoreList extends React.Component<MoreListProp, MoreListState> {
     {
       id: 1,
       item_name: 'Giddh Books Premium',
-      icon: <GdSVGIcons.premium color={'#F8B100'} style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'premium'} size={20} color={'#F8B100'} />,
     },
     {
       id: 2,
       item_name: 'Import/Export Data(Backup)',
-      icon: <GdSVGIcons.download style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'incoming'} size={20} color={'#229F5F'} />,
     },
     {
       id: 3,
       item_name: 'Link Bank Account',
-      icon: <GdSVGIcons.back style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'compose'} size={20} color={'#AA0883'} />,
     },
     {
       id: 4,
       item_name: 'ChangeLog(Recent Updates)',
-      icon: <GdSVGIcons.currency style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'currency'} size={20} color={'#34BAEC'} />,
     },
   ];
 

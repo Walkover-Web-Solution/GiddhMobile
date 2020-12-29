@@ -2,7 +2,7 @@ import React from 'react';
 import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
 import {FlatList, SafeAreaView, Text, View} from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
-import {GdSVGIcons} from '@/utils/icons-pack';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 import {AutocompleteItem} from '@ui-kitten/components';
 
@@ -15,32 +15,32 @@ class OtherList extends React.Component<OtherListProp, OtherListState> {
     {
       id: 1,
       item_name: 'Share & Earn',
-      icon: <GdSVGIcons.gstr color={'#F8B100'} style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'gstr'} size={20} color={'#5773FF'} />,
     },
     {
       id: 2,
       item_name: 'Greetings',
-      icon: <GdSVGIcons.inventory style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'inventory'} size={20} color={'#5773FF'} />,
     },
     {
       id: 3,
       item_name: 'Desktop QR code Login',
-      icon: <GdSVGIcons.purchase style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'purchase'} size={20} color={'#5773FF'} />,
     },
     {
       id: 4,
       item_name: 'Rate App on App store',
-      icon: <GdSVGIcons.report style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'report'} size={20} color={'#5773FF'} />,
     },
     {
       id: 5,
       item_name: 'Logout',
-      icon: <GdSVGIcons.currency style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'Lock'} size={20} color={'#5773FF'} />,
     },
     {
       id: 6,
       item_name: 'About',
-      icon: <GdSVGIcons.report style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'report'} size={20} color={'#5773FF'} />,
     },
   ];
 

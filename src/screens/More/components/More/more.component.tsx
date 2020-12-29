@@ -11,9 +11,10 @@ import {BadgeTab} from '@/models/interfaces/badge-tabs';
 import style from './style';
 import {GdSVGIcons} from '@/utils/icons-pack';
 import _ from 'lodash';
-import { company } from '../../../../core/store/company/index';
+import {company} from '../../../../core/store/company/index';
 import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -22,7 +23,7 @@ type MoreComponentProp = WithTranslation &
     getCountriesAction: Function;
     logoutAction: Function;
     navigation: any;
-    companyList: any
+    companyList: any;
   };
 
 type MoreComponentState = {
@@ -33,10 +34,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   constructor(props: MoreComponentProp) {
     super(props);
     this.state = {
-      activeCompany: ''
-    }
+      activeCompany: '',
+    };
   }
-  
+
   componentDidMount() {
     this._getActiveCompany();
   }
@@ -52,16 +53,16 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     tab.isActive = !tab.isActive;
     this.state.badgeTabs[index] = tab;
     this.setState({badgeTabs: this.state.badgeTabs});
-  }
+  };
 
   async _getActiveCompany() {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    debugger
-    var result = _.find(this.props.companyList, function(item) {
+    debugger;
+    var result = _.find(this.props.companyList, function (item) {
       return item.uniqueName == activeCompany;
     });
-    if (result){
-      this.setState({activeCompany: result})
+    if (result) {
+      this.setState({activeCompany: result});
     }
   }
 
@@ -71,12 +72,19 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       <ScrollView>
         <View style={style.companyView}>
           <View style={style.companyShortView}>
-            <Text style={style.companyShortText}>{this.state.activeCompany ? this.state.activeCompany.name.split(" ").map((n)=>n[0]).join("") : ''}</Text>
+            <Text style={style.companyShortText}>
+              {this.state.activeCompany
+                ? this.state.activeCompany.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                : ''}
+            </Text>
           </View>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
             <Text style={style.companyNameText}>{this.state.activeCompany ? this.state.activeCompany.name : ''}</Text>
             <TouchableOpacity delayPressIn={0} onPress={() => navigation.navigate('ChangeCompany')}>
-              <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} />
+              <Icon name={'arrowRight'} size={20} color={'#1A237E'} />
             </TouchableOpacity>
           </View>
         </View>

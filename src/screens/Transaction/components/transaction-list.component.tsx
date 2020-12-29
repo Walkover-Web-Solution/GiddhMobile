@@ -1,15 +1,11 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {FlatList, SafeAreaView, StyleProp, Text, View, ViewStyle} from 'react-native';
+import {FlatList, SafeAreaView, StyleProp, Text, View, ViewStyle, TouchableOpacity} from 'react-native';
 import styles from '@/screens/Transaction/components/styles';
 import colors from '@/utils/colors';
 import {GdSVGIcons} from '@/utils/icons-pack';
+import {PropsService} from '@ui-kitten/components/devsupport';
 
-type TransactionListProp = WithTranslation & WithTranslationProps & {};
-
-type TransactionListState = {};
-
-class TransactionList extends React.Component<TransactionListProp, TransactionListState> {
+class TransactionList extends React.Component {
   listData = [
     {
       title: 'Walkover Web Solutions Private Limited',
@@ -47,46 +43,46 @@ class TransactionList extends React.Component<TransactionListProp, TransactionLi
     },
   ];
 
-  constructor(props: TransactionListProp) {
+  constructor(props: any) {
     super(props);
   }
+
+  componentDidMount() {}
 
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
         <View style={styles.container}>
           <FlatList
-            data={this.listData}
+            data={this.props.transactions}
             showsVerticalScrollIndicator={false}
             renderItem={({item}) => (
               <View style={styles.flatList}>
-                <Text style={styles.listHeading}>{item.title}</Text>
+                <Text style={styles.listHeading}>{item.particular.name}</Text>
                 <View style={styles.receiptData}>
-                  {/* wrap left right content */}
                   <View style={styles.aboutSales}>
-                    {/* Left content */}
                     <View style={styles.leftcontent}>
                       <View style={this.bannerColorStyle(item.type) as StyleProp<ViewStyle>}>
-                        <Text style={styles.bannerText}> {item.type} </Text>
+                        <Text style={styles.bannerText}>{item.voucherName} </Text>
                       </View>
-                      <Text style={styles.invoiceNumber}> #{item.invoice} </Text>
+                      <Text style={styles.invoiceNumber}> #{item.voucherNo}</Text>
                     </View>
                     {/* right content */}
                     <View>
-                      <Text style={styles.invoiceDate}> {item.date} </Text>
+                      <Text style={styles.invoiceDate}> {item.entryDate} </Text>
                     </View>
                   </View>
                 </View>
                 {item.total && (
                   <View style={styles.totalData}>
-                    <Text style={styles.totalStyle}> {item.total ? 'Total : ₹' : ''}</Text>
-                    <Text style={styles.totalStyle}>{this.currencyFormat(item.total)} </Text>
+                    <Text style={styles.totalStyle}>200</Text>
+                    <Text style={styles.totalStyle}>100</Text>
                   </View>
                 )}
                 <View style={styles.balData}>
                   <View style={styles.balanceText}>
-                    <Text style={styles.balStyle}> {item.bal ? this.totalType(item.type) : ''}</Text>
-                    <Text style={styles.balStyle}>{this.currencyFormat(item.bal)} </Text>
+                    <Text style={styles.balStyle}> 400</Text>
+                    <Text style={styles.balStyle}>500 </Text>
                   </View>
                   <View style={styles.iconPlacingStyle}>
                     <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
@@ -98,7 +94,7 @@ class TransactionList extends React.Component<TransactionListProp, TransactionLi
                 <View style={styles.seperator} />
               </View>
             )}
-            keyExtractor={(item) => item.email}
+            keyExtractor={(item) => item.uniqueName}
           />
         </View>
       </SafeAreaView>
@@ -138,4 +134,4 @@ class TransactionList extends React.Component<TransactionListProp, TransactionLi
     return totalType;
   }
 }
-export default withTranslation()(TransactionList);
+export default TransactionList;

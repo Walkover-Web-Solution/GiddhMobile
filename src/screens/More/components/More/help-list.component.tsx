@@ -2,7 +2,7 @@ import React from 'react';
 import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
 import {FlatList, SafeAreaView, Text, TouchableOpacity, View} from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
-import {GdSVGIcons} from '@/utils/icons-pack';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 import {AutocompleteItem} from '@ui-kitten/components';
 
@@ -15,12 +15,12 @@ class HelpList extends React.Component<HelpListProp, HelpListState> {
     {
       id: 1,
       item_name: 'Blogs & Tutorials',
-      icon: <GdSVGIcons.gstr color={'#F8B100'} style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'gstr'} size={20} color={'#5773FF'} />,
     },
     {
       id: 2,
       item_name: 'Help & Support',
-      icon: <GdSVGIcons.report style={styles.iconStyle} width={22} height={22} />,
+      icon: <Icon name={'report'} size={20} color={'#5773FF'} />,
       Screen: 'HelpScreen',
     },
   ];
