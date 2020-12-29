@@ -31,10 +31,10 @@ export default class App extends React.Component<any> {
     // check if token is present, means user is logged in
     if (token) {
       // get user's state details actions
-      await store.dispatch.common.getStateDetailsAction();
+      // await store.dispatch.common.getStateDetailsAction();
       // get active company details
-      await store.dispatch.company.getCompanyDetailsAction();
-      await store.dispatch.company.getCompanyListAndBranchAction();
+      // await store.dispatch.company.getCompanyDetailsAction();
+      // await store.dispatch.company.getCompanyListAndBranchAction();
     }
 
     // listen for invalid auth token event

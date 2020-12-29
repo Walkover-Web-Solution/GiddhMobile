@@ -12,7 +12,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 
 export default function* watcherFCMTokenSaga() {
-    yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);      
+    yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);     
+ 
 }
 
 export function* getCompanyAndBranches() {  
@@ -39,13 +40,10 @@ export function* getCompanyAndBranches() {
             companyData.branchList = branchesResponse.body;
 
         }
-        debugger
     //set active comapny if not found
-      
         if (companyData.success = true){
             yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
         }
-        debugger
         // if (response.status == false) {
         //     yield put(CommonActions.loginUserFailure(response.message));
         // }

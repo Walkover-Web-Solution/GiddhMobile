@@ -6,7 +6,9 @@ const initialState = {
     isAuthenticatingUser: false,
     error: undefined, 
     token: undefined,
-    isUserAuthenticated: false
+    isUserAuthenticated: false, 
+    createdAt: undefined,
+    expiresAt: undefined,
 }
 
 export default (state = initialState, action: Action) => {

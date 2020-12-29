@@ -45,4 +45,15 @@ export class CommonService {
       return res.data;
     });
   }
+
+
+  /**
+   * get currencies
+   * @returns {Promise<BaseResponse<Country[]>>}
+   */
+  static renewAccessToken(){
+    return httpInstance.put(commonUrls.refreshAccessToken).then((res) => {
+      return res.data;
+    });
+  }
 }
