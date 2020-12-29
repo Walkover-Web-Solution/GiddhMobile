@@ -1,74 +1,67 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, TouchableOpacity, FlatList} from 'react-native';
+import { GDContainer } from '@/core/components/container/container.component';
+import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter } from 'react-native';
 import style from './style';
-import {GdSVGIcons, GdIconsPack} from '@/utils/icons-pack';
-import {connect} from 'react-redux'
+import { connect } from 'react-redux'
+import AsyncStorage from '@react-native-community/async-storage';
+
+import { getCompanyAndBranches } from '../../redux/CommonAction'
+import Icon from '@/core/components/custom-icon/custom-icon';
+import { Bars } from 'react-native-loader';
+import color from '@/utils/colors';
+import _ from 'lodash';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+
 interface Props {
   navigation: any;
 }
 
 export class ChangeCompany extends React.Component<Props> {
-  listData = [
-    {
-      id: 1,
-      item_name: 'Company Name',
-    },
-    {
-      id: 2,
-      item_name: 'Company Name 2',
-    },
-    {
-      id: 3,
-      item_name: 'Company Name 3',
-    },
-    {
-      id: 4,
-      item_name: 'Company Name 4',
-    },
-    {
-      id: 5,
-      item_name: 'Company Name 5',
-    },
-    {
-      id: 6,
-      item_name: 'Company Name 6',
-    },
-    {
-      id: 7,
-      item_name: 'Company Name 7',
-    },
-  ];
+  constructor(props: MoreComponentProp) {
+    super(props);
+    this.state = {
+      loading: false
+    }
+  }
   render() {
+    let activeCompany = this.props.route.params.activeCompany
+
     return (
       <GDContainer>
         <View style={style.container}>
-          <Text style={{fontSize: 20, fontWeight: 'bold', margin: 20}}>Switch Company</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
+            <Icon size={20} name={'Backward'} onPress={() => {
+              this.props.navigation.goBack();
+            }} />
+            <Text style={{ fontSize: 20, fontWeight: 'bold', margin: 20 }}>Switch Company</Text>
+
+          </View>
           <FlatList
             data={this.props.comapnyList}
             showsVerticalScrollIndicator={false}
-            renderItem={({item}) => (
-              <TouchableOpacity style={style.listItem} delayPressIn={0}>
-                <Text style={style.listItemName}>{item.name}</Text>
+            renderItem={({ item }) => (
+              <TouchableOpacity style={style.listItem} delayPressIn={0} onPress={async () => {
+                await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
+                this.props.getCompanyAndBranches();
+                DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+                this.props.navigation.popToTop();
+              }}
+              >
+                <Text style={[style.listItemName, { color: item.uniqueName == activeCompany.uniqueName ? color.PRIMARY_BASIC : 'black' }]}>{item.name}</Text>
+                {item.uniqueName == activeCompany.uniqueName && <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{ alignself: 'center' }} />}
               </TouchableOpacity>
             )}
-            keyExtractor={(item) => item.name}
+            keyExtractor={(item) => item}
           />
-          <TouchableOpacity
-            style={{
-              position: 'absolute',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bottom: 20,
-              right: 20,
-            }}
-            delayPressIn={0}>
-            <GdSVGIcons.plus color={'#F8B100'} style={style.iconStyle} width={60} height={60} />
-          </TouchableOpacity>
         </View>
+        {this.state.loading && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
+          <Bars size={15} color={color.PRIMARY_NORMAL} />
+        </View>}
+
       </GDContainer>
     );
   }
+
 }
 
 function mapStateToProps(state) {
@@ -80,7 +73,9 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
   return {
-   
+    getCompanyAndBranches: () => {
+      dispatch(getCompanyAndBranches())
+    }
   };
 }
 

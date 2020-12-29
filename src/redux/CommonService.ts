@@ -7,7 +7,6 @@
 // import {  ENDPOINT } from '../util/constant';
 // import AsyncStorage from '../util/AsyncStorageUtil';
 import { CompanyService } from '../core/services/company/company.service';
-import { getCompanyAndBranches } from './CommonSaga';
 
 
 export async function getCompanyList() {
@@ -20,9 +19,9 @@ export async function getCompanyList() {
     }
   }
 
-  export async function getCompanyBranches() {
+  export async function getCompanyBranches(uniqueName) {
     try {
-      const response = await CompanyService.getCompanyBranches();
+      const response = await CompanyService.getCompanyBranches(uniqueName);
       return response
     } catch (error) {
         return error;

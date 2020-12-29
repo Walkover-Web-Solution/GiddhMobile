@@ -13,7 +13,7 @@ export default StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 20,
     alignItems: 'center',
