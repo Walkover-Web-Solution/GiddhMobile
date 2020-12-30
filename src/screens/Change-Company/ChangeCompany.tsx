@@ -42,6 +42,9 @@ export class ChangeCompany extends React.Component<Props> {
             renderItem={({ item }) => (
               <TouchableOpacity style={style.listItem} delayPressIn={0} onPress={async () => {
                 await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
+                if (item.uniqueName !== activeCompany.uniqueName){
+                  await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
+                }
                 this.props.getCompanyAndBranches();
                 DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                 this.props.navigation.popToTop();

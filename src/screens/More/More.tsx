@@ -29,6 +29,7 @@ export class MoreScreen extends React.Component<Props, {}> {
           logoutAction={this.props.logoutAction}
           companyList = {this.props.comapnyList}
           branchList = {this.props.branchList}
+          isFetchingCompanyList ={this.props.isFetchingCompanyList}
         />
       </GDContainer>
     );

@@ -17,6 +17,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import BaseContainer from './src/BaseContainer/BaseContainer'
 import configureStore from './src/redux/store';
 const {store, persistor} = configureStore();
+import SplashScreen from 'react-native-splash-screen'
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -26,6 +27,7 @@ export default class App extends React.Component<any> {
 
   async componentDidMount() {
     // get token and active company name
+    SplashScreen.hide();
     const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
 
     // check if token is present, means user is logged in

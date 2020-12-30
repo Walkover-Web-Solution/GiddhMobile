@@ -7,10 +7,13 @@ import AppNavigator from '@/navigation/app.navigator';
 
 import { connect } from 'react-redux';
 import { getCompanyAndBranches, renewAccessToken } from '../redux/CommonAction';
+import SplashScreen from 'react-native-splash-screen'
 
 
 class BaseContainer extends Component {
   componentDidMount() {
+    SplashScreen.hide();
+
     if (this.props.isUserAuthenticated){
       this.props.getCompanyAndBranches()
     }
