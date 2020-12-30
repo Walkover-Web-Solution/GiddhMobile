@@ -73,9 +73,10 @@ class TransactionList extends React.Component {
                     </View>
                   </View>
                 </View>
+                {item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
                 <View style={styles.balData}>
                   <View style={styles.balanceText}>
-                    <Text style={styles.balStyle}>Total:</Text>
+                    <Text style={styles.balStyle}>Total: </Text>
                     <Text style={styles.balStyle}>{item.creditAmount ? item.creditAmount : item.debitAmount}</Text>
                   </View>
                   <View style={styles.iconPlacingStyle}>

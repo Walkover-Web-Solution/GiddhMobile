@@ -6,7 +6,6 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: colors.BACKGROUND,
     paddingTop: 5,
   },
   alignLoader: {

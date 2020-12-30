@@ -4,12 +4,14 @@ import AppNavigator from '@/navigation/app.navigator';
 
 import {connect} from 'react-redux';
 import {getCompanyAndBranches, renewAccessToken} from '../redux/CommonAction';
+import SplashScreen from 'react-native-splash-screen';
 
 class BaseContainer extends Component {
   componentDidMount() {
+    SplashScreen.hide();
+
     if (this.props.isUserAuthenticated) {
-      const result = this.props.getCompanyAndBranches();
-      // console.log('branches are', result);
+      this.props.getCompanyAndBranches();
     }
     // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken, () => {
     //   // fire logout action

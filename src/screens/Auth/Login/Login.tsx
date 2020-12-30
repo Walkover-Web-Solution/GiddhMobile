@@ -114,7 +114,7 @@ class Login extends React.Component<any, any> {
               icon="gmail"
             />
 
-            <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" />
+            <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" onPress={()=>  alert('comming soon')}/>
           </View>
 
           <View style={style.seperator}>
@@ -133,8 +133,8 @@ class Login extends React.Component<any, any> {
             </View>
 
             <View style={style.loginButtonContainer}>
-              <GDButton size={ButtonSize.medium} style={style.loginButtonStyle} label={'Login'} />
-              <TouchableOpacity onPress={() => this.props.navigation.navigate('Password')}>
+              <GDButton size={ButtonSize.medium} style={style.loginButtonStyle} label={'Login'} onPress={()=>  alert('comming soon')}/>
+              <TouchableOpacity onPress={() => alert('comming soon')}>
                 <Text style={style.forgotStyle}>Forgot password?</Text>
               </TouchableOpacity>
             </View>

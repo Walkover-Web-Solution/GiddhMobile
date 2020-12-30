@@ -33,7 +33,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   totalData: {
     display: 'flex',
@@ -49,6 +49,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 5,
+
     justifyContent: 'space-between',
   },
   transactionTypeBanner: {
@@ -79,6 +80,7 @@ export default StyleSheet.create({
   balStyle: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.normal,
+    fontWeight: 'bold',
   },
   iconPlacingStyle: {
     display: 'flex',
@@ -89,6 +91,7 @@ export default StyleSheet.create({
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
   },
+  inventoryData: {marginBottom: 5, color: baseColor.GRAY_LIGHT},
   seperator: {
     marginTop: 5,
     borderBottomColor: baseColor.GRAY_LIGHT,

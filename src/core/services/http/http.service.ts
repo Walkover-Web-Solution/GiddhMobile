@@ -71,14 +71,7 @@ httpInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    debugger;
     if (error.response.status === 401) {
-      // debugger
-      // // emit invalid auth token event and do logout
-      // const access_token = await httpInstance.get(commonUrls.refreshAccessToken, {})
-      // debugger
-      // // axios.defaults.headers.common['Authorization'] = 'Bearer ' + access_token;
-      // return httpInstance(originalRequest);
       DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
     }
     return Promise.reject(error.response);
