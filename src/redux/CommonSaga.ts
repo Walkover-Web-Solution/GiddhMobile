@@ -17,6 +17,7 @@ export function* getCompanyAndBranches() {
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
 
     let companyData = {};
+    companyData.success = false;
     if (listResponse && listResponse.status == 'success') {
       companyData.success = true;
       companyData.companyList = listResponse.body;
@@ -43,9 +44,7 @@ export function* getCompanyAndBranches() {
           }
         }
         //set active comapny if not found
-        if ((companyData.success = true)) {
-          yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
-        }
+
         // if (response.status == false) {
         //     yield put(CommonActions.loginUserFailure(response.message));
         // }
@@ -53,6 +52,11 @@ export function* getCompanyAndBranches() {
         //     yield put(CommonActions.loginUserSuccess(action.payload.username, action.payload.password, response));
         // }
       }
+    }
+    if ((companyData.success = true)) {
+      yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
+    } else {
+      yield put(CommonActions.getCompanyAndBranchesFailure());
     }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());

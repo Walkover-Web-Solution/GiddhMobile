@@ -4,9 +4,7 @@ import {GD_ICON_SIZE} from '@/utils/constants';
 import colors, {baseColor} from '@/utils/colors';
 
 export default StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: {},
   flatList: {
     justifyContent: 'center',
     paddingTop: 15,

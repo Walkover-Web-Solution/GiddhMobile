@@ -54,30 +54,28 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       );
     } else {
       return (
-        <GDContainer>
-          <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
+        <View style={style.container}>
+          {/* <View style={style.filterStyle}> */}
+          {/*<View style={style.dateRangePickerStyle}>*/}
+          {/*  <GDRoundedInput*/}
+          {/*    svg={GdSVGIcons.search}*/}
+          {/*    label="Search Name or Phone No."*/}
+          {/*    svgWidth={14}*/}
+          {/*    svgHeight={14}*/}
+          {/*    value=""*/}
+          {/*    placeholder="Search Name or Phone No."*/}
+          {/*  />*/}
+          {/*</View>*/}
+          {/*<View style={styles.iconPlacingStyle}>*/}
+          {/*  <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} />*/}
+          {/*</View>*/}
+          {/* </View> */}
+          <View style={{marginTop: 10}} />
 
-          <View style={style.container}>
-            <View style={style.filterStyle}>
-              {/*<View style={style.dateRangePickerStyle}>*/}
-              {/*  <GDRoundedInput*/}
-              {/*    svg={GdSVGIcons.search}*/}
-              {/*    label="Search Name or Phone No."*/}
-              {/*    svgWidth={14}*/}
-              {/*    svgHeight={14}*/}
-              {/*    value=""*/}
-              {/*    placeholder="Search Name or Phone No."*/}
-              {/*  />*/}
-              {/*</View>*/}
-              {/*<View style={styles.iconPlacingStyle}>*/}
-              {/*  <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} />*/}
-              {/*</View>*/}
-            </View>
-            <View style={{marginTop: 10}} />
-            <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
-            <PartiesList partiesData={this.state.partiesCredData} activeCompany={activeCompany} />
-          </View>
-        </GDContainer>
+          <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
+
+          <PartiesList partiesData={this.state.partiesCredData} activeCompany={activeCompany} />
+        </View>
       );
     }
   }

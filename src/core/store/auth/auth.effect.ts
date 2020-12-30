@@ -29,7 +29,6 @@ export const authEffects = (dispatch: Dispatch) => ({
 
       dispatch.auth.setGoogleLoginResponse(response.body as LoginResponse);
     } catch (error) {
-      debugger
       console.log(error);
       dispatch.auth.setGoogleLoginResponse(null);
     }

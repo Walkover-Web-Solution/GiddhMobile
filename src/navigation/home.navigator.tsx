@@ -22,10 +22,8 @@ const BottomTabBar = ({navigation, state}: {navigation: any; state: any}) => (
     selectedIndex={state.index}
     onSelect={(index) => navigation.navigate(state.routeNames[index])}
     appearance={'noIndicator'}>
-    <BottomNavigationTab title="Dashboard" icon={HomeIcon} />
+    <BottomNavigationTab title="Transactions" icon={HomeIcon} />
     <BottomNavigationTab title="Inventory" icon={HomeIcon} />
-    {/* <BottomNavigationTab title="" /> */}
-    {/* <BigButton icon="plus" /> */}
     <BottomNavigationTab title="Parties" icon={PersonIcon} />
     <BottomNavigationTab title="More" icon={MoreIcon} />
   </BottomNavigation>

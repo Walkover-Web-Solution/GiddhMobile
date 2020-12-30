@@ -31,39 +31,10 @@ export function* googleLogin(action){
         // get company details
         //TODO:  await dispatch.company.getCompanyDetailsAction();
         yield put(LoginAction.googleLoginUserSuccess({token: response.body.session.id, createdAt:response.body.session.createdAt, expiresAt: response.body.session.expiresAt }));
-
     }
     else{
         yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
-
     }
-    
-    
-   
-
-    // dispatch.auth.setGoogleLoginResponse(response.body as LoginResponse);
-}
-export function* googleLoginUser(action) {
-    
-    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (action.payload.password.length == 0) {
-        yield put(LoginAction.loginUserFailure('Please enter valid Member Id & Password'));
-    }
-    else{
-        try {
-            const response = yield call(LoginService.loginWith, action.payload.username, action.payload.password);
-            debugger
-            if (response.status == false) {
-                yield put(CommonActions.loginUserFailure(response.message));
-            }
-            else if (response.status == true){
-                yield put(CommonActions.loginUserSuccess(action.payload.username, action.payload.password, response));
-            }
-        } catch (e) {
-            yield put(CommonActions.loginUserFailure(e));
-        }
-    }
-   
 }
 
 export function* logoutUser(action) {
