@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import {GD_ICON_SIZE} from '@/utils/constants';
 import colors from '@/utils/colors';
 
@@ -7,15 +7,19 @@ export default StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: colors.BACKGROUND,
-    paddingTop: 5,
+    paddingTop: 10,
   },
   filterStyle: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
     marginTop: 0,
-    display: 'flex',
+    paddingHorizontal: 15,
+    width: Dimensions.get('window').width * 0.3,
+    // backgroundColor: 'pink',
     justifyContent: 'space-between',
+    position: 'absolute',
+    top: 10,
+    right: 5,
   },
   dateRangePickerStyle: {
     width: '71%',

@@ -2,6 +2,7 @@ import {createEndpoint} from '@/utils/helper';
 
 export const commonUrls = {
   currency: createEndpoint('currency'),
+  refreshAccessToken: createEndpoint('users/:userEmail/increment-session'),
   stateDetails: createEndpoint('state-details'),
   customer_vendor_report_sundry_debtors: createEndpoint(
     'v2/company/:companyUniqueName/groups/sundrydebtors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=false',

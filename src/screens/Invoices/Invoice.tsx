@@ -8,6 +8,7 @@ import {TextInput} from 'react-native-gesture-handler';
 import {createEndpoint} from '@/utils/helper';
 import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
+import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 
 const {height, width} = Dimensions.get('window');
 
@@ -27,7 +28,6 @@ export class Invoice extends React.Component<any, any> {
           <View
             style={{
               flexDirection: 'row',
-
               alignItems: 'center',
             }}>
             <GdSVGIcons.back color={'#fff'} width={20} height={20} />
@@ -113,6 +113,7 @@ export class Invoice extends React.Component<any, any> {
           onPress={this.func1}>
           <Text>Press</Text>
         </TouchableOpacity>
+        <GDRoundedDateRangeInput label={'dates'} />
         {/* <TouchableOpacity
           delayPressIn={0}
           style={{

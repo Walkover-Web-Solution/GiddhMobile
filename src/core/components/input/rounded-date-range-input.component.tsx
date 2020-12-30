@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Component} from 'react';
-import {StyleProp, Text, TextStyle, View, ViewStyle} from 'react-native';
+import {StyleProp, Text, TextStyle, View, ViewStyle, TouchableOpacity} from 'react-native';
 import {InputSize} from '@/models/enums/input';
 import moment from 'moment';
 import DateRangePicker from 'react-native-daterange-picker';
@@ -29,6 +29,7 @@ type GDRoundedDateRangeInputStat = {
   minDate: object;
   maxDate: object;
   displayedDate: any;
+  visible: boolean;
 };
 let processStartDate: string = '',
   processEndDate: string = '';
@@ -46,12 +47,11 @@ export class GDRoundedDateRangeInput extends Component<GDRoundedDateRangeInputPr
     this.state = {
       endDate: moment('Dec 25, 2025'),
       startDate: moment(),
-      processedStartDate: '',
-      processedEndDate: '',
       processedDate: '',
       minDate: moment('Dec 25, 1995'),
       maxDate: moment('Dec 25, 2025'),
       displayedDate: moment(),
+      visible: true,
     };
   }
   setDates = (dates: any) => {
@@ -59,37 +59,39 @@ export class GDRoundedDateRangeInput extends Component<GDRoundedDateRangeInputPr
       ? moment(dates.startDate).format(GD_DATE_RANGE_FORMAT)
       : moment(this.state.startDate).format(GD_DATE_RANGE_FORMAT);
     processEndDate = dates.endDate ? ' - ' + moment(dates.endDate).format(GD_DATE_RANGE_FORMAT) : '';
-
+    console.log(dates.startDate);
+    console.log(dates.endDate);
     this.setState({
       ...dates,
       processedDate: processStartDate + processEndDate,
     });
+    this.props.onChangeDate(dates.startDate, dates.endDate);
   };
 
   render() {
     const {startDate, endDate, displayedDate, minDate, maxDate}: any = this.state;
     return (
-      <View>
-        <DateRangePicker
-          onChange={this.setDates}
-          endDate={endDate}
-          startDate={startDate}
-          minDate={minDate}
-          maxDate={maxDate}
-          displayedDate={displayedDate}
-          range>
-          <View style={styles.roundedViewAreaForInput}>
-            <View style={styles.roundedIconBox}>
-              <GdSVGIcons.calendar width={18} height={18} />
-            </View>
-            <View style={styles.flexGrow}>
-              <Text style={styles.roundedInputTextStyle}>
-                {this.state.processedDate.toString() ? this.state.processedDate.toString() : this.props.label}
-              </Text>
-            </View>
+      <DateRangePicker
+        onChange={this.setDates}
+        endDate={this.state.endDate}
+        startDate={this.state.startDate}
+        minDate={minDate}
+        maxDate={maxDate}
+        displayedDate={displayedDate}
+        range>
+        <View style={styles.roundedViewAreaForInput}>
+          <View style={styles.roundedIconBox}>
+            <GdSVGIcons.calendar width={18} height={18} />
           </View>
-        </DateRangePicker>
-      </View>
+          <View style={styles.flexGrow}>
+            <Text style={styles.roundedInputTextStyle}>
+              {this.state.processedDate.toString() ? this.state.processedDate.toString() : this.props.label}
+              {/* {processStartDate} */}
+              {/* {processEndDate} */}
+            </Text>
+          </View>
+        </View>
+      </DateRangePicker>
     );
   }
 }

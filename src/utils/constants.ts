@@ -71,9 +71,12 @@ export const STORAGE_KEYS = {
   activeCompanyUniqueName: 'ACTIVE_COMPANY_UNIQUE_NAME',
   activeBranchUniqueName: 'ACTIVE_BRANCH_UNIQUE_NAME',
   googleEmail: 'GOOGLE_USER_EMAIL',
+  sessionStart: 'SESSION_START',
+  sessionEnd: 'SESSION_END',
 };
 
 // APP events constants
 export const APP_EVENTS = {
   invalidAuthToken: 'AUTH_TOKEN_INVALIDATED',
+  comapnyBranchChange: 'COMPANY_BRANCH_CHANGE',
 };

@@ -20,6 +20,9 @@ export function* googleLogin(action){
     const response = yield call(LoginService.googleLogin, action.payload.token);
     if (response && response.body && response.body.session && response.body.session.id){
         yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
+        yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
+        yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
+
         // const response = await AuthService.submitGoogleAuthToken(payload.token);
         yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
          // get state details
@@ -27,7 +30,7 @@ export function* googleLogin(action){
 
         // get company details
         //TODO:  await dispatch.company.getCompanyDetailsAction();
-        yield put(LoginAction.googleLoginUserSuccess({token: response.body.session.id}));
+        yield put(LoginAction.googleLoginUserSuccess({token: response.body.session.id, createdAt:response.body.session.createdAt, expiresAt: response.body.session.expiresAt }));
 
     }
     else{
