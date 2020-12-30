@@ -20,3 +20,9 @@ export function getCompanyAndBranchesSuccess(payload) {
     payload: payload
   }
 }
+export function renewAccessToken(payload) {
+  return {
+    type: Actions.RENEW_ACCESS_TOKEN,
+    payload: payload
+  }
+}

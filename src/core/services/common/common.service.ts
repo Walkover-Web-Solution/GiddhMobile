@@ -45,8 +45,13 @@ export class CommonService {
       return res.data;
     });
   }
-  static getTransactions() {
-    return httpInstance.post(commonUrls.customer_transactions, {}).then((res) => {
+
+  /**
+   * get currencies
+   * @returns {Promise<BaseResponse<Country[]>>}
+   */
+  static renewAccessToken() {
+    return httpInstance.put(commonUrls.refreshAccessToken).then((res) => {
       return res.data;
     });
   }

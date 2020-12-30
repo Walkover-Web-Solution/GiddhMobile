@@ -1,4 +1,4 @@
-import {StyleSheet, Platform} from 'react-native';
+import {StyleSheet, Platform, Dimensions} from 'react-native';
 import colors, {baseColor} from '@/utils/colors';
 import {GD_FONT_SIZE, GD_ICON_SIZE} from '@/utils/constants';
 
@@ -81,23 +81,18 @@ export default StyleSheet.create({
   },
 
   roundedViewAreaForInput: {
-    minHeight: 38,
+    height: 38,
+    width: Dimensions.get('window').width * 0.65,
     paddingLeft: 15,
     paddingRight: 15,
-    marginRight: 10,
     backgroundColor: '#ffffff',
     justifyContent: 'flex-start',
     textAlign: 'left',
-    paddingHorizontal: 24,
-    display: 'flex',
     flexDirection: 'row',
     borderColor: colors.BORDER_COLOR,
     borderWidth: 1,
     borderRadius: 24,
     alignItems: 'center',
-    flexGrow: 0.97,
-    marginVertical: 12,
-    paddingVertical: 0,
   },
   roundedIconBox: {
     height: GD_ICON_SIZE.input_icon,

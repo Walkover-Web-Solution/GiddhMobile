@@ -73,16 +73,10 @@ class TransactionList extends React.Component {
                     </View>
                   </View>
                 </View>
-                {item.total && (
-                  <View style={styles.totalData}>
-                    <Text style={styles.totalStyle}>200</Text>
-                    <Text style={styles.totalStyle}>100</Text>
-                  </View>
-                )}
                 <View style={styles.balData}>
                   <View style={styles.balanceText}>
-                    <Text style={styles.balStyle}> 400</Text>
-                    <Text style={styles.balStyle}>500 </Text>
+                    <Text style={styles.balStyle}>Total:</Text>
+                    <Text style={styles.balStyle}>{item.creditAmount ? item.creditAmount : item.debitAmount}</Text>
                   </View>
                   <View style={styles.iconPlacingStyle}>
                     <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />

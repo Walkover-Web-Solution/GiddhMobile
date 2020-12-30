@@ -14,6 +14,7 @@ import {Bars} from 'react-native-loader';
 import colors from '@/utils/colors';
 import httpInstance from '@/core/services/http/http.service';
 import {commonUrls} from '@/core/services/common/common.url';
+import moment from 'moment';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -24,6 +25,8 @@ export class TransactionScreen extends React.Component {
     this.state = {
       showLoader: true,
       transactionsData: [],
+      startDate: '01-04-2020',
+      endDate: '25-12-2020',
     };
   }
   componentDidMount() {
@@ -33,16 +36,15 @@ export class TransactionScreen extends React.Component {
   async getTransactions() {
     try {
       // const transactions = await CommonService.getTransactions();
-      httpInstance
+      await httpInstance
         .post(
-          'https://apitest.giddh.com/company/mobilein1601731188063045bms/daybook?page=0&count=20&from=01-04-2020&to=05-10-2020&branchUniqueName=Mobi1',
+          `https://apitest.giddh.com/company/mobilein1601731188063045bms/daybook?page=0&count=20&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=Mobi1`,
           {},
         )
         .then((res) => {
           this.setState({
             transactionsData: res.data.body.entries,
           });
-          console.log(res.data);
         });
       // console.log(transactions);
 
@@ -52,11 +54,24 @@ export class TransactionScreen extends React.Component {
       // console.log(this.state.transactionsData);
       this.setState({showLoader: false});
     } catch (e) {
-      console.log('error');
+      console.log(e);
       this.setState({showLoader: false});
     }
   }
 
+  changeDate = (SD, ED) => {
+    if (SD) {
+      this.setState({
+        startDate: moment(SD).format('DD-MM-YYYY'),
+      });
+    }
+    if (ED) {
+      this.setState({
+        endDate: moment(ED).format('DD-MM-YYYY'),
+      });
+      this.getTransactions();
+    }
+  };
   render() {
     if (this.state.showLoader) {
       return (
@@ -69,19 +84,20 @@ export class TransactionScreen extends React.Component {
     } else {
       return (
         <View style={style.container}>
+          <GDRoundedDateRangeInput
+            label="Select Date"
+            startDate={this.state.startDate}
+            endDate={this.state.endDate}
+            onChangeDate={this.changeDate}
+          />
           <View style={style.filterStyle}>
-            <View style={style.dateRangePickerStyle}>
-              <GDRoundedDateRangeInput label="Select Date" />
-            </View>
-            <View style={styles.iconPlacingStyle}>
-              <View style={style.iconCard}>
-                <GdSVGIcons.download style={styles.iconStyle} width={18} height={18} />
-              </View>
-              <View style={{width: 15}} />
-              <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={this.getTransactions}>
-                <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={() => console.log(this.state.endDate)}>
+              <GdSVGIcons.download style={styles.iconStyle} width={18} height={18} />
+            </TouchableOpacity>
+            <View style={{width: 15}} />
+            <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={() => console.log(this.state.startDate)}>
+              <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
+            </TouchableOpacity>
           </View>
           <View style={{marginTop: 10}} />
           <TransactionList transactions={this.state.transactionsData} />

@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {Platform} from 'react-native';
+import {Platform, DeviceEventEmitter} from 'react-native';
 import AppNavigator from '@/navigation/app.navigator';
 
 import {connect} from 'react-redux';
-import {getCompanyAndBranches} from '../redux/CommonAction';
+import {getCompanyAndBranches, renewAccessToken} from '../redux/CommonAction';
 
 class BaseContainer extends Component {
   componentDidMount() {
@@ -11,6 +11,11 @@ class BaseContainer extends Component {
       const result = this.props.getCompanyAndBranches();
       // console.log('branches are', result);
     }
+    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken, () => {
+    //   // fire logout action
+    //   this.props.renewAccessToken();
+    //   store.dispatch.auth.logout();
+    // });
   }
 
   componentWillUnmount() {}
@@ -24,6 +29,11 @@ class BaseContainer extends Component {
   render() {
     return <AppNavigator />;
   }
+  componentWillUnmount() {
+    if (this.listener) {
+      this.listener.remove();
+    }
+  }
 }
 function mapStateToProps(state) {
   const {commonReducer, LoginReducer} = state;
@@ -36,6 +46,9 @@ function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
+    },
+    renewAccessToken: () => {
+      dispatch(renewAccessToken());
     },
   };
 }

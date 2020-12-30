@@ -5,6 +5,8 @@ import HomeScreen from '@/screens/Home/Home';
 import Routes from './routes';
 import {BigButton} from '@/core/components/big-button/big-button.component';
 import {InventoryScreen} from '@/screens/Inventory/Inventory';
+import Transactions from '@/screens/Transaction/Transaction';
+
 import {PartiesScreen} from '@/screens/Parties/Parties';
 import {MoreScreen} from '@/screens/More/More';
 import MoreStack from './more.navigator';
@@ -31,10 +33,10 @@ const BottomTabBar = ({navigation, state}: {navigation: any; state: any}) => (
 
 export const HomeNavigator = () => (
   <Navigator tabBar={(props) => <BottomTabBar {...props} />}>
-    <Screen name={Routes.Dashboard} component={HomeScreen} />
+    <Screen name={Routes.Transaction} component={Transactions} />
     <Screen name={Routes.Inventory} component={InventoryScreen} />
     {/* <Screen name={Routes.BigButton} component={HomeScreen} /> */}
-    <Screen name={Routes.Home} component={HomeScreen} />
+    <Screen name={Routes.Parties} component={PartiesScreen} />
     {/* <Screen name={Routes.Parties} component={PartiesScreen} /> */}
     {/* <Screen name={Routes.Add} component={HomeScreen} /> */}
     <Screen name={Routes.More} component={MoreStack} />

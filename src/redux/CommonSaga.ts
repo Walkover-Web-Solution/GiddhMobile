@@ -42,21 +42,18 @@ export function* getCompanyAndBranches() {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.alias);
           }
         }
+        //set active comapny if not found
+        if ((companyData.success = true)) {
+          yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
+        }
+        // if (response.status == false) {
+        //     yield put(CommonActions.loginUserFailure(response.message));
+        // }
+        // else if (response.status == true){
+        //     yield put(CommonActions.loginUserSuccess(action.payload.username, action.payload.password, response));
+        // }
       }
     }
-    debugger;
-    //set active comapny if not found
-
-    if ((companyData.success = true)) {
-      yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
-    }
-    debugger;
-    // if (response.status == false) {
-    //     yield put(CommonActions.loginUserFailure(response.message));
-    // }
-    // else if (response.status == true){
-    //     yield put(CommonActions.loginUserSuccess(action.payload.username, action.payload.password, response));
-    // }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());
   }

@@ -31,7 +31,7 @@ export default StyleSheet.create({
     color: colors.INPUT_COLOR,
     textAlign: 'center',
     fontSize: 14,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Bold' : 'Opel-Sans-Bold',
     marginLeft: 10,
     alignSelf: 'center'
 },
@@ -52,11 +52,28 @@ companyShortView:{
   marginLeft: 15,
   alignSelf: 'center'
 }, 
+leftView:{
+  width: 26,
+  height:26,
+  justifyContent:'center',
+  alignItems: 'center', 
+  marginLeft: 20,
+  alignSelf: 'center'
+}, 
 companyView:{
   paddingVertical: 10, 
   paddingHorizontal:10, 
   flexDirection: 'row', 
   backgroundColor: colors.BACKGROUND, 
+  width: '100%',
+  alignItems: 'center', 
+  height: 78, 
+},
+branchView:{
+  paddingVertical: 6, 
+  paddingHorizontal:10, 
+  flexDirection: 'row', 
+  backgroundColor: '#fff',
   width: '100%',
   alignItems: 'center', 
   height: 78, 
