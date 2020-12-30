@@ -20,6 +20,7 @@ export default (state = initialState, action: Action) => {
                 return {
                     ...state,
                     ...commonReducer,
+                    isFetchingCompanyList: false
                     // Ensure isConnecting is reset to false on app restart
                 };
             }
