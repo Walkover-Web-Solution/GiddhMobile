@@ -109,13 +109,13 @@ class Welcome extends React.Component<any, any> {
             ))}
           </View>
           <View style={style.buttonContainer}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={style.createAccountButton}
               delayPressIn={0}
               // onPress={() => this.props.navigation.navigate('login')}
             >
               <Text style={style.createAccount}>Create Account</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={style.loginButton}
               delayPressIn={0}

@@ -20,20 +20,18 @@ export class InventoryScreen extends React.Component<Props, {}> {
 
   render() {
     return (
-      <GDContainer>
-        <View style={style.container}>
-          <View style={style.filterStyle}>
+      <View style={style.container}>
+        {/* <View style={style.filterStyle}>
             <View style={style.dateRangePickerStyle}>
               <GDRoundedDateRangeInput label="Select Date" />
             </View>
             <View style={styles.iconPlacingStyle}>
               <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} />
             </View>
-          </View>
-          <View style={{marginTop: 0}} />
-          <InventoryList />
-        </View>
-      </GDContainer>
+          </View> */}
+
+        <InventoryList />
+      </View>
     );
   }
 }

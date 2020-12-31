@@ -50,7 +50,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     if (this.state.showLoader) {
       return (
         <View style={{flex: 1}}>
-          <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
           <View style={style.alignLoader}>
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
@@ -74,10 +73,13 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
           {/*  <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} />*/}
           {/*</View>*/}
           {/* </View> */}
-
-          <PartiesList partiesData={this.state.partiesCredData} activeCompany={activeCompany} />
+          <View>
+            <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
+          </View>
+          <View>
+            <PartiesList partiesData={this.state.partiesCredData} activeCompany={activeCompany} />
+          </View>
           {/* <View style={{backgroundColor: 'pink', height: 50, width: 150}}></View> */}
-          <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
         </View>
       );
     }
