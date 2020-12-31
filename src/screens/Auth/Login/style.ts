@@ -15,7 +15,7 @@ export default StyleSheet.create({
     flex: 1,
 
     paddingHorizontal: 30,
-
+    backgroundColor: '#fff',
     paddingBottom: 50,
   },
   socialLoginContainer: {

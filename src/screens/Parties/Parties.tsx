@@ -2,7 +2,7 @@ import React from 'react';
 import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View} from 'react-native';
+import {View, Text, DeviceEventEmitter} from 'react-native';
 import style from '@/screens/Parties/style';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
@@ -13,6 +13,7 @@ import {CompanyService} from '@/core/services/company/company.service';
 import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
+import {APP_EVENTS} from '@/utils/constants';
 
 type connectedProps = ReturnType<typeof mapStateToProps>;
 type PartiesScreenProp = connectedProps;
@@ -35,7 +36,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   componentDidMount() {
     //get parties data
-
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      this.getPartiesSundryDebtors();
+      this.getPartiesSundryCreditors();
+    });
     this.getPartiesSundryDebtors();
     this.getPartiesSundryCreditors();
   }
@@ -45,12 +49,12 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
     if (this.state.showLoader) {
       return (
-        <GDContainer>
+        <View style={{flex: 1}}>
           <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
           <View style={style.alignLoader}>
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
-        </GDContainer>
+        </View>
       );
     } else {
       return (
@@ -70,11 +74,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
           {/*  <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} />*/}
           {/*</View>*/}
           {/* </View> */}
-          <View style={{marginTop: 10}} />
-
-          <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
 
           <PartiesList partiesData={this.state.partiesCredData} activeCompany={activeCompany} />
+          {/* <View style={{backgroundColor: 'pink', height: 50, width: 150}}></View> */}
+          <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
         </View>
       );
     }
