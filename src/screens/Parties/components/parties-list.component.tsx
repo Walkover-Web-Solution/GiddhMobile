@@ -87,17 +87,14 @@ export const PartiesList = (props: PartiesListProp) => {
           <View style={styles.flatList}>
             <View style={styles.viewWrap}>
               <Text style={styles.partiesName}>{item.name}</Text>
-
               {item.closingBalance.amount !== 0 && (
                 <View style={styles.amountWrap}>
                   {item.country.code === 'IN' && (
                     <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
                       {getSymbolFromCurrency('INR')}
-
                       {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                     </Text>
                   )}
-
                   {item.country.code !== 'IN' && (
                     <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
                       {getSymbolFromCurrency(item.country.code)}
@@ -113,17 +110,14 @@ export const PartiesList = (props: PartiesListProp) => {
                   )}
                 </View>
               )}
-
               {item.closingBalance.amount === 0 && (
                 <View style={styles.amountWrap}>
                   <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
                 </View>
               )}
             </View>
-
             {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
             {item.category === 'assets' && <Text style={styles.subheading}> Customer</Text>}
-
             <View style={styles.seperator} />
           </View>
         </View>
