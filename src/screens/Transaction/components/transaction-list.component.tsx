@@ -62,7 +62,7 @@ class TransactionList extends React.Component {
                 <View style={styles.receiptData}>
                   <View style={styles.aboutSales}>
                     <View style={styles.leftcontent}>
-                      <View style={this.bannerColorStyle(item.type) as StyleProp<ViewStyle>}>
+                      <View style={this.bannerColorStyle(item.voucherName) as StyleProp<ViewStyle>}>
                         <Text style={styles.bannerText}>{item.voucherName} </Text>
                       </View>
                       <Text style={styles.invoiceNumber}> #{item.voucherNo}</Text>
@@ -102,11 +102,11 @@ class TransactionList extends React.Component {
 
   private bannerColorStyle(type: string) {
     let bgColor = colors.TRANSACTION_PURCHASE;
-    if (type === 'Sales') {
+    if (type === 'sales') {
       bgColor = colors.TRANSACTION_RECEIPT;
     } else if (type === 'Payment') {
       bgColor = colors.TRANSACTION_PAYMENT;
-    } else if (type === 'Contra') {
+    } else if (type === 'contra') {
       bgColor = colors.TRANSACTION_CONTRA;
     }
     return {

@@ -3,13 +3,13 @@ import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, DeviceEventEmitter} from 'react-native';
 import style from '@/screens/Transaction/style';
 import styles from '@/screens/Transaction/components/styles';
 import {GdSVGIcons} from '@/utils/icons-pack';
 import {CommonService} from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {Bars} from 'react-native-loader';
 import colors from '@/utils/colors';
 import httpInstance from '@/core/services/http/http.service';
@@ -30,15 +30,24 @@ export class TransactionScreen extends React.Component {
     };
   }
   componentDidMount() {
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      this.getTransactions();
+    });
     this.getTransactions();
   }
 
+  func1 = async () => {
+    const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    console.log(v1);
+  };
   async getTransactions() {
     try {
       // const transactions = await CommonService.getTransactions();
+      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       await httpInstance
         .post(
-          `https://apitest.giddh.com/company/mobilein1601731188063045bms/daybook?page=0&count=20&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=Mobi1`,
+          `https://apitest.giddh.com/company/${companyName}/daybook?page=0&count=20&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
           {},
         )
         .then((res) => {
@@ -95,7 +104,7 @@ export class TransactionScreen extends React.Component {
               <GdSVGIcons.download style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
             <View style={{width: 15}} />
-            <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={() => console.log(this.state.startDate)}>
+            <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={this.func1}>
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
           </View>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle} from 'react-native';
+import {SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle, FlatList} from 'react-native';
 import styles from '@/screens/Parties/components/styles';
 import {GdSVGIcons} from '@/utils/icons-pack';
 import {SwipeListView} from 'react-native-swipe-list-view';
@@ -76,63 +76,59 @@ export const PartiesList = (props: PartiesListProp) => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <View style={styles.container}>
-        <SwipeListView
-          data={partiesData.results}
-          showsVerticalScrollIndicator={false}
-          leftOpenValue={100}
-          rightOpenValue={-100}
-          renderHiddenItem={renderHiddenItem}
-          renderItem={({item}) => (
-            <View style={styles.rowFront}>
-              <View style={styles.flatList}>
-                <View style={styles.viewWrap}>
-                  <Text style={styles.partiesName}>{item.name}</Text>
+    <SwipeListView
+      data={partiesData.results}
+      showsVerticalScrollIndicator={false}
+      leftOpenValue={100}
+      rightOpenValue={-100}
+      renderHiddenItem={renderHiddenItem}
+      renderItem={({item}) => (
+        <View style={styles.rowFront}>
+          <View style={styles.flatList}>
+            <View style={styles.viewWrap}>
+              <Text style={styles.partiesName}>{item.name}</Text>
 
-                  {item.closingBalance.amount !== 0 && (
-                    <View style={styles.amountWrap}>
-                      {item.country.code === 'IN' && (
-                        <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
-                          {getSymbolFromCurrency('INR')}
+              {item.closingBalance.amount !== 0 && (
+                <View style={styles.amountWrap}>
+                  {item.country.code === 'IN' && (
+                    <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                      {getSymbolFromCurrency('INR')}
 
-                          {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
-                        </Text>
-                      )}
-
-                      {item.country.code !== 'IN' && (
-                        <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
-                          {getSymbolFromCurrency(item.country.code)}
-                          {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
-                        </Text>
-                      )}
-                      <View style={{width: 2}} />
-                      {item.category === 'liabilities' && (
-                        <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
-                      )}
-                      {item.category === 'assets' && (
-                        <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
-                      )}
-                    </View>
+                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                    </Text>
                   )}
 
-                  {item.closingBalance.amount === 0 && (
-                    <View style={styles.amountWrap}>
-                      <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
-                    </View>
+                  {item.country.code !== 'IN' && (
+                    <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                      {getSymbolFromCurrency(item.country.code)}
+                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                    </Text>
+                  )}
+                  <View style={{width: 2}} />
+                  {item.category === 'liabilities' && (
+                    <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
+                  )}
+                  {item.category === 'assets' && (
+                    <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
                   )}
                 </View>
+              )}
 
-                {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
-                {item.category === 'assets' && <Text style={styles.subheading}> Customer</Text>}
-
-                <View style={styles.seperator} />
-              </View>
+              {item.closingBalance.amount === 0 && (
+                <View style={styles.amountWrap}>
+                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
+                </View>
+              )}
             </View>
-          )}
-          keyExtractor={(item) => item.uniqueName}
-        />
-      </View>
-    </SafeAreaView>
+
+            {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
+            {item.category === 'assets' && <Text style={styles.subheading}> Customer</Text>}
+
+            <View style={styles.seperator} />
+          </View>
+        </View>
+      )}
+      keyExtractor={(item) => item.uniqueName}
+    />
   );
 };

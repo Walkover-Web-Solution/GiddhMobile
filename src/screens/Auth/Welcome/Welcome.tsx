@@ -6,6 +6,7 @@ import {GDContainer} from '@/core/components/container/container.component';
 import {View, Text, Dimensions, ScrollView, Image} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import style from './style';
+import routes from '@/navigation/routes';
 
 const Slide1 = () => {
   return (
@@ -111,14 +112,14 @@ class Welcome extends React.Component<any, any> {
             <TouchableOpacity
               style={style.createAccountButton}
               delayPressIn={0}
-              //   onPress={() => this.props.navigation.navigate('login')}
+              // onPress={() => this.props.navigation.navigate('login')}
             >
               <Text style={style.createAccount}>Create Account</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={style.loginButton}
               delayPressIn={0}
-              onPress={() => this.props.navigation.navigate('login')}>
+              onPress={() => this.props.navigation.navigate(routes.Login)}>
               <Text style={style.login}>Login</Text>
             </TouchableOpacity>
           </View>
