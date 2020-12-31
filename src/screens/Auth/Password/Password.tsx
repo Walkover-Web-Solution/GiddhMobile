@@ -22,7 +22,7 @@ class Login extends React.Component<any, any> {
   componentDidMount() {
     //initial google sign in configuration
     GoogleSignin.configure({
-      webClientId: '641015054140-5j1ct1gdkhrkltujn29tsomf4449d01f.apps.googleusercontent.com',
+      webClientId: '641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com',
     });
   }
 
