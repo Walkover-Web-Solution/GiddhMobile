@@ -32,7 +32,7 @@ class Login extends React.Component<any, any> {
   componentDidMount() {
     //initial google sign in configuration
     GoogleSignin.configure({
-      webClientId: `${WEBCLIENT_ID}`,
+      webClientId: `${WEBCLIENT_ID}`, offlineAccess: true
     });
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
@@ -54,7 +54,9 @@ class Login extends React.Component<any, any> {
       const getGoogleToken = await GoogleSignin.getTokens();
       const userInfo = await GoogleSignin.getCurrentUser();
       this.props.googleLogin(getGoogleToken.accessToken, userInfo.user.email);
+      debugger
     } catch (error) {
+      debugger
       this.setState({showLoader: false});
       console.log('Message', error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
