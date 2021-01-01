@@ -17,10 +17,7 @@ export class Invoice extends React.Component<any, any> {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     console.log(activeCompany);
   };
-  func2 = async () => {
-    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-    console.log(activeCompany);
-  };
+  
   render() {
     return (
       <View style={style.container}>

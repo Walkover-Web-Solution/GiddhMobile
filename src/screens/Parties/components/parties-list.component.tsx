@@ -78,10 +78,10 @@ export const PartiesList = (props: PartiesListProp) => {
   return (
     <SwipeListView
       data={partiesData.results}
-      showsVerticalScrollIndicator={false}
-      leftOpenValue={100}
-      rightOpenValue={-100}
-      renderHiddenItem={renderHiddenItem}
+      // showsVerticalScrollIndicator={false}
+      // leftOpenValue={100}
+      // rightOpenValue={-100}
+      // renderHiddenItem={renderHiddenItem}
       renderItem={({item}) => (
         <View style={styles.rowFront}>
           <View style={styles.flatList}>
