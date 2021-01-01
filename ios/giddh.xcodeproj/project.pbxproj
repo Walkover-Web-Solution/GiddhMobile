@@ -904,6 +904,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = giddh/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 2.2.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -927,6 +928,7 @@
 				DEVELOPMENT_TEAM = F3U6Z5L2EJ;
 				INFOPLIST_FILE = giddh/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 2.2.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
