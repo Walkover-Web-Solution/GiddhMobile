@@ -77,7 +77,7 @@ export const PartiesList = (props: PartiesListProp) => {
 
   return (
     <SwipeListView
-      data={partiesData.results}
+      data={partiesData}
       // showsVerticalScrollIndicator={false}
       // leftOpenValue={100}
       // rightOpenValue={-100}
