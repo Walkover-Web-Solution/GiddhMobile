@@ -2,7 +2,7 @@ import React from 'react';
 import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, DeviceEventEmitter} from 'react-native';
+import {View, Text, DeviceEventEmitter, TouchableOpacity} from 'react-native';
 import style from '@/screens/Parties/style';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
@@ -22,6 +22,7 @@ type PartiesScreenState = {
   showLoader: boolean;
   partiesDebtData: PartiesPaginatedResponse;
   partiesCredData: PartiesPaginatedResponse;
+  debtData: any;
 };
 
 export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScreenState> {
@@ -31,17 +32,20 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       showLoader: true,
       partiesDebtData: new PartiesPaginatedResponse(),
       partiesCredData: new PartiesPaginatedResponse(),
+      debtData: null,
     };
   }
 
+  apiCalls = async () => {
+    await this.getPartiesSundryDebtors();
+    await this.getPartiesSundryCreditors();
+  };
   componentDidMount() {
     //get parties data
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.getPartiesSundryDebtors();
-      this.getPartiesSundryCreditors();
+      this.apiCalls();
     });
-    this.getPartiesSundryDebtors();
-    this.getPartiesSundryCreditors();
+    this.apiCalls();
   }
 
   render() {
@@ -73,12 +77,13 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
           {/*  <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} />*/}
           {/*</View>*/}
           {/* </View> */}
-          <View>
-            <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
-          </View>
-          <View>
-            <PartiesList partiesData={this.state.partiesCredData} activeCompany={activeCompany} />
-          </View>
+          {/* <TouchableOpacity
+            style={{height: 50, width: 140, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.state.debtData)}>
+            <Text>Hello</Text>
+          </TouchableOpacity> */}
+          <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
+
           {/* <View style={{backgroundColor: 'pink', height: 50, width: 150}}></View> */}
         </View>
       );
@@ -87,24 +92,24 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   private async getPartiesSundryDebtors() {
     try {
-      const parties = await CommonService.getPartiesSundryDebtors();
-      // console.log('debtors are', parties);
+      const debtors = await CommonService.getPartiesSundryDebtors();
+      // console.log('data is', ...debtors.body.results, ...creditors.body.results);
       this.setState({
-        partiesDebtData: parties.body,
+        debtData: debtors.body.results,
       });
     } catch (e) {
-      this.setState({partiesDebtData: new PartiesPaginatedResponse()});
+      this.setState({debtData: new PartiesPaginatedResponse()});
       console.log(e);
     }
   }
   private async getPartiesSundryCreditors() {
     try {
-      const parties = await CommonService.getPartiesSundryCreditors();
-      // console.log('creditors are', parties);
+      const creditors = await CommonService.getPartiesSundryCreditors();
+      // console.log('creditors are', creditors.body.results);
       this.setState({
-        partiesCredData: parties.body,
+        debtData: this.state.debtData.concat(creditors.body.results),
+        showLoader: false,
       });
-      this.setState({showLoader: false});
     } catch (e) {
       this.setState({partiesCredData: new PartiesPaginatedResponse()});
       console.log('gettin error');

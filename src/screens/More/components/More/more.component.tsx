@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import colors from '../../../../utils/colors';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import {Bars} from 'react-native-loader';
 import color from '@/utils/colors';
 
 type MoreComponentProp = WithTranslation &
@@ -109,46 +109,77 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
 
     const {navigation} = this.props;
-    return (
-      <ScrollView>
-        <TouchableOpacity
-          style={style.companyView}
-          onPress={() => {
-            navigation.navigate('ChangeCompany', {activeCompany: this.state.activeCompany});
+    if (this.props.isFetchingCompanyList) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
           }}>
-          <View style={style.companyShortView}>
-            <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
-          </View>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
-            <Text style={style.companyNameText}>{activeCompanyName}</Text>
+          <Bars size={15} color={color.PRIMARY_NORMAL} />
+        </View>
+      );
+    } else {
+      return (
+        <ScrollView>
+          {this.props.companyList.length > 1 ? (
+            <TouchableOpacity
+              style={style.companyView}
+              onPress={() => {
+                navigation.navigate('ChangeCompany', {activeCompany: this.state.activeCompany});
+              }}>
+              <View style={style.companyShortView}>
+                <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+              </View>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
+                <Text style={style.companyNameText}>{activeCompanyName}</Text>
 
-            <Icon name={'arrowRight'} color="black" size={20} />
-            {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
-          </View>
-        </TouchableOpacity>
-        {
-          //Switch Branch
-        }
-        <TouchableOpacity
-          style={style.branchView}
-          onPress={() => {
-            navigation.navigate('BranchChange', {
-              branches: this.props.branchList,
-              activeBranch: this.state.activeBranch,
-            });
-          }}>
-          <Icon name={'report'} size={20} style={style.leftView} color={colors.PRIMARY_BASIC} />
-          <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
-            <Text style={style.companyNameText}>
-              {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
-            </Text>
-            <TouchableOpacity delayPressIn={0}>
-              <Icon name={'arrowRight'} color="black" size={20} />
-              {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
+                <Icon name={'arrowRight'} color="black" size={20} />
+                {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
+              </View>
             </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-        {/* <MoreList />
+          ) : (
+            <View style={style.companyView}>
+              <View style={style.companyShortView}>
+                <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+              </View>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
+                <Text style={style.companyNameText}>{activeCompanyName}</Text>
+              </View>
+            </View>
+          )}
+          {
+            //Switch Branch
+          }
+          {this.props.branchList.length > 1 && (
+            <TouchableOpacity
+              style={style.branchView}
+              onPress={() => {
+                navigation.navigate('BranchChange', {
+                  branches: this.props.branchList,
+                  activeBranch: this.state.activeBranch,
+                });
+              }}>
+              <Icon name={'report'} size={20} style={style.leftView} color={colors.PRIMARY_BASIC} />
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
+                <Text style={style.companyNameText}>
+                  {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
+                </Text>
+                <TouchableOpacity delayPressIn={0}>
+                  <Icon name={'arrowRight'} color="black" size={20} />
+                  {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          )}
+
+          {/* <MoreList />
           {
         <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Menus</Text>
         <MenuList navigation={navigation} />
@@ -156,11 +187,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         <HelpList navigation={navigation} />
         <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Others</Text>
         <OtherList /> */}
-         {this.props.isFetchingCompanyList && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
-          <Bars size={15} color={color.PRIMARY_NORMAL} />
-        </View>}
-      </ScrollView>
-    );
+        </ScrollView>
+      );
+    }
   }
 }
 
