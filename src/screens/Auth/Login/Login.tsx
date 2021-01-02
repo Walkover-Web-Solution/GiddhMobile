@@ -32,10 +32,16 @@ class Login extends React.Component<any, any> {
   componentDidMount() {
     //initial google sign in configuration
     GoogleSignin.configure({
-      webClientId: `${WEBCLIENT_ID}`, offlineAccess: true
+      webClientId: `${WEBCLIENT_ID}`
     });
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+  }
+
+  componentDidUpdate(prevProps){
+    if (!prevProps.startTFA && this.props.startTFA){
+      this.props.navigation.navigate('Otp')
+    }
   }
 
   componentWillUnmount() {
@@ -116,10 +122,10 @@ class Login extends React.Component<any, any> {
               icon="gmail"
             />
 
-            <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" onPress={()=>  alert('comming soon')}/>
+            {/* <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" onPress={()=>  alert('comming soon')}/> */}
           </View>
 
-          <View style={style.seperator}>
+          {/* <View style={style.seperator}>
             <Text style={style.forgotStyle}>or</Text>
             <View style={style.horizontalRule} />
           </View>
@@ -135,7 +141,12 @@ class Login extends React.Component<any, any> {
             </View>
 
             <View style={style.loginButtonContainer}>
-              <GDButton size={ButtonSize.medium} style={style.loginButtonStyle} label={'Login'} onPress={()=>  alert('comming soon')}/>
+              <GDButton
+                size={ButtonSize.medium}
+                style={style.loginButtonStyle}
+                label={'Login'}
+                onPress={() => alert('comming soon')}
+              />
               <TouchableOpacity onPress={() => alert('comming soon')}>
                 <Text style={style.forgotStyle}>Forgot password?</Text>
               </TouchableOpacity>
@@ -148,7 +159,7 @@ class Login extends React.Component<any, any> {
             </View>
             <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text>
             <Text style={style.bottomTextStyleLink}>Create a new account</Text>
-          </View>
+          </View> */}
         </View>
       );
     }
@@ -156,8 +167,10 @@ class Login extends React.Component<any, any> {
 }
 
 const mapStateToProps = (state: RootState) => {
+  const { LoginReducer } = state;
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    ...LoginReducer
   };
 };
 

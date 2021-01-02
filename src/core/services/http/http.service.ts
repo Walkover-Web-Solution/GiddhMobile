@@ -27,6 +27,10 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
     const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
     reqConfig.url = reqConfig.url?.replace(':userEmail', activeEmail);
   }
+  if (reqConfig.url.includes('userEmail')) {
+    const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+    reqConfig.url = reqConfig.url?.replace('userEmail', activeEmail);
+  }
   //validate session & renew if going to get expired
   const createdAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionStart);
   const expiresAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionEnd);

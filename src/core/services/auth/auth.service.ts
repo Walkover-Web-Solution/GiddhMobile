@@ -17,4 +17,16 @@ export class AuthService {
         return res.data;
       });
   }
+
+  static verifyOTP(otp: string, mobileNumber: string, countryCode: string): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance.post(AccountUrls.verifyOTP, {
+      countryCode: countryCode,
+      mobileNumber: mobileNumber,
+      oneTimePassword: otp
+    })
+      .then((res) => {
+        debugger
+        return res.data;
+      });
+  }
 }
