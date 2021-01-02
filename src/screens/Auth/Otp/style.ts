@@ -21,6 +21,7 @@ export default StyleSheet.create({
     borderWidth: 0,
     borderBottomWidth: 2,
     borderColor: colors.PRIMARY_BASIC,
+    color: colors.PRIMARY_BASIC
   },
 
   underlineStyleHighLighted: {
