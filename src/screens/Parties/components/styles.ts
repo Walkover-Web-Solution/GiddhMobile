@@ -32,6 +32,7 @@ export default StyleSheet.create({
     color: colors.INPUT_COLOR,
     marginLeft: 5,
     fontSize: constants.GD_FONT_SIZE.medium,
+    width: '65%',
     fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
   },
   subheading: {
