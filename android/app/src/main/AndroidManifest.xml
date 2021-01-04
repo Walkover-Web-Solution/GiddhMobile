@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.giddh">
+  package="com.app.Giddh">
 
     <uses-permission android:name="android.permission.INTERNET" />
 

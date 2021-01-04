@@ -1,6 +1,6 @@
 import {StyleSheet, Platform} from 'react-native';
-import  colors from "../../../../utils/colors";
-import { InputSize } from '../../../../models/enums/input';
+import colors from '../../../../utils/colors';
+import {InputSize} from '../../../../models/enums/input';
 import {GD_BUTTON_SIZE, GD_CIRCLE_BUTTON, GD_ICON_SIZE, GD_RADIUS} from '@/utils/constants';
 
 export default StyleSheet.create({
@@ -27,59 +27,58 @@ export default StyleSheet.create({
   topScroll: {
     paddingHorizontal: 15,
   },
-  companyNameText:{ 
+  companyNameText: {
     color: colors.INPUT_COLOR,
     textAlign: 'center',
     fontSize: 14,
     fontFamily: Platform.OS === 'ios' ? 'OpelSans-Bold' : 'Opel-Sans-Bold',
     marginLeft: 10,
-    alignSelf: 'center'
-},
-companyShortText:{
-  color: colors.WHITE,
-  textAlign: 'center',
-  fontSize: 11,
-  fontFamily: Platform.OS === 'ios' ? 'OpelSans-Bold' : 'Opel-Sans-Bold',
-  textTransform: 'uppercase'
-},
-companyShortView:{
-  backgroundColor:colors.SECONDARY,
-  width: 26,
-  height:26,
-  borderRadius: 13,
-  justifyContent:'center',
-  alignItems: 'center', 
-  marginLeft: 15,
-  alignSelf: 'center'
-}, 
-leftView:{
-  width: 26,
-  height:26,
-  justifyContent:'center',
-  alignItems: 'center', 
-  marginLeft: 20,
-  alignSelf: 'center'
-}, 
-companyView:{
-  paddingVertical: 10, 
-  paddingHorizontal:10, 
-  flexDirection: 'row', 
-  backgroundColor: colors.BACKGROUND, 
-  width: '100%',
-  alignItems: 'center', 
-  height: 78, 
-},
-branchView:{
-  paddingVertical: 6, 
-  paddingHorizontal:10, 
-  flexDirection: 'row', 
-  backgroundColor: '#fff',
-  width: '100%',
-  alignItems: 'center', 
-  height: 78, 
-},
-iconStyle: {
-  height: GD_ICON_SIZE.input_icon,
-  width: GD_ICON_SIZE.input_icon,
-},
+  },
+  companyShortText: {
+    color: colors.WHITE,
+    textAlign: 'center',
+    fontSize: 11,
+    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Bold' : 'Opel-Sans-Bold',
+    textTransform: 'uppercase',
+  },
+  companyShortView: {
+    backgroundColor: colors.SECONDARY,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 15,
+    alignSelf: 'center',
+  },
+  leftView: {
+    width: 26,
+    height: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 20,
+    alignSelf: 'center',
+  },
+  companyView: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    backgroundColor: colors.BACKGROUND,
+    width: '100%',
+    alignItems: 'center',
+    height: 78,
+  },
+  branchView: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    width: '100%',
+    alignItems: 'center',
+    height: 78,
+  },
+  iconStyle: {
+    height: GD_ICON_SIZE.input_icon,
+    width: GD_ICON_SIZE.input_icon,
+  },
 });

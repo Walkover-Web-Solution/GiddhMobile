@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
-import {View, TouchableOpacity, DeviceEventEmitter} from 'react-native';
+import {View, TouchableOpacity, DeviceEventEmitter, ActivityIndicator, Dimensions} from 'react-native';
 import style from '@/screens/Transaction/style';
 import styles from '@/screens/Transaction/components/styles';
 import {GdSVGIcons} from '@/utils/icons-pack';
@@ -26,6 +26,8 @@ export class TransactionScreen extends React.Component {
       transactionsData: [],
       startDate: '01-04-2020',
       endDate: '25-12-2020',
+      page: 1,
+      loadingMore: false,
     };
   }
   componentDidMount() {
@@ -46,13 +48,14 @@ export class TransactionScreen extends React.Component {
       const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       await httpInstance
         .post(
-          `https://apitest.giddh.com/company/${companyName}/daybook?page=0&count=20&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
+          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=20&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
           {},
         )
         .then((res) => {
           this.setState({
-            transactionsData: res.data.body.entries,
+            transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
           });
+          // console.log(res);
         });
       // console.log(transactions);
 
@@ -60,12 +63,24 @@ export class TransactionScreen extends React.Component {
       //   transactionsData: transactions.body.entries,
       // });
       // console.log(this.state.transactionsData);
-      this.setState({showLoader: false});
+      this.setState({showLoader: false, loadingMore: false});
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false});
     }
   }
+
+  handleRefresh = () => {
+    this.setState(
+      {
+        page: this.state.page + 1,
+        loadingMore: true,
+      },
+      () => {
+        this.getTransactions();
+      },
+    );
+  };
 
   changeDate = (SD, ED) => {
     if (SD) {
@@ -79,6 +94,24 @@ export class TransactionScreen extends React.Component {
       });
       this.getTransactions();
     }
+  };
+  _renderFooter = () => {
+    if (!this.state.loadingMore) return null;
+
+    return (
+      <View
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 100,
+          bottom: 10,
+          // backgroundColor: 'pink',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+      </View>
+    );
   };
   render() {
     if (this.state.showLoader) {
@@ -108,7 +141,11 @@ export class TransactionScreen extends React.Component {
             </TouchableOpacity>
           </View>
           <View style={{marginTop: 10}} />
-          <TransactionList transactions={this.state.transactionsData} />
+          <TransactionList
+            transactions={this.state.transactionsData}
+            onEnd={this.handleRefresh}
+            footer={this._renderFooter}
+          />
         </View>
       );
     }
