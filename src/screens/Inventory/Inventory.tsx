@@ -1,5 +1,4 @@
 import React from 'react';
-import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import {View} from 'react-native';
@@ -36,13 +35,13 @@ export class InventoryScreen extends React.Component<Props, {}> {
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state) => {
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     // getCountriesAction: dispatch.common.getCountriesAction,
     // logoutAction: dispatch.auth.logoutAction,

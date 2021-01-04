@@ -1,6 +1,5 @@
 import React from 'react';
 // import {Text} from '@ui-kitten/components';
-import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import {View, Text, Dimensions, ScrollView, Image} from 'react-native';

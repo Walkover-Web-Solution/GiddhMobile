@@ -1,6 +1,5 @@
 import React from 'react';
 import {Text} from '@ui-kitten/components';
-import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 
@@ -40,6 +39,7 @@ class Login extends React.Component<any, any> {
 
   componentDidUpdate(prevProps){
     if (!prevProps.startTFA && this.props.startTFA){
+      this.setState({showLoader: false})
       this.props.navigation.navigate('Otp')
     }
   }
@@ -96,16 +96,16 @@ class Login extends React.Component<any, any> {
   };
 
   render() {
-    if (this.state.showLoader) {
-      return (
-        <GDContainer>
-          <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
-          <View style={style.alignLoader}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
-          </View>
-        </GDContainer>
-      );
-    } else {
+    // if (this.state.showLoader) {
+    //   return (
+    //     <GDContainer>
+    //       <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
+    //       <View style={style.alignLoader}>
+    //         <Bars size={15} color={color.PRIMARY_NORMAL} />
+    //       </View>
+    //     </GDContainer>
+    //   );
+    // } else {
       return (
         <View style={style.loginContainer}>
           <View style={[style.socialLoginContainer, {marginTop: this.state.keyboard ? 10 : 50}]}>
@@ -160,9 +160,12 @@ class Login extends React.Component<any, any> {
             <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text>
             <Text style={style.bottomTextStyleLink}>Create a new account</Text>
           </View> */}
+             {this.state.showLoader && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
+          <Bars size={15} color={color.PRIMARY_NORMAL} />
+        </View>}
         </View>
       );
-    }
+    //}
   }
 }
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import HomeComponent from '@/screens/Home/components/Home/home.component';

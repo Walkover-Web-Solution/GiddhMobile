@@ -7,7 +7,6 @@ import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import AppNavigator from '@/navigation/app.navigator';
 import {Provider} from 'react-redux';
-// import {store} from '@/core/store';
 import '@/utils/i18n';
 import AsyncStorage from '@react-native-community/async-storage';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';

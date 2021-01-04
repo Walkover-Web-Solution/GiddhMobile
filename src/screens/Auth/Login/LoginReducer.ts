@@ -61,7 +61,9 @@ export default (state = initialState, action: Action) => {
             return {
                 ...state,
                 startTFA: true,
-                tfaDetails: action.payload
+                tfaDetails: action.payload,
+                isAuthenticatingUser: true,
+
             };
 
         case ActionConstants.VERIFY_OTP_FAILURE:
@@ -74,7 +76,9 @@ export default (state = initialState, action: Action) => {
          case ActionConstants.VERIFY_OTP:
             return{
                 ...state,
-                isVerifyingOTP: true
+                isVerifyingOTP: true,
+                isAuthenticatingUser: true,
+
 
             };
         case ActionConstants.VERIFY_OTP_SUCCESS:

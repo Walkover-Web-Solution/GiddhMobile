@@ -1,5 +1,4 @@
 import React from 'react';
-import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import {Image, View, Text, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
@@ -60,7 +59,7 @@ class Login extends React.Component<any, any> {
             <Text style={{color: colors.PRIMARY_NORMAL, fontSize: 18}}>Resend Code</Text>
           </TouchableOpacity> */}
           <TouchableOpacity style={[style.submitButton, {backgroundColor: this.state.code.length == 4 ? colors.PRIMARY_BASIC : colors.PRIMARY_DISABLED}]} delayPressIn={0} onPress={()=> {
-            if (this.state.code.length == 4 ){
+            if (this.state.code.length == 4 && !this.props.isVerifyingOTP){
               this.props.verifyOTP(this.state.code, this.props.tfaDetails.countryCode, this.props.tfaDetails.contactNumber)
             }
           }}>
