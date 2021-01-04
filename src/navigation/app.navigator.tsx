@@ -2,11 +2,8 @@ import React from 'react';
 import SafeAreaView from 'react-native-safe-area-view';
 import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import {HomeNavigator} from '@/navigation/home.navigator';
-import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {AuthStack} from './auth.navigator';
-import configureStore from '../redux/store';
-const {store, persistor} = configureStore();
 import {CompanyInfoStack} from './companyInfo.navigator';
 import style from '@/screens/Inventory/style';
 
@@ -31,7 +28,7 @@ const AppNavigator = (props: any): React.ReactElement => {
   );
 };
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state) => {
   return {
     isUserAuthenticated: state.LoginReducer.isUserAuthenticated,
   };

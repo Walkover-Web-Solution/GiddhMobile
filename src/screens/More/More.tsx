@@ -1,6 +1,5 @@
 import React from 'react';
 import {Text} from 'react-native';
-import {Dispatch, RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import {CommonService} from '@/core/services/common/common.service';
@@ -36,7 +35,7 @@ export class MoreScreen extends React.Component<Props, {}> {
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state) => {
   const { commonReducer, LoginReducer } = state;
 
   return {
@@ -47,7 +46,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+const mapDispatchToProps = () => {
   return {
     // getCountriesAction: dispatch.common.getCountriesAction,
     // logoutAction: dispatch.auth.logoutAction,

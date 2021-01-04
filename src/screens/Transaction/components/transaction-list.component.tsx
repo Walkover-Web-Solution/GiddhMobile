@@ -62,7 +62,7 @@ class TransactionList extends React.Component {
                 <View style={styles.receiptData}>
                   <View style={styles.aboutSales}>
                     <View style={styles.leftcontent}>
-                      <View style={this.bannerColorStyle(item.voucherName) as StyleProp<ViewStyle>}>
+                      <View style={this.bannerColorStyle(item.voucherName)}>
                         <Text style={styles.bannerText}>{item.voucherName} </Text>
                       </View>
                       <Text style={styles.invoiceNumber}> #{item.voucherNo}</Text>

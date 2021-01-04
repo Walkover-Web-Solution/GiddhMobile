@@ -1,5 +1,4 @@
 import React from 'react';
-import {RootState} from '@/core/store';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import {View, Text, DeviceEventEmitter, TouchableOpacity} from 'react-native';

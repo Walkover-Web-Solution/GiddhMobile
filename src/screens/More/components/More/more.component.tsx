@@ -11,7 +11,6 @@ import {BadgeTab} from '@/models/interfaces/badge-tabs';
 import style from './style';
 import {GdSVGIcons} from '@/utils/icons-pack';
 import _ from 'lodash';
-import {company} from '../../../../core/store/company/index';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import colors from '../../../../utils/colors';
@@ -47,7 +46,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this._getActiveCompany();
     });
     this._getActiveCompany();
-    const {navigation} = this.props;
   }
   componentDidUpdate() {
     // this._getActiveCompany();
@@ -79,7 +77,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this.setState({activeCompany: undefined});
     }
     var branchResults = _.find(this.props.branchList, function (item) {
-      return item.uniqueName == activeBranch;
+      return item.alias == activeBranch;
     });
     if (branchResults) {
       this.setState({activeBranch: branchResults});
@@ -128,7 +126,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     } else {
       return (
         <ScrollView>
-          {this.props.companyList.length > 1 ? (
+          {this.props.companyList && this.props.companyList.length > 1 ? (
             <TouchableOpacity
               style={style.companyView}
               onPress={() => {
@@ -157,7 +155,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           {
             //Switch Branch
           }
-          {this.props.branchList.length > 1 && (
+          {this.props.branchList && this.props.branchList.length > 1 && (
             <TouchableOpacity
               style={style.branchView}
               onPress={() => {
