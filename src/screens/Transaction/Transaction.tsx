@@ -131,7 +131,7 @@ export class TransactionScreen extends React.Component {
             endDate={this.state.endDate}
             onChangeDate={this.changeDate}
           />
-          <View style={style.filterStyle}>
+          {/* <View style={style.filterStyle}>
             <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={() => console.log(this.state.endDate)}>
               <GdSVGIcons.download style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
@@ -139,7 +139,7 @@ export class TransactionScreen extends React.Component {
             <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={this.func1}>
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
-          </View>
+          </View> */}
           <View style={{marginTop: 10}} />
           <TransactionList
             transactions={this.state.transactionsData}
