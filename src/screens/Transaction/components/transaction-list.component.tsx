@@ -90,6 +90,9 @@ class TransactionList extends React.Component {
               </View>
             )}
             keyExtractor={(item) => item.uniqueName}
+            onEndReached={this.props.onEnd}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={this.props.footer}
           />
         </View>
       </SafeAreaView>
@@ -104,10 +107,12 @@ class TransactionList extends React.Component {
     let bgColor = colors.TRANSACTION_PURCHASE;
     if (type === 'sales') {
       bgColor = colors.TRANSACTION_RECEIPT;
-    } else if (type === 'Payment') {
-      bgColor = colors.TRANSACTION_PAYMENT;
+    } else if (type === 'payment') {
+      bgColor = '#084EAD';
     } else if (type === 'contra') {
       bgColor = colors.TRANSACTION_CONTRA;
+    } else if (type === 'purchase') {
+      bgColor = bgColor;
     }
     return {
       backgroundColor: bgColor,
