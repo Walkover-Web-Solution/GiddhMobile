@@ -25,6 +25,10 @@ export default StyleSheet.create({
     justifyContent: 'flex-end',
     flexDirection: 'row',
   },
+  alignLoader: {
+    alignItems: 'center',
+    marginTop: 150,
+  },
   iconCard: {
     padding: 15,
     borderRadius: 5,

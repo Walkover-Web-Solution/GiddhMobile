@@ -22,8 +22,8 @@ const BottomTabBar = ({navigation, state}: {navigation: any; state: any}) => (
     selectedIndex={state.index}
     onSelect={(index) => navigation.navigate(state.routeNames[index])}
     appearance={'noIndicator'}>
-    <BottomNavigationTab title="Transactions" icon={HomeIcon} />
-    {/* <BottomNavigationTab title="Inventory" icon={HomeIcon} /> */}
+    <BottomNavigationTab title="Dashboard" icon={HomeIcon} />
+    <BottomNavigationTab title="Inventory" icon={HomeIcon} />
     <BottomNavigationTab title="Parties" icon={PersonIcon} />
     <BottomNavigationTab title="More" icon={MoreIcon} />
   </BottomNavigation>
@@ -31,8 +31,8 @@ const BottomTabBar = ({navigation, state}: {navigation: any; state: any}) => (
 
 export const HomeNavigator = () => (
   <Navigator tabBar={(props) => <BottomTabBar {...props} />}>
-    <Screen name={Routes.Transaction} component={Transactions} />
-    {/* <Screen name={Routes.Inventory} component={InventoryScreen} /> */}
+    <Screen name={Routes.Transaction} component={HomeScreen} />
+    <Screen name={Routes.Inventory} component={InventoryScreen} />
     {/* <Screen name={Routes.BigButton} component={HomeScreen} /> */}
     <Screen name={Routes.Parties} component={PartiesScreen} />
     {/* <Screen name={Routes.Parties} component={PartiesScreen} /> */}

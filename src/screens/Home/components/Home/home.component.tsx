@@ -84,45 +84,42 @@ class HomeComponent extends React.Component<HomeComponentProp, HomeComponentStat
   render() {
     const {t} = this.props;
     return (
-      <>
-        <GDContainer>
-          <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
-          <View style={style.topScroll}>
-            <ScrollView horizontal={true}>
-              <Layout style={style.cardContainer} level="1">
-                <TopCard label={t('DEMO.SALES')} month={'Aug'} amount={'20,24,000.00'} icon="voucher" />
-                <TopCard label={'Receipt'} month={'Aug'} amount={'4,000.00'} icon="voucher" />
-                <TopCard label={'Purchase'} month={'Aug'} amount={'14,000.00'} icon="voucher" />
-                <TopCard label={'Payment'} month={'Aug'} amount={'1,000.00'} icon="voucher" />
-              </Layout>
-            </ScrollView>
-          </View>
-          <View
-            style={{
-              marginLeft: 15,
-              marginRight: 15,
-              // marginLeft: 70,
-              // marginRight: 70,
-              marginTop: 10,
-              display: 'flex',
-              justifyContent: 'space-around',
-              flexDirection: 'row',
-              marginBottom: 15,
-            }}>
-            {this.state.badgeTabs.map((tab: BadgeTab, index: number) => (
-              <BadgeButton
-                label={tab.label}
-                key={tab.label}
-                onPress={() => this.selectedTab(tab, index)}
-                isActive={tab.isActive}
-              />
-            ))}
-          </View>
-          <ScrollView>
-            <View>{this.renderElement()}</View>
+      <View style={{flex: 1}}>
+        {/* <View style={style.topScroll}>
+          <ScrollView horizontal={true}>
+            <Layout style={style.cardContainer} level="1">
+              <TopCard label={t('DEMO.SALES')} month={'Aug'} amount={'20,24,000.00'} icon="voucher" />
+              <TopCard label={'Receipt'} month={'Aug'} amount={'4,000.00'} icon="voucher" />
+              <TopCard label={'Purchase'} month={'Aug'} amount={'14,000.00'} icon="voucher" />
+              <TopCard label={'Payment'} month={'Aug'} amount={'1,000.00'} icon="voucher" />
+            </Layout>
           </ScrollView>
-        </GDContainer>
-      </>
+        </View> */}
+        <View
+          style={{
+            marginLeft: 15,
+            marginRight: 15,
+            // marginLeft: 70,
+            // marginRight: 70,
+            marginTop: 10,
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexDirection: 'row',
+            marginBottom: 15,
+          }}>
+          {this.state.badgeTabs.map((tab: BadgeTab, index: number) => (
+            <BadgeButton
+              label={tab.label}
+              key={tab.label}
+              onPress={() => this.selectedTab(tab, index)}
+              isActive={tab.isActive}
+            />
+          ))}
+        </View>
+        <ScrollView>
+          <View>{this.renderElement()}</View>
+        </ScrollView>
+      </View>
     );
   }
 }
