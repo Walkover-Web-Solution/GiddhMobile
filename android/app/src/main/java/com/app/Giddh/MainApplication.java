@@ -1,4 +1,4 @@
-package com.giddh;
+package com.app.Giddh;
 
 import android.app.Application;
 import android.content.Context;
