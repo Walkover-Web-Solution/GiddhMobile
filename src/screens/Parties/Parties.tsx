@@ -39,7 +39,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
     this.setState({
-      debtData: this.state.debtData.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0])),
+      debtData: this.state.debtData.sort((a, b) =>
+        a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+      ),
       showLoader: false,
     });
   };
