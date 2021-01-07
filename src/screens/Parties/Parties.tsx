@@ -38,6 +38,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   apiCalls = async () => {
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
+    this.setState({
+      debtData: this.state.debtData.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0])),
+      showLoader: false,
+    });
   };
   componentDidMount() {
     //get parties data
@@ -107,7 +111,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       // console.log('creditors are', creditors.body.results);
       this.setState({
         debtData: this.state.debtData.concat(creditors.body.results),
-        showLoader: false,
       });
     } catch (e) {
       this.setState({partiesCredData: new PartiesPaginatedResponse()});

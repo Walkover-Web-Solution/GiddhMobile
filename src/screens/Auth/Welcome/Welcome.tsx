@@ -6,6 +6,8 @@ import {View, Text, Dimensions, ScrollView, Image} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import style from './style';
 import routes from '@/navigation/routes';
+import AsyncStorage from '@react-native-community/async-storage';
+import {STORAGE_KEYS} from '@/utils/constants';
 
 const Slide1 = () => {
   return (
@@ -54,6 +56,11 @@ const Slide4 = () => {
 
 const {width, height} = Dimensions.get('window');
 class Welcome extends React.Component<any, any> {
+  func1 = async () => {
+    // AsyncStorage.clear();
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
+    console.log(activeCompany);
+  };
   constructor(props: any) {
     super(props);
     this.state = {
@@ -108,13 +115,9 @@ class Welcome extends React.Component<any, any> {
             ))}
           </View>
           <View style={style.buttonContainer}>
-            {/* <TouchableOpacity
-              style={style.createAccountButton}
-              delayPressIn={0}
-              // onPress={() => this.props.navigation.navigate('login')}
-            >
+            <TouchableOpacity style={style.createAccountButton} delayPressIn={0} onPress={this.func1}>
               <Text style={style.createAccount}>Create Account</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
             <TouchableOpacity
               style={style.loginButton}
               delayPressIn={0}

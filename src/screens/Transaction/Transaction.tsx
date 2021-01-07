@@ -25,9 +25,10 @@ export class TransactionScreen extends React.Component {
     this.state = {
       showLoader: true,
       transactionsData: [],
-      startDate: '01-04-2020',
+      startDate: '01-12-2020',
       endDate: '31-12-2020',
       page: 1,
+      totalPages: 0,
       onEndReachedCalledDuringMomentum: true,
       loadingMore: false,
     };
@@ -56,8 +57,9 @@ export class TransactionScreen extends React.Component {
         .then((res) => {
           this.setState({
             transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
+            totalPages: res.data.body.totalPages,
           });
-          // console.log(res);
+          // console.log(res.data.body);
         });
       // console.log(transactions);
 
@@ -71,18 +73,19 @@ export class TransactionScreen extends React.Component {
       this.setState({showLoader: false});
     }
   }
-
   handleRefresh = () => {
-    this.setState(
-      {
-        page: this.state.page + 1,
-        loadingMore: true,
-      },
-      () => {
-        console.log('this executes now');
-        this.getTransactions();
-      },
-    );
+    if (this.state.page < this.state.totalPages) {
+      this.setState(
+        {
+          page: this.state.page + 1,
+          loadingMore: true,
+        },
+        async () => {
+          await this.getTransactions();
+          console.log('this executes now');
+        },
+      );
+    }
   };
 
   changeDate = (SD, ED) => {
@@ -147,7 +150,7 @@ export class TransactionScreen extends React.Component {
           <FlatList
             data={this.state.transactionsData}
             renderItem={({item}) => <TransactionList item={item} />}
-            keyExtractor={(item) => item.uniqueName}
+            keyExtractor={(item) => item.createdAt}
             onEndReachedThreshold={0.2}
             onEndReached={() => this.handleRefresh()}
             ListFooterComponent={this._renderFooter}

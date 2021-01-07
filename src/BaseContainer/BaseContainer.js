@@ -24,7 +24,7 @@ class BaseContainer extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.isUserAuthenticated && !prevProps.isUserAuthenticated) {
-      console.log(this.props.getCompanyAndBranches());
+      this.props.getCompanyAndBranches();
     }
   }
 

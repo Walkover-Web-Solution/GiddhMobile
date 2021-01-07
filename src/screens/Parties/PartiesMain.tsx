@@ -8,6 +8,7 @@ import color from '@/utils/colors';
 import {PartiesList} from '@/screens/Parties/components/parties-list.component';
 import {CommonService} from '@/core/services/common/common.service';
 import {CompanyService} from '@/core/services/company/company.service';
+import _ from 'lodash';
 
 import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
 // @ts-ignore
@@ -23,18 +24,42 @@ export class PartiesScreen extends React.Component {
       partiesDebtData: new PartiesPaginatedResponse(),
       partiesCredData: new PartiesPaginatedResponse(),
       debtData: null,
+      debtFullData: null,
       query: '',
     };
   }
+
+  handleSearch = (text: any) => {
+    const formatQuery = text.toUpperCase();
+    const data = _.filter(this.state.debtFullData, (party) => {
+      if (party.name.toUpperCase().includes(formatQuery)) {
+        return 1;
+      }
+      return -1;
+    });
+    this.setState(
+      {
+        query: formatQuery,
+        debtData: data,
+      },
+
+      () => console.log(this.state.debtData),
+    );
+  };
 
   apiCalls = async () => {
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
     // console.log(this.state.debtData[7].name.split(' ')[0]);
-    this.setState({
-      debtData: this.state.debtData.sort((a, b) => a.name.split(' ')[0].localeCompare(b.name.split(' ')[0])),
-      showLoader: false,
-    });
+    this.setState(
+      {
+        debtFullData: this.state.debtFullData.sort((a, b) =>
+          a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+        ),
+        showLoader: false,
+      },
+      // () => console.log(this.state.debtFullData),
+    );
   };
   componentDidMount() {
     //get parties data
@@ -59,14 +84,17 @@ export class PartiesScreen extends React.Component {
       return (
         <View style={{flex: 1}}>
           <View style={{height: Dimensions.get('window').height * 0.08, backgroundColor: '#864DD3'}}>
-            <TextInput placeholder={'search'} />
+            <TextInput placeholder={'search'} onChange={(text) => this.handleSearch(text)} />
           </View>
           {/* <TouchableOpacity
             style={{height: 50, width: 140, backgroundColor: 'pink'}}
             onPress={() => console.log(this.state.debtData)}>
             <Text>Hello</Text>
           </TouchableOpacity> */}
-          {/* <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} /> */}
+          <PartiesList
+            partiesData={this.state.query ? this.state.debtData : this.state.debtFullData}
+            activeCompany={activeCompany}
+          />
         </View>
       );
     }
@@ -77,10 +105,10 @@ export class PartiesScreen extends React.Component {
       const debtors = await CommonService.getPartiesSundryDebtors();
       // console.log('data is', ...debtors.body.results, ...creditors.body.results);
       this.setState({
-        debtData: debtors.body.results,
+        debtFullData: debtors.body.results,
       });
     } catch (e) {
-      this.setState({debtData: new PartiesPaginatedResponse()});
+      this.setState({debtFullData: new PartiesPaginatedResponse()});
       console.log(e);
     }
   }
@@ -89,7 +117,7 @@ export class PartiesScreen extends React.Component {
       const creditors = await CommonService.getPartiesSundryCreditors();
       // console.log('creditors are', creditors.body.results);
       this.setState({
-        debtData: this.state.debtData.concat(creditors.body.results),
+        debtFullData: this.state.debtFullData.concat(creditors.body.results),
       });
     } catch (e) {
       this.setState({partiesCredData: new PartiesPaginatedResponse()});
