@@ -125,7 +125,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       );
     } else {
       return (
-        <ScrollView>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
           {this.props.companyList && this.props.companyList.length > 1 ? (
             <TouchableOpacity
               style={style.companyView}
@@ -176,8 +176,29 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={{height: 60, width: 120, backgroundColor: 'pink'}} onPress={this.props.logout}>
-            <Text>Press me</Text>
+          <TouchableOpacity
+            style={{
+              height: 60,
+              width: '100%',
+              backgroundColor: 'white',
+              flexDirection: 'row',
+              position: 'absolute',
+              bottom: 10,
+              alignItems: 'center',
+              paddingHorizontal: 30,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.22,
+              shadowRadius: 2.22,
+
+              elevation: 3,
+            }}
+            onPress={this.props.logout}>
+            <Icon name={'Lock'} size={20} color={'#5773FF'} />
+            <Text style={{fontFamily: 'Opel-Sans-Bold', marginLeft: 20}}>Logout</Text>
           </TouchableOpacity>
           {/* <MoreList />
           {
@@ -186,8 +207,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Help</Text>
         <HelpList navigation={navigation} />
         <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Others</Text>
-        <OtherList /> */}
-        </ScrollView>
+         */}
+        </View>
       );
     }
   }
