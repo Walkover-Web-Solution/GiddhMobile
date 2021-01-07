@@ -15,7 +15,7 @@ export default StyleSheet.create({
   listHeading: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.medium,
-    fontWeight: constants.GD_FONT_WEIGHT.bold,
+    fontFamily: 'OpenSans-Bold',
   },
 
   balData: {
@@ -57,7 +57,7 @@ export default StyleSheet.create({
   },
   stockSubTitle: {
     color: colors.TEXT_NORMAL,
-    fontWeight: GD_FONT_WEIGHT.bold,
+    fontFamily: 'OpenSans-Bold',
     fontSize: constants.GD_FONT_SIZE.normal,
   },
   seperator: {

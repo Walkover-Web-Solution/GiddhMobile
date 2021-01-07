@@ -37,8 +37,7 @@ export default StyleSheet.create({
   },
   loginTextStyle: {
     fontSize: 26,
-    fontFamily: 'OpenSans',
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
     // marginBottom: 30,
     color: colors.TEXT_HEADING,
   },
@@ -75,7 +74,6 @@ export default StyleSheet.create({
   registerStyle: {
     fontSize: 18,
     fontFamily: 'OpenSans',
-    fontWeight: 'bold',
     color: colors.TEXT_NORMAL,
   },
   formInput: {
