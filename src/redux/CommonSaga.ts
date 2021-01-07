@@ -1,4 +1,4 @@
-import {call, put, takeLatest, select} from 'redux-saga/effects';
+import {call, put, takeLatest, select, takeEvery} from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as CommonActions from './CommonAction';
@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
+  yield takeEvery(ActionConstants.LOGOUT, logoutUser);
 }
 
 export function* getCompanyAndBranches() {
@@ -62,15 +63,12 @@ export function* getCompanyAndBranches() {
   }
 }
 
-export function* logoutUser(action) {
-  const state = yield select();
-  const {commonReducer} = state;
-  let id = commonReducer.userData.data.data[0].id;
-
+export async function* logoutUser() {
   try {
-    const response = yield call(LoginService.logout, id);
-    console.log(response);
+    await AsyncStorage.clear();
   } catch (e) {
-    yield put(CommonActions.loginUserFailure(e));
+    console.log(e);
   }
+
+  yield put(CommonActions.reset());
 }

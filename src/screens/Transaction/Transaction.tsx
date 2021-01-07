@@ -25,7 +25,7 @@ export class TransactionScreen extends React.Component {
     this.state = {
       showLoader: true,
       transactionsData: [],
-      startDate: '01-12-2020',
+      startDate: '01-04-2020',
       endDate: '31-12-2020',
       page: 1,
       onEndReachedCalledDuringMomentum: true,
@@ -148,8 +148,8 @@ export class TransactionScreen extends React.Component {
             data={this.state.transactionsData}
             renderItem={({item}) => <TransactionList item={item} />}
             keyExtractor={(item) => item.uniqueName}
-            onEndReachedThreshold={0.5}
-            onEndReached={this.handleRefresh}
+            onEndReachedThreshold={0.2}
+            onEndReached={() => this.handleRefresh()}
             ListFooterComponent={this._renderFooter}
           />
         </View>

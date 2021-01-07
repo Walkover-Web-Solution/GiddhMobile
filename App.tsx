@@ -18,6 +18,7 @@ import configureStore from './src/redux/store';
 import Invoice from '@/screens/Invoices/Invoice';
 const {store, persistor} = configureStore();
 import SplashScreen from 'react-native-splash-screen';
+import PartiesMain from '@/screens/Parties/PartiesMain';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -62,7 +63,8 @@ export default class App extends React.Component<any> {
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
                   <BaseContainer />
-                  {/* <Invoice /> */}
+                  {/* <Invoice />  */}
+                  {/* <PartiesMain /> */}
                 </SafeAreaProvider>
               </ApplicationProvider>
             </AppearanceProvider>

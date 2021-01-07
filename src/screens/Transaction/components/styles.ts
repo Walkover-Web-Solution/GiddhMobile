@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import * as constants from '@/utils/constants';
 import {GD_ICON_SIZE} from '@/utils/constants';
 import colors, {baseColor} from '@/utils/colors';
@@ -9,6 +9,8 @@ export default StyleSheet.create({
   },
   flatList: {
     marginBottom: 15,
+    // backgroundColor: 'pink',
+    height: Dimensions.get('window').height * 0.14,
   },
   listHeading: {
     color: colors.INPUT_COLOR,
