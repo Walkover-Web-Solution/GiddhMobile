@@ -176,7 +176,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-
+          <TouchableOpacity style={{height: 60, width: 120, backgroundColor: 'pink'}} onPress={this.props.logout}>
+            <Text>Press me</Text>
+          </TouchableOpacity>
           {/* <MoreList />
           {
         <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Menus</Text>

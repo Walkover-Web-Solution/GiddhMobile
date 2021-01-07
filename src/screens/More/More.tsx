@@ -4,6 +4,7 @@ import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import {CommonService} from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
+import * as CommonActions from '@/redux/CommonAction';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps & {navigation: any};
@@ -25,10 +26,10 @@ export class MoreScreen extends React.Component<Props, {}> {
           countries={this.props.countries}
           getCountriesAction={this.props.getCountriesAction}
           isCountriesLoading={this.props.isCountriesLoading}
-          logoutAction={this.props.logoutAction}
-          companyList = {this.props.comapnyList}
-          branchList = {this.props.branchList}
-          isFetchingCompanyList ={this.props.isFetchingCompanyList}
+          logout={this.props.logout}
+          companyList={this.props.comapnyList}
+          branchList={this.props.branchList}
+          isFetchingCompanyList={this.props.isFetchingCompanyList}
         />
       </GDContainer>
     );
@@ -36,18 +37,21 @@ export class MoreScreen extends React.Component<Props, {}> {
 }
 
 const mapStateToProps = (state) => {
-  const { commonReducer, LoginReducer } = state;
+  const {commonReducer, LoginReducer} = state;
 
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
-    ...commonReducer
+    ...commonReducer,
     // countries: state.common.countries,
     // isCountriesLoading: state.common.isCountriesLoading,
   };
 };
 
-const mapDispatchToProps = () => {
+const mapDispatchToProps = (dispatch) => {
   return {
+    logout: () => {
+      dispatch(CommonActions.logout());
+    },
     // getCountriesAction: dispatch.common.getCountriesAction,
     // logoutAction: dispatch.auth.logoutAction,
   };

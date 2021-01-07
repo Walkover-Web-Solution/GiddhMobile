@@ -55,7 +55,7 @@ class Login extends React.Component<any, any> {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
-      console.log('this throws errors?');
+
       await GoogleSignin.signIn();
       this.setState({showLoader: true});
       const getGoogleToken = await GoogleSignin.getTokens();
