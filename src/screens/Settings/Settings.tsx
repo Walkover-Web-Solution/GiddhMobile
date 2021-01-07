@@ -65,7 +65,7 @@ export class SettingsScreen extends React.Component<Props> {
     return (
       <GDContainer>
         <View style={style.container}>
-          <Text style={{fontSize: 20, fontWeight: 'bold', margin: 20}}>Settings</Text>
+          <Text style={{fontSize: 20, fontFamily: 'OpenSans-Bold', margin: 20}}>Settings</Text>
           <FlatList
             data={this.listData}
             showsVerticalScrollIndicator={false}

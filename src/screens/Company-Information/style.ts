@@ -6,7 +6,7 @@ const {height, width} = Dimensions.get('window');
 
 export default StyleSheet.create({
   container: {flex: 1, backgroundColor: 'white', paddingHorizontal: 15},
-  heading: {fontSize: 28, fontWeight: 'bold', marginTop: 20},
+  heading: {fontSize: 28, fontFamily: 'OpenSans-Bold',  marginTop: 20},
   message: {fontSize: 18, marginTop: 10, color: '#808080'},
   buttonOne: {
     height: 50,

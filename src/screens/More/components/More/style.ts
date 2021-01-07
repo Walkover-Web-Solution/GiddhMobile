@@ -31,14 +31,14 @@ export default StyleSheet.create({
     color: colors.INPUT_COLOR,
     textAlign: 'center',
     fontSize: 14,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Bold' : 'Opel-Sans-Bold',
+    fontFamily: 'OpenSans-Bold',
     marginLeft: 10,
   },
   companyShortText: {
     color: colors.WHITE,
     textAlign: 'center',
     fontSize: 11,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Bold' : 'Opel-Sans-Bold',
+    fontFamily: 'OpenSans',
     textTransform: 'uppercase',
   },
   companyShortView: {

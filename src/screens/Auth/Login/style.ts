@@ -37,21 +37,20 @@ export default StyleSheet.create({
   },
   loginTextStyle: {
     fontSize: 26,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
     // marginBottom: 30,
     color: colors.TEXT_HEADING,
   },
   gmailButton: {
     marginBottom: 10,
     marginRight: 10,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     backgroundColor: colors.PRIMARY_BASIC,
   },
   appleButton: {
     marginBottom: 20,
     marginRight: 10,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     backgroundColor: colors.INPUT_COLOR,
   },
 
@@ -74,8 +73,7 @@ export default StyleSheet.create({
 
   registerStyle: {
     fontSize: 18,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans',
     color: colors.TEXT_NORMAL,
   },
   formInput: {
@@ -95,7 +93,7 @@ export default StyleSheet.create({
   },
   forgotStyle: {
     fontSize: 16,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     color: colors.TEXT_NORMAL,
   },
   troubleLoginContainer: {
@@ -106,14 +104,14 @@ export default StyleSheet.create({
     marginBottom: 5,
     marginRight: 10,
     fontSize: 16,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     color: colors.TEXT_NORMAL,
   },
   bottomTextSeparater: {
     marginVertical: 10,
     marginRight: 10,
     fontSize: 16,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     color: colors.TEXT_NORMAL,
     opacity: 0.5,
   },
@@ -123,6 +121,6 @@ export default StyleSheet.create({
     color: colors.TEXT_LINK,
     fontSize: 16,
     textDecorationLine: 'underline',
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
   },
 });
