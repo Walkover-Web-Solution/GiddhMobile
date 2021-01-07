@@ -63,7 +63,7 @@ export default class App extends React.Component<any> {
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
                   <BaseContainer />
-                  {/* <Invoice />  */}
+                  {/* <Invoice /> */}
                   {/* <PartiesMain /> */}
                 </SafeAreaProvider>
               </ApplicationProvider>

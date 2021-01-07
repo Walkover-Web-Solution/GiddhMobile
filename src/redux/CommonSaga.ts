@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
-  yield takeEvery(ActionConstants.LOGOUT, logoutUser);
+  yield takeLatest(ActionConstants.LOGOUT, logoutUser);
 }
 
 export function* getCompanyAndBranches() {
@@ -63,9 +63,9 @@ export function* getCompanyAndBranches() {
   }
 }
 
-export async function* logoutUser() {
+export function* logoutUser() {
   try {
-    await AsyncStorage.clear();
+    yield AsyncStorage.clear();
   } catch (e) {
     console.log(e);
   }

@@ -55,22 +55,37 @@ export const PartiesList = (props: PartiesListProp) => {
         // eslint-disable-next-line no-lone-blocks
         {
           if (amount.toString().length > 4) {
-            return amount.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+            return amount
+              .toFixed(1)
+              .toString()
+              .replace(/\B(?=(\d{2})+(?!\d))/g, ',');
           } else if (amount.toString().length === 3) {
-            return amount.toString();
+            return amount.toFixed(1).toString();
           } else if (amount.toString().length === 4) {
-            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return amount
+              .toFixed(1)
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
           }
         }
         break;
       case 'INT_SPACE_SEPARATED': {
-        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
       }
       case 'INT_APOSTROPHE_SEPARATED': {
-        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, "'");
       }
       default: {
-        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       }
     }
   }
