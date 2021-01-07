@@ -50,57 +50,32 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
 
   render() {
     return (
-      <SafeAreaView style={{flex: 1}}>
-        <View style={styles.container}>
-          <FlatList
-            data={this.listData}
-            showsVerticalScrollIndicator={false}
-            renderItem={({item}) => (
-              <View style={styles.flatList}>
-                <View style={styles.balData}>
-                  <Text style={styles.listHeading}>{item.product_name}</Text>
-                  <View style={styles.iconPlacingStyle}>
-                    <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
-                  </View>
-                </View>
-
-                <View style={styles.stockWrap}>
-                  <View style={styles.stockRow1}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Opening Stock</Text>
-                      <Text style={styles.stockSubTitle}>{item.opening_stock}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.stockRow2}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Inward</Text>
-                      <Text style={styles.stockSubTitle}>{item.inward}</Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={{height: 10}} />
-
-                <View style={styles.stockWrap}>
-                  <View style={styles.stockRow1}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Closing stock</Text>
-                      <Text style={styles.stockSubTitle}>{item.closing_stock}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.stockRow2}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Outward</Text>
-                      <Text style={styles.stockSubTitle}>{item.outward}</Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.seperator} />
-              </View>
-            )}
-            keyExtractor={(item) => item.email}
-          />
+      <View style={styles.flatList}>
+        <View style={styles.balData}>
+          <Text style={styles.listHeading}>{this.props.item.stockName}</Text>
+          {/* <View style={styles.iconPlacingStyle}>
+            <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
+          </View> */}
         </View>
-      </SafeAreaView>
+
+        <View style={styles.stockWrap}>
+          <View style={styles.stockRow1}>
+            <View style={styles.stockDataWrap}>
+              <Text style={styles.stockTitle}>Inward</Text>
+              <Text style={styles.stockSubTitle}>{this.props.item.inwards.quantity}</Text>
+            </View>
+          </View>
+          <View style={styles.stockRow2}>
+            <View style={styles.stockDataWrap}>
+              <Text style={styles.stockTitle}>Outward</Text>
+              <Text style={styles.stockSubTitle}>{this.props.item.outwards.quantity}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={{height: 10}} />
+
+        <View style={styles.seperator} />
+      </View>
     );
   }
 }

@@ -41,7 +41,7 @@ const amountColorStyle = (type: string) => {
   }
   return {
     color: bgColor,
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
     fontSize: constants.GD_FONT_SIZE.medium,
   };
 };
@@ -86,7 +86,9 @@ export const PartiesList = (props: PartiesListProp) => {
         <View style={styles.rowFront}>
           <View style={styles.flatList}>
             <View style={styles.viewWrap}>
-              <Text style={styles.partiesName}>{item.name}</Text>
+              <Text style={styles.partiesName} numberOfLines={1}>
+                {item.name}
+              </Text>
               {item.closingBalance.amount !== 0 && (
                 <View style={styles.amountWrap}>
                   {item.country.code === 'IN' && (

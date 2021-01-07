@@ -20,7 +20,7 @@ export default StyleSheet.create({
     textAlign: 'center',
     fontSize: GD_FONT_SIZE.normal,
     borderStyle: 'solid',
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
   },
   iconSize: {
     height: GD_ICON_SIZE.input_icon,

@@ -111,7 +111,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       });
     } catch (e) {
       this.setState({partiesCredData: new PartiesPaginatedResponse()});
-      console.log('gettin error');
+
       this.setState({showLoader: false});
     }
   }

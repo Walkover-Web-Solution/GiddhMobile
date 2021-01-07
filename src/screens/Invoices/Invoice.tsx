@@ -9,15 +9,35 @@ import {createEndpoint} from '@/utils/helper';
 import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
+import httpInstance from '@/core/services/http/http.service';
 
 const {height, width} = Dimensions.get('window');
 
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
-    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     console.log(activeCompany);
   };
-  
+  fun2 = async () => {
+    try {
+      // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      await httpInstance
+        .post(`https://api.giddh.com/company/${companyName}/stock-summary?from=01-10-2020&to=30-10-2020&page=1`, {})
+        .then((res) => {
+          console.log(res);
+        });
+      // console.log(transactions);
+
+      // this.setState({
+      //   transactionsData: transactions.body.entries,
+      // });
+      // console.log(this.state.transactionsData);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   render() {
     return (
       <View style={style.container}>
@@ -110,7 +130,7 @@ export class Invoice extends React.Component<any, any> {
           onPress={this.func1}>
           <Text>Press</Text>
         </TouchableOpacity>
-        <GDRoundedDateRangeInput label={'dates'} />
+        {/* <GDRoundedDateRangeInput label={'dates'} /> */}
         {/* <TouchableOpacity
           delayPressIn={0}
           style={{
