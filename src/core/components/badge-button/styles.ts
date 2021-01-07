@@ -28,6 +28,7 @@ export default StyleSheet.create({
     borderRadius: 16,
     borderBottomRightRadius: 0,
     minWidth: 100,
+    fontFamily: 'OpenSans-Bold'
   },
   activeLabelStyle: {
     paddingHorizontal: 14,
@@ -35,5 +36,6 @@ export default StyleSheet.create({
     color: colors.PRIMARY_NORMAL,
     textAlign: 'center',
     fontSize: GD_FONT_SIZE.normal,
+    fontFamily: 'OpenSans-Bold'
   },
 });

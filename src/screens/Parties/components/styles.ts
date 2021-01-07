@@ -31,15 +31,15 @@ export default StyleSheet.create({
   },
   partiesName: {
     color: colors.INPUT_COLOR,
-    marginLeft: 5,
+    marginLeft: 0,
     fontSize: constants.GD_FONT_SIZE.medium,
     width: '65%',
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
   },
   subheading: {
     color: colors.LABEL_COLOR,
     fontSize: 10,
-    marginLeft: 5,
+    marginLeft: 0,
     paddingBottom: 10,
   },
   amountWrap: {
@@ -48,7 +48,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
   },
   amountStyle: {
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
     fontSize: constants.GD_FONT_SIZE.medium,
   },
   iconStyle: {

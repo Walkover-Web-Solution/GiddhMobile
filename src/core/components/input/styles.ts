@@ -63,7 +63,7 @@ export default StyleSheet.create({
     paddingBottom: 4,
     width: '100%',
     paddingLeft: 5,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
   },
   roundedViewArea: {
     height: 48,

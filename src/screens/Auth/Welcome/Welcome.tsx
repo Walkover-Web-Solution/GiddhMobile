@@ -13,7 +13,7 @@ const Slide1 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
       <Image source={require('@/assets/images/slider1.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontWeight: 'bold', fontSize: 25, marginTop: 10}}>Easy Billing on Mobile</Text>
+      <Text style={{ fontSize: 25, marginTop: 10, fontFamily: 'OpenSans-Bold'}}>Easy Billing on Mobile</Text>
       <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
         Create professional invoices and send them to your customers
       </Text>
@@ -24,7 +24,7 @@ const Slide2 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
       <Image source={require('@/assets/images/slider2.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontWeight: 'bold', fontSize: 25, marginTop: 10}}>Send Payment Reminders</Text>
+      <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>Send Payment Reminders</Text>
       <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
         We alert you so that you can alert your customers when there are payment dues
       </Text>
@@ -35,7 +35,7 @@ const Slide3 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
       <Image source={require('@/assets/images/slider3.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontWeight: 'bold', fontSize: 25, marginTop: 10}}>Stock Management</Text>
+      <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>Stock Management</Text>
       <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
         Track your inventory , manage product SKU's and more
       </Text>
@@ -46,7 +46,7 @@ const Slide4 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
       <Image source={require('@/assets/images/slider4.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontWeight: 'bold', fontSize: 25, marginTop: 10}}>All In One Accounting Tool</Text>
+      <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>All In One Accounting Tool</Text>
       <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
         File GST, get analutics report, view balance sheet and P&l
       </Text>
