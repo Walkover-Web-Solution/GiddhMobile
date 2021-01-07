@@ -51,48 +51,39 @@ class TransactionList extends React.Component {
 
   render() {
     return (
-      <SafeAreaView style={{flex: 1}}>
-        <View style={styles.container}>
-          <FlatList
-            data={this.props.transactions}
-            showsVerticalScrollIndicator={false}
-            renderItem={({item}) => (
-              <View style={styles.flatList}>
-                <Text style={styles.listHeading}>{item.particular.name}</Text>
-                <View style={styles.receiptData}>
-                  <View style={styles.aboutSales}>
-                    <View style={styles.leftcontent}>
-                      <View style={this.bannerColorStyle(item.voucherName)}>
-                        <Text style={styles.bannerText}>{item.voucherName} </Text>
-                      </View>
-                      <Text style={styles.invoiceNumber}> #{item.voucherNo}</Text>
-                    </View>
-                    {/* right content */}
-                    <View>
-                      <Text style={styles.invoiceDate}> {item.entryDate} </Text>
-                    </View>
-                  </View>
-                </View>
-                {item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
-                <View style={styles.balData}>
-                  <View style={styles.balanceText}>
-                    <Text style={styles.balStyle}>Total: </Text>
-                    <Text style={styles.balStyle}>{item.creditAmount ? item.creditAmount : item.debitAmount}</Text>
-                  </View>
-                  <View style={styles.iconPlacingStyle}>
-                    <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
-                    <View style={{width: 15}} />
-                    <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
-                  </View>
-                </View>
-
-                <View style={styles.seperator} />
+      <View style={styles.flatList}>
+        <Text style={styles.listHeading}>{this.props.item.particular.name}</Text>
+        <View style={styles.receiptData}>
+          <View style={styles.aboutSales}>
+            <View style={styles.leftcontent}>
+              <View style={this.bannerColorStyle(this.props.item.voucherName)}>
+                <Text style={styles.bannerText}>{this.props.item.voucherName} </Text>
               </View>
-            )}
-            keyExtractor={(item) => item.uniqueName}
-          />
+              <Text style={styles.invoiceNumber}> #{this.props.item.voucherNo}</Text>
+            </View>
+            {/* right content */}
+            <View>
+              <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
+            </View>
+          </View>
         </View>
-      </SafeAreaView>
+        {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
+        <View style={styles.balData}>
+          <View style={styles.balanceText}>
+            <Text style={styles.balStyle}>Total: </Text>
+            <Text style={styles.balStyle}>
+              {this.props.item.creditAmount ? this.props.item.creditAmount : this.props.item.debitAmount}
+            </Text>
+          </View>
+          <View style={styles.iconPlacingStyle}>
+            <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
+            <View style={{width: 15}} />
+            <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
+          </View>
+        </View>
+
+        <View style={styles.seperator} />
+      </View>
     );
   }
 
@@ -104,10 +95,12 @@ class TransactionList extends React.Component {
     let bgColor = colors.TRANSACTION_PURCHASE;
     if (type === 'sales') {
       bgColor = colors.TRANSACTION_RECEIPT;
-    } else if (type === 'Payment') {
-      bgColor = colors.TRANSACTION_PAYMENT;
+    } else if (type === 'payment') {
+      bgColor = '#084EAD';
     } else if (type === 'contra') {
       bgColor = colors.TRANSACTION_CONTRA;
+    } else if (type === 'purchase') {
+      bgColor = bgColor;
     }
     return {
       backgroundColor: bgColor,

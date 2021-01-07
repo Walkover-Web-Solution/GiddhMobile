@@ -42,7 +42,7 @@ export default StyleSheet.create({
   },
   loginTextStyle: {
     fontSize: 26,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     fontWeight: 'bold',
     marginBottom: 30,
     color: colors.TEXT_HEADING,
@@ -74,7 +74,7 @@ export default StyleSheet.create({
 
   registerStyle: {
     fontSize: 18,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     fontWeight: 'bold',
     color: colors.TEXT_NORMAL,
   },
@@ -95,7 +95,7 @@ export default StyleSheet.create({
   },
   loginStyle: {
     fontSize: GD_FONT_SIZE.medium,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     color: colors.TEXT_NORMAL,
   },
   troubleLoginContainer: {
@@ -108,7 +108,7 @@ export default StyleSheet.create({
     marginBottom: 5,
     marginRight: 10,
     fontSize: 14,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     color: colors.TEXT_NORMAL,
   },
 
@@ -117,7 +117,7 @@ export default StyleSheet.create({
     color: colors.TEXT_LINK,
     fontSize: GD_FONT_SIZE.normal,
     textDecorationLine: 'underline',
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
   },
 
   resetHead: {

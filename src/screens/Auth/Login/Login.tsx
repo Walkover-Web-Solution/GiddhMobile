@@ -31,16 +31,16 @@ class Login extends React.Component<any, any> {
   componentDidMount() {
     //initial google sign in configuration
     GoogleSignin.configure({
-      webClientId: `${WEBCLIENT_ID}`
+      webClientId: `${WEBCLIENT_ID}`,
     });
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
 
-  componentDidUpdate(prevProps){
-    if (!prevProps.startTFA && this.props.startTFA){
-      this.setState({showLoader: false})
-      this.props.navigation.navigate('Otp')
+  componentDidUpdate(prevProps) {
+    if (!prevProps.startTFA && this.props.startTFA) {
+      this.setState({showLoader: false});
+      this.props.navigation.navigate('Otp');
     }
   }
 
@@ -55,14 +55,15 @@ class Login extends React.Component<any, any> {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
+      console.log('this throws errors?');
       await GoogleSignin.signIn();
       this.setState({showLoader: true});
       const getGoogleToken = await GoogleSignin.getTokens();
       const userInfo = await GoogleSignin.getCurrentUser();
       this.props.googleLogin(getGoogleToken.accessToken, userInfo.user.email);
-      debugger
+      debugger;
     } catch (error) {
-      debugger
+      debugger;
       this.setState({showLoader: false});
       console.log('Message', error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -106,26 +107,26 @@ class Login extends React.Component<any, any> {
     //     </GDContainer>
     //   );
     // } else {
-      return (
-        <View style={style.loginContainer}>
-          <View style={[style.socialLoginContainer, {marginTop: this.state.keyboard ? 10 : 50}]}>
-            <View style={style.titleContainer}>
-              <Text style={style.loginTextStyle}>Login to </Text>
-              <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
-            </View>
-
-            <LoginButton
-              size={ButtonSize.medium}
-              label={'Sign in with Google'}
-              style={[style.gmailButton, {marginTop: this.state.keyboard ? 15 : 30}]}
-              onPress={this._googleSignIn}
-              icon="gmail"
-            />
-
-            {/* <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" onPress={()=>  alert('comming soon')}/> */}
+    return (
+      <View style={style.loginContainer}>
+        <View style={[style.socialLoginContainer, {marginTop: this.state.keyboard ? 10 : 50}]}>
+          <View style={style.titleContainer}>
+            <Text style={style.loginTextStyle}>Login to </Text>
+            <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
           </View>
 
-          {/* <View style={style.seperator}>
+          <LoginButton
+            size={ButtonSize.medium}
+            label={'Sign in with Google'}
+            style={[style.gmailButton, {marginTop: this.state.keyboard ? 15 : 30}]}
+            onPress={this._googleSignIn}
+            icon="gmail"
+          />
+
+          {/* <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" onPress={()=>  alert('comming soon')}/> */}
+        </View>
+
+        {/* <View style={style.seperator}>
             <Text style={style.forgotStyle}>or</Text>
             <View style={style.horizontalRule} />
           </View>
@@ -160,20 +161,32 @@ class Login extends React.Component<any, any> {
             <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text>
             <Text style={style.bottomTextStyleLink}>Create a new account</Text>
           </View> */}
-             {this.state.showLoader && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
-          <Bars size={15} color={color.PRIMARY_NORMAL} />
-        </View>}
-        </View>
-      );
+        {this.state.showLoader && (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              top: 0,
+            }}>
+            <Bars size={15} color={color.PRIMARY_NORMAL} />
+          </View>
+        )}
+      </View>
+    );
     //}
   }
 }
 
 const mapStateToProps = (state: RootState) => {
-  const { LoginReducer } = state;
+  const {LoginReducer} = state;
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
-    ...LoginReducer
+    ...LoginReducer,
   };
 };
 

@@ -16,19 +16,19 @@ export default StyleSheet.create({
     paddingHorizontal: 40,
     paddingVertical: 20,
     alignItems: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     fontSize: 15,
 justifyContent:'space-between'
   },
   goToCompanyText:{
     color: color.TEXT_LINK,
     fontSize: 15,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'OpenSans',
     width: '100%',
     textAlign: 'left',
     paddingHorizontal: 54,
     paddingVertical: 20,
 
   },
-  listItemName: {fontSize: 20, marginLeft: 15},
+  listItemName: {fontSize: 20, marginLeft: 15, fontFamily: 'OpenSans'},
 });
