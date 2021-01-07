@@ -30,7 +30,7 @@ export default StyleSheet.create({
   },
   partiesName: {
     color: colors.INPUT_COLOR,
-    marginLeft: 5,
+    marginLeft: 0,
     fontSize: constants.GD_FONT_SIZE.medium,
     width: '65%',
     fontFamily: 'OpenSans',
@@ -38,7 +38,7 @@ export default StyleSheet.create({
   subheading: {
     color: colors.LABEL_COLOR,
     fontSize: 10,
-    marginLeft: 5,
+    marginLeft: 0,
     paddingBottom: 10,
   },
   amountWrap: {
@@ -47,7 +47,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
   },
   amountStyle: {
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
     fontSize: constants.GD_FONT_SIZE.medium,
   },
   iconStyle: {

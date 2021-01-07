@@ -48,7 +48,7 @@ export class Invoice extends React.Component<any, any> {
               alignItems: 'center',
             }}>
             <GdSVGIcons.back color={'#fff'} width={20} height={20} />
-            <Text style={{fontSize: 19, fontWeight: 'bold', color: '#fff', marginLeft: 15}}>Sales Invoice</Text>
+            <Text style={{fontSize: 19, fontFamily: 'OpenSans-Bold', color: '#fff', marginLeft: 15}}>Sales Invoice</Text>
             <Text style={{fontSize: 16, position: 'absolute', right: 15, color: '#fff'}}>credit</Text>
           </View>
           <View
@@ -81,7 +81,7 @@ export class Invoice extends React.Component<any, any> {
             marginTop: 15,
           }}>
           <GdSVGIcons.calendar color={'#fff'} width={22} height={22} />
-          <Text style={{marginLeft: 15, fontSize: 18, fontWeight: 'bold'}}>Today</Text>
+          <Text style={{marginLeft: 15, fontSize: 18, fontFamily: 'OpenSans-Bold',}}>Today</Text>
           <View style={{padding: 5, borderColor: '#000', borderWidth: 1, position: 'absolute', right: 15}}>
             <Text>Yesterday?</Text>
           </View>
@@ -95,7 +95,7 @@ export class Invoice extends React.Component<any, any> {
             paddingVertical: 10,
           }}>
           <GdSVGIcons.location color={'#fff'} width={22} height={22} />
-          <Text style={{marginLeft: 15, fontSize: 18, fontWeight: 'bold'}}>Billing Address</Text>
+          <Text style={{marginLeft: 15, fontSize: 18, fontFamily: 'OpenSans-Bold'}}>Billing Address</Text>
           <View style={{position: 'absolute', right: 15}}>
             <GdSVGIcons.arrowRight color={'#fff'} width={20} height={20} />
           </View>
@@ -104,7 +104,7 @@ export class Invoice extends React.Component<any, any> {
           <GdSVGIcons.inventory color={'#fff'} width={22} height={22} />
 
           <View style={{paddingHorizontal: 15}}>
-            <Text style={{fontSize: 18, fontWeight: 'bold'}}>Select product/Service</Text>
+            <Text style={{fontSize: 18, fontFamily: 'OpenSans-Bold'}}>Select product/Service</Text>
             <View
               style={{
                 height: 80,

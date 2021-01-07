@@ -39,7 +39,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heading: {fontSize: 20, fontWeight: 'bold', marginTop: height * 0.1},
+  heading: {fontSize: 20,fontFamily: 'OpenSans-Bold', marginTop: height * 0.1},
   message: {fontSize: 18, textAlign: 'center', color: '#808080', marginTop: 10},
   submitButton: {
     backgroundColor: colors.PRIMARY_NORMAL,

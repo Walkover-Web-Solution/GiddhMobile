@@ -13,7 +13,7 @@ export default StyleSheet.create({
   listHeading: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.medium,
-    fontWeight: constants.GD_FONT_WEIGHT.bold,
+    fontFamily: 'OpenSans-Bold',
   },
   aboutSales: {
     display: 'flex',
@@ -80,7 +80,7 @@ export default StyleSheet.create({
   balStyle: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.normal,
-    fontWeight: 'bold',
+    fontFamily: 'OpenSans-Bold',
   },
   iconPlacingStyle: {
     display: 'flex',
