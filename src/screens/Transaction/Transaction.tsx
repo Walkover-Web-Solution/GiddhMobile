@@ -25,8 +25,8 @@ export class TransactionScreen extends React.Component {
     this.state = {
       showLoader: true,
       transactionsData: [],
-      startDate: '01-12-2020',
-      endDate: '31-12-2020',
+      startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
+      endDate: moment().format('DD-MM-YYYY'),
       page: 1,
       totalPages: 0,
       onEndReachedCalledDuringMomentum: true,
@@ -38,7 +38,6 @@ export class TransactionScreen extends React.Component {
       this.getTransactions();
     });
     this.getTransactions();
-    console.log('testing git');
   }
 
   func1 = async () => {

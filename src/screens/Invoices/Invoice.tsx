@@ -10,13 +10,15 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 import httpInstance from '@/core/services/http/http.service';
+import moment from 'moment';
 
 const {height, width} = Dimensions.get('window');
 
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
-    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
-    console.log(activeCompany);
+    // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
+    // console.log(activeCompany);
+    console.log(moment().subtract(30, 'd').format('DD-MM-YYYY'));
   };
   fun2 = async () => {
     try {
@@ -48,7 +50,9 @@ export class Invoice extends React.Component<any, any> {
               alignItems: 'center',
             }}>
             <GdSVGIcons.back color={'#fff'} width={20} height={20} />
-            <Text style={{fontSize: 19, fontFamily: 'OpenSans-Bold', color: '#fff', marginLeft: 15}}>Sales Invoice</Text>
+            <Text style={{fontSize: 19, fontFamily: 'OpenSans-Bold', color: '#fff', marginLeft: 15}}>
+              Sales Invoice
+            </Text>
             <Text style={{fontSize: 16, position: 'absolute', right: 15, color: '#fff'}}>credit</Text>
           </View>
           <View
@@ -81,7 +85,7 @@ export class Invoice extends React.Component<any, any> {
             marginTop: 15,
           }}>
           <GdSVGIcons.calendar color={'#fff'} width={22} height={22} />
-          <Text style={{marginLeft: 15, fontSize: 18, fontFamily: 'OpenSans-Bold',}}>Today</Text>
+          <Text style={{marginLeft: 15, fontSize: 18, fontFamily: 'OpenSans-Bold'}}>Today</Text>
           <View style={{padding: 5, borderColor: '#000', borderWidth: 1, position: 'absolute', right: 15}}>
             <Text>Yesterday?</Text>
           </View>
