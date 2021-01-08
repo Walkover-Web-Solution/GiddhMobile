@@ -38,6 +38,7 @@ export class TransactionScreen extends React.Component {
       this.getTransactions();
     });
     this.getTransactions();
+    console.log('testing git');
   }
 
   func1 = async () => {
