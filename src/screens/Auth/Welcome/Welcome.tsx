@@ -56,17 +56,18 @@ const Slide4 = () => {
 
 const {width, height} = Dimensions.get('window');
 class Welcome extends React.Component<any, any> {
+  private scrollRef;
   func1 = async () => {
     // AsyncStorage.clear();
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
     console.log(activeCompany);
   };
+
   constructor(props: any) {
     super(props);
+    this.scrollRef = React.createRef();
     this.state = {
-      sliderState: {
-        currentPage: 0,
-      },
+      currentPage: 0,
     };
   }
   // const setSliderState = ()=>{
@@ -75,58 +76,73 @@ class Welcome extends React.Component<any, any> {
   //         currentPage: indexOfNextScreen
   //       })
   // }
-
+  // componentDidMount() {
+  //   setInterval(() => {
+  //     this.setState(
+  //       (prev) => ({currentPage: prev.currentPage == 3 ? 0 : prev.currentPage + 1}),
+  //       () => {
+  //         this.scrollRef.current.scrollTo({
+  //           animated: true,
+  //           y: 0,
+  //           x: width * this.state.currentPage,
+  //         });
+  //         console.log('current page', this.state.currentPage);
+  //       },
+  //     );
+  //   }, 3000);
+  // }
   setSliderPage = (event: any) => {
-    const {currentPage} = this.state.sliderState;
+    const {currentPage} = this.state;
     const {x} = event.nativeEvent.contentOffset;
     const indexOfNextScreen = Math.round(x / width);
+
     if (indexOfNextScreen !== currentPage) {
-      this.setState({
-        sliderState: {
+      this.setState(
+        {
           currentPage: indexOfNextScreen,
         },
-      });
+        () => console.log('index of next scnreen', indexOfNextScreen),
+      );
     }
   };
   render() {
-    const {currentPage: pageIndex} = this.state.sliderState;
+    const {currentPage: pageIndex} = this.state;
     return (
-      <GDContainer>
-        <View style={style.container}>
-          <View style={{height: height * 0.6, width: width, marginTop: height * 0.1}}>
-            <ScrollView
-              style={{flex: 1}}
-              horizontal={true}
-              scrollEventThrottle={16}
-              pagingEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              onScroll={(event) => {
-                this.setSliderPage(event);
-              }}>
-              <Slide1 />
-              <Slide2 />
-              <Slide3 />
-              <Slide4 />
-            </ScrollView>
-          </View>
-          <View style={style.paginationWrapper}>
-            {Array.from(Array(4).keys()).map((key, index) => (
-              <View style={[style.paginationDots, {opacity: pageIndex === index ? 1 : 0.2}]} key={index} />
-            ))}
-          </View>
-          <View style={style.buttonContainer}>
-            {/* <TouchableOpacity style={style.createAccountButton} delayPressIn={0} onPress={this.func1}>
-              <Text style={style.createAccount}>Create Account</Text>
-            </TouchableOpacity> */}
-            <TouchableOpacity
-              style={style.loginButton}
-              delayPressIn={0}
-              onPress={() => this.props.navigation.navigate(routes.Login)}>
-              <Text style={style.login}>Login</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={style.container}>
+        <View style={{height: height * 0.7, width: width, marginTop: height * 0.1}}>
+          <ScrollView
+            // ref={this.scrollRef}
+            style={{flex: 1}}
+            horizontal={true}
+            scrollEventThrottle={16}
+            pagingEnabled={true}
+            showsHorizontalScrollIndicator={false}
+            onScroll={(event) => {
+              this.setSliderPage(event);
+            }}>
+            <Slide1 />
+            <Slide2 />
+            <Slide3 />
+            <Slide4 />
+          </ScrollView>
         </View>
-      </GDContainer>
+        <View style={style.paginationWrapper}>
+          {Array.from(Array(4).keys()).map((key, index) => (
+            <View style={[style.paginationDots, {opacity: pageIndex === index ? 1 : 0.2}]} key={index} />
+          ))}
+        </View>
+        <View style={style.buttonContainer}>
+          {/* <TouchableOpacity style={style.createAccountButton} delayPressIn={0} onPress={this.func1}>
+            <Text style={style.createAccount}>Create Account</Text>
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            style={style.loginButton}
+            delayPressIn={0}
+            onPress={() => this.props.navigation.navigate(routes.Login)}>
+            <Text style={style.login}>Login</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   }
 }

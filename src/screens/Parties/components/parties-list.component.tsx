@@ -134,7 +134,7 @@ export const PartiesList = (props: PartiesListProp) => {
               )}
             </View>
             {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
-            {item.category === 'assets' && <Text style={styles.subheading}> Customer</Text>}
+            {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
             <View style={styles.seperator} />
           </View>
         </View>
