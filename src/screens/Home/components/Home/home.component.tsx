@@ -116,9 +116,7 @@ class HomeComponent extends React.Component<HomeComponentProp, HomeComponentStat
             />
           ))}
         </View>
-        <ScrollView>
-          <View>{this.renderElement()}</View>
-        </ScrollView>
+        {this.renderElement()}
       </View>
     );
   }

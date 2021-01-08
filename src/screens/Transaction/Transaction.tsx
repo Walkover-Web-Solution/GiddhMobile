@@ -2,7 +2,16 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
-import {View, TouchableOpacity, DeviceEventEmitter, ActivityIndicator, Dimensions, FlatList} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  DeviceEventEmitter,
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Image,
+  Text,
+} from 'react-native';
 import style from '@/screens/Transaction/style';
 import styles from '@/screens/Transaction/components/styles';
 import {GdSVGIcons} from '@/utils/icons-pack';
@@ -122,10 +131,8 @@ export class TransactionScreen extends React.Component {
   render() {
     if (this.state.showLoader) {
       return (
-        <View style={styles.container}>
-          <View style={style.alignLoader}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
-          </View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Bars size={15} color={colors.PRIMARY_NORMAL} />
         </View>
       );
     } else {
@@ -146,15 +153,24 @@ export class TransactionScreen extends React.Component {
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
           </View> */}
-          <View style={{marginTop: 10}} />
-          <FlatList
-            data={this.state.transactionsData}
-            renderItem={({item}) => <TransactionList item={item} />}
-            keyExtractor={(item) => item.createdAt}
-            onEndReachedThreshold={0.2}
-            onEndReached={() => this.handleRefresh()}
-            ListFooterComponent={this._renderFooter}
-          />
+          {this.state.transactionsData.length == 0 ? (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
+              <Image
+                source={require('@/assets/images/noTransactions.png')}
+                style={{resizeMode: 'contain', height: 250, width: 300}}
+              />
+              <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={this.state.transactionsData}
+              renderItem={({item}) => <TransactionList item={item} />}
+              keyExtractor={(item) => item.createdAt}
+              onEndReachedThreshold={0.2}
+              onEndReached={() => this.handleRefresh()}
+              ListFooterComponent={this._renderFooter}
+            />
+          )}
         </View>
       );
     }

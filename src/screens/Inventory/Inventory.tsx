@@ -85,10 +85,8 @@ export class InventoryScreen extends React.Component<Props, {}> {
   render() {
     if (this.state.showLoader) {
       return (
-        <View style={{flex: 1}}>
-          <View style={style.alignLoader}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
-          </View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Bars size={15} color={colors.PRIMARY_NORMAL} />
         </View>
       );
     } else {
