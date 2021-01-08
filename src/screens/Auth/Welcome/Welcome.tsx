@@ -101,7 +101,7 @@ class Welcome extends React.Component<any, any> {
         {
           currentPage: indexOfNextScreen,
         },
-        () => console.log('index of next scnreen', indexOfNextScreen),
+        // () => console.log('index of next scnreen', indexOfNextScreen),
       );
     }
   };
