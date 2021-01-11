@@ -3,9 +3,10 @@ import {call, put, takeLatest, select, takeEvery} from 'redux-saga/effects';
 import * as ActionConstants from './ActionConstants';
 import * as CommonActions from './CommonAction';
 import * as CommonService from './CommonService';
-import {STORAGE_KEYS} from '@/utils/constants';
-
 import AsyncStorage from '@react-native-community/async-storage';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import { DeviceEventEmitter } from 'react-native';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
@@ -55,6 +56,8 @@ export function* getCompanyAndBranches() {
     }
     if ((companyData.success = true)) {
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
+      DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+
     } else {
       yield put(CommonActions.getCompanyAndBranchesFailure());
     }
@@ -65,6 +68,7 @@ export function* getCompanyAndBranches() {
 
 export function* logoutUser() {
   try {
+    appleAuth.Operation.LOGOUT
     yield AsyncStorage.clear();
   } catch (e) {
     console.log(e);

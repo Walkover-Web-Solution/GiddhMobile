@@ -105,7 +105,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   render() {
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
-
     const {navigation} = this.props;
     if (this.props.isFetchingCompanyList) {
       return (
@@ -126,7 +125,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     } else {
       return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
-          {this.props.companyList && this.props.companyList.length > 1 ? (
+          {activeCompanyName && activeCompanyName.length > 1 ? (
             <TouchableOpacity
               style={style.companyView}
               onPress={() => {
@@ -198,7 +197,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             }}
             onPress={this.props.logout}>
             <Icon name={'Lock'} size={20} color={'#5773FF'} />
-            <Text style={{fontFamily: 'Opel-Sans-Bold', marginLeft: 20}}>Logout</Text>
+            <Text style={{fontFamily: 'OpenSans-Bold', marginLeft: 20}}>Logout</Text>
           </TouchableOpacity>
           {/* <MoreList />
           {

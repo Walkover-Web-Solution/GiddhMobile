@@ -30,5 +30,5 @@ justifyContent:'space-between'
     paddingVertical: 20,
 
   },
-  listItemName: {fontSize: 20, marginLeft: 15, fontFamily: 'OpenSans'},
+  listItemName: {fontSize: 15, marginLeft: 15, fontFamily: 'OpenSans'},
 });

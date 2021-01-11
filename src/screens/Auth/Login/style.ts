@@ -19,6 +19,13 @@ export default StyleSheet.create({
     backgroundColor: '#fff',
     paddingBottom: 50,
   },
+  container: {
+    flex: 1,
+    // alignItems: 'center',
+    paddingHorizontal: 30,
+    backgroundColor: '#fff',
+    paddingBottom: 50,
+  },
   socialLoginContainer: {
     flexDirection: 'column',
     paddingVertical: 10,
