@@ -99,6 +99,8 @@
 		64CF2F9F11A94EB5A761DC7B /* icomoon.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = icomoon.ttf; path = ../src/assets/icomoon/icomoon.ttf; sourceTree = "<group>"; };
 		651A7338B67545BE997388CE /* sort2x.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = sort2x.png; path = ../src/assets/images/icons/sort2x.png; sourceTree = "<group>"; };
 		6673A8EF256E89E30078658D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		6693A3AC25A9E2BD002DE01A /* giddhRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = giddhRelease.entitlements; path = giddh/giddhRelease.entitlements; sourceTree = "<group>"; };
+		6693A3B125A9EADA002DE01A /* giddhDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = giddhDebug.entitlements; path = giddh/giddhDebug.entitlements; sourceTree = "<group>"; };
 		690A24AFF0D642E5AF7D6549 /* google.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = google.png; path = ../src/assets/images/icons/google.png; sourceTree = "<group>"; };
 		692326B364C545B4A13705E8 /* inventory.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = inventory.svg; path = ../src/assets/images/icons/inventory.svg; sourceTree = "<group>"; };
 		6A5F66B412654E59A1D145BC /* plus.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = plus.png; path = ../src/assets/images/icons/plus.png; sourceTree = "<group>"; };
@@ -229,6 +231,8 @@
 		13B07FAE1A68108700A75B9A /* giddh */ = {
 			isa = PBXGroup;
 			children = (
+				6693A3B125A9EADA002DE01A /* giddhDebug.entitlements */,
+				6693A3AC25A9E2BD002DE01A /* giddhRelease.entitlements */,
 				6673A8EF256E89E30078658D /* GoogleService-Info.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -909,6 +913,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = giddh/giddhDebug.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = F3U6Z5L2EJ;
 				ENABLE_BITCODE = NO;
@@ -934,6 +939,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = giddh/giddhRelease.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = F3U6Z5L2EJ;
 				INFOPLIST_FILE = giddh/Info.plist;

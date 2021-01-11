@@ -88,6 +88,48 @@ export default (state = initialState, action: Action) => {
         ...state,
         otpVerificationError: '',
       };
+    case ActionConstants.USER_EMAIL_LOGIN:
+      return {
+        ...state,
+        isAuthenticatingUser: true,
+        error: '',
+      };
+    case ActionConstants.USER_EMAIL_LOGIN_SUCCESS:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: '',
+        token: action.payload.token,
+        isUserAuthenticated: true,
+      };
+    case ActionConstants.USER_EMAIL_LOGIN_FAILURE:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: action.payload,
+        isUserAuthenticated: false,
+      };
+      case ActionConstants.APPLE_USER_LOGIN:
+      return {
+        ...state,
+        isAuthenticatingUser: true,
+        error: '',
+      };
+    case ActionConstants.APPLE_USER_LOGIN_SUCCESS:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: '',
+        token: action.payload.token,
+        isUserAuthenticated: true,
+      };
+    case ActionConstants.APPLE_USER_LOGIN_FAILURE:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: action.payload,
+        isUserAuthenticated: false,
+      };
     case CommonConstants.LOGOUT:
       return {
         ...state,

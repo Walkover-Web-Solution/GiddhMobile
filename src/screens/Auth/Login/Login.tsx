@@ -3,7 +3,7 @@ import {Text} from '@ui-kitten/components';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 
-import {Image, View, TouchableOpacity, Keyboard} from 'react-native';
+import {Image, View, TouchableOpacity, Keyboard, Platform, ScrollView} from 'react-native';
 import {GDButton} from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
@@ -17,7 +17,8 @@ import {GdImages} from '@/utils/icons-pack';
 import {WEBCLIENT_ID} from '@/env.json';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
-import {googleLogin} from './LoginAction';
+import {googleLogin, appleLogin, userEmailLogin} from './LoginAction';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -25,6 +26,8 @@ class Login extends React.Component<any, any> {
     this.state = {
       showLoader: false,
       keyboard: false,
+      username: '',
+      password: ''
     };
   }
 
@@ -48,22 +51,42 @@ class Login extends React.Component<any, any> {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
   }
-
+  async  onAppleButtonPress() {
+    // performs login request
+    try{
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+      // get current authentication state for user
+      // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
+      const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+    
+      // use credentialState response to ensure the user is authenticated
+      if (credentialState === appleAuth.State.AUTHORIZED) {
+        // user is authenticated
+        this.props.appleLogin(appleAuthRequestResponse)
+      }
+    }
+    catch(err){
+      alert(err)
+    }
+   
+  }
   _googleSignIn = async () => {
     //Prompts a modal to let the user sign in into your application.
     try {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
-
+     // await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
       await GoogleSignin.signIn();
       this.setState({showLoader: true});
       const getGoogleToken = await GoogleSignin.getTokens();
       const userInfo = await GoogleSignin.getCurrentUser();
       this.props.googleLogin(getGoogleToken.accessToken, userInfo.user.email);
-      debugger;
     } catch (error) {
-      debugger;
       this.setState({showLoader: false});
       console.log('Message', error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -77,6 +100,10 @@ class Login extends React.Component<any, any> {
       }
     }
   };
+
+  signInWithUsernamePassword() {
+      this.props.userLogin({username: this.state.username, password: this.state.password})
+  }
 
   _googleSignOut = async () => {
     //Remove user session from the device.
@@ -123,10 +150,10 @@ class Login extends React.Component<any, any> {
             icon="gmail"
           />
 
-          {/* <LoginButton size={ButtonSize.medium} label={'Sign in with apple'} style={style.appleButton} icon="apple" onPress={()=>  alert('comming soon')}/> */}
-        </View>
+      {Platform.OS == 'ios' && <LoginButton size={ButtonSize.medium} label={'Sign in with Apple'} style={style.appleButton} icon="apple" onPress={()=>  this.onAppleButtonPress()}/>}  
+      </View>
 
-        {/* <View style={style.seperator}>
+        <View style={style.seperator}>
             <Text style={style.forgotStyle}>or</Text>
             <View style={style.horizontalRule} />
           </View>
@@ -137,8 +164,14 @@ class Login extends React.Component<any, any> {
             </View>
 
             <View style={style.formInput}>
-              <GDRoundedInput icon="email" label="Company Name" value="" placeholder="sampleaddress@mail.com" />
-              <GDRoundedInput icon="lock" label="Company Name" value="" placeholder="********" />
+            <View style={{height: 10}}></View>
+              <GDRoundedInput icon="email" label="Company Name" value={this.state.username} placeholder="sampleaddress@mail.com" 
+              onChange={(value) =>  this.setState({username: value})}
+              />
+              <View style={{height: 10}}></View>
+              <GDRoundedInput secureTextEntry = {true} style={{marginTop: 6}} icon="lock" label="Company Name" value={this.state.password} placeholder="********" 
+                            onChange={(value) =>  this.setState({password: value})}
+                            />
             </View>
 
             <View style={style.loginButtonContainer}>
@@ -146,14 +179,14 @@ class Login extends React.Component<any, any> {
                 size={ButtonSize.medium}
                 style={style.loginButtonStyle}
                 label={'Login'}
-                onPress={() => alert('comming soon')}
+                onPress={() => this.signInWithUsernamePassword()}
               />
-              <TouchableOpacity onPress={() => alert('comming soon')}>
+              {/* <TouchableOpacity onPress={() => alert('comming soon')}>
                 <Text style={style.forgotStyle}>Forgot password?</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
-          <View style={style.troubleLoginContainer}>
+          {/* <View style={style.troubleLoginContainer}>
             <View style={style.seperator}>
               <Text style={style.bottomTextStyle}>Trouble logging in?</Text>
               <Text style={style.bottomTextStyleLink}>Click here</Text>
@@ -161,7 +194,7 @@ class Login extends React.Component<any, any> {
             <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text>
             <Text style={style.bottomTextStyleLink}>Create a new account</Text>
           </View> */}
-        {this.state.showLoader && (
+        {this.props.isAuthenticatingUser && (
           <View
             style={{
               flex: 1,
@@ -195,6 +228,12 @@ function mapDispatchToProps(dispatch) {
     googleLogin: (token, email) => {
       dispatch(googleLogin(token, email));
     },
+    appleLogin:(payload)=> {
+      dispatch(appleLogin(payload));
+    },
+    userLogin:(payload)=> {
+      dispatch(userEmailLogin(payload));
+    }
   };
 }
 

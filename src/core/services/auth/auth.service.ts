@@ -2,6 +2,7 @@ import httpInstance from '@/core/services/http/http.service';
 import {AccountUrls} from './auth.urls';
 import {BaseResponse} from '@/models/classes/base-response';
 import {LoginResponse} from '@/models/interfaces/login';
+import { Any } from 'typescript-compare';
 
 export class AuthService {
   /**
@@ -17,9 +18,40 @@ export class AuthService {
         return res.data;
       });
   }
+/**
+   * get response from server
+   * @returns {Promise<BaseResponse<LoginResponse>>}
+   */
+  static userLogin(payload: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.userLogin, {
+        'email': payload.username,
+        'password': payload.password,
+      })
+      .then((res) => {
+        return res.data;
+      });
+  }
+   /**
+   * get response from server
+   * @returns {Promise<BaseResponse<LoginResponse>>}
+   */
+  static submitAppleAuthToken(payload: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.appleLogin, {
+          'authorizationCode': payload.authorizationCode,
+          'email': payload.email,
+          'fullName': payload.fullName,
+          'identityToken': payload.identityToken,
+          'state': payload.state,
+          'user': payload.user
+      })
+      .then((res) => {
+        return res.data;
+      });
+  }
 
   static verifyOTP(otp: string, mobileNumber: string, countryCode: string): Promise<BaseResponse<LoginResponse>> {
-    debugger
     return httpInstance
     .post(AccountUrls.verifyOTP, {
       countryCode: countryCode,
@@ -27,7 +59,6 @@ export class AuthService {
       oneTimePassword: otp
     })
       .then((res) => {
-        debugger
         return res.data;
       });
   }

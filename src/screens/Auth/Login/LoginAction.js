@@ -56,3 +56,45 @@ export function clearOTPError() {
     payload: ''
   }
 }
+
+export function appleLogin(payload) {
+  return {
+    type: Actions.APPLE_USER_LOGIN,
+    payload:payload
+  }
+}
+
+export function appleLoginUserSuccess(payload) {
+  return {
+    type: Actions.APPLE_USER_LOGIN_SUCCESS,
+    payload: payload
+  }
+}
+
+export function appleLoginUserFailure(error) {
+  return {
+    type: Actions.APPLE_USER_LOGIN_FAILURE, 
+    payload: error
+  }
+}
+
+export function userEmailLogin(payload) {
+  return {
+    type: Actions.USER_EMAIL_LOGIN,
+    payload:payload
+  }
+}
+
+export function loginUserSuccess(payload) {
+  return {
+    type: Actions.USER_EMAIL_LOGIN_SUCCESS,
+    payload: payload
+  }
+}
+
+export function loginUserFailure(error) {
+  return {
+    type: Actions.USER_EMAIL_LOGIN_FAILURE, 
+    payload: error
+  }
+}

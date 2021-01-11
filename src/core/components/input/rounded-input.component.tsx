@@ -66,6 +66,7 @@ export class GDRoundedInput extends Component<GDRoundedInputProps, GDRoundedInpu
             onBlur={this.props.onBlur}
             onFocus={this.props.onFocus}
             onChangeText={this.props.onChange}
+            secureTextEntry={this.props.secureTextEntry}
           />
         </View>
       </View>
