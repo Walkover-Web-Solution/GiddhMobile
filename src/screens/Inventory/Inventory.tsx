@@ -1,11 +1,11 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, TouchableOpacity, Text, FlatList} from 'react-native';
+import {View, TouchableOpacity, Text, FlatList, DeviceEventEmitter} from 'react-native';
 import style from '@/screens/Inventory/style';
 import InventoryList from '@/screens/Inventory/components/inventory-list.component';
 import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import httpInstance from '@/core/services/http/http.service';
 import {Bars} from 'react-native-loader';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -61,6 +61,9 @@ export class InventoryScreen extends React.Component<Props, {}> {
     };
   }
   componentDidMount() {
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      this.getInventories();
+    });
     this.getInventories();
   }
 

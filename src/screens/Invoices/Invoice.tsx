@@ -16,9 +16,9 @@ const {height, width} = Dimensions.get('window');
 
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
-    // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
-    // console.log(activeCompany);
-    console.log(moment().subtract(30, 'd').format('DD-MM-YYYY'));
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+    console.log(activeCompany);
+    // console.log(moment().subtract(30, 'd').format('DD-MM-YYYY'));
   };
   fun2 = async () => {
     try {

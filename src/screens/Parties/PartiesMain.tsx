@@ -1,22 +1,27 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, DeviceEventEmitter, TouchableOpacity, Dimensions} from 'react-native';
+import {View, Text, DeviceEventEmitter, TouchableOpacity, Dimensions, Modal, TextInput} from 'react-native';
 import style from '@/screens/Parties/style';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
 import {PartiesMainList} from '@/screens/Parties/components/partiesmain-listcomponent';
+import SortModal from '@/screens/Parties/components/sortModal';
 import {CommonService} from '@/core/services/common/common.service';
 import {CompanyService} from '@/core/services/company/company.service';
 import _ from 'lodash';
 import {BadgeButton} from '@/core/components/badge-button/badge-button.component';
 import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
+import DropDownPicker from 'react-native-dropdown-picker';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
 import {APP_EVENTS} from '@/utils/constants';
-import {TextInput} from 'react-native-gesture-handler';
+
 import {Vendors} from './components/Vendors';
 import {Customers} from './components/Customers';
+import Icons from 'react-native-vector-icons/AntDesign';
+import Icon from '@/core/components/custom-icon/custom-icon';
+import {commonUrls} from '@/core/services/common/common.url';
 
 const BadgeTabs = [
   {
@@ -32,19 +37,87 @@ const BadgeTabs = [
 export class PartiesScreen extends React.Component {
   constructor(props: any) {
     super(props);
+    this.inputRef = React.createRef();
     this.state = {
       showLoader: true,
-      partiesDebtData: new PartiesPaginatedResponse(),
-      partiesCredData: new PartiesPaginatedResponse(),
-      debtData: null,
-      debtFullData: null,
-      query: '',
+      // partiesDebtData: new PartiesPaginatedResponse(),
+      // partiesCredData: new PartiesPaginatedResponse(),
+      // debtData: null,
+      // debtFullData: null,
+      // vendorQuery: '',
+      // customerQuery: '',
+      searchQuery: '',
       badgeTabs: BadgeTabs,
       val: 0,
-      vendorData: null,
-      customerData: null,
+      vendorData: [],
+      customerData: [],
+      // vendorQueryData: null,
+      // customerQueryData: null,
+      sortModal: false,
+      sortBy: 'name',
+      order: 'aesc',
+      textInputOpen: false,
+      count: 50,
+      customerPage: 1,
+      VendorPage: 1,
+      totalCustomerPages: 0,
+      totalVendorPages: 0,
+      customerLoadingMore: false,
+      vendorLoadingMore: false,
+      activeFilter: 'AZ',
     };
   }
+
+  handleCustomerRefresh = () => {
+    console.log('customer refresh executed');
+    if (this.state.customerPage < this.state.totalCustomerPages) {
+      this.setState(
+        {
+          customerPage: this.state.customerPage + 1,
+          customerLoadingMore: true,
+        },
+        () => {
+          this.loadDebtors(
+            this.state.searchQuery,
+            this.state.sortBy,
+            this.state.order,
+            this.state.count,
+            this.state.customerPage,
+          );
+          console.log('this executes now');
+        },
+      );
+    }
+  };
+  handleVendorRefresh = () => {
+    // console.log('vendor refresh executed');
+    // console.log(this.state.totalVendorPages);
+    if (this.state.VendorPage < this.state.totalVendorPages) {
+      this.setState(
+        {
+          VendorPage: this.state.VendorPage + 1,
+          vendorLoadingMore: true,
+        },
+        () => {
+          this.loadCreditors(
+            this.state.searchQuery,
+            this.state.sortBy,
+            this.state.order,
+            this.state.count,
+            this.state.VendorPage,
+          );
+          console.log('this executes now');
+        },
+      );
+    }
+  };
+  func1 = () => {
+    console.log(commonUrls.customer_vendor_report_sundry_debtors.replace('q=', `q=a`));
+  };
+
+  modalVisible = () => {
+    this.setState({sortModal: false});
+  };
 
   selectedTab = async (tab, index) => {
     // eslint-disable-next-line no-shadow
@@ -57,141 +130,300 @@ export class PartiesScreen extends React.Component {
   };
   renderElement() {
     if (this.state.val === 0) {
-      return <Customers partiesData={this.state.customerData} activeCompany={this.props.activeCompany} />;
+      return (
+        <Customers
+          partiesData={this.state.customerData}
+          activeCompany={this.props.activeCompany}
+          handleRefresh={this.handleCustomerRefresh}
+          loadMore={this.state.customerLoadingMore}
+        />
+      );
     } else if (this.state.val === 1) {
-      return <Vendors partiesData={this.state.vendorData} activeCompany={this.props.activeCompany} />;
+      return (
+        <Vendors
+          partiesData={this.state.vendorData}
+          activeCompany={this.props.activeCompany}
+          handleRefresh={this.handleVendorRefresh}
+          loadMore={this.state.vendorLoadingMore}
+        />
+      );
     }
   }
-
-  contains = ({name}, query) => {
-    if (name.toUpperCase().includes(query)) {
-      return true;
-    }
-
-    return false;
-  };
 
   handleSearch = (text: any) => {
     // console.log(text);
-    const formatQuery = text.toUpperCase();
-    const data = _.filter(this.state.debtFullData, (party) => {
-      return this.contains(party, formatQuery);
-    });
+    // const formatQuery = text.toUpperCase();
+    // const data = _.filter(this.state.customerData, (party) => {
+    //   return this.contains(party, formatQuery);
+    // });
     this.setState(
       {
-        query: formatQuery,
-        debtData: data,
+        searchQuery: text,
+        showLoader: true,
+        // customerQueryData: data,
       },
-
-      () => console.log(this.state.debtData),
+      () => {
+        this.apiCalls();
+      },
     );
   };
 
-  reverseData = () => {
-    this.setState({
-      debtFullData: this.state.debtFullData.reverse(),
-    });
+  filter = (filterType) => {
+    if (filterType == 'AZ') {
+      this.setState(
+        {
+          sortBy: 'name',
+          order: 'aesc',
+          activeFilter: 'AZ',
+          customerPage: 1,
+          VendorPage: 1,
+          showLoader: true,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
+    } else if (filterType == 'ZA') {
+      this.setState(
+        {
+          sortBy: 'name',
+          order: 'desc',
+          activeFilter: 'ZA',
+          customerPage: 1,
+          VendorPage: 1,
+          showLoader: true,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
+    } else if (filterType == '10') {
+      this.setState(
+        {
+          sortBy: 'closingBalance',
+          order: 'aesc',
+          activeFilter: '10',
+          customerPage: 1,
+          VendorPage: 1,
+          showLoader: true,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
+    } else {
+      this.setState(
+        {
+          sortBy: 'closingBalance',
+          order: 'desc',
+          activeFilter: '01',
+          customerPage: 1,
+          VendorPage: 1,
+          showLoader: true,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
+    }
   };
 
   apiCalls = async () => {
-    await this.getPartiesSundryDebtors();
-    await this.getPartiesSundryCreditors();
-    // console.log(this.state.debtData[7].name.split(' ')[0]);
-    this.setState(
-      {
-        customerData: this.state.customerData.sort((a, b) =>
-          a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
-        ),
-        vendorData: this.state.vendorData.sort((a, b) =>
-          a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
-        ),
-        showLoader: false,
-      },
-      () => console.log('mission successful'),
+    await this.getPartiesMainSundryDebtors(
+      this.state.searchQuery,
+      this.state.sortBy,
+      this.state.order,
+      this.state.count,
+      this.state.customerPage,
     );
+    await this.getPartiesMainSundryCreditors(
+      this.state.searchQuery,
+      this.state.sortBy,
+      this.state.order,
+      this.state.count,
+      this.state.VendorPage,
+    );
+    // console.log(this.state.debtData[7].name.split(' ')[0]);
+    // this.setState(
+    //   {
+    //     customerData: this.state.customerData.sort((a, b) =>
+    //       a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+    //     ),
+    //     vendorData: this.state.vendorData.sort((a, b) =>
+    //       a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+    //     ),
+
+    //   },
+    //   () => console.log('mission successful'),
+    // );
   };
   componentDidMount() {
     //get parties data
+    this.apiCalls();
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.apiCalls();
     });
-    this.apiCalls();
   }
 
   render() {
-    if (this.state.showLoader) {
-      return (
-        <View style={{flex: 1}}>
-          <View style={style.alignLoader}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
-          </View>
-        </View>
-      );
-    } else {
-      return (
-        <View style={{flex: 1}}>
-          <View style={{height: Dimensions.get('window').height * 0.08, backgroundColor: '#864DD3'}}>
-            <TextInput placeholder={'search'} onChangeText={(text) => this.handleSearch(text)} />
-          </View>
-          <View
-            style={{
-              marginLeft: 15,
-              marginRight: 15,
-              // marginLeft: 70,
-              // marginRight: 70,
-              marginTop: 10,
-              display: 'flex',
-              justifyContent: 'space-around',
-              flexDirection: 'row',
-              marginBottom: 15,
-            }}>
-            {this.state.badgeTabs.map((tab, index) => (
-              <BadgeButton
-                label={tab.label}
-                key={tab.label}
-                onPress={() => this.selectedTab(tab, index)}
-                isActive={tab.isActive}
+    return (
+      <View style={{flex: 1}}>
+        <View
+          style={{
+            height: Dimensions.get('window').height * 0.08,
+            backgroundColor: '#864DD3',
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+          }}>
+          {this.state.textInputOpen ? (
+            <>
+              <Icon name={'search'} size={20} color={'#FFFFFF'} />
+
+              <TextInput
+                placeholder={'Search name'}
+                ref={this.inputRef}
+                placeholderTextColor={'white'}
+                style={{fontSize: 18, width: Dimensions.get('window').width * 0.6, marginLeft: 10, color: '#fff'}}
+                onChangeText={this.handleSearch}
+                value={this.state.searchQuery}
               />
-            ))}
-          </View>
+
+              <TouchableOpacity
+                style={{position: 'absolute', right: 20}}
+                onPress={() => this.setState({textInputOpen: false})}>
+                <Icons name={'close'} size={25} color={'#FFFFFF'} />
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={{fontSize: 20, fontWeight: 'bold', color: '#fff'}}>Parties</Text>
+              <View style={{position: 'absolute', right: 20, flexDirection: 'row', padding: 10}}>
+                <TouchableOpacity style={{}} delayPressIn={0} onPress={() => this.setState({sortModal: true})}>
+                  <Icon name={'sort'} size={20} color={'#FFFFFF'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{marginLeft: 20}}
+                  delayPressIn={0}
+                  onPress={() => this.setState({textInputOpen: true}, () => this.inputRef.current.focus())}>
+                  <Icon name={'search'} size={20} color={'#FFFFFF'} />
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
           {/* <TouchableOpacity
-            style={{height: 50, width: 140, backgroundColor: 'pink'}}
-            onPress={() => this.reverseData()}><View>{this.renderElement()}</View>
+              style={{position: 'absolute', right: 20}}
+              delayPressIn={0}
+              onPress={() => this.setState({sortModal: true})}>
+              <Icon name={'sort'} size={20} color={'#FFFFFF'} />
+            </TouchableOpacity> */}
+        </View>
+        <View
+          style={{
+            marginLeft: 15,
+            marginRight: 15,
+            // marginLeft: 70,
+            // marginRight: 70,
+            marginTop: 10,
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexDirection: 'row',
+            marginBottom: 15,
+          }}>
+          {this.state.badgeTabs.map((tab, index) => (
+            <BadgeButton
+              label={tab.label}
+              key={tab.label}
+              onPress={() => this.selectedTab(tab, index)}
+              isActive={tab.isActive}
+            />
+          ))}
+        </View>
+        <SortModal
+          modalVisible={this.state.sortModal}
+          setModalVisible={this.modalVisible}
+          filter={this.filter}
+          activeFilter={this.state.activeFilter}
+        />
+        {/* <TouchableOpacity style={{height: 50, width: 140, backgroundColor: 'pink'}} onPress={this.func1}>
             <Text>Hello</Text>
           </TouchableOpacity> */}
-          {/* <PartiesMainList
+        {/* <PartiesMainList
             partiesData={this.state.query ? this.state.debtData : this.state.debtFullData}
             activeCompany={activeCompany}
           /> */}
-          {this.renderElement()}
-        </View>
-      );
-    }
+        {this.state.showLoader ? (
+          <View style={{flex: 1}}>
+            <View style={style.alignLoader}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
+            </View>
+          </View>
+        ) : (
+          <>{this.renderElement()}</>
+        )}
+      </View>
+    );
   }
 
-  private async getPartiesSundryDebtors() {
+  private async getPartiesMainSundryDebtors(query, sortBy, order, count, page) {
     try {
-      const debtors = await CommonService.getPartiesSundryDebtors();
+      const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
       // console.log('data is', ...debtors.body.results, ...creditors.body.results);
-      this.setState({
-        customerData: debtors.body.results,
-      });
+      this.setState(
+        {
+          customerData: debtors.body.results,
+          totalCustomerPages: debtors.body.totalPages,
+        },
+        // () => console.log(this.state.customerData),
+      );
     } catch (e) {
       this.setState({customerData: new PartiesPaginatedResponse()});
       console.log(e);
     }
   }
-  private async getPartiesSundryCreditors() {
+
+  private async getPartiesMainSundryCreditors(query, sortBy, order, count, page) {
     try {
-      const creditors = await CommonService.getPartiesSundryCreditors();
+      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
       // console.log('creditors are', creditors.body.results);
       this.setState({
         vendorData: creditors.body.results,
+        totalVendorPages: creditors.body.totalPages,
+        showLoader: false,
       });
     } catch (e) {
       this.setState({vendorData: new PartiesPaginatedResponse()});
 
       //   this.setState({showLoader: false});
+    }
+  }
+  private async loadDebtors(query, sortBy, order, count, page) {
+    try {
+      const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
+      // console.log('data is', ...debtors.body.results, ...creditors.body.results);
+      this.setState(
+        {
+          customerData: [...this.state.customerData, ...debtors.body.results],
+          customerLoadingMore: false,
+        },
+        // () => console.log(this.state.customerData),
+      );
+    } catch (e) {
+      this.setState({customerData: new PartiesPaginatedResponse()});
+      console.log(e);
+    }
+  }
+  private async loadCreditors(query, sortBy, order, count, page) {
+    try {
+      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
+      // console.log('creditors are', creditors.body.results);
+      this.setState({
+        vendorData: [...this.state.vendorData, ...creditors.body.results],
+        vendorLoadingMore: false,
+      });
+    } catch (e) {
+      this.setState({vendorData: new PartiesPaginatedResponse()});
     }
   }
 }
