@@ -9,6 +9,7 @@ import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
 import {Company} from '@/models/interfaces/company';
+import {Bars} from 'react-native-loader';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -46,9 +47,27 @@ const amountColorStyle = (type: string) => {
   };
 };
 
-export const Customers = (props: PartiesListProp) => {
-  const {partiesData, activeCompany} = props;
+export const Customers = (props) => {
+  const {partiesData, activeCompany, handleRefresh, loadMore} = props;
 
+  function _renderFooter() {
+    if (!loadMore) return null;
+
+    return (
+      <View
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 100,
+          bottom: 10,
+          // backgroundColor: 'pink',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+      </View>
+    );
+  }
   function currencyFormat(amount: number, currencyType: string | undefined) {
     switch (currencyType) {
       case 'IND_COMMA_SEPARATED':
@@ -100,6 +119,10 @@ export const Customers = (props: PartiesListProp) => {
       // leftOpenValue={100}
       // rightOpenValue={-100}
       // renderHiddenItem={renderHiddenItem}
+
+      onEndReachedThreshold={0.2}
+      onEndReached={handleRefresh}
+      ListFooterComponent={_renderFooter}
       renderItem={({item}) => (
         <View style={styles.rowFront}>
           <View style={styles.viewWrap}>

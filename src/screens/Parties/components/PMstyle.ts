@@ -16,10 +16,9 @@ export default StyleSheet.create({
   },
 
   rowFront: {
-    backgroundColor: '#eeeeee',
-    marginVertical: 5,
-    marginHorizontal: 5,
-    marginRight: 10,
+    backgroundColor: '#F5F5F5',
+    marginTop: 5,
+
     width: '100%',
     paddingTop: 15,
     paddingHorizontal: 16,

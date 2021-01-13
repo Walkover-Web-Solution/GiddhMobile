@@ -45,6 +45,49 @@ export class CommonService {
       return res.data;
     });
   }
+  static getPartiesMainSundryDebtors(
+    query,
+    sortBy,
+    order,
+    count,
+    page,
+  ): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance
+      .post(
+        commonUrls.customer_vendor_report_sundry_debtors
+          .replace('q=', `q=${query}`)
+          .replace('sort=desc', `sort=${order}`)
+          .replace('count=10', `count=${count}`)
+          .replace('page=1', `page=${page}`)
+          .replace('sortBy=closingBalance', `sortBy=${sortBy}`),
+        {},
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+  static getPartiesMainSundryCreditors(
+    query,
+    sortBy,
+    order,
+    count,
+    page,
+  ): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance
+      .post(
+        commonUrls.customer_vendor_report_sundry_creditors
+          .replace('q=', `q=${query}`)
+          .replace('sort=desc', `sort=${order}`)
+          .replace('count=10', `count=${count}`)
+          .replace('page=1', `page=${page}`)
+          .replace('sortBy=closingBalance', `sortBy=${sortBy}`),
+        {},
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
 
   /**
    * get currencies

@@ -76,21 +76,25 @@ class Welcome extends React.Component<any, any> {
   //         currentPage: indexOfNextScreen
   //       })
   // }
-  // componentDidMount() {
-  //   setInterval(() => {
-  //     this.setState(
-  //       (prev) => ({currentPage: prev.currentPage == 3 ? 0 : prev.currentPage + 1}),
-  //       () => {
-  //         this.scrollRef.current.scrollTo({
-  //           animated: true,
-  //           y: 0,
-  //           x: width * this.state.currentPage,
-  //         });
-  //         console.log('current page', this.state.currentPage);
-  //       },
-  //     );
-  //   }, 3000);
-  // }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      this.setState(
+        (prev) => ({currentPage: prev.currentPage == 3 ? 0 : prev.currentPage + 1}),
+        () => {
+          this.scrollRef.current.scrollTo({
+            animated: true,
+            y: 0,
+            x: width * this.state.currentPage,
+          });
+          console.log('current page', this.state.currentPage);
+        },
+      );
+    }, 2000);
+  }
+  componentWillUnmount() {
+    if (this.timer) clearInterval(this.timer);
+  }
+
   setSliderPage = (event: any) => {
     const {currentPage} = this.state;
     const {x} = event.nativeEvent.contentOffset;
@@ -101,7 +105,7 @@ class Welcome extends React.Component<any, any> {
         {
           currentPage: indexOfNextScreen,
         },
-        // () => console.log('index of next scnreen', indexOfNextScreen),
+        () => console.log('index of next scnreen', indexOfNextScreen),
       );
     }
   };
@@ -111,15 +115,21 @@ class Welcome extends React.Component<any, any> {
       <View style={style.container}>
         <View style={{height: height * 0.7, width: width, marginTop: height * 0.1}}>
           <ScrollView
-            // ref={this.scrollRef}
+            ref={this.scrollRef}
             style={{flex: 1}}
             horizontal={true}
             scrollEventThrottle={16}
             pagingEnabled={true}
             showsHorizontalScrollIndicator={false}
-            onScroll={(event) => {
+            onMomentumScrollEnd={(event) => {
               this.setSliderPage(event);
-            }}>
+            }}
+            onTouchStart={() => clearInterval(this.timer)}
+
+            // onScroll={(event) => {
+            //   this.setSliderPage(event);
+            // }}
+          >
             <Slide1 />
             <Slide2 />
             <Slide3 />
