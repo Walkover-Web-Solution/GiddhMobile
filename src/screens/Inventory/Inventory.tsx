@@ -62,7 +62,12 @@ export class InventoryScreen extends React.Component<Props, {}> {
   }
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.getInventories();
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => this.getInventories(),
+      );
     });
     this.getInventories();
   }
@@ -77,7 +82,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
         )
         .then((res) => {
           this.setState({
-            inventoryData: [...this.state.inventoryData, ...res.data.body.stockReport],
+            inventoryData: res.data.body.stockReport,
             showLoader: false,
           });
         });

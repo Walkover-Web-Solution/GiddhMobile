@@ -44,7 +44,12 @@ export class TransactionScreen extends React.Component {
   }
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.getTransactions();
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => this.getTransactions(),
+      );
     });
     this.getTransactions();
   }
@@ -54,6 +59,28 @@ export class TransactionScreen extends React.Component {
     console.log(v1);
   };
   async getTransactions() {
+    try {
+      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      await httpInstance
+        .post(
+          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
+          {},
+        )
+        .then((res) => {
+          this.setState({
+            transactionsData: res.data.body.entries,
+            totalPages: res.data.body.totalPages,
+          });
+        });
+
+      this.setState({showLoader: false, loadingMore: false});
+    } catch (e) {
+      console.log(e);
+      this.setState({showLoader: false});
+    }
+  }
+  async handleLoadMore() {
     try {
       // const transactions = await CommonService.getTransactions();
       const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
@@ -66,16 +93,8 @@ export class TransactionScreen extends React.Component {
         .then((res) => {
           this.setState({
             transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
-            totalPages: res.data.body.totalPages,
           });
-          // console.log(res.data.body);
         });
-      // console.log(transactions);
-
-      // this.setState({
-      //   transactionsData: transactions.body.entries,
-      // });
-      // console.log(this.state.transactionsData);
       this.setState({showLoader: false, loadingMore: false});
     } catch (e) {
       console.log(e);
@@ -89,9 +108,8 @@ export class TransactionScreen extends React.Component {
           page: this.state.page + 1,
           loadingMore: true,
         },
-        async () => {
-          await this.getTransactions();
-          console.log('this executes now');
+        () => {
+          this.handleLoadMore();
         },
       );
     }
