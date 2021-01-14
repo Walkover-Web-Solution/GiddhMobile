@@ -48,7 +48,12 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   componentDidMount() {
     //get parties data
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.apiCalls();
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => this.apiCalls(),
+      );
     });
     this.apiCalls();
   }
