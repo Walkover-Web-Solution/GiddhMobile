@@ -107,6 +107,9 @@ class HomeComponent extends React.Component {
             borderBottomLeftRadius: 17,
             borderColor: focused ? '#5773FF' : '#D9D9D9',
             // paddingHorizontal: 10,
+            width: Dimensions.get('window').width * 0.29,
+            alignItems: 'center',
+            justifyContent: 'center',
             paddingVertical: 7,
             borderWidth: 1,
           }}>
@@ -114,8 +117,8 @@ class HomeComponent extends React.Component {
             numberOfLines={1}
             style={{
               color: focused ? '#5773FF' : '#808080',
-              marginHorizontal: 8,
-              fontFamily: 'OpenSans-Bold',
+
+              fontFamily: focused ? 'OpenSans-Bold' : 'OpenSans',
               // fontWeight: focused ? 'bold' : 'normal',
             }}>
             {route.title}

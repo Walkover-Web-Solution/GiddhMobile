@@ -13,7 +13,6 @@ export default StyleSheet.create({
   },
   loginContainer: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 30,
     backgroundColor: '#fff',

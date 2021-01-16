@@ -1,23 +1,34 @@
 import React from 'react';
-import {Alert, Modal, StyleSheet, Text, TouchableHighlight, Dimensions, View, TouchableOpacity} from 'react-native';
+import {
+  Alert,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableHighlight,
+  Dimensions,
+  View,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from 'react-native';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
 function SortModal({modalVisible, setModalVisible, filter, activeFilter}) {
   return (
-    <View style={styles.container}>
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-        }}>
+    <Modal
+      animationType="none"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => {
+        Alert.alert('Modal has been closed.');
+      }}>
+      <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           {/* <Text style={{fontSize: 20}}>Sort</Text> */}
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
             <TouchableOpacity
+              style={{flex: 1}}
               onPress={() => {
                 filter('AZ');
                 setModalVisible();
@@ -30,6 +41,7 @@ function SortModal({modalVisible, setModalVisible, filter, activeFilter}) {
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20}}>
             <TouchableOpacity
+              style={{flex: 1}}
               onPress={() => {
                 filter('ZA');
                 setModalVisible();
@@ -42,6 +54,7 @@ function SortModal({modalVisible, setModalVisible, filter, activeFilter}) {
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20}}>
             <TouchableOpacity
+              style={{flex: 1}}
               onPress={() => {
                 filter('10');
                 setModalVisible();
@@ -54,6 +67,7 @@ function SortModal({modalVisible, setModalVisible, filter, activeFilter}) {
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20}}>
             <TouchableOpacity
+              style={{flex: 1}}
               onPress={() => {
                 filter('01');
                 setModalVisible();
@@ -64,7 +78,6 @@ function SortModal({modalVisible, setModalVisible, filter, activeFilter}) {
               <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: '#520EAD', marginRight: 10}} />
             )}
           </View>
-
           {/* <TouchableOpacity style={{marginTop: 20, alignSelf: 'center'}} onPress={setModalVisible}>
             <Text style={{fontSize: 18}}>Close</Text>
           </TouchableOpacity> */}
@@ -77,17 +90,24 @@ function SortModal({modalVisible, setModalVisible, filter, activeFilter}) {
             <Text style={styles.textStyle}>Done</Text>
           </TouchableHighlight> */}
         </View>
-      </Modal>
-    </View>
+      </TouchableOpacity>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    // justifyContent: 'center',
+    // alignItems: 'center',
   },
   centeredView: {
+    flexDirection: 'column',
     width: Screen_width * 0.7,
     paddingVertical: 20,
     backgroundColor: '#fff',
@@ -104,35 +124,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: Screen_height * 0.15,
     padding: 15,
-  },
-  dog: {
-    height: Screen_height * 0.1,
-    width: Screen_height * 0.1,
-    marginTop: '7%',
-  },
-  openButton: {
-    backgroundColor: '#5db075',
-    height: Screen_height * 0.05,
-    borderRadius: 10,
-    justifyContent: 'center',
-    width: Screen_height * 0.1,
-    elevation: 2,
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  text: {
-    alignSelf: 'center',
-    textAlign: 'justify',
-
-    fontSize: Screen_height * 0.022,
-  },
-  modalText: {
-    fontSize: Screen_height * 0.04,
-    fontWeight: 'bold',
-    textAlign: 'center',
   },
 });
 
