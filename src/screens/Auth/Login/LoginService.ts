@@ -17,7 +17,22 @@ import {AuthService} from '@/core/services/auth/auth.service';
   }
 
 /**
-   * set google login action
+   * set reset password action
+   * @returns {Promise<void>}
+   */
+
+  export async function resetPassword(payload) {
+    try {
+      const response = await AuthService.resetPassword(payload);
+      return response
+    } catch (error) {
+        console.log(error);
+        return error
+    }
+  }
+
+/**
+   * set login action
    * @returns {Promise<void>}
    */
 
@@ -30,7 +45,6 @@ import {AuthService} from '@/core/services/auth/auth.service';
         return error
     }
   }
-
 /**
    * set apple login action
    * @returns {Promise<void>}

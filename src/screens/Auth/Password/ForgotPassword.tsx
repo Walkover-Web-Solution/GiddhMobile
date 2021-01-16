@@ -1,21 +1,27 @@
 import React from 'react';
-import {Text} from '@ui-kitten/components';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
-import {Image, View} from 'react-native';
-import {GDButton} from '@/core/components/button/button.component';
+import { Text } from '@ui-kitten/components';
+import { connect } from 'react-redux';
+import { GDContainer } from '@/core/components/container/container.component';
+import { Image, View } from 'react-native';
+import { GDButton } from '@/core/components/button/button.component';
 import color from '@/utils/colors';
 import style from '@/screens/Auth/Password/style';
 //google sign in
-import {GoogleSignin, statusCodes} from '@react-native-community/google-signin';
+import { GoogleSignin, statusCodes } from '@react-native-community/google-signin';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
-import {ButtonSize} from '@/models/enums/button';
-import {GdImages} from '@/utils/icons-pack';
-import {GDRoundedInput} from '@/core/components/input/rounded-input.component';
+import { ButtonSize } from '@/models/enums/button';
+import { GdImages } from '@/utils/icons-pack';
+import { GDRoundedInput } from '@/core/components/input/rounded-input.component';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import {resetPassword} from '../Login/LoginAction';
+import {Bars} from 'react-native-loader';
 
-class Login extends React.Component<any, any> {
+class ForgotPassword extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
+    this.state = {
+      email: ''
+    }
   }
 
   componentDidMount() {
@@ -62,11 +68,10 @@ class Login extends React.Component<any, any> {
     return (
       <GDContainer>
         <View style={style.backgroundContainer}>
-          <View style={style.upperContainer}>
-            <Image style={style.logoStyle} source={GdImages.icons.logoGiddh} />
-          </View>
-
           <View style={style.loginContainer}>
+            <View style={style.upperContainer}>
+              <Image style={style.logoStyle} source={GdImages.icons.logoGiddh} />
+            </View>
             <View style={style.loginFormContainer}>
               <View>
                 <Text style={style.resetHead}>Password Reset Request</Text>
@@ -76,17 +81,38 @@ class Login extends React.Component<any, any> {
                 </Text>
               </View>
               <View>
-                <GDRoundedInput icon="email" label="Company Name" value="" placeholder="sampleaddress@mail.com" />
+                <GDRoundedInput
+                  onChange={(value) => this.setState({ email: value })}
+                  icon="email" 
+                  label="Company Name" 
+                  value="" 
+                  style ={{flex:1}}
+                  placeholder="*********" />
+                   {/* <GDRoundedInput
+                  onChange={(value) => this.setState({ email: value })}
+                  icon="" 
+                  label="Password" 
+                  value="" 
+                  style ={{flex:1}}
+                  placeholder="*********" /> */}
+                   {/* <GDRoundedInput
+                  onChange={(value) => this.setState({ email: value })}
+                  icon="email" 
+                  label="Company Name" 
+                  value="" 
+                  style ={{flex:1}}
+                  placeholder="sampleaddress@mail.com" /> */}
               </View>
-
               <View style={style.loginButtonContainer}>
                 <GDButton
                   size={ButtonSize.medium}
                   style={style.requestButtonStyle}
                   label={'Request'}
-                  onPress={() => this.props.navigation.navigate('Otp')}
+                  onPress={() => this.props.resetPassword()}
                 />
-                <Text style={style.loginStyle}>Back to Login</Text>
+                <TouchableOpacity>
+                  <Text style={style.loginStyle}>Back to Login</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -96,17 +122,21 @@ class Login extends React.Component<any, any> {
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state) => {
+  const {LoginReducer} = state;
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    ...LoginReducer,
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+
+const mapDispatchToProps = (dispatch) => {
   return {
-    login: dispatch.auth.loginAction,
-    googleLogin: dispatch.auth.googleLoginAction,
+    resetPassword:(email)=> {
+      dispatch(resetPassword(email));
+    }
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(ForgotPassword);

@@ -15,7 +15,7 @@ export default StyleSheet.create({
   listHeading: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.medium,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
   },
 
   balData: {
@@ -57,7 +57,7 @@ export default StyleSheet.create({
   },
   stockSubTitle: {
     color: colors.TEXT_NORMAL,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     fontSize: constants.GD_FONT_SIZE.normal,
   },
   seperator: {

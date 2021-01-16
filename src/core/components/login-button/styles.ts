@@ -20,7 +20,7 @@ export default StyleSheet.create({
     textAlign: 'center',
     fontSize: GD_FONT_SIZE.normal,
     borderStyle: 'solid',
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
   iconSize: {
     height: GD_ICON_SIZE.input_icon,

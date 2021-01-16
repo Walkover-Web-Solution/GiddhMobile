@@ -37,7 +37,7 @@ export class ChangeCompany extends React.Component<Props> {
                 this.props.navigation.goBack();
               }}
             />
-            <Text style={{fontSize: 20, margin: 20, fontFamily: 'OpenSans-Bold'}}>Switch Company</Text>
+            <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black'}}>Switch Company</Text>
           </View>
           <FlatList
             data={this.props.comapnyList}

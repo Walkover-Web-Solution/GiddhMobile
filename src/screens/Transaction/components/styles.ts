@@ -15,7 +15,7 @@ export default StyleSheet.create({
   listHeading: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.medium,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
   },
   aboutSales: {
     display: 'flex',
@@ -82,7 +82,7 @@ export default StyleSheet.create({
   balStyle: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.normal,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
   },
   iconPlacingStyle: {
     display: 'flex',

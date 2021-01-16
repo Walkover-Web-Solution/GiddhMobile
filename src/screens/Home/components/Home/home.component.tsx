@@ -115,7 +115,7 @@ class HomeComponent extends React.Component {
             style={{
               color: focused ? '#5773FF' : '#808080',
               marginHorizontal: 8,
-              fontFamily: 'OpenSans-Bold',
+              fontFamily: 'AvenirLTStd-Black',
               // fontWeight: focused ? 'bold' : 'normal',
             }}>
             {route.title}

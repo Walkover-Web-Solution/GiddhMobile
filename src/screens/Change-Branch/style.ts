@@ -16,19 +16,19 @@ export default StyleSheet.create({
     paddingHorizontal: 40,
     paddingVertical: 20,
     alignItems: 'center',
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     fontSize: 15,
 justifyContent:'space-between'
   },
   goToCompanyText:{
     color: color.TEXT_LINK,
     fontSize: 15,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     width: '100%',
     textAlign: 'left',
     paddingHorizontal: 54,
     paddingVertical: 20,
 
   },
-  listItemName: {fontSize: 15, marginLeft: 15, fontFamily: 'OpenSans'},
+  listItemName: {fontSize: 15, marginLeft: 15, fontFamily: 'AvenirLTStd-Book'},
 });

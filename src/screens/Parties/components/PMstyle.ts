@@ -35,7 +35,7 @@ export default StyleSheet.create({
     marginLeft: 0,
     fontSize: constants.GD_FONT_SIZE.medium,
     width: '65%',
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
   subheading: {
     color: colors.LABEL_COLOR,
@@ -49,7 +49,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
   },
   amountStyle: {
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     fontSize: constants.GD_FONT_SIZE.medium,
   },
   iconStyle: {

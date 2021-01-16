@@ -181,7 +181,10 @@ class Login extends React.Component<any, any> {
                 label={'Login'}
                 onPress={() => this.signInWithUsernamePassword()}
               />
-              {/* <TouchableOpacity onPress={() => alert('comming soon')}>
+              {/* <TouchableOpacity onPress={() => 
+              {
+                this.props.navigation.navigate('Password')
+              }}>
                 <Text style={style.forgotStyle}>Forgot password?</Text>
               </TouchableOpacity> */}
             </View>
@@ -236,12 +239,5 @@ function mapDispatchToProps(dispatch) {
     }
   };
 }
-
-// const mapDispatchToProps = (dispatch: Dispatch) => {
-//   return {
-//     login: dispatch.auth.loginAction,
-//     googleLogin: dispatch.auth.googleLoginAction,
-//   };
-// };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

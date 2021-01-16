@@ -31,14 +31,14 @@ export default StyleSheet.create({
     color: colors.INPUT_COLOR,
     textAlign: 'center',
     fontSize: 14,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     marginLeft: 10,
   },
   companyShortText: {
     color: colors.WHITE,
     textAlign: 'center',
     fontSize: 11,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     textTransform: 'uppercase',
   },
   companyShortView: {

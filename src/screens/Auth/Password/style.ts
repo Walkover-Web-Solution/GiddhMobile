@@ -28,6 +28,7 @@ export default StyleSheet.create({
     height: height * 0.1,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'absolute'
   },
   logoStyle: {
     resizeMode: 'contain',
@@ -42,7 +43,7 @@ export default StyleSheet.create({
   },
   loginTextStyle: {
     fontSize: 26,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     marginBottom: 30,
     color: colors.TEXT_HEADING,
   },
@@ -73,7 +74,7 @@ export default StyleSheet.create({
 
   registerStyle: {
     fontSize: 18,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     color: colors.TEXT_NORMAL,
   },
   formInput: {
@@ -81,7 +82,6 @@ export default StyleSheet.create({
     borderRadius: 20,
   },
   loginButtonContainer: {
-    display: 'flex',
     flexDirection: 'row',
     marginTop: 20,
     justifyContent: 'space-between',
@@ -93,7 +93,7 @@ export default StyleSheet.create({
   },
   loginStyle: {
     fontSize: GD_FONT_SIZE.medium,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     color: colors.TEXT_NORMAL,
   },
   troubleLoginContainer: {
@@ -106,7 +106,7 @@ export default StyleSheet.create({
     marginBottom: 5,
     marginRight: 10,
     fontSize: 14,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     color: colors.TEXT_NORMAL,
   },
 
@@ -115,12 +115,12 @@ export default StyleSheet.create({
     color: colors.TEXT_LINK,
     fontSize: GD_FONT_SIZE.normal,
     textDecorationLine: 'underline',
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
 
   resetHead: {
     fontSize: GD_FONT_SIZE.xlarge,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     textAlign: 'center',
     paddingBottom: 20,
   },

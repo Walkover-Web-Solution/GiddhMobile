@@ -30,7 +30,7 @@ export class ChangeBranch extends React.Component<Props> {
                 this.props.navigation.goBack();
               }}
             />
-            <Text style={{fontSize: 20, margin: 20, fontFamily: 'OpenSans-Bold'}}>Switch Branch</Text>
+            <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black-Bold'}}>Switch Branch</Text>
           </View>
           <TouchableOpacity
             style={{justifyContent: 'center', alignItems: 'center'}}

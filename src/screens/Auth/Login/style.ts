@@ -44,20 +44,20 @@ export default StyleSheet.create({
   },
   loginTextStyle: {
     fontSize: 26,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     // marginBottom: 30,
     color: colors.TEXT_HEADING,
   },
   gmailButton: {
     marginBottom: 10,
     marginRight: 10,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     backgroundColor: colors.PRIMARY_BASIC,
   },
   appleButton: {
     marginBottom: 20,
     marginRight: 10,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     backgroundColor: colors.INPUT_COLOR,
   },
 
@@ -80,7 +80,7 @@ export default StyleSheet.create({
 
   registerStyle: {
     fontSize: 18,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     color: colors.TEXT_NORMAL,
   },
   formInput: {
@@ -100,7 +100,7 @@ export default StyleSheet.create({
   },
   forgotStyle: {
     fontSize: 16,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     color: colors.TEXT_NORMAL,
   },
   troubleLoginContainer: {
@@ -111,14 +111,14 @@ export default StyleSheet.create({
     marginBottom: 5,
     marginRight: 10,
     fontSize: 16,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     color: colors.TEXT_NORMAL,
   },
   bottomTextSeparater: {
     marginVertical: 10,
     marginRight: 10,
     fontSize: 16,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
     color: colors.TEXT_NORMAL,
     opacity: 0.5,
   },
@@ -128,6 +128,6 @@ export default StyleSheet.create({
     color: colors.TEXT_LINK,
     fontSize: 16,
     textDecorationLine: 'underline',
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
 });

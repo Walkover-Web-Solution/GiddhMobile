@@ -9,12 +9,12 @@ export default StyleSheet.create({
     fontSize: GD_CIRCLE_BUTTON.fontSize,
     marginTop: -5,
     marginLeft: 1,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
   textStyle: {
     color: colors.WHITE,
     textAlign: 'center',
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
   button: {
     borderRadius: GD_RADIUS.r_medium,
