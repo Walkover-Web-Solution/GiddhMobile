@@ -10,6 +10,7 @@ import httpInstance from '@/core/services/http/http.service';
 import {Bars} from 'react-native-loader';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import colors from '@/utils/colors';
+import moment from 'moment';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -54,8 +55,8 @@ export class InventoryScreen extends React.Component<Props, {}> {
     this.state = {
       showLoader: true,
       inventoryData: [],
-      startDate: '01-12-2020',
-      endDate: '31-12-2020',
+      startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
+      endDate: moment().format('DD-MM-YYYY'),
       page: 1,
       loadingMore: false,
     };
@@ -75,6 +76,8 @@ export class InventoryScreen extends React.Component<Props, {}> {
   async getInventories() {
     try {
       const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+
       await httpInstance
         .post(
           `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=1&nonZeroInward=true&nonZeroOutward=true`,

@@ -17,25 +17,27 @@ const {height, width} = Dimensions.get('window');
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    console.log(activeCompany);
+    const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    console.log(activeCompany, branchName);
     // console.log(moment().subtract(30, 'd').format('DD-MM-YYYY'));
   };
-  fun2 = async () => {
+  func2 = async () => {
     try {
-      // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
       const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       await httpInstance
-        .post(`https://api.giddh.com/company/${companyName}/stock-summary?from=01-10-2020&to=30-10-2020&page=1`, {})
+        .post(
+          `https://api.giddh.com/company/sakshiin157543885184507d9cp/daybook?page=1&count=25&from=&to=&branchUniqueName=`,
+          {
+            includeParticulars: true,
+            particulars: ['sheba'],
+          },
+        )
         .then((res) => {
-          console.log(res);
+          console.log(res.data.body.entries);
         });
-      // console.log(transactions);
-
-      // this.setState({
-      //   transactionsData: transactions.body.entries,
-      // });
-      // console.log(this.state.transactionsData);
     } catch (e) {
+      console.log(e);
       console.log(e);
     }
   };
@@ -131,7 +133,7 @@ export class Invoice extends React.Component<any, any> {
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          onPress={this.func1}>
+          onPress={this.func2}>
           <Text>Press</Text>
         </TouchableOpacity>
         {/* <GDRoundedDateRangeInput label={'dates'} /> */}

@@ -50,7 +50,7 @@ export default StyleSheet.create({
     height: 8,
     width: 8,
     borderRadius: 8 / 2,
-    backgroundColor: colors.PRIMARY_BASIC,
+    backgroundColor: '#5773FF',
     marginLeft: 10,
   },
 });
