@@ -50,6 +50,28 @@ export function verifyOTPFailed(error) {
 }
 
 
+export function resetPassword(error) {
+  return {
+    type: Actions.RESET_PASSWORD, 
+    payload: error
+  }
+}
+
+export function resetPasswordSuccess(error) {
+  return {
+    type: Actions.RESET_PASSWORD_SUCCESS, 
+    payload: error
+  }
+}
+export function resetPasswordFailure(error) {
+  return {
+    type: Actions.RESET_PASSWORD_FAILURE, 
+    payload: error
+  }
+}
+
+
+
 export function clearOTPError() {
   return {
     type: Actions.CLEAR_OTP_ERROR, 

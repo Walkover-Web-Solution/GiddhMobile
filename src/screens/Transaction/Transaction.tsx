@@ -177,7 +177,7 @@ export class TransactionScreen extends React.Component {
                 source={require('@/assets/images/noTransactions.png')}
                 style={{resizeMode: 'contain', height: 250, width: 300}}
               />
-              <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
+              <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10}}>No Transactions</Text>
             </View>
           ) : (
             <FlatList

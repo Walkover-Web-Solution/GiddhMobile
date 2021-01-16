@@ -36,11 +36,11 @@ export class HelpScreen extends React.Component<Props> {
     return (
       <GDContainer>
         <View style={style.container}>
-          <Text style={{fontSize: 20, fontFamily: 'OpenSans-Bold', margin: 20}}>Help and Support</Text>
+          <Text style={{fontSize: 20, fontFamily: 'AvenirLTStd-Black', margin: 20}}>Help and Support</Text>
           <View style={{alignSelf: 'center'}}>
             <GdSVGIcons.help style={style.iconStyle} width={300} height={200} />
           </View>
-          <Text style={{fontSize: 20, fontFamily: 'OpenSans-Bold', margin: 20}}>Help and Support</Text>
+          <Text style={{fontSize: 20, fontFamily: 'AvenirLTStd-Black', margin: 20}}>Help and Support</Text>
           <FlatList
             data={this.listData}
             showsVerticalScrollIndicator={false}

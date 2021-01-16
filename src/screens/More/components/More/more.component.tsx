@@ -197,7 +197,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             }}
             onPress={this.props.logout}>
             <Icon name={'Lock'} size={20} color={'#5773FF'} />
-            <Text style={{fontFamily: 'OpenSans-Bold', marginLeft: 20}}>Logout</Text>
+            <Text style={{fontFamily: 'AvenirLTStd-Black', marginLeft: 20}}>Logout</Text>
           </TouchableOpacity>
           {/* <MoreList />
           {

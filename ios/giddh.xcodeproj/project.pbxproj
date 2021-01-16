@@ -10,18 +10,22 @@
 		00E356F31AD99517003FC87E /* giddhTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* giddhTests.m */; };
 		042C6E153C6EA90D70078F3D /* libPods-giddh.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AC15721DAA5F9DB5F0F2179E /* libPods-giddh.a */; };
 		09D88548B91A4D2E840652DD /* OpenSans-SemiboldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CDB6AB09343B481CA7839B06 /* OpenSans-SemiboldItalic.ttf */; };
+		0DFC7D70A7304BD2A96F66B6 /* AvenirLTStd-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = BC0018782AD241C29C3EAD27 /* AvenirLTStd-Black.otf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		18AEF7332549B22300381B32 /* Opel-Sans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67C8BC21B1D4D89AFFBDB21 /* Opel-Sans-Bold.ttf */; };
 		18AEF7342549B22300381B32 /* Opel-Sans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E371330454E74DA797B61657 /* Opel-Sans-Regular.ttf */; };
+		1F968F53C24A4EC494D7697B /* AvenirLTStd-Book.otf in Resources */ = {isa = PBXBuildFile; fileRef = AB35E6D167FD4F99AA87CE91 /* AvenirLTStd-Book.otf */; };
 		214901AD4C924C5587775AB4 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2805FB7C079A440F82E2C85A /* OpenSans-Light.ttf */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* giddhTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* giddhTests.m */; };
+		387D762C29874229BA4C9968 /* AvenirLTStd-Roman.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8CA45CD91F054E03B36CFBEB /* AvenirLTStd-Roman.otf */; };
 		38E9684AEA7445399338B288 /* OpenSans-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 002E37EBF9F8456A8F3800E7 /* OpenSans-Semibold.ttf */; };
 		42882959BC8B4CE9A0DD02E8 /* OpenSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 85D473E408A146EC99170C9B /* OpenSans-ExtraBold.ttf */; };
+		53B23FB5CEC0430898507880 /* noTransactions.png in Resources */ = {isa = PBXBuildFile; fileRef = 2D8E79DA5B2A445683BE7689 /* noTransactions.png */; };
 		5467905C63C04A6BA3DAED82 /* OpenSans-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E9D3CB75C12342CE9CE002FC /* OpenSans-Italic.ttf */; };
 		5A7630AAC0E3417CA5AF338F /* OpenSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 422F8CD4F8EF4B17ACC95473 /* OpenSans-Bold.ttf */; };
 		5B206438C455455BC61ADA31 /* libPods-giddh-giddhTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C723542DD4B1647877727B57 /* libPods-giddh-giddhTests.a */; };
@@ -84,6 +88,7 @@
 		2CB75E912FD8416580E1CD7E /* calendar.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = calendar.svg; path = ../src/assets/images/icons/calendar.svg; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* giddh-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "giddh-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* giddh-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "giddh-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D8E79DA5B2A445683BE7689 /* noTransactions.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = noTransactions.png; path = ../src/assets/images/noTransactions.png; sourceTree = "<group>"; };
 		34F97B2D8EEC43C1A2FAE81B /* search.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = search.svg; path = ../src/assets/images/icons/search.svg; sourceTree = "<group>"; };
 		358D4A8607F3478BB7BD8494 /* purchase.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = purchase.svg; path = ../src/assets/images/icons/purchase.svg; sourceTree = "<group>"; };
 		3DACCE012D874B6BAE6C14FF /* slider3.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = slider3.png; path = ../src/assets/images/slider3.png; sourceTree = "<group>"; };
@@ -112,6 +117,7 @@
 		86778D46393F4B939E7BE705 /* premium.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = premium.svg; path = ../src/assets/images/icons/premium.svg; sourceTree = "<group>"; };
 		87C3C63A38284315886A8ED9 /* outgoing.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = outgoing.svg; path = ../src/assets/images/icons/outgoing.svg; sourceTree = "<group>"; };
 		888113FBF8BA41B1A87FC811 /* address.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = address.svg; path = ../src/assets/images/icons/address.svg; sourceTree = "<group>"; };
+		8CA45CD91F054E03B36CFBEB /* AvenirLTStd-Roman.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "AvenirLTStd-Roman.otf"; path = "../assets/fonts/AvenirLTStd-Roman.otf"; sourceTree = "<group>"; };
 		9226173E83F54CFBA27C189E /* Profile.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Profile.svg; path = ../src/assets/images/icons/Profile.svg; sourceTree = "<group>"; };
 		92CC26336C3E41F1B15F7F00 /* Backward.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Backward.svg; path = ../src/assets/images/icons/Backward.svg; sourceTree = "<group>"; };
 		93DB1162DEF14153AAD1B151 /* sort.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = sort.png; path = ../src/assets/images/icons/sort.png; sourceTree = "<group>"; };
@@ -119,6 +125,7 @@
 		A365B0D27BCA4451B09093A1 /* download.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = download.png; path = ../src/assets/images/icons/download.png; sourceTree = "<group>"; };
 		A3CE96A2194E4AFD85E0F262 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-Regular.ttf"; path = "../assets/fonts/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
 		A978F45192D3C62047A380FA /* Pods-giddh-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh-tvOS.release.xcconfig"; path = "Target Support Files/Pods-giddh-tvOS/Pods-giddh-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		AB35E6D167FD4F99AA87CE91 /* AvenirLTStd-Book.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "AvenirLTStd-Book.otf"; path = "../assets/fonts/AvenirLTStd-Book.otf"; sourceTree = "<group>"; };
 		AC15721DAA5F9DB5F0F2179E /* libPods-giddh.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-giddh.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B04962DE37A743C7AD712853 /* arrowRight.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = arrowRight.svg; path = ../src/assets/images/icons/arrowRight.svg; sourceTree = "<group>"; };
 		B230F0229E264DE4A6ED782D /* giddh.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = giddh.svg; path = ../src/assets/images/giddh.svg; sourceTree = "<group>"; };
@@ -126,6 +133,7 @@
 		B5B064070C2E5E78E8E6CEC0 /* Pods-giddh.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh.debug.xcconfig"; path = "Target Support Files/Pods-giddh/Pods-giddh.debug.xcconfig"; sourceTree = "<group>"; };
 		B71C72C8BC2545FB8A5251F0 /* compose.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = compose.svg; path = ../src/assets/images/icons/compose.svg; sourceTree = "<group>"; };
 		B95199992CED4A02DDA09EA7 /* Pods-giddh-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-giddh-tvOSTests/Pods-giddh-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		BC0018782AD241C29C3EAD27 /* AvenirLTStd-Black.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "AvenirLTStd-Black.otf"; path = "../assets/fonts/AvenirLTStd-Black.otf"; sourceTree = "<group>"; };
 		BCD92684C04E4638845A9DED /* OpenSans-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-BoldItalic.ttf"; path = "../assets/fonts/OpenSans-BoldItalic.ttf"; sourceTree = "<group>"; };
 		BD4B0B1129A245D99F866AF4 /* OpenSans-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-ExtraBoldItalic.ttf"; path = "../assets/fonts/OpenSans-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		BE88F9BACA904BBD8D33E2EC /* phone.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = phone.svg; path = ../src/assets/images/icons/phone.svg; sourceTree = "<group>"; };
@@ -369,6 +377,10 @@
 				A3CE96A2194E4AFD85E0F262 /* OpenSans-Regular.ttf */,
 				002E37EBF9F8456A8F3800E7 /* OpenSans-Semibold.ttf */,
 				CDB6AB09343B481CA7839B06 /* OpenSans-SemiboldItalic.ttf */,
+				2D8E79DA5B2A445683BE7689 /* noTransactions.png */,
+				BC0018782AD241C29C3EAD27 /* AvenirLTStd-Black.otf */,
+				AB35E6D167FD4F99AA87CE91 /* AvenirLTStd-Book.otf */,
+				8CA45CD91F054E03B36CFBEB /* AvenirLTStd-Roman.otf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -532,6 +544,10 @@
 				E900EF63728E4064A5367E2B /* OpenSans-Regular.ttf in Resources */,
 				38E9684AEA7445399338B288 /* OpenSans-Semibold.ttf in Resources */,
 				09D88548B91A4D2E840652DD /* OpenSans-SemiboldItalic.ttf in Resources */,
+				53B23FB5CEC0430898507880 /* noTransactions.png in Resources */,
+				0DFC7D70A7304BD2A96F66B6 /* AvenirLTStd-Black.otf in Resources */,
+				1F968F53C24A4EC494D7697B /* AvenirLTStd-Book.otf in Resources */,
+				387D762C29874229BA4C9968 /* AvenirLTStd-Roman.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

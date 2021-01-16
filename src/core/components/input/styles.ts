@@ -63,7 +63,7 @@ export default StyleSheet.create({
     paddingBottom: 4,
     width: '100%',
     paddingLeft: 5,
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
   roundedViewArea: {
     height: 48,
@@ -93,6 +93,7 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderRadius: 24,
     alignItems: 'center',
+    width: '100%'
   },
   roundedIconBox: {
     height: GD_ICON_SIZE.input_icon,

@@ -16,7 +16,28 @@ export default function* watcherSaga() {
     yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
     yield takeLatest(ActionConstants.GOOGLE_USER_LOGIN, googleLogin);     
     yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);      
-    yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin);     
+    yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin); 
+    yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);     
+    
+}
+
+export function* resetPassword(action){
+
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
+        alert('Please enter valid email & Password');
+        yield put(LoginAction.resetPasswordFailure('Please enter valid email'));
+    }
+    else{
+    const response = yield call(LoginService.resetPassword, action.payload);
+    if (response && response.body && response.status == 'success'){
+        yield put(LoginAction.resetPasswordSuccess(response.body));
+    }
+    else{
+        alert(response.data.message)
+        yield put(LoginAction.loginUserFailure(response.data.message));
+    }
+}
 }
 
 export function* verifyUserEmailPasswordLogin(action){

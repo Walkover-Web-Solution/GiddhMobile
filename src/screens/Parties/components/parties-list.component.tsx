@@ -41,7 +41,7 @@ const amountColorStyle = (type: string) => {
   }
   return {
     color: bgColor,
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     fontSize: constants.GD_FONT_SIZE.medium,
   };
 };

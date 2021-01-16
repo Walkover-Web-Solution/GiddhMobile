@@ -18,6 +18,20 @@ export class AuthService {
         return res.data;
       });
   }
+ /**
+   * get response from server
+   * @returns {Promise<BaseResponse<LoginResponse>>}
+   */
+  static resetPassword(payload: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.resetPassword, {
+        headers: {'email': payload.email},
+      })
+      .then((res) => {
+        return res.data;
+      });
+  }
+  
 /**
    * get response from server
    * @returns {Promise<BaseResponse<LoginResponse>>}

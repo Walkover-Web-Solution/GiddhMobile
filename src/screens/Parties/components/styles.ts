@@ -48,7 +48,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
   },
   amountStyle: {
-    fontFamily: 'OpenSans-Bold',
+    fontFamily: 'AvenirLTStd-Black',
     fontSize: constants.GD_FONT_SIZE.medium,
   },
   iconStyle: {

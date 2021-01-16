@@ -4,7 +4,7 @@ import routes from '@/navigation/routes';
 import Login from '@/screens/Auth/Login/Login';
 import Welcome from '@/screens/Auth/Welcome/Welcome';
 import Otp from '@/screens/Auth/Otp/Otp';
-import Password from '@/screens/Auth/Password/Password';
+import Password from '@/screens/Auth/Password/ForgotPassword';
 import {Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 const {Navigator, Screen} = createStackNavigator();
