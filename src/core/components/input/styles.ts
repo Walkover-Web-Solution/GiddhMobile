@@ -85,7 +85,6 @@ export default StyleSheet.create({
     width: Dimensions.get('window').width * 0.75,
     paddingLeft: 15,
     paddingRight: 15,
-    marginLeft: 10,
     backgroundColor: '#ffffff',
     justifyContent: 'flex-start',
     textAlign: 'left',
@@ -94,6 +93,7 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderRadius: 24,
     alignItems: 'center',
+    marginLeft: 10,
   },
   roundedIconBox: {
     height: GD_ICON_SIZE.input_icon,
