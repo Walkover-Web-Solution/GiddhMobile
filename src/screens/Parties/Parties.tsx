@@ -116,6 +116,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       // console.log('creditors are', creditors.body.results);
       this.setState({
         debtData: this.state.debtData.concat(creditors.body.results),
+        showLoader: false,
       });
     } catch (e) {
       this.setState({partiesCredData: new PartiesPaginatedResponse()});

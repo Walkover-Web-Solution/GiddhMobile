@@ -24,6 +24,7 @@ import httpInstance from '@/core/services/http/http.service';
 import {commonUrls} from '@/core/services/common/common.url';
 import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
+import VoucherModal from './components/voucherModal';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -40,15 +41,97 @@ class PartiesTransactionScreen extends React.Component {
       page: 0,
       totalPages: 0,
       loadingMore: false,
+      voucherModal: false,
+      includeVouchers: false,
+      vouchers: [],
     };
   }
   componentDidMount() {
     this.getTransactions();
   }
 
+  modalVisible = () => {
+    this.setState({voucherModal: false});
+  };
+
   func1 = async () => {
     const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     console.log(v1);
+  };
+  filter = (filterType) => {
+    if (filterType == 'sales') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['sales']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rsales') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'sales'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'purchase') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['purchase']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rpurchase') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'purchase'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'creditnote') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['credit note']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rcreditnote') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'credit note'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'debitnote') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['debit note']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rdebitnote') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'debit note'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    }
   };
   async getTransactions() {
     try {
@@ -61,6 +144,8 @@ class PartiesTransactionScreen extends React.Component {
           {
             includeParticulars: true,
             particulars: [this.props.route.params.item.uniqueName],
+            includeVouchers: true,
+            vouchers: this.state.vouchers,
           },
         )
         .then((res) => {
@@ -70,7 +155,7 @@ class PartiesTransactionScreen extends React.Component {
 
               showLoader: false,
             },
-            // () => console.log(this.state.transactionsData),
+            () => console.log(this.state.transactionsData),
           );
         });
     } catch (e) {
@@ -173,7 +258,7 @@ class PartiesTransactionScreen extends React.Component {
             </Text>
           </View>
           <View style={{marginTop: Dimensions.get('window').height * 0.02}} />
-          {/* <GDRoundedDateRangeInput
+          <GDRoundedDateRangeInput
             label="Select Date"
             startDate={this.state.startDate}
             endDate={this.state.endDate}
@@ -192,9 +277,9 @@ class PartiesTransactionScreen extends React.Component {
               borderWidth: 1,
               borderColor: '#D9D9D9',
             }}
-            onPress={() => console.log(this.state.startDate, this.state.endDate)}>
+            onPress={() => this.setState({voucherModal: true})}>
             <Foundation name="filter" size={22} color={'#808080'} />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
           {/* <View style={style.filterStyle}>
             <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={() => console.log(this.state.endDate)}>
@@ -215,18 +300,27 @@ class PartiesTransactionScreen extends React.Component {
               <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
             </View>
           ) : (
-            // <View style={{paddingHorizontal: 10, marginTop: 20, flex: 1}}>
             <FlatList
               style={{paddingHorizontal: 10, marginTop: 20}}
               data={this.state.transactionsData}
               renderItem={({item}) => <TransactionList item={item} />}
-              keyExtractor={(item) => item.createdAt}
+              keyExtractor={(item) => item.uniqueName}
               //   onEndReachedThreshold={0.2}
               //   onEndReached={() => this.handleRefresh()}
               //   ListFooterComponent={this._renderFooter}
             />
-            // </View>
           )}
+
+          {/* <TouchableOpacity
+            style={{height: 40, width: 120, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.state.vouchers)}></TouchableOpacity> */}
+
+          <VoucherModal
+            modalVisible={this.state.voucherModal}
+            setModalVisible={this.modalVisible}
+            filter={this.filter}
+            // activeFilter={this.state.activeFilter}
+          />
         </View>
       );
     }
