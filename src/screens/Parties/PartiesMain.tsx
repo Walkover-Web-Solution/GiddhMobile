@@ -82,7 +82,7 @@ export class PartiesMainScreen extends React.Component {
     }
   };
   handleVendorRefresh = () => {
-    // console.log('vendor refresh executed');
+    console.log('vendor refresh executed');
     // console.log(this.state.totalVendorPages);
     if (this.state.VendorPage < this.state.totalVendorPages) {
       this.setState(
@@ -98,7 +98,7 @@ export class PartiesMainScreen extends React.Component {
             this.state.count,
             this.state.VendorPage,
           );
-          console.log('this executes now');
+          console.log('this executes vendor now');
         },
       );
     }
