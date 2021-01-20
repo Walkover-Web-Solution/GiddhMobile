@@ -17,6 +17,7 @@ import colors from '../../../../utils/colors';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {Bars} from 'react-native-loader';
 import color from '@/utils/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -196,7 +197,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               elevation: 3,
             }}
             onPress={this.props.logout}>
-            <Icon name={'Lock'} size={20} color={'#5773FF'} />
+            <Ionicons name="ios-power" size={26} color={'#5773FF'} />
             <Text style={{fontFamily: 'OpenSans-Bold', marginLeft: 20}}>Logout</Text>
           </TouchableOpacity>
           {/* <MoreList />
