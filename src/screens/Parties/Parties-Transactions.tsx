@@ -54,10 +54,6 @@ class PartiesTransactionScreen extends React.Component {
     this.setState({voucherModal: false});
   };
 
-  func1 = async () => {
-    const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-    console.log(v1);
-  };
   filter = (filterType) => {
     if (filterType == 'sales') {
       this.setState(
@@ -131,8 +127,90 @@ class PartiesTransactionScreen extends React.Component {
           this.getTransactions();
         },
       );
+    } else if (filterType == 'receipt') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['receipt']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rreceipt') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'receipt'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'payment') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['payment']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rpayment') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'payment'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'voucher') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['journal']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rvoucher') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'journal'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'contra') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.concat(['contra']),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'Rcontra') {
+      this.setState(
+        {
+          vouchers: this.state.vouchers.filter((item) => item !== 'contra'),
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
+    } else if (filterType == 'clearall') {
+      this.setState(
+        {
+          vouchers: [],
+        },
+        () => {
+          this.getTransactions();
+        },
+      );
     }
   };
+
   async getTransactions() {
     try {
       //   console.log('got called', this.state.startDate, this.state.endDate);
@@ -152,7 +230,6 @@ class PartiesTransactionScreen extends React.Component {
           this.setState(
             {
               transactionsData: res.data.body.entries,
-
               showLoader: false,
             },
             () => console.log(this.state.transactionsData),

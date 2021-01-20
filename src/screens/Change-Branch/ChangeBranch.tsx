@@ -16,12 +16,17 @@ interface Props {
 
 export class ChangeBranch extends React.Component<Props> {
   render() {
-    let branches = this.props.route.params.branches;
+    let branches = this.props.route.params.branches.sort((a, b) =>
+      a.alias.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+    );
     let activeBranch = this.props.route.params.activeBranch;
 
     return (
       <GDContainer>
         <View style={style.container}>
+          {/* <TouchableOpacity
+              style={{height: 40, width: 140, backgroundColor: 'pink'}}
+              onPress={() => console.log(branches)}></TouchableOpacity> */}
           <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 20}}>
             <Icon
               size={20}

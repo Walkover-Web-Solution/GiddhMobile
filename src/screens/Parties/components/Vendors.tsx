@@ -34,11 +34,11 @@ const renderHiddenItem = () => (
 const amountColorStyle = (type: string) => {
   let bgColor = colors.TEXT_NORMAL;
   if (type === 'liabilities') {
-    bgColor = baseColor.PRIMARY_RED;
+    bgColor = bgColor;
   } else if (type === 'assets') {
-    bgColor = baseColor.PRIMARY_GREEN;
+    bgColor = bgColor;
   } else if (type === 'neutral') {
-    bgColor = colors.INPUT_COLOR;
+    bgColor = bgColor;
   }
   return {
     color: bgColor,
