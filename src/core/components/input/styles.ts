@@ -94,7 +94,6 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderRadius: 24,
     alignItems: 'center',
-    width: '100%'
   },
   roundedIconBox: {
     height: GD_ICON_SIZE.input_icon,
