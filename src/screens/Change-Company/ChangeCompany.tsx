@@ -25,6 +25,9 @@ export class ChangeCompany extends React.Component<Props> {
   }
   render() {
     let activeCompany = this.props.route.params.activeCompany;
+    let companyList = this.props.comapnyList.sort((a, b) =>
+      a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+    );
 
     return (
       <GDContainer>
@@ -40,7 +43,7 @@ export class ChangeCompany extends React.Component<Props> {
             <Text style={{fontSize: 20, margin: 20, fontFamily: 'OpenSans-Bold'}}>Switch Company</Text>
           </View>
           <FlatList
-            data={this.props.comapnyList}
+            data={companyList}
             showsVerticalScrollIndicator={false}
             renderItem={({item}) => (
               <TouchableOpacity

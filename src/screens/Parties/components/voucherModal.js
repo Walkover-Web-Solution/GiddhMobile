@@ -21,6 +21,10 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
   const [purchase, setPurchase] = React.useState(false);
   const [debitNote, setDebitNote] = React.useState(false);
   const [creditNote, setCreditNote] = React.useState(false);
+  const [receipt, setReceipt] = React.useState(false);
+  const [payment, setPayment] = React.useState(false);
+  const [voucher, setVoucher] = React.useState(false);
+  const [contra, setContra] = React.useState(false);
 
   return (
     <Modal
@@ -33,7 +37,7 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           <TouchableOpacity
-            style={{flexDirection: 'row', alignItems: 'center'}}
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!sales) {
                 filter('sales');
@@ -45,16 +49,16 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
               {sales ? (
-                <AntDesign name="checksquare" size={20} color={'#808080'} />
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
               ) : (
-                <Fontisto name="checkbox-passive" size={20} color={'#808080'} />
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
               )}
             </View>
 
             <Text style={{fontSize: 18, marginLeft: 10}}>Sales</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!purchase) {
                 filter('purchase');
@@ -66,16 +70,16 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
               {purchase ? (
-                <AntDesign name="checksquare" size={20} color={'#808080'} />
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
               ) : (
-                <Fontisto name="checkbox-passive" size={20} color={'#808080'} />
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
               )}
             </View>
 
             <Text style={{fontSize: 18, marginLeft: 10}}>Purchase</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!creditNote) {
                 filter('creditnote');
@@ -87,16 +91,16 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
               {creditNote ? (
-                <AntDesign name="checksquare" size={20} color={'#808080'} />
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
               ) : (
-                <Fontisto name="checkbox-passive" size={20} color={'#808080'} />
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
               )}
             </View>
 
             <Text style={{fontSize: 18, marginLeft: 10}}>Credit Note</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!debitNote) {
                 filter('debitnote');
@@ -108,13 +112,116 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
               {debitNote ? (
-                <AntDesign name="checksquare" size={20} color={'#808080'} />
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
               ) : (
-                <Fontisto name="checkbox-passive" size={20} color={'#808080'} />
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
               )}
             </View>
 
             <Text style={{fontSize: 18, marginLeft: 10}}>Debit Note</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
+            onPress={() => {
+              if (!receipt) {
+                filter('receipt');
+                setReceipt(true);
+              } else {
+                filter('Rreceipt');
+                setReceipt(false);
+              }
+            }}>
+            <View style={{height: 20, width: 20, borderRadius: 2}}>
+              {receipt ? (
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
+              ) : (
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+              )}
+            </View>
+
+            <Text style={{fontSize: 18, marginLeft: 10}}>Receipt</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
+            onPress={() => {
+              if (!payment) {
+                filter('payment');
+                setPayment(true);
+              } else {
+                filter('Rpayment');
+                setPayment(false);
+              }
+            }}>
+            <View style={{height: 20, width: 20, borderRadius: 2}}>
+              {payment ? (
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
+              ) : (
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+              )}
+            </View>
+
+            <Text style={{fontSize: 18, marginLeft: 10}}>Payment</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
+            onPress={() => {
+              if (!voucher) {
+                filter('voucher');
+                setVoucher(true);
+              } else {
+                filter('Rvoucher');
+                setVoucher(false);
+              }
+            }}>
+            <View style={{height: 20, width: 20, borderRadius: 2}}>
+              {voucher ? (
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
+              ) : (
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+              )}
+            </View>
+
+            <Text style={{fontSize: 18, marginLeft: 10}}>Voucher</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
+            onPress={() => {
+              if (!contra) {
+                filter('contra');
+                setContra(true);
+              } else {
+                filter('Rcontra');
+                setContra(false);
+              }
+            }}>
+            <View style={{height: 20, width: 20, borderRadius: 2}}>
+              {contra ? (
+                <AntDesign name="checksquare" size={20} color={'#864DD3'} />
+              ) : (
+                <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+              )}
+            </View>
+
+            <Text style={{fontSize: 18, marginLeft: 10}}>Contra</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10, marginTop: 10}}
+            onPress={() => {
+              filter('clearall');
+              setsales(false);
+              setPurchase(false);
+              setCreditNote(false);
+              setDebitNote(false);
+              setReceipt(false);
+              setPayment(false);
+              setVoucher(false);
+              setContra(false);
+            }}>
+            <View style={{height: 20, width: 20, borderRadius: 2}}>
+              <AntDesign name="close" size={20} color={'#FF1717'} />
+            </View>
+
+            <Text style={{fontSize: 18, marginLeft: 10}}>Clear All</Text>
           </TouchableOpacity>
 
           {/* <TouchableOpacity style={{marginTop: 20, alignSelf: 'center'}} onPress={setModalVisible}>
@@ -162,7 +269,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 15,
     marginTop: Screen_height * 0.15,
-    padding: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
   },
 });
 

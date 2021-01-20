@@ -28,9 +28,9 @@ export const HomeNavigator = () => (
       name={Routes.Transaction}
       component={HomeScreen}
       options={({route}) => ({
-        tabBarLabel: 'Home',
+        tabBarLabel: 'Dashboard',
         tabBarIcon: ({focused}) => (
-          <MaterialCommunityIcons name="home" size={26} color={focused ? '#5773FF' : '#808080'} />
+          <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
         ),
       })}
     />
