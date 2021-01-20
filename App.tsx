@@ -19,6 +19,9 @@ import Invoice from '@/screens/Invoices/Invoice';
 const {store, persistor} = configureStore();
 import SplashScreen from 'react-native-splash-screen';
 import PartiesMain from '@/screens/Parties/PartiesMain';
+import {PartiesStack} from '@/navigation/parties.navigator';
+import {NavigationContainer} from '@react-navigation/native';
+import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -65,6 +68,9 @@ export default class App extends React.Component<any> {
                   <BaseContainer />
                   {/* <Invoice /> */}
                   {/* <PartiesMain /> */}
+                  {/* <NavigationContainer>
+                    <PartiesStack />
+                  </NavigationContainer> */}
                 </SafeAreaProvider>
               </ApplicationProvider>
             </AppearanceProvider>

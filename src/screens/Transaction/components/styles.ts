@@ -10,7 +10,7 @@ export default StyleSheet.create({
   flatList: {
     marginBottom: 15,
     // backgroundColor: 'pink',
-    height: Dimensions.get('window').height * 0.14,
+    // height: Dimensions.get('window').height * 0.14,
   },
   listHeading: {
     color: colors.INPUT_COLOR,

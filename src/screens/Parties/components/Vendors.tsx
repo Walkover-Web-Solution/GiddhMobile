@@ -48,7 +48,7 @@ const amountColorStyle = (type: string) => {
 };
 
 export const Vendors = (props) => {
-  const {partiesData, activeCompany, handleRefresh, loadMore} = props;
+  const {partiesData, activeCompany, handleRefresh, loadMore, navigation} = props;
 
   function _renderFooter() {
     if (!loadMore) return null;
@@ -124,7 +124,9 @@ export const Vendors = (props) => {
       onEndReached={handleRefresh}
       ListFooterComponent={_renderFooter}
       renderItem={({item}) => (
-        <View style={styles.rowFront}>
+        <TouchableOpacity
+          style={styles.rowFront}
+          onPress={() => navigation.navigate('PartiesTransactions', {item: item})}>
           <View style={styles.viewWrap}>
             <Text style={styles.partiesName} numberOfLines={1}>
               {item.name}
@@ -158,7 +160,7 @@ export const Vendors = (props) => {
           </View>
           {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
           {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
-        </View>
+        </TouchableOpacity>
       )}
       keyExtractor={(item) => item.uniqueName}
     />

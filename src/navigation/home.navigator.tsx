@@ -4,20 +4,17 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '@/screens/Home/Home';
 import Routes from './routes';
 import {BigButton} from '@/core/components/big-button/big-button.component';
-import {InventoryScreen} from '@/screens/Inventory/Inventory';
+import {InventoryMainScreen} from '@/screens/Inventory/Inventory-Main';
 import Transactions from '@/screens/Transaction/Transaction';
-// import Icon from '@/core/components/custom-icon/custom-icon';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Icons from 'react-native-vector-icons/MaterialIcons';
-import {PartiesScreen} from '@/screens/Parties/PartiesMain';
+import Icon from '@/core/components/custom-icon/custom-icon';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {PartiesMainScreen} from '@/screens/Parties/PartiesMain';
 import {MoreScreen} from '@/screens/More/More';
 import MoreStack from './more.navigator';
+import {PartiesStack} from './parties.navigator';
 
 const {Navigator, Screen} = createBottomTabNavigator();
-
-const HomeIcon = (props: any) => <Icon {...props} name="home-outline" />;
-const PersonIcon = (props: any) => <Icon {...props} name="person-outline" />;
-const MoreIcon = (props: any) => <Icon {...props} name="more-vertical-outline" />;
 
 export const HomeNavigator = () => (
   <Navigator
@@ -32,29 +29,40 @@ export const HomeNavigator = () => (
       component={HomeScreen}
       options={({route}) => ({
         tabBarLabel: 'Home',
-        tabBarIcon: ({focused}) => <Icon name="home" size={26} color={focused ? '#5773FF' : '#808080'} />,
+        tabBarIcon: ({focused}) => (
+          <MaterialCommunityIcons name="home" size={26} color={focused ? '#5773FF' : '#808080'} />
+        ),
       })}
     />
-    {/* <Screen name={Routes.Inventory} component={InventoryScreen} /> */}
-    {/* <Screen name={Routes.BigButton} component={HomeScreen} /> */}
+    {/* <Screen
+      name={Routes.Inventory}
+      component={InventoryMainScreen}
+      options={({route}) => ({
+        tabBarLabel: 'Inventory',
+
+        tabBarIcon: ({focused}) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
+      })}
+    /> */}
+
     <Screen
       name={Routes.Parties}
-      component={PartiesScreen}
+      component={PartiesStack}
       options={({route}) => ({
         tabBarLabel: 'Parties',
 
-        tabBarIcon: ({focused}) => <Icons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
+        tabBarIcon: ({focused}) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
       })}
     />
-    {/* <Screen name={Routes.Parties} component={PartiesScreen} /> */}
-    {/* <Screen name={Routes.Add} component={HomeScreen} /> */}
+
     <Screen
       name={Routes.More}
       component={MoreStack}
       options={({route}) => ({
         tabBarLabel: 'More',
 
-        tabBarIcon: ({focused}) => <Icon name="dots-vertical" size={26} color={focused ? '#5773FF' : '#808080'} />,
+        tabBarIcon: ({focused}) => (
+          <MaterialCommunityIcons name="dots-vertical" size={26} color={focused ? '#5773FF' : '#808080'} />
+        ),
       })}
     />
   </Navigator>
