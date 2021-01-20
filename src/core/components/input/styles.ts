@@ -82,9 +82,10 @@ export default StyleSheet.create({
 
   roundedViewAreaForInput: {
     height: 38,
-    width: Dimensions.get('window').width * 0.65,
+    width: Dimensions.get('window').width * 0.75,
     paddingLeft: 15,
     paddingRight: 15,
+    marginLeft: 10,
     backgroundColor: '#ffffff',
     justifyContent: 'flex-start',
     textAlign: 'left',
@@ -99,7 +100,8 @@ export default StyleSheet.create({
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
     marginRight: 0,
-    textAlign: 'center',
+    // textAlign: 'center',
+    justifyContent: 'center',
     flexGrow: 0.03,
   },
 });

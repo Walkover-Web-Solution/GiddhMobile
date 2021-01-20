@@ -86,7 +86,7 @@ class Welcome extends React.Component<any, any> {
             y: 0,
             x: width * this.state.currentPage,
           });
-          console.log('current page', this.state.currentPage);
+          // console.log('current page', this.state.currentPage);
         },
       );
     }, 2000);
@@ -105,7 +105,7 @@ class Welcome extends React.Component<any, any> {
         {
           currentPage: indexOfNextScreen,
         },
-        () => console.log('index of next scnreen', indexOfNextScreen),
+        // () => console.log('index of next scnreen', indexOfNextScreen),
       );
     }
   };

@@ -34,7 +34,7 @@ const BadgeTabs = [
   },
 ];
 
-export class PartiesScreen extends React.Component {
+export class PartiesMainScreen extends React.Component {
   constructor(props: any) {
     super(props);
     this.inputRef = React.createRef();
@@ -124,6 +124,7 @@ export class PartiesScreen extends React.Component {
     if (this.state.val === 0) {
       return (
         <Customers
+          navigation={this.props.navigation}
           partiesData={this.state.customerData}
           activeCompany={this.props.activeCompany}
           handleRefresh={this.handleCustomerRefresh}
@@ -133,6 +134,7 @@ export class PartiesScreen extends React.Component {
     } else if (this.state.val === 1) {
       return (
         <Vendors
+          navigation={this.props.navigation}
           partiesData={this.state.vendorData}
           activeCompany={this.props.activeCompany}
           handleRefresh={this.handleVendorRefresh}
@@ -253,13 +255,15 @@ export class PartiesScreen extends React.Component {
     //get parties data
     this.apiCalls();
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.apiCalls();
+      this.setState({showLoader: true}, () => {
+        this.apiCalls();
+      });
     });
   }
 
   render() {
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: 'white'}}>
         <View
           style={{
             height: Dimensions.get('window').height * 0.08,
@@ -282,7 +286,7 @@ export class PartiesScreen extends React.Component {
               />
 
               <TouchableOpacity
-                style={{position: 'absolute', right: 20}}
+                style={{position: 'absolute', right: 20, padding: 8}}
                 onPress={() => this.setState({textInputOpen: false})}>
                 <Icons name={'close'} size={25} color={'#FFFFFF'} />
               </TouchableOpacity>
@@ -291,11 +295,14 @@ export class PartiesScreen extends React.Component {
             <>
               <Text style={{fontSize: 20, fontWeight: 'bold', color: '#fff'}}>Parties</Text>
               <View style={{position: 'absolute', right: 20, flexDirection: 'row', padding: 10}}>
-                <TouchableOpacity style={{}} delayPressIn={0} onPress={() => this.setState({sortModal: true})}>
+                <TouchableOpacity
+                  delayPressIn={0}
+                  onPress={() => this.setState({sortModal: true})}
+                  style={{padding: 8}}>
                   <Icon name={'sort'} size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={{marginLeft: 20}}
+                  style={{padding: 8, marginLeft: 15}}
                   delayPressIn={0}
                   onPress={() => this.setState({textInputOpen: true}, () => this.inputRef.current.focus())}>
                   <Icon name={'search'} size={20} color={'#FFFFFF'} />
@@ -377,8 +384,9 @@ export class PartiesScreen extends React.Component {
 
   private async getPartiesMainSundryCreditors(query, sortBy, order, count, page) {
     try {
+      // console.log('api called');
       const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
-      // console.log('creditors are', creditors.body.results);
+
       this.setState({
         vendorData: creditors.body.results,
         totalVendorPages: creditors.body.totalPages,
@@ -425,4 +433,4 @@ const mapStateToProps = (state: RootState) => {
     // activeCompany: state.company.activeCompany,
   };
 };
-export default connect(mapStateToProps)(PartiesScreen);
+export default connect(mapStateToProps)(PartiesMainScreen);
