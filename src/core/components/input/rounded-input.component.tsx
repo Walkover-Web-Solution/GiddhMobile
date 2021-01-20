@@ -52,7 +52,7 @@ export class GDRoundedInput extends Component<GDRoundedInputProps, GDRoundedInpu
     }
 
     return (
-      <View style={styles.roundedViewAreaForInput}>
+      <View style={styles.roundedViewAreaForTextInput}>
         <View style={styles.roundedIconBox}>
           {checkTag === 1 && <CustomTag width={this.props.svgWidth} height={this.props.svgHeight} />}
           {this.props.icon && <Icon pack="Gd" name={this.props.icon} />}

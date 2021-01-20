@@ -101,6 +101,20 @@ class TransactionList extends React.Component {
       bgColor = colors.TRANSACTION_CONTRA;
     } else if (type === 'purchase') {
       bgColor = bgColor;
+    } else if (type === 'receipt') {
+      bgColor = '#00b795';
+    } else if (type === 'credit note') {
+      bgColor = '#3497fd';
+    } else if (type === 'debit note') {
+      bgColor = '#f6554c';
+    } else if (type === 'Customer') {
+      bgColor = '#864dd3';
+    } else if (type === 'Vendor') {
+      bgColor = '#ff72be';
+    } else if (type === 'advance receipt') {
+      bgColor = '#51c445';
+    } else if (type === 'journal voucher') {
+      bgColor = '#4e4eef';
     }
     return {
       backgroundColor: bgColor,

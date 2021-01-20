@@ -144,20 +144,36 @@ export class PartiesMainScreen extends React.Component {
     }
   }
 
+  apiCalls = async () => {
+    // console.log(this.state.searchQuery, this.state.customerPage);
+    await this.getPartiesMainSundryDebtors(
+      this.state.searchQuery,
+      this.state.sortBy,
+      this.state.order,
+      this.state.count,
+      this.state.customerPage,
+    );
+    await this.getPartiesMainSundryCreditors(
+      this.state.searchQuery,
+      this.state.sortBy,
+      this.state.order,
+      this.state.count,
+      this.state.VendorPage,
+    );
+  };
+
+  searchCalls = _.debounce(this.apiCalls, 2000);
+
   handleSearch = (text: any) => {
-    // console.log(text);
-    // const formatQuery = text.toUpperCase();
-    // const data = _.filter(this.state.customerData, (party) => {
-    //   return this.contains(party, formatQuery);
-    // });
     this.setState(
       {
         searchQuery: text,
         showLoader: true,
-        // customerQueryData: data,
+        customerPage: 1,
+        VendorPage: 1,
       },
       () => {
-        this.apiCalls();
+        this.searchCalls();
       },
     );
   };
@@ -222,35 +238,6 @@ export class PartiesMainScreen extends React.Component {
     }
   };
 
-  apiCalls = async () => {
-    await this.getPartiesMainSundryDebtors(
-      this.state.searchQuery,
-      this.state.sortBy,
-      this.state.order,
-      this.state.count,
-      this.state.customerPage,
-    );
-    await this.getPartiesMainSundryCreditors(
-      this.state.searchQuery,
-      this.state.sortBy,
-      this.state.order,
-      this.state.count,
-      this.state.VendorPage,
-    );
-    // console.log(this.state.debtData[7].name.split(' ')[0]);
-    // this.setState(
-    //   {
-    //     customerData: this.state.customerData.sort((a, b) =>
-    //       a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
-    //     ),
-    //     vendorData: this.state.vendorData.sort((a, b) =>
-    //       a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
-    //     ),
-
-    //   },
-    //   () => console.log('mission successful'),
-    // );
-  };
   componentDidMount() {
     //get parties data
     this.apiCalls();
@@ -339,6 +326,15 @@ export class PartiesMainScreen extends React.Component {
             />
           ))}
         </View>
+        {this.state.showLoader ? (
+          <View style={{flex: 1}}>
+            <View style={style.alignLoader}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
+            </View>
+          </View>
+        ) : (
+          <>{this.renderElement()}</>
+        )}
         <SortModal
           modalVisible={this.state.sortModal}
           setModalVisible={this.modalVisible}
@@ -352,15 +348,6 @@ export class PartiesMainScreen extends React.Component {
             partiesData={this.state.query ? this.state.debtData : this.state.debtFullData}
             activeCompany={activeCompany}
           /> */}
-        {this.state.showLoader ? (
-          <View style={{flex: 1}}>
-            <View style={style.alignLoader}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
-            </View>
-          </View>
-        ) : (
-          <>{this.renderElement()}</>
-        )}
       </View>
     );
   }

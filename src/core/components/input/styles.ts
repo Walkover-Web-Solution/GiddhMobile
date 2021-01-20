@@ -85,7 +85,7 @@ export default StyleSheet.create({
     width: Dimensions.get('window').width * 0.75,
     paddingLeft: 15,
     paddingRight: 15,
-    marginLeft: 10,
+    marginLeft: 15,
     backgroundColor: '#ffffff',
     justifyContent: 'flex-start',
     textAlign: 'left',
@@ -93,7 +93,21 @@ export default StyleSheet.create({
     borderColor: colors.BORDER_COLOR,
     borderWidth: 1,
     borderRadius: 24,
-    alignItems: 'center',
+    alignItems: 'center'
+  },
+  roundedViewAreaForTextInput: {
+    height: 38,
+    width: Dimensions.get('window').width * 0.8,
+    paddingLeft: 15,
+    paddingRight: 15,
+    backgroundColor: '#ffffff',
+    justifyContent: 'flex-start',
+    textAlign: 'left',
+    flexDirection: 'row',
+    borderColor: colors.BORDER_COLOR,
+    borderWidth: 1,
+    borderRadius: 24,
+    alignItems: 'center'
   },
   roundedIconBox: {
     height: GD_ICON_SIZE.input_icon,
