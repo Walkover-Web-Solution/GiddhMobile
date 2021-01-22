@@ -17,7 +17,7 @@ interface Props {
 export class ChangeBranch extends React.Component<Props> {
   render() {
     let branches = this.props.route.params.branches.sort((a, b) =>
-      a.alias.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+      a.alias.toUpperCase().split(' ')[0].localeCompare(b.alias.toUpperCase().split(' ')[0]),
     );
     let activeBranch = this.props.route.params.activeBranch;
 

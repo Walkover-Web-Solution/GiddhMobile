@@ -102,7 +102,11 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         .join('');
     }
   }
-
+  // func1 = async () => {
+  //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+  //   // console.log(activeCompany);
+  //   console.log(this.props.companyList);
+  // };
   render() {
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
@@ -176,6 +180,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
+          {/* <TouchableOpacity
+            style={{height: 50, width: 150, backgroundColor: 'pink'}}
+            onPress={() => this.func1()}></TouchableOpacity> */}
           <TouchableOpacity
             style={{
               height: 60,

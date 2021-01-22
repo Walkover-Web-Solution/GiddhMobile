@@ -12,9 +12,12 @@ import {STORAGE_KEYS} from '@/utils/constants';
 const Slide1 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
-      <Image source={require('@/assets/images/slider1.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontSize: 25, marginTop: 10, fontFamily: 'AvenirLTStd-Black'}}>Easy Billing on Mobile</Text>
-      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
+      <Image
+        source={require('@/assets/images/slider1.png')}
+        style={{resizeMode: 'contain', height: '50%', width: '60%'}}
+      />
+      <Text style={{fontSize: 22, marginTop: 10, fontFamily: 'AvenirLTStd-Black'}}>Easy Billing on Mobile</Text>
+      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 5}}>
         Create professional invoices and send them to your customers
       </Text>
     </View>
@@ -23,9 +26,12 @@ const Slide1 = () => {
 const Slide2 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
-      <Image source={require('@/assets/images/slider2.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10}}>Send Payment Reminders</Text>
-      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
+      <Image
+        source={require('@/assets/images/slider2.png')}
+        style={{resizeMode: 'contain', height: '50%', width: '60%'}}
+      />
+      <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 22, marginTop: 10}}>Send Payment Reminders</Text>
+      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 5}}>
         We alert you so that you can alert your customers when there are payment dues
       </Text>
     </View>
@@ -34,9 +40,12 @@ const Slide2 = () => {
 const Slide3 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
-      <Image source={require('@/assets/images/slider3.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10}}>Stock Management</Text>
-      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
+      <Image
+        source={require('@/assets/images/slider3.png')}
+        style={{resizeMode: 'contain', height: '50%', width: '60%'}}
+      />
+      <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 22, marginTop: 10}}>Stock Management</Text>
+      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 5}}>
         Track your inventory , manage product SKU's and more
       </Text>
     </View>
@@ -45,9 +54,12 @@ const Slide3 = () => {
 const Slide4 = () => {
   return (
     <View style={{width, height: '100%', alignItems: 'center'}}>
-      <Image source={require('@/assets/images/slider4.png')} style={{resizeMode: 'contain', height: 250, width: 300}} />
-      <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10}}>All In One Accounting Tool</Text>
-      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 10}}>
+      <Image
+        source={require('@/assets/images/slider4.png')}
+        style={{resizeMode: 'contain', height: '50%', width: '60%'}}
+      />
+      <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 22, marginTop: 10}}>All In One Accounting Tool</Text>
+      <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 5}}>
         File GST, get analutics report, view balance sheet and P&l
       </Text>
     </View>
@@ -113,7 +125,7 @@ class Welcome extends React.Component<any, any> {
     const {currentPage: pageIndex} = this.state;
     return (
       <View style={style.container}>
-        <View style={{height: height * 0.7, width: width, marginTop: height * 0.1}}>
+        <View style={{height: height * 0.7, width: width, marginTop: height * 0.05}}>
           <ScrollView
             ref={this.scrollRef}
             style={{flex: 1}}
@@ -135,12 +147,13 @@ class Welcome extends React.Component<any, any> {
             <Slide3 />
             <Slide4 />
           </ScrollView>
+          <View style={style.paginationWrapper}>
+            {Array.from(Array(4).keys()).map((key, index) => (
+              <View style={[style.paginationDots, {opacity: pageIndex === index ? 1 : 0.2}]} key={index} />
+            ))}
+          </View>
         </View>
-        <View style={style.paginationWrapper}>
-          {Array.from(Array(4).keys()).map((key, index) => (
-            <View style={[style.paginationDots, {opacity: pageIndex === index ? 1 : 0.2}]} key={index} />
-          ))}
-        </View>
+
         <View style={style.buttonContainer}>
           {/* <TouchableOpacity style={style.createAccountButton} delayPressIn={0} onPress={this.func1}>
             <Text style={style.createAccount}>Create Account</Text>
