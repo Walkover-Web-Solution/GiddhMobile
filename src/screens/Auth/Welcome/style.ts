@@ -39,7 +39,7 @@ export default StyleSheet.create({
   },
   paginationWrapper: {
     position: 'absolute',
-    bottom: height * 0.3,
+    top: height * 0.6,
     left: 0,
     right: 0,
     justifyContent: 'center',

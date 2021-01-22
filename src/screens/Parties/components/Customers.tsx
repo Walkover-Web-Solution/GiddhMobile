@@ -163,7 +163,7 @@ export const Customers = (props) => {
           {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
         </TouchableOpacity>
       )}
-      keyExtractor={(item) => item.uniqueName}
+      keyExtractor={(item, index) => index.toString()}
     />
   );
 };

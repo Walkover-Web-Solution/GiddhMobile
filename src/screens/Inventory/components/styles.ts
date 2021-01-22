@@ -10,7 +10,9 @@ export default StyleSheet.create({
   flatList: {
     justifyContent: 'center',
     paddingTop: 10,
-    paddingBottom: 15,
+    // paddingBottom: 5,
+    // backgroundColor: 'pink',
+    marginTop: 10,
   },
   listHeading: {
     color: colors.INPUT_COLOR,
@@ -57,11 +59,11 @@ export default StyleSheet.create({
   },
   stockSubTitle: {
     color: colors.TEXT_NORMAL,
-    fontFamily: 'AvenirLTStd-Black',
-    fontSize: constants.GD_FONT_SIZE.normal,
+    fontFamily: 'AvenirLTStd-Book',
+    fontSize: constants.GD_FONT_SIZE.medium,
   },
   seperator: {
-    marginTop: 5,
+    marginTop: 7,
     borderBottomColor: baseColor.GRAY_LIGHT,
     opacity: 0.2,
     borderBottomWidth: 1,
