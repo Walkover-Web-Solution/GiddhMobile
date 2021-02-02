@@ -274,7 +274,11 @@ export class PartiesMainScreen extends React.Component {
 
               <TouchableOpacity
                 style={{position: 'absolute', right: 20, padding: 8}}
-                onPress={() => this.setState({textInputOpen: false})}>
+                onPress={() => {
+                  this.inputRef.current.clear();
+                  this.handleSearch('');
+                  this.setState({textInputOpen: false});
+                }}>
                 <Icons name={'close'} size={25} color={'#FFFFFF'} />
               </TouchableOpacity>
             </>

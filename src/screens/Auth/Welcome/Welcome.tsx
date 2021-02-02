@@ -125,7 +125,7 @@ class Welcome extends React.Component<any, any> {
     const {currentPage: pageIndex} = this.state;
     return (
       <View style={style.container}>
-        <View style={{height: height * 0.7, width: width, marginTop: height * 0.05}}>
+        <View style={{height: height * 0.7, width: width, marginTop: height * 0.05  }}>
           <ScrollView
             ref={this.scrollRef}
             style={{flex: 1}}

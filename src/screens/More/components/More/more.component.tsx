@@ -173,10 +173,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 <Text style={style.companyNameText}>
                   {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
                 </Text>
-                <TouchableOpacity delayPressIn={0}>
-                  <Icon name={'arrowRight'} color="black" size={20} />
-                  {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
-                </TouchableOpacity>
+
+                <Icon name={'arrowRight'} color="black" size={20} />
               </View>
             </TouchableOpacity>
           )}

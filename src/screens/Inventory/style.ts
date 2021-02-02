@@ -5,8 +5,9 @@ import colors from '@/utils/colors';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+
     backgroundColor: colors.BACKGROUND,
+    // backgroundColor: 'pink',
     paddingTop: 5,
   },
   filterStyle: {

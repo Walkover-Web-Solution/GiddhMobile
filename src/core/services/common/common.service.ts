@@ -30,6 +30,44 @@ export class CommonService {
    * get sundry debtors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
+  static getTransactions(startDate, endDate, page): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance
+      .post(
+        commonUrls.customer_transactions
+          .replace(':startDate', startDate)
+          .replace(':endDate', endDate)
+          .replace('page=1', `page=${page}`),
+        {},
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+  static getPartyTransactions(
+    startDate,
+    endDate,
+    page,
+    party,
+    vouchers = [],
+  ): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance
+      .post(
+        commonUrls.customer_transactions
+          .replace(':startDate', startDate)
+          .replace(':endDate', endDate)
+          .replace('page=1', `page=${page}`),
+        {
+          includeParticulars: true,
+          particulars: [party],
+          includeVouchers: true,
+          vouchers: vouchers,
+        },
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+
   static getPartiesSundryCreditors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
       return res.data;

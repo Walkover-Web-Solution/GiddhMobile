@@ -5,12 +5,13 @@ import TransactionList from '@/screens/Transaction/components/transaction-list.c
 import {
   View,
   TouchableOpacity,
-  DeviceEventEmitter,
-  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
   Text,
+  PermissionsAndroid,
+  Alert,
+  Linking,
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 
@@ -24,7 +25,16 @@ import httpInstance from '@/core/services/http/http.service';
 import {commonUrls} from '@/core/services/common/common.url';
 import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Entypo from 'react-native-vector-icons/Entypo';
 import VoucherModal from './components/voucherModal';
+import PDFModal from './components/pdfModal';
+import DownloadModal from './components/downloadingModal';
+import RNFetchBlob from 'rn-fetch-blob';
+
+import base64 from 'react-native-base64';
+import Share from 'react-native-share';
+import MoreModal from './components/moreModal';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -42,8 +52,11 @@ class PartiesTransactionScreen extends React.Component {
       totalPages: 0,
       loadingMore: false,
       voucherModal: false,
-      includeVouchers: false,
+      DownloadModal: false,
+      MoreModal: false,
+      pdfModal: false,
       vouchers: [],
+      exportDisabled: false,
     };
   }
   componentDidMount() {
@@ -52,6 +65,22 @@ class PartiesTransactionScreen extends React.Component {
 
   modalVisible = () => {
     this.setState({voucherModal: false});
+  };
+  pdfmodalVisible = () => {
+    this.setState({pdfModal: false});
+  };
+  downloadModalVisible = (value) => {
+    this.setState({DownloadModal: value});
+  };
+  moreModalVisible = () => {
+    this.setState({MoreModal: false});
+  };
+
+  onWhatsApp = () => {
+    Linking.openURL(`whatsapp://send?phone=${''}&text=${''}`);
+  };
+  onCall = () => {
+    Linking.openURL(`tel://app`);
   };
 
   filter = (filterType) => {
@@ -213,28 +242,21 @@ class PartiesTransactionScreen extends React.Component {
 
   async getTransactions() {
     try {
-      //   console.log('got called', this.state.startDate, this.state.endDate);
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      await httpInstance
-        .post(
-          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-          {
-            includeParticulars: true,
-            particulars: [this.props.route.params.item.uniqueName],
-            includeVouchers: true,
-            vouchers: this.state.vouchers,
-          },
-        )
-        .then((res) => {
-          this.setState(
-            {
-              transactionsData: res.data.body.entries,
-              showLoader: false,
-            },
-            () => console.log(this.state.transactionsData),
-          );
-        });
+      const transactions = await CommonService.getPartyTransactions(
+        this.state.startDate,
+        this.state.endDate,
+        this.state.page,
+        this.props.route.params.item.uniqueName,
+        this.state.vouchers,
+      );
+      this.setState(
+        {
+          transactionsData: transactions.body.entries,
+          showLoader: false,
+          exportDisabled: transactions.body.entries.length == 0 ? true : false,
+        },
+        // () => console.log(this.state.transactionsData),
+      );
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false});
@@ -290,6 +312,82 @@ class PartiesTransactionScreen extends React.Component {
       );
     }
   };
+
+  func2 = async () => {
+    try {
+      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      RNFetchBlob.fetch(
+        'GET',
+        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
+        {
+          'session-id': `${token}`,
+        },
+      ).then((res) => {
+        let base64Str = res.base64();
+        let base69 = base64.decode(base64Str);
+        let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+        RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+        this.setState({DownloadModal: false});
+      });
+    } catch (e) {
+      console.log(e);
+      console.log(e);
+    }
+  };
+  downloadFile = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('yes its granted');
+        await this.func2();
+      } else {
+        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  onShare = async () => {
+    try {
+      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      RNFetchBlob.fetch(
+        'GET',
+        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
+        {
+          'session-id': `${token}`,
+        },
+      )
+        .then((res) => {
+          let base64Str = res.base64();
+          let base69 = base64.decode(base64Str);
+          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+          this.setState({DownloadModal: false});
+        })
+        .then(() => {
+          Share.open({
+            title: 'This is the report',
+            message: 'Message:',
+            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
+            subject: 'Report',
+          })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              Alert.alert('share cancelled');
+              // err && console.log(err);
+            });
+        });
+    } catch (e) {
+      console.log(e);
+      console.log(e);
+    }
+  };
+
   _renderFooter = () => {
     if (!this.state.loadingMore) return null;
 
@@ -334,6 +432,40 @@ class PartiesTransactionScreen extends React.Component {
               {this.props.route.params.item.name}
             </Text>
           </View>
+          <View
+            style={{
+              height: Dimensions.get('window').height * 0.1,
+              width: '100%',
+              backgroundColor: '#f3e5f5',
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: 20,
+              justifyContent: 'space-between',
+            }}>
+            <View>
+              <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#808080'}}>
+                {this.props.route.params.type == 'Vendors' ? 'Payable' : 'Receivable'}
+              </Text>
+              <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 18}}>
+                ₹{this.props.route.params.item.closingBalance.amount}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity
+                delayPressIn={0}
+                style={{marginRight: 10}}
+                onPress={() => this.setState({pdfModal: true})}
+                disabled={this.state.exportDisabled}>
+                <AntDesign name="pdffile1" size={22} color={'#FF7C7C'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                delayPressIn={0}
+                style={{marginLeft: 10}}
+                onPress={() => this.setState({MoreModal: true})}>
+                <Entypo name="dots-three-vertical" size={22} color={'#808080'} />
+              </TouchableOpacity>
+            </View>
+          </View>
           <View style={{marginTop: Dimensions.get('window').height * 0.02}} />
           <GDRoundedDateRangeInput
             label="Select Date"
@@ -349,7 +481,7 @@ class PartiesTransactionScreen extends React.Component {
               alignItems: 'center',
               borderRadius: 19,
               position: 'absolute',
-              marginTop: Dimensions.get('window').height * 0.1,
+              marginTop: Dimensions.get('window').height * 0.2,
               right: 10,
               borderWidth: 1,
               borderColor: '#D9D9D9',
@@ -390,13 +522,26 @@ class PartiesTransactionScreen extends React.Component {
 
           {/* <TouchableOpacity
             style={{height: 40, width: 120, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.vouchers)}></TouchableOpacity> */}
+            onPress={() => Linking.openURL(`whatsapp://send?phone=${'+918770132578'}&text=${''}`)}></TouchableOpacity> */}
 
+          <DownloadModal modalVisible={this.state.DownloadModal} />
+          <PDFModal
+            modalVisible={this.state.pdfModal}
+            setModalVisible={this.pdfmodalVisible}
+            onExport={this.downloadFile}
+            onShare={this.onShare}
+            downloadModal={this.downloadModalVisible}
+          />
           <VoucherModal
             modalVisible={this.state.voucherModal}
             setModalVisible={this.modalVisible}
             filter={this.filter}
-            // activeFilter={this.state.activeFilter}
+          />
+          <MoreModal
+            modalVisible={this.state.MoreModal}
+            setModalVisible={this.moreModalVisible}
+            onWhatsApp={this.onWhatsApp}
+            onCall={this.onCall}
           />
         </View>
       );

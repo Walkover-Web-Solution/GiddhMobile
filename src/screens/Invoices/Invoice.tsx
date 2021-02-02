@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, FlatList, Dimensions} from 'react-native';
+import {View, Text, TouchableOpacity, FlatList, Dimensions, Platform, PermissionsAndroid, Alert} from 'react-native';
 import style from './style';
 import {GdSVGIcons} from '@/utils/icons-pack';
 import {Image} from 'react-native-svg';
@@ -11,37 +11,62 @@ import {STORAGE_KEYS} from '@/utils/constants';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 import httpInstance from '@/core/services/http/http.service';
 import moment from 'moment';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const {height, width} = Dimensions.get('window');
 
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-    console.log(activeCompany, branchName);
+    // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    console.log(moment().subtract(30, 'd').format('DD-MM-YYYY'));
     // console.log(moment().subtract(30, 'd').format('DD-MM-YYYY'));
   };
   func2 = async () => {
     try {
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      await httpInstance
-        .post(
-          `https://api.giddh.com/company/sakshiin157543885184507d9cp/daybook?page=1&count=25&from=&to=&branchUniqueName=`,
+      RNFetchBlob.config({
+        addAndroidDownloads: {
+          useDownloadManager: true, // <-- this is the only thing required
+          // Optional, override notification setting (default to true)
+          notification: true,
+          // Optional, but recommended since android DownloadManager will fail when
+          // the url does not contains a file extension, by default the mime type will be text/plain
+          mime: 'application/pdf',
+          description: 'File downloaded by download manager.',
+        },
+      })
+        .fetch(
+          'GET',
+          `https://api.giddh.com/company/sakshiin157543885184507d9cp/export-daybook-v2?page=0&count=50&from=11-05-2020&to=25-01-2021&format=pdf&type=view-detailed&sort=asc`,
           {
-            includeParticulars: true,
-            particulars: ['sheba'],
+            'session-id': 'ThOPazjK1l7rXjSanPcDfFl_CAMiGsbmT97HfxSQ7M0=',
           },
         )
-        .then((res) => {
-          console.log(res.data.body.entries);
+        .then((resp) => {
+          console.log('hello' + resp.data);
+          // the path of downloaded file
+          resp.path();
+          let base64Str = resp.data.body.file;
+          let pdfLocation = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'test.pdf';
+          RNFetchBlob.fs.writeFile(pdfLocation, RNFetchBlob.base64.encode(base64Str), 'base64');
         });
     } catch (e) {
       console.log(e);
       console.log(e);
     }
   };
-
+  downloadFile = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        this.func2();
+      } else {
+        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
   render() {
     return (
       <View style={style.container}>
@@ -133,7 +158,7 @@ export class Invoice extends React.Component<any, any> {
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          onPress={this.func2}>
+          onPress={this.func1}>
           <Text>Press</Text>
         </TouchableOpacity>
         {/* <GDRoundedDateRangeInput label={'dates'} /> */}

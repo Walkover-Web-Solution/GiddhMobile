@@ -58,44 +58,62 @@ export class TransactionScreen extends React.Component {
     const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     console.log(v1);
   };
+  // async getTransactions() {
+  //   try {
+  //     const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+  //     const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+  //     await httpInstance
+  //       .post(
+  //         `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
+  //         {},
+  //       )
+  //       .then((res) => {
+  //         this.setState({
+  //           transactionsData: res.data.body.entries,
+  //           totalPages: res.data.body.totalPages,
+  //         });
+  //       });
+
+  //     this.setState({showLoader: false, loadingMore: false});
+  //   } catch (e) {
+  //     console.log(e);
+  //     this.setState({showLoader: false});
+  //   }
+  // }
+
   async getTransactions() {
     try {
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      await httpInstance
-        .post(
-          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-          {},
-        )
-        .then((res) => {
-          this.setState({
-            transactionsData: res.data.body.entries,
-            totalPages: res.data.body.totalPages,
-          });
-        });
-
-      this.setState({showLoader: false, loadingMore: false});
+      const transactions = await CommonService.getTransactions(
+        this.state.startDate,
+        this.state.endDate,
+        this.state.page,
+      );
+      this.setState(
+        {
+          transactionsData: transactions.body.entries,
+          totalPages: transactions.body.totalPages,
+          showLoader: false,
+        },
+        () => console.log(JSON.stringify(transactions)),
+      );
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false});
     }
   }
+
   async handleLoadMore() {
     try {
-      // const transactions = await CommonService.getTransactions();
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      await httpInstance
-        .post(
-          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-          {},
-        )
-        .then((res) => {
-          this.setState({
-            transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
-          });
-        });
-      this.setState({showLoader: false, loadingMore: false});
+      const transactions = await CommonService.getTransactions(
+        this.state.startDate,
+        this.state.endDate,
+        this.state.page,
+      );
+      this.setState({
+        transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
+        showLoader: false,
+        loadingMore: false,
+      });
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false});
