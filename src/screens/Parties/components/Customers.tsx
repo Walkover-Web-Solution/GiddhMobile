@@ -127,7 +127,7 @@ export const Customers = (props) => {
       renderItem={({item}) => (
         <TouchableOpacity
           style={styles.rowFront}
-          onPress={() => navigation.navigate('PartiesTransactions', {item: item})}>
+          onPress={() => navigation.navigate('PartiesTransactions', {item: item, type: 'Creditors'})}>
           <View style={styles.viewWrap}>
             <Text style={styles.partiesName} numberOfLines={1}>
               {item.name}

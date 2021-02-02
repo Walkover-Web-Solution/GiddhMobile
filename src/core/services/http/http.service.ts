@@ -55,6 +55,11 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
       // replace company uniqueName in url with active company from storage
       reqConfig.url = reqConfig.url?.replace(':companyUniqueName', activeCompany);
     }
+    const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    if (activeBranch) {
+      // replace company uniqueName in url with active company from storage
+      reqConfig.url = reqConfig.url?.replace(':branchUniqueName', activeBranch);
+    }
   }
   let headers = reqConfig.headers;
   // add token related info here..
@@ -68,7 +73,7 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
     };
   }
   // if (!reqConfig.url.includes('verify-number')){
-    headers['User-Agent'] = Platform.OS
+  headers['User-Agent'] = Platform.OS;
   // }
   return {...reqConfig, headers};
 });

@@ -10,6 +10,7 @@ export default StyleSheet.create({
   flatList: {
     justifyContent: 'center',
     paddingTop: 10,
+    paddingHorizontal: 16,
     // paddingBottom: 5,
     // backgroundColor: 'pink',
     marginTop: 10,

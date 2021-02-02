@@ -16,7 +16,7 @@ import Fontisto from 'react-native-vector-icons/Fontisto';
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
-function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
+function VoucherModal({modalVisible, setModalVisible, filter}) {
   const [sales, setsales] = React.useState(false);
   const [purchase, setPurchase] = React.useState(false);
   const [debitNote, setDebitNote] = React.useState(false);
