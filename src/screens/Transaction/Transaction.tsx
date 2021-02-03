@@ -94,7 +94,7 @@ export class TransactionScreen extends React.Component {
           totalPages: transactions.body.totalPages,
           showLoader: false,
         },
-        () => console.log(JSON.stringify(transactions)),
+        // () => console.log(JSON.stringify(transactions)),
       );
     } catch (e) {
       console.log(e);

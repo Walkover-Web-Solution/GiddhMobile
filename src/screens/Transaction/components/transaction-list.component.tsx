@@ -72,7 +72,7 @@ class TransactionList extends React.Component {
           <View style={styles.balanceText}>
             <Text style={styles.balStyle}>Total: </Text>
             <Text style={styles.balStyle}>
-              {this.props.item.creditAmount ? this.props.item.creditAmount : this.props.item.debitAmount}
+              ₹{this.props.item.creditAmount ? this.props.item.creditAmount : this.props.item.debitAmount}
             </Text>
           </View>
           <View style={styles.iconPlacingStyle}>
