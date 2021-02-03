@@ -18,7 +18,7 @@ import {WEBCLIENT_ID} from '@/env.json';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
 import {googleLogin, appleLogin, userEmailLogin} from './LoginAction';
-import { appleAuth } from '@invertase/react-native-apple-authentication';
+import {appleAuth} from '@invertase/react-native-apple-authentication';
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -27,7 +27,7 @@ class Login extends React.Component<any, any> {
       showLoader: false,
       keyboard: false,
       username: '',
-      password: ''
+      password: '',
     };
   }
 
@@ -51,9 +51,9 @@ class Login extends React.Component<any, any> {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
   }
-  async  onAppleButtonPress() {
+  async onAppleButtonPress() {
     // performs login request
-    try{
+    try {
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
@@ -61,17 +61,15 @@ class Login extends React.Component<any, any> {
       // get current authentication state for user
       // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
       const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
-    
+
       // use credentialState response to ensure the user is authenticated
       if (credentialState === appleAuth.State.AUTHORIZED) {
         // user is authenticated
-        this.props.appleLogin(appleAuthRequestResponse)
+        this.props.appleLogin(appleAuthRequestResponse);
       }
+    } catch (err) {
+      alert(err);
     }
-    catch(err){
-      alert(err)
-    }
-   
   }
   _googleSignIn = async () => {
     //Prompts a modal to let the user sign in into your application.
@@ -79,7 +77,7 @@ class Login extends React.Component<any, any> {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
-     // await GoogleSignin.revokeAccess();
+      // await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
       await GoogleSignin.signIn();
       this.setState({showLoader: true});
@@ -102,7 +100,7 @@ class Login extends React.Component<any, any> {
   };
 
   signInWithUsernamePassword() {
-      this.props.userLogin({username: this.state.username, password: this.state.password})
+    this.props.userLogin({username: this.state.username, password: this.state.password});
   }
 
   _googleSignOut = async () => {
@@ -140,6 +138,7 @@ class Login extends React.Component<any, any> {
           <View style={style.titleContainer}>
             <Text style={style.loginTextStyle}>Login to </Text>
             <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
+            <Image style={style.logoTwo} source={require('@/assets/images/books.png')} />
           </View>
 
           <LoginButton
@@ -150,46 +149,64 @@ class Login extends React.Component<any, any> {
             icon="gmail"
           />
 
-      {Platform.OS == 'ios' && <LoginButton size={ButtonSize.medium} label={'Sign in with Apple'} style={style.appleButton} icon="apple" onPress={()=>  this.onAppleButtonPress()}/>}  
-      </View>
+          {Platform.OS == 'ios' && (
+            <LoginButton
+              size={ButtonSize.medium}
+              label={'Sign in with Apple'}
+              style={style.appleButton}
+              icon="apple"
+              onPress={() => this.onAppleButtonPress()}
+            />
+          )}
+        </View>
 
         <View style={style.seperator}>
-            <Text style={style.forgotStyle}>or</Text>
-            <View style={style.horizontalRule} />
+          <Text style={style.forgotStyle}>or</Text>
+          <View style={style.horizontalRule} />
+        </View>
+
+        <View style={[style.loginFormContainer, {marginTop: this.state.keyboard ? 10 : 30}]}>
+          <View>
+            <Text style={style.registerStyle}>Registered Email ID</Text>
           </View>
 
-          <View style={[style.loginFormContainer, {marginTop: this.state.keyboard ? 10 : 30}]}>
-            <View>
-              <Text style={style.registerStyle}>Registered Email ID</Text>
-            </View>
-
-            <View style={style.formInput}>
+          <View style={style.formInput}>
             <View style={{height: 10}}></View>
-              <GDRoundedInput icon="email" label="Company Name" value={this.state.username} placeholder="sampleaddress@mail.com" 
-              onChange={(value) =>  this.setState({username: value})}
-              />
-              <View style={{height: 10}}></View>
-              <GDRoundedInput secureTextEntry = {true} style={{marginTop: 6}} icon="lock" label="Company Name" value={this.state.password} placeholder="********" 
-                            onChange={(value) =>  this.setState({password: value})}
-                            />
-            </View>
+            <GDRoundedInput
+              icon="email"
+              label="Company Name"
+              value={this.state.username}
+              placeholder="sampleaddress@mail.com"
+              onChange={(value) => this.setState({username: value})}
+            />
+            <View style={{height: 10}}></View>
+            <GDRoundedInput
+              secureTextEntry={true}
+              style={{marginTop: 6}}
+              icon="lock"
+              label="Company Name"
+              value={this.state.password}
+              placeholder="********"
+              onChange={(value) => this.setState({password: value})}
+            />
+          </View>
 
-            <View style={style.loginButtonContainer}>
-              <GDButton
-                size={ButtonSize.medium}
-                style={style.loginButtonStyle}
-                label={'Login'}
-                onPress={() => this.signInWithUsernamePassword()}
-              />
-              {/* <TouchableOpacity onPress={() => 
+          <View style={style.loginButtonContainer}>
+            <GDButton
+              size={ButtonSize.medium}
+              style={style.loginButtonStyle}
+              label={'Login'}
+              onPress={() => this.signInWithUsernamePassword()}
+            />
+            {/* <TouchableOpacity onPress={() => 
               {
                 this.props.navigation.navigate('Password')
               }}>
                 <Text style={style.forgotStyle}>Forgot password?</Text>
               </TouchableOpacity> */}
-            </View>
           </View>
-          {/* <View style={style.troubleLoginContainer}>
+        </View>
+        {/* <View style={style.troubleLoginContainer}>
             <View style={style.seperator}>
               <Text style={style.bottomTextStyle}>Trouble logging in?</Text>
               <Text style={style.bottomTextStyleLink}>Click here</Text>
@@ -231,12 +248,12 @@ function mapDispatchToProps(dispatch) {
     googleLogin: (token, email) => {
       dispatch(googleLogin(token, email));
     },
-    appleLogin:(payload)=> {
+    appleLogin: (payload) => {
       dispatch(appleLogin(payload));
     },
-    userLogin:(payload)=> {
+    userLogin: (payload) => {
       dispatch(userEmailLogin(payload));
-    }
+    },
   };
 }
 

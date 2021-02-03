@@ -45,6 +45,7 @@ class PartiesTransactionScreen extends React.Component {
 
     this.state = {
       showLoader: true,
+      transactionsLoader: true,
       transactionsData: [],
       startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
       endDate: moment().format('DD-MM-YYYY'),
@@ -62,6 +63,10 @@ class PartiesTransactionScreen extends React.Component {
   componentDidMount() {
     this.getTransactions();
   }
+
+  transactionsLoader = () => {
+    this.setState({transactionsLoader: true});
+  };
 
   modalVisible = () => {
     this.setState({voucherModal: false});
@@ -249,14 +254,14 @@ class PartiesTransactionScreen extends React.Component {
         this.props.route.params.item.uniqueName,
         this.state.vouchers,
       );
-      this.setState(
-        {
-          transactionsData: transactions.body.entries,
-          showLoader: false,
-          exportDisabled: transactions.body.entries.length == 0 ? true : false,
-        },
-        // () => console.log(this.state.transactionsData),
-      );
+
+      // console.log('transactions are', JSON.stringify(transactions.body.entries));
+      this.setState({
+        transactionsData: transactions.body.entries,
+        showLoader: false,
+        transactionsLoader: false,
+        exportDisabled: transactions.body.entries.length == 0 ? true : false,
+      });
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false});
@@ -499,30 +504,37 @@ class PartiesTransactionScreen extends React.Component {
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
           </View> */}
-
-          {this.state.transactionsData.length == 0 ? (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
-              <Image
-                source={require('@/assets/images/noTransactions.png')}
-                style={{resizeMode: 'contain', height: 250, width: 300}}
-              />
-              <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
-            </View>
-          ) : (
-            <FlatList
-              style={{paddingHorizontal: 10, marginTop: 20}}
-              data={this.state.transactionsData}
-              renderItem={({item}) => <TransactionList item={item} />}
-              keyExtractor={(item) => item.uniqueName}
-              //   onEndReachedThreshold={0.2}
-              //   onEndReached={() => this.handleRefresh()}
-              //   ListFooterComponent={this._renderFooter}
-            />
-          )}
-
           {/* <TouchableOpacity
             style={{height: 40, width: 120, backgroundColor: 'pink'}}
-            onPress={() => Linking.openURL(`whatsapp://send?phone=${'+918770132578'}&text=${''}`)}></TouchableOpacity> */}
+            onPress={() => console.log(this.state.transactionsData)}></TouchableOpacity> */}
+
+          {this.state.transactionsLoader ? (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+              <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            </View>
+          ) : (
+            <>
+              {this.state.transactionsData.length == 0 ? (
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
+                  <Image
+                    source={require('@/assets/images/noTransactions.png')}
+                    style={{resizeMode: 'contain', height: 250, width: 300}}
+                  />
+                  <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
+                </View>
+              ) : (
+                <FlatList
+                  style={{marginTop: 20}}
+                  data={this.state.transactionsData}
+                  renderItem={({item}) => <TransactionList item={item} />}
+                  keyExtractor={(item) => item.uniqueName}
+                  //   onEndReachedThreshold={0.2}
+                  //   onEndReached={() => this.handleRefresh()}
+                  //   ListFooterComponent={this._renderFooter}
+                />
+              )}
+            </>
+          )}
 
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <PDFModal
@@ -536,6 +548,7 @@ class PartiesTransactionScreen extends React.Component {
             modalVisible={this.state.voucherModal}
             setModalVisible={this.modalVisible}
             filter={this.filter}
+            loader={this.transactionsLoader}
           />
           <MoreModal
             modalVisible={this.state.MoreModal}

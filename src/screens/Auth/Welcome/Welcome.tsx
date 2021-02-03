@@ -60,7 +60,7 @@ const Slide4 = () => {
       />
       <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 22, marginTop: 10}}>All In One Accounting Tool</Text>
       <Text style={{width: '80%', textAlign: 'center', color: 'grey', fontSize: 18, marginTop: 5}}>
-        File GST, get analutics report, view balance sheet and P&l
+        File GST, get analytics report, view balance sheet and P&L
       </Text>
     </View>
   );
@@ -125,7 +125,7 @@ class Welcome extends React.Component<any, any> {
     const {currentPage: pageIndex} = this.state;
     return (
       <View style={style.container}>
-        <View style={{height: height * 0.7, width: width, marginTop: height * 0.05  }}>
+        <View style={{height: height * 0.7, width: width, marginTop: height * 0.05}}>
           <ScrollView
             ref={this.scrollRef}
             style={{flex: 1}}
