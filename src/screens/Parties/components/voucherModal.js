@@ -180,11 +180,11 @@ function VoucherModal({modalVisible, setModalVisible, filter, loader}) {
               if (!voucher) {
                 setVoucher(true);
                 loader();
-                filter('voucher');
+                filter('journal');
               } else {
                 setVoucher(false);
                 loader();
-                filter('Rvoucher');
+                filter('Rjournal');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -195,7 +195,7 @@ function VoucherModal({modalVisible, setModalVisible, filter, loader}) {
               )}
             </View>
 
-            <Text style={{fontSize: 18, marginLeft: 10}}>Voucher</Text>
+            <Text style={{fontSize: 18, marginLeft: 10}}>Journal</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}

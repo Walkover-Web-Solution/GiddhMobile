@@ -32,46 +32,55 @@ export class ChangeCompany extends React.Component<Props> {
     return (
       <GDContainer>
         <View style={style.container}>
-          <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 20}}>
-            <Icon
-              size={20}
-              name={'Backward'}
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}
+          <View style={{flex: 1, backgroundColor: 'rgba(87,115,255,0.03)'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <View style={{marginLeft: 20}}>
+                <Icon
+                  size={20}
+                  name={'Backward'}
+                  onPress={() => {
+                    this.props.navigation.goBack();
+                  }}
+                />
+              </View>
+
+              <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black'}}>Switch Company</Text>
+            </View>
+            <FlatList
+              data={companyList}
+              showsVerticalScrollIndicator={false}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={style.listItem}
+                  delayPressIn={0}
+                  onPress={async () => {
+                    await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
+                    if (item.uniqueName !== activeCompany.uniqueName) {
+                      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
+                    }
+                    this.props.getCompanyAndBranches();
+                    DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+                    this.props.navigation.popToTop();
+                  }}>
+                  <Text
+                    style={[
+                      style.listItemName,
+                      {color: item.uniqueName == activeCompany.uniqueName ? color.PRIMARY_BASIC : 'black'},
+                    ]}>
+                    {item.name}
+                  </Text>
+                  {item.uniqueName == activeCompany.uniqueName && (
+                    <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
+                  )}
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.uniqueName}
             />
-            <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black'}}>Switch Company</Text>
           </View>
-          <FlatList
-            data={companyList}
-            showsVerticalScrollIndicator={false}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={style.listItem}
-                delayPressIn={0}
-                onPress={async () => {
-                  await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
-                  if (item.uniqueName !== activeCompany.uniqueName) {
-                    await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
-                  }
-                  this.props.getCompanyAndBranches();
-                  DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
-                  this.props.navigation.popToTop();
-                }}>
-                <Text
-                  style={[
-                    style.listItemName,
-                    {color: item.uniqueName == activeCompany.uniqueName ? color.PRIMARY_BASIC : 'black'},
-                  ]}>
-                  {item.name}
-                </Text>
-                {item.uniqueName == activeCompany.uniqueName && (
-                  <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
-                )}
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.uniqueName}
-          />
         </View>
         {this.state.loading && (
           <View

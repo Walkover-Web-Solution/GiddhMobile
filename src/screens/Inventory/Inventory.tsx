@@ -78,28 +78,45 @@ export class InventoryScreen extends React.Component<Props, {}> {
   }
 
   async getInventories() {
-    while (this.state.page <= this.state.totalPages) {
-      try {
-        const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+    try {
+      let totalPages = 0;
+      let result = [];
+      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      await httpInstance
+        .post(
+          `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=1&nonZeroInward=true&nonZeroOutward=true`,
+          {},
+        )
+        .then((res) => {
+          totalPages = res.data.body.totalPages;
+          // this.setState({
+          //   inventoryData: [...this.state.inventoryData, ...res.data.body.stockReport],
+          //   totalPages: res.data.body.totalPages,
+          //   page: this.state.page + 1,
+          // });
+        });
+
+      for (let i = 1; i <= totalPages; i++) {
+        console.log('value of page', i);
         await httpInstance
           .post(
-            `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=${this.state.page}&nonZeroInward=true&nonZeroOutward=true`,
+            `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=${i}&nonZeroInward=true&nonZeroOutward=true`,
             {},
           )
           .then((res) => {
-            this.setState({
-              inventoryData: [...this.state.inventoryData, ...res.data.body.stockReport],
-
-              totalPages: res.data.body.totalPages,
-              page: this.state.page + 1,
-            });
+            // result.push(res.data.body.stockReport);
+            result = [...result, ...res.data.body.stockReport];
           });
-      } catch (e) {
-        this.setState({showLoader: false});
       }
+      this.setState({
+        inventoryData: result,
+        showLoader: false,
+      });
+    } catch (e) {
+      this.setState({showLoader: false});
     }
-    this.setState({showLoader: false});
   }
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -120,9 +137,10 @@ export class InventoryScreen extends React.Component<Props, {}> {
           </View> */}
           {/* <TouchableOpacity
             style={{height: 60, width: 120, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.page)}>
+            onPress={() => console.log(this.state.inventoryData)}>
             <Text>press</Text>
           </TouchableOpacity> */}
+
           {this.state.inventoryData.length == 0 ? (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
               <Image
