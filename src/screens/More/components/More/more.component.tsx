@@ -78,7 +78,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this.setState({activeCompany: undefined});
     }
     var branchResults = _.find(this.props.branchList, function (item) {
-      return item.alias == activeBranch;
+      return item.uniqueName == activeBranch;
     });
     if (branchResults) {
       this.setState({activeBranch: branchResults});
@@ -102,11 +102,12 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         .join('');
     }
   }
-  // func1 = async () => {
-  //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-  //   // console.log(activeCompany);
-  //   console.log(this.props.companyList);
-  // };
+  func1 = async () => {
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+    console.log(activeCompany);
+    // console.log(this.props.companyList);
+  };
   render() {
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';

@@ -242,9 +242,16 @@ export class PartiesMainScreen extends React.Component {
     //get parties data
     this.apiCalls();
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.setState({showLoader: true}, () => {
-        this.apiCalls();
-      });
+      this.setState(
+        {
+          showLoader: true,
+          customerPage: 1,
+          VendorPage: 1,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
     });
   }
 

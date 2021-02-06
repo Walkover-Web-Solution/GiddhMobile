@@ -41,7 +41,7 @@ export function* getCompanyAndBranches() {
         if (branchesResponse.body && branchesResponse.body.length > 0) {
           let defaultBranch = branchesResponse.body[0];
           if (defaultBranch.alias) {
-            yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.alias);
+            yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.uniqueName);
           }
         }
         //set active comapny if not found

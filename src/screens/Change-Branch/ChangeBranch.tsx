@@ -24,51 +24,53 @@ export class ChangeBranch extends React.Component<Props> {
     return (
       <GDContainer>
         <View style={style.container}>
-          {/* <TouchableOpacity
+          <View style={{flex: 1, backgroundColor: 'rgba(87,115,255,0.03)'}}>
+            {/* <TouchableOpacity
               style={{height: 40, width: 140, backgroundColor: 'pink'}}
               onPress={() => console.log(branches)}></TouchableOpacity> */}
-          <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 20}}>
-            <Icon
-              size={20}
-              name={'Backward'}
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}
-            />
-            <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black-Bold'}}>Switch Branch</Text>
-          </View>
-          <TouchableOpacity
-            style={{justifyContent: 'center', alignItems: 'center'}}
-            onPress={async () => {
-              await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
-              DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
-              this.props.getCompanyAndBranches();
-              this.props.navigation.goBack();
-            }}>
-            <Text style={style.goToCompanyText}>Go To Company</Text>
-          </TouchableOpacity>
-          <FlatList
-            data={branches}
-            showsVerticalScrollIndicator={false}
-            style={{flex: 1}}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={style.listItem}
-                delayPressIn={0}
-                onPress={async () => {
-                  await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.alias);
-                  this.props.getCompanyAndBranches();
-                  DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+            <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 20}}>
+              <Icon
+                size={20}
+                name={'Backward'}
+                onPress={() => {
                   this.props.navigation.goBack();
-                }}>
-                <Text style={style.listItemName}>{item.alias}</Text>
-                {activeBranch && item.uniqueName == activeBranch.uniqueName && (
-                  <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
-                )}
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.uniqueName}
-          />
+                }}
+              />
+              <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black'}}>Switch Branch</Text>
+            </View>
+            <TouchableOpacity
+              style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}
+              onPress={async () => {
+                await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
+                DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+                // this.props.getCompanyAndBranches();
+                this.props.navigation.goBack();
+              }}>
+              <Text style={style.goToCompanyText}>Go To Company</Text>
+            </TouchableOpacity>
+            <FlatList
+              data={branches}
+              showsVerticalScrollIndicator={false}
+              style={{flex: 1}}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={style.listItem}
+                  delayPressIn={0}
+                  onPress={async () => {
+                    await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
+                    this.props.getCompanyAndBranches();
+                    DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+                    this.props.navigation.goBack();
+                  }}>
+                  <Text style={style.listItemName}>{item.alias}</Text>
+                  {activeBranch && item.uniqueName == activeBranch.uniqueName && (
+                    <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
+                  )}
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.uniqueName}
+            />
+          </View>
         </View>
       </GDContainer>
     );

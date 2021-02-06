@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
+import _ from 'lodash';
 import {
   View,
   TouchableOpacity,
@@ -95,7 +96,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['sales']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rsales') {
@@ -104,7 +105,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'sales'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'purchase') {
@@ -113,7 +114,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['purchase']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rpurchase') {
@@ -122,7 +123,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'purchase'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'creditnote') {
@@ -131,7 +132,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['credit note']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rcreditnote') {
@@ -140,7 +141,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'credit note'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'debitnote') {
@@ -149,7 +150,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['debit note']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rdebitnote') {
@@ -158,7 +159,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'debit note'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'receipt') {
@@ -167,7 +168,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['receipt']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rreceipt') {
@@ -176,7 +177,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'receipt'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'payment') {
@@ -185,7 +186,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['payment']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rpayment') {
@@ -194,25 +195,25 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'payment'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
-    } else if (filterType == 'voucher') {
+    } else if (filterType == 'journal') {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['journal']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
-    } else if (filterType == 'Rvoucher') {
+    } else if (filterType == 'Rjournal') {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'journal'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'contra') {
@@ -221,7 +222,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['contra']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rcontra') {
@@ -230,7 +231,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'contra'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'clearall') {
@@ -239,7 +240,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: [],
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     }
@@ -313,7 +314,7 @@ class PartiesTransactionScreen extends React.Component {
         {
           endDate: moment(ED).format('DD-MM-YYYY'),
         },
-        () => this.getTransactions(),
+        () => this.filterCall(),
       );
     }
   };
@@ -392,6 +393,8 @@ class PartiesTransactionScreen extends React.Component {
       console.log(e);
     }
   };
+
+  filterCall = _.debounce(this.getTransactions, 2000);
 
   _renderFooter = () => {
     if (!this.state.loadingMore) return null;
@@ -503,10 +506,12 @@ class PartiesTransactionScreen extends React.Component {
             <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={this.func1}>
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
-          </View> */}
+         
+         </View> */}
+
           {/* <TouchableOpacity
             style={{height: 40, width: 120, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.transactionsData)}></TouchableOpacity> */}
+            onPress={() => console.log(this.state.vouchers)}></TouchableOpacity> */}
 
           {this.state.transactionsLoader ? (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
