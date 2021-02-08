@@ -13,6 +13,7 @@ import {PartiesMainScreen} from '@/screens/Parties/PartiesMain';
 import {MoreScreen} from '@/screens/More/More';
 import MoreStack from './more.navigator';
 import {PartiesStack} from './parties.navigator';
+import AddButton from './components/AddButton';
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -53,7 +54,17 @@ export const HomeNavigator = () => (
         tabBarIcon: ({focused}) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
       })}
     />
+<Screen
+      name={Routes.Add}
+      component={MoreStack}
+      options={({route}) => ({
+        tabBarLabel: '',
 
+        tabBarIcon: ({focused}) => (
+          <AddButton />
+        ),
+      })}
+    />
     <Screen
       name={Routes.More}
       component={MoreStack}
@@ -65,5 +76,8 @@ export const HomeNavigator = () => (
         ),
       })}
     />
+
+
+
   </Navigator>
 );
