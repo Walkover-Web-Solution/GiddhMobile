@@ -25,7 +25,7 @@ export const HomeNavigator = () => (
       keyboardHidesTabBar: true,
     }}>
     <Screen
-      name={Routes.Transaction}
+      name={Routes.Home}
       component={HomeScreen}
       options={({route}) => ({
         tabBarLabel: 'Dashboard',

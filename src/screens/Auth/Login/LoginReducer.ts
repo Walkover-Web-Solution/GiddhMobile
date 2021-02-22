@@ -109,7 +109,7 @@ export default (state = initialState, action: Action) => {
         error: action.payload,
         isUserAuthenticated: false,
       };
-      case ActionConstants.APPLE_USER_LOGIN:
+    case ActionConstants.APPLE_USER_LOGIN:
       return {
         ...state,
         isAuthenticatingUser: true,

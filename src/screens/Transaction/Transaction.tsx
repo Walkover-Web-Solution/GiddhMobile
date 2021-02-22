@@ -23,6 +23,8 @@ import colors from '@/utils/colors';
 import httpInstance from '@/core/services/http/http.service';
 import {commonUrls} from '@/core/services/common/common.url';
 import moment from 'moment';
+import DownloadModal from '@/screens/Parties/components/downloadingModal';
+import analytics from '@react-native-firebase/analytics';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -40,6 +42,7 @@ export class TransactionScreen extends React.Component {
       totalPages: 0,
       onEndReachedCalledDuringMomentum: true,
       loadingMore: false,
+      DownloadModal: false,
     };
   }
   componentDidMount() {
@@ -53,6 +56,10 @@ export class TransactionScreen extends React.Component {
     });
     this.getTransactions();
   }
+
+  downloadModalVisible = (value) => {
+    this.setState({DownloadModal: value});
+  };
 
   func1 = async () => {
     const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
@@ -94,7 +101,7 @@ export class TransactionScreen extends React.Component {
           totalPages: transactions.body.totalPages,
           showLoader: false,
         },
-        // () => console.log(JSON.stringify(transactions)),
+        () => console.log(JSON.stringify(transactions)),
       );
     } catch (e) {
       console.log(e);
@@ -189,6 +196,16 @@ export class TransactionScreen extends React.Component {
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
           </View> */}
+          {/* <TouchableOpacity
+            style={{height: 50, width: 100, backgroundColor: 'pink'}}
+            onPress={async () =>
+              await analytics().logEvent('transactions', {
+                item: 'transactions button pressed',
+              })
+            }></TouchableOpacity> */}
+          <TouchableOpacity
+            style={{height: 30, width: 40, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.props.item)}></TouchableOpacity>
           {this.state.transactionsData.length == 0 ? (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
               <Image
@@ -200,13 +217,14 @@ export class TransactionScreen extends React.Component {
           ) : (
             <FlatList
               data={this.state.transactionsData}
-              renderItem={({item}) => <TransactionList item={item} />}
+              renderItem={({item}) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}
               keyExtractor={(item) => item.createdAt}
               onEndReachedThreshold={0.2}
               onEndReached={() => this.handleRefresh()}
               ListFooterComponent={this._renderFooter}
             />
           )}
+          <DownloadModal modalVisible={this.state.DownloadModal} />
         </View>
       );
     }

@@ -49,13 +49,10 @@ class HomeComponent extends React.Component {
     super(props);
 
     this.state = {
-      // badgeTabs: BadgeTabs,
-      // val: 0,
       index: 0,
       routes: [
         {key: 'first', title: 'Parties'},
         {key: 'second', title: 'Transactions'},
-        // {key: 'third', title: 'Inventory'},
       ],
     };
   }
@@ -107,7 +104,7 @@ class HomeComponent extends React.Component {
             borderBottomLeftRadius: 17,
             borderColor: focused ? '#5773FF' : '#D9D9D9',
             // paddingHorizontal: 10,
-            width: Dimensions.get('window').width * 0.29,
+            width: Dimensions.get('window').width * 0.35,
             alignItems: 'center',
             justifyContent: 'center',
             paddingVertical: 7,
@@ -134,7 +131,7 @@ class HomeComponent extends React.Component {
           renderScene={renderScene}
           onIndexChange={this.handleIndexChange}
           initialLayout={initialLayout}
-          swipeEnabled={false}
+          // swipeEnabled={false}
           renderTabBar={this.renderTabBar}
         />
       </View>

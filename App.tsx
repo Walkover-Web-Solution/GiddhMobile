@@ -18,6 +18,7 @@ import configureStore from './src/redux/store';
 import Invoice from '@/screens/Invoices/Invoice';
 const {store, persistor} = configureStore();
 import SplashScreen from 'react-native-splash-screen';
+import AppDatePicker from '@/screens/DatePicker/DatePicker';
 import PartiesMain from '@/screens/Parties/PartiesMain';
 import {PartiesStack} from '@/navigation/parties.navigator';
 import {NavigationContainer} from '@react-navigation/native';
@@ -32,6 +33,7 @@ export default class App extends React.Component<any> {
   async componentDidMount() {
     // get token and active company name
     SplashScreen.hide();
+
     const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
 
     // check if token is present, means user is logged in
@@ -65,6 +67,7 @@ export default class App extends React.Component<any> {
             <AppearanceProvider>
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
+                  {/* <AppDatePicker /> */}
                   <BaseContainer />
                   {/* <Invoice /> */}
                   {/* <PartiesMain /> */}

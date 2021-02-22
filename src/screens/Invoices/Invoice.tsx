@@ -12,48 +12,59 @@ import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-rang
 import httpInstance from '@/core/services/http/http.service';
 import moment from 'moment';
 import RNFetchBlob from 'rn-fetch-blob';
+import base64 from 'react-native-base64';
+
+import Share from 'react-native-share';
 
 const {height, width} = Dimensions.get('window');
 
 export class Invoice extends React.Component<any, any> {
   func1 = async () => {
-    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
     // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     console.log(activeCompany);
     // console.log(moment().subtract(30, 'd').format('DD-MM-YYYY'));
   };
+  // func2 = async () => {
+  //   const bodyData = {voucherNumber: ['SA-RCPT-20210129-1'], voucherType: 'receipt'};
+  //   try {
+  //     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+  //     const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+  //     RNFetchBlob.fetch(
+  //       'POST',
+  //       `https://api.giddh.com/company/${activeCompany}/accounts/shebakhan/vouchers/download-file?fileType=pdf`,
+  //       {
+  //         'session-id': `${token}`,
+  //         'Content-Type': 'application/json',
+  //       },
+  //       JSON.stringify(bodyData),
+  //     ).then((res) => {
+  //       let base64Str = res.base64();
+  //       let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/downloaded.pdf`;
+  //       RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //     console.log(e);
+  //   }
+  // };
   func2 = async () => {
-    try {
-      RNFetchBlob.config({
-        addAndroidDownloads: {
-          useDownloadManager: true, // <-- this is the only thing required
-          // Optional, override notification setting (default to true)
-          notification: true,
-          // Optional, but recommended since android DownloadManager will fail when
-          // the url does not contains a file extension, by default the mime type will be text/plain
-          mime: 'application/pdf',
-          description: 'File downloaded by download manager.',
-        },
+    const shareOptions = {
+      title: 'Share via',
+      message: 'some message',
+      url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/downloaded.pdf`,
+      social: Share.Social.WHATSAPP,
+      whatsAppNumber: '918770132578', // country code + phone number
+      filename: 'test', // only for base64 file in Android
+    };
+
+    Share.shareSingle(shareOptions)
+      .then((res) => {
+        console.log(res);
       })
-        .fetch(
-          'GET',
-          `https://api.giddh.com/company/sakshiin157543885184507d9cp/export-daybook-v2?page=0&count=50&from=11-05-2020&to=25-01-2021&format=pdf&type=view-detailed&sort=asc`,
-          {
-            'session-id': 'ThOPazjK1l7rXjSanPcDfFl_CAMiGsbmT97HfxSQ7M0=',
-          },
-        )
-        .then((resp) => {
-          console.log('hello' + resp.data);
-          // the path of downloaded file
-          resp.path();
-          let base64Str = resp.data.body.file;
-          let pdfLocation = RNFetchBlob.fs.dirs.DocumentDir + '/' + 'test.pdf';
-          RNFetchBlob.fs.writeFile(pdfLocation, RNFetchBlob.base64.encode(base64Str), 'base64');
-        });
-    } catch (e) {
-      console.log(e);
-      console.log(e);
-    }
+      .catch((err) => {
+        err && console.log(err);
+      });
   };
   downloadFile = async () => {
     try {
@@ -158,7 +169,7 @@ export class Invoice extends React.Component<any, any> {
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          onPress={this.func1}>
+          onPress={this.func2}>
           <Text>Press</Text>
         </TouchableOpacity>
         {/* <GDRoundedDateRangeInput label={'dates'} /> */}

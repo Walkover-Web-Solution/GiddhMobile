@@ -73,6 +73,8 @@ export const STORAGE_KEYS = {
   googleEmail: 'GOOGLE_USER_EMAIL',
   sessionStart: 'SESSION_START',
   sessionEnd: 'SESSION_END',
+  sortBy: 'SORT_BY',
+  order: 'ORDER',
 };
 
 // APP events constants

@@ -17,7 +17,7 @@ export function* getCompanyAndBranches() {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    // console.log('list response is' + listResponse.body);
+    // console.log('list response is' + JSON.stringify(listResponse));
     let companyData = {};
     companyData.success = false;
     if (listResponse && listResponse.status == 'success') {

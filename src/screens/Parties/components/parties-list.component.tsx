@@ -32,15 +32,15 @@ const renderHiddenItem = () => (
 
 const amountColorStyle = (type: string) => {
   let bgColor = colors.TEXT_NORMAL;
-  if (type === 'liabilities') {
+  if (type === 'CREDIT') {
     bgColor = baseColor.PRIMARY_RED;
-  } else if (type === 'assets') {
+  } else if (type === 'DEBIT') {
     bgColor = baseColor.PRIMARY_GREEN;
-  } else if (type === 'neutral') {
+  } else {
     bgColor = colors.INPUT_COLOR;
   }
   return {
-    color: bgColor,
+    color: '#000',
     fontFamily: 'AvenirLTStd-Black',
     fontSize: constants.GD_FONT_SIZE.medium,
   };
@@ -107,22 +107,32 @@ export const PartiesList = (props: PartiesListProp) => {
               {item.closingBalance.amount !== 0 && (
                 <View style={styles.amountWrap}>
                   {item.country.code === 'IN' && (
-                    <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontFamily: 'AvenirLTStd-Black',
+                        fontSize: constants.GD_FONT_SIZE.medium,
+                      }}>
                       {getSymbolFromCurrency('INR')}
                       {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                     </Text>
                   )}
                   {item.country.code !== 'IN' && (
-                    <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontFamily: 'AvenirLTStd-Black',
+                        fontSize: constants.GD_FONT_SIZE.medium,
+                      }}>
                       {getSymbolFromCurrency(item.country.code)}
                       {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                     </Text>
                   )}
                   <View style={{width: 2}} />
-                  {item.category === 'liabilities' && (
+                  {item.closingBalance.type == 'CREDIT' && (
                     <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
                   )}
-                  {item.category === 'assets' && (
+                  {item.closingBalance.type == 'DEBIT' && (
                     <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
                   )}
                 </View>
@@ -135,6 +145,9 @@ export const PartiesList = (props: PartiesListProp) => {
             </View>
             {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
             {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
+            {/* <TouchableOpacity
+              style={{height: 30, width: 40, backgroundColor: 'pink'}}
+              onPress={() => console.log(item)}></TouchableOpacity> */}
             <View style={styles.seperator} />
           </View>
         </View>

@@ -147,10 +147,12 @@ export const Customers = (props) => {
                   </Text>
                 )}
                 <View style={{width: 2}} />
-                {item.category === 'liabilities' && (
+                {item.closingBalance.type == 'CREDIT' && (
                   <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
                 )}
-                {item.category === 'assets' && <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />}
+                {item.closingBalance.type == 'DEBIT' && (
+                  <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
+                )}
               </View>
             )}
             {item.closingBalance.amount === 0 && (

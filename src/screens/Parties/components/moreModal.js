@@ -18,13 +18,7 @@ const Screen_width = Dimensions.get('window').width;
 
 function MoreModal({modalVisible, setModalVisible, onWhatsApp, onCall}) {
   return (
-    <Modal
-      animationType="none"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
-      }}>
+    <Modal animationType="none" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible()}>
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           {/* <Text style={{fontSize: 20}}>Sort</Text> */}
@@ -37,7 +31,7 @@ function MoreModal({modalVisible, setModalVisible, onWhatsApp, onCall}) {
                 setModalVisible();
               }}>
               <FontAwesome name="whatsapp" size={22} color={'#25D366'} />
-              <Text style={{fontSize: 18, marginLeft: 15}}>Chat on onWhatsApp</Text>
+              <Text style={{fontSize: 18, marginLeft: 15}}>Chat on WhatsApp</Text>
             </TouchableOpacity>
             {/* {activeFilter == 'AZ' && (
               <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: '#520EAD', marginRight: 10}} />

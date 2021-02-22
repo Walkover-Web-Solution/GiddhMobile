@@ -86,9 +86,8 @@ export default StyleSheet.create({
     fontFamily: 'AvenirLTStd-Black',
   },
   iconPlacingStyle: {
-    display: 'flex',
-    justifyContent: 'flex-end',
     flexDirection: 'row',
+    alignItems: 'center',
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
