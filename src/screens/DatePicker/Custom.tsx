@@ -46,20 +46,22 @@ export class Custom extends React.Component {
   };
 
   startDateConfirm = (date) => {
+    this.hideStartDatePicker();
     this.setState({startDate: moment(date).format('DD-MM-YYYY')});
     // console.log('startDate: ', moment(date).format('DD-MM-YYYY'));
 
     // this.props.selectDate(date, null);
-    this.hideStartDatePicker();
   };
 
   endDateConfirm = (date) => {
+    this.hideEndDatePicker();
     this.setState({endDate: moment(date).format('DD-MM-YYYY')});
     // console.log('EndDate ', moment(date).format('DD-MM-YYYY'));
     // this.props.selectDate(null, date);
-    this.hideEndDatePicker();
   };
   render() {
+    const sDate = moment(this.state.startDate, 'DD-MM-YYYY');
+    const eDate = moment(this.state.endDate, 'DD-MM-YYYY');
     return (
       <View style={styles.customContainer}>
         <View style={{height: '5%'}} />
@@ -97,17 +99,23 @@ export class Custom extends React.Component {
         <DateTimePickerModal
           isVisible={this.state.isStartDatePickerVisible}
           mode="date"
-          // date={moment().subtract(30, 'd').format('DD-MM-YYYY')}
+          date={new Date(sDate)}
           onConfirm={this.startDateConfirm}
           onCancel={this.hideStartDatePicker}
+          maximumDate={new Date(eDate)}
         />
         <DateTimePickerModal
           isVisible={this.state.isEndDatePickerVisible}
           mode="date"
-          //   date={moment().format('DD-MM-YYYY')}
+          date={new Date(eDate)}
           onConfirm={this.endDateConfirm}
           onCancel={this.hideEndDatePicker}
+          minimumDate={new Date(sDate)}
         />
+        {/* <TouchableOpacity
+          style={{height: 50, width: 150, backgroundColor: 'pink'}}
+          // onPress={() => console.log(moment(this.state.startDate, 'DD-MM-YYYY'))}
+          onPress={() => console.log(this.state.startDate)}></TouchableOpacity> */}
       </View>
     );
   }

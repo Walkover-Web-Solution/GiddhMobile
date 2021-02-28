@@ -68,9 +68,9 @@ export class AuthService {
   static verifyOTP(otp: string, mobileNumber: string, countryCode: string): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
       .post(AccountUrls.verifyOTP, {
+        oneTimePassword: otp,
         countryCode: countryCode,
         mobileNumber: mobileNumber,
-        oneTimePassword: otp,
       })
       .then((res) => {
         return res.data;

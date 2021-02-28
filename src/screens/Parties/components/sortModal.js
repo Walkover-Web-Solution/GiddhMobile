@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flexDirection: 'column',
-    width: Screen_width * 0.7,
+    width: Screen_width * 0.8,
     paddingVertical: 20,
     backgroundColor: '#fff',
     elevation: 3,

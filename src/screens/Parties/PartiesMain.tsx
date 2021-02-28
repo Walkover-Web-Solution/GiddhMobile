@@ -332,8 +332,6 @@ export class PartiesMainScreen extends React.Component {
         </View>
         <View
           style={{
-            marginLeft: 15,
-            marginRight: 15,
             marginTop: 10,
 
             justifyContent: 'space-around',
@@ -346,7 +344,7 @@ export class PartiesMainScreen extends React.Component {
               borderTopLeftRadius: 17,
               borderBottomLeftRadius: 17,
               borderColor: this.state.currentPage == 0 ? '#5773FF' : '#D9D9D9',
-              width: Dimensions.get('window').width * 0.35,
+              width: Dimensions.get('window').width * 0.4,
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 7,
@@ -363,7 +361,8 @@ export class PartiesMainScreen extends React.Component {
               numberOfLines={1}
               style={{
                 color: this.state.currentPage == 0 ? '#5773FF' : '#808080',
-                fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                // fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal',
               }}>
               Customers
             </Text>
@@ -374,7 +373,7 @@ export class PartiesMainScreen extends React.Component {
               borderTopLeftRadius: 17,
               borderBottomLeftRadius: 17,
               borderColor: this.state.currentPage == 1 ? '#5773FF' : '#D9D9D9',
-              width: Dimensions.get('window').width * 0.35,
+              width: Dimensions.get('window').width * 0.4,
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 2,
@@ -391,7 +390,8 @@ export class PartiesMainScreen extends React.Component {
               numberOfLines={1}
               style={{
                 color: this.state.currentPage == 1 ? '#5773FF' : '#808080',
-                fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                // fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal',
               }}>
               Vendors
             </Text>

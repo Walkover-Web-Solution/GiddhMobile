@@ -21,7 +21,7 @@ export default StyleSheet.create({
 
     width: '100%',
     paddingTop: 15,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
   },
   rowBack: {
     backgroundColor: colors.BACKGROUND,
@@ -44,8 +44,6 @@ export default StyleSheet.create({
     paddingBottom: 10,
   },
   amountWrap: {
-    display: 'flex',
-    justifyContent: 'flex-end',
     flexDirection: 'row',
   },
   amountStyle: {
@@ -56,7 +54,6 @@ export default StyleSheet.create({
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
     alignSelf: 'center',
-    marginRight: 5,
   },
   swipeRight: {
     alignItems: 'center',

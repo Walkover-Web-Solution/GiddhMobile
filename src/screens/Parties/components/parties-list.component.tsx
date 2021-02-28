@@ -112,9 +112,11 @@ export const PartiesList = (props: PartiesListProp) => {
                         color: '#000',
                         fontFamily: 'AvenirLTStd-Black',
                         fontSize: constants.GD_FONT_SIZE.medium,
-                      }}>
+                      }}
+                      numberOfLines={1}>
                       {getSymbolFromCurrency('INR')}
                       {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                      {/* 1000000000000000 */}
                     </Text>
                   )}
                   {item.country.code !== 'IN' && (
@@ -123,7 +125,8 @@ export const PartiesList = (props: PartiesListProp) => {
                         color: '#000',
                         fontFamily: 'AvenirLTStd-Black',
                         fontSize: constants.GD_FONT_SIZE.medium,
-                      }}>
+                      }}
+                      numberOfLines={1}>
                       {getSymbolFromCurrency(item.country.code)}
                       {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                     </Text>

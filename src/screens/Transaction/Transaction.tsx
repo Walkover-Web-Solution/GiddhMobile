@@ -65,28 +65,6 @@ export class TransactionScreen extends React.Component {
     const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     console.log(v1);
   };
-  // async getTransactions() {
-  //   try {
-  //     const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-  //     const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-  //     await httpInstance
-  //       .post(
-  //         `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-  //         {},
-  //       )
-  //       .then((res) => {
-  //         this.setState({
-  //           transactionsData: res.data.body.entries,
-  //           totalPages: res.data.body.totalPages,
-  //         });
-  //       });
-
-  //     this.setState({showLoader: false, loadingMore: false});
-  //   } catch (e) {
-  //     console.log(e);
-  //     this.setState({showLoader: false});
-  //   }
-  // }
 
   async getTransactions() {
     try {
@@ -101,7 +79,7 @@ export class TransactionScreen extends React.Component {
           totalPages: transactions.body.totalPages,
           showLoader: false,
         },
-        () => console.log(JSON.stringify(transactions)),
+        // () => console.log(JSON.stringify(transactions)),
       );
     } catch (e) {
       console.log(e);
@@ -203,9 +181,7 @@ export class TransactionScreen extends React.Component {
                 item: 'transactions button pressed',
               })
             }></TouchableOpacity> */}
-          <TouchableOpacity
-            style={{height: 30, width: 40, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.props.item)}></TouchableOpacity>
+
           {this.state.transactionsData.length == 0 ? (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
               <Image

@@ -9,7 +9,7 @@ export default StyleSheet.create({
   },
   flatList: {
     marginBottom: 15,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     // backgroundColor: 'pink',
     // height: Dimensions.get('window').height * 0.14,
   },

@@ -24,7 +24,7 @@ function MoreModal({modalVisible, setModalVisible, onWhatsApp, onCall}) {
           {/* <Text style={{fontSize: 20}}>Sort</Text> */}
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
             <TouchableOpacity
-              style={{flex: 1, flexDirection: 'row'}}
+              style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}
               onPress={() => {
                 onWhatsApp();
 
@@ -39,7 +39,7 @@ function MoreModal({modalVisible, setModalVisible, onWhatsApp, onCall}) {
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 30}}>
             <TouchableOpacity
-              style={{flex: 1, flexDirection: 'row'}}
+              style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}
               onPress={() => {
                 onCall();
 

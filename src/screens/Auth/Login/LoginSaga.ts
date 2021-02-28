@@ -67,7 +67,7 @@ export function* verifyUserEmailPasswordLogin(action) {
       response.body &&
       response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
     ) {
-      yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
       yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
     } else {
       alert(response.data.message);
@@ -119,6 +119,7 @@ export function* verifyOTP(action) {
     action.payload.mobileNumber,
     action.payload.countryCode,
   );
+  console.log('otp response is', response);
   if (response && response.body && response.body.session) {
     yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');

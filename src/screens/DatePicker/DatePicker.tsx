@@ -39,6 +39,7 @@ export class AppDatePicker extends React.Component {
             borderColor: focused ? '#5773FF' : '#D9D9D9',
             // paddingHorizontal: 10,
             width: Dimensions.get('window').width * 0.4,
+            // height: Dimensions.get('window').height * 0.045,
             alignItems: 'center',
             justifyContent: 'center',
             paddingVertical: 7,
@@ -48,8 +49,8 @@ export class AppDatePicker extends React.Component {
             numberOfLines={1}
             style={{
               color: focused ? '#5773FF' : '#808080',
-              fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-              // fontWeight: focused ? 'bold' : 'normal',
+              // fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+              fontWeight: focused ? 'bold' : 'normal',
             }}>
             {route.title}
           </Text>

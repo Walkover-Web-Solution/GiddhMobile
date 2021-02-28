@@ -28,10 +28,12 @@ import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import VoucherModal from './components/voucherModal';
 import PDFModal from './components/pdfModal';
 import DownloadModal from './components/downloadingModal';
 import RNFetchBlob from 'rn-fetch-blob';
+import getSymbolFromCurrency from 'currency-symbol-map';
 
 import Share from 'react-native-share';
 import base64 from 'react-native-base64';
@@ -51,7 +53,7 @@ class PartiesTransactionScreen extends React.Component {
       transactionsData: [],
       startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
       endDate: moment().format('DD-MM-YYYY'),
-      page: 0,
+      page: 1,
       totalPages: 0,
       loadingMore: false,
       voucherModal: false,
@@ -416,6 +418,7 @@ class PartiesTransactionScreen extends React.Component {
         transactionsLoader: false,
         debitTotal: transactions.body.debitTotal,
         creditTotal: transactions.body.creditTotal,
+        totalPages: transactions.body.totalPages,
       });
     } catch (e) {
       console.log(e);
@@ -435,9 +438,10 @@ class PartiesTransactionScreen extends React.Component {
         .then((res) => {
           this.setState({
             transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
+            showLoader: false,
+            loadingMore: false,
           });
         });
-      this.setState({showLoader: false, loadingMore: false});
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false, loadingMore: false});
@@ -687,15 +691,21 @@ class PartiesTransactionScreen extends React.Component {
             }}>
             <View style={{alignSelf: 'center'}}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#616161'}}>Credit total :</Text>
+                <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#616161'}}>Credit Total :</Text>
                 <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 5}}>
-                  ₹{this.numberWithCommas(this.state.creditTotal)}
+                  {this.props.route.params.item.country.code == 'IN'
+                    ? '₹'
+                    : getSymbolFromCurrency(this.props.route.params.item.country.code)}
+                  {this.numberWithCommas(this.state.creditTotal)}
                 </Text>
               </View>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#616161'}}>Debit total :</Text>
+                <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#616161'}}>Debit Total :</Text>
                 <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 8}}>
-                  ₹{this.numberWithCommas(this.state.debitTotal)}
+                  {this.props.route.params.item.country.code == 'IN'
+                    ? '₹'
+                    : getSymbolFromCurrency(this.props.route.params.item.country.code)}
+                  {this.numberWithCommas(this.state.debitTotal)}
                 </Text>
               </View>
             </View>
@@ -735,7 +745,8 @@ class PartiesTransactionScreen extends React.Component {
                 borderWidth: 1,
                 // marginLeft: 15,
                 borderColor: '#D9D9D9',
-                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'row',
               }}
               onPress={() =>
                 this.props.navigation.navigate('AppDatePicker', {
@@ -746,8 +757,12 @@ class PartiesTransactionScreen extends React.Component {
                   setActiveDateFilter: this.setActiveDateFilter,
                 })
               }>
-              <Text style={{fontFamily: 'AvenirLTStd-Book', marginLeft: 15}}>
-                {this.state.startDate + ' - ' + this.state.endDate}
+              <View style={{marginLeft: 10}} />
+              <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
+              <Text style={{fontFamily: 'AvenirLTStd-Book', marginLeft: 5}}>
+                {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +
+                  ' - ' +
+                  moment(this.state.endDate, 'DD-MM-YYYY').format('DD MMM YY')}
               </Text>
             </TouchableWithoutFeedback>
             <View style={{flexDirection: 'row'}}>
@@ -775,7 +790,9 @@ class PartiesTransactionScreen extends React.Component {
                 borderWidth: 1,
                 borderColor: '#D9D9D9',
               }}
-              onPress={() => this.setState({voucherModal: true})}>
+              onPress={() => this.setState({voucherModal: true})}
+              // onPress={() => console.log(this.state.totalPages)}
+            >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
           </View>
@@ -829,9 +846,9 @@ class PartiesTransactionScreen extends React.Component {
                     />
                   )}
                   keyExtractor={(item) => item.uniqueName}
-                  //   onEndReachedThreshold={0.2}
-                  //   onEndReached={() => this.handleRefresh()}
-                  //   ListFooterComponent={this._renderFooter}
+                  onEndReachedThreshold={0.2}
+                  onEndReached={() => this.handleRefresh()}
+                  ListFooterComponent={this._renderFooter}
                 />
               )}
             </>

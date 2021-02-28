@@ -218,7 +218,7 @@ class TransactionList extends React.Component {
           <View style={styles.balanceText}>
             <Text style={styles.balStyle}>Total: </Text>
             <Text style={styles.balStyle}>
-              ₹
+              {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
               {this.props.item.creditAmount
                 ? this.numberWithCommas(this.props.item.creditAmount)
                 : this.numberWithCommas(this.props.item.debitAmount)}
