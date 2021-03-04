@@ -23,6 +23,8 @@ import PartiesMain from '@/screens/Parties/PartiesMain';
 import {PartiesStack} from '@/navigation/parties.navigator';
 import {NavigationContainer} from '@react-navigation/native';
 import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
+import NoteDenomination from '@/core/components/note-denomination/noteDenomination';
+import Otp from '@/screens/Auth/Otp/Otp';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -68,9 +70,10 @@ export default class App extends React.Component<any> {
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
                   {/* <AppDatePicker /> */}
-                  <BaseContainer />
+                  {/* <BaseContainer /> */}
                   {/* <Invoice /> */}
-                  {/* <PartiesMain /> */}
+                  <NoteDenomination />
+                  {/* <Otp /> */}
                   {/* <NavigationContainer>
                     <PartiesStack />
                   </NavigationContainer> */}

@@ -44,7 +44,9 @@ export default StyleSheet.create({
     paddingBottom: 10,
   },
   amountWrap: {
+    justifyContent: 'flex-end',
     flexDirection: 'row',
+    width: '30%',
   },
   amountStyle: {
     fontFamily: 'AvenirLTStd-Black',

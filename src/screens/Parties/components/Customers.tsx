@@ -135,13 +135,13 @@ export const Customers = (props) => {
             {item.closingBalance.amount !== 0 && (
               <View style={styles.amountWrap}>
                 {item.country.code === 'IN' && (
-                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                     {getSymbolFromCurrency('INR')}
                     {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                   </Text>
                 )}
                 {item.country.code !== 'IN' && (
-                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                     {getSymbolFromCurrency(item.country.code)}
                     {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                   </Text>

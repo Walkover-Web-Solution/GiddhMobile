@@ -79,10 +79,13 @@ class PartiesTransactionScreen extends React.Component {
     });
   };
 
-  tryDate = () => {
+  tryDate = async () => {
     // console.log(moment(this.state.endDate, 'DD-MM-YYYY').subtract(1, 'month').endOf('month').format('DD-MM-YYYY'));
-    const dateString = moment(this.state.startDate, 'DD-MM-YYYY').format('DD-MM-YYYY');
-    console.log(typeof dateString);
+    // const dateString = moment(this.state.startDate, 'DD-MM-YYYY').format('DD-MM-YYYY');
+    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+    const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    // console.log(activeCompany, ' ', activeBranch);
+    console.log(this.props.route.params.item.uniqueName, 'hello');
   };
 
   dateShift = (button) => {
@@ -249,6 +252,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['sales']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -258,6 +262,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'sales'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -267,6 +272,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['purchase']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -276,6 +282,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'purchase'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -285,6 +292,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['credit note']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -294,6 +302,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'credit note'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -303,6 +312,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['debit note']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -312,6 +322,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'debit note'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -321,6 +332,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['receipt']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -330,6 +342,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'receipt'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -339,6 +352,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['payment']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -348,6 +362,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'payment'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -357,6 +372,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['journal']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -366,6 +382,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'journal'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -375,6 +392,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['contra']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -384,6 +402,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'contra'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -393,6 +412,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: [],
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -427,21 +447,32 @@ class PartiesTransactionScreen extends React.Component {
   }
   async handleLoadMore() {
     try {
-      // const transactions = await CommonService.getTransactions();
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      await httpInstance
-        .post(
-          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-          {},
-        )
-        .then((res) => {
-          this.setState({
-            transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
-            showLoader: false,
-            loadingMore: false,
-          });
-        });
+      const transactions = await CommonService.getPartyTransactions(
+        this.state.startDate,
+        this.state.endDate,
+        this.state.page,
+        this.props.route.params.item.uniqueName,
+        this.state.vouchers,
+      );
+      this.setState({
+        transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
+        showLoader: false,
+        loadingMore: false,
+      });
+      // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      // const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      // await httpInstance
+      //   .post(
+      //     `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
+      //     {},
+      //   )
+      //   .then((res) => {
+      //     this.setState({
+      //       transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
+      //       showLoader: false,
+      //       loadingMore: false,
+      //     });
+      //   });
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false, loadingMore: false});
@@ -471,6 +502,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           endDate: ED,
+          page: 1,
           transactionsLoader: true,
         },
         () => this.filterCall(),
@@ -711,10 +743,7 @@ class PartiesTransactionScreen extends React.Component {
             </View>
             <View style={{flexDirection: 'row'}}>
               {this.state.transactionsData.length == 0 ? null : (
-                <TouchableOpacity
-                  delayPressIn={0}
-                  style={{marginRight: 10, padding: 5}}
-                  onPress={() => this.setState({pdfModal: true})}>
+                <TouchableOpacity delayPressIn={0} style={{padding: 5}} onPress={() => this.setState({pdfModal: true})}>
                   <AntDesign name="pdffile1" size={22} color={'#FF7C7C'} />
                 </TouchableOpacity>
               )}
@@ -722,7 +751,7 @@ class PartiesTransactionScreen extends React.Component {
               {this.props.route.params.item.mobileNo && (
                 <TouchableOpacity
                   delayPressIn={0}
-                  style={{marginLeft: 10, padding: 5}}
+                  style={{marginLeft: 20, padding: 5}}
                   onPress={() => this.setState({MoreModal: true})}>
                   <Entypo name="dots-three-vertical" size={22} color={'#808080'} />
                 </TouchableOpacity>
@@ -791,7 +820,8 @@ class PartiesTransactionScreen extends React.Component {
                 borderColor: '#D9D9D9',
               }}
               onPress={() => this.setState({voucherModal: true})}
-              // onPress={() => console.log(this.state.totalPages)}
+              // onPress={() => this.tryDate()}
+              // onPress={() => console.log(this.props.route.params.item.uniqueName, 'hello')}
             >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
