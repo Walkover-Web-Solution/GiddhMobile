@@ -25,6 +25,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
 import NoteDenomination from '@/core/components/note-denomination/noteDenomination';
 import Otp from '@/screens/Auth/Otp/Otp';
+import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -72,7 +73,7 @@ export default class App extends React.Component<any> {
                   {/* <AppDatePicker /> */}
                   {/* <BaseContainer /> */}
                   {/* <Invoice /> */}
-                  <NoteDenomination />
+                  <SelectAddress />
                   {/* <Otp /> */}
                   {/* <NavigationContainer>
                     <PartiesStack />
