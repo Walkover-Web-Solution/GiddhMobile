@@ -36,13 +36,13 @@ type HomeComponentState = {
 const FirstRoute = () => <Parties />;
 
 const SecondRoute = () => <Transaction />;
-const ThirdRoute = () => <Inventory />;
+// const ThirdRoute = () => <Inventory />;
 
 const initialLayout = {width: Dimensions.get('window').width};
 const renderScene = SceneMap({
   first: FirstRoute,
   second: SecondRoute,
-  third: ThirdRoute,
+  // third: ThirdRoute,
 });
 class HomeComponent extends React.Component {
   constructor(props: HomeComponentProp) {
@@ -55,7 +55,7 @@ class HomeComponent extends React.Component {
       routes: [
         {key: 'first', title: 'Parties'},
         {key: 'second', title: 'Transactions'},
-        {key: 'third', title: 'Inventory'},
+        // {key: 'third', title: 'Inventory'},
       ],
     };
   }
@@ -117,7 +117,7 @@ class HomeComponent extends React.Component {
             numberOfLines={1}
             style={{
               color: focused ? '#5773FF' : '#808080',
-              fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+              fontFamily: focused ? 'AvenirLTStd-Black' : 'AvenirLTStd-Book',
               // fontWeight: focused ? 'bold' : 'normal',
             }}>
             {route.title}

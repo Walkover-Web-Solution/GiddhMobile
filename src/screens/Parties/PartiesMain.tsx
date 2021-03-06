@@ -242,9 +242,16 @@ export class PartiesMainScreen extends React.Component {
     //get parties data
     this.apiCalls();
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.setState({showLoader: true}, () => {
-        this.apiCalls();
-      });
+      this.setState(
+        {
+          showLoader: true,
+          customerPage: 1,
+          VendorPage: 1,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
     });
   }
 
@@ -274,7 +281,11 @@ export class PartiesMainScreen extends React.Component {
 
               <TouchableOpacity
                 style={{position: 'absolute', right: 20, padding: 8}}
-                onPress={() => this.setState({textInputOpen: false})}>
+                onPress={() => {
+                  this.inputRef.current.clear();
+                  this.handleSearch('');
+                  this.setState({textInputOpen: false});
+                }}>
                 <Icons name={'close'} size={25} color={'#FFFFFF'} />
               </TouchableOpacity>
             </>

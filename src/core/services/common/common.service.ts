@@ -4,6 +4,8 @@ import {BaseResponse} from '@/models/classes/base-response';
 import {Country} from '@/models/interfaces/country';
 import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
 import {UserStateDetails} from '@/models/interfaces/user';
+import AsyncStorage from '@react-native-community/async-storage';
+import {STORAGE_KEYS} from '@/utils/constants';
 
 export class CommonService {
   /**
@@ -30,6 +32,46 @@ export class CommonService {
    * get sundry debtors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
+  static async getTransactions(startDate, endDate, page): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    return httpInstance
+      .post(
+        commonUrls.customer_transactions
+          .replace(':startDate', startDate)
+          .replace(':endDate', endDate)
+          .replace('page=1', `page=${page}`),
+        // .replace(':branchUniqueName', `${branchName}`),
+        {},
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+  static getPartyTransactions(
+    startDate,
+    endDate,
+    page,
+    party,
+    vouchers = [],
+  ): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance
+      .post(
+        commonUrls.customer_transactions
+          .replace(':startDate', startDate)
+          .replace(':endDate', endDate)
+          .replace('page=1', `page=${page}`),
+        {
+          includeParticulars: true,
+          particulars: [party],
+          includeVouchers: true,
+          vouchers: vouchers,
+        },
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+
   static getPartiesSundryCreditors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
       return res.data;

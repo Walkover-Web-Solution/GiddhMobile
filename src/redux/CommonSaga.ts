@@ -5,8 +5,8 @@ import * as CommonActions from './CommonAction';
 import * as CommonService from './CommonService';
 import AsyncStorage from '@react-native-community/async-storage';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import { DeviceEventEmitter } from 'react-native';
-import { appleAuth } from '@invertase/react-native-apple-authentication';
+import {DeviceEventEmitter} from 'react-native';
+import {appleAuth} from '@invertase/react-native-apple-authentication';
 
 export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
@@ -17,7 +17,7 @@ export function* getCompanyAndBranches() {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-
+    // console.log('list response is' + listResponse.body);
     let companyData = {};
     companyData.success = false;
     if (listResponse && listResponse.status == 'success') {
@@ -41,7 +41,7 @@ export function* getCompanyAndBranches() {
         if (branchesResponse.body && branchesResponse.body.length > 0) {
           let defaultBranch = branchesResponse.body[0];
           if (defaultBranch.alias) {
-            yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.alias);
+            yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.uniqueName);
           }
         }
         //set active comapny if not found
@@ -57,7 +57,6 @@ export function* getCompanyAndBranches() {
     if ((companyData.success = true)) {
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
-
     } else {
       yield put(CommonActions.getCompanyAndBranchesFailure());
     }
@@ -68,7 +67,7 @@ export function* getCompanyAndBranches() {
 
 export function* logoutUser() {
   try {
-    appleAuth.Operation.LOGOUT
+    appleAuth.Operation.LOGOUT;
     yield AsyncStorage.clear();
   } catch (e) {
     console.log(e);

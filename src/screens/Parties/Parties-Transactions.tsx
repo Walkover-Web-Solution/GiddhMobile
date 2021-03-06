@@ -2,15 +2,17 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
+import _ from 'lodash';
 import {
   View,
   TouchableOpacity,
-  DeviceEventEmitter,
-  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
   Text,
+  PermissionsAndroid,
+  Alert,
+  Linking,
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 
@@ -24,7 +26,16 @@ import httpInstance from '@/core/services/http/http.service';
 import {commonUrls} from '@/core/services/common/common.url';
 import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Entypo from 'react-native-vector-icons/Entypo';
 import VoucherModal from './components/voucherModal';
+import PDFModal from './components/pdfModal';
+import DownloadModal from './components/downloadingModal';
+import RNFetchBlob from 'rn-fetch-blob';
+
+import base64 from 'react-native-base64';
+import Share from 'react-native-share';
+import MoreModal from './components/moreModal';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -35,6 +46,7 @@ class PartiesTransactionScreen extends React.Component {
 
     this.state = {
       showLoader: true,
+      transactionsLoader: true,
       transactionsData: [],
       startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
       endDate: moment().format('DD-MM-YYYY'),
@@ -42,16 +54,39 @@ class PartiesTransactionScreen extends React.Component {
       totalPages: 0,
       loadingMore: false,
       voucherModal: false,
-      includeVouchers: false,
+      DownloadModal: false,
+      MoreModal: false,
+      pdfModal: false,
       vouchers: [],
+      exportDisabled: false,
     };
   }
   componentDidMount() {
     this.getTransactions();
   }
 
+  transactionsLoader = () => {
+    this.setState({transactionsLoader: true});
+  };
+
   modalVisible = () => {
     this.setState({voucherModal: false});
+  };
+  pdfmodalVisible = () => {
+    this.setState({pdfModal: false});
+  };
+  downloadModalVisible = (value) => {
+    this.setState({DownloadModal: value});
+  };
+  moreModalVisible = () => {
+    this.setState({MoreModal: false});
+  };
+
+  onWhatsApp = () => {
+    Linking.openURL(`whatsapp://send?phone=${''}&text=${''}`);
+  };
+  onCall = () => {
+    Linking.openURL(`tel://app`);
   };
 
   filter = (filterType) => {
@@ -61,7 +96,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['sales']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rsales') {
@@ -70,7 +105,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'sales'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'purchase') {
@@ -79,7 +114,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['purchase']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rpurchase') {
@@ -88,7 +123,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'purchase'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'creditnote') {
@@ -97,7 +132,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['credit note']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rcreditnote') {
@@ -106,7 +141,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'credit note'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'debitnote') {
@@ -115,7 +150,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['debit note']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rdebitnote') {
@@ -124,7 +159,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'debit note'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'receipt') {
@@ -133,7 +168,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['receipt']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rreceipt') {
@@ -142,7 +177,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'receipt'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'payment') {
@@ -151,7 +186,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['payment']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rpayment') {
@@ -160,25 +195,25 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'payment'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
-    } else if (filterType == 'voucher') {
+    } else if (filterType == 'journal') {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['journal']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
-    } else if (filterType == 'Rvoucher') {
+    } else if (filterType == 'Rjournal') {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'journal'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'contra') {
@@ -187,7 +222,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.concat(['contra']),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'Rcontra') {
@@ -196,7 +231,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: this.state.vouchers.filter((item) => item !== 'contra'),
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     } else if (filterType == 'clearall') {
@@ -205,7 +240,7 @@ class PartiesTransactionScreen extends React.Component {
           vouchers: [],
         },
         () => {
-          this.getTransactions();
+          this.filterCall();
         },
       );
     }
@@ -213,28 +248,21 @@ class PartiesTransactionScreen extends React.Component {
 
   async getTransactions() {
     try {
-      //   console.log('got called', this.state.startDate, this.state.endDate);
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      await httpInstance
-        .post(
-          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-          {
-            includeParticulars: true,
-            particulars: [this.props.route.params.item.uniqueName],
-            includeVouchers: true,
-            vouchers: this.state.vouchers,
-          },
-        )
-        .then((res) => {
-          this.setState(
-            {
-              transactionsData: res.data.body.entries,
-              showLoader: false,
-            },
-            () => console.log(this.state.transactionsData),
-          );
-        });
+      const transactions = await CommonService.getPartyTransactions(
+        this.state.startDate,
+        this.state.endDate,
+        this.state.page,
+        this.props.route.params.item.uniqueName,
+        this.state.vouchers,
+      );
+
+      // console.log('transactions are', JSON.stringify(transactions.body.entries));
+      this.setState({
+        transactionsData: transactions.body.entries,
+        showLoader: false,
+        transactionsLoader: false,
+        exportDisabled: transactions.body.entries.length == 0 ? true : false,
+      });
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false});
@@ -286,10 +314,88 @@ class PartiesTransactionScreen extends React.Component {
         {
           endDate: moment(ED).format('DD-MM-YYYY'),
         },
-        () => this.getTransactions(),
+        () => this.filterCall(),
       );
     }
   };
+
+  func2 = async () => {
+    try {
+      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      RNFetchBlob.fetch(
+        'GET',
+        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
+        {
+          'session-id': `${token}`,
+        },
+      ).then((res) => {
+        let base64Str = res.base64();
+        let base69 = base64.decode(base64Str);
+        let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+        RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+        this.setState({DownloadModal: false});
+      });
+    } catch (e) {
+      console.log(e);
+      console.log(e);
+    }
+  };
+  downloadFile = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('yes its granted');
+        await this.func2();
+      } else {
+        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  onShare = async () => {
+    try {
+      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      RNFetchBlob.fetch(
+        'GET',
+        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
+        {
+          'session-id': `${token}`,
+        },
+      )
+        .then((res) => {
+          let base64Str = res.base64();
+          let base69 = base64.decode(base64Str);
+          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+          this.setState({DownloadModal: false});
+        })
+        .then(() => {
+          Share.open({
+            title: 'This is the report',
+            message: 'Message:',
+            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
+            subject: 'Report',
+          })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              Alert.alert('share cancelled');
+              // err && console.log(err);
+            });
+        });
+    } catch (e) {
+      console.log(e);
+      console.log(e);
+    }
+  };
+
+  filterCall = _.debounce(this.getTransactions, 2000);
+
   _renderFooter = () => {
     if (!this.state.loadingMore) return null;
 
@@ -334,6 +440,40 @@ class PartiesTransactionScreen extends React.Component {
               {this.props.route.params.item.name}
             </Text>
           </View>
+          <View
+            style={{
+              height: Dimensions.get('window').height * 0.1,
+              width: '100%',
+              backgroundColor: '#f3e5f5',
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: 20,
+              justifyContent: 'space-between',
+            }}>
+            <View>
+              <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#808080'}}>
+                {this.props.route.params.type == 'Vendors' ? 'Payable' : 'Receivable'}
+              </Text>
+              <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 18}}>
+                ₹{this.props.route.params.item.closingBalance.amount}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity
+                delayPressIn={0}
+                style={{marginRight: 10}}
+                onPress={() => this.setState({pdfModal: true})}
+                disabled={this.state.exportDisabled}>
+                <AntDesign name="pdffile1" size={22} color={'#FF7C7C'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                delayPressIn={0}
+                style={{marginLeft: 10}}
+                onPress={() => this.setState({MoreModal: true})}>
+                <Entypo name="dots-three-vertical" size={22} color={'#808080'} />
+              </TouchableOpacity>
+            </View>
+          </View>
           <View style={{marginTop: Dimensions.get('window').height * 0.02}} />
           <GDRoundedDateRangeInput
             label="Select Date"
@@ -349,7 +489,7 @@ class PartiesTransactionScreen extends React.Component {
               alignItems: 'center',
               borderRadius: 19,
               position: 'absolute',
-              marginTop: Dimensions.get('window').height * 0.1,
+              marginTop: Dimensions.get('window').height * 0.2,
               right: 10,
               borderWidth: 1,
               borderColor: '#D9D9D9',
@@ -366,37 +506,60 @@ class PartiesTransactionScreen extends React.Component {
             <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={this.func1}>
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
-          </View> */}
-
-          {this.state.transactionsData.length == 0 ? (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
-              <Image
-                source={require('@/assets/images/noTransactions.png')}
-                style={{resizeMode: 'contain', height: 250, width: 300}}
-              />
-              <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
-            </View>
-          ) : (
-            <FlatList
-              style={{paddingHorizontal: 10, marginTop: 20}}
-              data={this.state.transactionsData}
-              renderItem={({item}) => <TransactionList item={item} />}
-              keyExtractor={(item) => item.uniqueName}
-              //   onEndReachedThreshold={0.2}
-              //   onEndReached={() => this.handleRefresh()}
-              //   ListFooterComponent={this._renderFooter}
-            />
-          )}
+         
+         </View> */}
 
           {/* <TouchableOpacity
             style={{height: 40, width: 120, backgroundColor: 'pink'}}
             onPress={() => console.log(this.state.vouchers)}></TouchableOpacity> */}
 
+          {this.state.transactionsLoader ? (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+              <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            </View>
+          ) : (
+            <>
+              {this.state.transactionsData.length == 0 ? (
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
+                  <Image
+                    source={require('@/assets/images/noTransactions.png')}
+                    style={{resizeMode: 'contain', height: 250, width: 300}}
+                  />
+                  <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
+                </View>
+              ) : (
+                <FlatList
+                  style={{marginTop: 20}}
+                  data={this.state.transactionsData}
+                  renderItem={({item}) => <TransactionList item={item} />}
+                  keyExtractor={(item) => item.uniqueName}
+                  //   onEndReachedThreshold={0.2}
+                  //   onEndReached={() => this.handleRefresh()}
+                  //   ListFooterComponent={this._renderFooter}
+                />
+              )}
+            </>
+          )}
+
+          <DownloadModal modalVisible={this.state.DownloadModal} />
+          <PDFModal
+            modalVisible={this.state.pdfModal}
+            setModalVisible={this.pdfmodalVisible}
+            onExport={this.downloadFile}
+            onShare={this.onShare}
+            downloadModal={this.downloadModalVisible}
+          />
           <VoucherModal
             modalVisible={this.state.voucherModal}
             setModalVisible={this.modalVisible}
             filter={this.filter}
-            // activeFilter={this.state.activeFilter}
+            loader={this.transactionsLoader}
+          />
+          <MoreModal
+            modalVisible={this.state.MoreModal}
+            setModalVisible={this.moreModalVisible}
+            onWhatsApp={this.onWhatsApp}
+            onCall={this.onCall}
           />
         </View>
       );

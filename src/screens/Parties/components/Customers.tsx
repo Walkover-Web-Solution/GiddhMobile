@@ -127,7 +127,7 @@ export const Customers = (props) => {
       renderItem={({item}) => (
         <TouchableOpacity
           style={styles.rowFront}
-          onPress={() => navigation.navigate('PartiesTransactions', {item: item})}>
+          onPress={() => navigation.navigate('PartiesTransactions', {item: item, type: 'Creditors'})}>
           <View style={styles.viewWrap}>
             <Text style={styles.partiesName} numberOfLines={1}>
               {item.name}
@@ -163,7 +163,7 @@ export const Customers = (props) => {
           {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
         </TouchableOpacity>
       )}
-      keyExtractor={(item) => item.uniqueName}
+      keyExtractor={(item, index) => index.toString()}
     />
   );
 };

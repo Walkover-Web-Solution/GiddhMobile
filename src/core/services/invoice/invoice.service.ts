@@ -1,0 +1,111 @@
+import httpInstance from '@/core/services/http/http.service';
+import {BaseResponse} from '@/models/classes/base-response';
+import {invoiceUrls} from '@/core/services/invoice/invoice.url';
+import {Company} from '@/models/interfaces/company';
+
+export class InvoiceService {
+  /**
+   * get company details
+   * @returns {Promise<BaseResponse<Company>>}
+   */
+  static search(query, page, group, withStocks){
+    return httpInstance
+      .get(
+        invoiceUrls.search
+          .replace('q=', `q=${query}`)
+          .replace('page=', `page=${page}`)
+          .replace('group=', `group=${group}`)
+          .replace('withStocks=', `withStocks=${withStocks}`),
+        {}
+      )
+      .then((res) => {
+        return res.data;
+      }).
+      catch((err) => {
+        alert(err)
+        return err;
+      })
+  }
+
+
+  static getAccountDetails(query){
+    return httpInstance
+      .get(
+        invoiceUrls.getAccountDetails
+          .replace(':q', `${query}`),
+          {}
+      )
+      .then((res) => {
+        return res.data;
+      }).
+      catch((err) => {
+        alert(err)
+        return err
+      })
+  }
+//  stockDetailService: createEndpoint('v2/company/:companyUniqueName/particular/sales?stockUniqueName=&branchUniqueName=:branchUniqueName'),
+//serviceType - servicesales|sales
+  static getStockDetails(stockUniqueName){
+    return httpInstance
+      .get(
+        invoiceUrls.stockDetailService
+          .replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`),
+          {}
+      )
+      .then((res) => {
+        return res.data;
+      }).
+      catch((err) => {
+        alert(JSON.stringify(err));
+        return null;
+      })
+  }
+  static getSalesDetails(serviceType){
+    return httpInstance
+      .get(
+        invoiceUrls.salesDetailService
+          .replace(':sales_type', `${serviceType}`),
+          {}
+      )
+      .then((res) => {
+        return res.data;
+      }).
+      catch((err) => {
+        alert(JSON.stringify(err))
+        return null;
+      })
+  }
+
+
+  static getDiscounts(){
+    return httpInstance
+      .get(
+        invoiceUrls.getDiscounts,
+          {}
+      )
+      .then((res) => {
+        return res.data;
+      }).
+      catch((err) => {
+        alert(JSON.stringify(err))
+        return null;
+      })
+  }
+
+
+
+  static getTaxes(){
+    return httpInstance
+      .get(
+        invoiceUrls.getTaxes,
+          {}
+      )
+      .then((res) => {
+        return res.data;
+      }).
+      catch((err) => {
+        alert(JSON.stringify(err))
+        return null;
+      })
+  }
+}

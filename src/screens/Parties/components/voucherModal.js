@@ -16,7 +16,7 @@ import Fontisto from 'react-native-vector-icons/Fontisto';
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
-function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
+function VoucherModal({modalVisible, setModalVisible, filter, loader}) {
   const [sales, setsales] = React.useState(false);
   const [purchase, setPurchase] = React.useState(false);
   const [debitNote, setDebitNote] = React.useState(false);
@@ -40,11 +40,13 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!sales) {
-                filter('sales');
                 setsales(true);
+                loader();
+                filter('sales');
               } else {
-                filter('Rsales');
                 setsales(false);
+                loader();
+                filter('Rsales');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -61,11 +63,13 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!purchase) {
-                filter('purchase');
                 setPurchase(true);
+                loader();
+                filter('purchase');
               } else {
-                filter('Rpurchase');
                 setPurchase(false);
+                loader();
+                filter('Rpurchase');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -82,11 +86,13 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!creditNote) {
-                filter('creditnote');
                 setCreditNote(true);
+                loader();
+                filter('creditnote');
               } else {
-                filter('Rcreditnote');
                 setCreditNote(false);
+                loader();
+                filter('Rcreditnote');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -103,11 +109,13 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!debitNote) {
-                filter('debitnote');
                 setDebitNote(true);
+                loader();
+                filter('debitnote');
               } else {
-                filter('Rdebitnote');
                 setDebitNote(false);
+                loader();
+                filter('Rdebitnote');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -124,11 +132,13 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!receipt) {
-                filter('receipt');
                 setReceipt(true);
+                loader();
+                filter('receipt');
               } else {
-                filter('Rreceipt');
                 setReceipt(false);
+                loader();
+                filter('Rreceipt');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -145,11 +155,13 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!payment) {
-                filter('payment');
                 setPayment(true);
+                loader();
+                filter('payment');
               } else {
-                filter('Rpayment');
                 setPayment(false);
+                loader();
+                filter('Rpayment');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -166,11 +178,13 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!voucher) {
-                filter('voucher');
                 setVoucher(true);
+                loader();
+                filter('journal');
               } else {
-                filter('Rvoucher');
                 setVoucher(false);
+                loader();
+                filter('Rjournal');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -181,17 +195,19 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
               )}
             </View>
 
-            <Text style={{fontSize: 18, marginLeft: 10}}>Voucher</Text>
+            <Text style={{fontSize: 18, marginLeft: 10}}>Journal</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
               if (!contra) {
-                filter('contra');
                 setContra(true);
+                loader();
+                filter('contra');
               } else {
-                filter('Rcontra');
                 setContra(false);
+                loader();
+                filter('Rcontra');
               }
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
@@ -204,10 +220,11 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
 
             <Text style={{fontSize: 18, marginLeft: 10}}>Contra</Text>
           </TouchableOpacity>
+
+          <View style={{height: 2, width: '100%', alignSelf: 'center', backgroundColor: '#D9D9D9', marginTop: 15}} />
           <TouchableOpacity
-            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10, marginTop: 10}}
+            style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 10}}
             onPress={() => {
-              filter('clearall');
               setsales(false);
               setPurchase(false);
               setCreditNote(false);
@@ -216,6 +233,8 @@ function VoucherModal({modalVisible, setModalVisible, filter, activeFilter}) {
               setPayment(false);
               setVoucher(false);
               setContra(false);
+              loader();
+              filter('clearall');
             }}>
             <View style={{height: 20, width: 20, borderRadius: 2}}>
               <AntDesign name="close" size={20} color={'#FF1717'} />

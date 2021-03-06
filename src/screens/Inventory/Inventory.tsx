@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, TouchableOpacity, Text, FlatList, DeviceEventEmitter} from 'react-native';
+import {View, TouchableOpacity, Text, FlatList, DeviceEventEmitter, Image} from 'react-native';
 import style from '@/screens/Inventory/style';
 import InventoryList from '@/screens/Inventory/components/inventory-list.component';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -58,6 +58,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
       startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
       endDate: moment().format('DD-MM-YYYY'),
       page: 1,
+      totalPages: 1,
       loadingMore: false,
     };
   }
@@ -66,6 +67,9 @@ export class InventoryScreen extends React.Component<Props, {}> {
       this.setState(
         {
           showLoader: true,
+          page: 1,
+          totalPages: 1,
+          inventoryData: [],
         },
         () => this.getInventories(),
       );
@@ -75,24 +79,44 @@ export class InventoryScreen extends React.Component<Props, {}> {
 
   async getInventories() {
     try {
+      let totalPages = 0;
+      let result = [];
       const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-
       await httpInstance
         .post(
           `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=1&nonZeroInward=true&nonZeroOutward=true`,
           {},
         )
         .then((res) => {
-          this.setState({
-            inventoryData: res.data.body.stockReport,
-            showLoader: false,
-          });
+          totalPages = res.data.body.totalPages;
+          // this.setState({
+          //   inventoryData: [...this.state.inventoryData, ...res.data.body.stockReport],
+          //   totalPages: res.data.body.totalPages,
+          //   page: this.state.page + 1,
+          // });
         });
+
+      for (let i = 1; i <= totalPages; i++) {
+        console.log('value of page', i);
+        await httpInstance
+          .post(
+            `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=${i}&nonZeroInward=true&nonZeroOutward=true`,
+            {},
+          )
+          .then((res) => {
+            // result.push(res.data.body.stockReport);
+            result = [...result, ...res.data.body.stockReport];
+          });
+      }
+      this.setState({
+        inventoryData: result,
+        showLoader: false,
+      });
     } catch (e) {
       this.setState({showLoader: false});
     }
   }
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -112,15 +136,32 @@ export class InventoryScreen extends React.Component<Props, {}> {
             </View>
           </View> */}
           {/* <TouchableOpacity
-          style={{height: 60, width: 120, backgroundColor: 'pink'}}
-          onPress={() => console.log(this.state.inventoryData)}>
-          <Text>press</Text>
-        </TouchableOpacity> */}
-          <FlatList
+            style={{height: 60, width: 120, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.state.inventoryData)}>
+            <Text>press</Text>
+          </TouchableOpacity> */}
+
+          {this.state.inventoryData.length == 0 ? (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
+              <Image
+                source={require('@/assets/images/noInventory.png')}
+                style={{resizeMode: 'contain', height: 250, width: 300}}
+              />
+              <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10}}>No Inventory</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={this.state.inventoryData}
+              renderItem={({item}) => <InventoryList item={item} />}
+              keyExtractor={(item) => item.stockUniqueName}
+            />
+          )}
+
+          {/* <FlatList
             data={this.state.inventoryData}
             renderItem={({item}) => <InventoryList item={item} />}
             keyExtractor={(item) => item.stockUniqueName}
-          />
+          /> */}
           {/* <InventoryList /> */}
         </View>
       );

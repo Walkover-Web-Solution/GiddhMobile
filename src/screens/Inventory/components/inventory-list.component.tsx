@@ -3,6 +3,7 @@ import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18n
 import {FlatList, SafeAreaView, Text, View} from 'react-native';
 import styles from '@/screens/Inventory/components/styles';
 import {GdSVGIcons} from '@/utils/icons-pack';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 type InventoryListProp = WithTranslation & WithTranslationProps & {};
 
@@ -62,19 +63,31 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
           <View style={styles.stockRow1}>
             <View style={styles.stockDataWrap}>
               <Text style={styles.stockTitle}>Inward</Text>
-              <Text style={styles.stockSubTitle}>{this.props.item.inwards.quantity}</Text>
+              <View style={{height: 5}} />
+              <Text style={styles.stockSubTitle}>
+                {this.props.item.inwards.quantity == 0
+                  ? '-'
+                  : this.props.item.inwards.quantity + ' ' + this.props.item.inwards.stockUnit}
+              </Text>
             </View>
           </View>
           <View style={styles.stockRow2}>
             <View style={styles.stockDataWrap}>
               <Text style={styles.stockTitle}>Outward</Text>
-              <Text style={styles.stockSubTitle}>{this.props.item.outwards.quantity}</Text>
+              <View style={{marginTop: 5}} />
+              <Text style={styles.stockSubTitle}>
+                {this.props.item.outwards.quantity == 0
+                  ? '-'
+                  : this.props.item.outwards.quantity + ' ' + this.props.item.outwards.stockUnit}
+              </Text>
             </View>
           </View>
         </View>
-        <View style={{height: 10}} />
 
         <View style={styles.seperator} />
+        {/* <TouchableOpacity
+            style={{height: 50, width: 150, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.props.item.outwards.stockUnit)}></TouchableOpacity> */}
       </View>
     );
   }

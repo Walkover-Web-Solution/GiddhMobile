@@ -36,7 +36,13 @@ export default StyleSheet.create({
     resizeMode: 'contain',
     height: 30,
     width: 120,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
+  },
+  logoTwo: {
+    resizeMode: 'contain',
+    height: 22,
+    width: 90,
+    alignSelf: 'center',
   },
   titleContainer: {
     flexDirection: 'row',

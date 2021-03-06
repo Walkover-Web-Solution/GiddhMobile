@@ -72,6 +72,7 @@ export class GDRoundedDateRangeInput extends Component<GDRoundedDateRangeInputPr
     const {startDate, endDate, displayedDate, minDate, maxDate}: any = this.state;
     return (
       <DateRangePicker
+        {...this.props}
         onChange={this.setDates}
         endDate={this.state.endDate}
         startDate={this.state.startDate}

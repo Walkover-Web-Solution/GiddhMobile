@@ -22,6 +22,9 @@ import PartiesMain from '@/screens/Parties/PartiesMain';
 import {PartiesStack} from '@/navigation/parties.navigator';
 import {NavigationContainer} from '@react-navigation/native';
 import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notifications
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;

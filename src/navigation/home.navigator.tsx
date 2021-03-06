@@ -14,10 +14,16 @@ import {MoreScreen} from '@/screens/More/More';
 import MoreStack from './more.navigator';
 import {PartiesStack} from './parties.navigator';
 import AddButton from './components/AddButton';
+import DashboardStack from './dashboard.navigator';
 
 const {Navigator, Screen} = createBottomTabNavigator();
+import { createStackNavigator } from '@react-navigation/stack';
+const Stack = createStackNavigator();
 
-export const HomeNavigator = () => (
+export const HomeNavigator = (props) => (
+
+
+  
   <Navigator
     tabBarOptions={{
       activeTintColor: '#5773FF',
@@ -27,7 +33,7 @@ export const HomeNavigator = () => (
     }}>
     <Screen
       name={Routes.Transaction}
-      component={HomeScreen}
+      component={DashboardStack}
       options={({route}) => ({
         tabBarLabel: 'Dashboard',
         tabBarIcon: ({focused}) => (
@@ -57,11 +63,12 @@ export const HomeNavigator = () => (
 <Screen
       name={Routes.Add}
       component={MoreStack}
-      options={({route}) => ({
+      options={({route, navigation}) => ({
         tabBarLabel: '',
 
         tabBarIcon: ({focused}) => (
-          <AddButton />
+          <AddButton navigation={navigation}
+          />
         ),
       })}
     />

@@ -5,13 +5,13 @@ export const commonUrls = {
   refreshAccessToken: createEndpoint('users/:userEmail/increment-session'),
   stateDetails: createEndpoint('state-details'),
   customer_vendor_report_sundry_debtors: createEndpoint(
-    'v2/company/:companyUniqueName/groups/sundrydebtors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=true&q=',
+    'v2/company/:companyUniqueName/groups/sundrydebtors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=true&q=&branchUniqueName=:branchUniqueName',
   ),
   customer_vendor_report_sundry_creditors: createEndpoint(
-    'v2/company/:companyUniqueName/groups/sundrycreditors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=true&q=',
+    'v2/company/:companyUniqueName/groups/sundrycreditors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=true&q=&branchUniqueName=:branchUniqueName',
   ),
   customer_transactions: createEndpoint(
-    'company/mobilein1601731188063045bms/daybook?page=0&count=20&from=01-04-2020&to=05-10-2020&branchUniqueName=undefined',
+    'company/:companyUniqueName/daybook?page=1&count=25&from=:startDate&to=:endDate&branchUniqueName=:branchUniqueName',
   ),
   // customer_: createEndpoint(
   //   'v2/companies/:companyUniqueName/groups/sundrycreditors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=false',

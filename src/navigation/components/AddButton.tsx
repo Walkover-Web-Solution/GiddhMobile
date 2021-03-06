@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 
 import { Animated, TouchableHighlight, View, Dimensions, FlatList, TouchableOpacity, Text } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from '@/core/components/custom-icon/custom-icon';
+
 import style from '@/screens/Auth/Otp/style';
 import { connect } from 'react-redux';
 import color from '@/utils/colors';
-const arrButtons = [{ name: 'Sales Invoice', navigateTo: 'Sales_Invoice', icon: 'shopping-bag', color: '#229F5F' },
-                    { name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345' },
-                    { name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795' },
-                    { name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD' },
+const arrButtons = [{ name: 'Sales Invoice', navigateTo: 'SalesInvoiceScreen', icon: 'purchase1', color: '#229F5F' },
+                    { name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'path1', color: '#FC8345' },
+                    { name: 'Receipt', navigateTo: 'Receipt', icon: 'path-22', color: '#00B795' },
+                    { name: 'Payment', navigateTo: 'Payment', icon: 'Union-631', color: '#084EAD' },
                     { name: 'Sales Invoice', navigateTo: 'Sales_Invoice', icon: 'shopping-bag', color: '#229F5F' },
                     { name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345' },
                     { name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795' },
@@ -29,8 +31,8 @@ class AddButton extends Component {
             duration: 300
         }).start();
     };
-
     render() {
+        console.log('this.props.navigati----' + JSON.stringify(this.props.navigation))
         const firstX = this.mode.interpolate({
             inputRange: [0, 1],
             outputRange: [-Dimensions.get('window').width / 2, -Dimensions.get('window').width / 2]
@@ -86,7 +88,8 @@ class AddButton extends Component {
                                     style={{ width: itemWidth, borderRadius: itemWidth / 2, justifyContent: 'center', alignItems: 'center', margin: padding }}
                                     delayPressIn={0}
                                     onPress={async () => {
-
+                                        this.props.navigation.navigate(item.navigateTo);
+                                        this.toggleView()
                                     }}>
                                     <View style={{ width: itemWidth, backgroundColor: item.color, borderRadius: itemWidth / 2, height: itemWidth, justifyContent: 'center', alignItems: 'center' }}>
                                         <Icon name={item.icon} size={24} color="#F8F8F8" />
@@ -119,7 +122,7 @@ class AddButton extends Component {
                             { rotate: rotation }
                         ]
                     }}>
-                        <Icon name="plus" size={24} color="#F8F8F8" />
+                        <FontAwesome name="plus" size={24} color="#F8F8F8" />
                     </Animated.View>
                 </TouchableHighlight>
             </View>
