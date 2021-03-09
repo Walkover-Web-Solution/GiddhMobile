@@ -237,7 +237,6 @@ export class NoteDenomination extends React.Component<any, any> {
         </View>
         <View style={style.grandTotal}>
           <Text style={style.totalText}>Grand Total : </Text>
-          {/* <Text style={style.totalAmt}>₹{this.grandTotal}</Text> */}
           {this.grandTotal()}
         </View>
         <TouchableOpacity style={style.button} onPress={() => console.log(this.grandTotal())}>

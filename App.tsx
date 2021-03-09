@@ -26,6 +26,8 @@ import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
 import NoteDenomination from '@/core/components/note-denomination/noteDenomination';
 import Otp from '@/screens/Auth/Otp/Otp';
 import SelectAddress from '@/core/components/Select-Address/SelectAddress';
+import EditAddress from '@/core/components/Select-Address/EditAddress';
+import {AddressStack} from '@/navigation/addressNavigator';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -73,11 +75,11 @@ export default class App extends React.Component<any> {
                   {/* <AppDatePicker /> */}
                   {/* <BaseContainer /> */}
                   {/* <Invoice /> */}
-                  <SelectAddress />
+                  {/* <EditAddress /> */}
                   {/* <Otp /> */}
-                  {/* <NavigationContainer>
-                    <PartiesStack />
-                  </NavigationContainer> */}
+                  <NavigationContainer>
+                    <AddressStack />
+                  </NavigationContainer>
                 </SafeAreaProvider>
               </ApplicationProvider>
             </AppearanceProvider>

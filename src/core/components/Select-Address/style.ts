@@ -34,7 +34,7 @@ export default StyleSheet.create({
   },
   body: {
     height: height * 0.8,
-    // backgroundColor: 'pink',
+    paddingHorizontal: 20,
   },
   button: {
     height: height * 0.06,
@@ -51,5 +51,42 @@ export default StyleSheet.create({
     fontFamily: 'AvenirLTStd-Black',
     color: '#fff',
     fontSize: 20,
+  },
+  BSContainer: {
+    backgroundColor: 'transparent',
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    justifyContent: 'flex-end',
+  },
+  BMinnerContainer: {
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    backgroundColor: 'white',
+    // minHeight: 300,
+    height: '60%',
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  BMHeader: {
+    flexDirection: 'row',
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  BMTitle: {
+    fontFamily: 'AvenirLTStd-Book',
+    fontSize: 20,
+    marginLeft: 20,
+  },
+  BMfieldTitle: {
+    fontFamily: 'AvenirLTStd-Book',
+    fontSize: 20,
+    marginTop: 20,
+  },
+  DefaultAddress: {flexDirection: 'row', alignItems: 'center', marginTop: 20},
+  DefaultAddressText: {
+    fontFamily: 'AvenirLTStd-Book',
+    fontSize: 20,
+    marginLeft: 20,
   },
 });

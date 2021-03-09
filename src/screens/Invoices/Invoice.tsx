@@ -1,20 +1,7 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, FlatList, Dimensions, Platform, PermissionsAndroid, Animated} from 'react-native';
 import style from './style';
-import {GdSVGIcons} from '@/utils/icons-pack';
-import {Image} from 'react-native-svg';
-import {GDInput} from '@/core/components/input/input.component';
-import {TextInput} from 'react-native-gesture-handler';
-import {createEndpoint} from '@/utils/helper';
-import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
-import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
-import httpInstance from '@/core/services/http/http.service';
-import moment from 'moment';
-import RNFetchBlob from 'rn-fetch-blob';
-import base64 from 'react-native-base64';
 
-import Share from 'react-native-share';
 
 const {height, width} = Dimensions.get('window');
 
