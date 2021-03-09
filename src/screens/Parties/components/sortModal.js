@@ -16,13 +16,7 @@ const Screen_width = Dimensions.get('window').width;
 
 function SortModal({modalVisible, setModalVisible, filter, activeFilter}) {
   return (
-    <Modal
-      animationType="none"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
-      }}>
+    <Modal animationType="none" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible()}>
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           {/* <Text style={{fontSize: 20}}>Sort</Text> */}
@@ -108,7 +102,7 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flexDirection: 'column',
-    width: Screen_width * 0.7,
+    width: Screen_width * 0.8,
     paddingVertical: 20,
     backgroundColor: '#fff',
     elevation: 3,

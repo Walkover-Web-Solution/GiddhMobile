@@ -27,13 +27,7 @@ function VoucherModal({modalVisible, setModalVisible, filter, loader}) {
   const [contra, setContra] = React.useState(false);
 
   return (
-    <Modal
-      animationType="none"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
-      }}>
+    <Modal animationType="none" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible()}>
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           <TouchableOpacity

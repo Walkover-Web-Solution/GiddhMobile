@@ -3,6 +3,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import PartiesMain from '@/screens/Parties/PartiesMain';
 import PartiesTransactions from '@/screens/Parties/Parties-Transactions';
 import SalesInvoiceScreen from '../screens/Sales-Invoice/SalesInvoice';
+import AppDatePicker from '@/screens/DatePicker/DatePicker';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -11,6 +12,6 @@ export const PartiesStack = () => (
     <Screen component={PartiesMain} name={'Parties'} options={{headerShown: false}} />
     <Screen component={PartiesTransactions} name={'PartiesTransactions'} options={{headerShown: false}} />
     <Screen component={SalesInvoiceScreen} name={'SalesInvoiceScreen'} />
-
+    <Screen component={AppDatePicker} name={'AppDatePicker'} options={{headerShown: false}} />
   </Navigator>
 );

@@ -135,22 +135,24 @@ export const Customers = (props) => {
             {item.closingBalance.amount !== 0 && (
               <View style={styles.amountWrap}>
                 {item.country.code === 'IN' && (
-                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                     {getSymbolFromCurrency('INR')}
                     {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                   </Text>
                 )}
                 {item.country.code !== 'IN' && (
-                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
+                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                     {getSymbolFromCurrency(item.country.code)}
                     {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                   </Text>
                 )}
                 <View style={{width: 2}} />
-                {item.category === 'liabilities' && (
+                {item.closingBalance.type == 'CREDIT' && (
                   <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
                 )}
-                {item.category === 'assets' && <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />}
+                {item.closingBalance.type == 'DEBIT' && (
+                  <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
+                )}
               </View>
             )}
             {item.closingBalance.amount === 0 && (

@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, DeviceEventEmitter, TouchableOpacity, Dimensions, Modal, TextInput} from 'react-native';
+import {View, Text, DeviceEventEmitter, TouchableOpacity, Dimensions, ScrollView, TextInput} from 'react-native';
 import style from '@/screens/Parties/style';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
@@ -15,39 +15,31 @@ import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
 import DropDownPicker from 'react-native-dropdown-picker';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
-import {APP_EVENTS} from '@/utils/constants';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 
 import {Vendors} from './components/Vendors';
 import {Customers} from './components/Customers';
 import Icons from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import {commonUrls} from '@/core/services/common/common.url';
+import AsyncStorage from '@react-native-community/async-storage';
 
-const BadgeTabs = [
-  {
-    label: 'Customers',
-    isActive: true,
-  },
-  {
-    label: 'Vendors',
-    isActive: false,
-  },
-];
+const {width, height} = Dimensions.get('window');
 
 export class PartiesMainScreen extends React.Component {
+  private scrollRef;
   constructor(props: any) {
     super(props);
     this.inputRef = React.createRef();
+    this.scrollRef = React.createRef();
     this.state = {
       showLoader: true,
       searchQuery: '',
-      badgeTabs: BadgeTabs,
-      val: 0,
       vendorData: [],
       customerData: [],
       sortModal: false,
-      sortBy: 'name',
-      order: 'aesc',
+      sortBy: 'closingBalance',
+      order: 'desc',
       textInputOpen: false,
       count: 50,
       customerPage: 1,
@@ -57,8 +49,42 @@ export class PartiesMainScreen extends React.Component {
       customerLoadingMore: false,
       vendorLoadingMore: false,
       activeFilter: 'AZ',
+      currentPage: 0,
     };
   }
+
+  setSliderPage = (event: any) => {
+    const {currentPage} = this.state;
+    const {x} = event.nativeEvent.contentOffset;
+    const indexOfNextScreen = Math.round(x / width);
+
+    if (indexOfNextScreen !== currentPage) {
+      this.setState({
+        currentPage: indexOfNextScreen,
+      });
+    }
+  };
+
+  activeFilter = () => {
+    if (this.state.sortBy == 'closingBalance' && this.state.order == 'desc') {
+      return '01';
+    } else if (this.state.sortBy == 'closingBalance' && this.state.order == 'aesc') {
+      return '10';
+    } else if (this.state.sortBy == 'name' && this.state.order == 'aesc') {
+      return 'AZ';
+    } else {
+      return 'ZA';
+    }
+  };
+
+  defaultFilters = async () => {
+    const sortBy = await AsyncStorage.getItem(STORAGE_KEYS.sortBy);
+    const order = await AsyncStorage.getItem(STORAGE_KEYS.order);
+    if (sortBy && order) {
+      this.setState({sortBy: sortBy, order: order});
+    }
+    console.log('first this executes');
+  };
 
   handleCustomerRefresh = () => {
     console.log('customer refresh executed');
@@ -103,49 +129,30 @@ export class PartiesMainScreen extends React.Component {
       );
     }
   };
-  func1 = () => {
-    console.log(commonUrls.customer_vendor_report_sundry_debtors.replace('q=', `q=a`));
-  };
 
   modalVisible = () => {
     this.setState({sortModal: false});
   };
 
-  selectedTab = async (tab, index) => {
-    // eslint-disable-next-line no-shadow
-    this.state.badgeTabs.forEach((tab: BadgeTab) => {
-      tab.isActive = false;
-    });
-    tab.isActive = !tab.isActive;
-    this.state.badgeTabs[index] = tab;
-    this.setState({badgeTabs: this.state.badgeTabs, val: index});
-  };
-  renderElement() {
-    if (this.state.val === 0) {
-      return (
-        <Customers
-          navigation={this.props.navigation}
-          partiesData={this.state.customerData}
-          activeCompany={this.props.activeCompany}
-          handleRefresh={this.handleCustomerRefresh}
-          loadMore={this.state.customerLoadingMore}
-        />
-      );
-    } else if (this.state.val === 1) {
-      return (
-        <Vendors
-          navigation={this.props.navigation}
-          partiesData={this.state.vendorData}
-          activeCompany={this.props.activeCompany}
-          handleRefresh={this.handleVendorRefresh}
-          loadMore={this.state.vendorLoadingMore}
-        />
-      );
-    }
-  }
-
   apiCalls = async () => {
-    // console.log(this.state.searchQuery, this.state.customerPage);
+    await this.defaultFilters();
+    await this.getPartiesMainSundryDebtors(
+      this.state.searchQuery,
+      this.state.sortBy,
+      this.state.order,
+      this.state.count,
+      this.state.customerPage,
+    );
+    await this.getPartiesMainSundryCreditors(
+      this.state.searchQuery,
+      this.state.sortBy,
+      this.state.order,
+      this.state.count,
+      this.state.VendorPage,
+    );
+  };
+
+  filterCalls = async () => {
     await this.getPartiesMainSundryDebtors(
       this.state.searchQuery,
       this.state.sortBy,
@@ -178,68 +185,71 @@ export class PartiesMainScreen extends React.Component {
     );
   };
 
-  filter = (filterType) => {
+  filter = async (filterType) => {
     if (filterType == 'AZ') {
+      await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'name');
+      await AsyncStorage.setItem(STORAGE_KEYS.order, 'aesc');
       this.setState(
         {
           sortBy: 'name',
           order: 'aesc',
-          activeFilter: 'AZ',
           customerPage: 1,
           VendorPage: 1,
           showLoader: true,
         },
         () => {
-          this.apiCalls();
+          this.filterCalls();
         },
       );
     } else if (filterType == 'ZA') {
+      await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'name');
+      await AsyncStorage.setItem(STORAGE_KEYS.order, 'desc');
       this.setState(
         {
           sortBy: 'name',
           order: 'desc',
-          activeFilter: 'ZA',
           customerPage: 1,
           VendorPage: 1,
           showLoader: true,
         },
         () => {
-          this.apiCalls();
+          this.filterCalls();
         },
       );
     } else if (filterType == '10') {
+      await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'closingBalance');
+      await AsyncStorage.setItem(STORAGE_KEYS.order, 'aesc');
       this.setState(
         {
           sortBy: 'closingBalance',
           order: 'aesc',
-          activeFilter: '10',
           customerPage: 1,
           VendorPage: 1,
           showLoader: true,
         },
         () => {
-          this.apiCalls();
+          this.filterCalls();
         },
       );
     } else {
+      await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'closingBalance');
+      await AsyncStorage.setItem(STORAGE_KEYS.order, 'desc');
       this.setState(
         {
           sortBy: 'closingBalance',
           order: 'desc',
-          activeFilter: '01',
           customerPage: 1,
           VendorPage: 1,
           showLoader: true,
         },
         () => {
-          this.apiCalls();
+          this.filterCalls();
         },
       );
     }
   };
 
   componentDidMount() {
-    //get parties data
     this.apiCalls();
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
@@ -282,8 +292,10 @@ export class PartiesMainScreen extends React.Component {
               <TouchableOpacity
                 style={{position: 'absolute', right: 20, padding: 8}}
                 onPress={() => {
-                  this.inputRef.current.clear();
-                  this.handleSearch('');
+                  if (this.state.searchQuery != '') {
+                    this.inputRef.current.clear();
+                    this.handleSearch('');
+                  }
                   this.setState({textInputOpen: false});
                 }}>
                 <Icons name={'close'} size={25} color={'#FFFFFF'} />
@@ -302,7 +314,9 @@ export class PartiesMainScreen extends React.Component {
                 <TouchableOpacity
                   style={{padding: 8, marginLeft: 15}}
                   delayPressIn={0}
-                  onPress={() => this.setState({textInputOpen: true}, () => this.inputRef.current.focus())}>
+                  onPress={() => this.setState({textInputOpen: true}, () => this.inputRef.current.focus())}
+                  // onPress={() => console.log(this.state.vendorData)}
+                >
                   <Icon name={'search'} size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
               </View>
@@ -318,47 +332,135 @@ export class PartiesMainScreen extends React.Component {
         </View>
         <View
           style={{
-            marginLeft: 15,
-            marginRight: 15,
-            // marginLeft: 70,
-            // marginRight: 70,
             marginTop: 10,
-            display: 'flex',
+
             justifyContent: 'space-around',
             flexDirection: 'row',
             marginBottom: 15,
           }}>
-          {this.state.badgeTabs.map((tab, index) => (
-            <BadgeButton
-              label={tab.label}
-              key={tab.label}
-              onPress={() => this.selectedTab(tab, index)}
-              isActive={tab.isActive}
-            />
-          ))}
+          <TouchableOpacity
+            style={{
+              borderTopEndRadius: 17,
+              borderTopLeftRadius: 17,
+              borderBottomLeftRadius: 17,
+              borderColor: this.state.currentPage == 0 ? '#5773FF' : '#D9D9D9',
+              width: Dimensions.get('window').width * 0.4,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 7,
+              borderWidth: 1,
+            }}
+            onPress={() =>
+              this.scrollRef.current.scrollTo({
+                animated: true,
+                y: 0,
+                x: width * -1,
+              })
+            }>
+            <Text
+              numberOfLines={1}
+              style={{
+                color: this.state.currentPage == 0 ? '#5773FF' : '#808080',
+                // fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal',
+              }}>
+              Customers
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              borderTopEndRadius: 17,
+              borderTopLeftRadius: 17,
+              borderBottomLeftRadius: 17,
+              borderColor: this.state.currentPage == 1 ? '#5773FF' : '#D9D9D9',
+              width: Dimensions.get('window').width * 0.4,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 2,
+              borderWidth: 1,
+            }}
+            onPress={() =>
+              this.scrollRef.current.scrollTo({
+                animated: true,
+                y: 0,
+                x: width * 2,
+              })
+            }>
+            <Text
+              numberOfLines={1}
+              style={{
+                color: this.state.currentPage == 1 ? '#5773FF' : '#808080',
+                // fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal',
+              }}>
+              Vendors
+            </Text>
+          </TouchableOpacity>
         </View>
-        {this.state.showLoader ? (
-          <View style={{flex: 1}}>
-            <View style={style.alignLoader}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
-            </View>
+        {/* <TouchableOpacity
+          style={{height: 50, width: 100, backgroundColor: 'pink'}}
+          onPress={() => console.log(this.state.customerData)}></TouchableOpacity> */}
+        {/* <View style={{height: height * 0.75, width: width}}> */}
+        <ScrollView
+          ref={this.scrollRef}
+          style={{flex: 1}}
+          horizontal={true}
+          scrollEventThrottle={16}
+          pagingEnabled={true}
+          showsHorizontalScrollIndicator={false}
+          onScroll={(event) => {
+            this.setSliderPage(event);
+          }}>
+          <View style={{height: '100%', width: width}}>
+            {this.state.showLoader ? (
+              <View style={{flex: 1}}>
+                <View style={style.alignLoader}>
+                  <Bars size={15} color={color.PRIMARY_NORMAL} />
+                </View>
+              </View>
+            ) : (
+              <Customers
+                navigation={this.props.navigation}
+                partiesData={this.state.customerData}
+                activeCompany={this.props.activeCompany}
+                handleRefresh={this.handleCustomerRefresh}
+                loadMore={this.state.customerLoadingMore}
+              />
+            )}
           </View>
-        ) : (
-          <>{this.renderElement()}</>
-        )}
+          <View style={{height: '100%', width: width}}>
+            {this.state.showLoader ? (
+              <View style={{flex: 1}}>
+                <View style={style.alignLoader}>
+                  <Bars size={15} color={color.PRIMARY_NORMAL} />
+                </View>
+              </View>
+            ) : (
+              <Vendors
+                navigation={this.props.navigation}
+                partiesData={this.state.vendorData}
+                activeCompany={this.props.activeCompany}
+                handleRefresh={this.handleVendorRefresh}
+                loadMore={this.state.vendorLoadingMore}
+              />
+            )}
+          </View>
+        </ScrollView>
+        {/* <View style={style.paginationWrapper}>
+            {Array.from(Array(4).keys()).map((key, index) => (
+              <View style={[style.paginationDots, {opacity: pageIndex === index ? 1 : 0.2}]} key={index} />
+            ))}
+          </View> */}
+        {/* </View> */}
         <SortModal
           modalVisible={this.state.sortModal}
           setModalVisible={this.modalVisible}
           filter={this.filter}
-          activeFilter={this.state.activeFilter}
+          activeFilter={this.activeFilter()}
         />
         {/* <TouchableOpacity style={{height: 50, width: 140, backgroundColor: 'pink'}} onPress={this.func1}>
             <Text>Hello</Text>
           </TouchableOpacity> */}
-        {/* <PartiesMainList
-            partiesData={this.state.query ? this.state.debtData : this.state.debtFullData}
-            activeCompany={activeCompany}
-          /> */}
       </View>
     );
   }
@@ -382,9 +484,7 @@ export class PartiesMainScreen extends React.Component {
 
   private async getPartiesMainSundryCreditors(query, sortBy, order, count, page) {
     try {
-      // console.log('api called');
       const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
-
       this.setState({
         vendorData: creditors.body.results,
         totalVendorPages: creditors.body.totalPages,
@@ -392,21 +492,15 @@ export class PartiesMainScreen extends React.Component {
       });
     } catch (e) {
       this.setState({vendorData: new PartiesPaginatedResponse()});
-
-      //   this.setState({showLoader: false});
     }
   }
   private async loadDebtors(query, sortBy, order, count, page) {
     try {
       const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
-      // console.log('data is', ...debtors.body.results, ...creditors.body.results);
-      this.setState(
-        {
-          customerData: [...this.state.customerData, ...debtors.body.results],
-          customerLoadingMore: false,
-        },
-        // () => console.log(this.state.customerData),
-      );
+      this.setState({
+        customerData: [...this.state.customerData, ...debtors.body.results],
+        customerLoadingMore: false,
+      });
     } catch (e) {
       this.setState({customerData: new PartiesPaginatedResponse()});
       console.log(e);
@@ -415,7 +509,7 @@ export class PartiesMainScreen extends React.Component {
   private async loadCreditors(query, sortBy, order, count, page) {
     try {
       const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
-      // console.log('creditors are', creditors.body.results);
+
       this.setState({
         vendorData: [...this.state.vendorData, ...creditors.body.results],
         vendorLoadingMore: false,

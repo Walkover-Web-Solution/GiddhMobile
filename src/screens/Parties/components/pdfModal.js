@@ -12,19 +12,23 @@ import {
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
-function PDFModal({modalVisible, setModalVisible, onExport, onShare, downloadModal}) {
+function PDFModal({
+  modalVisible,
+  setModalVisible,
+  onExport,
+  onShare,
+  downloadModal,
+  onWhatsAppShare,
+  phoneNo,
+  shareModal,
+}) {
   return (
-    <Modal
-      animationType="none"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
-      }}>
+    <Modal animationType="none" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible()}>
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           {/* <Text style={{fontSize: 20}}>Sort</Text> */}
@@ -48,28 +52,27 @@ function PDFModal({modalVisible, setModalVisible, onExport, onShare, downloadMod
               style={{flex: 1, flexDirection: 'row'}}
               onPress={() => {
                 onShare();
-                downloadModal(true);
+                shareModal(true);
                 setModalVisible();
               }}>
               <Entypo name="share" size={22} color={'black'} />
               <Text style={{fontSize: 18, marginLeft: 15}}>Share</Text>
             </TouchableOpacity>
-            {/* {activeFilter == 'ZA' && (
-              <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: '#520EAD', marginRight: 10}} />
-            )} */}
           </View>
 
-          {/* <TouchableOpacity style={{marginTop: 20, alignSelf: 'center'}} onPress={setModalVisible}>
-            <Text style={{fontSize: 18}}>Close</Text>
-          </TouchableOpacity> */}
-
-          {/* <TouchableHighlight
-            style={{...styles.openButton, backgroundColor: '#5db075'}}
-            onPress={() => {
-              setModalVisible();
-            }}>
-            <Text style={styles.textStyle}>Done</Text>
-          </TouchableHighlight> */}
+          {phoneNo && (
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20}}>
+              <TouchableOpacity
+                style={{flex: 1, flexDirection: 'row'}}
+                onPress={() => {
+                  onWhatsAppShare();
+                  setModalVisible();
+                }}>
+                <MaterialCommunityIcons name="whatsapp" size={22} color={'#000000'} />
+                <Text style={{fontSize: 18, marginLeft: 15}}>Share on WhatsApp</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
     </Modal>

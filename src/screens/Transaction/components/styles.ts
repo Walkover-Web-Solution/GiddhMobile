@@ -9,7 +9,7 @@ export default StyleSheet.create({
   },
   flatList: {
     marginBottom: 15,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     // backgroundColor: 'pink',
     // height: Dimensions.get('window').height * 0.14,
   },
@@ -86,9 +86,8 @@ export default StyleSheet.create({
     fontFamily: 'AvenirLTStd-Black',
   },
   iconPlacingStyle: {
-    display: 'flex',
-    justifyContent: 'flex-end',
     flexDirection: 'row',
+    alignItems: 'center',
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,

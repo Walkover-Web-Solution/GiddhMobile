@@ -23,6 +23,8 @@ import colors from '@/utils/colors';
 import httpInstance from '@/core/services/http/http.service';
 import {commonUrls} from '@/core/services/common/common.url';
 import moment from 'moment';
+import DownloadModal from '@/screens/Parties/components/downloadingModal';
+import analytics from '@react-native-firebase/analytics';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -40,6 +42,7 @@ export class TransactionScreen extends React.Component {
       totalPages: 0,
       onEndReachedCalledDuringMomentum: true,
       loadingMore: false,
+      DownloadModal: false,
     };
   }
   componentDidMount() {
@@ -54,32 +57,14 @@ export class TransactionScreen extends React.Component {
     this.getTransactions();
   }
 
+  downloadModalVisible = (value) => {
+    this.setState({DownloadModal: value});
+  };
+
   func1 = async () => {
     const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     console.log(v1);
   };
-  // async getTransactions() {
-  //   try {
-  //     const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-  //     const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-  //     await httpInstance
-  //       .post(
-  //         `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-  //         {},
-  //       )
-  //       .then((res) => {
-  //         this.setState({
-  //           transactionsData: res.data.body.entries,
-  //           totalPages: res.data.body.totalPages,
-  //         });
-  //       });
-
-  //     this.setState({showLoader: false, loadingMore: false});
-  //   } catch (e) {
-  //     console.log(e);
-  //     this.setState({showLoader: false});
-  //   }
-  // }
 
   async getTransactions() {
     try {
@@ -189,6 +174,14 @@ export class TransactionScreen extends React.Component {
               <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
             </TouchableOpacity>
           </View> */}
+          {/* <TouchableOpacity
+            style={{height: 50, width: 100, backgroundColor: 'pink'}}
+            onPress={async () =>
+              await analytics().logEvent('transactions', {
+                item: 'transactions button pressed',
+              })
+            }></TouchableOpacity> */}
+
           {this.state.transactionsData.length == 0 ? (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
               <Image
@@ -200,13 +193,14 @@ export class TransactionScreen extends React.Component {
           ) : (
             <FlatList
               data={this.state.transactionsData}
-              renderItem={({item}) => <TransactionList item={item} />}
+              renderItem={({item}) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}
               keyExtractor={(item) => item.createdAt}
               onEndReachedThreshold={0.2}
               onEndReached={() => this.handleRefresh()}
               ListFooterComponent={this._renderFooter}
             />
           )}
+          <DownloadModal modalVisible={this.state.DownloadModal} />
         </View>
       );
     }

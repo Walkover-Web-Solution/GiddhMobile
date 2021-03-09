@@ -18,6 +18,7 @@ import configureStore from './src/redux/store';
 import Invoice from '@/screens/Invoices/Invoice';
 const {store, persistor} = configureStore();
 import SplashScreen from 'react-native-splash-screen';
+import AppDatePicker from '@/screens/DatePicker/DatePicker';
 import PartiesMain from '@/screens/Parties/PartiesMain';
 import {PartiesStack} from '@/navigation/parties.navigator';
 import {NavigationContainer} from '@react-navigation/native';
@@ -25,6 +26,9 @@ import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
 import { LogBox } from 'react-native';
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();//Ignore all log notifications
+import NoteDenomination from '@/core/components/note-denomination/noteDenomination';
+import Otp from '@/screens/Auth/Otp/Otp';
+import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -35,6 +39,7 @@ export default class App extends React.Component<any> {
   async componentDidMount() {
     // get token and active company name
     SplashScreen.hide();
+
     const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
 
     // check if token is present, means user is logged in
@@ -71,6 +76,11 @@ export default class App extends React.Component<any> {
                   <BaseContainer />
                   {/* <Invoice /> */}
                   {/* <PartiesMain /> */}
+                  {/* <AppDatePicker /> */}
+                  {/* <BaseContainer /> */}
+                  {/* <Invoice /> */}
+                  {/* <SelectAddress /> */}
+                  {/* <Otp /> */}
                   {/* <NavigationContainer>
                     <PartiesStack />
                   </NavigationContainer> */}

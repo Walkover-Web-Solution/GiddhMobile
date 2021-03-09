@@ -16,7 +16,7 @@ import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateRangePicker from 'react-native-daterange-picker';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { ScrollView } from 'react-native-gesture-handler';
-
+import EditItemDetail from './EditItemDetails';
 const INVOICE_TYPE = {
   credit: 'Credit',
   cash: 'Cash'
@@ -733,6 +733,11 @@ export class SalesInvoice extends React.Component<Props> {
       </View>
     )
   }
+
+  updateEditedItem(details) {
+    this.setState({showItemDetails:false})
+  }
+
   render() {
     return (
       <ScrollView style={{ backgroundColor: 'white', flex: 1 }}>
@@ -749,7 +754,9 @@ export class SalesInvoice extends React.Component<Props> {
 
           {this.state.showInvoiceModal && this.renderInvoiceTypeModal()}
         </View>
-        {this.state.showItemDetails && this._renderBottomSheetForItemDetails()}
+        {this.state.showItemDetails && <EditItemDetail goBack={()=> {this.setState({showItemDetails:false})}} itemDetails={this.state.itemDetails} updateItems={(details)=> {
+          this.updateEditedItem(details)
+        }}/>}
         {this.state.searchResults.length > 0 && this._renderSearchList()}
         {this.state.loading && (
           <View

@@ -20,10 +20,73 @@ const {Navigator, Screen} = createBottomTabNavigator();
 import { createStackNavigator } from '@react-navigation/stack';
 const Stack = createStackNavigator();
 
-export const HomeNavigator = (props) => (
+// export const HomeNavigator = (props) => (
 
 
   
+//   <Navigator
+//     tabBarOptions={{
+//       activeTintColor: '#5773FF',
+//       labelStyle: {fontSize: 14},
+//       style: {paddingVertical: 3},
+//       keyboardHidesTabBar: true,
+//     }}>
+//     <Screen
+//       name={Routes.Transaction}
+//       component={DashboardStack}
+//       options={({route}) => ({
+//         tabBarLabel: 'Dashboard',
+//         tabBarIcon: ({focused}) => (
+//           <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
+//         ),
+//       })}
+//     />
+//     {/* <Screen
+//       name={Routes.Inventory}
+//       component={InventoryMainScreen}
+//       options={({route}) => ({
+//         tabBarLabel: 'Inventory',
+
+//         tabBarIcon: ({focused}) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
+//       })}
+//     /> */}
+
+//     <Screen
+//       name={Routes.Parties}
+//       component={PartiesStack}
+//       options={({route}) => ({
+//         tabBarLabel: 'Parties',
+
+//         tabBarIcon: ({focused}) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
+//       })}
+//     />
+// <Screen
+//       name={Routes.Add}
+//       component={MoreStack}
+//       options={({route, navigation}) => ({
+//         tabBarLabel: '',
+
+//         tabBarIcon: ({focused}) => (
+//           <AddButton navigation={navigation}
+//           />
+//         ),
+//       })}
+//     />
+//     <Screen
+//       name={Routes.More}
+//       component={MoreStack}
+//       options={({route}) => ({
+//         tabBarLabel: 'More',
+
+//         tabBarIcon: ({focused}) => (
+//           <MaterialCommunityIcons name="dots-vertical" size={26} color={focused ? '#5773FF' : '#808080'} />
+//         ),
+//       })}
+//     />
+
+
+
+export const HomeNavigator = () => (
   <Navigator
     tabBarOptions={{
       activeTintColor: '#5773FF',
@@ -31,7 +94,7 @@ export const HomeNavigator = (props) => (
       style: {paddingVertical: 3},
       keyboardHidesTabBar: true,
     }}>
-    <Screen
+<Screen
       name={Routes.Transaction}
       component={DashboardStack}
       options={({route}) => ({
@@ -41,6 +104,17 @@ export const HomeNavigator = (props) => (
         ),
       })}
     />
+
+    {/* <Screen
+      name={Routes.Home}
+      component={HomeScreen}
+      options={({route}) => ({
+        tabBarLabel: 'Dashboard',
+        tabBarIcon: ({focused}) => (
+          <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
+        ),
+      })}
+    /> */}
     {/* <Screen
       name={Routes.Inventory}
       component={InventoryMainScreen}
@@ -83,8 +157,5 @@ export const HomeNavigator = (props) => (
         ),
       })}
     />
-
-
-
   </Navigator>
 );

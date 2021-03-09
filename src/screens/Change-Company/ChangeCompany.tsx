@@ -80,6 +80,9 @@ export class ChangeCompany extends React.Component<Props> {
               )}
               keyExtractor={(item) => item.uniqueName}
             />
+            {/* <TouchableOpacity
+              style={{height: 50, width: 100, backgroundColor: 'pink'}}
+              onPress={() => console.log(companyList)}></TouchableOpacity> */}
           </View>
         </View>
         {this.state.loading && (
