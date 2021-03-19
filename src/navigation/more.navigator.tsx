@@ -6,6 +6,7 @@ import SettingsScreen from '../screens/Settings/Settings';
 import ChangeCompany from '../screens/Change-Company/ChangeCompany';
 import HelpScreen from '../screens/Help-Support/Help-Support';
 import BranchChange from '../screens/Change-Branch/ChangeBranch';
+import SalesInvoiceScreen from '../screens/Sales-Invoice/SalesInvoice';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -21,6 +22,7 @@ function MoreStack() {
       <Screen component={ChangeCompany} name={'ChangeCompany'} />
       <Screen component={BranchChange} name={'BranchChange'} />
       <Screen component={HelpScreen} name={'HelpScreen'} />
+      <Screen component={SalesInvoiceScreen} name={'SalesInvoiceScreen'} />
     </Navigator>
   );
 }

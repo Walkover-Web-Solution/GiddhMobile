@@ -169,7 +169,7 @@ export class SelectAddress extends React.Component<any, any> {
     return (
       <View style={style.container}>
         <View style={style.header}>
-          <TouchableOpacity delayPressIn={0}>
+          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward'} color="#fff" size={18} />
           </TouchableOpacity>
           <Text style={style.title}>Change Address</Text>

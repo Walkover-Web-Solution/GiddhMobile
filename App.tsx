@@ -23,11 +23,16 @@ import PartiesMain from '@/screens/Parties/PartiesMain';
 import {PartiesStack} from '@/navigation/parties.navigator';
 import {NavigationContainer} from '@react-navigation/native';
 import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
 import NoteDenomination from '@/core/components/note-denomination/noteDenomination';
 import Otp from '@/screens/Auth/Otp/Otp';
 import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 import EditAddress from '@/core/components/Select-Address/EditAddress';
 import {AddressStack} from '@/navigation/addressNavigator';
+import DashboardStack from '@/navigation/dashboard.navigator';
+import AppMainNav from '@/navigation/app.main.navigator';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -72,13 +77,16 @@ export default class App extends React.Component<any> {
             <AppearanceProvider>
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
+                  {/* <BaseContainer /> */}
+                  {/* <Invoice /> */}
+                  {/* <PartiesMain /> */}
                   {/* <AppDatePicker /> */}
                   {/* <BaseContainer /> */}
                   {/* <Invoice /> */}
-                  {/* <EditAddress /> */}
+                  {/* <SelectAddress /> */}
                   {/* <Otp /> */}
                   <NavigationContainer>
-                    <AddressStack />
+                    <AppMainNav />
                   </NavigationContainer>
                 </SafeAreaProvider>
               </ApplicationProvider>

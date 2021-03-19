@@ -199,7 +199,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               },
               shadowOpacity: 0.22,
               shadowRadius: 2.22,
-
               elevation: 3,
             }}
             onPress={this.props.logout}>
@@ -214,6 +213,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         <HelpList navigation={navigation} />
         <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Others</Text>
          */}
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate('SalesInvoiceScreen')}
+            style={{height: 50, width: 150, backgroundColor: 'pink'}}></TouchableOpacity>
         </View>
       );
     }

@@ -1,5 +1,6 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, FlatList, Dimensions, Platform, PermissionsAndroid, Animated} from 'react-native';
+
+import {View, Text, TouchableOpacity, FlatList, Dimensions, Platform, PermissionsAndroid, Animated, Alert} from 'react-native';
 import style from './style';
 
 
