@@ -704,7 +704,7 @@ class PartiesTransactionScreen extends React.Component {
               paddingHorizontal: 20,
             }}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <Icon name={'Backward'} color="#fff" size={18} />
+              <Icon name={'Backward-arrow'} color="#fff" size={18} />
             </TouchableOpacity>
 
             <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF'}}>

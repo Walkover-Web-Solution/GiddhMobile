@@ -136,7 +136,7 @@ export class EditAddress extends React.Component<any, any> {
       <View style={style.container}>
         <View style={style.header}>
           <TouchableOpacity delayPressIn={0} onPress={() => this.props.navigation.goBack()}>
-            <Icon name={'Backward'} color="#fff" size={18} />
+            <Icon name={'Backward-arrow'} color="#fff" size={18} />
           </TouchableOpacity>
           <Text style={style.title}>Edit Address</Text>
         </View>

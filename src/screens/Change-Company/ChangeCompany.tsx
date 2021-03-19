@@ -41,7 +41,7 @@ export class ChangeCompany extends React.Component<Props> {
               <View style={{marginLeft: 20}}>
                 <Icon
                   size={20}
-                  name={'Backward'}
+                  name={'Backward-arrow'}
                   onPress={() => {
                     this.props.navigation.goBack();
                   }}

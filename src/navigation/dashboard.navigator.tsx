@@ -2,10 +2,13 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import SalesInvoiceScreen from '../screens/Sales-Invoice/SalesInvoice';
+import OtherDetails from '../screens/Sales-Invoice/OtherDetails';
 import HomeScreen from '@/screens/Home/Home';
 import AddButton from './components/AddButton';
 import AddInvoiceItemScreen from '@/screens/Sales-Invoice/AddItemScreen';
 import {AddressStack} from './addressNavigator';
+import SelectAddress from '@/core/components/Select-Address/SelectAddress';
+import EditAddress from '@/core/components/Select-Address/EditAddress';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -19,7 +22,10 @@ function DashboardStack() {
       {/* <Screen component={HomeScreen} name={'Dashboard'} /> */}
       <Screen component={SalesInvoiceScreen} name={'SalesInvoiceScreen'} />
       <Screen component={AddInvoiceItemScreen} name={'AddInvoiceItemScreen'} />
-      <Screen component={AddressStack} name={'AddressStack'} />
+      {/* <Screen component={AddressStack} name={'AddressStack'} /> */}
+      <Screen component={OtherDetails} name={'InvoiceOtherDetailScreen'} />
+      <Screen component={SelectAddress} name={'SelectAddress'} />
+      <Screen component={EditAddress} name={'EditAddress'} />
     </Navigator>
   );
 }

@@ -19,7 +19,7 @@ import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 
 import {Vendors} from './components/Vendors';
 import {Customers} from './components/Customers';
-import Icons from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import {commonUrls} from '@/core/services/common/common.url';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -278,7 +278,7 @@ export class PartiesMainScreen extends React.Component {
           }}>
           {this.state.textInputOpen ? (
             <>
-              <Icon name={'search'} size={20} color={'#FFFFFF'} />
+              <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
 
               <TextInput
                 placeholder={'Search name'}
@@ -298,7 +298,7 @@ export class PartiesMainScreen extends React.Component {
                   }
                   this.setState({textInputOpen: false});
                 }}>
-                <Icons name={'close'} size={25} color={'#FFFFFF'} />
+                <AntDesign name={'close'} size={25} color={'#FFFFFF'} />
               </TouchableOpacity>
             </>
           ) : (
@@ -309,7 +309,7 @@ export class PartiesMainScreen extends React.Component {
                   delayPressIn={0}
                   onPress={() => this.setState({sortModal: true})}
                   style={{padding: 8}}>
-                  <Icon name={'sort'} size={20} color={'#FFFFFF'} />
+                  <Icon name={'Group-6191'} size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{padding: 8, marginLeft: 15}}
@@ -317,7 +317,7 @@ export class PartiesMainScreen extends React.Component {
                   onPress={() => this.setState({textInputOpen: true}, () => this.inputRef.current.focus())}
                   // onPress={() => console.log(this.state.vendorData)}
                 >
-                  <Icon name={'search'} size={20} color={'#FFFFFF'} />
+                  <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
               </View>
             </>

@@ -7,7 +7,7 @@ const {Navigator, Screen} = createStackNavigator();
 
 export const AddressStack = () => (
   <Navigator initialRouteName={'SelectAddress'}>
-    <Screen component={SelectAddress} name={'SelectAddress'} options={{headerShown: false}} />
-    <Screen component={EditAddress} name={'EditAddress'} options={{headerShown: false}} />
+    {/* <Screen component={SelectAddress} name={'SelectAddress'} options={{headerShown: false}} />
+    <Screen component={EditAddress} name={'EditAddress'} options={{headerShown: false}} /> */}
   </Navigator>
 );

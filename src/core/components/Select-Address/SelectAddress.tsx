@@ -121,6 +121,10 @@ export class SelectAddress extends React.Component<any, any> {
     this.state = {
       activeIndex: 0,
       editAddress: false,
+      array:
+        this.props.route.params.type == 'warehouse'
+          ? this.props.route.params.warehouseArray
+          : this.props.route.params.addressArray,
     };
   }
 
@@ -170,19 +174,23 @@ export class SelectAddress extends React.Component<any, any> {
       <View style={style.container}>
         <View style={style.header}>
           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-            <Icon name={'Backward'} color="#fff" size={18} />
+            <Icon name={'Backward-arrow'} color="#fff" size={18} />
           </TouchableOpacity>
-          <Text style={style.title}>Change Address</Text>
-          <TouchableOpacity
-            delayPressIn={0}
-            style={style.editButton}
-            onPress={() => this.props.navigation.navigate('EditAddress')}>
-            <Text style={style.edit}>Edit</Text>
-          </TouchableOpacity>
+          <Text style={style.title}>
+            {this.props.route.params.type == 'warehouse' ? 'Select Warehouse' : 'Select Address'}
+          </Text>
+          {this.props.route.params.type != 'warehouse' && (
+            <TouchableOpacity
+              delayPressIn={0}
+              style={style.editButton}
+              onPress={() => this.props.navigation.navigate('EditAddress')}>
+              <Text style={style.edit}>Edit</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <View style={{height: height * 0.8}}>
           <FlatList
-            data={addresses}
+            data={this.state.array}
             renderItem={({item, index}) => (
               <AddressItem
                 index={index}
@@ -194,7 +202,15 @@ export class SelectAddress extends React.Component<any, any> {
             keyExtractor={(item, index) => index.toString()}
           />
         </View>
-        <TouchableOpacity style={style.button}>
+        <TouchableOpacity
+          style={style.button}
+          onPress={() =>
+            this.props.route.params.type == 'warehouse'
+              ? this.props.navigation.navigate('InvoiceOtherDetailScreen', {
+                  selectedWareHouse: this.state.array[this.state.activeIndex],
+                })
+              : this.props.navigation.navigate('SalesInvoiceScreen')
+          }>
           <Text style={style.buttonText}>Select</Text>
         </TouchableOpacity>
         {/* {this.state.editAddress && this._renderBottomSheetForItemDetails()} */}

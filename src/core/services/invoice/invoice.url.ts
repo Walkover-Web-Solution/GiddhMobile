@@ -7,8 +7,8 @@ export const invoiceUrls = {
   salesDetailService: createEndpoint('v2/company/:companyUniqueName/particular/:sales_type?stockUniqueName=&branchUniqueName=:branchUniqueName'),
   getDiscounts: createEndpoint('company/:companyUniqueName/discount?branchUniqueName=:branchUniqueName'),
   getTaxes: createEndpoint('company/:companyUniqueName/tax?branchUniqueName=:branchUniqueName'),
-  genrateInvoice: createEndpoint('v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName')
-
+  genrateInvoice: createEndpoint('v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'),
+  getWarehouse: createEndpoint('company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName')
 };
 /*
  https://api.giddh.com/v4/company/mobileindore15161037983790ggm19/accounts/amityglobalvarsitypvtltd/vouchers/generate?branchUniqueName=allmobileshop

@@ -32,6 +32,15 @@ export const HomeNavigator = () => {
           height: 50,
           justifyContent: 'space-between',
           alignItems: 'center',
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 1,
+          },
+          shadowOpacity: 0.22,
+          shadowRadius: 2.22,
+
+          elevation: 3,
         }}>
         {state.routes.map((route, index) => {
           const {options} = descriptors[route.key];
@@ -168,17 +177,6 @@ export const HomeNavigator = () => {
       />
       <Screen
         name={Routes.More}
-        component={MoreStack}
-        options={({route}) => ({
-          tabBarLabel: 'More',
-          tabBarVisible: getTabBarVisibility(route),
-          tabBarIcon: ({focused}) => (
-            <MaterialCommunityIcons name="dots-vertical" size={26} color={focused ? '#5773FF' : '#808080'} />
-          ),
-        })}
-      />
-      <Screen
-        name={'More1'}
         component={MoreStack}
         options={({route}) => ({
           tabBarLabel: 'More',
