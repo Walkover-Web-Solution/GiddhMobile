@@ -136,10 +136,11 @@ export const HomeNavigator = () => (
     />
 <Screen
       name={Routes.Add}
-      component={MoreStack}
+      
+      component={()=> null}
       options={({route, navigation}) => ({
         tabBarLabel: '',
-
+        
         tabBarIcon: ({focused}) => (
           <AddButton navigation={navigation}
           />

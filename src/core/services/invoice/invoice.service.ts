@@ -108,4 +108,34 @@ export class InvoiceService {
         return null;
       })
   }
+
+  static createInvoice(payload){
+
+    return httpInstance
+    .post(invoiceUrls.genrateInvoice, {
+      payload
+    })
+    .then((res) => {
+      return res.data;
+    }).
+    catch((err) => {
+      alert(JSON.stringify(err))
+      return null;
+    });
+  }
+
+  static getWarehouse(){
+   
+    return httpInstance
+    .get(invoiceUrls.getWarehouse, {
+      
+    })
+    .then((res) => {
+      return res.data;
+    }).
+    catch((err) => {
+      alert(JSON.stringify(err))
+      return null;
+    });
+  }
 }

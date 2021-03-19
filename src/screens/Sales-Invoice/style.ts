@@ -130,5 +130,16 @@ export default StyleSheet.create({
     fontSize: 13, 
     marginLeft:22,
     marginTop: 4,
+  },
+  finalItemAmount:{
+    color:'#1C1C1C',
+    fontFamily: FONT_FAMILY.bold, 
+
+  },
+  addItemMain:{
+    fontFamily: FONT_FAMILY.bold, 
+    fontSize: 16, 
+    color:'#229F5F',
+    alignSelf: 'center'
   }
 });
