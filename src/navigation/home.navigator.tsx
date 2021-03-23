@@ -39,7 +39,6 @@ export const HomeNavigator = () => {
           },
           shadowOpacity: 0.22,
           shadowRadius: 2.22,
-
           elevation: 3,
         }}>
         {state.routes.map((route, index) => {

@@ -17,6 +17,7 @@ import style from './style';
 import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -51,8 +52,15 @@ class OtherDetails extends React.Component<Props> {
     super(props);
     this.state = {
       loading: false,
-      otherDetail: {},
-
+      otherDetail: {
+        shipDate: null,
+        customField1: '',
+        customField2: '',
+        customField3: '',
+        warehouse: this.props.route.params.selectedWareHouse ? this.props.route.params.selectedWareHouse.address : '',
+        shippedVia: '',
+      },
+      isDatePickerVisible: false,
       bottomOffset: 0,
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -87,6 +95,20 @@ class OtherDetails extends React.Component<Props> {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
+
+  showDatePicker = () => {
+    this.setState({isDatePickerVisible: true});
+  };
+
+  hideDatePicker = () => {
+    this.setState({isDatePickerVisible: false});
+  };
+
+  handleConfirm = (date) => {
+    console.warn('A date has been picked: ', date);
+    this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
+    this.hideDatePicker();
+  };
 
   renderHeader() {
     return (
@@ -139,7 +161,7 @@ class OtherDetails extends React.Component<Props> {
       />
     );
   }
-  _renderTextField(text, icon) {
+  _renderTextField(text, icon, stateValue) {
     return (
       <>
         <View
@@ -162,7 +184,8 @@ class OtherDetails extends React.Component<Props> {
             marginHorizontal: 16,
             height: 20,
             // backgroundColor: 'pink',
-          }}></TextInput>
+          }}
+          onChangeText={(text) => this.setState({stateValue: text})}></TextInput>
       </>
     );
   }
@@ -176,9 +199,12 @@ class OtherDetails extends React.Component<Props> {
           paddingHorizontal: 16,
           //   backgroundColor: 'pink',
           marginTop: 10,
-        }}>
+        }}
+        onPress={this.showDatePicker}>
         <Icon name={'Calendar'} size={16} color={'#808080'} />
-        <Text style={{color: '#808080', marginLeft: 10}}>Ship Date</Text>
+        <Text style={{color: '#808080', marginLeft: 10}}>
+          {this.state.otherDetail.shipDate ? this.state.otherDetail.shipDate : 'Ship Date'}
+        </Text>
         {this._renderBottomSeprator(16)}
       </TouchableOpacity>
     );
@@ -189,11 +215,27 @@ class OtherDetails extends React.Component<Props> {
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         {this.renderHeader()}
         {this._renderSelectWareHouse()}
-        {/* {this._renderShipDate()} */}
-        {this._renderTextField('Shipped Via', <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />)}
-        {this._renderTextField('Custom Field 1', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-        {this._renderTextField('Custom Field 2', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-        {this._renderTextField('Custom Field 3', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+        {this._renderShipDate()}
+        {this._renderTextField(
+          'Shipped Via',
+          <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />,
+          this.state.otherDetail.shippedVia,
+        )}
+        {this._renderTextField(
+          'Custom Field 1',
+          <Icon name={'Polygon-3'} size={16} color={'#808080'} />,
+          this.state.otherDetail.customField1,
+        )}
+        {this._renderTextField(
+          'Custom Field 2',
+          <Icon name={'Polygon-3'} size={16} color={'#808080'} />,
+          this.state.otherDetail.customField2,
+        )}
+        {this._renderTextField(
+          'Custom Field 3',
+          <Icon name={'Polygon-3'} size={16} color={'#808080'} />,
+          this.state.otherDetail.customField3,
+        )}
         <TouchableOpacity
           style={{
             height: height * 0.06,
@@ -206,7 +248,10 @@ class OtherDetails extends React.Component<Props> {
             position: 'absolute',
             bottom: height * 0.01,
           }}
-          onPress={() => this.props.navigation.navigate('SalesInvoiceScreen')}>
+          onPress={() => {
+            this.props.route.params.setOtherDetails(this.state.otherDetail);
+            this.props.navigation.navigate('SalesInvoiceScreen');
+          }}>
           <Text
             style={{
               fontFamily: 'AvenirLTStd-Black',
@@ -216,9 +261,15 @@ class OtherDetails extends React.Component<Props> {
             Save
           </Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity
+        <DateTimePickerModal
+          isVisible={this.state.isDatePickerVisible}
+          mode="date"
+          onConfirm={this.handleConfirm}
+          onCancel={this.hideDatePicker}
+        />
+        <TouchableOpacity
           style={{height: 50, width: 100, backgroundColor: 'pink'}}
-          onPress={() => console.log(this.props.route.params.selectedWareHouse)}></TouchableOpacity> */}
+          onPress={() => console.log(this.state.otherDetail)}></TouchableOpacity>
       </SafeAreaView>
     );
   }

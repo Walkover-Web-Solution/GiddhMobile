@@ -77,7 +77,7 @@ export default class App extends React.Component<any> {
             <AppearanceProvider>
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
-                  {/* <BaseContainer /> */}
+                  <BaseContainer />
                   {/* <Invoice /> */}
                   {/* <PartiesMain /> */}
                   {/* <AppDatePicker /> */}
@@ -85,9 +85,9 @@ export default class App extends React.Component<any> {
                   {/* <Invoice /> */}
                   {/* <SelectAddress /> */}
                   {/* <Otp /> */}
-                  <NavigationContainer>
-                    <AppMainNav />
-                  </NavigationContainer>
+                  {/* <NavigationContainer>
+                   
+                  </NavigationContainer> */}
                 </SafeAreaProvider>
               </ApplicationProvider>
             </AppearanceProvider>

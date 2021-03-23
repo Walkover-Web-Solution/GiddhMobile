@@ -5,6 +5,7 @@ import AppNavigator from '@/navigation/app.navigator';
 import {connect} from 'react-redux';
 import {getCompanyAndBranches, renewAccessToken} from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
+import AppMainNav from '@/navigation/app.main.navigator';
 
 class BaseContainer extends Component {
   componentDidMount() {

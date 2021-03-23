@@ -94,9 +94,14 @@ export class SalesInvoice extends React.Component<Props> {
       fetechingTaxList: false,
       discountArray: [],
       taxArray: [],
+      otherDetails: {},
     };
     this.keyboardMargin = new Animated.Value(0);
   }
+
+  setOtherDetails = (data) => {
+    this.setState({otherDetails: data});
+  };
 
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
@@ -808,7 +813,10 @@ export class SalesInvoice extends React.Component<Props> {
           marginTop: 8,
         }}
         onPress={() => {
-          this.props.navigation.navigate('InvoiceOtherDetailScreen', {warehouseArray: this.state.warehouseArray});
+          this.props.navigation.navigate('InvoiceOtherDetailScreen', {
+            warehouseArray: this.state.warehouseArray,
+            setOtherDetails: this.setOtherDetails,
+          });
         }}>
         <View style={{flexDirection: 'row'}}>
           <Icon style={{marginRight: 16}} name={'Sections'} size={16} color="#229F5F" />
@@ -946,6 +954,9 @@ export class SalesInvoice extends React.Component<Props> {
           {this.state.addedItems.length > 0 && this._renderTotalAmount()}
           {this._renderOtherDetails()}
           {this.state.showInvoiceModal && this.renderInvoiceTypeModal()}
+          <TouchableOpacity
+            style={{height: 60, width: 60, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.state.otherDetails)}></TouchableOpacity>
         </View>
         {this.state.showItemDetails && (
           <EditItemDetail
