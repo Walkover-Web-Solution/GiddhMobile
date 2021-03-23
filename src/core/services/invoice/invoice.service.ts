@@ -124,10 +124,10 @@ export class InvoiceService {
     });
   }
 
-  static getWarehouse(){
+  static getBriefAccount(){
    
     return httpInstance
-    .get(invoiceUrls.getWarehouse, {
+    .get(invoiceUrls.getBriefAccount, {
       
     })
     .then((res) => {

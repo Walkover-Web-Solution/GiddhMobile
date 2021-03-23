@@ -16,8 +16,7 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     fontSize: 12,
     color: 'white',
-    alignSelf: 'center',
-    marginRight: 10
+   
   },
  
   invoiceType: {
