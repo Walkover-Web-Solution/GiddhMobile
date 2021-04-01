@@ -26,14 +26,15 @@ import color from '@/utils/colors';
 import _ from 'lodash';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {InvoiceService} from '@/core/services/invoice/invoice.service';
-import DateRangePicker from 'react-native-daterange-picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import {ScrollView} from 'react-native-gesture-handler';
 import EditItemDetail from './EditItemDetails';
 const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
-  credit: 'Sales',
-  cash: 'Cash',
+  credit: 'sales',
+  cash: 'cash',
 };
 interface Props {
   navigation: any;
@@ -67,9 +68,10 @@ export class SalesInvoice extends React.Component<Props> {
       endDate: null,
       date: moment(),
       displayedDate: moment(),
-      showDatePicker: true,
+      showDatePicker: false,
       partyBillingAddress: {},
       partyShippingAddress: {},
+      addressArray: [],
       addedItems: [],
       showItemDetails: false,
       expandedBalance: true,
@@ -77,6 +79,9 @@ export class SalesInvoice extends React.Component<Props> {
       itemDetails: undefined,
       warehouseArray: [],
       fetechingWarehouseList: false,
+      showPaymentModePopup: false,
+      selectedPayMode: undefined,
+      modesArray: [],
       editItemDetails: {
         quantityText: '',
         rateText: '',
@@ -94,7 +99,14 @@ export class SalesInvoice extends React.Component<Props> {
       fetechingTaxList: false,
       discountArray: [],
       taxArray: [],
-      otherDetails: {},
+      otherDetails: {
+        shipDate: '',
+        shippedVia: null,
+        trackingNumber: null,
+        customField1: null,
+        customField2: null,
+        customField3: null,
+      },
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -103,12 +115,26 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({otherDetails: data});
   };
 
+  selectBillingAddress = (address) => {
+    console.log(address);
+    this.setState({partyBillingAddress: address});
+  };
+  selectShippingAddress = (address) => {
+    console.log('shipping add', address);
+    this.setState({partyShippingAddress: address});
+  };
+  // func1 = async () => {
+  //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
+  //   console.log(activeCompany);
+  // };
+
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
+    this.getAllAccountsModes();
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
       this.updateAddedItems(data);
@@ -125,8 +151,8 @@ export class SalesInvoice extends React.Component<Props> {
     }
   }
   /*
-      Added Keyboard Listner for making view scroll if needed
-    */
+       Added Keyboard Listner for making view scroll if needed
+     */
   keyboardWillShow = (event) => {
     const value = event.endCoordinates.height - this.state.bottomOffset;
     Animated.timing(this.keyboardMargin, {
@@ -153,23 +179,27 @@ export class SalesInvoice extends React.Component<Props> {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={style.invoiceTypeButton}
-            onPress={() => {
-              if (this.state.invoiceType == INVOICE_TYPE.credit) {
-                this.setCashTypeInvoice();
-              } else {
-                this.setCreditTypeInvoice();
-              }
-              // this.setState({ showInvoiceModal: true })
-            }}>
+          <TouchableOpacity style={style.invoiceTypeButton}>
             <Text style={style.invoiceType}>
               {this.state.invoiceType == INVOICE_TYPE.credit ? 'Sales Invoice' : 'Cash Invoice'}
             </Text>
-            <Icon style={{marginLeft: 4}} name={'9'} color={'white'} />
+            {/* <Icon style={{ marginLeft: 4 }} name={'9'} color={'white'} /> */}
           </TouchableOpacity>
         </View>
-        <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
+        <TouchableOpacity
+          style={{marginRight: 16, alignSelf: 'center'}}
+          onPress={() => {
+            if (this.state.invoiceType == INVOICE_TYPE.credit) {
+              this.setCashTypeInvoice();
+            } else {
+              this.setCreditTypeInvoice();
+            }
+            // this.setState({ showInvoiceModal: true })
+          }}>
+          <Text style={style.invoiceTypeTextRight}>
+            {`${this.state.invoiceType == INVOICE_TYPE.credit ? INVOICE_TYPE.cash : INVOICE_TYPE.credit}` + '?'}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -271,6 +301,14 @@ export class SalesInvoice extends React.Component<Props> {
       this.setState({fetechingWarehouseList: false});
     }
   }
+  async getAllAccountsModes() {
+    try {
+      const results = await InvoiceService.getBriefAccount();
+      if (results.body && results.status == 'success') {
+        this.setState({modesArray: results.body.results});
+      }
+    } catch (e) {}
+  }
 
   async getAllTaxes() {
     this.setState({fetechingTaxList: true});
@@ -303,6 +341,7 @@ export class SalesInvoice extends React.Component<Props> {
     }
     return undefined;
   }
+
   _renderSearchList() {
     return (
       <View style={[style.searchResultContainer, {top: this.state.searchTop + 6}]}>
@@ -324,6 +363,7 @@ export class SalesInvoice extends React.Component<Props> {
                   },
                   () => {
                     this.searchAccount();
+                    this.getAllAccountsModes();
                     Keyboard.dismiss();
                   },
                 );
@@ -360,6 +400,7 @@ export class SalesInvoice extends React.Component<Props> {
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
+          addressArray: results.body.addresses,
           partyBillingAddress: results.body.addresses[0],
           partyShippingAddress: results.body.addresses[0],
         });
@@ -370,31 +411,47 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   getDiscountForEntry(item) {
-    return {
-      amount: {type: item.discountDetails.linkAccount.openingBalanceType, amountForAccount: 10},
-      calculationMethod: item.discountType,
-      discountValue: item.discountPercentage,
-      name: item.name,
-      particular: '',
-    };
+    // console.log('item is', item);
+    if (item.discountDetails) {
+      return [
+        {
+          amount: {type: item.discountDetails.linkAccount.openingBalanceType, amountForAccount: 10},
+          calculationMethod: item.discountType,
+          // discountValue: item.discountPercentage,
+          name: item.name,
+          particular: '',
+        },
+      ];
+    }
+    return [{calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''}];
   }
 
   getTaxesForEntry(item) {
-    for (let i = 0; i < item.taxDetailsArray.length; i++) {
-      let tax = itemDetails.taxDetailsArray[i];
-      return {uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount'};
+    // console.log(' tax item is', item);
+    if (item.taxDetailsArray) {
+      for (let i = 0; i < item.taxDetailsArray.length; i++) {
+        let tax = itemDetails.taxDetailsArray[i];
+        return {uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount'};
+      }
     }
+    return [];
   }
   getEntries() {
     let entriesArray = [];
     for (let i = 0; i < this.state.addedItems.length; i++) {
       let item = this.state.addedItems[i];
+      console.log('discountDetails', item.applicableDiscounts);
       let entry = {
-        date: moment(this.state.date).format('MM-DD-YYYY'),
+        date: moment(this.state.date).format('DD-MM-YYYY'),
         discounts: this.getDiscountForEntry(item),
-        hsnNumber: itemDetails.hsnNumber,
-        sacNumber: itemDetails.sacNumber,
+        // discounts: [
+        //   {calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''},
+        // ],
+        hsnNumber: item.hsnNumber == null ? '' : item.hsnNumber,
+        purchaseOrderItemMapping: {uniqueName: '', entryUniqueName: ''},
+        sacNumber: item.sacNumber == null ? '' : item.sacNumber,
         taxes: this.getTaxesForEntry(item),
+        // taxes: [],
         transactions: [
           {
             account: {uniqueName: item.uniqueName, name: item.name},
@@ -415,35 +472,63 @@ export class SalesInvoice extends React.Component<Props> {
       let postBody = {
         account: {
           attentionTo: '',
-          billingDetails: this.state.partyBillingAddress,
+          // billingDetails: this.state.partyBillingAddress,
+          billingDetails: {
+            address: [this.state.partyBillingAddress.address],
+            countryName: 'India',
+            gstNumber: this.state.partyBillingAddress.gstNumber,
+            panNumber: '',
+            state: {code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name},
+            stateCode: this.state.partyBillingAddress.stateCode,
+            stateName: this.state.partyBillingAddress.stateName,
+          },
           contactNumber: '',
           country: {countryName: 'India', countryCode: 'IN'},
           currency: {code: 'INR'},
           currencySymbol: '₹',
           email: '',
           mobileNumber: '',
-          billingDetails: this.state.partyShippingAddress,
-          uniqueName: this.state.partyName.uniqueName,
           name: this.state.partyName.name,
+          // shippingDetails: this.state.partyShippingAddress,
+          shippingDetails: {
+            address: [this.state.partyShippingAddress.address],
+            countryName: 'India',
+            gstNumber: this.state.partyShippingAddress.gstNumber,
+            panNumber: '',
+            state: {code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name},
+            stateCode: this.state.partyShippingAddress.stateCode,
+            stateName: this.state.partyShippingAddress.stateName,
+          },
+          uniqueName: this.state.partyName.uniqueName,
         },
-        date: moment(this.state.date).format('MM-DD-YYYY'),
-        dueDate: '',
-        deposit: {type: 'DEBIT', accountUniqueName: '', amountForAccount: 0},
-        entiries: this.getEntries(),
+        date: moment(this.state.date).format('DD-MM-YYYY'),
+        dueDate: moment(this.state.date).format('DD-MM-YYYY'),
+        deposit: {
+          type: 'DEBIT',
+          accountUniqueName: this.state.selectedPayMode.uniqueName,
+          amountForAccount: this.state.amountPaidNowText,
+        },
+        entries: this.getEntries(),
         exchangeRate: 1,
         passportNumber: '',
         templateDetails: {
-          other: {shippingDate: '', shippedVia: null, trackingNumber: null, customField1: null, customField2: null},
+          other: {
+            shippingDate: this.state.otherDetails.shipDate,
+            shippedVia: this.state.otherDetails.shippedVia,
+            trackingNumber: this.state.otherDetails.trackingNumber,
+            customField1: this.state.otherDetails.customField1,
+            customField2: this.state.otherDetails.customField2,
+            customField3: this.state.otherDetails.customField3,
+          },
         },
         touristSchemeApplicable: false,
         type: this.state.invoiceType,
         updateAccountDetails: false,
         voucherAdjustments: {adjustments: []},
       };
-      const results = await InvoiceService.createInvoice(postBody);
+      // console.log('postBody is', JSON.stringify(postBody));
+      const results = await InvoiceService.createInvoice(postBody, this.state.partyName.uniqueName);
       this.setState({loading: false});
-
-      debugger;
       if (results.body) {
         this.setState({loading: false});
         alert('Invoice created successfully!');
@@ -496,34 +581,62 @@ export class SalesInvoice extends React.Component<Props> {
       return month + ' ' + date;
     }
   }
+  hideDatePicker = () => {
+    this.setState({showDatePicker: false});
+  };
+
+  handleConfirm = (date) => {
+    // console.log('A date has been picked: ', date);
+    // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
+    this.setState({date: moment(date)});
+    this.hideDatePicker();
+  };
   _renderDateView() {
     const {date, displayedDate} = this.state;
 
     return (
-      <DateRangePicker
-        onChange={this.onDateChange}
-        date={date}
-        open={this.state.showDatePicker}
-        displayedDate={displayedDate}
-        buttonStyle={style.dateView}>
-        <View style={style.dateView}>
-          <View style={{flexDirection: 'row'}}>
-            <Icon name={'Calendar'} color={'#229F5F'} size={16} />
-            <Text style={style.selectedDateText}>{this.formatDate()}</Text>
-          </View>
-          <TouchableOpacity
-            style={{borderColor: '#D9D9D9', borderWidth: 1}}
-            onPress={() =>
-              this.state.date.startOf('day').isSame(moment().startOf('day'))
-                ? this.getYesterdayDate()
-                : this.getTodayDate()
-            }>
-            <Text style={{color: '#808080'}}>
-              {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </DateRangePicker>
+      // <DateRangePicker
+      // onChange={this.onDateChange}
+      //   date={date}
+      //   open={this.state.showDatePicker}
+      //   displayedDate={displayedDate}
+      //   buttonStyle={style.dateView}>
+      //   <View style={style.dateView}>
+      //     <View style={{flexDirection: 'row'}}>
+      //       <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+      //       <Text style={style.selectedDateText}>{this.formatDate()}</Text>
+      //     </View>
+      //     <TouchableOpacity
+      //       style={{borderColor: '#D9D9D9', borderWidth: 1, backgroundColor: 'pink'}}
+      //       onPress={() =>
+      //         this.state.date.startOf('day').isSame(moment().startOf('day'))
+      //           ? this.getYesterdayDate()
+      //           : this.getTodayDate()
+      //       }>
+      //       <Text style={{color: '#808080'}}>
+      //         {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+      //       </Text>
+      //     </TouchableOpacity>
+      //   </View>
+      // </DateRangePicker>
+
+      <View style={style.dateView}>
+        <TouchableOpacity style={{flexDirection: 'row'}} onPress={() => this.setState({showDatePicker: true})}>
+          <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+          <Text style={style.selectedDateText}>{this.formatDate()}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{borderColor: '#D9D9D9', borderWidth: 1}}
+          onPress={() =>
+            this.state.date.startOf('day').isSame(moment().startOf('day'))
+              ? this.getYesterdayDate()
+              : this.getTodayDate()
+          }>
+          <Text style={{color: '#808080'}}>
+            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -536,12 +649,17 @@ export class SalesInvoice extends React.Component<Props> {
         </View>
         <TouchableOpacity
           style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}
-          onPress={() =>
-            this.props.navigation.navigate('SelectAddress', {
-              addressArray: this.state.partyBillingAddress,
-              type: 'address',
-            })
-          }>
+          onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.props.navigation.navigate('SelectAddress', {
+                addressArray: this.state.addressArray,
+                type: 'address',
+                selectAddress: this.selectBillingAddress,
+              });
+            }
+          }}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text numberOfLines={2} style={style.senderAddressText}>
               {'Billing Address'}
@@ -556,12 +674,17 @@ export class SalesInvoice extends React.Component<Props> {
         </TouchableOpacity>
         <TouchableOpacity
           style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}
-          onPress={() =>
-            this.props.navigation.navigate('SelectAddress', {
-              addressArray: this.state.partyShippingAddress,
-              type: 'address',
-            })
-          }>
+          onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.props.navigation.navigate('SelectAddress', {
+                addressArray: this.state.addressArray,
+                type: 'address',
+                selectAddress: this.selectShippingAddress,
+              });
+            }
+          }}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text numberOfLines={2} style={style.senderAddressText}>
               {'Shipping Address'}
@@ -667,7 +790,7 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({addedItems: addedArray, showItemDetails: false}, () => {});
   };
 
-  renderRightAction() {
+  renderRightAction(item) {
     return (
       <TouchableOpacity
         onPress={() => {
@@ -684,7 +807,7 @@ export class SalesInvoice extends React.Component<Props> {
     return (
       <Swipeable
         onSwipeableRightOpen={() => console.log('Swiped right')}
-        renderRightActions={() => this.renderRightAction()}>
+        renderRightActions={() => this.renderRightAction(item)}>
         <TouchableOpacity
           style={{backgroundColor: '#E0F2E9', padding: 10, borderRadius: 2, marginBottom: 10}}
           onPress={() => {
@@ -827,6 +950,55 @@ export class SalesInvoice extends React.Component<Props> {
     );
   }
 
+  _renderPaymentMode() {
+    return (
+      <View
+        style={{
+          backgroundColor: 'transparent',
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <TouchableOpacity
+          style={{backgroundColor: 'black', opacity: 0.5, width: '100%', height: '100%', position: 'absolute'}}
+          onPress={() => {
+            this.setState({showPaymentModePopup: false});
+          }}
+        />
+
+        <View style={{backgroundColor: 'white', borderRadius: 10, padding: 16}}>
+          <TextInput
+            value={this.state.amountPaidNowText}
+            keyboardType="number-pad"
+            placeholder="Enter Amount"
+            onChangeText={(text) => {
+              this.setState({amountPaidNowText: text});
+            }}
+          />
+          <FlatList
+            data={this.state.modesArray}
+            style={{paddingHorizontal: 20, paddingVertical: 10, maxHeight: 300}}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={{
+                  borderBottomWidth: this.state.selectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
+                  borderColor: '#229F5F',
+                }}
+                onFocus={() => this.onChangeText('')}
+                onPress={async () => {
+                  this.setState({selectedPayMode: item});
+                }}>
+                <Text style={{color: '#1C1C1C', paddingVertical: 10, textAlign: 'center'}}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </View>
+    );
+  }
+
   _renderTotalAmount() {
     return (
       <View>
@@ -852,31 +1024,53 @@ export class SalesInvoice extends React.Component<Props> {
             }}
           />
         </View>
+
         {this.state.expandedBalance && (
           <View style={{margin: 16}}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={{color: '#1C1C1C'}}>Total Amount</Text>
               <Text style={{color: '#1C1C1C'}}>{this.getTotalAmount()}</Text>
             </View>
+
             <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4}}>
-              <Text style={{color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080'}}>Payment Mode</Text>
-              <TextInput
-                style={{borderBottomWidth: 1, borderBottomColor: '#808080'}}
-                placeholder="00000.00"
-                returnKeyType={'done'}
-                keyboardType="number-pad"
-                value={this.state.amountPaidNowText}
-                onChangeText={(text) => {
-                  this.setState({amountPaidNowText: text});
-                }}
-              />
+              <TouchableOpacity
+                onPress={() => {
+                  if (this.state.modesArray.length > 0) {
+                    this.setState({showPaymentModePopup: true, selectedPayMode: this.state.modesArray[0]});
+                  }
+                }}>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={{color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080'}}>
+                    Payment Mode
+                  </Text>
+                  <Icon style={{transform: [{rotate: '0deg'}]}} name={'9'} size={16} color="#808080"></Icon>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({showPaymentModePopup: true});
+                }}>
+                <TextInput
+                  style={{borderBottomWidth: 1, borderBottomColor: '#808080'}}
+                  placeholder="00000.00"
+                  returnKeyType={'done'}
+                  editable={false}
+                  keyboardType="number-pad"
+                  value={this.state.amountPaidNowText}
+                  onChangeText={(text) => {
+                    this.setState({amountPaidNowText: text});
+                  }}
+                />
+              </TouchableOpacity>
             </View>
+
             <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4}}>
               <Text style={{color: '#1C1C1C'}}>Invoice Due</Text>
               <Text style={{color: '#1C1C1C'}}>{String(this.getTotalAmount()) - this.state.amountPaidNowText}</Text>
             </View>
           </View>
         )}
+
         <View style={{justifyContent: 'flex-end', flexDirection: 'row', marginTop: 20, margin: 16}}>
           <TouchableOpacity
             onPress={() => {
@@ -950,13 +1144,20 @@ export class SalesInvoice extends React.Component<Props> {
           </View>
           {this._renderDateView()}
           {this._renderAddress()}
+          {this._renderOtherDetails()}
           {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
           {this.state.addedItems.length > 0 && this._renderTotalAmount()}
-          {this._renderOtherDetails()}
           {this.state.showInvoiceModal && this.renderInvoiceTypeModal()}
-          <TouchableOpacity
+          {this.state.showPaymentModePopup && this._renderPaymentMode()}
+          <DateTimePickerModal
+            isVisible={this.state.showDatePicker}
+            mode="date"
+            onConfirm={this.handleConfirm}
+            onCancel={this.hideDatePicker}
+          />
+          {/* <TouchableOpacity
             style={{height: 60, width: 60, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.otherDetails)}></TouchableOpacity>
+            onPress={() => console.log(this.state.date)}></TouchableOpacity> */}
         </View>
         {this.state.showItemDetails && (
           <EditItemDetail

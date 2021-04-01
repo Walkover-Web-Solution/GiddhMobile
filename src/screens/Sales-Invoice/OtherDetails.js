@@ -54,11 +54,10 @@ class OtherDetails extends React.Component<Props> {
       loading: false,
       otherDetail: {
         shipDate: null,
+        shippedVia: '',
+        trackingNumber: '',
         customField1: '',
         customField2: '',
-        customField3: '',
-        warehouse: this.props.route.params.selectedWareHouse ? this.props.route.params.selectedWareHouse.address : '',
-        shippedVia: '',
       },
       isDatePickerVisible: false,
       bottomOffset: 0,
@@ -106,7 +105,13 @@ class OtherDetails extends React.Component<Props> {
 
   handleConfirm = (date) => {
     console.warn('A date has been picked: ', date);
-    this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
+    // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
+    this.setState((prevState) => ({
+      otherDetail: {
+        ...prevState.otherDetail,
+        shipDate: moment(date).format('DD-MM-YYYY'),
+      },
+    }));
     this.hideDatePicker();
   };
 
@@ -161,7 +166,40 @@ class OtherDetails extends React.Component<Props> {
       />
     );
   }
-  _renderTextField(text, icon, stateValue) {
+
+  textFieldState = (name, text) => {
+    if (name == 'Shipped Via') {
+      this.setState((prevState) => ({
+        otherDetail: {
+          ...prevState.otherDetail,
+          shippedVia: text,
+        },
+      }));
+    } else if (name == 'Tracking no') {
+      this.setState((prevState) => ({
+        otherDetail: {
+          ...prevState.otherDetail,
+          trackingNumber: text,
+        },
+      }));
+    } else if (name == 'Custom Field 1') {
+      this.setState((prevState) => ({
+        otherDetail: {
+          ...prevState.otherDetail,
+          customField1: text,
+        },
+      }));
+    } else {
+      this.setState((prevState) => ({
+        otherDetail: {
+          ...prevState.otherDetail,
+          customField2: text,
+        },
+      }));
+    }
+  };
+
+  _renderTextField(name, icon) {
     return (
       <>
         <View
@@ -174,7 +212,7 @@ class OtherDetails extends React.Component<Props> {
             marginTop: 10,
           }}>
           {icon}
-          <Text style={{color: '#808080', marginLeft: 10}}>{text}</Text>
+          <Text style={{color: '#808080', marginLeft: 10}}>{name}</Text>
         </View>
         <TextInput
           style={{
@@ -185,7 +223,7 @@ class OtherDetails extends React.Component<Props> {
             height: 20,
             // backgroundColor: 'pink',
           }}
-          onChangeText={(text) => this.setState({stateValue: text})}></TextInput>
+          onChangeText={(text) => this.textFieldState(name, text)}></TextInput>
       </>
     );
   }
@@ -214,28 +252,12 @@ class OtherDetails extends React.Component<Props> {
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         {this.renderHeader()}
-        {this._renderSelectWareHouse()}
+        {/* {this._renderSelectWareHouse()} */}
         {this._renderShipDate()}
-        {this._renderTextField(
-          'Shipped Via',
-          <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />,
-          this.state.otherDetail.shippedVia,
-        )}
-        {this._renderTextField(
-          'Custom Field 1',
-          <Icon name={'Polygon-3'} size={16} color={'#808080'} />,
-          this.state.otherDetail.customField1,
-        )}
-        {this._renderTextField(
-          'Custom Field 2',
-          <Icon name={'Polygon-3'} size={16} color={'#808080'} />,
-          this.state.otherDetail.customField2,
-        )}
-        {this._renderTextField(
-          'Custom Field 3',
-          <Icon name={'Polygon-3'} size={16} color={'#808080'} />,
-          this.state.otherDetail.customField3,
-        )}
+        {this._renderTextField('Shipped Via', <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />)}
+        {this._renderTextField('Tracking no', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+        {this._renderTextField('Custom Field 1', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+        {this._renderTextField('Custom Field 2', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
         <TouchableOpacity
           style={{
             height: height * 0.06,
@@ -267,9 +289,9 @@ class OtherDetails extends React.Component<Props> {
           onConfirm={this.handleConfirm}
           onCancel={this.hideDatePicker}
         />
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{height: 50, width: 100, backgroundColor: 'pink'}}
-          onPress={() => console.log(this.state.otherDetail)}></TouchableOpacity>
+          onPress={() => console.log(this.state.otherDetail)}></TouchableOpacity> */}
       </SafeAreaView>
     );
   }

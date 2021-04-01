@@ -132,43 +132,6 @@ export class SelectAddress extends React.Component<any, any> {
     this.setState({activeIndex: value});
   };
 
-  _renderBottomSheetForItemDetails() {
-    return (
-      <View style={style.BSContainer}>
-        <TouchableOpacity
-          style={{backgroundColor: 'black', opacity: 0.5, width: '100%', height: '100%', position: 'absolute'}}
-          onPress={() => {
-            this.setState({editAddress: false});
-          }}
-        />
-        <View style={style.BMinnerContainer}>
-          <View style={style.BMHeader}>
-            <TouchableOpacity onPress={() => this.setState({editAddress: false})}>
-              <Icon name={'Backward'} color="#000" size={18} />
-            </TouchableOpacity>
-            <Text style={style.BMTitle}>Edit Address</Text>
-          </View>
-          <Text style={style.BMfieldTitle}>Address</Text>
-          <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5}}
-            multiline
-            value={addresses[0].address}></TextInput>
-          <Text style={style.BMfieldTitle}>State</Text>
-          <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5}}
-            value={addresses[0].stateName}></TextInput>
-          <Text style={style.BMfieldTitle}>GSTIN</Text>
-          <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5}}
-            value={addresses[0].gstNumber}></TextInput>
-          <TouchableOpacity style={style.button}>
-            <Text style={style.buttonText}>Save</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
   render() {
     return (
       <View style={style.container}>
@@ -179,14 +142,6 @@ export class SelectAddress extends React.Component<any, any> {
           <Text style={style.title}>
             {this.props.route.params.type == 'warehouse' ? 'Select Warehouse' : 'Select Address'}
           </Text>
-          {this.props.route.params.type != 'warehouse' && (
-            <TouchableOpacity
-              delayPressIn={0}
-              style={style.editButton}
-              onPress={() => this.props.navigation.navigate('EditAddress')}>
-              <Text style={style.edit}>Edit</Text>
-            </TouchableOpacity>
-          )}
         </View>
         <View style={{height: height * 0.8}}>
           <FlatList
@@ -204,13 +159,12 @@ export class SelectAddress extends React.Component<any, any> {
         </View>
         <TouchableOpacity
           style={style.button}
-          onPress={() =>
-            this.props.route.params.type == 'warehouse'
-              ? this.props.navigation.navigate('InvoiceOtherDetailScreen', {
-                  selectedWareHouse: this.state.array[this.state.activeIndex],
-                })
-              : this.props.navigation.navigate('SalesInvoiceScreen')
-          }>
+          onPress={() => {
+            this.props.route.params.selectAddress(this.state.array[this.state.activeIndex]);
+            this.props.navigation.navigate('SalesInvoiceScreen');
+          }}
+          // onPress={() => console.log(this.state.array)}
+        >
           <Text style={style.buttonText}>Select</Text>
         </TouchableOpacity>
         {/* {this.state.editAddress && this._renderBottomSheetForItemDetails()} */}

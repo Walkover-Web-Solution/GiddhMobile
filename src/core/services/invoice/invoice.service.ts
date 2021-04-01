@@ -8,7 +8,7 @@ export class InvoiceService {
    * get company details
    * @returns {Promise<BaseResponse<Company>>}
    */
-  static search(query, page, group, withStocks){
+  static search(query, page, group, withStocks) {
     return httpInstance
       .get(
         invoiceUrls.search
@@ -16,126 +16,100 @@ export class InvoiceService {
           .replace('page=', `page=${page}`)
           .replace('group=', `group=${group}`)
           .replace('withStocks=', `withStocks=${withStocks}`),
-        {}
+        {},
       )
       .then((res) => {
         return res.data;
-      }).
-      catch((err) => {
-        alert(err)
+      })
+      .catch((err) => {
+        alert(err);
         return err;
-      })
+      });
   }
 
-
-  static getAccountDetails(query){
+  static getAccountDetails(query) {
     return httpInstance
-      .get(
-        invoiceUrls.getAccountDetails
-          .replace(':q', `${query}`),
-          {}
-      )
+      .get(invoiceUrls.getAccountDetails.replace(':q', `${query}`), {})
       .then((res) => {
         return res.data;
-      }).
-      catch((err) => {
-        alert(err)
-        return err
       })
+      .catch((err) => {
+        alert(err);
+        return err;
+      });
   }
-//  stockDetailService: createEndpoint('v2/company/:companyUniqueName/particular/sales?stockUniqueName=&branchUniqueName=:branchUniqueName'),
-//serviceType - servicesales|sales
-  static getStockDetails(stockUniqueName){
+  //  stockDetailService: createEndpoint('v2/company/:companyUniqueName/particular/sales?stockUniqueName=&branchUniqueName=:branchUniqueName'),
+  //serviceType - servicesales|sales
+  static getStockDetails(stockUniqueName) {
     return httpInstance
-      .get(
-        invoiceUrls.stockDetailService
-          .replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`),
-          {}
-      )
+      .get(invoiceUrls.stockDetailService.replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`), {})
       .then((res) => {
         return res.data;
-      }).
-      catch((err) => {
+      })
+      .catch((err) => {
         alert(JSON.stringify(err));
         return null;
-      })
+      });
   }
-  static getSalesDetails(serviceType){
+  static getSalesDetails(serviceType) {
     return httpInstance
-      .get(
-        invoiceUrls.salesDetailService
-          .replace(':sales_type', `${serviceType}`),
-          {}
-      )
+      .get(invoiceUrls.salesDetailService.replace(':sales_type', `${serviceType}`), {})
       .then((res) => {
         return res.data;
-      }).
-      catch((err) => {
-        alert(JSON.stringify(err))
-        return null;
       })
+      .catch((err) => {
+        alert(JSON.stringify(err));
+        return null;
+      });
   }
 
-
-  static getDiscounts(){
+  static getDiscounts() {
     return httpInstance
-      .get(
-        invoiceUrls.getDiscounts,
-          {}
-      )
+      .get(invoiceUrls.getDiscounts, {})
       .then((res) => {
         return res.data;
-      }).
-      catch((err) => {
-        alert(JSON.stringify(err))
-        return null;
       })
+      .catch((err) => {
+        alert(JSON.stringify(err));
+        return null;
+      });
   }
 
-
-
-  static getTaxes(){
+  static getTaxes() {
     return httpInstance
-      .get(
-        invoiceUrls.getTaxes,
-          {}
-      )
+      .get(invoiceUrls.getTaxes, {})
       .then((res) => {
         return res.data;
-      }).
-      catch((err) => {
-        alert(JSON.stringify(err))
-        return null;
       })
+      .catch((err) => {
+        alert(JSON.stringify(err));
+        return null;
+      });
   }
 
-  static createInvoice(payload){
-
+  static createInvoice(payload, accountUniqueName) {
+    console.log(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`));
     return httpInstance
-    .post(invoiceUrls.genrateInvoice, {
-      payload
-    })
-    .then((res) => {
-      return res.data;
-    }).
-    catch((err) => {
-      alert(JSON.stringify(err))
-      return null;
-    });
+      .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`), payload)
+      .then((res) => {
+        console.log('yayyy!', res.data);
+        return res.data;
+      })
+      .catch((err) => {
+        alert(JSON.stringify(err));
+        return null;
+      });
   }
 
-  static getWarehouse(){
-   
+  static getBriefAccount() {
     return httpInstance
-    .get(invoiceUrls.getWarehouse, {
-      
-    })
-    .then((res) => {
-      return res.data;
-    }).
-    catch((err) => {
-      alert(JSON.stringify(err))
-      return null;
-    });
+      .get(invoiceUrls.getBriefAccount, {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        alert(JSON.stringify(err));
+        return null;
+      });
   }
 }
