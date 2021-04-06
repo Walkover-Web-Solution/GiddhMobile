@@ -33,6 +33,28 @@ import EditAddress from '@/core/components/Select-Address/EditAddress';
 import {AddressStack} from '@/navigation/addressNavigator';
 import DashboardStack from '@/navigation/dashboard.navigator';
 import AppMainNav from '@/navigation/app.main.navigator';
+import EditItemDetails from '@/screens/Sales-Invoice/EditItemDetails';
+
+const demoData = {
+  applicableDiscounts: [],
+  applicableTaxes: [],
+  category: 'income',
+  currency: {
+    code: 'INR',
+    symbol: '₹',
+  },
+  groupTaxes: [],
+  hsnNumber: null,
+  name: 'sales 233',
+  oppositeAccount: null,
+  parentGroups: ['revenuefromoperations', 'sales'],
+  quantity: 1,
+  rate: '100',
+  sacNumber: null,
+  stock: null,
+  taxes: [],
+  uniqueName: 'sales233',
+};
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -78,7 +100,7 @@ export default class App extends React.Component<any> {
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
                   <BaseContainer />
-                  {/* <Invoice /> */}
+                  {/* <EditItemDetails itemDetails={demoData} /> */}
                   {/* <PartiesMain /> */}
                   {/* <AppDatePicker /> */}
                   {/* <BaseContainer /> */}

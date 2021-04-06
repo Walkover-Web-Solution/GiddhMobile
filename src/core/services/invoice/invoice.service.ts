@@ -40,9 +40,14 @@ export class InvoiceService {
   }
   //  stockDetailService: createEndpoint('v2/company/:companyUniqueName/particular/sales?stockUniqueName=&branchUniqueName=:branchUniqueName'),
   //serviceType - servicesales|sales
-  static getStockDetails(stockUniqueName) {
+  static getStockDetails(uniqueName, stockUniqueName) {
     return httpInstance
-      .get(invoiceUrls.stockDetailService.replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`), {})
+      .get(
+        invoiceUrls.stockDetailService
+          .replace(':sales_type', `${uniqueName}`)
+          .replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`),
+        {},
+      )
       .then((res) => {
         return res.data;
       })
@@ -87,18 +92,32 @@ export class InvoiceService {
       });
   }
 
-  static createInvoice(payload, accountUniqueName) {
+  static createInvoice(payload, accountUniqueName, invoiceType) {
     console.log(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`));
-    return httpInstance
-      .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`), payload)
-      .then((res) => {
-        console.log('yayyy!', res.data);
-        return res.data;
-      })
-      .catch((err) => {
-        alert(JSON.stringify(err));
-        return null;
-      });
+    console.log('invoice type', invoiceType);
+    if (invoiceType == 'sales') {
+      return httpInstance
+        .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`), payload)
+        .then((res) => {
+          console.log('yayyy!', res.data);
+          return res.data;
+        })
+        .catch((err) => {
+          alert(JSON.stringify(err));
+          return null;
+        });
+    } else {
+      return httpInstance
+        .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', 'cash'), payload)
+        .then((res) => {
+          console.log('yayyy!', res.data);
+          return res.data;
+        })
+        .catch((err) => {
+          alert(JSON.stringify(err));
+          return null;
+        });
+    }
   }
 
   static getBriefAccount() {

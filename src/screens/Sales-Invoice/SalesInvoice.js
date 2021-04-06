@@ -13,6 +13,7 @@ import {
   Animated,
   NativeModules,
   Platform,
+  Dimensions,
 } from 'react-native';
 import style from './style';
 import {connect} from 'react-redux';
@@ -39,6 +40,8 @@ const INVOICE_TYPE = {
 interface Props {
   navigation: any;
 }
+
+const {width, height} = Dimensions.get('window');
 
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
@@ -75,12 +78,14 @@ export class SalesInvoice extends React.Component<Props> {
       addedItems: [],
       showItemDetails: false,
       expandedBalance: true,
-      amountPaidNowText: '',
+      amountPaidNowText: 0,
       itemDetails: undefined,
       warehouseArray: [],
       fetechingWarehouseList: false,
       showPaymentModePopup: false,
-      selectedPayMode: undefined,
+      selectedPayMode: {
+        uniqueName: 'cash',
+      },
       modesArray: [],
       editItemDetails: {
         quantityText: '',
@@ -440,7 +445,7 @@ export class SalesInvoice extends React.Component<Props> {
     let entriesArray = [];
     for (let i = 0; i < this.state.addedItems.length; i++) {
       let item = this.state.addedItems[i];
-      console.log('discountDetails', item.applicableDiscounts);
+      console.log('item is', item);
       let entry = {
         date: moment(this.state.date).format('DD-MM-YYYY'),
         discounts: this.getDiscountForEntry(item),
@@ -469,6 +474,7 @@ export class SalesInvoice extends React.Component<Props> {
   async createInvoice() {
     this.setState({loading: true});
     try {
+      console.log('came to this');
       let postBody = {
         account: {
           attentionTo: '',
@@ -526,12 +532,75 @@ export class SalesInvoice extends React.Component<Props> {
         updateAccountDetails: false,
         voucherAdjustments: {adjustments: []},
       };
-      // console.log('postBody is', JSON.stringify(postBody));
-      const results = await InvoiceService.createInvoice(postBody, this.state.partyName.uniqueName);
+      console.log('postBody is', JSON.stringify(postBody));
+      const results = await InvoiceService.createInvoice(
+        postBody,
+        this.state.partyName.uniqueName,
+        this.state.invoiceType,
+      );
       this.setState({loading: false});
       if (results.body) {
-        this.setState({loading: false});
+        // this.setState({loading: false});
         alert('Invoice created successfully!');
+        this.setState({
+          loading: false,
+          invoiceType: INVOICE_TYPE.credit,
+          bottomOffset: 0,
+          showInvoiceModal: false,
+          partyName: undefined,
+          searchResults: [],
+          searchPartyName: '',
+          searchTop: 0,
+          isSearchingParty: false,
+          searchError: '',
+          invoiceAmount: 0,
+          partyDetails: {},
+          startDate: null,
+          endDate: null,
+          date: moment(),
+          displayedDate: moment(),
+          showDatePicker: false,
+          partyBillingAddress: {},
+          partyShippingAddress: {},
+          addressArray: [],
+          addedItems: [],
+          showItemDetails: false,
+          expandedBalance: true,
+          amountPaidNowText: 0,
+          itemDetails: undefined,
+          warehouseArray: [],
+          fetechingWarehouseList: false,
+          showPaymentModePopup: false,
+          selectedPayMode: {
+            uniqueName: 'cash',
+          },
+          modesArray: [],
+          editItemDetails: {
+            quantityText: '',
+            rateText: '',
+            unitText: '',
+            amountText: '',
+            discountValueText: '',
+            discountPercentageText: '',
+            discountType: '',
+            taxType: '',
+            taxText: '',
+            warehouse: '',
+            total: 0,
+          },
+          fetechingDiscountList: false,
+          fetechingTaxList: false,
+          discountArray: [],
+          taxArray: [],
+          otherDetails: {
+            shipDate: '',
+            shippedVia: null,
+            trackingNumber: null,
+            customField1: null,
+            customField2: null,
+            customField3: null,
+          },
+        });
         this.props.navigation.goBack();
       }
     } catch (e) {
@@ -834,7 +903,7 @@ export class SalesInvoice extends React.Component<Props> {
             <View>
               <Text>
                 {item.stock
-                  ? `${String(item.quantity)} pcs x ${String(item.rate)} `
+                  ? `${String(item.quantity)} pcs x ${String(item.rate ? item.rate : item.stock.rate)} `
                   : `${String(item.quantity)} x ${String(item.rate)}`}
               </Text>
             </View>
@@ -916,9 +985,10 @@ export class SalesInvoice extends React.Component<Props> {
       let item = this.state.addedItems[i];
       let discount = this.calculateDiscountedAmount(item);
       let tax = this.calculatedTaxAmount(item);
-      let amount = Number(item.rate) * Number(item.quantity);
+
       //do inventory calulations
-      if (item.rate) {
+      if (item.rate || item.stock) {
+        let amount = Number(item.rate ? item.rate : item.stock.rate) * Number(item.quantity);
         total = total + amount - discount + tax;
       }
     }
@@ -952,50 +1022,58 @@ export class SalesInvoice extends React.Component<Props> {
 
   _renderPaymentMode() {
     return (
-      <View
-        style={{
-          backgroundColor: 'transparent',
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          justifyContent: 'center',
-          alignItems: 'center',
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={this.state.showPaymentModePopup}
+        onRequestClose={() => {
+          this.setState({showPaymentModePopup: false});
         }}>
         <TouchableOpacity
-          style={{backgroundColor: 'black', opacity: 0.5, width: '100%', height: '100%', position: 'absolute'}}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+          }}
           onPress={() => {
             this.setState({showPaymentModePopup: false});
-          }}
-        />
-
-        <View style={{backgroundColor: 'white', borderRadius: 10, padding: 16}}>
-          <TextInput
-            value={this.state.amountPaidNowText}
-            keyboardType="number-pad"
-            placeholder="Enter Amount"
-            onChangeText={(text) => {
-              this.setState({amountPaidNowText: text});
-            }}
-          />
-          <FlatList
-            data={this.state.modesArray}
-            style={{paddingHorizontal: 20, paddingVertical: 10, maxHeight: 300}}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={{
-                  borderBottomWidth: this.state.selectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
-                  borderColor: '#229F5F',
-                }}
-                onFocus={() => this.onChangeText('')}
-                onPress={async () => {
-                  this.setState({selectedPayMode: item});
-                }}>
-                <Text style={{color: '#1C1C1C', paddingVertical: 10, textAlign: 'center'}}>{item.name}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      </View>
+          }}>
+          <View style={{backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center'}}>
+            <TextInput
+              value={this.state.amountPaidNowText}
+              keyboardType="number-pad"
+              placeholder="Enter Amount"
+              onChangeText={(text) => {
+                this.setState({amountPaidNowText: text});
+              }}
+            />
+            <FlatList
+              data={this.state.modesArray}
+              style={{paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300}}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={{
+                    borderBottomWidth: this.state.selectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
+                    borderColor: '#229F5F',
+                    alignSelf: 'flex-start',
+                    // backgroundColor: 'pink',
+                    width: '100%',
+                  }}
+                  onFocus={() => this.onChangeText('')}
+                  onPress={async () => {
+                    this.setState({selectedPayMode: item});
+                  }}>
+                  <Text style={{color: '#1C1C1C', paddingVertical: 10, textAlign: 'left'}}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     );
   }
 
@@ -1157,7 +1235,7 @@ export class SalesInvoice extends React.Component<Props> {
           />
           {/* <TouchableOpacity
             style={{height: 60, width: 60, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.date)}></TouchableOpacity> */}
+            onPress={() => console.log(this.state.addedItems)}></TouchableOpacity> */}
         </View>
         {this.state.showItemDetails && (
           <EditItemDetail
