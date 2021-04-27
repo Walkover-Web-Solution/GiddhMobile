@@ -135,7 +135,11 @@ export class SelectAddress extends React.Component<any, any> {
   render() {
     return (
       <View style={style.container}>
-        <View style={style.header}>
+        <View
+          style={[
+            style.header,
+            {backgroundColor: this.props.route.params.color ? this.props.route.params.color : '#229F5F'},
+          ]}>
           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward-arrow'} color="#fff" size={18} />
           </TouchableOpacity>
@@ -152,6 +156,7 @@ export class SelectAddress extends React.Component<any, any> {
                 item={item}
                 activeIndex={this.state.activeIndex}
                 changeactiveIndex={this.changeactiveIndex}
+                color={this.props.route.params.color ? this.props.route.params.color : '#229F5F'}
               />
             )}
             keyExtractor={(item, index) => index.toString()}
@@ -161,7 +166,7 @@ export class SelectAddress extends React.Component<any, any> {
           style={style.button}
           onPress={() => {
             this.props.route.params.selectAddress(this.state.array[this.state.activeIndex]);
-            this.props.navigation.navigate('SalesInvoiceScreen');
+            this.props.navigation.goBack();
           }}
           // onPress={() => console.log(this.state.array)}
         >

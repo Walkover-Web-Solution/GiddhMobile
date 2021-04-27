@@ -8,7 +8,10 @@ import {
   TextInput,
   NativeModules,
   Platform,
+  Modal,
   FlatList,
+  Dimensions,
+  StatusBar,
 } from 'react-native';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -16,6 +19,8 @@ import _ from 'lodash';
 const {SafeAreaOffsetHelper} = NativeModules;
 
 import style from './style';
+
+const {width, height} = Dimensions.get('window');
 
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
@@ -37,10 +42,17 @@ class EditItemDetails extends Component {
       itemDetails: this.props.itemDetails,
       showDiscountPopup: false,
       showTaxPopup: false,
+      showUnitPopup: false,
+      selectedArrayType: [],
+      fixedDiscountSelected: false,
+      unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
+      selectedCode: this.props.itemDetails.stock ? 'hsn' : 'sac',
       editItemDetails: {
         quantityText: this.props.itemDetails.quantity,
+        hsnNumber: this.props.itemDetails.hsnNumber,
+        sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
-        unitText: this.props.itemDetails.unit ? this.props.itemDetails.unit : '',
+        unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates[0].stockUnitCode : '',
         amountText: this.props.itemDetails.amount ? this.props.itemDetails.amount : '0',
         discountValueText: this.props.itemDetails.discountValue ? this.props.itemDetails.discountValue : '',
         discountPercentageText: this.props.itemDetails.discountPercentage
@@ -51,8 +63,11 @@ class EditItemDetails extends Component {
         taxText: this.props.itemDetails.tax ? this.props.itemDetails.tax : '',
         warehouse: this.props.itemDetails.warehouse ? this.props.itemDetails.warehouse : '',
         total: this.props.itemDetails.total ? this.props.itemDetails.total : '',
-        discountDetails: this.props.itemDetails.discountDetails ? this.props.itemDetails.discountDetails : undefined,
+        discountDetails: this.props.itemDetails.discountDetails ? this.props.itemDetails.discountDetails : {},
         taxDetailsArray: this.props.itemDetails.taxDetailsArray ? this.props.itemDetails.taxDetailsArray : [],
+        percentDiscountArray: [],
+        fixedDiscount: {discountValue: 0},
+        fixedDiscountUniqueName: '',
       },
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -89,102 +104,219 @@ class EditItemDetails extends Component {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <Text style={{color: 'white', fontSize: 16}}>{this.state.itemDetails.name}</Text>
+          <Text style={{color: 'white', fontSize: 16}}>{this.props.itemDetails.name}</Text>
+          {/* <TouchableOpacity
+            style={{height: 60, width: 60, backgroundColor: 'pink'}}
+            onPress={() => console.log(JSON.stringify(this.state.selectedArrayType))}></TouchableOpacity> */}
         </View>
         <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
       </View>
     );
   }
 
+  // _checkTax = (item) => {
+  //   console.log(item);
+  //   let var1 = true;
+  //   // for (let obj1 of this.state.itemDetails.taxDetailsArray) {
+  //   //   if (item.taxType == obj1.taxType) {
+  //   //     var1 = true;
+  //   //     break;
+  //   //   } else {
+  //   //     var1 = false;
+  //   //   }
+  //   // }
+
+  //   return true;
+  // };
+
   _renderTax() {
     return (
-      <View
-        style={{
-          backgroundColor: 'transparent',
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          justifyContent: 'center',
-          alignItems: 'center',
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={this.state.showTaxPopup}
+        onRequestClose={() => {
+          this.setState({showTaxPopup: false});
         }}>
         <TouchableOpacity
-          style={{backgroundColor: 'black', opacity: 0.5, width: '100%', height: '100%', position: 'absolute'}}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+          }}
           onPress={() => {
             this.setState({showTaxPopup: false});
-          }}
-        />
-        <View
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 10,
-            alignSelf: 'center',
-            maxHeight: 300,
-            paddingVertical: 10,
           }}>
-          <FlatList
-            data={this.props.taxArray}
-            style={{paddingHorizontal: 20, paddingVertical: 10}}
-            renderItem={({item}) => {
-              let selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
-              var filtered = _.filter(selectedTaxArray, function (o) {
-                if (o.uniqueName == item.uniqueName) return o;
-              });
-              return (
-                <TouchableOpacity
-                  style={{}}
-                  onFocus={() => this.onChangeText('')}
-                  onPress={async () => {
-                    let itemDetails = this.state.editItemDetails;
-                    var filtered = _.filter(selectedTaxArray, function (o) {
-                      if (o.uniqueName == item.uniqueName) return o;
-                    });
-                    if (filtered.length == 0) {
-                      selectedTaxArray.push(item);
-                      itemDetails.taxDetailsArray = selectedTaxArray;
-                      let tax = this.calculatedTaxAmount(itemDetails);
-                      itemDetails.taxText = String(tax);
-                      let total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      this.setState({itemDetails});
-                    } else {
-                      var filtered = _.filter(selectedTaxArray, function (o) {
-                        if (o.uniqueName !== item.uniqueName) return o;
-                      });
-                      itemDetails.taxDetailsArray = filtered;
-                      let tax = this.calculatedTaxAmount(itemDetails);
-                      itemDetails.taxText = String(tax);
-                      let total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      this.setState({itemDetails});
-                    }
-                  }}>
-                  <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
-                    <View
-                      style={{
-                        borderRadius: 1,
-                        borderWidth: 1,
-                        borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
-                        width: 18,
-                        height: 18,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      {filtered.length > 0 && (
-                        <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
-                      )}
-                    </View>
+          <View
+            style={{
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 10,
+              height: height * 0.5,
+              alignSelf: 'center',
+            }}>
+            <FlatList
+              data={this.props.taxArray}
+              style={{paddingHorizontal: 20, paddingVertical: 10}}
+              renderItem={({item}) => {
+                let selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
+                let selectedTaxTypeArr = this.state.selectedArrayType;
+                var filtered = _.filter(selectedTaxArray, function (o) {
+                  if (o.uniqueName == item.uniqueName) return o;
+                });
+                // let disable = this._checkTax(item);
+                return (
+                  <TouchableOpacity
+                    style={{}}
+                    onFocus={() => this.onChangeText('')}
+                    // disabled={true}
+                    // style={{backgroundColor: 'pink'}}
+                    onPress={async () => {
+                      if (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) {
+                        console.log('did not select');
+                      } else {
+                        let itemDetails = this.state.editItemDetails;
+                        var filtered = _.filter(selectedTaxArray, function (o) {
+                          if (o.uniqueName == item.uniqueName) return o;
+                        });
+                        if (filtered.length == 0) {
+                          selectedTaxArray.push(item);
+                          itemDetails.taxDetailsArray = selectedTaxArray;
+                          let tax = this.calculatedTaxAmount(itemDetails);
+                          itemDetails.taxText = String(tax);
+                          let arr1 = [...selectedTaxTypeArr, item.taxType];
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
+                          this.setState({itemDetails, selectedArrayType: arr1});
+                        } else {
+                          var filtered = _.filter(selectedTaxArray, function (o) {
+                            if (o.uniqueName !== item.uniqueName) return o;
+                          });
 
-                    <Text
-                      style={{color: '#1C1C1C', paddingVertical: 4, fontSize: 12, textAlign: 'center', marginLeft: 10}}>
-                      {item.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-          />
-        </View>
-      </View>
+                          let arr2 = _.filter(selectedTaxTypeArr, function (o) {
+                            if (o !== item.taxType) return o;
+                          });
+                          itemDetails.taxDetailsArray = filtered;
+                          let tax = this.calculatedTaxAmount(itemDetails);
+                          itemDetails.taxText = String(tax);
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
+                          this.setState({itemDetails, selectedArrayType: arr2});
+                        }
+                      }
+                    }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                      <View
+                        style={{
+                          borderRadius: 1,
+                          borderWidth: 1,
+                          borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
+                          width: 18,
+                          height: 18,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        {filtered.length > 0 && (
+                          <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
+                        )}
+                      </View>
+
+                      <Text
+                        style={{
+                          color: '#1C1C1C',
+                          paddingVertical: 4,
+                          fontSize: 12,
+                          textAlign: 'center',
+                          marginLeft: 10,
+                        }}>
+                        {item.name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  }
+
+  _renderUnit() {
+    return (
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={this.state.showUnitPopup}
+        onRequestClose={() => {
+          this.setState({showUnitPopup: false});
+        }}>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+          }}
+          onPress={() => {
+            this.setState({showUnitPopup: false});
+          }}>
+          <View style={{backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center'}}>
+            <FlatList
+              data={this.state.unitArray}
+              style={{paddingHorizontal: 20, paddingVertical: 10, maxHeight: 150}}
+              renderItem={({item}) => {
+                return (
+                  <TouchableOpacity
+                    style={{}}
+                    onFocus={() => this.onChangeText('')}
+                    onPress={async () => {
+                      let itemDetails = this.state.editItemDetails;
+                      itemDetails.unitText = item.stockUnitCode;
+                      this.setState({editItemDetails: itemDetails});
+                    }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                      <View
+                        style={{
+                          borderRadius: 1,
+                          borderWidth: 1,
+                          borderColor:
+                            item.stockUnitCode == this.state.editItemDetails.unitText ? '#1C1C1C' : '#CCCCCC',
+                          width: 18,
+                          height: 18,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        {item.stockUnitCode == this.state.editItemDetails.unitText && (
+                          <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
+                        )}
+                      </View>
+
+                      <Text
+                        style={{
+                          color: '#1C1C1C',
+                          paddingVertical: 4,
+                          fontSize: 12,
+                          textAlign: 'center',
+                          marginLeft: 10,
+                        }}>
+                        {item.stockUnitName}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     );
   }
 
@@ -237,62 +369,135 @@ class EditItemDetails extends Component {
   }
   _renderDiscounts() {
     return (
-      <View
-        style={{
-          backgroundColor: 'transparent',
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          justifyContent: 'center',
-          alignItems: 'center',
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={this.state.showDiscountPopup}
+        onRequestClose={() => {
+          this.setState({showDiscountPopup: false});
         }}>
         <TouchableOpacity
-          style={{backgroundColor: 'black', opacity: 0.5, width: '100%', height: '100%', position: 'absolute'}}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+          }}
           onPress={() => {
             this.setState({showDiscountPopup: false});
-          }}
-        />
-        <View
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 10,
-            alignSelf: 'center',
-            maxHeight: 300,
-            paddingVertical: 10,
           }}>
-          <FlatList
-            data={this.props.discountArray}
-            style={{paddingHorizontal: 20, paddingVertical: 10}}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={{}}
-                onFocus={() => this.onChangeText('')}
-                onPress={async () => {
-                  let itemDetails = this.state.editItemDetails;
-                  itemDetails.discountDetails = item;
-                  itemDetails.discountValueText = String(item.discountValue);
-                  itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
-                  let discount = this.calculateDiscountedAmount(itemDetails);
-                  itemDetails.discountPercentageText = String(discount);
-                  let total = this.calculateFinalAmount(itemDetails);
-                  itemDetails.total = total;
-                  this.setState({editItemDetails: itemDetails, showDiscountPopup: false}, () => {});
-                }}>
-                <Text style={{color: '#1C1C1C', paddingTop: 10}}>{item.name}</Text>
-
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={{color: '#808080', paddingVertical: 4, fontSize: 12}}>
-                    {(item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage') + ' -'}
-                  </Text>
-                  <Text style={{color: '#808080', paddingVertical: 4, fontSize: 12}}>
-                    {item.discountValue + (item.discountType !== 'FIX_AMOUNT' ? '%' : '')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      </View>
+          <View
+            style={{
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 10,
+              alignSelf: 'center',
+              height: height * 0.5,
+            }}>
+            <FlatList
+              data={this.props.discountArray}
+              style={{paddingHorizontal: 20, paddingVertical: 10}}
+              renderItem={({item}) => {
+                let selectedDiscountArray = this.state.editItemDetails.percentDiscountArray;
+                let filtered = _.filter(selectedDiscountArray, function (o) {
+                  if (o.uniqueName == item.uniqueName) return o;
+                });
+                return (
+                  <TouchableOpacity
+                    style={{}}
+                    onFocus={() => this.onChangeText('')}
+                    onPress={async () => {
+                      if (item.discountType == 'FIX_AMOUNT') {
+                        if (this.state.fixedDiscountSelected == true) {
+                          if (this.state.editItemDetails.fixedDiscount == item) {
+                            let itemDetails = this.state.editItemDetails;
+                            itemDetails.fixedDiscount = {discountValue: 0};
+                            itemDetails.fixedDiscountUniqueName = '';
+                            this.setState({fixedDiscountSelected: false, editItemDetails: itemDetails});
+                          }
+                          console.log('didnt select');
+                        } else {
+                          let itemDetails = this.state.editItemDetails;
+                          itemDetails.fixedDiscount = item;
+                          itemDetails.fixedDiscountUniqueName = item.uniqueName;
+                          // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
+                          // let discount = this.calculateDiscountedAmount(itemDetails);
+                          // itemDetails.discountPercentageText = String(discount);
+                          // let total = this.calculateFinalAmount(itemDetails);
+                          // itemDetails.total = total;
+                          this.setState({editItemDetails: itemDetails, fixedDiscountSelected: true}, () => {});
+                        }
+                      } else {
+                        let selectedDiscountArray = this.state.editItemDetails.percentDiscountArray;
+                        let filtered = _.filter(selectedDiscountArray, function (o) {
+                          if (o.uniqueName == item.uniqueName) return o;
+                        });
+                        if (filtered.length == 0) {
+                          console.log('this should run');
+                          let itemDetails = this.state.editItemDetails;
+                          itemDetails.percentDiscountArray.push(item);
+                          // itemDetails.discountDetails = item;
+                          // itemDetails.discountValueText = String(item.discountValue);
+                          // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
+                          // let discount = this.calculateDiscountedAmount(itemDetails);
+                          // itemDetails.discountPercentageText = String(discount);
+                          // let total = this.calculateFinalAmount(itemDetails);
+                          // itemDetails.total = total;
+                          this.setState({editItemDetails: itemDetails}, () => {});
+                        } else {
+                          var newArr = _.filter(selectedDiscountArray, function (o) {
+                            if (o.uniqueName !== item.uniqueName) return o;
+                          });
+                          let itemDetails = this.state.editItemDetails;
+                          itemDetails.percentDiscountArray = newArr;
+                          this.setState({editItemDetails: itemDetails}, () => {});
+                        }
+                      }
+                    }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <View
+                        style={{
+                          borderRadius: 1,
+                          borderWidth: 1,
+                          borderColor:
+                            filtered.length > 0 || this.state.editItemDetails.fixedDiscountUniqueName == item.uniqueName
+                              ? '#1C1C1C'
+                              : '#CCCCCC',
+                          width: 18,
+                          height: 18,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        {/* {this.state.editItemDetails.discountDetails.uniqueName == item.uniqueName && (
+                        <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
+                      )} */}
+                        {filtered.length > 0 ||
+                        this.state.editItemDetails.fixedDiscountUniqueName == item.uniqueName ? (
+                          <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
+                        ) : null}
+                      </View>
+                      <View style={{marginLeft: 10}}>
+                        <Text style={{color: '#1C1C1C', paddingTop: 10}}>{item.name}</Text>
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={{color: '#808080', paddingVertical: 4, fontSize: 12}}>
+                            {(item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage') + ' -'}
+                          </Text>
+                          <Text style={{color: '#808080', paddingVertical: 4, fontSize: 12}}>
+                            {item.discountValue + (item.discountType !== 'FIX_AMOUNT' ? '%' : '')}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     );
   }
 
@@ -330,25 +535,75 @@ class EditItemDetails extends Component {
 
   _renderHsn() {
     return (
-      <>
-        <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 10}}>
-          <Icon name={'Product'} size={12} color="#808080" />
+      <View
+        style={{
+          flexDirection: 'row',
+          // backgroundColor: 'pink',
+          justifyContent: 'space-between',
+          marginTop: 10,
+          alignItems: 'center',
+        }}>
+        <View>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 10}}>
+            <TouchableOpacity
+              style={{
+                height: 20,
+                width: 20,
+                borderRadius: 10,
+                backgroundColor: '#c4c4c4',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onPress={() => this.setState({selectedCode: 'hsn'})}>
+              {this.state.selectedCode == 'hsn' && (
+                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F'}}></View>
+              )}
+            </TouchableOpacity>
 
-          <Text style={{marginLeft: 10}}>HSN Number</Text>
+            <Text style={{marginLeft: 10}}>HSN Code</Text>
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 15}}>
+            <TouchableOpacity
+              style={{
+                height: 20,
+                width: 20,
+                borderRadius: 10,
+                backgroundColor: '#c4c4c4',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onPress={() => this.setState({selectedCode: 'sac'})}>
+              {this.state.selectedCode == 'sac' && (
+                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F'}}></View>
+              )}
+            </TouchableOpacity>
+
+            <Text style={{marginLeft: 10}}>SAC Code</Text>
+          </View>
         </View>
-
         <TextInput
-          placeholder={this.props.itemDetails.hsnNumber}
+          // placeholder={ this.state.selectedCode=='hsn'?this.props.itemDetails.hsnNumber:this.props.itemDetails.sacNumber}
           placeholderTextColor={'#808080'}
-          // value={field2Value}
+          value={
+            this.state.selectedCode == 'hsn'
+              ? this.state.editItemDetails.hsnNumber
+              : this.state.editItemDetails.sacNumber
+          }
           keyboardType={'number-pad'}
-          style={{borderColor: '#D9D9D9', borderBottomWidth: 1, width: '50%', marginLeft: 20}}
-          editable={false}
-          // onChangeText={(text) => {
-          //   this.onChangeTextBottomItemSheet(text, field2);
-          // }}
+          style={{borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16}}
+          // editable={false}
+          onChangeText={(text) => {
+            item = this.state.editItemDetails;
+            if (this.state.selectedCode == 'hsn') {
+              item.hsnNumber = text;
+              this.setState({editItemDetails: item});
+            } else {
+              item.sacNumber = text;
+              this.setState({editItemDetails: item});
+            }
+          }}
         />
-      </>
+      </View>
     );
   }
   _renderFinalTotal() {
@@ -374,6 +629,7 @@ class EditItemDetails extends Component {
           backgroundColor: 'white',
           flex: 1,
         }}>
+        <StatusBar backgroundColor="#0E7942" barStyle="light-content" />
         {this.renderHeader()}
 
         <Animated.ScrollView
@@ -381,9 +637,14 @@ class EditItemDetails extends Component {
           style={[{flex: 1}, {marginBottom: this.keyboardMargin}]}
           bounces={false}>
           {this._renderScreenElements()}
+          {/* <TouchableOpacity
+            style={{height: 60, width: 60, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.props.taxArray)}></TouchableOpacity> */}
         </Animated.ScrollView>
         {this.state.showDiscountPopup && this._renderDiscounts()}
         {this.state.showTaxPopup && this._renderTax()}
+        {this.state.showUnitPopup && this._renderUnit()}
+        {/* s */}
       </View>
     );
   }
@@ -424,6 +685,11 @@ class EditItemDetails extends Component {
 
     this.setState({editItemDetails});
   }
+  fixedDiscountValueChange = (text) => {
+    let editItemDetails = this.state.editItemDetails;
+    editItemDetails.fixedDiscount.discountValue = text;
+    this.setState({editItemDetails});
+  };
   _renderTwoFieldsTextInput(
     field1,
     field1Value,
@@ -457,24 +723,54 @@ class EditItemDetails extends Component {
           />
           {/* {this._renderBottomSeprator()} */}
         </View>
-        <View style={{marginHorizontal: 16, paddingVertical: 10, flex: 1}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Icon name={icon2} size={12} color="#808080" />
-            <Text style={{marginLeft: 10}}>{field2}</Text>
+        {field2 == 'Unit' ? (
+          <View style={{marginHorizontal: 16, paddingVertical: 10, flex: 1}}>
+            <TouchableOpacity
+              style={{flexDirection: 'row', alignItems: 'center', width: width * 0.5}}
+              onPress={() => {
+                if (this.state.unitArray.length > 1) {
+                  this.setState({showUnitPopup: true});
+                } else {
+                  console.log('didnt open');
+                }
+              }}
+              // onPress={() => console.log(this.state.unitArray)}
+            >
+              <Icon name={icon2} size={12} color="#808080" />
+              <Text style={{marginLeft: 10}}>{field2}</Text>
+            </TouchableOpacity>
+            <TextInput
+              placeholder={field2}
+              placeholderTextColor={'#808080'}
+              value={field2Value}
+              keyboardType={keyboardType2}
+              style={{borderColor: '#D9D9D9', borderBottomWidth: 1}}
+              editable={false}
+              onChangeText={(text) => {
+                this.onChangeTextBottomItemSheet(text, field2);
+              }}
+            />
           </View>
-          <TextInput
-            placeholder={field2}
-            placeholderTextColor={'#808080'}
-            value={field2Value}
-            keyboardType={keyboardType2}
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1}}
-            editable={editable2}
-            onChangeText={(text) => {
-              this.onChangeTextBottomItemSheet(text, field2);
-            }}
-          />
-          {/* {this._renderBottomSeprator()} */}
-        </View>
+        ) : (
+          <View style={{marginHorizontal: 16, paddingVertical: 10, flex: 1}}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Icon name={icon2} size={12} color="#808080" />
+              <Text style={{marginLeft: 10}}>{field2}</Text>
+            </View>
+            <TextInput
+              placeholder={field2}
+              placeholderTextColor={'#808080'}
+              value={field2Value}
+              keyboardType={keyboardType2}
+              style={{borderColor: '#D9D9D9', borderBottomWidth: 1}}
+              editable={editable2}
+              onChangeText={(text) => {
+                this.onChangeTextBottomItemSheet(text, field2);
+              }}
+            />
+            {/* {this._renderBottomSeprator()} */}
+          </View>
+        )}
       </View>
     );
   }
@@ -500,18 +796,19 @@ class EditItemDetails extends Component {
             Render Quantity & Unit 
           */}
 
-          {this._renderTwoFieldsTextInput(
-            'Quantity',
-            String(this.state.editItemDetails.quantityText),
-            'Unit',
-            String(this.state.editItemDetails.unitText),
-            'Product',
-            'Product',
-            'number-pad',
-            'default',
-            this.props.itemDetails.stock ? true : false,
-            true,
-          )}
+          {this.props.itemDetails.stock &&
+            this._renderTwoFieldsTextInput(
+              'Quantity',
+              String(this.state.editItemDetails.quantityText),
+              'Unit',
+              String(this.state.editItemDetails.unitText),
+              'Product',
+              'Product',
+              'number-pad',
+              'default',
+              this.props.itemDetails.stock ? true : false,
+              true,
+            )}
           {/*
             Render Rate & Amount 
           */}
@@ -535,9 +832,11 @@ class EditItemDetails extends Component {
           {this._renderBottomSheetTax()}
           {this._renderHsn()}
           {this._renderFinalTotal()}
+
           {/* <TouchableOpacity
             style={{height: 50, width: 50, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.props.itemDetails)}></TouchableOpacity> */}
+            onPress={() => console.log(this.state.editItemDetails.fixedDiscount)}></TouchableOpacity> */}
+
           <TouchableOpacity
             onPress={() => {
               let editItemDetails = this.state.editItemDetails;
@@ -564,11 +863,14 @@ class EditItemDetails extends Component {
     return (
       <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
         <TouchableOpacity
+          disabled={this.props.discountArray.length > 0 ? false : true}
           style={{marginHorizontal: 16, paddingVertical: 10, flex: 1}}
           onPress={() => this.setState({showDiscountPopup: true})}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Icon name={'path-7'} size={12} />
-            <Text style={{marginLeft: 10}}>Discount</Text>
+            <Text style={{marginLeft: 10, color: this.props.discountArray.length > 0 ? 'black' : '#808080'}}>
+              Discount
+            </Text>
           </View>
           <Text style={style.bottomSheetSelectTaxText}>
             {this.state.editItemDetails.discountType ? this.state.editItemDetails.discountType : 'Select Discount'}
@@ -577,21 +879,23 @@ class EditItemDetails extends Component {
         </TouchableOpacity>
         <View style={{marginHorizontal: 16, flex: 1, alignItems: 'flex-start', width: '50%', flex: 1}}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 13}}>
-            <View style={{alignItems: 'center', flex: 1, paddingVertical: 10}}>
+            <View style={{flex: 1}}>
+              <Text>Fixed Discount :</Text>
               <TextInput
-                placeholder={'00'}
+                placeholder={`${this.state.editItemDetails.fixedDiscount.discountValue}`}
+                keyboardType={'number-pad'}
                 placeholderTextColor={'#808080'}
                 style={{paddingTop: 8, paddingBottom: 6, flex: 1}}
-                value={this.state.editItemDetails.discountValueText}
-                returnKeyType={'done'}
+                value={this.state.editItemDetails.fixedDiscount.discountValue}
+                // returnKeyType={'done'}
                 onChangeText={(text) => {
-                  this.onChangeTextBottomItemSheet(text, 'Discount Value');
+                  this.fixedDiscountValueChange(text);
                 }}
               />
               {this._renderBottomSeprator(8)}
             </View>
 
-            <View style={{alignItems: 'center', flex: 1, paddingVertical: 10}}>
+            {/* <View style={{alignItems: 'center', flex: 1, paddingVertical: 10}}>
               <TextInput
                 placeholder={'00.00'}
                 placeholderTextColor={'#808080'}
@@ -604,7 +908,7 @@ class EditItemDetails extends Component {
                 }}
               />
               {this._renderBottomSeprator(8)}
-            </View>
+            </View> */}
           </View>
         </View>
       </View>
@@ -616,12 +920,13 @@ class EditItemDetails extends Component {
       <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
         <View style={{marginHorizontal: 16, flex: 1, paddingVertical: 10}}>
           <TouchableOpacity
+            disabled={this.props.taxArray.length > 0 ? false : true}
             onPress={() => {
               this.setState({showTaxPopup: true});
             }}>
-            <View style={{flexDirection: 'row'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Icon name={'Union-65'} size={12} />
-              <Text style={{marginLeft: 10}}>Tax</Text>
+              <Text style={{marginLeft: 10, color: this.props.taxArray.length > 0 ? 'black' : '#808080'}}>Tax</Text>
             </View>
             <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text>
           </TouchableOpacity>

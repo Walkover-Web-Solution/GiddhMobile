@@ -17,6 +17,9 @@ export const invoiceUrls = {
   genrateInvoice: createEndpoint(
     'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName',
   ),
+  genratePurchaseBill: createEndpoint(
+    'company/:companyUniqueName/accounts/:accountUniqueName/purchase-record/generate?branchUniqueName=:branchUniqueName',
+  ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName',
   ),

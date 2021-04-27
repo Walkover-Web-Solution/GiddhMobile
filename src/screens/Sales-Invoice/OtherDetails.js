@@ -8,6 +8,7 @@ import {
   FlatList,
   TextInput,
   DeviceEventEmitter,
+  StatusBar,
   Keyboard,
   ActivityIndicator,
   NativeModules,
@@ -251,6 +252,7 @@ class OtherDetails extends React.Component<Props> {
   render() {
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+        <StatusBar backgroundColor="#0E7942" barStyle="light-content" />
         {this.renderHeader()}
         {/* {this._renderSelectWareHouse()} */}
         {this._renderShipDate()}

@@ -27,7 +27,6 @@ function MoreModal({modalVisible, setModalVisible, onWhatsApp, onCall}) {
               style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}
               onPress={() => {
                 onWhatsApp();
-
                 setModalVisible();
               }}>
               <FontAwesome name="whatsapp" size={22} color={'#25D366'} />

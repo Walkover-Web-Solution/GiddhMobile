@@ -1,9 +1,18 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, DeviceEventEmitter, TouchableOpacity, Dimensions, ScrollView, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  DeviceEventEmitter,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+  TextInput,
+  StatusBar,
+} from 'react-native';
 import style from '@/screens/Parties/style';
-import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
+import {useIsFocused} from '@react-navigation/native';
 import color from '@/utils/colors';
 import {PartiesMainList} from '@/screens/Parties/components/partiesmain-listcomponent';
 import SortModal from '@/screens/Parties/components/sortModal';
@@ -52,6 +61,10 @@ export class PartiesMainScreen extends React.Component {
       currentPage: 0,
     };
   }
+
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
+  };
 
   setSliderPage = (event: any) => {
     const {currentPage} = this.state;
@@ -268,6 +281,7 @@ export class PartiesMainScreen extends React.Component {
   render() {
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
+        {this.FocusAwareStatusBar(this.props.isFocused)}
         <View
           style={{
             height: Dimensions.get('window').height * 0.08,
@@ -525,4 +539,10 @@ const mapStateToProps = (state: RootState) => {
     // activeCompany: state.company.activeCompany,
   };
 };
-export default connect(mapStateToProps)(PartiesMainScreen);
+
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <PartiesMainScreen {...props} isFocused={isFocused} />;
+}
+export default connect(mapStateToProps)(Screen);

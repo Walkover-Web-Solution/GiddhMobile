@@ -48,7 +48,7 @@ export class AddressItem extends React.Component<any, any> {
             justifyContent: 'center',
           }}>
           {this.props.index == this.props.activeIndex && (
-            <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: '#229F5F'}}></View>
+            <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: this.props.color}}></View>
           )}
         </View>
         <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 20, marginLeft: 15}} numberOfLines={4}>

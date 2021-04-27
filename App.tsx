@@ -34,6 +34,7 @@ import {AddressStack} from '@/navigation/addressNavigator';
 import DashboardStack from '@/navigation/dashboard.navigator';
 import AppMainNav from '@/navigation/app.main.navigator';
 import EditItemDetails from '@/screens/Sales-Invoice/EditItemDetails';
+import {PurchaseBill} from '@/screens/Purchase-Bill/PurchaseBill';
 
 const demoData = {
   applicableDiscounts: [],
@@ -100,6 +101,7 @@ export default class App extends React.Component<any> {
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
                   <BaseContainer />
+                  {/* <PurchaseBill /> */}
                   {/* <EditItemDetails itemDetails={demoData} /> */}
                   {/* <PartiesMain /> */}
                   {/* <AppDatePicker /> */}

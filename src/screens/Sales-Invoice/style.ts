@@ -1,31 +1,31 @@
 import {StyleSheet} from 'react-native';
 import {GD_ICON_SIZE} from '@/utils/constants';
-import { FONT_FAMILY } from '../../utils/constants';
+import {FONT_FAMILY} from '../../utils/constants';
 export default StyleSheet.create({
   container: {
     flex: 1,
   },
-  header:{
+  header: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  headerConatiner:{
+  headerConatiner: {
     backgroundColor: '#229F5F',
   },
-  invoiceTypeTextRight:{
+  invoiceTypeTextRight: {
     fontFamily: FONT_FAMILY.regular,
     fontSize: 12,
     color: 'white',
-   
   },
- 
+
   invoiceType: {
     justifyContent: 'center',
     color: 'white',
     fontFamily: FONT_FAMILY.bold,
     fontSize: 16,
   },
-  invoiceTypeButton: { justifyContent: 'center', flexDirection: 'row', alignItems: 'center' },
+  invoiceTypeButton: {justifyContent: 'center', flexDirection: 'row', alignItems: 'center'},
   searchResultContainer: {
     maxHeight: 300,
     width: '80%',
@@ -33,24 +33,25 @@ export default StyleSheet.create({
     position: 'absolute',
     alignSelf: 'center',
     shadowColor: 'grey',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    borderRadius: 10
+    borderRadius: 10,
   },
-  searchTextInputStyle:{
-    color: 'white', 
-    position: 'absolute', 
+  searchTextInputStyle: {
+    color: 'white',
+    position: 'absolute',
     left: 40,
-    fontFamily: FONT_FAMILY.bold, fontSize: 16
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 16,
   },
-  invoiceAmountText:{
+  invoiceAmountText: {
     fontFamily: FONT_FAMILY.bold,
     color: 'white',
-    fontSize: 18
+    fontSize: 18,
   },
-  senderAddress:{
+  senderAddress: {
     marginVertical: 14,
     marginHorizontal: 16,
     // padding:20,
@@ -62,60 +63,66 @@ export default StyleSheet.create({
     // shadowRadius: 2,
     // elevation: 5,
   },
-  dateView:{
-    flexDirection: 'row', 
-    paddingHorizontal: 16, 
-    paddingVertical:14, 
-    alignItems: 'center', 
-    justifyContent: 'space-between', 
-    height: 50
+  dateView: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 50,
   },
   selectedDateText: {
-    fontFamily: FONT_FAMILY.regular, 
-    fontSize: 14, 
-    marginLeft:10, 
-    alignSelf: 'center'
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
+    marginLeft: 10,
+    alignSelf: 'center',
   },
-  addressHeaderText:{
-    fontFamily: FONT_FAMILY.regular, 
-    fontSize: 14, 
-    marginLeft:10, 
-    alignSelf: 'center'
+  addressHeaderText: {
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
+    marginLeft: 10,
+    alignSelf: 'center',
   },
   senderAddressText: {
-    fontFamily: FONT_FAMILY.regular, 
-    fontSize: 13, 
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 13,
     // alignSelf: 'left'
   },
-  selectedAddressText:{
-    fontFamily: FONT_FAMILY.regular, 
-    fontSize: 12, 
+  selectedAddressText: {
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 12,
     color: '#808080',
     marginVertical: 6,
   },
-  inventoryNameText:{
-    fontFamily: FONT_FAMILY.regular, 
-    fontSize: 14, 
+  inventoryNameText: {
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
     color: '#1C1C1C',
   },
-  footerItemsTotalText:{
-    fontFamily: FONT_FAMILY.bold, 
-    fontSize: 14, 
-    color: '#1C1C1C',
+  footerItemsTotalText: {
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 14,
+    color: 'white',
   },
-  addItemDone:{
-    fontFamily: FONT_FAMILY.bold, 
-    fontSize: 15, 
+  addItemDone: {
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 15,
     color: '#ffff',
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
-  footerAddItemConatiner:{
+  footerAddItemConatiner: {
     shadowColor: 'grey',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    backgroundColor: '#F2F2F2', height: 60, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16
+    backgroundColor: '#F2F2F2',
+    height: 60,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   deleteBox: {
     justifyContent: 'center',
@@ -123,22 +130,21 @@ export default StyleSheet.create({
     width: 100,
     height: 80,
   },
-  bottomSheetSelectTaxText:{
-    color:'#808080',
-    fontFamily: FONT_FAMILY.regular, 
-    fontSize: 13, 
-    marginLeft:22,
+  bottomSheetSelectTaxText: {
+    color: '#808080',
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 13,
+    marginLeft: 22,
     marginTop: 4,
   },
-  finalItemAmount:{
-    color:'#1C1C1C',
-    fontFamily: FONT_FAMILY.bold, 
-
+  finalItemAmount: {
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.bold,
   },
-  addItemMain:{
-    fontFamily: FONT_FAMILY.bold, 
-    fontSize: 16, 
-    color:'#229F5F',
-    alignSelf: 'center'
-  }
+  addItemMain: {
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 16,
+    color: '#229F5F',
+    alignSelf: 'center',
+  },
 });

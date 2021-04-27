@@ -11,8 +11,8 @@ import {connect} from 'react-redux';
 import color from '@/utils/colors';
 import {transform} from '@babel/core';
 const arrButtons = [
-  {name: 'Sales Invoice', navigateTo: 'SalesInvoiceScreen', icon: 'purchase1', color: '#229F5F'},
-  // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'path1', color: '#FC8345'},
+  {name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F'},
+  {name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'path-22', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Union-631', color: '#084EAD'},
   // {name: 'Sales Invoice', navigateTo: 'Sales_Invoice', icon: 'shopping-bag', color: '#229F5F'},
@@ -105,7 +105,7 @@ class AddButton extends Component {
                   }}
                   // onPress={() => console.log('this works')}
                   onPress={async () => {
-                    this.props.navigation.navigate('InvoiceScreens');
+                    this.props.navigation.navigate(item.navigateTo);
                     this.setState({modalVisible: false});
                     // this.toggleView();
                   }}>

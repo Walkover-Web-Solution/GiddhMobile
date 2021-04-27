@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, DeviceEventEmitter, TouchableOpacity, Alert} from 'react-native';
+import {View, DeviceEventEmitter} from 'react-native';
 import style from '@/screens/Parties/style';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
@@ -87,6 +87,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } else {
       return (
         <View style={style.container}>
+          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
           {/* <View style={style.filterStyle}> */}
           {/*<View style={style.dateRangePickerStyle}>*/}
           {/*  <GDRoundedInput*/}

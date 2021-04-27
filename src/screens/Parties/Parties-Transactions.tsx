@@ -13,8 +13,10 @@ import {
   PermissionsAndroid,
   Alert,
   Linking,
+  StatusBar,
 } from 'react-native';
 import style from '@/screens/Transaction/style';
+import {useIsFocused} from '@react-navigation/native';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import {CommonService} from '@/core/services/common/common.service';
@@ -72,20 +74,15 @@ class PartiesTransactionScreen extends React.Component {
     this.getTransactions();
   }
 
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
+  };
+
   setActiveDateFilter = (activeDateFilter, dateMode) => {
     this.setState({
       activeDateFilter: activeDateFilter,
       dateMode: dateMode,
     });
-  };
-
-  tryDate = async () => {
-    // console.log(moment(this.state.endDate, 'DD-MM-YYYY').subtract(1, 'month').endOf('month').format('DD-MM-YYYY'));
-    // const dateString = moment(this.state.startDate, 'DD-MM-YYYY').format('DD-MM-YYYY');
-    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-    // console.log(activeCompany, ' ', activeBranch);
-    console.log(this.props.route.params.item.uniqueName, 'hello');
   };
 
   dateShift = (button) => {
@@ -689,12 +686,14 @@ class PartiesTransactionScreen extends React.Component {
     if (this.state.showLoader) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+          {this.FocusAwareStatusBar(this.props.isFocused)}
           <Bars size={15} color={colors.PRIMARY_NORMAL} />
         </View>
       );
     } else {
       return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
+          {this.FocusAwareStatusBar(this.props.isFocused)}
           <View
             style={{
               height: Dimensions.get('window').height * 0.08,
@@ -926,4 +925,10 @@ const mapDispatchToProps = () => {
     // logoutAction: dispatch.auth.logoutAction,
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(PartiesTransactionScreen);
+
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <PartiesTransactionScreen {...props} isFocused={isFocused} />;
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Screen);

@@ -1,10 +1,11 @@
 import React from 'react';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, TouchableOpacity, FlatList, DeviceEventEmitter} from 'react-native';
+import {View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar} from 'react-native';
 import style from './style';
 import {connect} from 'react-redux';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import {useIsFocused} from '@react-navigation/native';
 
 import {getCompanyAndBranches} from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -15,6 +16,9 @@ interface Props {
 }
 
 export class ChangeBranch extends React.Component<Props> {
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
+  };
   render() {
     let branches = this.props.route.params.branches.sort((a, b) =>
       a.alias.toUpperCase().split(' ')[0].localeCompare(b.alias.toUpperCase().split(' ')[0]),
@@ -23,6 +27,7 @@ export class ChangeBranch extends React.Component<Props> {
 
     return (
       <GDContainer>
+        {this.FocusAwareStatusBar(this.props.isFocused)}
         <View style={style.container}>
           <View style={{flex: 1, backgroundColor: 'rgba(87,115,255,0.03)'}}>
             {/* <TouchableOpacity
@@ -88,5 +93,12 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const MyComponent = connect(mapStateToProps, mapDispatchToProps)(ChangeBranch);
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <ChangeBranch {...props} isFocused={isFocused} />;
+}
+
+// export default connect(mapStateToProps)(Screen);
+const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
 export default MyComponent;

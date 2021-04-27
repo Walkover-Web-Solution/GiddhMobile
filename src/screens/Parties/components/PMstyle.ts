@@ -34,7 +34,7 @@ export default StyleSheet.create({
     color: colors.INPUT_COLOR,
     marginLeft: 0,
     fontSize: constants.GD_FONT_SIZE.medium,
-    width: '65%',
+    width: '60%',
     fontFamily: 'AvenirLTStd-Book',
   },
   subheading: {
@@ -46,7 +46,8 @@ export default StyleSheet.create({
   amountWrap: {
     justifyContent: 'flex-end',
     flexDirection: 'row',
-    width: '30%',
+    width: '35%',
+    // backgroundColor: 'pink',
   },
   amountStyle: {
     fontFamily: 'AvenirLTStd-Black',

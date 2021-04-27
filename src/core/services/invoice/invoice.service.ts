@@ -119,6 +119,19 @@ export class InvoiceService {
         });
     }
   }
+  static createPurchaseBill(payload, accountUniqueName) {
+    console.log(invoiceUrls.genratePurchaseBill.replace(':accountUniqueName', `${accountUniqueName}`));
+    return httpInstance
+      .post(invoiceUrls.genratePurchaseBill.replace(':accountUniqueName', `${accountUniqueName}`), payload)
+      .then((res) => {
+        console.log('PurchaseBill!', res.data);
+        return res.data;
+      })
+      .catch((err) => {
+        alert(JSON.stringify(err));
+        return null;
+      });
+  }
 
   static getBriefAccount() {
     return httpInstance

@@ -1,9 +1,10 @@
 import React from 'react';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, TouchableOpacity, FlatList, DeviceEventEmitter} from 'react-native';
+import {View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar} from 'react-native';
 import style from './style';
 import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
+import {useIsFocused} from '@react-navigation/native';
 
 import {getCompanyAndBranches} from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -23,6 +24,10 @@ export class ChangeCompany extends React.Component<Props> {
       loading: false,
     };
   }
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
+  };
+
   render() {
     let activeCompany = this.props.route.params.activeCompany;
     let companyList = this.props.comapnyList.sort((a, b) =>
@@ -31,6 +36,7 @@ export class ChangeCompany extends React.Component<Props> {
 
     return (
       <GDContainer>
+        {this.FocusAwareStatusBar(this.props.isFocused)}
         <View style={style.container}>
           <View style={{flex: 1, backgroundColor: 'rgba(87,115,255,0.03)'}}>
             <View
@@ -119,5 +125,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const MyComponent = connect(mapStateToProps, mapDispatchToProps)(ChangeCompany);
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <ChangeCompany {...props} isFocused={isFocused} />;
+}
+
+const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
 export default MyComponent;
