@@ -70,6 +70,7 @@ export function* logoutUser() {
   try {
     appleAuth.Operation.LOGOUT;
     yield AsyncStorage.clear();
+    console.log('login worked');
   } catch (e) {
     console.log(e);
   }

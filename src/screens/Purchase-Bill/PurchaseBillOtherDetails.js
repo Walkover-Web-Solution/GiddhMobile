@@ -21,7 +21,7 @@ import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Bars} from 'react-native-loader';
 import color from '@/utils/colors';
@@ -56,9 +56,11 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
         trackingNumber: '',
         customField1: '',
         customField2: '',
+        customField3: '',
       },
       isDatePickerVisible: false,
       bottomOffset: 0,
+      keyboard: false,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -76,6 +78,8 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     }
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
   keyboardWillShow = (event) => {
     const value = event.endCoordinates.height - this.state.bottomOffset;
@@ -91,9 +95,18 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
       toValue: 0,
     }).start();
   };
+  _keyboardDidShow = () => {
+    this.setState({keyboard: true});
+  };
+
+  _keyboardDidHide = () => {
+    this.setState({keyboard: false});
+  };
   componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
   }
 
   showDatePicker = () => {
@@ -190,6 +203,13 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
           customField1: text,
         },
       }));
+    } else if (name == 'Custom Field 3') {
+      this.setState((prevState) => ({
+        otherDetail: {
+          ...prevState.otherDetail,
+          customField3: text,
+        },
+      }));
     } else {
       this.setState((prevState) => ({
         otherDetail: {
@@ -251,50 +271,59 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
 
   render() {
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
-        {this.renderHeader()}
-        {/* {this._renderSelectWareHouse()} */}
-        {this._renderShipDate()}
-        {this._renderTextField('Shipped Via', <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />)}
-        {this._renderTextField('Tracking no', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-        {this._renderTextField('Custom Field 1', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-        {this._renderTextField('Custom Field 2', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-        <TouchableOpacity
-          style={{
-            height: height * 0.06,
-            width: width * 0.9,
-            borderRadius: 25,
-            backgroundColor: '#5773FF',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'center',
-            position: 'absolute',
-            bottom: height * 0.01,
-          }}
-          onPress={() => {
-            this.props.route.params.setOtherDetails(this.state.otherDetail);
-            this.props.navigation.goBack();
-          }}>
-          <Text
-            style={{
-              fontFamily: 'AvenirLTStd-Black',
-              color: '#fff',
-              fontSize: 20,
-            }}>
-            Save
-          </Text>
-        </TouchableOpacity>
-        <DateTimePickerModal
-          isVisible={this.state.isDatePickerVisible}
-          mode="date"
-          onConfirm={this.handleConfirm}
-          onCancel={this.hideDatePicker}
-        />
-        {/* <TouchableOpacity
+      // <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={{flex: 1}}>
+        <KeyboardAwareScrollView style={{flex: 1, backgroundColor: 'white'}}>
+          {this.FocusAwareStatusBar(this.props.isFocused)}
+          {this.renderHeader()}
+          {/* {this._renderSelectWareHouse()} */}
+          {this._renderShipDate()}
+          {this._renderTextField('Shipped Via', <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />)}
+          {this._renderTextField('Tracking no', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {this._renderTextField('Custom Field 1', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {this._renderTextField('Custom Field 2', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {/* {this._renderTextField('Custom Field 2', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)} */}
+          {this._renderTextField('Custom Field 3', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+
+          <DateTimePickerModal
+            isVisible={this.state.isDatePickerVisible}
+            mode="date"
+            onConfirm={this.handleConfirm}
+            onCancel={this.hideDatePicker}
+          />
+          {/* <TouchableOpacity
           style={{height: 50, width: 100, backgroundColor: 'pink'}}
           onPress={() => console.log(this.state.otherDetail)}></TouchableOpacity> */}
-      </SafeAreaView>
+          {/* </SafeAreaView> */}
+        </KeyboardAwareScrollView>
+        {!this.state.keyboard && (
+          <TouchableOpacity
+            style={{
+              height: height * 0.06,
+              width: width * 0.9,
+              borderRadius: 25,
+              backgroundColor: '#5773FF',
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center',
+              position: 'absolute',
+              bottom: height * 0.01,
+            }}
+            onPress={() => {
+              this.props.route.params.setOtherDetails(this.state.otherDetail);
+              this.props.navigation.goBack();
+            }}>
+            <Text
+              style={{
+                fontFamily: 'AvenirLTStd-Black',
+                color: '#fff',
+                fontSize: 20,
+              }}>
+              Save
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     );
   }
 }

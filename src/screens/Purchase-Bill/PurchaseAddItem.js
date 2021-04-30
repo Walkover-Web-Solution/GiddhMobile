@@ -217,8 +217,8 @@ class PurchaseAddItem extends React.Component<Props> {
               <Text style={style.inventoryNameText}>
                 {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
               </Text>
-
-              <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 10}}>
+              {/* <View style={{backgroundColor: 'pink', alignItems: 'center'}}> */}
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TouchableOpacity
                   onPress={() => {
                     this.updateQuantityOfItem(filteredItem, 'minus');
@@ -240,9 +240,9 @@ class PurchaseAddItem extends React.Component<Props> {
                     color: '#1C1C1C',
                     borderWidth: 1,
                     padding: 4,
-                    marginLeft: 6,
+
                     borderColor: '#D9D9D9',
-                    marginHorizontal: 10,
+                    marginHorizontal: 6,
                     textAlign: 'center',
                   }}>
                   {filteredItem.quantity}
@@ -262,6 +262,13 @@ class PurchaseAddItem extends React.Component<Props> {
                   <AntDesign name={'plus'} color={'white'} size={15} />
                 </TouchableOpacity>
               </View>
+              {/* {filteredItem.stock && (
+                  // <View style={{flexDirection: 'row', width: '50%', justifyContent: 'center'}}>
+                  <Text style={{marginLeft: 10}}>
+                    Unit : {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
+                  </Text>
+                )} */}
+              {/* </View> */}
             </View>
             <View
               style={{
@@ -269,6 +276,7 @@ class PurchaseAddItem extends React.Component<Props> {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 flex: 1,
+                // backgroundColor: 'pink',
                 marginTop: 5,
               }}>
               <View style={{flexDirection: 'row', width: '50%'}}>
@@ -277,8 +285,8 @@ class PurchaseAddItem extends React.Component<Props> {
               </View>
               {filteredItem.stock && (
                 <View style={{flexDirection: 'row', width: '50%', justifyContent: 'center'}}>
-                  <Text style={{marginLeft: 10}}>
-                    Unit : {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
+                  <Text style={{marginLeft: 20}}>
+                    {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
                   </Text>
                 </View>
               )}

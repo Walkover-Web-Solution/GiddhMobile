@@ -186,18 +186,9 @@ class AddItemScreen extends React.Component<Props> {
     }
     return (
       <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-        {/* <View style={{}}> */}
-        {/* <Text>{`HSN: ${item.hsnNumber && item.hsnNumber !== 'null' ? item.hsnNumber : ''}`}</Text> */}
-        {/* <Text>{JSON.stringify(item.applicableTaxes)}</Text> */}
-        {/* <Text>{JSON.stringify(item.applicableDiscounts)}</Text> */}
-
-        {/* {this.checkIfItemIsSelcted(item) && ( */}
-
-        {/* // )} */}
-        {/* </View> */}
         {!this.checkIfItemIsSelcted(item) ? (
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1}}>
-            <Text style={style.inventoryNameText}>
+            <Text style={style.inventoryNameText} numberOfLines={2}>
               {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
             </Text>
             <TouchableOpacity
@@ -214,8 +205,8 @@ class AddItemScreen extends React.Component<Props> {
               <Text style={style.inventoryNameText}>
                 {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
               </Text>
-
-              <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 20}}>
+              {/* <View style={{backgroundColor: 'pink', alignItems: 'center'}}> */}
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <TouchableOpacity
                   onPress={() => {
                     this.updateQuantityOfItem(filteredItem, 'minus');
@@ -237,9 +228,9 @@ class AddItemScreen extends React.Component<Props> {
                     color: '#1C1C1C',
                     borderWidth: 1,
                     padding: 4,
-                    marginLeft: 6,
+
                     borderColor: '#D9D9D9',
-                    marginHorizontal: 10,
+                    marginHorizontal: 6,
                     textAlign: 'center',
                   }}>
                   {filteredItem.quantity}
@@ -259,6 +250,13 @@ class AddItemScreen extends React.Component<Props> {
                   <AntDesign name={'plus'} color={'white'} size={15} />
                 </TouchableOpacity>
               </View>
+              {/* {filteredItem.stock && (
+                  // <View style={{flexDirection: 'row', width: '50%', justifyContent: 'center'}}>
+                  <Text style={{marginLeft: 10}}>
+                    Unit : {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
+                  </Text>
+                )} */}
+              {/* </View> */}
             </View>
             <View
               style={{
@@ -266,6 +264,7 @@ class AddItemScreen extends React.Component<Props> {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 flex: 1,
+                // backgroundColor: 'pink',
                 marginTop: 5,
               }}>
               <View style={{flexDirection: 'row', width: '50%'}}>
@@ -274,8 +273,8 @@ class AddItemScreen extends React.Component<Props> {
               </View>
               {filteredItem.stock && (
                 <View style={{flexDirection: 'row', width: '50%', justifyContent: 'center'}}>
-                  <Text style={{marginLeft: 10}}>
-                    Unit : {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
+                  <Text style={{marginLeft: 20}}>
+                    {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
                   </Text>
                 </View>
               )}
@@ -633,9 +632,9 @@ class AddItemScreen extends React.Component<Props> {
             </View>
           )}
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{height: 60, width: 60, backgroundColor: 'pink'}}
-          onPress={() => console.log(JSON.stringify(this.state.itemList))}></TouchableOpacity>
+          onPress={() => console.log(JSON.stringify(this.state.itemList))}></TouchableOpacity> */}
         {this._renderSummaryFooter()}
       </View>
     );

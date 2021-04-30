@@ -68,6 +68,6 @@ function Screen(props) {
   return <MoreScreen {...props} isFocused={isFocused} />;
 }
 
-export default connect(mapStateToProps)(Screen);
+// export default connect(mapStateToProps)(Screen);
 
-// export default connect(mapStateToProps, mapDispatchToProps)(MoreScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(Screen);

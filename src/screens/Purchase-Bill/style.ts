@@ -101,8 +101,8 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     fontSize: 14,
     color: '#1C1C1C',
-    // backgroundColor: 'pink',
-    width: '60%',
+    // backgroundColor: 'grey',
+    width: '50%',
   },
   footerItemsTotalText: {
     fontFamily: FONT_FAMILY.bold,
@@ -141,6 +141,15 @@ export default StyleSheet.create({
     fontSize: 13,
     marginLeft: 22,
     marginTop: 4,
+    // backgroundColor: 'pink',
+  },
+  TaxText: {
+    color: '#000',
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 15,
+    // marginLeft: 22,
+    marginTop: 4,
+    // backgroundColor: 'pink',
   },
   finalItemAmount: {
     color: '#1C1C1C',

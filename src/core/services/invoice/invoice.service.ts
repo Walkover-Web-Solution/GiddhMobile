@@ -103,7 +103,8 @@ export class InvoiceService {
           return res.data;
         })
         .catch((err) => {
-          alert(JSON.stringify(err));
+          console.log(JSON.stringify(err));
+          // alert(JSON.stringify(err));
           return null;
         });
     } else {

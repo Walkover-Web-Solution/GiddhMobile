@@ -51,8 +51,8 @@ export class AddressItem extends React.Component<any, any> {
             <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: this.props.color}}></View>
           )}
         </View>
-        <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 20, marginLeft: 15}} numberOfLines={4}>
-          {this.props.item.address}
+        <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 15}} numberOfLines={4}>
+          {this.props.item.address ? this.props.item.address : this.props.item.stateName}
         </Text>
       </TouchableOpacity>
     );

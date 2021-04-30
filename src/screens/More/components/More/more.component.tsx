@@ -205,7 +205,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               shadowRadius: 2.22,
               elevation: 3,
             }}
-            onPress={this.props.logout}>
+            onPress={this.props.logout}
+            // onPress={() => console.log('working ?')}
+          >
             <Ionicons name="ios-power" size={26} color={'#5773FF'} />
             <Text style={{fontFamily: 'AvenirLTStd-Black', marginLeft: 20}}>Logout</Text>
           </TouchableOpacity>

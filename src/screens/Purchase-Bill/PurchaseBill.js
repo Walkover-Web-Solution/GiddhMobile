@@ -633,6 +633,7 @@ export class PurchaseBill extends React.Component {
         this.getAllWarehouse();
         this.getAllAccountsModes();
         this.props.navigation.goBack();
+        DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);
@@ -771,7 +772,11 @@ export class PurchaseBill extends React.Component {
           </View>
           {/* <Icon name={'8'} color={'#229F5F'} size={16} /> */}
           <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.BillFromAddress.address ? this.state.BillFromAddress.address : 'Select Billing Address'}
+            {this.state.BillFromAddress.address
+              ? this.state.BillFromAddress.address
+              : this.state.BillFromAddress.stateName
+              ? this.state.BillFromAddress.stateName
+              : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
         </TouchableOpacity>
@@ -796,7 +801,11 @@ export class PurchaseBill extends React.Component {
             <AntDesign name={'right'} size={18} color={'#808080'} />
           </View>
           <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.BillToAddress.address ? this.state.BillToAddress.address : 'Select Billing Address'}
+            {this.state.BillToAddress.address
+              ? this.state.BillToAddress.address
+              : this.state.BillToAddress.stateName
+              ? this.state.BillToAddress.stateName
+              : 'Select Billing Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -822,7 +831,11 @@ export class PurchaseBill extends React.Component {
             <AntDesign name={'right'} size={18} color={'#808080'} />
           </View>
           <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.shipFromAddress.address ? this.state.shipFromAddress.address : 'Select Shipping Address'}
+            {this.state.shipFromAddress.address
+              ? this.state.shipFromAddress.address
+              : this.state.shipFromAddress.stateName
+              ? this.state.shipFromAddress.stateName
+              : 'Select Shipping Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -848,7 +861,11 @@ export class PurchaseBill extends React.Component {
             <AntDesign name={'right'} size={18} color={'#808080'} />
           </View>
           <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.shipToAddress.address ? this.state.shipToAddress.address : 'Select Shipping Address'}
+            {this.state.shipToAddress.address
+              ? this.state.shipToAddress.address
+              : this.state.shipToAddress.stateName
+              ? this.state.shipToAddress.stateName
+              : 'Select Shipping Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -1230,33 +1247,34 @@ export class PurchaseBill extends React.Component {
       //   <View style={{flex: 1, backgroundColor: 'lightBlue', justifyContent: 'center', alignItems: 'center'}}>
       //     <Text>Hello</Text>
       //   </View>
-      <Animated.ScrollView
-        keyboardShouldPersistTaps="always"
-        style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
-        bounces={false}>
-        <View style={style.container}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
-          <View style={style.headerConatiner}>
-            {this.renderHeader()}
-            {this.renderSelectPartyName()}
-            {this.renderAmount()}
-          </View>
-          {this._renderDateView()}
-          {this._renderAddress()}
-          {this._renderOtherDetails()}
-          {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
-          {this.state.addedItems.length > 0 && this._renderTotalAmount()}
+      <View style={{flex: 1}}>
+        <Animated.ScrollView
+          keyboardShouldPersistTaps="always"
+          style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
+          bounces={false}>
+          <View style={style.container}>
+            {this.FocusAwareStatusBar(this.props.isFocused)}
+            <View style={style.headerConatiner}>
+              {this.renderHeader()}
+              {this.renderSelectPartyName()}
+              {this.renderAmount()}
+            </View>
+            {this._renderDateView()}
+            {this._renderAddress()}
+            {this._renderOtherDetails()}
+            {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
+            {this.state.addedItems.length > 0 && this._renderTotalAmount()}
 
-          <DateTimePickerModal
-            isVisible={this.state.showDatePicker}
-            mode="date"
-            onConfirm={this.handleConfirm}
-            onCancel={this.hideDatePicker}
-          />
-          {/* <TouchableOpacity
+            <DateTimePickerModal
+              isVisible={this.state.showDatePicker}
+              mode="date"
+              onConfirm={this.handleConfirm}
+              onCancel={this.hideDatePicker}
+            />
+            {/* <TouchableOpacity
             style={{height: 60, width: 60, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.addedItems[0])}></TouchableOpacity> */}
-          {/* <View style={{flexDirection: 'row'}}>
+            onPress={() => console.log(this.state.otherDetails)}></TouchableOpacity> */}
+            {/* <View style={{flexDirection: 'row'}}>
             
             <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink', marginLeft: 8}}
@@ -1268,7 +1286,25 @@ export class PurchaseBill extends React.Component {
               style={{height: 60, width: 60, backgroundColor: 'pink', marginLeft: 8}}
               onPress={() => console.log(this.state.shipFromAddress)}></TouchableOpacity>
           </View> */}
-        </View>
+          </View>
+
+          {this.state.searchResults.length > 0 && this._renderSearchList()}
+          {this.state.loading && (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                backgroundColor: 'rgba(0,0,0,0.4)',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: 0,
+              }}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
+            </View>
+          )}
+        </Animated.ScrollView>
         {this.state.showItemDetails && (
           <PurchaseItemEdit
             discountArray={this.state.discountArray}
@@ -1282,23 +1318,7 @@ export class PurchaseBill extends React.Component {
             }}
           />
         )}
-        {this.state.searchResults.length > 0 && this._renderSearchList()}
-        {this.state.loading && (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 0,
-            }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
-          </View>
-        )}
-      </Animated.ScrollView>
+      </View>
     );
   }
 }

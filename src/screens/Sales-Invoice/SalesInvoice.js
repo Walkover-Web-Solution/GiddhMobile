@@ -269,22 +269,22 @@ export class SalesInvoice extends React.Component<Props> {
   renderSelectPartyName() {
     return (
       <View onLayout={this.onLayout} style={{flexDirection: 'row', minHeight: 50}} onPress={() => {}}>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Icon name={'Profile'} color={'#A6D8BF'} style={{margin: 16}} size={16} />
-            <TextInput
-              placeholderTextColor={'#A6D8BF'}
-              placeholder={'Search Party Name'}
-              returnKeyType={'done'}
-              value={this.state.searchPartyName}
-              onChangeText={(text) =>
-                this.setState({searchPartyName: text}, () => {
-                  this.searchCalls();
-                })
-              }
-              style={style.searchTextInputStyle}
-            />
-          </View>
+        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+          {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
+          <Icon name={'Profile'} color={'#A6D8BF'} style={{margin: 16}} size={16} />
+          <TextInput
+            placeholderTextColor={'#A6D8BF'}
+            placeholder={'Search Party Name'}
+            returnKeyType={'done'}
+            value={this.state.searchPartyName}
+            onChangeText={(text) =>
+              this.setState({searchPartyName: text}, () => {
+                this.searchCalls();
+              })
+            }
+            style={style.searchTextInputStyle}
+          />
+          {/* </View> */}
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
       </View>
@@ -659,6 +659,7 @@ export class SalesInvoice extends React.Component<Props> {
         this.getAllWarehouse();
         this.getAllAccountsModes();
         this.props.navigation.goBack();
+        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);
@@ -795,7 +796,11 @@ export class SalesInvoice extends React.Component<Props> {
           </View>
           {/* <Icon name={'8'} color={'#229F5F'} size={16} /> */}
           <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.partyBillingAddress.address ? this.state.partyBillingAddress.address : 'Select Billing Address'}
+            {this.state.partyBillingAddress.address
+              ? this.state.partyBillingAddress.address
+              : this.state.partyBillingAddress.stateName
+              ? this.state.partyBillingAddress.stateName
+              : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
         </TouchableOpacity>
@@ -821,6 +826,8 @@ export class SalesInvoice extends React.Component<Props> {
           <Text numberOfLines={2} style={style.selectedAddressText}>
             {this.state.partyShippingAddress.address
               ? this.state.partyShippingAddress.address
+              : this.state.partyShippingAddress.stateName
+              ? this.state.partyShippingAddress.stateName
               : 'Select Shipping Address'}
           </Text>
 
@@ -1148,6 +1155,9 @@ export class SalesInvoice extends React.Component<Props> {
                   onFocus={() => this.onChangeText('')}
                   onPress={async () => {
                     this.setState({selectedPayMode: item});
+                    if (this.state.amountPaidNowText != 0) {
+                      this.setState({showPaymentModePopup: false});
+                    }
                   }}>
                   <Text style={{color: '#1C1C1C', paddingVertical: 10, textAlign: 'left'}}>{item.name}</Text>
                 </TouchableOpacity>
@@ -1305,34 +1315,53 @@ export class SalesInvoice extends React.Component<Props> {
 
   render() {
     return (
-      <Animated.ScrollView
-        keyboardShouldPersistTaps="always"
-        style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
-        bounces={false}>
-        <View style={style.container}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
-          <View style={style.headerConatiner}>
-            {this.renderHeader()}
-            {this.renderSelectPartyName()}
-            {this.renderAmount()}
-          </View>
-          {this._renderDateView()}
-          {this._renderAddress()}
-          {this._renderOtherDetails()}
-          {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
-          {this.state.addedItems.length > 0 && this._renderTotalAmount()}
-          {this.state.showInvoiceModal && this.renderInvoiceTypeModal()}
-          {this.state.showPaymentModePopup && this._renderPaymentMode()}
-          <DateTimePickerModal
-            isVisible={this.state.showDatePicker}
-            mode="date"
-            onConfirm={this.handleConfirm}
-            onCancel={this.hideDatePicker}
-          />
-          {/* <TouchableOpacity
+      <View style={{flex: 1}}>
+        <Animated.ScrollView
+          keyboardShouldPersistTaps="always"
+          style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
+          bounces={false}>
+          <View style={style.container}>
+            {this.FocusAwareStatusBar(this.props.isFocused)}
+            <View style={style.headerConatiner}>
+              {this.renderHeader()}
+              {this.renderSelectPartyName()}
+              {this.renderAmount()}
+            </View>
+            {this._renderDateView()}
+            {this._renderAddress()}
+            {this._renderOtherDetails()}
+            {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
+            {this.state.addedItems.length > 0 && this._renderTotalAmount()}
+            {this.state.showInvoiceModal && this.renderInvoiceTypeModal()}
+            {this.state.showPaymentModePopup && this._renderPaymentMode()}
+            <DateTimePickerModal
+              isVisible={this.state.showDatePicker}
+              mode="date"
+              onConfirm={this.handleConfirm}
+              onCancel={this.hideDatePicker}
+            />
+            {/* <TouchableOpacity
             style={{height: 60, width: 60, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.addedItems[0])}></TouchableOpacity> */}
-        </View>
+            onPress={() => console.log(this.state.otherDetails)}></TouchableOpacity> */}
+          </View>
+
+          {this.state.searchResults.length > 0 && this._renderSearchList()}
+          {this.state.loading && (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                backgroundColor: 'rgba(0,0,0,0.4)',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: 0,
+              }}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
+            </View>
+          )}
+        </Animated.ScrollView>
         {this.state.showItemDetails && (
           <EditItemDetail
             discountArray={this.state.discountArray}
@@ -1346,23 +1375,7 @@ export class SalesInvoice extends React.Component<Props> {
             }}
           />
         )}
-        {this.state.searchResults.length > 0 && this._renderSearchList()}
-        {this.state.loading && (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 0,
-            }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
-          </View>
-        )}
-      </Animated.ScrollView>
+      </View>
     );
   }
 }

@@ -45,6 +45,7 @@ export default StyleSheet.create({
     left: 40,
     fontFamily: FONT_FAMILY.bold,
     fontSize: 16,
+    width: '60%',
   },
   invoiceAmountText: {
     fontFamily: FONT_FAMILY.bold,
@@ -98,6 +99,15 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     fontSize: 14,
     color: '#1C1C1C',
+    width: '50%',
+  },
+  TaxText: {
+    color: '#000',
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 15,
+    // marginLeft: 22,
+    marginTop: 4,
+    // backgroundColor: 'pink',
   },
   footerItemsTotalText: {
     fontFamily: FONT_FAMILY.bold,

@@ -54,6 +54,22 @@ export class TransactionScreen extends React.Component {
         () => this.getTransactions(),
       );
     });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, () => {
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => this.getTransactions(),
+      );
+    });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => this.getTransactions(),
+      );
+    });
     this.getTransactions();
   }
 
