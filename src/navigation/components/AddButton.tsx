@@ -13,7 +13,7 @@ import {transform} from '@babel/core';
 const arrButtons = [
   {name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F'},
   {name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345'},
-  // {name: 'Receipt', navigateTo: 'Receipt', icon: 'path-22', color: '#00B795'},
+  {name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'path-22', color: '#ff6961'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Union-631', color: '#084EAD'},
   // {name: 'Sales Invoice', navigateTo: 'Sales_Invoice', icon: 'shopping-bag', color: '#229F5F'},
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
