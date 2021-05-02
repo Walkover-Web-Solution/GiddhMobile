@@ -145,4 +145,21 @@ export class InvoiceService {
         return null;
       });
   }
+
+  static createCreditNote(payload, accountUniqueName, invoiceType) {
+    console.log(invoiceUrls.generateCreditNote.replace(':accountUniqueName', `${accountUniqueName}`));
+    console.log('invoice type', invoiceType);
+    return httpInstance
+      .post(invoiceUrls.generateCreditNote.replace(':accountUniqueName', `${accountUniqueName}`), payload)
+      .then((res) => {
+        console.log('yayyy!', res.data);
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+        // alert(JSON.stringify(err));
+        return null;
+      });
+  }
+
 }

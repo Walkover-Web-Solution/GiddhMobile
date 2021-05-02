@@ -83,8 +83,10 @@ export const APP_EVENTS = {
   comapnyBranchChange: 'COMPANY_BRANCH_CHANGE',
   updatedItemInInvoice: 'UPDATED_ITEM_IN_INVOICE',
   updatedItemInPurchaseBill: 'UPDATED_ITEM_IN_PURCHASE_BILL',
+  updateItemInCreditNote: 'UPDATE_ITEM_IN_CREDIT_NOTE',
   InvoiceCreated: 'INVOICECREATED',
   PurchaseBillCreated: 'PURCHASEBILLCREATED',
+  CreditNoteCreated: 'CREDITNOTECREATED',
 };
 
 export const FONT_FAMILY = {

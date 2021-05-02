@@ -1,5 +1,4 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
 import {
   View,
   Text,
@@ -32,12 +31,12 @@ import {InvoiceService} from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {useIsFocused} from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import {ScrollView} from 'react-native-gesture-handler';
 import EditItemDetail from './EditItemDetails';
 const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
   credit: 'sales',
   cash: 'cash',
+  creditNote: 'credit note'
 };
 interface Props {
   navigation: any;
@@ -53,12 +52,12 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_SHOW: 'keyboardDidShow',
   KEYBOARD_DID_HIDE: 'keyboardDidHide',
 };
-export class SalesInvoice extends React.Component<Props> {
+export class CreditNote extends React.Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
+      invoiceType: INVOICE_TYPE.creditNote,
       loading: false,
-      invoiceType: INVOICE_TYPE.credit,
       bottomOffset: 0,
       showInvoiceModal: false,
       partyName: undefined,
@@ -136,7 +135,7 @@ export class SalesInvoice extends React.Component<Props> {
   //   console.log(activeCompany);
   // };
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#2e80d1" barStyle="light-content" /> : null;
   };
 
   componentDidMount() {
@@ -147,7 +146,7 @@ export class SalesInvoice extends React.Component<Props> {
     this.getAllWarehouse();
     this.getAllAccountsModes();
     // listen for invalid auth token event
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updateItemInCreditNote, (data) => {
       this.updateAddedItems(data);
       // fire logout action
       // store.dispatch.auth.logout();
@@ -200,25 +199,11 @@ export class SalesInvoice extends React.Component<Props> {
           </TouchableOpacity>
           <TouchableOpacity style={style.invoiceTypeButton}>
             <Text style={style.invoiceType}>
-              {this.state.invoiceType == INVOICE_TYPE.credit ? 'Sales Invoice' : 'Cash Invoice'}
+              Credit Note
             </Text>
             {/* <Icon style={{ marginLeft: 4 }} name={'9'} color={'white'} /> */}
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={{marginRight: 16, alignSelf: 'center'}}
-          onPress={() => {
-            if (this.state.invoiceType == INVOICE_TYPE.credit) {
-              this.setCashTypeInvoice();
-            } else {
-              this.setCreditTypeInvoice();
-            }
-            // this.setState({ showInvoiceModal: true })
-          }}>
-          <Text style={style.invoiceTypeTextRight}>
-            {`${this.state.invoiceType == INVOICE_TYPE.credit ? INVOICE_TYPE.cash : INVOICE_TYPE.credit}` + '?'}
-          </Text>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -274,7 +259,7 @@ export class SalesInvoice extends React.Component<Props> {
           <Icon name={'Profile'} color={'#A6D8BF'} style={{margin: 16}} size={16} />
           <TextInput
             placeholderTextColor={'#A6D8BF'}
-            placeholder={'Search Party Name'}
+            placeholder={'Search Company Name'}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
             onChangeText={(text) =>
@@ -429,7 +414,7 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({isSearchingParty: true});
     try {
       // console.log('Creditors called');
-      const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrydebtors', false);
+      const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrydebtors',false);
       if (results.body && results.body.results) {
         this.setState({searchResults: results.body.results, isSearchingParty: false, searchError: ''});
       }
@@ -442,7 +427,6 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({isSearchingParty: true});
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
-
       if (results.body) {
         this.setState({
           partyDetails: results.body,
@@ -461,7 +445,7 @@ export class SalesInvoice extends React.Component<Props> {
   resetState = () => {
     this.setState({
       loading: false,
-      invoiceType: INVOICE_TYPE.credit,
+      invoiceType: INVOICE_TYPE.creditNote,
       bottomOffset: 0,
       showInvoiceModal: false,
       partyName: undefined,
@@ -581,10 +565,11 @@ export class SalesInvoice extends React.Component<Props> {
     return entriesArray;
   }
 
-  async createInvoice() {
+  async createCreditNote() {
     this.setState({loading: true});
     try {
       console.log('came to this');
+      const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
       let postBody = {
         account: {
           attentionTo: '',
@@ -602,7 +587,7 @@ export class SalesInvoice extends React.Component<Props> {
           country: {countryName: 'India', countryCode: 'IN'},
           currency: {code: 'INR'},
           currencySymbol: '₹',
-          email: '',
+          email: activeEmail,
           mobileNumber: '',
           name: this.state.partyName.name,
           // shippingDetails: this.state.partyShippingAddress,
@@ -626,7 +611,6 @@ export class SalesInvoice extends React.Component<Props> {
         },
         entries: this.getEntries(),
         exchangeRate: 1,
-        passportNumber: '',
         templateDetails: {
           other: {
             shippingDate: this.state.otherDetails.shipDate,
@@ -637,28 +621,27 @@ export class SalesInvoice extends React.Component<Props> {
             customField3: this.state.otherDetails.customField3,
           },
         },
-        touristSchemeApplicable: false,
         type: this.state.invoiceType,
         updateAccountDetails: false,
-        voucherAdjustments: {adjustments: []},
       };
       console.log('postBody is', JSON.stringify(postBody));
-      const results = await InvoiceService.createInvoice(
+      const results = await InvoiceService.createCreditNote(
         postBody,
         this.state.partyName.uniqueName,
         this.state.invoiceType,
       );
       this.setState({loading: false});
+      console.log(results);
       if (results.body) {
         // this.setState({loading: false});
-        alert('Invoice created successfully!');
+        alert('Credit Note created successfully!');
         this.resetState();
         this.getAllTaxes();
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
         this.props.navigation.goBack();
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+        DeviceEventEmitter.emit(APP_EVENTS.CreditNoteCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);
@@ -730,7 +713,7 @@ export class SalesInvoice extends React.Component<Props> {
       //   buttonStyle={style.dateView}>
       //   <View style={style.dateView}>
       //     <View style={{flexDirection: 'row'}}>
-      //       <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+      //       <Icon name={'Calendar'} color={'#3497FD'} size={16} />
       //       <Text style={style.selectedDateText}>{this.formatDate()}</Text>
       //     </View>
       //     <TouchableOpacity
@@ -749,7 +732,7 @@ export class SalesInvoice extends React.Component<Props> {
 
       <View style={style.dateView}>
         <TouchableOpacity style={{flexDirection: 'row'}} onPress={() => this.setState({showDatePicker: true})}>
-          <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+          <Icon name={'Calendar'} color={'#3497FD'} size={16} />
           <Text style={style.selectedDateText}>{this.formatDate()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -771,7 +754,7 @@ export class SalesInvoice extends React.Component<Props> {
     return (
       <View style={style.senderAddress}>
         <View style={{flexDirection: 'row'}}>
-          <Icon name={'8'} color={'#229F5F'} size={16} />
+          <Icon name={'8'} color={'#3497FD'} size={16} />
           <Text style={style.addressHeaderText}>{'Address'}</Text>
         </View>
         <TouchableOpacity
@@ -784,6 +767,7 @@ export class SalesInvoice extends React.Component<Props> {
                 addressArray: this.state.addressArray,
                 type: 'address',
                 selectAddress: this.selectBillingAddress,
+                color:"#3497FD"
               });
             }
           }}>
@@ -793,7 +777,7 @@ export class SalesInvoice extends React.Component<Props> {
             </Text>
             <AntDesign name={'right'} size={18} color={'#808080'} />
           </View>
-          {/* <Icon name={'8'} color={'#229F5F'} size={16} /> */}
+          {/* <Icon name={'8'} color={'#3497FD'} size={16} /> */}
           <Text numberOfLines={2} style={style.selectedAddressText}>
             {this.state.partyBillingAddress.address
               ? this.state.partyBillingAddress.address
@@ -813,6 +797,7 @@ export class SalesInvoice extends React.Component<Props> {
                 addressArray: this.state.addressArray,
                 type: 'address',
                 selectAddress: this.selectShippingAddress,
+                color:"#3497FD"
               });
             }
           }}>
@@ -858,7 +843,7 @@ export class SalesInvoice extends React.Component<Props> {
     return (
       <TouchableOpacity
         onPress={() => {
-          this.props.navigation.navigate('AddInvoiceItemScreen', {
+          this.props.navigation.navigate('CreditNoteAddItem', {
             updateAddedItems: this.updateAddedItems,
             addedItems: this.state.addedItems,
           });
@@ -868,13 +853,13 @@ export class SalesInvoice extends React.Component<Props> {
           marginVertical: 16,
           paddingVertical: 10,
           flexDirection: 'row',
-          borderColor: '#229F5F',
+          borderColor: '#3497FD',
           borderWidth: 2,
           alignSelf: 'center',
           justifyContent: 'center',
           width: '90%',
         }}>
-        <AntDesign name={'plus'} color={'#229F5F'} size={18} style={{marginHorizontal: 8}} />
+        <AntDesign name={'plus'} color={'#3497FD'} size={18} style={{marginHorizontal: 8}} />
         <Text style={style.addItemMain}> Add Item</Text>
       </TouchableOpacity>
     );
@@ -885,12 +870,12 @@ export class SalesInvoice extends React.Component<Props> {
       <View>
         <View style={{flexDirection: 'row', marginHorizontal: 16, marginVertical: 10, justifyContent: 'space-between'}}>
           <View style={{flexDirection: 'row'}}>
-            <Icon name={'Path-13016'} color="#229F5F" size={18} />
+            <Icon name={'Path-13016'} color="#3497FD" size={18} />
             <Text style={{marginLeft: 10}}>Select Product/Service</Text>
           </View>
           <TouchableOpacity
             onPress={() => {
-              this.props.navigation.navigate('AddInvoiceItemScreen', {
+              this.props.navigation.navigate('CreditNoteAddItem', {
                 updateAddedItems: this.updateAddedItems,
                 addedItems: this.state.addedItems,
               });
@@ -1092,13 +1077,13 @@ export class SalesInvoice extends React.Component<Props> {
           marginTop: 8,
         }}
         onPress={() => {
-          this.props.navigation.navigate('InvoiceOtherDetailScreen', {
+          this.props.navigation.navigate('CreditNoteOtherDetails', {
             warehouseArray: this.state.warehouseArray,
             setOtherDetails: this.setOtherDetails,
           });
         }}>
         <View style={{flexDirection: 'row'}}>
-          <Icon style={{marginRight: 16}} name={'Sections'} size={16} color="#229F5F" />
+          <Icon style={{marginRight: 16}} name={'Sections'} size={16} color="#3497FD" />
           <Text style={{color: '#1C1C1C'}}>Other Details</Text>
         </View>
         <AntDesign name={'right'} size={18} color={'#808080'} />
@@ -1146,7 +1131,7 @@ export class SalesInvoice extends React.Component<Props> {
                 <TouchableOpacity
                   style={{
                     borderBottomWidth: this.state.selectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
-                    borderColor: '#229F5F',
+                    borderColor: '#3497FD',
                     alignSelf: 'flex-start',
                     // backgroundColor: 'pink',
                     width: '100%',
@@ -1180,7 +1165,7 @@ export class SalesInvoice extends React.Component<Props> {
             justifyContent: 'space-between',
           }}>
           <View style={{flexDirection: 'row'}}>
-            <Icon style={{marginRight: 10}} name={'Path-12190'} size={16} color="#229F5F" />
+            <Icon style={{marginRight: 10}} name={'Path-12190'} size={16} color="#3497FD" />
             <Text style={{color: '#1C1C1C'}}>Balance</Text>
           </View>
           <Icon
@@ -1256,7 +1241,7 @@ export class SalesInvoice extends React.Component<Props> {
         <View style={{justifyContent: 'flex-end', flexDirection: 'row', marginTop: 20, margin: 16}}>
           <TouchableOpacity
             onPress={() => {
-              this.genrateInvoice();
+              this.genrateCreditNote();
             }}>
             <Icon name={'path-18'} size={48} color={'#5773FF'} />
           </TouchableOpacity>
@@ -1264,13 +1249,13 @@ export class SalesInvoice extends React.Component<Props> {
       </View>
     );
   }
-  genrateInvoice() {
+  genrateCreditNote() {
     if (!this.state.partyName) {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
     } else {
-      this.createInvoice();
+      this.createCreditNote();
     }
   }
 
@@ -1396,7 +1381,7 @@ function mapDispatchToProps(dispatch) {
 function Screen(props) {
   const isFocused = useIsFocused();
 
-  return <SalesInvoice {...props} isFocused={isFocused} />;
+  return <CreditNote {...props} isFocused={isFocused} />;
 }
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
 export default MyComponent;
