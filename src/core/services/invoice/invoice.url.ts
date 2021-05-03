@@ -20,6 +20,9 @@ export const invoiceUrls = {
   genratePurchaseBill: createEndpoint(
     'company/:companyUniqueName/accounts/:accountUniqueName/purchase-record/generate?branchUniqueName=:branchUniqueName',
   ),
+  generateDebitNote: createEndpoint(
+    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate'
+  ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName',
   ),
