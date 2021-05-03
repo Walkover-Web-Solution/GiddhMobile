@@ -206,7 +206,7 @@ export class DebiteNote extends React.Component<Props> {
             {/* <Icon style={{ marginLeft: 4 }} name={'9'} color={'white'} /> */}
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{marginRight: 16, alignSelf: 'center'}}
           onPress={() => {
             if (this.state.invoiceType == INVOICE_TYPE.debit) {
@@ -219,7 +219,7 @@ export class DebiteNote extends React.Component<Props> {
           <Text style={style.invoiceTypeTextRight}>
             {`${this.state.invoiceType == INVOICE_TYPE.debit ? INVOICE_TYPE.cash : INVOICE_TYPE.debit}` + '?'}
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     );
   }
@@ -664,7 +664,7 @@ export class DebiteNote extends React.Component<Props> {
         this.getAllWarehouse();
         this.getAllAccountsModes();
         this.props.navigation.goBack();
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+        DeviceEventEmitter.emit(APP_EVENTS.DebitNoteCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);

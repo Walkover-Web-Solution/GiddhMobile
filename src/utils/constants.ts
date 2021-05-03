@@ -85,6 +85,7 @@ export const APP_EVENTS = {
   updatedItemInPurchaseBill: 'UPDATED_ITEM_IN_PURCHASE_BILL',
   InvoiceCreated: 'INVOICECREATED',
   PurchaseBillCreated: 'PURCHASEBILLCREATED',
+  DebitNoteCreated: 'DEBITNOTECREATED',
 };
 
 export const FONT_FAMILY = {

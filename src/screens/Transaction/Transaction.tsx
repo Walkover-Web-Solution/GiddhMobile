@@ -70,6 +70,14 @@ export class TransactionScreen extends React.Component {
         () => this.getTransactions(),
       );
     });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.DebitNoteCreated, () => {
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => this.getTransactions(),
+      );
+    });
     this.getTransactions();
   }
 

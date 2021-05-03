@@ -21,7 +21,7 @@ export const invoiceUrls = {
     'company/:companyUniqueName/accounts/:accountUniqueName/purchase-record/generate?branchUniqueName=:branchUniqueName',
   ),
   generateDebitNote: createEndpoint(
-    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate'
+    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
   ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName',

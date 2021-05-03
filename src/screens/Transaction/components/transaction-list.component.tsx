@@ -281,7 +281,7 @@ class TransactionList extends React.Component {
     } else if (type === 'credit note') {
       bgColor = '#3497fd';
     } else if (type === 'debit note') {
-      bgColor = '#f6554c';
+      bgColor = '#ff6961';
     } else if (type === 'Customer') {
       bgColor = '#864dd3';
     } else if (type === 'Vendor') {
