@@ -46,6 +46,14 @@ export class TransactionScreen extends React.Component {
     };
   }
   componentDidMount() {
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => this.getTransactions(),
+      );
+    });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
