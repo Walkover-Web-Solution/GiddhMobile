@@ -15,6 +15,7 @@ import {
   Platform,
   Dimensions,
   StatusBar,
+  PermissionsAndroid
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -35,6 +36,9 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { ScrollView } from 'react-native-gesture-handler';
 import EditItemDetail from './EditItemDetails';
 import routes from '@/navigation/routes';
+import RNFetchBlob from 'rn-fetch-blob';
+import Share from 'react-native-share';
+
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
   credit: 'sales',
@@ -116,6 +120,7 @@ export class SalesInvoice extends React.Component<Props> {
         customField2: null,
         customField3: null,
       },
+      ShareModal: false,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -582,7 +587,7 @@ export class SalesInvoice extends React.Component<Props> {
     return entriesArray;
   }
 
-  async createInvoice(openTransaction) {
+  async createInvoice(type) {
     this.setState({ loading: true });
     try {
       console.log('came to this');
@@ -649,7 +654,9 @@ export class SalesInvoice extends React.Component<Props> {
         this.state.partyName.uniqueName,
         this.state.invoiceType,
       );
-      this.setState({ loading: false });
+      if (type != "share") {
+        this.setState({ loading: false });
+      }
       if (results.body) {
         // this.setState({loading: false});
         alert('Invoice created successfully!');
@@ -659,7 +666,7 @@ export class SalesInvoice extends React.Component<Props> {
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
-        if (openTransaction) {
+        if (type == "navigate") {
           this.props.navigation.navigate(routes.Parties, {
             screen: 'PartiesTransactions',
             initial: false,
@@ -673,6 +680,10 @@ export class SalesInvoice extends React.Component<Props> {
               type: 'Creditors'
             }
           });
+        }
+        if (type == "share") {
+          console.log("sharing");
+          this.downloadFile(results.body.entries[0].voucherType, results.body.entries[0].voucherNumber);
         }
         DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
       }
@@ -1097,6 +1108,65 @@ export class SalesInvoice extends React.Component<Props> {
     return total;
   }
 
+
+
+  downloadFile = async (voucherName, voucherNo) => {
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('yes its granted');
+        await this.onShare(voucherName, voucherNo);
+      } else {
+        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  onShare = async (voucherName, voucherNo) => {
+    try {
+      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      RNFetchBlob.fetch(
+        'POST',
+        `https://api.giddh.com/company/${activeCompany}/accounts/${this.state.partyDetails.uniqueName}/vouchers/download-file?fileType=pdf`,
+        {
+          'session-id': `${token}`,
+          'Content-Type': 'application/json',
+        },
+        JSON.stringify({
+          voucherNumber: [`${voucherNo}`],
+          voucherType: `${voucherName}`,
+        }),
+      )
+        .then((res) => {
+          let base64Str = res.base64();
+          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
+          RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          this.setState({ loading: false });
+        })
+        .then(() => {
+          Share.open({
+            title: 'This is the report',
+            message: 'Message:',
+            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
+            subject: 'Transaction report',
+          })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              // err && console.log(err);
+            });
+        });
+    } catch (e) {
+      this.setState({ loading: false });
+      console.log(e);
+      console.log(e);
+    }
+  };
+
   _renderOtherDetails() {
     return (
       <TouchableOpacity
@@ -1269,16 +1339,24 @@ export class SalesInvoice extends React.Component<Props> {
           </View>
         )}
 
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16 }}>
-          <TouchableOpacity style={{ backgroundColor: '#5773FF', padding: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}
-            onPress={() => {
-              this.genrateInvoice(false);
-            }}>
-            <Text style={{ color: 'white' }}>Create new</Text>
-          </TouchableOpacity>
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems: 'center' }}>
+          <View>
+            <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginBottom: 3 }}
+              onPress={() => {
+                this.genrateInvoice("new");
+              }}>
+              <Text style={{ color: 'white' }}>Create and New</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}
+              onPress={() => {
+                this.genrateInvoice("share");
+              }}>
+              <Text style={{ color: 'white' }}>Create and Share</Text>
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity
             onPress={() => {
-              this.genrateInvoice(true);
+              this.genrateInvoice("navigate");
             }}>
             <Icon name={'path-18'} size={48} color={'#5773FF'} />
           </TouchableOpacity>
@@ -1286,17 +1364,13 @@ export class SalesInvoice extends React.Component<Props> {
       </View>
     );
   }
-  genrateInvoice(openTransaction) {
+  genrateInvoice(type) {
     if (!this.state.partyName) {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
     } else {
-      if (openTransaction) {
-        this.createInvoice(openTransaction);
-      }else{
-        this.createInvoice(openTransaction);
-      }
+      this.createInvoice(type);
     }
   }
 
@@ -1400,6 +1474,7 @@ export class SalesInvoice extends React.Component<Props> {
             }}
           />
         )}
+        {/* <ShareModal modalVisible={this.state.ShareModal} /> */}
       </View>
     );
   }
