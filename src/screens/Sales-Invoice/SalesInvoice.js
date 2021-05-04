@@ -283,7 +283,7 @@ export class SalesInvoice extends React.Component<Props> {
                   this.setState({ searchPartyName: text }
                   ),
                   this.searchCalls())
-                : (this.setState({ searchPartyName: text, partyName: { name: text, uniqueName: text.toLowerCase().replace(/ /g, '') }, }))
+                : (this.setState({ searchPartyName: text, partyName: { name: text, uniqueName: "cash" }, }))
             }
             }
             style={style.searchTextInputStyle}
@@ -620,6 +620,7 @@ export class SalesInvoice extends React.Component<Props> {
             stateName: this.state.partyShippingAddress.stateName,
           },
           uniqueName: this.state.partyName.uniqueName,
+          customerName: this.state.partyName.name,
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: moment(this.state.date).format('DD-MM-YYYY'),
@@ -785,12 +786,14 @@ export class SalesInvoice extends React.Component<Props> {
               this.props.navigation.navigate('EditAddress', {
                 addressArray: this.state.partyBillingAddress,
                 selectAddress: (this.selectBillingAddress).bind(this),
+                statusBarColor: "#0E7942"
               }) :
               (!this.state.partyName ? alert('Please select a party.') :
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.addressArray,
                   type: 'address',
                   selectAddress: this.selectBillingAddress,
+                  statusBarColor: "#0E7942"
                 })
               )
           }}>
@@ -817,12 +820,14 @@ export class SalesInvoice extends React.Component<Props> {
               this.props.navigation.navigate('EditAddress', {
                 addressArray: this.state.partyShippingAddress,
                 selectAddress: (this.selectShippingAddress).bind(this),
+                statusBarColor: "#0E7942"
               }) :
               (!this.state.partyName ? alert('Please select a party.') :
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.addressArray,
                   type: 'address',
                   selectAddress: this.selectShippingAddress,
+                  statusBarColor: "#0E7942"
                 })
               )
           }}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Dimensions, Platform, PermissionsAndroid, Animated, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Dimensions, StatusBar, PermissionsAndroid, Animated, Alert } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -171,6 +171,7 @@ export class EditAddress extends React.Component<any, any> {
   render() {
     return (
       <View style={style.container}>
+        {this.props.route.params.statusBarColor && <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle="light-content" />}
         <View style={style.header}>
           <TouchableOpacity delayPressIn={0} onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward-arrow'} color="#fff" size={18} />
