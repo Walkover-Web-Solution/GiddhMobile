@@ -1,9 +1,18 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, DeviceEventEmitter, TouchableOpacity, Dimensions, ScrollView, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  DeviceEventEmitter,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+  TextInput,
+  StatusBar,
+} from 'react-native';
 import style from '@/screens/Parties/style';
-import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
+import {useIsFocused} from '@react-navigation/native';
 import color from '@/utils/colors';
 import {PartiesMainList} from '@/screens/Parties/components/partiesmain-listcomponent';
 import SortModal from '@/screens/Parties/components/sortModal';
@@ -19,7 +28,7 @@ import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 
 import {Vendors} from './components/Vendors';
 import {Customers} from './components/Customers';
-import Icons from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import {commonUrls} from '@/core/services/common/common.url';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -53,6 +62,10 @@ export class PartiesMainScreen extends React.Component {
     };
   }
 
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
+  };
+
   setSliderPage = (event: any) => {
     const {currentPage} = this.state;
     const {x} = event.nativeEvent.contentOffset;
@@ -83,7 +96,6 @@ export class PartiesMainScreen extends React.Component {
     if (sortBy && order) {
       this.setState({sortBy: sortBy, order: order});
     }
-    console.log('first this executes');
   };
 
   handleCustomerRefresh = () => {
@@ -268,6 +280,7 @@ export class PartiesMainScreen extends React.Component {
   render() {
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
+        {this.FocusAwareStatusBar(this.props.isFocused)}
         <View
           style={{
             height: Dimensions.get('window').height * 0.08,
@@ -278,7 +291,7 @@ export class PartiesMainScreen extends React.Component {
           }}>
           {this.state.textInputOpen ? (
             <>
-              <Icon name={'search'} size={20} color={'#FFFFFF'} />
+              <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
 
               <TextInput
                 placeholder={'Search name'}
@@ -298,7 +311,7 @@ export class PartiesMainScreen extends React.Component {
                   }
                   this.setState({textInputOpen: false});
                 }}>
-                <Icons name={'close'} size={25} color={'#FFFFFF'} />
+                <AntDesign name={'close'} size={25} color={'#FFFFFF'} />
               </TouchableOpacity>
             </>
           ) : (
@@ -309,7 +322,7 @@ export class PartiesMainScreen extends React.Component {
                   delayPressIn={0}
                   onPress={() => this.setState({sortModal: true})}
                   style={{padding: 8}}>
-                  <Icon name={'sort'} size={20} color={'#FFFFFF'} />
+                  <Icon name={'Group-6191'} size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{padding: 8, marginLeft: 15}}
@@ -317,7 +330,7 @@ export class PartiesMainScreen extends React.Component {
                   onPress={() => this.setState({textInputOpen: true}, () => this.inputRef.current.focus())}
                   // onPress={() => console.log(this.state.vendorData)}
                 >
-                  <Icon name={'search'} size={20} color={'#FFFFFF'} />
+                  <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
               </View>
             </>
@@ -525,4 +538,10 @@ const mapStateToProps = (state: RootState) => {
     // activeCompany: state.company.activeCompany,
   };
 };
-export default connect(mapStateToProps)(PartiesMainScreen);
+
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <PartiesMainScreen {...props} isFocused={isFocused} />;
+}
+export default connect(mapStateToProps)(Screen);

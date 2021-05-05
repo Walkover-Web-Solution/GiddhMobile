@@ -81,4 +81,14 @@ export const STORAGE_KEYS = {
 export const APP_EVENTS = {
   invalidAuthToken: 'AUTH_TOKEN_INVALIDATED',
   comapnyBranchChange: 'COMPANY_BRANCH_CHANGE',
+  updatedItemInInvoice: 'UPDATED_ITEM_IN_INVOICE',
+  updatedItemInPurchaseBill: 'UPDATED_ITEM_IN_PURCHASE_BILL',
+  InvoiceCreated: 'INVOICECREATED',
+  PurchaseBillCreated: 'PURCHASEBILLCREATED',
+};
+
+export const FONT_FAMILY = {
+  regular: 'AvenirLTStd-Book',
+  bold: 'AvenirLTStd-Black',
+  semibold: 'AvenirLTStd-Roman',
 };

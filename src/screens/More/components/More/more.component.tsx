@@ -18,6 +18,8 @@ import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {Bars} from 'react-native-loader';
 import color from '@/utils/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -140,10 +142,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               <View style={style.companyShortView}>
                 <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
               </View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>
                 <Text style={style.companyNameText}>{activeCompanyName}</Text>
 
-                <Icon name={'arrowRight'} color="black" size={20} />
+                <Entypo name="chevron-right" size={26} color={'#1A237E'} />
                 {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
               </View>
             </TouchableOpacity>
@@ -169,13 +171,15 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                   activeBranch: this.state.activeBranch,
                 });
               }}>
-              <Icon name={'report'} size={20} style={style.leftView} color={colors.PRIMARY_BASIC} />
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
+              <View style={{marginLeft: 15}}>
+                <MaterialIcons name="compare-arrows" size={26} color={'#1A237E'} />
+              </View>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>
                 <Text style={style.companyNameText}>
                   {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
                 </Text>
 
-                <Icon name={'arrowRight'} color="black" size={20} />
+                <Entypo name="chevron-right" size={26} color={'#1A237E'} />
               </View>
             </TouchableOpacity>
           )}
@@ -199,10 +203,11 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               },
               shadowOpacity: 0.22,
               shadowRadius: 2.22,
-
               elevation: 3,
             }}
-            onPress={this.props.logout}>
+            onPress={this.props.logout}
+            // onPress={() => console.log('working ?')}
+          >
             <Ionicons name="ios-power" size={26} color={'#5773FF'} />
             <Text style={{fontFamily: 'AvenirLTStd-Black', marginLeft: 20}}>Logout</Text>
           </TouchableOpacity>
@@ -214,6 +219,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         <HelpList navigation={navigation} />
         <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Others</Text>
          */}
+          {/* <TouchableOpacity
+            onPress={() => this.props.navigation.navigate('SalesInvoiceScreen')}
+            style={{height: 50, width: 150, backgroundColor: 'pink'}}></TouchableOpacity> */}
         </View>
       );
     }

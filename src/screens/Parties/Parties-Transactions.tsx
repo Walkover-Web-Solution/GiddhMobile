@@ -13,8 +13,10 @@ import {
   PermissionsAndroid,
   Alert,
   Linking,
+  StatusBar,
 } from 'react-native';
 import style from '@/screens/Transaction/style';
+import {useIsFocused} from '@react-navigation/native';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import {CommonService} from '@/core/services/common/common.service';
@@ -72,17 +74,15 @@ class PartiesTransactionScreen extends React.Component {
     this.getTransactions();
   }
 
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
+  };
+
   setActiveDateFilter = (activeDateFilter, dateMode) => {
     this.setState({
       activeDateFilter: activeDateFilter,
       dateMode: dateMode,
     });
-  };
-
-  tryDate = () => {
-    // console.log(moment(this.state.endDate, 'DD-MM-YYYY').subtract(1, 'month').endOf('month').format('DD-MM-YYYY'));
-    const dateString = moment(this.state.startDate, 'DD-MM-YYYY').format('DD-MM-YYYY');
-    console.log(typeof dateString);
   };
 
   dateShift = (button) => {
@@ -249,6 +249,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['sales']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -258,6 +259,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'sales'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -267,6 +269,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['purchase']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -276,6 +279,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'purchase'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -285,6 +289,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['credit note']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -294,6 +299,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'credit note'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -303,6 +309,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['debit note']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -312,6 +319,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'debit note'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -321,6 +329,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['receipt']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -330,6 +339,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'receipt'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -339,6 +349,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['payment']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -348,6 +359,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'payment'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -357,6 +369,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['journal']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -366,6 +379,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'journal'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -375,6 +389,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.concat(['contra']),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -384,6 +399,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: this.state.vouchers.filter((item) => item !== 'contra'),
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -393,6 +409,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           vouchers: [],
+          page: 1,
         },
         () => {
           this.filterCall();
@@ -427,21 +444,32 @@ class PartiesTransactionScreen extends React.Component {
   }
   async handleLoadMore() {
     try {
-      // const transactions = await CommonService.getTransactions();
-      const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-      const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      await httpInstance
-        .post(
-          `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
-          {},
-        )
-        .then((res) => {
-          this.setState({
-            transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
-            showLoader: false,
-            loadingMore: false,
-          });
-        });
+      const transactions = await CommonService.getPartyTransactions(
+        this.state.startDate,
+        this.state.endDate,
+        this.state.page,
+        this.props.route.params.item.uniqueName,
+        this.state.vouchers,
+      );
+      this.setState({
+        transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
+        showLoader: false,
+        loadingMore: false,
+      });
+      // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      // const companyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      // await httpInstance
+      //   .post(
+      //     `https://api.giddh.com/company/${companyName}/daybook?page=${this.state.page}&count=25&from=${this.state.startDate}&to=${this.state.endDate}&branchUniqueName=${branchName}`,
+      //     {},
+      //   )
+      //   .then((res) => {
+      //     this.setState({
+      //       transactionsData: [...this.state.transactionsData, ...res.data.body.entries],
+      //       showLoader: false,
+      //       loadingMore: false,
+      //     });
+      //   });
     } catch (e) {
       console.log(e);
       this.setState({showLoader: false, loadingMore: false});
@@ -471,6 +499,7 @@ class PartiesTransactionScreen extends React.Component {
       this.setState(
         {
           endDate: ED,
+          page: 1,
           transactionsLoader: true,
         },
         () => this.filterCall(),
@@ -657,12 +686,14 @@ class PartiesTransactionScreen extends React.Component {
     if (this.state.showLoader) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+          {this.FocusAwareStatusBar(this.props.isFocused)}
           <Bars size={15} color={colors.PRIMARY_NORMAL} />
         </View>
       );
     } else {
       return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
+          {this.FocusAwareStatusBar(this.props.isFocused)}
           <View
             style={{
               height: Dimensions.get('window').height * 0.08,
@@ -672,7 +703,7 @@ class PartiesTransactionScreen extends React.Component {
               paddingHorizontal: 20,
             }}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <Icon name={'Backward'} color="#fff" size={18} />
+              <Icon name={'Backward-arrow'} color="#fff" size={18} />
             </TouchableOpacity>
 
             <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF'}}>
@@ -711,10 +742,7 @@ class PartiesTransactionScreen extends React.Component {
             </View>
             <View style={{flexDirection: 'row'}}>
               {this.state.transactionsData.length == 0 ? null : (
-                <TouchableOpacity
-                  delayPressIn={0}
-                  style={{marginRight: 10, padding: 5}}
-                  onPress={() => this.setState({pdfModal: true})}>
+                <TouchableOpacity delayPressIn={0} style={{padding: 5}} onPress={() => this.setState({pdfModal: true})}>
                   <AntDesign name="pdffile1" size={22} color={'#FF7C7C'} />
                 </TouchableOpacity>
               )}
@@ -722,7 +750,7 @@ class PartiesTransactionScreen extends React.Component {
               {this.props.route.params.item.mobileNo && (
                 <TouchableOpacity
                   delayPressIn={0}
-                  style={{marginLeft: 10, padding: 5}}
+                  style={{marginLeft: 20, padding: 5}}
                   onPress={() => this.setState({MoreModal: true})}>
                   <Entypo name="dots-three-vertical" size={22} color={'#808080'} />
                 </TouchableOpacity>
@@ -791,7 +819,8 @@ class PartiesTransactionScreen extends React.Component {
                 borderColor: '#D9D9D9',
               }}
               onPress={() => this.setState({voucherModal: true})}
-              // onPress={() => console.log(this.state.totalPages)}
+              // onPress={() => this.tryDate()}
+              // onPress={() => console.log(this.props.route.params.item.uniqueName, 'hello')}
             >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
@@ -896,4 +925,10 @@ const mapDispatchToProps = () => {
     // logoutAction: dispatch.auth.logoutAction,
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(PartiesTransactionScreen);
+
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <PartiesTransactionScreen {...props} isFocused={isFocused} />;
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Screen);

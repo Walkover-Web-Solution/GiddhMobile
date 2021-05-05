@@ -1,10 +1,11 @@
 import React from 'react';
-import {Text} from 'react-native';
+import {Text, StatusBar} from 'react-native';
 import {connect} from 'react-redux';
 import {GDContainer} from '@/core/components/container/container.component';
 import {CommonService} from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
 import * as CommonActions from '@/redux/CommonAction';
+import {useIsFocused} from '@react-navigation/native';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps & {navigation: any};
@@ -13,6 +14,9 @@ export class MoreScreen extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
   }
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
+  };
 
   getData = async () => {
     await CommonService.getCurrencies();
@@ -21,6 +25,7 @@ export class MoreScreen extends React.Component<Props, {}> {
   render() {
     return (
       <GDContainer>
+        {this.FocusAwareStatusBar(this.props.isFocused)}
         <MoreComponent
           navigation={this.props.navigation}
           countries={this.props.countries}
@@ -56,4 +61,13 @@ const mapDispatchToProps = (dispatch) => {
     // logoutAction: dispatch.auth.logoutAction,
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(MoreScreen);
+
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <MoreScreen {...props} isFocused={isFocused} />;
+}
+
+// export default connect(mapStateToProps)(Screen);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Screen);

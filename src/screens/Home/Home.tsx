@@ -1,5 +1,8 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {useIsFocused} from '@react-navigation/native';
+import {StatusBar} from 'react-native';
+
 import {GDContainer} from '@/core/components/container/container.component';
 import HomeComponent from '@/screens/Home/components/Home/home.component';
 import {CommonService} from '@/core/services/common/common.service';
@@ -11,6 +14,9 @@ export class HomeScreen extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
   }
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
+  };
 
   getData = async () => {
     await CommonService.getCurrencies();
@@ -19,6 +25,7 @@ export class HomeScreen extends React.Component<Props, {}> {
   render() {
     return (
       <GDContainer>
+        {this.FocusAwareStatusBar(this.props.isFocused)}
         <HomeComponent
           countries={this.props.countries}
           getCountriesAction={this.props.getCountriesAction}
@@ -44,4 +51,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     // logoutAction: dispatch.auth.logoutAction,
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+
+function Screen(props) {
+  const isFocused = useIsFocused();
+
+  return <HomeScreen {...props} isFocused={isFocused} />;
+}
+
+export default connect(mapStateToProps)(Screen);
+// export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

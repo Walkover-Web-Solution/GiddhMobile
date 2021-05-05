@@ -7,6 +7,7 @@ import {AuthStack} from './auth.navigator';
 import {CompanyInfoStack} from './companyInfo.navigator';
 import style from '@/screens/Inventory/style';
 import analytics from '@react-native-firebase/analytics';
+import AppMainNav from './app.main.navigator';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -49,7 +50,7 @@ const AppNavigator = (props: any): React.ReactElement => {
               });
             }
           }}>
-          {!isUserAuthenticated ? <AuthStack /> : <HomeNavigator />}
+          {!isUserAuthenticated ? <AuthStack /> : <AppMainNav />}
         </NavigationContainer>
       }
     </SafeAreaView>

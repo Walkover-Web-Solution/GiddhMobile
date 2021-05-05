@@ -23,6 +23,39 @@ import PartiesMain from '@/screens/Parties/PartiesMain';
 import {PartiesStack} from '@/navigation/parties.navigator';
 import {NavigationContainer} from '@react-navigation/native';
 import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
+import NoteDenomination from '@/core/components/note-denomination/noteDenomination';
+import Otp from '@/screens/Auth/Otp/Otp';
+import SelectAddress from '@/core/components/Select-Address/SelectAddress';
+import EditAddress from '@/core/components/Select-Address/EditAddress';
+import {AddressStack} from '@/navigation/addressNavigator';
+import DashboardStack from '@/navigation/dashboard.navigator';
+import AppMainNav from '@/navigation/app.main.navigator';
+import EditItemDetails from '@/screens/Sales-Invoice/EditItemDetails';
+import {PurchaseBill} from '@/screens/Purchase-Bill/PurchaseBill';
+
+const demoData = {
+  applicableDiscounts: [],
+  applicableTaxes: [],
+  category: 'income',
+  currency: {
+    code: 'INR',
+    symbol: '₹',
+  },
+  groupTaxes: [],
+  hsnNumber: null,
+  name: 'sales 233',
+  oppositeAccount: null,
+  parentGroups: ['revenuefromoperations', 'sales'],
+  quantity: 1,
+  rate: '100',
+  sacNumber: null,
+  stock: null,
+  taxes: [],
+  uniqueName: 'sales233',
+};
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -67,12 +100,17 @@ export default class App extends React.Component<any> {
             <AppearanceProvider>
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
-                  {/* <AppDatePicker /> */}
                   <BaseContainer />
-                  {/* <Invoice /> */}
+                  {/* <PurchaseBill /> */}
+                  {/* <EditItemDetails itemDetails={demoData} /> */}
                   {/* <PartiesMain /> */}
+                  {/* <AppDatePicker /> */}
+                  {/* <BaseContainer /> */}
+                  {/* <Invoice /> */}
+
+                  {/* <Otp /> */}
                   {/* <NavigationContainer>
-                    <PartiesStack />
+                   
                   </NavigationContainer> */}
                 </SafeAreaProvider>
               </ApplicationProvider>

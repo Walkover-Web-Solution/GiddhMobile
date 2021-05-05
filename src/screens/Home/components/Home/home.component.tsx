@@ -91,6 +91,7 @@ class HomeComponent extends React.Component {
   //   this.state.badgeTabs[index] = tab;
   //   this.setState({badgeTabs: this.state.badgeTabs, val: index});
   // };
+
   renderTabBar = (props) => (
     <TabBar
       {...props}
@@ -123,6 +124,7 @@ class HomeComponent extends React.Component {
       )}
     />
   );
+
   render() {
     return (
       <View style={{flex: 1}}>
