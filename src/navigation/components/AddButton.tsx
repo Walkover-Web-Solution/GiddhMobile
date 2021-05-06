@@ -1,21 +1,21 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
-import {Animated, TouchableHighlight, View, Dimensions, FlatList, Text, Modal, TouchableOpacity} from 'react-native';
+import { Animated, TouchableHighlight, View, Dimensions, FlatList, Text, Modal, TouchableOpacity } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Icon from '@/core/components/custom-icon/custom-icon';
 // import {TouchableOpacity} from 'react-native-gesture-handler';
 
 import style from '@/screens/Auth/Otp/style';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import color from '@/utils/colors';
-import {transform} from '@babel/core';
+import { transform } from '@babel/core';
 const arrButtons = [
-  {name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F'},
-  {name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345'},
-  {name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'path-22', color: '#ff6961'},
-  // {name: 'Payment', navigateTo: 'Payment', icon: 'Union-631', color: '#084EAD'},
-  // {name: 'Sales Invoice', navigateTo: 'Sales_Invoice', icon: 'shopping-bag', color: '#229F5F'},
+  { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
+  { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345' },
+  { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'path-22', color: '#ff6961' },
+  { name: 'Customer', navigateTo: 'CustomerScreens', icon: 'purchase1', color: '#864DD3' },
+  { name: 'Vendor', navigateTo: 'CustomerScreens', icon: 'path1', color: '#FF72BE' },
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},
@@ -75,7 +75,7 @@ class AddButton extends Component {
           visible={this.state.modalVisible}
           animationType="slide"
           transparent={true}
-          onRequestClose={() => this.setState({modalVisible: false})}>
+          onRequestClose={() => this.setState({ modalVisible: false })}>
           <View
             style={{
               position: 'absolute',
@@ -93,8 +93,8 @@ class AddButton extends Component {
               numColumns={4} // set number of columns
               data={arrButtons}
               showsVerticalScrollIndicator={false}
-              style={{flex: 1, alignSelf: 'center', marginBottom: SIZE}}
-              renderItem={({item}) => (
+              style={{ flex: 1, alignSelf: 'center', marginBottom: SIZE }}
+              renderItem={({ item }) => (
                 <TouchableOpacity
                   style={{
                     width: itemWidth,
@@ -106,7 +106,7 @@ class AddButton extends Component {
                   // onPress={() => console.log('this works')}
                   onPress={async () => {
                     this.props.navigation.navigate(item.navigateTo);
-                    this.setState({modalVisible: false});
+                    this.setState({ modalVisible: false });
                     // this.toggleView();
                   }}>
                   <View
@@ -120,13 +120,13 @@ class AddButton extends Component {
                     }}>
                     <Icon name={item.icon} size={24} color="#F8F8F8" />
                   </View>
-                  <Text style={{fontSize: 9, textAlign: 'center', marginTop: 5}}>{item.name}</Text>
+                  <Text style={{ fontSize: 9, textAlign: 'center', marginTop: 5 }}>{item.name}</Text>
                 </TouchableOpacity>
               )}
               keyExtractor={(item) => item.name}
             />
             <TouchableOpacity
-              onPress={() => this.setState({modalVisible: false})}
+              onPress={() => this.setState({ modalVisible: false })}
               style={{
                 position: 'absolute',
                 bottom: 10,
@@ -134,7 +134,7 @@ class AddButton extends Component {
                 height: SIZE,
                 borderRadius: SIZE / 2,
                 backgroundColor: '#5773FF',
-                transform: [{rotate: '90deg'}],
+                transform: [{ rotate: '90deg' }],
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
@@ -144,7 +144,7 @@ class AddButton extends Component {
         </Modal>
 
         <TouchableHighlight
-          onPress={() => this.setState({modalVisible: !this.state.modalVisible})}
+          onPress={() => this.setState({ modalVisible: !this.state.modalVisible })}
           underlayColor="#2882D8"
           style={{
             alignItems: 'center',
@@ -156,7 +156,7 @@ class AddButton extends Component {
           }}>
           <Animated.View
             style={{
-              transform: [{rotate: rotation}],
+              transform: [{ rotate: rotation }],
             }}>
             <Entypo name="plus" size={24} color="#fff" />
           </Animated.View>
@@ -167,12 +167,12 @@ class AddButton extends Component {
 }
 
 function mapStateToProps(state) {
-  const {commonReducer} = state;
+  const { commonReducer } = state;
   return {
     ...commonReducer,
   };
 }
-function mapDispatchToProps(dispatch) {}
+function mapDispatchToProps(dispatch) { }
 
 const MyComponent = connect(mapStateToProps)(AddButton);
 export default MyComponent;
