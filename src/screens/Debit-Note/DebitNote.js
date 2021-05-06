@@ -1,5 +1,5 @@
 import React from 'react';
-import { GDContainer } from '@/core/components/container/container.component';
+import {GDContainer} from '@/core/components/container/container.component';
 import {
   View,
   Text,
@@ -15,40 +15,35 @@ import {
   Platform,
   Dimensions,
   StatusBar,
-  PermissionsAndroid
 } from 'react-native';
 import style from './style';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import {Bars} from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import {InvoiceService} from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 import EditItemDetail from './EditItemDetails';
-import routes from '@/navigation/routes';
-import RNFetchBlob from 'rn-fetch-blob';
-import Share from 'react-native-share';
-
-const { SafeAreaOffsetHelper } = NativeModules;
+const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
-  credit: 'sales',
+  debit: 'debit note',
   cash: 'cash',
 };
 interface Props {
   navigation: any;
 }
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
@@ -58,12 +53,12 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_SHOW: 'keyboardDidShow',
   KEYBOARD_DID_HIDE: 'keyboardDidHide',
 };
-export class SalesInvoice extends React.Component<Props> {
+export class DebiteNote extends React.Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
       loading: false,
-      invoiceType: INVOICE_TYPE.credit,
+      invoiceType: INVOICE_TYPE.debit,
       bottomOffset: 0,
       showInvoiceModal: false,
       partyName: undefined,
@@ -120,29 +115,28 @@ export class SalesInvoice extends React.Component<Props> {
         customField2: null,
         customField3: null,
       },
-      ShareModal: false,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
 
   setOtherDetails = (data) => {
-    this.setState({ otherDetails: data });
+    this.setState({otherDetails: data});
   };
 
   selectBillingAddress = (address) => {
     console.log(address);
-    this.setState({ partyBillingAddress: address });
+    this.setState({partyBillingAddress: address});
   };
   selectShippingAddress = (address) => {
     console.log('shipping add', address);
-    this.setState({ partyShippingAddress: address });
+    this.setState({partyShippingAddress: address});
   };
   // func1 = async () => {
   //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
   //   console.log(activeCompany);
   // };
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#ff5355" barStyle="light-content" /> : null;
   };
 
   componentDidMount() {
@@ -170,8 +164,8 @@ export class SalesInvoice extends React.Component<Props> {
     if (Platform.OS == 'ios') {
       //Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
-        let { bottomOffset } = offset;
-        this.setState({ bottomOffset });
+        let {bottomOffset} = offset;
+        this.setState({bottomOffset});
       });
     }
   }
@@ -195,10 +189,10 @@ export class SalesInvoice extends React.Component<Props> {
 
   renderHeader() {
     return (
-      <View style={[style.header, { paddingTop: 10 }]}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+      <View style={[style.header, {paddingTop: 10}]}>
+        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
           <TouchableOpacity
-            style={{ padding: 10 }}
+            style={{padding: 10}}
             onPress={() => {
               this.props.navigation.goBack();
             }}>
@@ -206,15 +200,16 @@ export class SalesInvoice extends React.Component<Props> {
           </TouchableOpacity>
           <TouchableOpacity style={style.invoiceTypeButton}>
             <Text style={style.invoiceType}>
-              {this.state.invoiceType == INVOICE_TYPE.credit ? 'Sales Invoice' : 'Cash Invoice'}
+              {/* {this.state.invoiceType == INVOICE_TYPE.credit ? 'Sales Invoice' : 'Cash Invoice'} */}
+              Debit Note
             </Text>
             {/* <Icon style={{ marginLeft: 4 }} name={'9'} color={'white'} /> */}
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={{ marginRight: 16, alignSelf: 'center' }}
+        {/* <TouchableOpacity
+          style={{marginRight: 16, alignSelf: 'center'}}
           onPress={() => {
-            if (this.state.invoiceType == INVOICE_TYPE.credit) {
+            if (this.state.invoiceType == INVOICE_TYPE.debit) {
               this.setCashTypeInvoice();
             } else {
               this.setCreditTypeInvoice();
@@ -222,9 +217,9 @@ export class SalesInvoice extends React.Component<Props> {
             // this.setState({ showInvoiceModal: true })
           }}>
           <Text style={style.invoiceTypeTextRight}>
-            {`${this.state.invoiceType == INVOICE_TYPE.credit ? INVOICE_TYPE.cash : INVOICE_TYPE.credit}` + '?'}
+            {`${this.state.invoiceType == INVOICE_TYPE.debit ? INVOICE_TYPE.cash : INVOICE_TYPE.debit}` + '?'}
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     );
   }
@@ -255,16 +250,16 @@ export class SalesInvoice extends React.Component<Props> {
             width: '100%',
             height: '100%',
           }}>
-          <View style={{ backgroundColor: 'white', marginTop: 70, marginHorizontal: 40, borderRadius: 10 }}>
+          <View style={{backgroundColor: 'white', marginTop: 70, marginHorizontal: 40, borderRadius: 10}}>
             <TouchableOpacity
-              style={{ height: 50, justifyContent: 'center', paddingHorizontal: 20 }}
+              style={{height: 50, justifyContent: 'center', paddingHorizontal: 20}}
               onPress={() => this.setCashTypeInvoice()}>
-              <Text style={{ color: this.state.invoiceType == 'Cash' ? '#5773FF' : 'black' }}>Cash Invoice</Text>
+              <Text style={{color: this.state.invoiceType == 'Cash' ? '#5773FF' : 'black'}}>Cash Invoice</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ height: 50, justifyContent: 'center', paddingHorizontal: 20 }}
+              style={{height: 50, justifyContent: 'center', paddingHorizontal: 20}}
               onPress={() => this.setCreditTypeInvoice()}>
-              <Text style={{ color: this.state.invoiceType == 'Credit' ? '#5773FF' : 'black' }}>Credit Invoice</Text>
+              <Text style={{color: this.state.invoiceType == 'Credit' ? '#5773FF' : 'black'}}>Credit Invoice</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -274,26 +269,23 @@ export class SalesInvoice extends React.Component<Props> {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50 }} onPress={() => { }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+      <View onLayout={this.onLayout} style={{flexDirection: 'row', minHeight: 50}} onPress={() => {}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
-          <Icon name={'Profile'} color={'#A6D8BF'} style={{ margin: 16 }} size={16} />
+          <Icon name={'Profile'} color={'white'} style={{margin: 16}} size={16} />
           <TextInput
-            placeholderTextColor={'#A6D8BF'}
+            placeholderTextColor={'white'}
             placeholder={'Search Party Name'}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
-            onChangeText={(text) => {
-              this.state.invoiceType == INVOICE_TYPE.credit ?
-                (
-                  this.setState({ searchPartyName: text }
-                  ),
-                  this.searchCalls())
-                : (this.setState({ searchPartyName: text, partyName: { name: text, uniqueName: "cash" }, }))
-            }
+            onChangeText={(text) =>
+              this.setState({searchPartyName: text}, () => {
+                this.searchCalls();
+              })
             }
             style={style.searchTextInputStyle}
           />
+          {/* </View> */}
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
       </View>
@@ -307,52 +299,54 @@ export class SalesInvoice extends React.Component<Props> {
   searchCalls = _.debounce(this.searchUser, 2000);
 
   async getAllDiscounts() {
-    this.setState({ fetechingDiscountList: true });
+    this.setState({fetechingDiscountList: true});
     try {
       const results = await InvoiceService.getDiscounts();
       if (results.body && results.status == 'success') {
-        this.setState({ discountArray: results.body, fetechingDiscountList: false });
+        this.setState({discountArray: results.body, fetechingDiscountList: false});
       }
     } catch (e) {
-      this.setState({ fetechingDiscountList: false });
+      this.setState({fetechingDiscountList: false});
     }
   }
 
   async getAllWarehouse() {
-    this.setState({ fetechingWarehouseList: true });
+    this.setState({fetechingWarehouseList: true});
     try {
       const results = await InvoiceService.getWarehouse();
       if (results.body && results.status == 'success') {
-        this.setState({ warehouseArray: results.body.results, fetechingWarehouseList: false });
+        this.setState({warehouseArray: results.body.results, fetechingWarehouseList: false});
       }
     } catch (e) {
-      this.setState({ fetechingWarehouseList: false });
+      this.setState({fetechingWarehouseList: false});
     }
   }
   async getAllAccountsModes() {
     try {
       const results = await InvoiceService.getBriefAccount();
       if (results.body && results.status == 'success') {
-        this.setState({ modesArray: results.body.results });
+        this.setState({modesArray: results.body.results});
       }
-    } catch (e) { }
+    } catch (e) {}
   }
 
   async getAllTaxes() {
-    this.setState({ fetechingTaxList: true });
+    this.setState({fetechingTaxList: true});
     try {
       const results = await InvoiceService.getTaxes();
       if (results.body && results.status == 'success') {
-        this.setState({ taxArray: results.body, fetechingTaxList: false });
+        this.setState({taxArray: results.body, fetechingTaxList: false});
       }
     } catch (e) {
-      this.setState({ fetechingTaxList: false });
+      this.setState({fetechingTaxList: false});
     }
   }
 
   getTaxDeatilsForUniqueName(uniqueName) {
     var filtered = _.filter(this.state.taxArray, function (o) {
-      if (o.uniqueName == uniqueName) return o;
+      if (o.uniqueName == uniqueName) {
+        return o;
+      }
     });
     if (filtered.length > 0) {
       return filtered[0].taxDetail;
@@ -362,7 +356,9 @@ export class SalesInvoice extends React.Component<Props> {
 
   getDiscountDeatilsForUniqueName(uniqueName) {
     var filtered = _.filter(this.state.discountArray, function (o) {
-      if (o.uniqueName == uniqueName) return o;
+      if (o.uniqueName == uniqueName) {
+        return o;
+      }
     });
     if (filtered.length > 0) {
       return filtered[0];
@@ -383,7 +379,7 @@ export class SalesInvoice extends React.Component<Props> {
       //         isSearchingParty: false,
       //       })
       //     }>
-      <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
+      <View style={[style.searchResultContainer, {top: height * 0.12}]}>
         <TouchableOpacity
           style={{
             flexDirection: 'row',
@@ -403,8 +399,8 @@ export class SalesInvoice extends React.Component<Props> {
         </TouchableOpacity>
         <FlatList
           data={this.state.searchResults}
-          style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
-          renderItem={({ item }) => (
+          style={{paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5}}
+          renderItem={({item}) => (
             <TouchableOpacity
               style={{}}
               onFocus={() => this.onChangeText('')}
@@ -424,7 +420,7 @@ export class SalesInvoice extends React.Component<Props> {
                   },
                 );
               }}>
-              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}</Text>
+              <Text style={{color: '#1C1C1C', paddingVertical: 10}}>{item.name}</Text>
             </TouchableOpacity>
           )}
         />
@@ -435,20 +431,21 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   async searchUser() {
-    this.setState({ isSearchingParty: true });
+    this.setState({isSearchingParty: true});
     try {
       // console.log('Creditors called');
-      const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrydebtors', false);
+      const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrycreditors', false);
+
       if (results.body && results.body.results) {
-        this.setState({ searchResults: results.body.results, isSearchingParty: false, searchError: '' });
+        this.setState({searchResults: results.body.results, isSearchingParty: false, searchError: ''});
       }
     } catch (e) {
-      this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
+      this.setState({searchResults: [], searchError: 'No Results', isSearchingParty: false});
     }
   }
 
   async searchAccount() {
-    this.setState({ isSearchingParty: true });
+    this.setState({isSearchingParty: true});
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
 
@@ -463,14 +460,14 @@ export class SalesInvoice extends React.Component<Props> {
         });
       }
     } catch (e) {
-      this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
+      this.setState({searchResults: [], searchError: 'No Results', isSearchingParty: false});
     }
   }
 
   resetState = () => {
     this.setState({
       loading: false,
-      invoiceType: INVOICE_TYPE.credit,
+      invoiceType: INVOICE_TYPE.debit,
       bottomOffset: 0,
       showInvoiceModal: false,
       partyName: undefined,
@@ -543,7 +540,7 @@ export class SalesInvoice extends React.Component<Props> {
     //     },
     //   ];
     // }
-    return [{ calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' }];
+    return [{calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''}];
   }
 
   getTaxesForEntry(item) {
@@ -552,7 +549,7 @@ export class SalesInvoice extends React.Component<Props> {
     if (item.taxDetailsArray) {
       for (let i = 0; i < item.taxDetailsArray.length; i++) {
         let tax = item.taxDetailsArray[i];
-        let taxItem = { uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount' };
+        let taxItem = {uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount'};
         taxArr.push(taxItem);
       }
       return taxArr;
@@ -572,14 +569,14 @@ export class SalesInvoice extends React.Component<Props> {
         //   {calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''},
         // ],
         hsnNumber: item.hsnNumber == null ? '' : item.hsnNumber,
-        purchaseOrderItemMapping: { uniqueName: '', entryUniqueName: '' },
+        purchaseOrderItemMapping: {uniqueName: '', entryUniqueName: ''},
         sacNumber: item.sacNumber == null ? '' : item.sacNumber,
         taxes: this.getTaxesForEntry(item),
         // taxes: [],
         transactions: [
           {
-            account: { uniqueName: item.uniqueName, name: item.name },
-            amount: { type: 'DEBIT', amountForAccount: Number(item.rate) * Number(item.quantity) },
+            account: {uniqueName: item.uniqueName, name: item.name},
+            amount: {type: 'DEBIT', amountForAccount: Number(item.rate) * Number(item.quantity)},
           },
         ],
         voucherNumber: '',
@@ -590,8 +587,8 @@ export class SalesInvoice extends React.Component<Props> {
     return entriesArray;
   }
 
-  async createInvoice(type) {
-    this.setState({ loading: true });
+  async createInvoice() {
+    this.setState({loading: true});
     try {
       console.log('came to this');
       let postBody = {
@@ -603,13 +600,13 @@ export class SalesInvoice extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name },
+            state: {code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name},
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
           },
           contactNumber: '',
-          country: { countryName: 'India', countryCode: 'IN' },
-          currency: { code: 'INR' },
+          country: {countryName: 'India', countryCode: 'IN'},
+          currency: {code: 'INR'},
           currencySymbol: '₹',
           email: '',
           mobileNumber: '',
@@ -620,12 +617,11 @@ export class SalesInvoice extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name },
+            state: {code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name},
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
           },
           uniqueName: this.state.partyName.uniqueName,
-          customerName: this.state.partyName.name,
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: moment(this.state.date).format('DD-MM-YYYY'),
@@ -650,67 +646,46 @@ export class SalesInvoice extends React.Component<Props> {
         touristSchemeApplicable: false,
         type: this.state.invoiceType,
         updateAccountDetails: false,
-        voucherAdjustments: { adjustments: [] },
+        advanceReceiptAdjustment: {adjustments: []},
       };
       console.log('postBody is', JSON.stringify(postBody));
-      const results = await InvoiceService.createInvoice(
+      const results = await InvoiceService.createDebitNote(
         postBody,
         this.state.partyName.uniqueName,
         this.state.invoiceType,
       );
-      if (type != "share") {
-        this.setState({ loading: false });
-      }
+      this.setState({loading: false});
       if (results.body) {
         // this.setState({loading: false});
         alert('Invoice created successfully!');
-        const partyDetails = this.state.partyDetails;
         this.resetState();
         this.getAllTaxes();
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
-        if (type == "navigate") {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
-            params: {
-              item: {
-                name: partyDetails.name,
-                uniqueName: partyDetails.uniqueName,
-                country: { code: partyDetails.country.countryCode },
-                mobileNo: partyDetails.mobileNo
-              },
-              type: 'Creditors'
-            }
-          });
-        }
-        if (type == "share") {
-          console.log("sharing");
-          this.downloadFile(results.body.entries[0].voucherType, results.body.entries[0].voucherNumber);
-        }
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+        this.props.navigation.goBack();
+        DeviceEventEmitter.emit(APP_EVENTS.DebitNoteCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);
-      this.setState({ isSearchingParty: false, loading: false });
+      this.setState({isSearchingParty: false, loading: false});
     }
   }
   renderAmount() {
     return (
-      <View style={{ paddingVertical: 10, paddingHorizontal: 40 }}>
+      <View style={{paddingVertical: 10, paddingHorizontal: 40}}>
         <Text style={style.invoiceAmountText}>{'₹' + this.getTotalAmount()}</Text>
       </View>
     );
   }
 
-  getSelectedDateDisplay() { }
+  getSelectedDateDisplay() {}
   getYesterdayDate() {
-    this.setState({ date: moment().subtract(1, 'days') });
+    this.setState({date: moment().subtract(1, 'days')});
   }
 
   getTodayDate() {
-    this.setState({ date: moment() });
+    this.setState({date: moment()});
   }
 
   formatDate() {
@@ -740,17 +715,17 @@ export class SalesInvoice extends React.Component<Props> {
     }
   }
   hideDatePicker = () => {
-    this.setState({ showDatePicker: false });
+    this.setState({showDatePicker: false});
   };
 
   handleConfirm = (date) => {
     // console.log('A date has been picked: ', date);
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
-    this.setState({ date: moment(date) });
+    this.setState({date: moment(date)});
     this.hideDatePicker();
   };
   _renderDateView() {
-    const { date, displayedDate } = this.state;
+    const {date, displayedDate} = this.state;
 
     return (
       // <DateRangePicker
@@ -761,7 +736,7 @@ export class SalesInvoice extends React.Component<Props> {
       //   buttonStyle={style.dateView}>
       //   <View style={style.dateView}>
       //     <View style={{flexDirection: 'row'}}>
-      //       <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+      //       <Icon name={'Calendar'} color={'#ff6961'} size={16} />
       //       <Text style={style.selectedDateText}>{this.formatDate()}</Text>
       //     </View>
       //     <TouchableOpacity
@@ -779,18 +754,18 @@ export class SalesInvoice extends React.Component<Props> {
       // </DateRangePicker>
 
       <View style={style.dateView}>
-        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
-          <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+        <TouchableOpacity style={{flexDirection: 'row'}} onPress={() => this.setState({showDatePicker: true})}>
+          <Icon name={'Calendar'} color={'#ff6961'} size={16} />
           <Text style={style.selectedDateText}>{this.formatDate()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={{ borderColor: '#D9D9D9', borderWidth: 1 }}
+          style={{borderColor: '#D9D9D9', borderWidth: 1}}
           onPress={() =>
             this.state.date.startOf('day').isSame(moment().startOf('day'))
               ? this.getYesterdayDate()
               : this.getTodayDate()
           }>
-          <Text style={{ color: '#808080' }}>
+          <Text style={{color: '#808080'}}>
             {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
           </Text>
         </TouchableOpacity>
@@ -801,63 +776,57 @@ export class SalesInvoice extends React.Component<Props> {
   _renderAddress() {
     return (
       <View style={style.senderAddress}>
-        <View style={{ flexDirection: 'row' }}>
-          <Icon name={'8'} color={'#229F5F'} size={16} />
+        <View style={{flexDirection: 'row'}}>
+          <Icon name={'8'} color={'#ff6961'} size={16} />
           <Text style={style.addressHeaderText}>{'Address'}</Text>
         </View>
         <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
+          style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}
           onPress={() => {
-            this.state.invoiceType == INVOICE_TYPE.cash ?
-              this.props.navigation.navigate('EditAddress', {
-                addressArray: this.state.partyBillingAddress,
-                selectAddress: (this.selectBillingAddress).bind(this),
-                statusBarColor: "#0E7942"
-              }) :
-              (!this.state.partyName ? alert('Please select a party.') :
-                this.props.navigation.navigate('SelectAddress', {
-                  addressArray: this.state.addressArray,
-                  type: 'address',
-                  selectAddress: this.selectBillingAddress,
-                  statusBarColor: "#0E7942"
-                })
-              )
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.props.navigation.navigate('SelectAddress', {
+                addressArray: this.state.addressArray,
+                type: 'address',
+                selectAddress: this.selectBillingAddress,
+                color: '#ff6961',
+                statusBarColor: '#ff5355',
+              });
+            }
           }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text numberOfLines={2} style={style.senderAddressText}>
               {'Billing Address'}
             </Text>
             <AntDesign name={'right'} size={18} color={'#808080'} />
           </View>
-          {/* <Icon name={'8'} color={'#229F5F'} size={16} /> */}
+          {/* <Icon name={'8'} color={'#ff6961'} size={16} /> */}
           <Text numberOfLines={2} style={style.selectedAddressText}>
             {this.state.partyBillingAddress.address
               ? this.state.partyBillingAddress.address
               : this.state.partyBillingAddress.stateName
-                ? this.state.partyBillingAddress.stateName
-                : 'Select Billing Address'}
+              ? this.state.partyBillingAddress.stateName
+              : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
         </TouchableOpacity>
         <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
+          style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}
           onPress={() => {
-            this.state.invoiceType == INVOICE_TYPE.cash ?
-              this.props.navigation.navigate('EditAddress', {
-                addressArray: this.state.partyShippingAddress,
-                selectAddress: (this.selectShippingAddress).bind(this),
-                statusBarColor: "#0E7942"
-              }) :
-              (!this.state.partyName ? alert('Please select a party.') :
-                this.props.navigation.navigate('SelectAddress', {
-                  addressArray: this.state.addressArray,
-                  type: 'address',
-                  selectAddress: this.selectShippingAddress,
-                  statusBarColor: "#0E7942"
-                })
-              )
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.props.navigation.navigate('SelectAddress', {
+                addressArray: this.state.addressArray,
+                type: 'address',
+                selectAddress: this.selectShippingAddress,
+                color: '#ff6961',
+                statusBarColor: '#ff5355',
+              });
+            }
           }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text numberOfLines={2} style={style.senderAddressText}>
               {'Shipping Address'}
             </Text>
@@ -867,8 +836,8 @@ export class SalesInvoice extends React.Component<Props> {
             {this.state.partyShippingAddress.address
               ? this.state.partyShippingAddress.address
               : this.state.partyShippingAddress.stateName
-                ? this.state.partyShippingAddress.stateName
-                : 'Select Shipping Address'}
+              ? this.state.partyShippingAddress.stateName
+              : 'Select Shipping Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -878,13 +847,11 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   //https://api.giddh.com/company/mobileindore15161037983790ggm19/account-search?q=c&page=1&group=sundrydebtors&branchUniqueName=allmobileshop
-  setCashTypeInvoice = async () => {
-    await this.resetState()
-    await this.setState({ invoiceType: INVOICE_TYPE.cash, showInvoiceModal: false });
+  setCashTypeInvoice() {
+    this.setState({invoiceType: INVOICE_TYPE.cash, showInvoiceModal: false});
   }
-  setCreditTypeInvoice = async () => {
-    await this.resetState()
-    await this.setState({ invoiceType: INVOICE_TYPE.credit, showInvoiceModal: false });
+  setCreditTypeInvoice() {
+    this.setState({invoiceType: INVOICE_TYPE.debit, showInvoiceModal: false});
   }
 
   onDateChange = (dates) => {
@@ -894,7 +861,7 @@ export class SalesInvoice extends React.Component<Props> {
     });
   };
   updateAddedItems = (addedItems) => {
-    this.setState({ addedItems: addedItems });
+    this.setState({addedItems: addedItems});
   };
 
   renderAddItemButton() {
@@ -911,13 +878,13 @@ export class SalesInvoice extends React.Component<Props> {
           marginVertical: 16,
           paddingVertical: 10,
           flexDirection: 'row',
-          borderColor: '#229F5F',
+          borderColor: '#ff6961',
           borderWidth: 2,
           alignSelf: 'center',
           justifyContent: 'center',
           width: '90%',
         }}>
-        <AntDesign name={'plus'} color={'#229F5F'} size={18} style={{ marginHorizontal: 8 }} />
+        <AntDesign name={'plus'} color={'#ff6961'} size={18} style={{marginHorizontal: 8}} />
         <Text style={style.addItemMain}> Add Item</Text>
       </TouchableOpacity>
     );
@@ -926,10 +893,10 @@ export class SalesInvoice extends React.Component<Props> {
   _renderSelectedStock() {
     return (
       <View>
-        <View style={{ flexDirection: 'row', marginHorizontal: 16, marginVertical: 10, justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Icon name={'Path-13016'} color="#229F5F" size={18} />
-            <Text style={{ marginLeft: 10 }}>Select Product/Service</Text>
+        <View style={{flexDirection: 'row', marginHorizontal: 16, marginVertical: 10, justifyContent: 'space-between'}}>
+          <View style={{flexDirection: 'row'}}>
+            <Icon name={'Path-13016'} color="#ff6961" size={18} />
+            <Text style={{marginLeft: 10}}>Select Product/Service</Text>
           </View>
           <TouchableOpacity
             onPress={() => {
@@ -944,8 +911,8 @@ export class SalesInvoice extends React.Component<Props> {
 
         <FlatList
           data={this.state.addedItems}
-          style={{ paddingHorizontal: 10, paddingVertical: 10 }}
-          renderItem={({ item }) => this.renderStockItem(item)}
+          style={{paddingHorizontal: 10, paddingVertical: 10}}
+          renderItem={({item}) => this.renderStockItem(item)}
         />
       </View>
     );
@@ -963,7 +930,7 @@ export class SalesInvoice extends React.Component<Props> {
       0,
     );
     addedArray.splice(index, 1);
-    this.setState({ addedItems: addedArray, showItemDetails: false }, () => { });
+    this.setState({addedItems: addedArray, showItemDetails: false}, () => {});
   };
 
   renderRightAction(item) {
@@ -972,9 +939,9 @@ export class SalesInvoice extends React.Component<Props> {
         onPress={() => {
           this.deleteItem(item);
         }}
-        style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+        style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20}}>
         <AntDesign name={'delete'} size={16} color="#E04646" />
-        <Text style={{ color: '#E04646', marginLeft: 10 }}>Delete</Text>
+        <Text style={{color: '#E04646', marginLeft: 10}}>Delete</Text>
       </TouchableOpacity>
     );
   }
@@ -985,7 +952,7 @@ export class SalesInvoice extends React.Component<Props> {
         onSwipeableRightOpen={() => console.log('Swiped right')}
         renderRightActions={() => this.renderRightAction(item)}>
         <TouchableOpacity
-          style={{ backgroundColor: '#E0F2E9', padding: 10, borderRadius: 2, marginBottom: 10 }}
+          style={{backgroundColor: 'rgba(255, 99, 71, 0.1)', padding: 10, borderRadius: 2, marginBottom: 10}}
           onPress={() => {
             this.setState({
               showItemDetails: true,
@@ -1005,16 +972,16 @@ export class SalesInvoice extends React.Component<Props> {
               },
             });
           }}>
-          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} : </Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text style={{color: '#1C1C1C', paddingVertical: 10}}>{item.name} : </Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <View>
-              <Text style={{ color: '#808080' }}>
+              <Text style={{color: '#808080'}}>
                 {String(item.quantity)} x {String(item.rate)}
               </Text>
             </View>
           </View>
 
-          <Text style={{ marginTop: 5, color: '#808080' }}>Tax : {this.calculatedTaxAmount(item)}</Text>
+          <Text style={{marginTop: 5, color: '#808080'}}>Tax : {this.calculatedTaxAmount(item)}</Text>
         </TouchableOpacity>
       </Swipeable>
     );
@@ -1047,13 +1014,13 @@ export class SalesInvoice extends React.Component<Props> {
         editItemDetails.discountPercentageText = text;
         break;
     }
-    this.setState({ editItemDetails });
+    this.setState({editItemDetails});
   }
 
   _renderBottomSeprator(margin = 0) {
     return (
       <View
-        style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
+        style={{height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin}}
       />
     );
   }
@@ -1124,65 +1091,6 @@ export class SalesInvoice extends React.Component<Props> {
     return total;
   }
 
-
-
-  downloadFile = async (voucherName, voucherNo) => {
-    try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
-        await this.onShare(voucherName, voucherNo);
-      } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-
-  onShare = async (voucherName, voucherNo) => {
-    try {
-      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-      RNFetchBlob.fetch(
-        'POST',
-        `https://api.giddh.com/company/${activeCompany}/accounts/${this.state.partyDetails.uniqueName}/vouchers/download-file?fileType=pdf`,
-        {
-          'session-id': `${token}`,
-          'Content-Type': 'application/json',
-        },
-        JSON.stringify({
-          voucherNumber: [`${voucherNo}`],
-          voucherType: `${voucherName}`,
-        }),
-      )
-        .then((res) => {
-          let base64Str = res.base64();
-          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
-          RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
-          this.setState({ loading: false });
-        })
-        .then(() => {
-          Share.open({
-            title: 'This is the report',
-            message: 'Message:',
-            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
-            subject: 'Transaction report',
-          })
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => {
-              // err && console.log(err);
-            });
-        });
-    } catch (e) {
-      this.setState({ loading: false });
-      console.log(e);
-      console.log(e);
-    }
-  };
-
   _renderOtherDetails() {
     return (
       <TouchableOpacity
@@ -1199,9 +1107,9 @@ export class SalesInvoice extends React.Component<Props> {
             setOtherDetails: this.setOtherDetails,
           });
         }}>
-        <View style={{ flexDirection: 'row' }}>
-          <Icon style={{ marginRight: 16 }} name={'Sections'} size={16} color="#229F5F" />
-          <Text style={{ color: '#1C1C1C' }}>Other Details</Text>
+        <View style={{flexDirection: 'row'}}>
+          <Icon style={{marginRight: 16}} name={'Sections'} size={16} color="#ff6961" />
+          <Text style={{color: '#1C1C1C'}}>Other Details</Text>
         </View>
         <AntDesign name={'right'} size={18} color={'#808080'} />
       </TouchableOpacity>
@@ -1215,7 +1123,7 @@ export class SalesInvoice extends React.Component<Props> {
         transparent={true}
         visible={this.state.showPaymentModePopup}
         onRequestClose={() => {
-          this.setState({ showPaymentModePopup: false });
+          this.setState({showPaymentModePopup: false});
         }}>
         <TouchableOpacity
           style={{
@@ -1228,39 +1136,39 @@ export class SalesInvoice extends React.Component<Props> {
             justifyContent: 'center',
           }}
           onPress={() => {
-            this.setState({ showPaymentModePopup: false });
+            this.setState({showPaymentModePopup: false});
           }}>
-          <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center' }}>
+          <View style={{backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center'}}>
             {this.state.invoiceType == 'sales' && (
               <TextInput
                 value={this.state.amountPaidNowText}
                 keyboardType="number-pad"
                 placeholder="Enter Amount"
                 onChangeText={(text) => {
-                  this.setState({ amountPaidNowText: text });
+                  this.setState({amountPaidNowText: text});
                 }}
               />
             )}
             <FlatList
               data={this.state.modesArray}
-              style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300 }}
-              renderItem={({ item }) => (
+              style={{paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300}}
+              renderItem={({item}) => (
                 <TouchableOpacity
                   style={{
                     borderBottomWidth: this.state.selectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
-                    borderColor: '#229F5F',
+                    borderColor: '#ff6961',
                     alignSelf: 'flex-start',
                     // backgroundColor: 'pink',
                     width: '100%',
                   }}
                   onFocus={() => this.onChangeText('')}
                   onPress={async () => {
-                    this.setState({ selectedPayMode: item });
+                    this.setState({selectedPayMode: item});
                     if (this.state.amountPaidNowText != 0) {
-                      this.setState({ showPaymentModePopup: false });
+                      this.setState({showPaymentModePopup: false});
                     }
                   }}>
-                  <Text style={{ color: '#1C1C1C', paddingVertical: 10, textAlign: 'left' }}>{item.name}</Text>
+                  <Text style={{color: '#1C1C1C', paddingVertical: 10, textAlign: 'left'}}>{item.name}</Text>
                 </TouchableOpacity>
               )}
             />
@@ -1281,26 +1189,26 @@ export class SalesInvoice extends React.Component<Props> {
             paddingHorizontal: 16,
             justifyContent: 'space-between',
           }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color="#229F5F" />
-            <Text style={{ color: '#1C1C1C' }}>Balance</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Icon style={{marginRight: 10}} name={'Path-12190'} size={16} color="#ff6961" />
+            <Text style={{color: '#1C1C1C'}}>Balance</Text>
           </View>
           <Icon
-            style={{ transform: [{ rotate: this.state.expandedBalance ? '180deg' : '0deg' }] }}
+            style={{transform: [{rotate: this.state.expandedBalance ? '180deg' : '0deg'}]}}
             name={'9'}
             size={16}
             color="#808080"
             onPress={() => {
-              this.setState({ expandedBalance: !this.state.expandedBalance });
+              this.setState({expandedBalance: !this.state.expandedBalance});
             }}
           />
         </View>
 
         {this.state.expandedBalance && (
-          <View style={{ margin: 16 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#1C1C1C' }}>Total Amount</Text>
-              <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
+          <View style={{margin: 16}}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={{color: '#1C1C1C'}}>Total Amount</Text>
+              <Text style={{color: '#1C1C1C'}}>{this.getTotalAmount()}</Text>
             </View>
 
             <View
@@ -1314,65 +1222,51 @@ export class SalesInvoice extends React.Component<Props> {
               <TouchableOpacity
                 onPress={() => {
                   if (this.state.modesArray.length > 0) {
-                    this.setState({ showPaymentModePopup: true });
+                    this.setState({showPaymentModePopup: true});
                   }
                 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080', marginRight: 5 }}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={{color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080', marginRight: 5}}>
                     {this.state.selectedPayMode.name}
                   </Text>
-                  <Icon style={{ transform: [{ rotate: '0deg' }] }} name={'9'} size={16} color="#808080"></Icon>
+                  <Icon style={{transform: [{rotate: '0deg'}]}} name={'9'} size={16} color="#808080" />
                 </View>
               </TouchableOpacity>
               {this.state.invoiceType == 'cash' ? (
-                <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
+                <Text style={{color: '#1C1C1C'}}>{this.getTotalAmount()}</Text>
               ) : (
                 <TouchableOpacity
                   onPress={() => {
-                    this.setState({ showPaymentModePopup: true });
+                    this.setState({showPaymentModePopup: true});
                   }}>
                   <TextInput
-                    style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5 }}
+                    style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
                     placeholder="00000.00"
                     returnKeyType={'done'}
                     editable={false}
                     keyboardType="number-pad"
                     value={this.state.amountPaidNowText}
                     onChangeText={(text) => {
-                      this.setState({ amountPaidNowText: text });
+                      this.setState({amountPaidNowText: text});
                     }}
                   />
                 </TouchableOpacity>
               )}
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-              <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
-              <Text style={{ color: '#1C1C1C' }}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4}}>
+              <Text style={{color: '#1C1C1C'}}>Invoice Due</Text>
+              <Text style={{color: '#1C1C1C'}}>
                 {this.state.invoiceType == 'cash' ? 0 : String(this.getTotalAmount()) - this.state.amountPaidNowText}
               </Text>
             </View>
           </View>
         )}
 
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems: 'center' }}>
-          <View>
-            <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginBottom: 3 }}
-              onPress={() => {
-                this.genrateInvoice("new");
-              }}>
-              <Text style={{ color: 'white' }}>Create and New</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}
-              onPress={() => {
-                this.genrateInvoice("share");
-              }}>
-              <Text style={{ color: 'white' }}>Create and Share</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={{justifyContent: 'flex-end', flexDirection: 'row', marginTop: 20, margin: 16}}>
           <TouchableOpacity
             onPress={() => {
-              this.genrateInvoice("navigate");
+              this.genrateInvoice();
             }}>
             <Icon name={'path-18'} size={48} color={'#5773FF'} />
           </TouchableOpacity>
@@ -1380,13 +1274,13 @@ export class SalesInvoice extends React.Component<Props> {
       </View>
     );
   }
-  genrateInvoice(type) {
+  genrateInvoice() {
     if (!this.state.partyName) {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
     } else {
-      this.createInvoice(type);
+      this.createInvoice();
     }
   }
 
@@ -1419,7 +1313,7 @@ export class SalesInvoice extends React.Component<Props> {
 
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
-    this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
+    this.setState({showItemDetails: false, addedItems: addedArray}, () => {});
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
   }
@@ -1430,10 +1324,10 @@ export class SalesInvoice extends React.Component<Props> {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1}}>
         <Animated.ScrollView
           keyboardShouldPersistTaps="always"
-          style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
+          style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
           bounces={false}>
           <View style={style.container}>
             {this.FocusAwareStatusBar(this.props.isFocused)}
@@ -1482,7 +1376,7 @@ export class SalesInvoice extends React.Component<Props> {
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {
-              this.setState({ showItemDetails: false });
+              this.setState({showItemDetails: false});
             }}
             itemDetails={this.state.itemDetails}
             updateItems={(details) => {
@@ -1490,14 +1384,13 @@ export class SalesInvoice extends React.Component<Props> {
             }}
           />
         )}
-        {/* <ShareModal modalVisible={this.state.ShareModal} /> */}
       </View>
     );
   }
 }
 
 function mapStateToProps(state) {
-  const { commonReducer } = state;
+  const {commonReducer} = state;
   return {
     ...commonReducer,
   };
@@ -1513,7 +1406,7 @@ function mapDispatchToProps(dispatch) {
 function Screen(props) {
   const isFocused = useIsFocused();
 
-  return <SalesInvoice {...props} isFocused={isFocused} />;
+  return <DebiteNote {...props} isFocused={isFocused} />;
 }
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
 export default MyComponent;

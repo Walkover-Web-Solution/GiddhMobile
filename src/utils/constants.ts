@@ -87,6 +87,7 @@ export const APP_EVENTS = {
   InvoiceCreated: 'INVOICECREATED',
   PurchaseBillCreated: 'PURCHASEBILLCREATED',
   CreditNoteCreated: 'CREDITNOTECREATED',
+  DebitNoteCreated: 'DEBITNOTECREATED',
 };
 
 export const FONT_FAMILY = {

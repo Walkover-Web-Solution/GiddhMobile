@@ -26,6 +26,9 @@ export const invoiceUrls = {
   generateCreditNote: createEndpoint(
     'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate'
   ),
+  generateDebitNote: createEndpoint(
+    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
+  ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName',
   ),
