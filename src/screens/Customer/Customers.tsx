@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -18,12 +18,16 @@ import { CustomerService } from '@/core/services/customer-vendor/customer-vendor
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import AsyncStorage from '@react-native-community/async-storage';
-import { STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 
-export class Customers extends React.Component {
+interface Props {
+  navigation: any;
+}
+
+export class Customers extends React.Component<Props> {
   constructor(props: any) {
     super(props);
     this.getAllDeatils();
@@ -441,6 +445,7 @@ export class Customers extends React.Component {
       console.log('Create Customer postBody is', JSON.stringify(postBody));
       const results = await CustomerService.createCustomer(postBody);
       if (results.status == "success") {
+        DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
         await this.setState({ successDialog: true, });
         await this.getAllDeatils()
@@ -530,6 +535,7 @@ export class Customers extends React.Component {
             }}
             onPress={() => {
               this.setState({ successDialog: false });
+              this.props.navigation.goBack();
             }}
           >
             <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: "center" }}>Done</Text>

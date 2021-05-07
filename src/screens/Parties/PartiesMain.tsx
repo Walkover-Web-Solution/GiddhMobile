@@ -276,6 +276,18 @@ export class PartiesMainScreen extends React.Component {
         },
       );
     });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
+      this.setState(
+        {
+          showLoader: true,
+          customerPage: 1,
+          VendorPage: 1,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
+    });
   }
 
   render() {
