@@ -486,7 +486,7 @@ class AddItemScreen extends React.Component<Props> {
       if (results.body && results.body.results) {
         // console.log('results are', results);
         this.setState(
-          { itemList: results.body.results, isSearchingParty: false, searchError: '' },
+          { itemList: results.body.results, isSearchingParty: false, searchError: '' }
           // , () =>
           // console.log('item list updates'),
         );
@@ -655,59 +655,59 @@ class AddItemScreen extends React.Component<Props> {
   }
   performCalulations() {
     let total = 0;
-    for (let i = 0; i < this.state.addedItems.length;i++) {
+    for (let i = 0; i < this.state.addedItems.length; i++) {
       let item = this.state.addedItems[i];
-      if(item.stock) {
-      //do inventory calulations
-      if (item.rate) {
-        total = total + Number(item.rate * item.quantity);
-        console.log('stock rate changed');
+      if (item.stock) {
+        //do inventory calulations
+        if (item.rate) {
+          total = total + Number(item.rate * item.quantity);
+          console.log('stock rate changed');
+        } else {
+          total = total + Number(item.stock.rate * item.quantity);
+          console.log('stock rate not changed');
+        }
       } else {
-        total = total + Number(item.stock.rate * item.quantity);
-        console.log('stock rate not changed');
-      }
-    } else {
-      // do sales calulation
-      if (item.rate) {
-        total = total + Number(item.rate);
-        console.log('sales');
+        // do sales calulation
+        if (item.rate) {
+          total = total + Number(item.rate);
+          console.log('sales');
+        }
       }
     }
-  }
     return total;
   }
-render() {
-  return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <StatusBar backgroundColor="#0E7942" barStyle="light-content" />
-      <View style={style.headerConatiner}>{this.renderHeader()}</View>
+  render() {
+    return (
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <StatusBar backgroundColor="#0E7942" barStyle="light-content" />
+        <View style={style.headerConatiner}>{this.renderHeader()}</View>
 
-      <View style={{ flex: 1 }}>
-        <View style={style.container}>{this.state.itemList.length > 0 && this._renderSearchList()}</View>
+        <View style={{ flex: 1 }}>
+          <View style={style.container}>{this.state.itemList.length > 0 && this._renderSearchList()}</View>
 
-        {this.state.loading && (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 0,
-            }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
-          </View>
-        )}
-      </View>
-      {/* <TouchableOpacity
+          {this.state.loading && (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: 0,
+              }}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
+            </View>
+          )}
+        </View>
+        {/* <TouchableOpacity
           style={{height: 60, width: 60, backgroundColor: 'pink'}}
           onPress={() => console.log(JSON.stringify(this.state.itemList))}></TouchableOpacity> */}
-      {this._renderSummaryFooter()}
-    </View>
-  );
-}
+        {this._renderSummaryFooter()}
+      </View>
+    );
+  }
 }
 
 function mapStateToProps(state) {

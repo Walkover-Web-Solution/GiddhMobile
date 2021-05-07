@@ -8,7 +8,6 @@ import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 const { height, width } = Dimensions.get('window');
-import ModalDropdown from 'react-native-modal-dropdown';
 import { alias } from 'yargs';
 
 const addresses = [
