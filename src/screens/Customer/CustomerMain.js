@@ -127,7 +127,7 @@ export class Customer extends React.Component<Props> {
 
                 justifyContent: 'space-around',
                 flexDirection: 'row',
-                marginBottom:5
+                marginBottom: 5
               }}>
               <TouchableOpacity
                 style={{

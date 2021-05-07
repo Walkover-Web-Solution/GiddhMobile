@@ -1086,6 +1086,11 @@
   dependencies:
     deep-assign "^3.0.0"
 
+"@react-native-community/checkbox@^0.5.7":
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/@react-native-community/checkbox/-/checkbox-0.5.7.tgz#ac818de88736acc1a4539188f2d435cf5e845ae1"
+  integrity sha512-CiHBAMWy5fsFIHLd1pf8frlWrLT8DnCXUSxdlGKazHm7srQSReKH4R5absShjmYOHRo9raWEnKZO/cm7MUDHZg==
+
 "@react-native-community/cli-debugger-ui@^4.9.0":
   version "4.9.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-4.9.0.tgz#4177764ba69243c97aa26829d59d9501acb2bd71"
@@ -1671,6 +1676,22 @@
   version "1.5.4"
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.4.tgz#15925414e0ad2cd765bfef58842f7e26a7accb24"
   integrity sha512-1HcDas8SEj4z1Wc696tH56G8OlRaH/sqZOynNNB+HF0WOeXPaxTtbYzJY2oEfiUxjSKjhCKr+MvR7dCHcEelug==
+
+"@types/react-native-modal-dropdown@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@types/react-native-modal-dropdown/-/react-native-modal-dropdown-0.7.0.tgz#5c0d38ec5ae173f9c7f281c336f1ec1ba6d917d6"
+  integrity sha512-+6rL765aF4ETSS0+vc92wbgNPm5mhXqgslta2dhlc5aBS+sA+Bvdd25/L2zhTTqiVktPQis2cOjwPuhm8WEIZw==
+  dependencies:
+    "@types/react" "*"
+    "@types/react-native" "*"
+
+"@types/react-native-simple-radio-button@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@types/react-native-simple-radio-button/-/react-native-simple-radio-button-2.7.0.tgz#6b4646cfe855e9c3663e320b0d6d3a1dc7a05c8b"
+  integrity sha512-Qp/jdd6KHpqBu4LD4wEfDvgFJc6Fsb6Tp1HVYXlxFvJJECLf7tJgCzHqAdRUP6x21KiEdXGVnzLVM5Lu1zFq3w==
+  dependencies:
+    "@types/react" "*"
+    "@types/react-native" "*"
 
 "@types/react-native-vector-icons@^6.4.6":
   version "6.4.6"
@@ -7441,7 +7462,7 @@ prop-types-exact@^1.2.0:
     object.assign "^4.1.0"
     reflect.ownkeys "^0.2.0"
 
-prop-types@15.7.2, prop-types@^15.5.10, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@15.7.2, prop-types@^15.5.10, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -7630,6 +7651,11 @@ react-native-daterange-picker@1.4.0:
     lodash "^4.17.19"
     moment "^2.27.0"
 
+react-native-dialog@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-dialog/-/react-native-dialog-8.0.1.tgz#8e554c4d7ee755c9e20d43bb0c5bb1a158060e57"
+  integrity sha512-shm0NE7nZJj5ubvMT/6Snt3fazzRPgDj/m9eIcYjo6JAQbxvg6Ym9o5GGahDn1d96LyAruPoP+N/IBzAI8Worg==
+
 react-native-dropdown-picker@^3.7.8:
   version "3.7.8"
   resolved "https://registry.yarnpkg.com/react-native-dropdown-picker/-/react-native-dropdown-picker-3.7.8.tgz#fdc79eef1dab4f86b74a565e93ed65406825b0c6"
@@ -7677,6 +7703,13 @@ react-native-modal-datetime-picker@^9.1.0:
   dependencies:
     prop-types "^15.7.2"
 
+react-native-modal-dropdown@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-modal-dropdown/-/react-native-modal-dropdown-1.0.0.tgz#3985950c025c6d83c8c15968ab33e4e49e5bf634"
+  integrity sha512-+ghOIKgdRk4p3VLY2EcpKGE3IxCLcdjXkPJu6dNm4hRvre8et4T5fNiqhezYCg5aZUlTYn31Ba0dG9OOFAJHmg==
+  dependencies:
+    prop-types "^15.6.0"
+
 react-native-modal@11.5.6:
   version "11.5.6"
   resolved "https://registry.yarnpkg.com/react-native-modal/-/react-native-modal-11.5.6.tgz#bb25a78c35a5e24f45de060e5f64284397d38a87"
@@ -7689,6 +7722,11 @@ react-native-otp-input@^1.0.12:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/react-native-otp-input/-/react-native-otp-input-1.0.12.tgz#c798528b6e9e0ad84ab413faa527eb571ae15413"
   integrity sha512-QkWe1B+KFUA0/Hw47uzB0GNqffY5SyzJwliJB6yJyONPogi/j+bCyPdLoC9+tL4Jmc6gJGCP+5y3PwzMphsG5g==
+
+react-native-raw-bottom-sheet@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-raw-bottom-sheet/-/react-native-raw-bottom-sheet-2.2.0.tgz#d11dabb86aadb014273767ef7b554924b13633c5"
+  integrity sha512-qL4JKIqvbcVxbkKzeh51hjV7suoJN3ouxzvLmOg0FBUV1yiJAfEbacjQdtRCI6+OU5pyGFBIifLsTXcFDwHggg==
 
 react-native-reanimated@1.13.0:
   version "1.13.0"
@@ -7718,6 +7756,11 @@ react-native-share@^5.1.0:
   version "5.1.4"
   resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-5.1.4.tgz#0b9d51f6ca724728cb0c5b3ed3a883ee54d7a11b"
   integrity sha512-/eNBTuimOmzeeBbnZkwW6hbzSZvJnhfkx5cSdQkFS45KRHekD9twP6F8QHn+zJxeJGAP+EgpVCXoA7yCrgKrhQ==
+
+react-native-simple-radio-button@^2.7.4:
+  version "2.7.4"
+  resolved "https://registry.yarnpkg.com/react-native-simple-radio-button/-/react-native-simple-radio-button-2.7.4.tgz#86e2dbe8af9e6bf60eee088f60466f7a975e7758"
+  integrity sha512-QOZNmJUn0ViBGU+at7wAG/uGzd5PfXi0kMHr9lfTCLXknW/f9f2fOVjxjdHvOCdf/zA/eMJBjGjtusSDzQf1+w==
 
 react-native-splash-screen@^3.2.0:
   version "3.2.0"

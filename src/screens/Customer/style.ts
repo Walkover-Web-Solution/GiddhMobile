@@ -196,7 +196,8 @@ export default StyleSheet.create({
     width: "90%",
     alignSelf: 'center',
     borderRadius: 30,
-    backgroundColor: '#5773FF'
+    backgroundColor: '#5773FF',
+    marginBottom: 5
   },
   addressDetails: {
     color: '#1C1C1C',

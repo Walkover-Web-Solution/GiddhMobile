@@ -11,12 +11,12 @@ import { connect } from 'react-redux';
 import color from '@/utils/colors';
 import { transform } from '@babel/core';
 const arrButtons = [
-  {name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD'},
+  { name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD' },
   { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
   { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345' },
-  { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'path-22', color: '#ff6961' },
-  { name: 'Customer', navigateTo: 'CustomerScreens', icon: 'purchase1', color: '#864DD3' },
-  { name: 'Vendor', navigateTo: 'CustomerScreens', icon: 'path1', color: '#FF72BE' },
+  { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961' },
+  { name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3' },
+  { name: 'Vendor', navigateTo: 'CustomerScreens', icon: 'Group-6188', color: '#FF72BE' },
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},
