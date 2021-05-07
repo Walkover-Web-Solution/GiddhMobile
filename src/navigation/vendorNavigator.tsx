@@ -5,16 +5,16 @@ import Customer from '../screens/Customer/CustomerMain';
 
 const {Navigator, Screen} = createStackNavigator();
 
-function CustomerStack() {
+function VendorStack() {
   return (
     <Navigator
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName={'CustomerScreens'}>
-      <Screen component={Customer} name={'Customer'} initialParams={{index:0}}/>
+      initialRouteName={'VendorScreens'}>
+      <Screen component={Customer} name={'Customer'} initialParams={{index:1}} />
     </Navigator>
   );
 }
 
-export default CustomerStack;
+export default VendorStack;

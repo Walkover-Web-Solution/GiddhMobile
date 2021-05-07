@@ -10,11 +10,9 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { FONT_FAMILY } from '@/utils/constants';
-import CheckBox from '@react-native-community/checkbox'
 import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
-import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel, } from 'react-native-simple-radio-button';
-import { CustomerService } from '@/core/services/customer-vendor/customer-vendor.service';
+import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -34,11 +32,11 @@ export class Customers extends React.Component<Props> {
 
   async getAllDeatils() {
     await this.setState({ loading: true });
-    let allPartyTypes = await CustomerService.getAllPartyType()
-    let allStateName = await CustomerService.getAllStateName("IN")
-    let allCurrency = await CustomerService.getAllCurrency()
-    let allCountry = await CustomerService.getAllCountryName()
-    let allCallingCode = await CustomerService.getAllCallingCode()
+    let allPartyTypes = await CustomerVendorService.getAllPartyType()
+    let allStateName = await CustomerVendorService.getAllStateName("IN")
+    let allCurrency = await CustomerVendorService.getAllCurrency()
+    let allCountry = await CustomerVendorService.getAllCountryName()
+    let allCallingCode = await CustomerVendorService.getAllCallingCode()
     //Alert.alert(JSON.stringify(allCurrency.body[0].code))
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     //allStates: allStateName.body.stateList 
@@ -58,7 +56,8 @@ export class Customers extends React.Component<Props> {
     savedAddress: {
       street_billing: "",
       gstin_billing: "",
-      state_billing: '',
+      state_billing: "",
+      pincode:""
     },
     street_billing: "",
     gstin_billing: "",
@@ -89,6 +88,7 @@ export class Customers extends React.Component<Props> {
     faliureDialog: false,
     selectedGroup: "Sundry Debtors",
     partyDropDown: Dropdown,
+    pincode: "",
   }
 
   radio_props = [
@@ -113,7 +113,7 @@ export class Customers extends React.Component<Props> {
   setCountrySelected = async (value: any) => {
     this.setState({ loading: true });
     await this.setState({ state_billing: '', selectedCountry: value, selectedCurrency: value.currency.code, selectedCallingCode: value.callingCode })
-    let allStateName = await CustomerService.getAllStateName(value.alpha2CountryCode)
+    let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
     await this.setState({ allStates: allStateName.body.stateList })
     this.setState({ loading: false });
   }
@@ -131,7 +131,7 @@ export class Customers extends React.Component<Props> {
         <Text style={styles.addressDetails}>Address Details</Text>
       </View>
       <View style={{ borderBottomColor: '#808080', borderBottomWidth: 0.5 }}></View>
-      <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 3 }}>
+      <ScrollView style={{ flex: 1, paddingHorizontal: 20, marginBottom: 15 }}>
         <View style={{ flexDirection: 'row', marginTop: 10 }}>
           <Ionicons name="location-sharp" size={18} color="#808080" />
           <Text style={{ paddingLeft: 15, color: '#1C1C1C' }} >Billing Address</Text>
@@ -183,14 +183,26 @@ export class Customers extends React.Component<Props> {
           renderButtonText={(text) => text.name}
           onSelect={(idx, value) => this.setState({ state_billing: value })}
         />
+        <Text style={styles.GreyText}>PIN Code</Text>
+        <TextInput
+          style={styles.inputStyle}
+          keyboardType="number-pad"
+          value={this.state.pincode != "" ? this.state.pincode : ""}
+          multiline={true}
+          onChangeText={(text) => this.setState({ pincode: text })} />
       </ScrollView>
       <TouchableOpacity
         style={styles.saveBtn}
         onPress={() => {
+          if (this.state.gstin_billing && this.state.gstin_billing.trim().length > 1 && this.state.gstin_billing.trim().length < 15) {
+            Alert.alert("Invalid GSTIN", "Enter a valid 15 digit long GSTIN", [{ style: 'destructive', text: "Okay" }]);
+            return;
+          }
           const newAddress = {
             street_billing: this.state.street_billing,
             gstin_billing: this.state.gstin_billing,
             state_billing: this.state.state_billing,
+            pincode: this.state.pincode
           };
           this.setState({ savedAddress: newAddress });
           this.state.ref.close();
@@ -207,19 +219,9 @@ export class Customers extends React.Component<Props> {
       <View style={{ marginLeft: 46 }}>
         <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
         {this.state.savedAddress.street_billing != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_billing}</Text>}
-        {this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing}</Text>}
+        {this.state.savedAddress.state_billing.name != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing.name}</Text>}
+        {this.state.savedAddress.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.pincode}</Text>}
         {this.state.savedAddress.gstin_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.gstin_billing}</Text>}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -5 }} >
-          <CheckBox value={this.state.savedAddress.shippingSame} onValueChange={(val) => this.setState({ savedAddress: { shippingSame: val } })} />
-          <Text style={{ color: '#1c1c1c' }}>Shipping Address Same as Billing*</Text>
-        </View>
-        {this.state.savedAddress.shippingSame && <View>
-          <Text style={{ fontFamily: FONT_FAMILY.bold }}>Shipping Address*</Text>
-          {this.state.savedAddress.street_shipping != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_shipping}</Text>}
-          {this.state.savedAddress.state_shipping != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_shipping}</Text>}
-          {this.state.savedAddress.gstin_shipping != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.gstin_shipping}</Text>}
-
-        </View>}
       </View>);
   };
 
@@ -406,7 +408,7 @@ export class Customers extends React.Component<Props> {
             isDefault: false,
             isComposite: false,
             partyType: this.state.partyType,
-            pincode: null
+            pincode: this.state.savedAddress.pincode
           }
         ],
         country: {
@@ -421,7 +423,7 @@ export class Customers extends React.Component<Props> {
         sacNumber: ""
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
-      const results = await CustomerService.createCustomer(postBody);
+      const results = await CustomerVendorService.createCustomer(postBody);
       if (results.status == "success") {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
@@ -456,10 +458,7 @@ export class Customers extends React.Component<Props> {
         street_billing: "",
         gstin_billing: "",
         state_billing: '',
-        street_shipping: "",
-        gstin_shipping: "",
-        state_shipping: '',
-        shippingSame: false,
+        pincode:""
       },
       street_billing: "",
       gstin_billing: "",
@@ -494,6 +493,7 @@ export class Customers extends React.Component<Props> {
       faliureDialog: false,
       selectedGroup: "Sundry Debtors",
       partyDropDown: Dropdown,
+      pincode:"",
     })
   }
   render() {
@@ -662,9 +662,9 @@ export class Customers extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                if (this.state.savedAddress.state_billing.name != "") {
+                if (this.state.savedAddress.state_billing.name) {
                   this.setState({ openAddress: !this.state.openAddress });
-                }else{
+                } else {
                   this.state.ref.open();
                 }
               }}

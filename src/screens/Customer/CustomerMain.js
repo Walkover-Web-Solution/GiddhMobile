@@ -1,36 +1,21 @@
 import React from 'react';
-import { GDContainer } from '@/core/components/container/container.component';
 import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
-  TextInput,
-  Modal,
   Keyboard,
-  ActivityIndicator,
-  DeviceEventEmitter,
   Animated,
   NativeModules,
-  Platform,
   Dimensions,
   StatusBar,
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
-import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import { InvoiceService } from '@/core/services/invoice/invoice.service';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
-import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Vendors } from './Vendors';
 import { Customers } from './Customers';
@@ -208,10 +193,10 @@ export class Customer extends React.Component<Props> {
                     </View>
                   </View>
                 ) : (
-                  <Customers
-                    navigation={this.props.navigation}
-                  />
-                )}
+                    <Customers
+                      navigation={this.props.navigation}
+                    />
+                  )}
               </View>
               <View style={{ height: '100%', width: width }}>
                 {this.state.showLoader ? (
@@ -221,10 +206,10 @@ export class Customer extends React.Component<Props> {
                     </View>
                   </View>
                 ) : (
-                  <Vendors
-                    navigation={this.props.navigation}
-                  />
-                )}
+                    <Vendors
+                      navigation={this.props.navigation}
+                    />
+                  )}
               </View>
             </ScrollView>
 
