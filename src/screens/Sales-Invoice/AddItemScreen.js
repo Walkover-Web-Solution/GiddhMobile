@@ -1,5 +1,5 @@
 import React from 'react';
-import { GDContainer } from '@/core/components/container/container.component';
+import {GDContainer} from '@/core/components/container/container.component';
 import {
   View,
   Text,
@@ -14,18 +14,18 @@ import {
   StatusBar,
 } from 'react-native';
 import style from './style';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import {Bars} from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
-import { InvoiceService } from '@/core/services/invoice/invoice.service';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-const { SafeAreaOffsetHelper } = NativeModules;
+import {InvoiceService} from '@/core/services/invoice/invoice.service';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+const {SafeAreaOffsetHelper} = NativeModules;
 
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
@@ -62,8 +62,8 @@ class AddItemScreen extends React.Component<Props> {
     if (Platform.OS == 'ios') {
       //Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
-        let { bottomOffset } = offset;
-        this.setState({ bottomOffset });
+        let {bottomOffset} = offset;
+        this.setState({bottomOffset});
       });
     }
     this.searchUser();
@@ -92,14 +92,16 @@ class AddItemScreen extends React.Component<Props> {
   renderHeader() {
     return (
       <View style={style.header}>
-        <View style={{
-          flexDirection: 'row',
-          paddingVertical: 10,
-          alignItems: 'center',
-          flex: 1,
-        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingVertical: 10,
+            alignItems: 'center',
+            // backgroundColor: 'pink',
+            flex: 1,
+          }}>
           <TouchableOpacity
-            style={{ padding: 10 }}
+            style={{padding: 10}}
             onPress={() => {
               this.props.navigation.goBack();
             }}>
@@ -110,7 +112,7 @@ class AddItemScreen extends React.Component<Props> {
             placeholderTextColor={'#A6D8BF'}
             returnKeyType={'done'}
             onChangeText={(text) =>
-              this.setState({ searchItemName: text }, () => {
+              this.setState({searchItemName: text}, () => {
                 this.searchCalls();
               })
             }
@@ -119,9 +121,9 @@ class AddItemScreen extends React.Component<Props> {
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
-        <View style={{ marginRight: 10 }}>
+        <View style={{marginRight: 10}}>
           <Text style={style.footerItemsTotalText}>{`₹${this.performCalulations()}`}</Text>
-          <Text style={{ color: 'white' }}>{`Items: ${this.state.addedItems.length}`}</Text>
+          <Text style={{color: 'white'}}>{`Items: ${this.state.addedItems.length}`}</Text>
         </View>
       </View>
     );
@@ -139,10 +141,10 @@ class AddItemScreen extends React.Component<Props> {
           // contentContainerStyle={{flexGrow: 1}}
           // ListFooterComponent={}
           // style={{ paddingHorizontal: 20, paddingVertical: 10 }}
-          renderItem={({ item, index }) => (
-            <View style={{ paddingHorizontal: 20, paddingTop: 20 }}>
+          renderItem={({item, index}) => (
+            <View style={{paddingHorizontal: 20, paddingTop: 20}}>
               {item.stock ? this._renderStockView(item) : this._renderServiceView(item)}
-              <View style={{ height: 8, width: '100%', bottom: 0, alignSelf: 'center' }} />
+              <View style={{height: 8, width: '100%', bottom: 0, alignSelf: 'center'}} />
 
               <View
                 style={{
@@ -177,7 +179,7 @@ class AddItemScreen extends React.Component<Props> {
 
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
-    this.setState({ addedItems: addedArray });
+    this.setState({addedItems: addedArray});
   }
   _renderStockView(item) {
     var filtered = _.filter(this.state.addedItems, function (o) {
@@ -190,133 +192,103 @@ class AddItemScreen extends React.Component<Props> {
       filteredItem = filtered[0];
     }
     return (
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
         {!this.checkIfItemIsSelcted(item) ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1}}>
             <Text style={style.inventoryNameText} numberOfLines={2}>
               {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
             </Text>
             <TouchableOpacity
-              style={{ backgroundColor: '#E0F1E8', height: 32, borderRadius: 16, justifyContent: 'center' }}
+              style={{backgroundColor: '#E0F1E8', height: 32, borderRadius: 16, justifyContent: 'center'}}
               onPress={() => {
                 this.addItem(item);
               }}>
-              <Text style={{ paddingHorizontal: 14, alignSelf: 'center' }}>{'ADD'}</Text>
+              <Text style={{paddingHorizontal: 14, alignSelf: 'center'}}>{'ADD'}</Text>
             </TouchableOpacity>
           </View>
         ) : (
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={style.inventoryNameText}>
-                  {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
+          <View style={{flex: 1}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+              <Text style={style.inventoryNameText}>
+                {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
+              </Text>
+              {/* <View style={{backgroundColor: 'pink', alignItems: 'center'}}> */}
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.updateQuantityOfItem(filteredItem, 'minus');
+                  }}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: '#229F5F',
+                    borderRadius: 12,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <AntDesign name={'minus'} color={'white'} size={15} />
+                </TouchableOpacity>
+                <Text
+                  style={{
+                    minWidth: 80,
+                    fontSize: 12,
+                    color: '#1C1C1C',
+                    borderWidth: 1,
+                    padding: 4,
+
+                    borderColor: '#D9D9D9',
+                    marginHorizontal: 6,
+                    textAlign: 'center',
+                  }}>
+                  {filteredItem.quantity}
                 </Text>
-                {/* <View style={{backgroundColor: 'pink', alignItems: 'center'}}> */}
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.updateQuantityOfItem(filteredItem, 'minus');
-                    }}
-                    style={{
-                      width: 24,
-                      height: 24,
-                      backgroundColor: '#229F5F',
-                      borderRadius: 12,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <AntDesign name={'minus'} color={'white'} size={15} />
-                  </TouchableOpacity>
-                  <Text
-                    style={{
-                      minWidth: 80,
-                      fontSize: 12,
-                      color: '#1C1C1C',
-                      borderWidth: 1,
-                      padding: 4,
-
-                      borderColor: '#D9D9D9',
-                      marginHorizontal: 6,
-                      textAlign: 'center',
-                    }}>
-                    {filteredItem.quantity}
-                  </Text>
-                  {/* <View style={{backgroundColor: 'pink', alignItems: 'center'}}> */}
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.updateQuantityOfItem(filteredItem, 'minus');
-                      }}
-                      style={{
-                        width: 24,
-                        height: 24,
-                        backgroundColor: '#229F5F',
-                        borderRadius: 12,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <AntDesign name={'minus'} color={'white'} size={15} />
-                    </TouchableOpacity>
-                    <Text
-                      style={{
-                        minWidth: 80,
-                        fontSize: 12,
-                        color: '#1C1C1C',
-                        borderWidth: 1,
-                        padding: 4,
-
-                        borderColor: '#D9D9D9',
-                        marginHorizontal: 6,
-                        textAlign: 'center',
-                      }}>
-                      {filteredItem.quantity}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.updateQuantityOfItem(filteredItem, 'add');
-                      }}
-                      style={{
-                        width: 24,
-                        height: 24,
-                        backgroundColor: '#229F5F',
-                        borderRadius: 12,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <AntDesign name={'plus'} color={'white'} size={15} />
-                    </TouchableOpacity>
-                  </View>
-                  {/* {filteredItem.stock && (
+                <TouchableOpacity
+                  onPress={() => {
+                    this.updateQuantityOfItem(filteredItem, 'add');
+                  }}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: '#229F5F',
+                    borderRadius: 12,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <AntDesign name={'plus'} color={'white'} size={15} />
+                </TouchableOpacity>
+              </View>
+              {/* {filteredItem.stock && (
                   // <View style={{flexDirection: 'row', width: '50%', justifyContent: 'center'}}>
                   <Text style={{marginLeft: 10}}>
                     Unit : {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
                   </Text>
                 )} */}
-                  {/* </View> */}
+              {/* </View> */}
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flex: 1,
+                // backgroundColor: 'pink',
+                marginTop: 5,
+              }}>
+              <View style={{flexDirection: 'row', width: '50%'}}>
+                <Text>Rate: </Text>
+                <Text>{filteredItem.rate ? filteredItem.rate : '0'}</Text>
+              </View>
+              {filteredItem.stock && (
+                <View style={{flexDirection: 'row', width: '50%', justifyContent: 'center'}}>
+                  <Text style={{marginLeft: 20}}>
+                    {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
+                  </Text>
                 </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flex: 1,
-                    // backgroundColor: 'pink',
-                    marginTop: 5,
-                  }}>
-                  <View style={{ flexDirection: 'row', width: '50%' }}>
-                    <Text>Rate: </Text>
-                    <Text>{filteredItem.rate ? filteredItem.rate : '0'}</Text>
-                  </View>
-                  {filteredItem.stock && (
-                    <View style={{ flexDirection: 'row', width: '50%', justifyContent: 'center' }}>
-                      <Text style={{ marginLeft: 20 }}>
-                        {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
-                      </Text>
-                    </View>
-                  )}
-                  {/* <TouchableOpacity
+              )}
+              {/* <TouchableOpacity
                 style={{height: 30, width: 30, backgroundColor: 'pink'}}
                 onPress={() => console.log(filteredItem)}></TouchableOpacity> */}
-                  {/* <TextInput
+              {/* <TextInput
                 onChangeText={(text) => {
                   this.serviceRateValueChange(filteredItem, text);
                 }}
@@ -334,10 +306,9 @@ class AddItemScreen extends React.Component<Props> {
                   minWidth: 100,
                 }}
               /> */}
-                </View>
-              </View>
             </View>
-          )}
+          </View>
+        )}
       </View>
     );
   }
@@ -350,7 +321,7 @@ class AddItemScreen extends React.Component<Props> {
       filteredItem = filtered[0];
     }
     return (
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
         {!this.checkIfItemIsSelcted(item) ? (
           <View
             style={{
@@ -375,44 +346,13 @@ class AddItemScreen extends React.Component<Props> {
               onPress={() => {
                 this.addItem(item);
               }}>
-              <Text style={{ paddingHorizontal: 14, alignSelf: 'center' }}>SELECT</Text>
+              <Text style={{paddingHorizontal: 14, alignSelf: 'center'}}>SELECT</Text>
               {/* <Icon style={{marginLeft: 10}} name={'path-18'} size={10} color={'#1C1C1C'} /> */}
             </TouchableOpacity>
           </View>
         ) : (
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={style.inventoryNameText}>
-                  {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
-                </Text>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: 'red',
-                    height: 32,
-                    borderRadius: 16,
-                    justifyContent: 'center',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                  onPress={() => {
-                    this.deleteItemFromList(item);
-                  }}>
-                  {this.checkIfItemIsSelcted(item) && (
-                    <Icon style={{ marginLeft: 10 }} name={'path-14'} size={10} color={'white'} />
-                  )}
-
-                  <Text style={{ paddingHorizontal: 14, alignSelf: 'center', color: 'white' }}>{'Remove'}</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{ width: 100 }}>
-                {/* <Text style={{}}>{`SAC: ${item.sacNumber && item.sacNumber !== 'null' ? item.sacNumber : ''}`}</Text> */}
-
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text>Rate : </Text>
-                  <Text>{filteredItem.rate ? filteredItem.rate : '0'}</Text>
-                  {/* <Text>{filteredItem.unit ? filteredItem.unit : '0'}</Text>
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{flex: 1}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
               <Text style={style.inventoryNameText}>
                 {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
               </Text>
@@ -429,24 +369,24 @@ class AddItemScreen extends React.Component<Props> {
                   this.deleteItemFromList(item);
                 }}>
                 {this.checkIfItemIsSelcted(item) && (
-                  <Icon style={{ marginLeft: 10 }} name={'path-14'} size={10} color={'white'} />
+                  <Icon style={{marginLeft: 10}} name={'path-14'} size={10} color={'white'} />
                 )}
 
-                <Text style={{ paddingHorizontal: 14, alignSelf: 'center', color: 'white' }}>{'Remove'}</Text>
+                <Text style={{paddingHorizontal: 14, alignSelf: 'center', color: 'white'}}>{'Remove'}</Text>
               </TouchableOpacity>
             </View>
-            <View style={{ width: 100 }}>
+            <View style={{width: 100}}>
               {/* <Text style={{}}>{`SAC: ${item.sacNumber && item.sacNumber !== 'null' ? item.sacNumber : ''}`}</Text> */}
 
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text>Rate : </Text>
-                    <Text>{filteredItem.rate ? filteredItem.rate : '0'}</Text>
-                    {/* <Text>{filteredItem.unit ? filteredItem.unit : '0'}</Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text>Rate : </Text>
+                <Text>{filteredItem.rate ? filteredItem.rate : '0'}</Text>
+                {/* <Text>{filteredItem.unit ? filteredItem.unit : '0'}</Text>
                 <TouchableOpacity
                   style={{height: 30, width: 30, backgroundColor: 'pink'}}
                   onPress={() => console.log(filteredItem)}></TouchableOpacity> */}
-                    {/* <Text>{filteredItem}</Text> */}
-                    {/* <TextInput
+                {/* <Text>{filteredItem}</Text> */}
+                {/* <TextInput
                   placeholder={'Enter Rate'}
                   onChangeText={(text) => {
                     this.serviceRateValueChange(filteredItem, text);
@@ -464,17 +404,15 @@ class AddItemScreen extends React.Component<Props> {
                     minWidth: '100%',
                   }}
                 /> */}
-                  </View>
-                </View>
               </View>
             </View>
-          )}
-          );
+          </View>
+        )}
       </View>
-    )
+    );
   }
   async searchUser() {
-    this.setState({ isSearchingParty: true });
+    this.setState({isSearchingParty: true});
     try {
       const results = await InvoiceService.search(
         this.state.searchItemName,
@@ -486,18 +424,18 @@ class AddItemScreen extends React.Component<Props> {
       if (results.body && results.body.results) {
         // console.log('results are', results);
         this.setState(
-          { itemList: results.body.results, isSearchingParty: false, searchError: '' }
+          {itemList: results.body.results, isSearchingParty: false, searchError: ''},
           // , () =>
           // console.log('item list updates'),
         );
       }
     } catch (e) {
-      this.setState({ itemList: [], searchError: 'No Results', isSearchingParty: false });
+      this.setState({itemList: [], searchError: 'No Results', isSearchingParty: false});
     }
   }
 
   async addItem(item) {
-    this.setState({ loading: true });
+    this.setState({loading: true});
     try {
       if (item.stock) {
         const results = await InvoiceService.getStockDetails(item.uniqueName, item.stock.uniqueName);
@@ -509,9 +447,9 @@ class AddItemScreen extends React.Component<Props> {
             data.rate = results.body.stock.rate;
             addedItems.push(this.createNewEntry(data));
           }
-          this.setState({ addedItems, loading: false });
+          this.setState({addedItems, loading: false});
         } else {
-          this.setState({ searchError: 'No Results', loading: false });
+          this.setState({searchError: 'No Results', loading: false});
         }
       } else {
         const results = await InvoiceService.getSalesDetails(item.uniqueName);
@@ -523,14 +461,14 @@ class AddItemScreen extends React.Component<Props> {
             data.rate = 0;
             addedItems.push(this.createNewEntry(data));
           }
-          this.setState({ addedItems, loading: false });
+          this.setState({addedItems, loading: false});
         } else {
-          this.setState({ searchError: 'No Results', loading: false });
+          this.setState({searchError: 'No Results', loading: false});
         }
       }
     } catch (e) {
       alert(e);
-      this.setState({ searchError: 'No Results', loading: false });
+      this.setState({searchError: 'No Results', loading: false});
     }
   }
 
@@ -565,7 +503,7 @@ class AddItemScreen extends React.Component<Props> {
 
       // Replace item at index using native splice
       addedArray.splice(index, 1, item);
-      this.setState({ addedItems: addedArray }, () => { });
+      this.setState({addedItems: addedArray}, () => {});
     } else if (performedType == 'minus') {
       if (item.quantity == 1) {
         let addedArray = this.state.addedItems;
@@ -578,7 +516,7 @@ class AddItemScreen extends React.Component<Props> {
           0,
         ); // Replace item at index using native splice
         addedArray.splice(index, 1);
-        this.setState({ addedItems: addedArray }, () => { });
+        this.setState({addedItems: addedArray}, () => {});
         //del the item form selected list
       } else {
         let addedArray = this.state.addedItems;
@@ -594,7 +532,7 @@ class AddItemScreen extends React.Component<Props> {
 
         // Replace item at index using native splice
         addedArray.splice(index, 1, item);
-        this.setState({ addedItems: addedArray }, () => { });
+        this.setState({addedItems: addedArray}, () => {});
       }
     }
   }
@@ -612,7 +550,7 @@ class AddItemScreen extends React.Component<Props> {
       0,
     ); // Replace item at index using native splice
     addedArray.splice(index, 1);
-    this.setState({ addedItems: addedArray }, () => { });
+    this.setState({addedItems: addedArray}, () => {});
   }
   checkIfItemIsSelcted(item) {
     let uniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
@@ -630,7 +568,7 @@ class AddItemScreen extends React.Component<Props> {
 
   _renderSummaryFooter() {
     return (
-      <Animated.View style={[style.footerAddItemConatiner, { marginBottom: this.keyboardMargin }]}>
+      <Animated.View style={[style.footerAddItemConatiner, {marginBottom: this.keyboardMargin}]}>
         {/* <View>
           <Text style={style.footerItemsTotalText}>{`₹${this.performCalulations()}`}</Text>
           <Text>{`Items: ${this.state.addedItems.length}`}</Text>
@@ -678,11 +616,11 @@ class AddItemScreen extends React.Component<Props> {
   }
   render() {
     return (
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={{flex: 1, backgroundColor: 'white'}}>
         <StatusBar backgroundColor="#0E7942" barStyle="light-content" />
         <View style={style.headerConatiner}>{this.renderHeader()}</View>
 
-        <View style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
           <View style={style.container}>{this.state.itemList.length > 0 && this._renderSearchList()}</View>
 
           {this.state.loading && (
@@ -711,7 +649,7 @@ class AddItemScreen extends React.Component<Props> {
 }
 
 function mapStateToProps(state) {
-  const { commonReducer } = state;
+  const {commonReducer} = state;
   return {
     ...commonReducer,
   };

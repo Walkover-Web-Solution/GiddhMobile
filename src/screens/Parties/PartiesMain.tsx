@@ -10,6 +10,7 @@ import {
   ScrollView,
   TextInput,
   StatusBar,
+  Alert,
 } from 'react-native';
 import style from '@/screens/Parties/style';
 import {useIsFocused} from '@react-navigation/native';
@@ -263,19 +264,6 @@ export class PartiesMainScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.apiCalls();
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.setState(
-        {
-          showLoader: true,
-          customerPage: 1,
-          VendorPage: 1,
-        },
-        () => {
-          this.apiCalls();
-        },
-      );
-    });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {
@@ -288,6 +276,19 @@ export class PartiesMainScreen extends React.Component {
         },
       );
     });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      this.setState(
+        {
+          showLoader: true,
+          customerPage: 1,
+          VendorPage: 1,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
+    });
+    this.apiCalls();
   }
 
   render() {
