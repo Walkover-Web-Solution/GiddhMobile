@@ -17,7 +17,6 @@ import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel, } from 'rea
 import { CustomerService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
-import AsyncStorage from '@react-native-community/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
@@ -60,18 +59,10 @@ export class Customers extends React.Component<Props> {
       street_billing: "",
       gstin_billing: "",
       state_billing: '',
-      street_shipping: "",
-      gstin_shipping: "",
-      state_shipping: '',
-      shippingSame: false,
     },
     street_billing: "",
     gstin_billing: "",
     state_billing: '',
-    street_shipping: "",
-    gstin_shipping: "",
-    state_shipping: '',
-    shippingSame: false,
     openAddress: false,
     showBalanceDetails: false,
     creditPeriodRef: Dropdown,
@@ -96,7 +87,8 @@ export class Customers extends React.Component<Props> {
     selectedCallingCode: "91",
     successDialog: false,
     faliureDialog: false,
-    selectedGroup: "Sundry Debtors"
+    selectedGroup: "Sundry Debtors",
+    partyDropDown: Dropdown,
   }
 
   radio_props = [
@@ -159,7 +151,6 @@ export class Customers extends React.Component<Props> {
           onChangeText={(text) => this.setGSTINBilling(text)} />
         <Text style={styles.GreyText}>Country*</Text>
         <Dropdown
-          ref={(ref) => this.state.creditPeriodRef = ref}
           style={styles.dropDown}
           textStyle={{ color: '#1c1c1c' }}
           defaultValue={this.state.selectedCountry.countryName}
@@ -177,7 +168,6 @@ export class Customers extends React.Component<Props> {
         />
         <Text style={styles.GreyText}>State*</Text>
         <Dropdown
-          ref={(ref) => this.state.creditPeriodRef = ref}
           style={styles.dropDown}
           textStyle={{ color: '#1c1c1c', fontSize: 14 }}
           defaultValue={this.state.state_billing != '' ? this.state.state_billing.name : "Select"}
@@ -193,41 +183,6 @@ export class Customers extends React.Component<Props> {
           renderButtonText={(text) => text.name}
           onSelect={(idx, value) => this.setState({ state_billing: value })}
         />
-        {/* <View style={styles.rowContainer} >
-          <CheckBox value={this.state.shippingSame} onValueChange={(val) => this.setState({ shippingSame: val })} />
-          <Text style={{ color: '#1c1c1c', marginLeft: 3 }}>Shipping Address Same as Billing*</Text>
-        </View> */}
-        {/* {!this.state.shippingSame ? <View>
-          <Text style={{ color: '#808080', marginLeft: 35, marginTop: 7, fontSize: 13 }}>Street</Text>
-          <TextInput style={styles.inputStyle} multiline={true}
-            value={this.state.street_shipping != "" ? this.state.street_shipping : ""}
-            onChangeText={(text) => this.setStreetShipping(text)} />
-          <Text style={styles.GreyText}>GSTIN</Text>
-          <TextInput
-            style={styles.inputStyle}
-            defaultValue="GSTIN (if applicable)"
-            value={this.state.gstin_shipping != "" ? this.state.gstin_shipping : ""}
-            multiline={true}
-            onChangeText={(text) => this.setGSTINShipping(text)}
-          />
-          <Text style={styles.GreyText}>State*</Text>
-          <Dropdown
-            style={styles.dropDown}
-            textStyle={{ color: '#1c1c1c' }}
-            defaultValue={this.state.state_shipping != "" ? this.state.state_shipping.name : "select"}
-            options={this.state.allStates}
-            renderSeparator={() => {
-              return (<View></View>);
-            }}
-            renderButtonText={(text) => text.name}
-            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, marginLeft: -35, }}
-            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
-            renderRow={(options) => {
-              return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>);
-            }}
-            onSelect={(idx, value) => this.setState({ state_shipping: value })}
-          />
-        </View> : <View></View>} */}
       </ScrollView>
       <TouchableOpacity
         style={styles.saveBtn}
@@ -236,10 +191,6 @@ export class Customers extends React.Component<Props> {
             street_billing: this.state.street_billing,
             gstin_billing: this.state.gstin_billing,
             state_billing: this.state.state_billing,
-            street_shipping: this.state.street_billing,
-            gstin_shipping: this.state.gstin_shipping,
-            state_shipping: this.state.state_shipping,
-            shippingSame: this.state.shippingSame
           };
           this.setState({ savedAddress: newAddress });
           this.state.ref.close();
@@ -447,6 +398,7 @@ export class Customers extends React.Component<Props> {
       if (results.status == "success") {
         DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
+        this.state.partyDropDown.select(-1);
         await this.setState({ successDialog: true, });
         await this.getAllDeatils()
         await this.setState({ loading: false, });
@@ -513,7 +465,8 @@ export class Customers extends React.Component<Props> {
       selectedCallingCode: "91",
       successDialog: false,
       faliureDialog: false,
-      selectedGroup: "Sundry Debtors"
+      selectedGroup: "Sundry Debtors",
+      partyDropDown: Dropdown,
     })
   }
   render() {
@@ -637,6 +590,7 @@ export class Customers extends React.Component<Props> {
           <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5 }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
             <Dropdown
+              ref={(ref) => this.state.partyDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.partyType}
@@ -667,7 +621,11 @@ export class Customers extends React.Component<Props> {
               this.state.ref.open();
             }}
             style={{ ...styles.rowContainer, justifyContent: 'space-between', marginVertical: 10, paddingVertical: 10, backgroundColor: this.state.openAddress ? "rgba(80,80,80,0.05)" : "white" }}>
-            <AntDesign name="pluscircle" size={16} color="#864DD3" />
+            <AntDesign
+              name="pluscircle"
+              size={16}
+              color="#864DD3"
+              style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
             <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
               <Text style={{ color: '#1C1C1C' }}>Address Details*</Text>
             </View>
@@ -677,8 +635,11 @@ export class Customers extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                this.state.ref.open();
-                // this.setState({ openAddress: !this.state.openAddress });
+                if (this.state.savedAddress.state_billing.name != "") {
+                  this.setState({ openAddress: !this.state.openAddress });
+                }else{
+                  this.state.ref.open();
+                }
               }}
             />
           </TouchableOpacity>
@@ -686,7 +647,11 @@ export class Customers extends React.Component<Props> {
           <TouchableOpacity
             onPress={() => { this.setState({ showBalanceDetails: !this.state.showBalanceDetails }) }}
             style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 10 }}>
-            <AntDesign name="pluscircle" size={16} color="#864DD3" style={{ transform: [{ rotate: '45deg' }] }} />
+            <AntDesign
+              name="pluscircle"
+              size={16}
+              color="#864DD3"
+              style={{ transform: [{ rotate: this.state.showBalanceDetails ? '45deg' : '0deg' }] }} />
             <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
               <Text style={{ color: '#1C1C1C' }}>Balance Details</Text>
             </View>
