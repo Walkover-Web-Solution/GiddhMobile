@@ -37,9 +37,7 @@ export class Customers extends React.Component<Props> {
     let allCurrency = await CustomerVendorService.getAllCurrency()
     let allCountry = await CustomerVendorService.getAllCountryName()
     let allCallingCode = await CustomerVendorService.getAllCallingCode()
-    //Alert.alert(JSON.stringify(allCurrency.body[0].code))
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
-    //allStates: allStateName.body.stateList 
     await this.setState({ loading: false });
   }
 
@@ -57,7 +55,7 @@ export class Customers extends React.Component<Props> {
       street_billing: "",
       gstin_billing: "",
       state_billing: "",
-      pincode:""
+      pincode: ""
     },
     street_billing: "",
     gstin_billing: "",
@@ -458,7 +456,7 @@ export class Customers extends React.Component<Props> {
         street_billing: "",
         gstin_billing: "",
         state_billing: '',
-        pincode:""
+        pincode: ""
       },
       street_billing: "",
       gstin_billing: "",
@@ -493,7 +491,7 @@ export class Customers extends React.Component<Props> {
       faliureDialog: false,
       selectedGroup: "Sundry Debtors",
       partyDropDown: Dropdown,
-      pincode:"",
+      pincode: "",
     })
   }
   render() {

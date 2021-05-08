@@ -39,9 +39,7 @@ export class Vendors extends React.Component<Props> {
     let allCurrency = await CustomerVendorService.getAllCurrency()
     let allCountry = await CustomerVendorService.getAllCountryName()
     let allCallingCode = await CustomerVendorService.getAllCallingCode()
-    //Alert.alert(JSON.stringify(allCurrency.body[0].code))
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
-    //allStates: allStateName.body.stateList 
     await this.setState({ loading: false });
   }
 
@@ -87,7 +85,7 @@ export class Vendors extends React.Component<Props> {
     selectedCallingCode: "91",
     successDialog: false,
     faliureDialog: false,
-    selectedGroup: "Sundry Debtors",
+    selectedGroup: "Sundry Creditors",
     partyDropDown: Dropdown,
     showBankDetails: false,
     bankName: "",
@@ -343,22 +341,34 @@ export class Vendors extends React.Component<Props> {
 
   renderBankDetails = () => {
     return (
-      <View style={{ marginLeft: 46, marginRight: 20 }}>
-        <Text style={{ width: '100%', color: '#808080', marginTop: 7, fontSize: 13 }}>Bank Name</Text>
+      <View style={{ marginLeft: 20, marginRight: 20 }}>
+        <Text style={{ width: '100%', color: '#808080', marginTop: 10, fontSize: 13 }}>Bank Name</Text>
         <TextInput
-          style={styles.inputStyle}
+          style={{
+            borderBottomColor: '#808080',
+            borderBottomWidth: 0.55,
+            paddingBottom: -5
+          }}
           value={this.state.bankName != "" ? this.state.bankName : ""}
           multiline={true}
           onChangeText={(text) => this.setState({ bankName: text })} />
-        <Text style={{ color: '#808080', marginTop: 7, fontSize: 13 }}>Account Number</Text>
+        <Text style={{ color: '#808080', marginTop: 10, fontSize: 13 }}>Account Number</Text>
         <TextInput
-          style={styles.inputStyle}
+          style={{
+            borderBottomColor: '#808080',
+            borderBottomWidth: 0.55,
+            paddingBottom: -5
+          }}
           value={this.state.bankAccountNumber != "" ? this.state.showBankDetails : ""}
           multiline={true}
           onChangeText={(text) => this.setState({ bankAccountNumber: text })} />
-        <Text style={{ color: '#808080', marginTop: 7, fontSize: 13 }}>IFSC Code</Text>
+        <Text style={{ color: '#808080', marginTop: 10, fontSize: 13 }}>IFSC Code</Text>
         <TextInput
-          style={styles.inputStyle}
+          style={{
+            borderBottomColor: '#808080',
+            borderBottomWidth: 0.55,
+            paddingBottom: -5
+          }}
           value={this.state.IFSC_Code != "" ? this.state.IFSC_Code : ""}
           multiline={true}
           onChangeText={(text) => this.setState({ IFSC_Code: text })} />
