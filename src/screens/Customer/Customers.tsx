@@ -33,11 +33,12 @@ export class Customers extends React.Component<Props> {
   async getAllDeatils() {
     await this.setState({ loading: true });
     let allPartyTypes = await CustomerVendorService.getAllPartyType()
-    let allStateName = await CustomerVendorService.getAllStateName("IN")
+    // let allStateName = await CustomerVendorService.getAllStateName("IN")
     let allCurrency = await CustomerVendorService.getAllCurrency()
-    let allCountry = await CustomerVendorService.getAllCountryName()
+    // let allCountry = await CustomerVendorService.getAllCountryName()
     let allCallingCode = await CustomerVendorService.getAllCallingCode()
-    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
+    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
+    // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     await this.setState({ loading: false });
   }
 
@@ -481,8 +482,10 @@ export class Customers extends React.Component<Props> {
       state_billing: address.state,
       pincode: address.pincode
     };
-    this.setState({ savedAddress: newAddress, selectedCountry: address.selectedCountry, selectedCurrency:address.selectedCountry.currency.code, selectedCallingCode: address.selectedCountry.callingCode });
-    console.log(this.state);
+    this.setState({
+      savedAddress: newAddress, selectedCountry: address.selectedCountry,
+      selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
+    });
   };
 
   render() {

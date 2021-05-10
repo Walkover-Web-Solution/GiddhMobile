@@ -79,8 +79,26 @@ export class SalesInvoice extends React.Component<Props> {
       date: moment(),
       displayedDate: moment(),
       showDatePicker: false,
-      partyBillingAddress: {},
-      partyShippingAddress: {},
+      partyBillingAddress: {
+        address: "",
+        gstNumber: '',
+        state: {
+          code: "",
+          name: ""
+        },
+        stateCode: '',
+        stateName: ''
+      },
+      partyShippingAddress: {
+        address: "",
+        gstNumber: '',
+        state: {
+          code: "",
+          name: ""
+        },
+        stateCode: '',
+        stateName: ''
+      },
       addressArray: [],
       addedItems: [],
       showItemDetails: false,
@@ -603,7 +621,7 @@ export class SalesInvoice extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name },
+            state: { code: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : "" },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
           },
@@ -620,7 +638,7 @@ export class SalesInvoice extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name },
+            state: { code: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : "" },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
           },
@@ -665,25 +683,31 @@ export class SalesInvoice extends React.Component<Props> {
         // this.setState({loading: false});
         alert('Invoice created successfully!');
         const partyDetails = this.state.partyDetails;
+        const invoiceType = this.state.invoiceType;
+        // Here for cash invoice party detail is empty {}
         this.resetState();
         this.getAllTaxes();
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
         if (type == "navigate") {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
-            params: {
-              item: {
-                name: partyDetails.name,
-                uniqueName: partyDetails.uniqueName,
-                country: { code: partyDetails.country.countryCode },
-                mobileNo: partyDetails.mobileNo
-              },
-              type: 'Creditors'
-            }
-          });
+          if (invoiceType == INVOICE_TYPE.cash) {
+            this.props.navigation.goBack();
+          } else {
+            this.props.navigation.navigate(routes.Parties, {
+              screen: 'PartiesTransactions',
+              initial: false,
+              params: {
+                item: {
+                  name: partyDetails.name,
+                  uniqueName: partyDetails.uniqueName,
+                  country: { code: partyDetails.country.countryCode },
+                  mobileNo: partyDetails.mobileNo
+                },
+                type: 'Creditors'
+              }
+            });
+          }
         }
         if (type == "share") {
           console.log("sharing");
@@ -1327,23 +1351,23 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
               ) : (
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({ showPaymentModePopup: true });
-                  }}>
-                  <TextInput
-                    style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5 }}
-                    placeholder="00000.00"
-                    returnKeyType={'done'}
-                    editable={false}
-                    keyboardType="number-pad"
-                    value={this.state.amountPaidNowText}
-                    onChangeText={(text) => {
-                      this.setState({ amountPaidNowText: text });
-                    }}
-                  />
-                </TouchableOpacity>
-              )}
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({ showPaymentModePopup: true });
+                    }}>
+                    <TextInput
+                      style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5 }}
+                      placeholder="00000.00"
+                      returnKeyType={'done'}
+                      editable={false}
+                      keyboardType="number-pad"
+                      value={this.state.amountPaidNowText}
+                      onChangeText={(text) => {
+                        this.setState({ amountPaidNowText: text });
+                      }}
+                    />
+                  </TouchableOpacity>
+                )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>

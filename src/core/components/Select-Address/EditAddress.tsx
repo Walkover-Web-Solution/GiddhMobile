@@ -162,7 +162,7 @@ export class EditAddress extends React.Component<any, any> {
     };
     this.setState({ allCountry: allCountry.body, allStates: allStateName.body.stateList, selectedCountry: this.props.route.params.addressArray.countryName != null ? this.props.route.params.addressArray.countryName : countryIndia });
     console.log(this.state.selectedCountry);
-    
+
   }
 
   changeactiveIndex = (value: number) => {
@@ -170,9 +170,9 @@ export class EditAddress extends React.Component<any, any> {
   };
 
   onSubmit = () => {
-    console.log("state"+this.state.state_billing == "");
-    console.log("country"+this.state.selectedCountry);
-    
+    console.log("state" + this.state.state_billing == "");
+    console.log("country" + this.state.selectedCountry);
+
     if (this.state.state_billing == "" || this.state.selectedCountry == "") {
       alert("Please Enter Country and State Name");
     }
@@ -185,7 +185,9 @@ export class EditAddress extends React.Component<any, any> {
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
-        state: this.state.state_billing
+        state: this.state.state_billing,
+        stateCode: this.state.state_billing.code,
+        stateName: this.state.state_billing.name,
       }
       this.props.route.params.selectAddress(address);
       this.props.navigation.goBack();
@@ -204,7 +206,7 @@ export class EditAddress extends React.Component<any, any> {
     return (
       <View style={style.container}>
         {this.props.route.params.statusBarColor && <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle="light-content" />}
-        <View style={{ ...style.header, backgroundColor: this.props.route.params.headerColor != null ? this.props.route.params.headerColor : "white" }}>
+        <View style={{ ...style.header, backgroundColor: this.props.route.params.headerColor != null ? this.props.route.params.headerColor : "#229F5F" }}>
           <TouchableOpacity delayPressIn={0} onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward-arrow'} color="#fff" size={18} />
           </TouchableOpacity>
