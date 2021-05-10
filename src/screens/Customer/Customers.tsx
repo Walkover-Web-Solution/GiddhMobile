@@ -640,7 +640,7 @@ export class Customers extends React.Component<Props> {
               const BillingAddress = {
                 address: this.state.savedAddress.street_billing,
                 stateName: this.state.savedAddress.state_billing,
-                countryName: this.state.selectedCountry,
+                selectedCountry: this.state.selectedCountry,
                 gstNumber: this.state.savedAddress.gstin_billing,
                 pincode: this.state.savedAddress.pincode
               };
@@ -672,7 +672,7 @@ export class Customers extends React.Component<Props> {
                   const BillingAddress = {
                     address: this.state.savedAddress.street_billing,
                     stateName: this.state.savedAddress.state_billing,
-                    countryName: this.state.selectedCountry,
+                    selectedCountry: this.state.selectedCountry,
                     gstNumber: this.state.savedAddress.gstin_billing,
                     pincode: this.state.savedAddress.pincode
                   };

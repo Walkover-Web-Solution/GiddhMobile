@@ -123,22 +123,25 @@ export class EditAddress extends React.Component<any, any> {
     this.state = {
       allStates: [],
       allCountry: [],
-      selectedCountry: {
-        "alpha3CountryCode": "IND",
-        "alpha2CountryCode": "IN",
-        "countryName": "India",
-        "callingCode": "91",
-        "currency": {
-          "code": "INR",
-          "symbol": "₹"
-        },
-        "countryIndia": true
-      },
       activeIndex: 0,
       editAddress: false,
       isDefault: false,
+      // For Cash Invoice country name 
+      selectedCountry: this.props.route.params.addressArray.selectedCountry != null ? this.props.route.params.addressArray.selectedCountry :
+        {
+          "alpha3CountryCode": "IND",
+          "alpha2CountryCode": "IN",
+          "countryName": "India",
+          "callingCode": "91",
+          "currency": {
+            "code": "INR",
+            "symbol": "₹"
+          },
+          "countryIndia": true
+        }
+      ,
       address: this.props.route.params.addressArray.address != null ? this.props.route.params.addressArray.address : "",
-      state_billing: this.props.route.params.addressArray.stateName != null ? this.props.route.params.addressArray.stateName : "",
+      state_billing: this.props.route.params.addressArray.stateName != null && this.props.route.params.addressArray.stateName != "" ? this.props.route.params.addressArray.stateName : "Select",
       gstNo: this.props.route.params.addressArray.gstNumber != null ? this.props.route.params.addressArray.gstNumber : "",
       pinCode: this.props.route.params.addressArray.pincode != null ? this.props.route.params.addressArray.pincode : "",
       loading: false
@@ -148,7 +151,7 @@ export class EditAddress extends React.Component<any, any> {
 
   getDetails = async () => {
     let allCountry = await CustomerVendorService.getAllCountryName();
-    let allStateName = await CustomerVendorService.getAllStateName("IN");
+    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
     const countryIndia = {
       "alpha3CountryCode": "IND",
       "alpha2CountryCode": "IN",
@@ -160,7 +163,7 @@ export class EditAddress extends React.Component<any, any> {
       },
       "countryIndia": true
     };
-    this.setState({ allCountry: allCountry.body, allStates: allStateName.body.stateList, selectedCountry: this.props.route.params.addressArray.countryName != null ? this.props.route.params.addressArray.countryName : countryIndia });
+    await this.setState({ allCountry: allCountry.body, allStates: allStateName.body.stateList, selectedCountry: this.props.route.params.addressArray.selectedCountry != null ? this.props.route.params.addressArray.selectedCountry : countryIndia });
     console.log(this.state.selectedCountry);
 
   }
@@ -196,7 +199,7 @@ export class EditAddress extends React.Component<any, any> {
 
   setCountrySelected = async (value: any) => {
     this.setState({ loading: true });
-    await this.setState({ state_billing: '', selectedCountry: value })
+    await this.setState({ state_billing: 'Select', selectedCountry: value, countryName: value.countryName })
     let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
     await this.setState({ allStates: allStateName.body.stateList })
     this.setState({ loading: false });
@@ -223,7 +226,7 @@ export class EditAddress extends React.Component<any, any> {
           <Dropdown
             style={style.dropDown}
             textStyle={{ color: '#1c1c1c' }}
-            defaultValue={this.state.selectedCountry.countryName}
+            defaultValue={this.state.selectedCountry.countryName != null ? this.state.selectedCountry.countryName : ""}
             options={this.state.allCountry}
             renderSeparator={() => {
               return (<View></View>);
@@ -240,7 +243,7 @@ export class EditAddress extends React.Component<any, any> {
           <Dropdown
             style={style.dropDown}
             textStyle={{ color: '#1c1c1c', fontSize: 14 }}
-            defaultValue={this.state.state_billing != '' ? this.state.state_billing.name : "Select"}
+            defaultValue={this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing}
             options={this.state.allStates}
             renderSeparator={() => {
               return (<View></View>);
