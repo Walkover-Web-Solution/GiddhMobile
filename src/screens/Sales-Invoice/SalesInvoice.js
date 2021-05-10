@@ -690,6 +690,7 @@ export class SalesInvoice extends React.Component<Props> {
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
+        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
         if (type == "navigate") {
           if (invoiceType == INVOICE_TYPE.cash) {
             this.props.navigation.goBack();
@@ -713,7 +714,6 @@ export class SalesInvoice extends React.Component<Props> {
           console.log("sharing");
           this.downloadFile(results.body.entries[0].voucherType, results.body.entries[0].voucherNumber);
         }
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);
@@ -1351,23 +1351,23 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
               ) : (
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({ showPaymentModePopup: true });
-                    }}>
-                    <TextInput
-                      style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5 }}
-                      placeholder="00000.00"
-                      returnKeyType={'done'}
-                      editable={false}
-                      keyboardType="number-pad"
-                      value={this.state.amountPaidNowText}
-                      onChangeText={(text) => {
-                        this.setState({ amountPaidNowText: text });
-                      }}
-                    />
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({ showPaymentModePopup: true });
+                  }}>
+                  <TextInput
+                    style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5 }}
+                    placeholder="00000.00"
+                    returnKeyType={'done'}
+                    editable={false}
+                    keyboardType="number-pad"
+                    value={this.state.amountPaidNowText}
+                    onChangeText={(text) => {
+                      this.setState({ amountPaidNowText: text });
+                    }}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
