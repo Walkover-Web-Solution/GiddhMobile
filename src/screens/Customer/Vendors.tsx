@@ -59,6 +59,7 @@ export class Vendors extends React.Component<Props> {
       street_billing: "",
       gstin_billing: "",
       state_billing: "",
+      pincode:""
     },
     street_billing: "",
     gstin_billing: "",
@@ -93,7 +94,6 @@ export class Vendors extends React.Component<Props> {
     bankName: "",
     bankAccountNumber: "",
     IFSC_Code: "",
-    pincode: "",
   }
 
   radio_props = [
@@ -123,100 +123,18 @@ export class Vendors extends React.Component<Props> {
     this.setState({ loading: false });
   }
 
-  renderAddressDetails = () => {
-    return (<View style={{ flex: 1 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, paddingLeft: 20 }} >
-        <TouchableOpacity
-          style={{ marginVertical: 10 }}
-          onPress={() => {
-            this.state.ref.close();
-          }}>
-          <Icon name={'Backward-arrow'} size={16} color={'#808080'} />
-        </TouchableOpacity>
-        <Text style={styles.addressDetails}>Address Details</Text>
-      </View>
-      <View style={{ borderBottomColor: '#808080', borderBottomWidth: 0.5 }}></View>
-      <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 3, marginBottom: 10 }}>
-        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-          <Ionicons name="location-sharp" size={18} color="#808080" />
-          <Text style={{ paddingLeft: 15, color: '#1C1C1C' }} >Billing Address</Text>
-        </View>
-        <Text style={{ color: '#808080', marginLeft: 35, marginTop: 7, fontSize: 13 }}>Street</Text>
-        <TextInput
-          style={styles.inputStyle}
-          value={this.state.street_billing != "" ? this.state.street_billing : ""}
-          multiline={true}
-          onChangeText={(text) => this.setStreetBilling(text)} />
-        <Text style={styles.GreyText}>GSTIN</Text>
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="GSTIN (if applicable)"
-          value={this.state.gstin_billing != "" ? this.state.gstin_billing : ""}
-          multiline={true}
-          onChangeText={(text) => this.setGSTINBilling(text)} />
-        <Text style={styles.GreyText}>Country*</Text>
-        <Dropdown
-          style={styles.dropDown}
-          textStyle={{ color: '#1c1c1c' }}
-          defaultValue={this.state.selectedCountry.countryName}
-          options={this.state.allCountry}
-          renderSeparator={() => {
-            return (<View></View>);
-          }}
-          dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, marginLeft: -35, }}
-          dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
-          renderRow={(options) => {
-            return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.countryName}</Text>);
-          }}
-          renderButtonText={(text) => text.countryName}
-          onSelect={(idx, value) => this.setCountrySelected(value)}
-        />
-        <Text style={styles.GreyText}>State*</Text>
-        <Dropdown
-          style={styles.dropDown}
-          textStyle={{ color: '#1c1c1c', fontSize: 14 }}
-          defaultValue={this.state.state_billing != '' ? this.state.state_billing.name : "Select"}
-          options={this.state.allStates}
-          renderSeparator={() => {
-            return (<View></View>);
-          }}
-          dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, marginLeft: -35, }}
-          dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
-          renderRow={(options) => {
-            return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>);
-          }}
-          renderButtonText={(text) => text.name}
-          onSelect={(idx, value) => this.setState({ state_billing: value })}
-        />
-        <Text style={styles.GreyText}>PIN Code</Text>
-        <TextInput
-          style={styles.inputStyle}
-          keyboardType="number-pad"
-          value={this.state.pincode != "" ? this.state.pincode : ""}
-          multiline={true}
-          onChangeText={(text) => this.setState({ pincode: text })} />
-      </ScrollView>
-      <TouchableOpacity
-        style={styles.saveBtn}
-        onPress={() => {
-          if (this.state.gstin_billing && this.state.gstin_billing.trim().length > 1 && this.state.gstin_billing.trim().length < 15) {
-            Alert.alert("Invalid GSTIN", "Enter a valid 15 digit long GSTIN", [{ style: 'destructive', text: "Okay" }]);
-            return;
-          }
-          const newAddress = {
-            street_billing: this.state.street_billing,
-            gstin_billing: this.state.gstin_billing,
-            state_billing: this.state.state_billing,
-          };
-          this.setState({ savedAddress: newAddress });
-          this.state.ref.close();
-        }}
-      >
-        <Text style={{ color: 'white', padding: 10, }}>Save</Text>
-      </TouchableOpacity>
-    </View>
-    );
-  }
+  selectBillingAddress = (address) => {
+    console.log(address);
+    const newAddress = {
+      street_billing: address.address,
+      gstin_billing: address.gstNumber,
+      state_billing: address.state,
+      pincode: address.pincode
+    };
+    this.setState({ savedAddress: newAddress, selectedCountry: address.selectedCountry });
+  };
+
+  
 
   renderSavedAddress = () => {
     return (
@@ -224,7 +142,7 @@ export class Vendors extends React.Component<Props> {
         <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
         {this.state.savedAddress.street_billing != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_billing}</Text>}
         {this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing.name}</Text>}
-        {this.state.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.pincode}</Text>}
+        {this.state.savedAddress.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.pincode}</Text>}
         {this.state.savedAddress.gstin_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.gstin_billing}</Text>}
       </View>);
   };
@@ -437,7 +355,7 @@ export class Vendors extends React.Component<Props> {
             isDefault: false,
             isComposite: false,
             partyType: this.state.partyType,
-            pincode: this.state.pincode
+            pincode: this.state.savedAddress.pincode
           }
         ],
         country: {
@@ -495,10 +413,7 @@ export class Vendors extends React.Component<Props> {
         street_billing: "",
         gstin_billing: "",
         state_billing: '',
-        street_shipping: "",
-        gstin_shipping: "",
-        state_shipping: '',
-        shippingSame: false,
+        pincode:""
       },
       street_billing: "",
       gstin_billing: "",
@@ -537,7 +452,6 @@ export class Vendors extends React.Component<Props> {
       bankName: "",
       bankAccountNumber: "",
       IFSC_Code: "",
-      pincode: "",
     })
   }
   render() {
@@ -689,7 +603,19 @@ export class Vendors extends React.Component<Props> {
           </View>
           <TouchableOpacity
             onPress={() => {
-              this.state.ref.open();
+              const BillingAddress = {
+                address: this.state.savedAddress.street_billing,
+                stateName: this.state.savedAddress.state_billing,
+                countryName: this.state.selectedCountry,
+                gstNumber: this.state.savedAddress.gstin_billing,
+                pincode: this.state.savedAddress.pincode
+              };
+              this.props.navigation.navigate('EditAddressCV', {
+                addressArray: BillingAddress,
+                selectAddress: (this.selectBillingAddress).bind(this),
+                headerColor: "#864DD3",
+                statusBarColor: '#520EAD'
+              })
             }}
             style={{ ...styles.rowContainer, justifyContent: 'space-between', marginVertical: 10, paddingVertical: 10, backgroundColor: this.state.openAddress ? "rgba(80,80,80,0.05)" : "white" }}>
             <AntDesign
@@ -706,10 +632,22 @@ export class Vendors extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                if (this.state.savedAddress.state_billing.name) {
+                if (this.state.savedAddress.state_billing) {
                   this.setState({ openAddress: !this.state.openAddress });
                 } else {
-                  this.state.ref.open();
+                  const BillingAddress = {
+                    address: this.state.savedAddress.street_billing,
+                    stateName: this.state.savedAddress.state_billing,
+                    countryName: this.state.selectedCountry,
+                    gstNumber: this.state.savedAddress.gstin_billing,
+                    pincode: this.state.savedAddress.pincode
+                  };
+                  this.props.navigation.navigate('EditAddressCV', {
+                    addressArray: BillingAddress,
+                    selectAddress: (this.selectBillingAddress).bind(this),
+                    headerColor: "#864DD3",
+                    statusBarColor: '#520EAD'
+                  })
                 }
               }}
             />
@@ -761,7 +699,7 @@ export class Vendors extends React.Component<Props> {
           }}>
           <Icon name={'path-18'} size={48} color={'#5773FF'} />
         </TouchableOpacity>}
-        <RBSheet ref={(ref) => { this.state.ref = ref }}
+        {/* <RBSheet ref={(ref) => { this.state.ref = ref }}
           height={500}
           customStyles={{
             container: {
@@ -769,7 +707,7 @@ export class Vendors extends React.Component<Props> {
             }
           }}>
           {this.renderAddressDetails()}
-        </RBSheet>
+        </RBSheet> */}
         {this.state.loading && (
           <View
             style={{

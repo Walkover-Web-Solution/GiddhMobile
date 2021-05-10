@@ -2,13 +2,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, Dimensions, StatusBar, PermissionsAndroid, Animated, Alert } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import AddressItem from './AddressItem';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Fontisto from 'react-native-vector-icons/Fontisto';
 const { height, width } = Dimensions.get('window');
-import { alias } from 'yargs';
+import { Bars } from 'react-native-loader';
+import Dropdown from 'react-native-modal-dropdown';
+import color from '@/utils/colors';
+import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
+import { FONT_FAMILY } from '@/utils/constants';
 
 const addresses = [
   {
@@ -121,57 +121,90 @@ export class EditAddress extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      allStates: [],
+      allCountry: [],
+      selectedCountry: {
+        "alpha3CountryCode": "IND",
+        "alpha2CountryCode": "IN",
+        "countryName": "India",
+        "callingCode": "91",
+        "currency": {
+          "code": "INR",
+          "symbol": "₹"
+        },
+        "countryIndia": true
+      },
       activeIndex: 0,
       editAddress: false,
       isDefault: false,
-      address:  this.props.route.params.addressArray.address!=null?this.props.route.params.addressArray.address:"",
-      state: this.props.route.params.addressArray.stateName!=null?this.props.route.params.addressArray.stateName:"",
-      country: this.props.route.params.addressArray.countryName!=null?this.props.route.params.addressArray.countryName:"",
-      gstNo: this.props.route.params.addressArray.gstNumber!=null?this.props.route.params.addressArray.gstNumber:"",
-      pinCode: this.props.route.params.addressArray.pincode!=null?this.props.route.params.addressArray.pincode:""
+      address: this.props.route.params.addressArray.address != null ? this.props.route.params.addressArray.address : "",
+      state_billing: this.props.route.params.addressArray.stateName != null ? this.props.route.params.addressArray.stateName : "",
+      gstNo: this.props.route.params.addressArray.gstNumber != null ? this.props.route.params.addressArray.gstNumber : "",
+      pinCode: this.props.route.params.addressArray.pincode != null ? this.props.route.params.addressArray.pincode : "",
+      loading: false
     };
+    this.getDetails();
+  }
+
+  getDetails = async () => {
+    let allCountry = await CustomerVendorService.getAllCountryName();
+    let allStateName = await CustomerVendorService.getAllStateName("IN");
+    const countryIndia = {
+      "alpha3CountryCode": "IND",
+      "alpha2CountryCode": "IN",
+      countryName: "India",
+      "callingCode": "91",
+      "currency": {
+        "code": "INR",
+        "symbol": "₹"
+      },
+      "countryIndia": true
+    };
+    this.setState({ allCountry: allCountry.body, allStates: allStateName.body.stateList, selectedCountry: this.props.route.params.addressArray.countryName != null ? this.props.route.params.addressArray.countryName : countryIndia });
+    console.log(this.state.selectedCountry);
+    
   }
 
   changeactiveIndex = (value: number) => {
     this.setState({ activeIndex: value });
   };
 
-  getStateCode = (displayName: any) => {
-    var stateCode = displayName.charAt(0).toUpperCase();
-    if (displayName.includes(" ")) {
-      stateCode += displayName.charAt(displayName.indexOf(" ", 0) + 1).toUpperCase();
-    }
-    return stateCode
-  }
-
   onSubmit = () => {
-    if (this.state.state == "" || this.state.country == "") {
-      alert("Please Enter Country and State Name")
-    } else {
-      const stateCode = this.getStateCode(this.state.state)
+    console.log("state"+this.state.state_billing == "");
+    console.log("country"+this.state.selectedCountry);
+    
+    if (this.state.state_billing == "" || this.state.selectedCountry == "") {
+      alert("Please Enter Country and State Name");
+    }
+    else if (this.state.gstNo && this.state.gstNo.length != 15) {
+      alert("Enter a valid gst number, should be 15 characters long");
+    }
+    else {
       var address = {
         address: this.state.address,
-        state: {
-          code: stateCode,
-          name: this.state.state
-        },
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
-        countryName: this.state.country,
-        stateCode: stateCode,
-        stateName: this.state.state
+        selectedCountry: this.state.selectedCountry,
+        state: this.state.state_billing
       }
       this.props.route.params.selectAddress(address);
       this.props.navigation.goBack();
-
     }
+  }
+
+  setCountrySelected = async (value: any) => {
+    this.setState({ loading: true });
+    await this.setState({ state_billing: '', selectedCountry: value })
+    let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
+    await this.setState({ allStates: allStateName.body.stateList })
+    this.setState({ loading: false });
   }
 
   render() {
     return (
       <View style={style.container}>
         {this.props.route.params.statusBarColor && <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle="light-content" />}
-        <View style={style.header}>
+        <View style={{ ...style.header, backgroundColor: this.props.route.params.headerColor != null ? this.props.route.params.headerColor : "white" }}>
           <TouchableOpacity delayPressIn={0} onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward-arrow'} color="#fff" size={18} />
           </TouchableOpacity>
@@ -185,15 +218,39 @@ export class EditAddress extends React.Component<any, any> {
             onChangeText={(text) => this.setState({ address: text })}
             value={this.state.address}></TextInput>
           <Text style={style.BMfieldTitle}>Country</Text>
-          <TextInput
-            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5 }}
-            onChangeText={(text) => this.setState({ country: text })}
-            value={this.state.country}></TextInput>
+          <Dropdown
+            style={style.dropDown}
+            textStyle={{ color: '#1c1c1c' }}
+            defaultValue={this.state.selectedCountry.countryName}
+            options={this.state.allCountry}
+            renderSeparator={() => {
+              return (<View></View>);
+            }}
+            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10 }}
+            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
+            renderRow={(options) => {
+              return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.countryName}</Text>);
+            }}
+            renderButtonText={(text) => text.countryName}
+            onSelect={(idx, value) => this.setCountrySelected(value)}
+          />
           <Text style={style.BMfieldTitle}>State</Text>
-          <TextInput
-            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5 }}
-            onChangeText={(text) => this.setState({ state: text })}
-            value={this.state.state}></TextInput>
+          <Dropdown
+            style={style.dropDown}
+            textStyle={{ color: '#1c1c1c', fontSize: 14 }}
+            defaultValue={this.state.state_billing != '' ? this.state.state_billing.name : "Select"}
+            options={this.state.allStates}
+            renderSeparator={() => {
+              return (<View></View>);
+            }}
+            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10 }}
+            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
+            renderRow={(options) => {
+              return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>);
+            }}
+            renderButtonText={(text) => text.name}
+            onSelect={(idx, value) => this.setState({ state_billing: value })}
+          />
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
             style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5 }}
@@ -215,9 +272,24 @@ export class EditAddress extends React.Component<any, any> {
             <Text style={style.DefaultAddressText}>Default Address</Text>
           </View> */}
         </ScrollView>
-          <TouchableOpacity style={style.button} onPress={() => this.onSubmit()}>
-            <Text style={style.buttonText}>Save</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={style.button} onPress={() => this.onSubmit()}>
+          <Text style={style.buttonText}>Save</Text>
+        </TouchableOpacity>
+        {this.state.loading && (
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'absolute',
+              backgroundColor: 'rgba(0,0,0,0)',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              top: 0,
+            }}>
+            <Bars size={15} color={color.PRIMARY_NORMAL} />
+          </View>
+        )}
       </View>
     );
   }

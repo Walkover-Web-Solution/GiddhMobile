@@ -1,9 +1,10 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import Customer from '../screens/Customer/CustomerMain';
+import EditAddress from '@/core/components/Select-Address/EditAddress';
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
 function VendorStack() {
   return (
@@ -12,7 +13,8 @@ function VendorStack() {
         headerShown: false,
       }}
       initialRouteName={'VendorScreens'}>
-      <Screen component={Customer} name={'Customer'} initialParams={{index:1}} />
+      <Screen component={Customer} name={'Customer'} initialParams={{ index: 1 }} />
+      <Screen component={EditAddress} name={'EditAddressCV'} />
     </Navigator>
   );
 }
