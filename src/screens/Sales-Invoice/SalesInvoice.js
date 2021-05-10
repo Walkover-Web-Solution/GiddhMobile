@@ -665,6 +665,7 @@ export class SalesInvoice extends React.Component<Props> {
         // this.setState({loading: false});
         alert('Invoice created successfully!');
         const partyDetails = this.state.partyDetails;
+        // Here for cash invoice party detail is empty {}
         this.resetState();
         this.getAllTaxes();
         this.getAllDiscounts();
