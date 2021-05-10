@@ -483,7 +483,8 @@ export class Customers extends React.Component<Props> {
       state_billing: address.state,
       pincode: address.pincode
     };
-    this.setState({ savedAddress: newAddress, selectedCountry: address.selectedCountry });
+    this.setState({ savedAddress: newAddress, selectedCountry: address.selectedCountry, selectedCurrency:address.selectedCountry.currency.code, selectedCallingCode: address.selectedCountry.callingCode });
+    console.log(this.state);
   };
 
   render() {
