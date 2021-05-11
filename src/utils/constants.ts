@@ -75,6 +75,7 @@ export const STORAGE_KEYS = {
   sessionEnd: 'SESSION_END',
   sortBy: 'SORT_BY',
   order: 'ORDER',
+  activeCompanyCountryCode:''
 };
 
 // APP events constants

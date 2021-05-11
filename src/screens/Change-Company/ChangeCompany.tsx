@@ -24,6 +24,8 @@ export class ChangeCompany extends React.Component<Props> {
       loading: false,
     };
   }
+
+  
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
   };

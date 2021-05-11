@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -19,6 +19,7 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
+import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
 interface Props {
   navigation: any;
@@ -40,6 +41,7 @@ export class Customers extends React.Component<Props> {
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
     // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     await this.setState({ loading: false });
+    console.log(this.state.allPartyType);
   }
 
   state = {
@@ -47,7 +49,7 @@ export class Customers extends React.Component<Props> {
     partyName: "",
     contactNumber: "",
     emailId: "",
-    partyType: "Party Type*",
+    partyType: "",
     allPartyType: [],
     AllGroups: ["Sundry Debtors"],
     ref: RBSheet,
@@ -87,7 +89,11 @@ export class Customers extends React.Component<Props> {
     faliureDialog: false,
     selectedGroup: "Sundry Debtors",
     partyDropDown: Dropdown,
-    pincode: "",
+    groupDropDown: Dropdown,
+    isGroupDD: false,
+    isPartyDD: false,
+    partyPlaceHolder: "",
+    partyDialog: false,
   }
 
   radio_props = [
@@ -115,87 +121,6 @@ export class Customers extends React.Component<Props> {
     let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
     await this.setState({ allStates: allStateName.body.stateList })
     this.setState({ loading: false });
-  }
-
-  renderAddressDetails = () => {
-    return (<View style={{ flex: 1 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, paddingLeft: 20 }} >
-        <TouchableOpacity
-          style={{ marginVertical: 10 }}
-          onPress={() => {
-            this.state.ref.close();
-          }}>
-          <Icon name={'Backward-arrow'} size={16} color={'#808080'} />
-        </TouchableOpacity>
-        <Text style={styles.addressDetails}>Address Details</Text>
-      </View>
-      <View style={{ borderBottomColor: '#808080', borderBottomWidth: 0.5 }}></View>
-      <ScrollView style={{ flex: 1, paddingHorizontal: 20, marginBottom: 15 }}>
-        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-          <Ionicons name="location-sharp" size={18} color="#808080" />
-          <Text style={{ paddingLeft: 15, color: '#1C1C1C' }} >Billing Address</Text>
-        </View>
-        <Text style={{ color: '#808080', marginLeft: 35, marginTop: 7, fontSize: 13 }}>Street</Text>
-        <TextInput
-          style={styles.inputStyle}
-          value={this.state.street_billing != "" ? this.state.street_billing : ""}
-          multiline={true}
-          onChangeText={(text) => this.setStreetBilling(text)} />
-        <Text style={styles.GreyText}>GSTIN</Text>
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="GSTIN (if applicable)"
-          value={this.state.gstin_billing != "" ? this.state.gstin_billing : ""}
-          multiline={true}
-          onChangeText={(text) => this.setGSTINBilling(text)} />
-        <Text style={styles.GreyText}>Country*</Text>
-
-        <Text style={styles.GreyText}>State*</Text>
-        <Dropdown
-          style={styles.dropDown}
-          textStyle={{ color: '#1c1c1c', fontSize: 14 }}
-          defaultValue={this.state.state_billing != '' ? this.state.state_billing.name : "Select"}
-          options={this.state.allStates}
-          renderSeparator={() => {
-            return (<View></View>);
-          }}
-          dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, marginLeft: -35, }}
-          dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
-          renderRow={(options) => {
-            return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>);
-          }}
-          renderButtonText={(text) => text.name}
-          onSelect={(idx, value) => this.setState({ state_billing: value })}
-        />
-        <Text style={styles.GreyText}>PIN Code</Text>
-        <TextInput
-          style={styles.inputStyle}
-          keyboardType="number-pad"
-          value={this.state.pincode != "" ? this.state.pincode : ""}
-          multiline={true}
-          onChangeText={(text) => this.setState({ pincode: text })} />
-      </ScrollView>
-      <TouchableOpacity
-        style={styles.saveBtn}
-        onPress={() => {
-          if (this.state.gstin_billing && this.state.gstin_billing.trim().length > 1 && this.state.gstin_billing.trim().length < 15) {
-            Alert.alert("Invalid GSTIN", "Enter a valid 15 digit long GSTIN", [{ style: 'destructive', text: "Okay" }]);
-            return;
-          }
-          const newAddress = {
-            street_billing: this.state.street_billing,
-            gstin_billing: this.state.gstin_billing,
-            state_billing: this.state.state_billing,
-            pincode: this.state.pincode
-          };
-          this.setState({ savedAddress: newAddress });
-          this.state.ref.close();
-        }}
-      >
-        <Text style={{ color: 'white', padding: 10, }}>Save</Text>
-      </TouchableOpacity>
-    </View>
-    );
   }
 
   renderSavedAddress = () => {
@@ -273,7 +198,7 @@ export class Customers extends React.Component<Props> {
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
-            {/* <RadioForm
+            <RadioForm
               formHorizontal={true}
               initial={0}
               animation={true}
@@ -282,8 +207,7 @@ export class Customers extends React.Component<Props> {
               {
                 this.radio_props.map((obj, i) => (
                   <RadioButton labelHorizontal={true} key={i} style={{ alignItems: 'center' }} >
-                    {/*  You can set RadioButtonLabel before RadioButtonInput */}
-            {/* <RadioButtonInput
+                    <RadioButtonInput
                       obj={obj}
                       index={i}
                       isSelected={this.state.radioBtn === i}
@@ -305,8 +229,8 @@ export class Customers extends React.Component<Props> {
                       labelWrapStyle={{ marginRight: 10, marginTop: 10 }}
                     />
                   </RadioButton>
-                )) }*/}
-            {/* </RadioForm> */}
+                ))}
+            </RadioForm>
           </View>
           <TextInput
             keyboardType="number-pad"
@@ -374,7 +298,7 @@ export class Customers extends React.Component<Props> {
         activeGroupUniqueName: "sundrydebtors",
         name: this.state.partyName,
         uniqueName: "",
-        openingBalanceType: "CREDIT",
+        openingBalanceType: this.state.radioBtn == 0 ? "DEBIT" : "CREDIT",
         foreignOpeningBalance: this.state.foreignOpeningBalance,
         openingBalance: this.state.openingBalance,
         mobileNo: this.state.contactNumber,
@@ -491,6 +415,31 @@ export class Customers extends React.Component<Props> {
   render() {
     return (
       <View style={styles.customerMainContainer}>
+        <Dialog.Container
+          visible={this.state.partyDialog}
+          onBackdropPress={() => {
+            console.log("w");
+            this.setState({ partyDialog: false })
+          }}
+          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: "70%" }}
+        >
+          <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
+          <FlatList
+            style={{ flex: 1, width: '100%', height: '100%' }}
+            data={this.state.allPartyType}
+            renderItem={(item) => {
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({partyType:item.item.value, partyDialog:false});
+                  }}
+                  key={item.item.value}
+                  style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
+                  <Text style={{ flex: 1, padding: 20, fontSize: 13 }}>{item.item.label}</Text>
+                </TouchableOpacity>);
+            }}
+          />
+        </Dialog.Container>
         {this.state.successDialog ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: "center", alignItems: "center" }}>
           <Award />
           <Text style={{ color: "#229F5F", fontSize: 16 }}>Success</Text>
@@ -539,10 +488,21 @@ export class Customers extends React.Component<Props> {
           <View style={styles.rowContainer}>
             <Ionicons name="person" size={18} color="#864DD3" />
             <TextInput
-              onChangeText={(text) => { this.setState({ partyName: text }) }}
-              placeholder="Enter Party Name*"
-              value={this.state.partyName}
-              style={styles.input} />
+              onBlur={() => {
+                if (this.state.partyName == "") {
+                  this.setState({ partyPlaceHolder: "" })
+                }
+              }}
+              onFocus={() => this.setState({ partyPlaceHolder: "a" })}
+              onChangeText={(text) => {
+                console.log(text)
+                this.setState({ partyName: text })
+              }
+              }
+              style={styles.input}>
+              <Text style={{ color: "rgba(80,80,80,0.5)" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
+              <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == "" ? "*" : ""}</Text>
+            </TextInput>
           </View>
           <View style={styles.rowContainer}>
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
@@ -581,6 +541,7 @@ export class Customers extends React.Component<Props> {
           <View style={{ ...styles.rowContainer, marginTop: 5 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
+              ref={(ref) => this.state.groupDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.selectedGroup}
@@ -588,27 +549,36 @@ export class Customers extends React.Component<Props> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
+              onDropdownWillShow={() => this.setState({ isGroupDD: true })}
+              onDropdownWillHide={() => this.setState({ isGroupDD: false })}
               dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
               }}
-              onSelect={(index, value) => { this.setState({ selectedGroup: value }) }}
-
-            />
+              onSelect={(index, value) => { this.setState({ selectedGroup: value }) }} />
             <Icon
-              style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }] }}
+              style={{ transform: [{ rotate: this.state.isGroupDD ? '180deg' : '0deg' }] }}
               name={'9'}
               size={12}
               color="#808080"
               onPress={() => {
-
+                this.setState({ isGroupDD: true });
+                this.state.groupDropDown.show();
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5 }}>
+          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
-            <Dropdown
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({ partyDialog: true })
+              }}
+              style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
+              <Text style={{ color: this.state.partyType == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }}>{this.state.partyType == "" ? "Party Type" : this.state.partyType}</Text>
+              <Text style={{ color: "#E04646" }}>{this.state.partyType == "" ? "*" : ""}</Text>
+            </TouchableOpacity>
+            {/* <Dropdown
               ref={(ref) => this.state.partyDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
               textStyle={{ color: '#808080' }}
@@ -617,6 +587,8 @@ export class Customers extends React.Component<Props> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
+              onDropdownWillShow={() => this.setState({ isPartyDD: true })}
+              onDropdownWillHide={() => this.setState({ isPartyDD: false })}
               dropdownStyle={{ marginLeft: 30, width: '75%', marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
@@ -624,14 +596,16 @@ export class Customers extends React.Component<Props> {
               }}
               renderButtonText={(text) => text.value}
               onSelect={(index, value) => { this.setState({ partyType: value.value }) }}
-            />
+            /> */}
             <Icon
-              style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }] }}
+              style={{ transform: [{ rotate: this.state.isPartyDD ? '180deg' : '0deg' }] }}
               name={'9'}
               size={12}
               color="#808080"
               onPress={() => {
-
+                this.setState({partyDialog:true});
+                // this.setState({ isPartyDD: true })
+                //this.state.partyDropDown.show();
               }}
             />
           </View>
@@ -714,15 +688,6 @@ export class Customers extends React.Component<Props> {
           }}>
           <Icon name={'path-18'} size={48} color={'#5773FF'} />
         </TouchableOpacity>}
-        {/* <RBSheet ref={(ref) => { this.state.ref = ref }}
-          height={500}
-          customStyles={{
-            container: {
-              borderRadius: 10
-            }
-          }}>
-          {this.renderAddressDetails()}
-        </RBSheet> */}
         {this.state.loading && (
           <View
             style={{
