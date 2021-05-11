@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -21,6 +21,8 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
+import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-community/async-storage';
 
 interface Props {
   navigation: any;
@@ -48,7 +50,7 @@ export class Vendors extends React.Component<Props> {
     partyName: "",
     contactNumber: "",
     emailId: "",
-    partyType: "Party Type*",
+    partyType: "",
     allPartyType: [],
     AllGroups: ["Sundry Creditors"],
     ref: RBSheet,
@@ -93,7 +95,12 @@ export class Vendors extends React.Component<Props> {
     bankAccountNumber: "",
     IFSC_Code: "",
     isEmailInvalid: false,
-    isMobileNoValid: false
+    isMobileNoValid: false,
+    isGroupDD: false,
+    isPartyDD: false,
+    groupDropDown: Dropdown,
+    partyPlaceHolder: "",
+    partyDialog: false,
   }
 
   radio_props = [
@@ -214,17 +221,15 @@ export class Vendors extends React.Component<Props> {
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
-            {/* <RadioForm
+            <RadioForm
               formHorizontal={true}
               initial={0}
               animation={true}
             >
-
               {
                 this.radio_props.map((obj, i) => (
                   <RadioButton labelHorizontal={true} key={i} style={{ alignItems: 'center' }} >
-                    {/*  You can set RadioButtonLabel before RadioButtonInput */}
-            {/* <RadioButtonInput
+                    <RadioButtonInput
                       obj={obj}
                       index={i}
                       isSelected={this.state.radioBtn === i}
@@ -246,8 +251,8 @@ export class Vendors extends React.Component<Props> {
                       labelWrapStyle={{ marginRight: 10, marginTop: 10 }}
                     />
                   </RadioButton>
-                )) }*/}
-            {/* </RadioForm> */}
+                ))}
+            </RadioForm>
           </View>
           <TextInput
             keyboardType="number-pad"
@@ -377,7 +382,7 @@ export class Vendors extends React.Component<Props> {
         activeGroupUniqueName: "sundrycreditors",
         name: this.state.partyName,
         uniqueName: "",
-        openingBalanceType: "CREDIT",
+        openingBalanceType: this.state.radioBtn == 0 ? "DEBIT" : "CREDIT",
         foreignOpeningBalance: this.state.foreignOpeningBalance,
         openingBalance: this.state.openingBalance,
         mobileNo: this.state.contactNumber,
@@ -493,7 +498,8 @@ export class Vendors extends React.Component<Props> {
       bankAccountNumber: "",
       IFSC_Code: "",
       isEmailInvalid: false,
-      isMobileNoValid: false
+      isMobileNoValid: false,
+      partyPlaceHolder: ""
     })
   }
 
@@ -507,6 +513,31 @@ export class Vendors extends React.Component<Props> {
   render() {
     return (
       <View style={styles.customerMainContainer}>
+        <Dialog.Container
+          visible={this.state.partyDialog}
+          onBackdropPress={() => {
+            console.log("w");
+            this.setState({ partyDialog: false })
+          }}
+          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: "70%" }}
+        >
+          <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
+          <FlatList
+            style={{ flex: 1, width: '100%', height: '100%' }}
+            data={this.state.allPartyType}
+            renderItem={(item) => {
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({ partyType: item.item.value, partyDialog: false });
+                  }}
+                  key={item.item.value}
+                  style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
+                  <Text style={{ flex: 1, padding: 20, fontSize: 13 }}>{item.item.label}</Text>
+                </TouchableOpacity>);
+            }}
+          />
+        </Dialog.Container>
         {this.state.successDialog ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: "center", alignItems: "center" }}>
           <Award />
           <Text style={{ color: "#229F5F", fontSize: 16 }}>Success</Text>
@@ -555,10 +586,21 @@ export class Vendors extends React.Component<Props> {
           <View style={styles.rowContainer}>
             <Ionicons name="person" size={18} color="#864DD3" />
             <TextInput
-              onChangeText={(text) => { this.setState({ partyName: text }) }}
-              placeholder="Enter Party Name*"
-              value={this.state.partyName}
-              style={styles.input} />
+              onBlur={() => {
+                if (this.state.partyName == "") {
+                  this.setState({ partyPlaceHolder: "" })
+                }
+              }}
+              onFocus={() => this.setState({ partyPlaceHolder: "a" })}
+              onChangeText={(text) => {
+                console.log(text)
+                this.setState({ partyName: text })
+              }
+              }
+              style={styles.input}>
+              <Text style={{ color: "rgba(80,80,80,0.5)" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
+              <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == "" ? "*" : ""}</Text>
+            </TextInput>
           </View>
           <View style={styles.rowContainer}>
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
@@ -607,6 +649,7 @@ export class Vendors extends React.Component<Props> {
           <View style={{ ...styles.rowContainer, marginTop: 5 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
+              ref={(ref) => this.state.groupDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.selectedGroup}
@@ -614,6 +657,8 @@ export class Vendors extends React.Component<Props> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
+              onDropdownWillShow={() => this.setState({ isGroupDD: true })}
+              onDropdownWillHide={() => this.setState({ isGroupDD: false })}
               dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
@@ -623,18 +668,27 @@ export class Vendors extends React.Component<Props> {
 
             />
             <Icon
-              style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }] }}
+              style={{ transform: [{ rotate: this.state.isGroupDD ? '180deg' : '0deg' }] }}
               name={'9'}
               size={12}
               color="#808080"
               onPress={() => {
-
+                this.setState({ isGroupDD: true });
+                this.state.groupDropDown.show();
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5 }}>
+          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
-            <Dropdown
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({ partyDialog: true })
+              }}
+              style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
+              <Text style={{ color: this.state.partyType == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }}>{this.state.partyType == "" ? "Party Type" : this.state.partyType}</Text>
+              <Text style={{ color: "#E04646" }}>{this.state.partyType == "" ? "*" : ""}</Text>
+            </TouchableOpacity>
+            {/* <Dropdown
               ref={(ref) => this.state.partyDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
               textStyle={{ color: '#808080' }}
@@ -643,6 +697,8 @@ export class Vendors extends React.Component<Props> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
+              onDropdownWillShow={() => this.setState({ isPartyDD: true })}
+              onDropdownWillHide={() => this.setState({ isPartyDD: false })}
               dropdownStyle={{ marginLeft: 30, width: '75%', marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
@@ -650,14 +706,16 @@ export class Vendors extends React.Component<Props> {
               }}
               renderButtonText={(text) => text.value}
               onSelect={(index, value) => { this.setState({ partyType: value.value }) }}
-            />
+            /> */}
             <Icon
-              style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }] }}
+              style={{ transform: [{ rotate: this.state.isPartyDD ? '180deg' : '0deg' }] }}
               name={'9'}
               size={12}
               color="#808080"
               onPress={() => {
-
+                this.setState({partyDialog:true});
+                //this.setState({ isPartyDD: true })
+                //this.state.partyDropDown.show();
               }}
             />
           </View>
