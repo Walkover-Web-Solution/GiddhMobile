@@ -383,7 +383,7 @@ export class PurchaseBill extends React.Component {
     this.setState({isSearchingParty: true});
     try {
       // console.log('Creditors called');
-      const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrycreditors', false);
+      const results = await InvoiceService.Pbsearch(this.state.searchPartyName, 1, 'sundrycreditors');
 
       if (results.body && results.body.results) {
         this.setState({searchResults: results.body.results, isSearchingParty: false, searchError: ''});
@@ -420,7 +420,6 @@ export class PurchaseBill extends React.Component {
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
       bottomOffset: 0,
-
       partyName: '',
       searchResults: [],
       searchPartyName: '',
@@ -481,7 +480,7 @@ export class PurchaseBill extends React.Component {
   };
   getDiscountForEntry(item) {
     // console.log('item is', item);
-    discountArr = [];
+    let discountArr = [];
     if (item.fixedDiscount) {
       let discountItem = {
         calculationMethod: 'FIX_AMOUNT',
@@ -548,6 +547,21 @@ export class PurchaseBill extends React.Component {
           {
             account: {uniqueName: item.uniqueName, name: item.name},
             amount: {type: 'DEBIT', amountForAccount: Number(item.rate) * Number(item.quantity)},
+            stock: item.stock
+              ? {
+                  quantity: item.quantity,
+                  sku: item.stock.skuCode,
+                  name: item.stock.name,
+
+                  uniqueName: item.stock.uniqueName,
+                  rate: {
+                    amountForAccount: Number(item.rate),
+                  },
+                  stockUnit: {
+                    code: item.stock.stockUnitCode,
+                  },
+                }
+              : undefined,
           },
         ],
         voucherNumber: '',
@@ -1023,23 +1037,28 @@ export class PurchaseBill extends React.Component {
           }}>
           <View style={{flexDirection: 'row', paddingVertical: 10}}>
             <Text style={{color: '#1C1C1C'}}>{item.name} </Text>
-            {item.stock && <Text style={{color: '#1C1C1C'}}>( {item.stock.name} ) :</Text>}
+            {item.stock && (
+              <Text numberOfLines={1} style={{color: '#1C1C1C', width: '75%'}}>
+                ( {item.stock.name} ) :
+              </Text>
+            )}
           </View>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <View>
               <Text style={{color: '#808080'}}>
-                {String(item.quantity)} x {String(item.rate)}
-                {(' ', item.currency.symbol)}
+                {String(item.quantity)} x {item.currency.symbol}
+                {String(item.rate)}
               </Text>
             </View>
           </View>
 
           <Text style={{marginTop: 5, color: '#808080'}}>
-            Tax : {this.calculatedTaxAmount(item)} {(' ', item.currency.symbol)}
+            Tax :{item.currency.symbol}
+            {this.calculatedTaxAmount(item)}
           </Text>
           <Text style={{marginTop: 5, color: '#808080'}}>
-            Discount : {item.discountValue ? item.discountValue : 0}
-            {(' ', item.currency.symbol)}
+            Discount : {item.currency.symbol}
+            {item.discountValue ? item.discountValue : 0}
           </Text>
         </TouchableOpacity>
       </Swipeable>
@@ -1154,7 +1173,7 @@ export class PurchaseBill extends React.Component {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {
       let item = this.state.addedItems[i];
-      let discount = this.calculateDiscountedAmount(item);
+      let discount = item.discountValue ? item.discountValue : 0;
       let tax = this.calculatedTaxAmount(item);
 
       //do inventory calulations
@@ -1222,15 +1241,15 @@ export class PurchaseBill extends React.Component {
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={{color: '#1C1C1C'}}>Total Amount</Text>
               <Text style={{color: '#1C1C1C'}}>
+                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
                 {this.getTotalAmount()}
-                {(' ', this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol)}
               </Text>
             </View>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4}}>
               <Text style={{color: '#1C1C1C'}}>Balance Due</Text>
               <Text style={{color: '#1C1C1C'}}>
+                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
                 {String(this.getTotalAmount()) - this.state.amountPaidNowText}
-                {(' ', this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol)}
               </Text>
             </View>
           </View>
@@ -1280,6 +1299,8 @@ export class PurchaseBill extends React.Component {
     item.discountType = Number(details.discountType);
     item.taxType = Number(details.taxType);
     item.tax = Number(details.taxText);
+    item.hsnNumber = details.hsnNumber;
+    item.sacNumber = details.sacNumber;
     item.warehouse = Number(details.warehouse);
     item.discountDetails = details.discountDetails ? details.discountDetails : undefined;
     item.taxDetailsArray = details.taxDetailsArray;

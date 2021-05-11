@@ -47,7 +47,6 @@ export default StyleSheet.create({
     fontSize: 16,
     width: '60%',
   },
-
   invoiceAmountText: {
     fontFamily: FONT_FAMILY.bold,
     color: 'white',

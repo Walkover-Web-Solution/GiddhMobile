@@ -12,6 +12,7 @@ import {
   FlatList,
   Dimensions,
   StatusBar,
+  Alert,
 } from 'react-native';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -366,7 +367,8 @@ class EditItemDetails extends Component {
 
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
-    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+    let totalDiscount = this.calculateDiscountedAmount(itemDetails);
+    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         let item = itemDetails.taxDetailsArray[i];
@@ -631,11 +633,19 @@ class EditItemDetails extends Component {
           onChangeText={(text) => {
             let item = this.state.editItemDetails;
             if (this.state.selectedCode == 'hsn') {
-              item.hsnNumber = text;
-              this.setState({editItemDetails: item});
+              if (item.sacNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.hsnNumber = text;
+                this.setState({editItemDetails: item});
+              }
             } else {
-              item.sacNumber = text;
-              this.setState({editItemDetails: item});
+              if (item.hsnNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.sacNumber = text;
+                this.setState({editItemDetails: item});
+              }
             }
           }}
         />
@@ -707,7 +717,6 @@ class EditItemDetails extends Component {
 
       case 'Discount Value':
         editItemDetails.discountValueText = text;
-
         break;
 
       case 'Discount Percentage':
@@ -872,7 +881,7 @@ class EditItemDetails extends Component {
 
         {/* <TouchableOpacity
           style={{height: 50, width: 50, backgroundColor: 'pink'}}
-          onPress={() => console.log(this.props.discountArray)}
+          onPress={() => console.log(this.state.editItemDetails.hsnNumber)}
           // onPress={() => this.calculateDiscountedAmount(this.state.editItemDetails)}
         ></TouchableOpacity> */}
 

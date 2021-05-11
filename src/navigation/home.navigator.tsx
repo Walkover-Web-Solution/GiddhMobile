@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 // import {BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
 import HomeScreen from '@/screens/Home/Home';
@@ -19,10 +19,20 @@ import DashboardStack from './dashboard.navigator';
 const {Navigator, Screen} = createBottomTabNavigator();
 
 import {createStackNavigator} from '@react-navigation/stack';
-import {View, TouchableOpacity, Text, Dimensions} from 'react-native';
+import {View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter} from 'react-native';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import AsyncStorage from '@react-native-community/async-storage';
 const Stack = createStackNavigator();
 
 export const HomeNavigator = () => {
+  const [branchSelected, setBranchSelected] = useState(true);
+  useEffect(() => {
+    isBranchSelected();
+    DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      isBranchSelected();
+    });
+  }, []);
+
   function MyTabBar({state, descriptors, navigation, renderIcon, activeTintColor, inactiveTintColor}) {
     return (
       <View
@@ -89,7 +99,7 @@ export const HomeNavigator = () => {
           };
 
           return route.name == 'add' ? (
-            <AddButton navigation={navigation} />
+            branchSelected && <AddButton navigation={navigation} />
           ) : (
             <TouchableOpacity
               // accessibilityRole="button"
@@ -108,7 +118,17 @@ export const HomeNavigator = () => {
       </View>
     );
   }
-
+  const isBranchSelected = async () => {
+    const branch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    // console.log('selected branch is ', branch);
+    if (branch) {
+      setBranchSelected(true);
+      // return true;
+    } else {
+      // return false;
+      setBranchSelected(false);
+    }
+  };
   const getTabBarVisibility = (route) => {
     console.log(route);
     const routeName = route.state ? route.state.routes[route.state.index].name : '';
@@ -129,6 +149,7 @@ export const HomeNavigator = () => {
         options={({route}) => ({
           tabBarLabel: 'Dashboard',
           tabBarVisible: getTabBarVisibility(route),
+
           tabBarIcon: ({focused}) => (
             <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
           ),

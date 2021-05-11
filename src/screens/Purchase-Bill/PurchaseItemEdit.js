@@ -374,7 +374,8 @@ class PurchaseItemEdit extends Component {
 
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
-    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+    let totalDiscount = this.calculateDiscountedAmount(itemDetails);
+    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         let TaxItem = itemDetails.taxDetailsArray[i];
@@ -630,13 +631,21 @@ class PurchaseItemEdit extends Component {
           style={{borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16}}
           // editable={false}
           onChangeText={(text) => {
-            let editItemDetails = this.state.editItemDetails;
+            let item = this.state.editItemDetails;
             if (this.state.selectedCode == 'hsn') {
-              editItemDetails.hsnNumber = text;
-              this.setState({editItemDetails});
+              if (item.sacNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.hsnNumber = text;
+                this.setState({editItemDetails: item});
+              }
             } else {
-              editItemDetails.sacNumber = text;
-              this.setState({editItemDetails});
+              if (item.hsnNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.sacNumber = text;
+                this.setState({editItemDetails: item});
+              }
             }
           }}
         />

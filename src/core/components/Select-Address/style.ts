@@ -35,6 +35,7 @@ export default StyleSheet.create({
   body: {
     height: height * 0.8,
     paddingHorizontal: 20,
+    marginBottom: 20,
   },
   button: {
     height: height * 0.06,
@@ -44,8 +45,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    position: 'absolute',
-    bottom: height * 0.01,
+    bottom: 10,
   },
   buttonText: {
     fontFamily: 'AvenirLTStd-Black',

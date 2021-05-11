@@ -1,8 +1,12 @@
 import {createEndpoint} from '@/utils/helper';
 
 export const invoiceUrls = {
+  searchCreditCompanies: createEndpoint('company/harshain16149540530350fghd3/account-search?q=&page=&group='),
   search: createEndpoint(
     'company/:companyUniqueName/account-search?q=&page=&group=&branchUniqueName=:branchUniqueName&withStocks=',
+  ),
+  purchaseBillsearch: createEndpoint(
+    'company/:companyUniqueName/account-search?q=&page=&group=%2C%20bankaccounts%2C%20cash&branchUniqueName=:branchUniqueName',
   ),
   getAccountDetails: createEndpoint('v2/company/:companyUniqueName/accounts/:q?branchUniqueName=:branchUniqueName'),
   stockDetailService: createEndpoint(
@@ -19,6 +23,10 @@ export const invoiceUrls = {
   ),
   genratePurchaseBill: createEndpoint(
     'company/:companyUniqueName/accounts/:accountUniqueName/purchase-record/generate?branchUniqueName=:branchUniqueName',
+  ),
+  generateCreditNote: createEndpoint('v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate'),
+  generateDebitNote: createEndpoint(
+    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName',
   ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName',

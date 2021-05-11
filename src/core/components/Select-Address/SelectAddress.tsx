@@ -5,13 +5,12 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
-  Platform,
-  PermissionsAndroid,
   StatusBar,
+  PermissionsAndroid,
+  Animated,
 } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {useIsFocused} from '@react-navigation/native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AddressItem from './AddressItem';
 import {TextInput} from 'react-native-gesture-handler';
@@ -137,14 +136,7 @@ export class SelectAddress extends React.Component<any, any> {
           : this.props.route.params.addressArray,
     };
   }
-  FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? (
-      <StatusBar
-        backgroundColor={this.props.route.params.color ? this.props.route.params.color : '#229F5F'}
-        barStyle="light-content"
-      />
-    ) : null;
-  };
+
   changeactiveIndex = (value: number) => {
     this.setState({activeIndex: value});
   };
@@ -152,7 +144,9 @@ export class SelectAddress extends React.Component<any, any> {
   render() {
     return (
       <View style={style.container}>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+        {this.props.route.params.statusBarColor && (
+          <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle="light-content" />
+        )}
         <View
           style={[
             style.header,
@@ -196,12 +190,4 @@ export class SelectAddress extends React.Component<any, any> {
   }
 }
 
-function Screen(props) {
-  const isFocused = useIsFocused();
-
-  return <SelectAddress {...props} isFocused={isFocused} />;
-}
-
-// export default connect(mapStateToProps)(Screen);
-
-export default Screen;
+export default SelectAddress;

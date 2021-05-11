@@ -73,6 +73,7 @@ export class ChangeCompany extends React.Component<Props> {
                     this.props.navigation.popToTop();
                   }}>
                   <Text
+                    numberOfLines={2}
                     style={[
                       style.listItemName,
                       {color: item.uniqueName == activeCompany.uniqueName ? color.PRIMARY_BASIC : 'black'},

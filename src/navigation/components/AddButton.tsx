@@ -9,7 +9,7 @@ import {
   Text,
   Modal,
   TouchableOpacity,
-  Alert,
+  DeviceEventEmitter,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -20,15 +20,14 @@ import style from '@/screens/Auth/Otp/style';
 import {connect} from 'react-redux';
 import color from '@/utils/colors';
 import {transform} from '@babel/core';
-import {STORAGE_KEYS} from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
-
+import {APP_EVENTS} from '@/utils/constants';
 const arrButtons = [
+  {name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD'},
   {name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F'},
   {name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345'},
-  // {name: 'Receipt', navigateTo: 'Receipt', icon: 'path-22', color: '#00B795'},
-  // {name: 'Payment', navigateTo: 'Payment', icon: 'Union-631', color: '#084EAD'},
-  // {name: 'Sales Invoice', navigateTo: 'Sales_Invoice', icon: 'shopping-bag', color: '#229F5F'},
+  {name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961'},
+  {name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3'},
+  {name: 'Vendor', navigateTo: 'CustomerScreens', icon: 'Group-6188', color: '#FF72BE'},
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},
@@ -51,17 +50,7 @@ class AddButton extends Component {
       buttonsDisabled: false,
     };
   }
-  componentDidMount() {
-    this.branchSelected();
-  }
-  branchSelected = async () => {
-    const branch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-    if (branch) {
-      this.setState({buttonsDisabled: false});
-    } else {
-      this.setState({buttonsDisabled: true});
-    }
-  };
+
   mode = new Animated.Value(0);
   toggleView = () => {
     Animated.timing(this.mode, {
@@ -88,6 +77,7 @@ class AddButton extends Component {
       inputRange: [0, 1],
       outputRange: ['0deg', '45deg'],
     });
+
     return (
       <View
         style={{
@@ -116,12 +106,7 @@ class AddButton extends Component {
             }}>
             {/* <TouchableOpacity
               style={{height: 30, width: 30, backgroundColor: 'pink'}}
-              onPress={async () => {
-                const branch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-                if (!branch) {
-                  console.log('change logic');
-                }
-              }}></TouchableOpacity> */}
+              onPress={() => console.log(this.state.buttonsDisabled)}></TouchableOpacity> */}
             <FlatList
               numColumns={4} // set number of columns
               data={arrButtons}
@@ -139,12 +124,8 @@ class AddButton extends Component {
                   // disabled={this.state.buttonsDisabled}
                   // onPress={() => console.log('this works')}
                   onPress={async () => {
-                    if (this.state.buttonsDisabled) {
-                      Alert.alert('', 'Please select a branch.');
-                    } else {
-                      this.props.navigation.navigate(item.navigateTo);
-                      this.setState({modalVisible: false});
-                    }
+                    this.props.navigation.navigate(item.navigateTo);
+                    this.setState({modalVisible: false});
 
                     // this.toggleView();
                   }}>

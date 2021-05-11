@@ -13,6 +13,8 @@ import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
 // @ts-ignore
 import {Bars} from 'react-native-loader';
 import {APP_EVENTS} from '@/utils/constants';
+import { NavigationRouteContext } from '@react-navigation/native';
+import appNavigator from '@/navigation/app.navigator';
 
 type connectedProps = ReturnType<typeof mapStateToProps>;
 type PartiesScreenProp = connectedProps;
@@ -77,7 +79,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   render() {
     const {activeCompany} = this.props;
-
+    
     if (this.state.showLoader) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
