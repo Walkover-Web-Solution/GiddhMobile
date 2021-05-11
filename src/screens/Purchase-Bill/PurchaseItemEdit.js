@@ -689,6 +689,7 @@ class PurchaseItemEdit extends Component {
         break;
     }
     editItemDetails.amountText = this.caluclateTotalAmount(editItemDetails);
+    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
     editItemDetails.total = this.calculateFinalAmount(editItemDetails);
 
     this.setState({editItemDetails});

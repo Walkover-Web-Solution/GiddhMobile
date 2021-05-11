@@ -170,6 +170,11 @@ export class SalesInvoice extends React.Component<Props> {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      await this.resetState();
+    });
+
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
       this.updateAddedItems(data);
@@ -1096,42 +1101,43 @@ export class SalesInvoice extends React.Component<Props> {
     }
     return 0;
   }
-  // calculatedTaxAmount(itemDetails) {
-  //   let totalTax = 0;
-  //   console.log('rate', itemDetails.rate);
-  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-  //   if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
-  //     for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-  //       let item = itemDetails.taxDetailsArray[i];
-  //       let taxPercent = Number(item.taxDetail[0].taxValue);
-  //       let taxAmount = (taxPercent * Number(amt)) / 100;
-  //       totalTax = totalTax + taxAmount;
-  //     }
-  //   }
-  //   console.log('calculated tax is ', totalTax);
-  //   return Number(totalTax);
-  // }
+  
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
+    console.log('rate', itemDetails.rate);
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    let taxArr = this.state.taxArray;
-    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
-      for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
-        let item = itemDetails.stock.taxes[i];
-        for (let j = 0; j < taxArr.length; j++) {
-          if (item == taxArr[j].uniqueName) {
-            // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
-            let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-            let taxAmount = (taxPercent * Number(amt)) / 100;
-            totalTax = totalTax + taxAmount;
-            break;
-          }
-        }
+    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
+      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
+        let item = itemDetails.taxDetailsArray[i];
+        let taxPercent = Number(item.taxDetail[0].taxValue);
+        let taxAmount = (taxPercent * Number(amt)) / 100;
+        totalTax = totalTax + taxAmount;
       }
     }
-    // console.log('calculated tax is ', totalTax);
+    console.log('calculated tax is ', totalTax);
     return Number(totalTax);
   }
+  // calculatedTaxAmount(itemDetails) {
+  //   let totalTax = 0;
+  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+  //   let taxArr = this.state.taxArray;
+  //   if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+  //     for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
+  //       let item = itemDetails.stock.taxes[i];
+  //       for (let j = 0; j < taxArr.length; j++) {
+  //         if (item == taxArr[j].uniqueName) {
+  //           // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
+  //           let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+  //           let taxAmount = (taxPercent * Number(amt)) / 100;
+  //           totalTax = totalTax + taxAmount;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // console.log('calculated tax is ', totalTax);
+  //   return Number(totalTax);
+  // }
 
   getTotalAmount() {
     let total = 0;

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Animated, TouchableHighlight, View, Dimensions, FlatList, Text, Modal, TouchableOpacity } from 'react-native';
+import { Animated, TouchableHighlight, View, Dimensions, FlatList, Text, Modal, TouchableOpacity, DeviceEventEmitter } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -10,6 +10,7 @@ import style from '@/screens/Auth/Otp/style';
 import { connect } from 'react-redux';
 import color from '@/utils/colors';
 import { transform } from '@babel/core';
+import { APP_EVENTS } from '@/utils/constants';
 const arrButtons = [
   { name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD' },
   { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
@@ -106,6 +107,7 @@ class AddButton extends Component {
                   }}
                   // onPress={() => console.log('this works')}
                   onPress={async () => {
+                    DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                     this.props.navigation.navigate(item.navigateTo);
                     this.setState({ modalVisible: false });
                     // this.toggleView();

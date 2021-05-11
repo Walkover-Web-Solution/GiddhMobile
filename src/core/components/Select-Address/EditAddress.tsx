@@ -121,6 +121,9 @@ export class EditAddress extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      addresssDropDown: Dropdown,
+      selectStateDisable: false,
+      gstNumberWrong: false,
       allStates: [],
       allCountry: [],
       activeIndex: 0,
@@ -146,10 +149,17 @@ export class EditAddress extends React.Component<any, any> {
       pinCode: this.props.route.params.addressArray.pincode != null ? this.props.route.params.addressArray.pincode : "",
       loading: false
     };
+  }
+
+  componentDidMount() {
     this.getDetails();
   }
 
   getDetails = async () => {
+    this.setState({ loading: true });
+    if (this.state.gstNo != "") {
+      this.setState({ selectStateDisable: true })
+    }
     let allCountry = await CustomerVendorService.getAllCountryName();
     let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
     const countryIndia = {
@@ -165,7 +175,7 @@ export class EditAddress extends React.Component<any, any> {
     };
     await this.setState({ allCountry: allCountry.body, allStates: allStateName.body.stateList, selectedCountry: this.props.route.params.addressArray.selectedCountry != null ? this.props.route.params.addressArray.selectedCountry : countryIndia });
     console.log(this.state.selectedCountry);
-
+    this.setState({ loading: false });
   }
 
   changeactiveIndex = (value: number) => {
@@ -175,12 +185,13 @@ export class EditAddress extends React.Component<any, any> {
   onSubmit = () => {
     console.log("state" + this.state.state_billing == "");
     console.log("country" + this.state.selectedCountry);
-
-    if (this.state.state_billing == "" || this.state.selectedCountry == "") {
+    if (this.state.state_billing == "Select" || this.state.selectedCountry.countryName == "") {
       alert("Please Enter Country and State Name");
     }
     else if (this.state.gstNo && this.state.gstNo.length != 15) {
       alert("Enter a valid gst number, should be 15 characters long");
+    } else if (this.state.gstNumberWrong) {
+      alert("Enter a valid gst number");
     }
     else {
       var address = {
@@ -199,10 +210,36 @@ export class EditAddress extends React.Component<any, any> {
 
   setCountrySelected = async (value: any) => {
     this.setState({ loading: true });
-    await this.setState({ state_billing: 'Select', selectedCountry: value, countryName: value.countryName })
+    await this.setState({
+      state_billing: 'Select', gstNo: "", selectedCountry: value, countryName: value.countryNamem, selectStateDisable: false,
+      gstNumberWrong: false,
+    })
     let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
     await this.setState({ allStates: allStateName.body.stateList })
+    await this.state.addresssDropDown.select(-1);
     this.setState({ loading: false });
+  }
+
+  findState = async (gstNo: any) => {
+    if (gstNo == "") {
+      this.setState({ selectStateDisable: false, gstNumberWrong: false })
+      return
+    }
+    const gstStateCode = await gstNo.slice(0, 2)
+    for (var i = 0; i < this.state.allStates.length; i++) {
+      if (this.state.allStates[i].stateGstCode == gstStateCode) {
+        await this.setState({ state_billing: this.state.allStates[i], selectStateDisable: true })
+        await this.state.addresssDropDown.select(-1);
+        break
+      } else {
+        await this.setState({ selectStateDisable: false })
+      }
+    }
+    if (!this.state.selectStateDisable) {
+      this.setState({ gstNumberWrong: true })
+    } else {
+      this.setState({ gstNumberWrong: false })
+    }
   }
 
   render() {
@@ -222,8 +259,9 @@ export class EditAddress extends React.Component<any, any> {
             multiline
             onChangeText={(text) => this.setState({ address: text })}
             value={this.state.address}></TextInput>
-          <Text style={style.BMfieldTitle}>Country</Text>
+          <Text style={style.BMfieldTitle}>Country*</Text>
           <Dropdown
+            ref={(ref) => this.state.addresssDropDown = ref}
             style={style.dropDown}
             textStyle={{ color: '#1c1c1c' }}
             defaultValue={this.state.selectedCountry.countryName != null ? this.state.selectedCountry.countryName : ""}
@@ -239,8 +277,10 @@ export class EditAddress extends React.Component<any, any> {
             renderButtonText={(text) => text.countryName}
             onSelect={(idx, value) => this.setCountrySelected(value)}
           />
-          <Text style={style.BMfieldTitle}>State</Text>
+          <Text style={style.BMfieldTitle}>State*</Text>
           <Dropdown
+            disabled={this.state.selectStateDisable}
+            ref={(ref) => this.state.addresssDropDown = ref}
             style={style.dropDown}
             textStyle={{ color: '#1c1c1c', fontSize: 14 }}
             defaultValue={this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing}
@@ -259,8 +299,11 @@ export class EditAddress extends React.Component<any, any> {
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
             style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5 }}
-            onChangeText={(text) => this.setState({ gstNo: text })}
+            onChangeText={(text) => { this.setState({ gstNo: text }), this.findState(text) }}
             value={this.state.gstNo}></TextInput>
+          {this.state.gstNumberWrong ?
+            <Text style={{ fontSize: 10, color: "red", marginTop: 6 }}>Invalid GSTIN Number</Text> : null}
+
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
             style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5 }}

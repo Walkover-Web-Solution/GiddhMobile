@@ -29,7 +29,6 @@ interface Props {
 export class Vendors extends React.Component<Props> {
   constructor(props: any) {
     super(props);
-    this.getAllDeatils();
   }
 
   async getAllDeatils() {
@@ -93,6 +92,8 @@ export class Vendors extends React.Component<Props> {
     bankName: "",
     bankAccountNumber: "",
     IFSC_Code: "",
+    isEmailInvalid: false,
+    isMobileNoValid: false
   }
 
   radio_props = [
@@ -175,7 +176,7 @@ export class Vendors extends React.Component<Props> {
               }}
               onSelect={(idx, value) => this.setState({ selectedCurrency: value.code })}
 
-              dropdownStyle={{ width: '29%', marginTop: 11, borderRadius: 8, }}
+              dropdownStyle={{ width: '25%', marginTop: 11, marginRight: -60 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.code}</Text>);
@@ -321,6 +322,19 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
+  validateMobileNumberTextInput = (mobileNo: any) => {
+    if (mobileNo == "") {
+      return true
+    }
+    var pattern = new RegExp(/^[0-9\b]+$/);
+    if (!pattern.test(mobileNo)) {
+      return false;
+    } else if (mobileNo.length != 10) {
+      return false;
+    }
+    return true
+  }
+
   validateEmail = () => {
     if (this.state.emailId == "") {
       return true
@@ -332,6 +346,18 @@ export class Vendors extends React.Component<Props> {
     }
     return true
   }
+
+  validateEmailTextInput = (emailId: any) => {
+    if (emailId == "") {
+      return true
+    }
+    const expression = /(?!.*\.{2})^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([\t]*\r\n)?[\t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([\t]*\r\n)?[\t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+    if (!expression.test(String(emailId).toLowerCase())) {
+      return false;
+    }
+    return true
+  }
+
   genrateCustomer = () => {
     if (!this.state.partyName) {
       Alert.alert("Error", 'Please select a party.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
@@ -466,8 +492,18 @@ export class Vendors extends React.Component<Props> {
       bankName: "",
       bankAccountNumber: "",
       IFSC_Code: "",
+      isEmailInvalid: false,
+      isMobileNoValid: false
     })
   }
+
+  componentDidMount() {
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      await this.resetState();
+      await this.getAllDeatils();
+    });
+  }
+
   render() {
     return (
       <View style={styles.customerMainContainer}>
@@ -545,19 +581,29 @@ export class Vendors extends React.Component<Props> {
               }}
             />
             <TextInput
-              onChangeText={(text) => { this.setState({ contactNumber: text }) }}
+              onChangeText={(text) => {
+                this.setState({
+                  contactNumber: text,
+                  isMobileNoValid: !this.validateMobileNumberTextInput(text)
+                })
+              }}
               placeholder="Enter Contact Number"
               value={this.state.contactNumber}
               style={styles.input} />
           </View>
+          {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: "red", paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
             <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />
             <TextInput
-              onChangeText={(text) => this.setState({ emailId: text })}
+              onChangeText={(text) => this.setState({
+                emailId: text,
+                isEmailInvalid: !this.validateEmailTextInput(text)
+              })}
               value={this.state.emailId}
               placeholder="Email Address"
               style={styles.input} />
           </View>
+          {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: "red", paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
           <View style={{ ...styles.rowContainer, marginTop: 5 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
