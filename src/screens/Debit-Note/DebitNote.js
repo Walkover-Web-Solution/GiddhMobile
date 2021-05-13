@@ -121,6 +121,12 @@ export class DebiteNote extends React.Component<Props> {
       showAllInvoice: false,
       allVoucherInvoice: [],
       accountDropDown: Dropdown,
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -144,6 +150,16 @@ export class DebiteNote extends React.Component<Props> {
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#ff5355" barStyle="light-content" /> : null;
   };
+
+  async getExchangeRateToINR(currency) {
+    try {
+      const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
+      if (results.body && results.status == 'success') {
+        return results.body;
+      }
+    } catch (e) { }
+    return 1
+  }
 
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
@@ -352,7 +368,7 @@ export class DebiteNote extends React.Component<Props> {
       }
     } catch (e) {
       this.setState({ allVoucherInvoice: [] });
-     }
+    }
   }
 
   async getAllTaxes() {
@@ -480,6 +496,9 @@ export class DebiteNote extends React.Component<Props> {
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
+          countryDeatils: results.body.country,
+          currency: results.body.currency,
+          currencySymbol: results.body.currencySymbol,
           addressArray: results.body.addresses,
           partyBillingAddress: results.body.addresses[0],
           partyShippingAddress: results.body.addresses[0],
@@ -554,6 +573,12 @@ export class DebiteNote extends React.Component<Props> {
       showAllInvoice: false,
       allVoucherInvoice: [],
       accountDropDown: Dropdown,
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     });
   };
   getDiscountForEntry(item) {
@@ -619,6 +644,7 @@ export class DebiteNote extends React.Component<Props> {
 
   async createInvoice() {
     this.setState({ loading: true });
+    const exchangeRate = await this.state.currency!="INR"? await this.getExchangeRateToINR(this.state.currency): 1
     try {
       console.log('came to this');
       let postBody = await this.state.linkedInvoices != "" ? {
@@ -627,7 +653,7 @@ export class DebiteNote extends React.Component<Props> {
           // billingDetails: this.state.partyBillingAddress,
           billingDetails: {
             address: [this.state.partyBillingAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
             state: { code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name },
@@ -635,16 +661,16 @@ export class DebiteNote extends React.Component<Props> {
             stateName: this.state.partyBillingAddress.stateName,
           },
           contactNumber: '',
-          country: { countryName: 'India', countryCode: 'IN' },
-          currency: { code: 'INR' },
-          currencySymbol: '₹',
+          country: this.state.countryDeatils,
+          currency: { code: this.state.currency },
+          currencySymbol: this.state.currencySymbol,
           email: '',
           mobileNumber: '',
           name: this.state.partyName.name,
           // shippingDetails: this.state.partyShippingAddress,
           shippingDetails: {
             address: [this.state.partyShippingAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
             state: { code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name },
@@ -661,7 +687,7 @@ export class DebiteNote extends React.Component<Props> {
           amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
         },
         entries: this.getEntries(),
-        exchangeRate: 1,
+        exchangeRate: exchangeRate,
         passportNumber: '',
         templateDetails: {
           other: {
@@ -689,27 +715,27 @@ export class DebiteNote extends React.Component<Props> {
             // billingDetails: this.state.partyBillingAddress,
             billingDetails: {
               address: [this.state.partyBillingAddress.address],
-              countryName: 'India',
+              countryName: this.state.countryDeatils.countryName,
               gstNumber: this.state.partyBillingAddress.gstNumber,
               panNumber: '',
-              state: { code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name },
+              state: { code: this.state.partyBillingAddress.state?this.state.partyBillingAddress.state.code:"", name: this.state.partyBillingAddress.state?this.state.partyBillingAddress.state.name:"" },
               stateCode: this.state.partyBillingAddress.stateCode,
               stateName: this.state.partyBillingAddress.stateName,
             },
             contactNumber: '',
-            country: { countryName: 'India', countryCode: 'IN' },
-            currency: { code: 'INR' },
-            currencySymbol: '₹',
+            country: this.state.countryDeatils,
+            currency: { code: this.state.currency },
+            currencySymbol: this.state.currencySymbol,
             email: '',
             mobileNumber: '',
             name: this.state.partyName.name,
             // shippingDetails: this.state.partyShippingAddress,
             shippingDetails: {
               address: [this.state.partyShippingAddress.address],
-              countryName: 'India',
+              countryName: this.state.countryDeatils.countryName,
               gstNumber: this.state.partyShippingAddress.gstNumber,
               panNumber: '',
-              state: { code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name },
+              state: { code: this.state.partyShippingAddress.state?this.state.partyShippingAddress.state.code:"", name: this.state.partyShippingAddress.state?this.state.partyShippingAddress.state.name:"" },
               stateCode: this.state.partyShippingAddress.stateCode,
               stateName: this.state.partyShippingAddress.stateName,
             },
@@ -723,7 +749,7 @@ export class DebiteNote extends React.Component<Props> {
             amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
           },
           entries: this.getEntries(),
-          exchangeRate: 1,
+          exchangeRate: exchangeRate,
           passportNumber: '',
           templateDetails: {
             other: {
@@ -765,8 +791,8 @@ export class DebiteNote extends React.Component<Props> {
   }
   renderAmount() {
     return (
-      <View style={{ paddingVertical: 10, paddingHorizontal: 40 }}>
-        <Text style={style.invoiceAmountText}>{'₹' + this.getTotalAmount()}</Text>
+      <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
+        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
       </View>
     );
   }
@@ -813,7 +839,7 @@ export class DebiteNote extends React.Component<Props> {
   handleConfirm = (date) => {
     // console.log('A date has been picked: ', date);
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
-    this.setState({ date: moment(date),selectedInvoice:"" });
+    this.setState({ date: moment(date), selectedInvoice: "" });
     this.hideDatePicker();
     this.state.accountDropDown.select(-1)
     this.getAllInvoice();
@@ -873,7 +899,7 @@ export class DebiteNote extends React.Component<Props> {
         <View style={{ flexDirection: 'row' }}>
           {/* <Icon name={'Calendar'} color={'#ff6961'} size={16} /> */}
           <Text style={style.InvoiceHeading}>Invoice #</Text>
-          <View style={{ flexDirection: 'row', width: "80%", marginHorizontal: 15,justifyContent:"space-between" }}>
+          <View style={{ flexDirection: 'row', width: "80%", marginHorizontal: 15, justifyContent: "space-between" }}>
             <Dropdown
               ref={(ref) => this.state.accountDropDown = ref}
               textStyle={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, }}
@@ -975,7 +1001,9 @@ export class DebiteNote extends React.Component<Props> {
               ? this.state.partyBillingAddress.address
               : this.state.partyBillingAddress.stateName
                 ? this.state.partyBillingAddress.stateName
-                : 'Select Billing Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
         </TouchableOpacity>
@@ -1005,7 +1033,9 @@ export class DebiteNote extends React.Component<Props> {
               ? this.state.partyShippingAddress.address
               : this.state.partyShippingAddress.stateName
                 ? this.state.partyShippingAddress.stateName
-                : 'Select Shipping Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Shipping Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -1544,6 +1574,7 @@ export class DebiteNote extends React.Component<Props> {
         </Animated.ScrollView>
         {this.state.showItemDetails && (
           <EditItemDetail
+            currencySymbol={this.state.currencySymbol}
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {

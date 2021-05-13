@@ -123,6 +123,12 @@ export class PurchaseBill extends React.Component {
         customField2: null,
         customField3: null,
       },
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -406,6 +412,9 @@ export class PurchaseBill extends React.Component {
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
+          countryDeatils: results.body.country,
+          currency: results.body.currency,
+          currencySymbol: results.body.currencySymbol,
           addressArray: results.body.addresses,
           BillFromAddress: results.body.addresses[0],
           BillToAddress: results.body.addresses[0],
@@ -478,6 +487,12 @@ export class PurchaseBill extends React.Component {
         customField2: null,
         customField3: null,
       },
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     });
   };
   getDiscountForEntry(item) {
@@ -607,27 +622,27 @@ export class PurchaseBill extends React.Component {
           // billingDetails: this.state.partyBillingAddress,
           billingDetails: {
             address: [this.state.BillFromAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.BillFromAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.BillFromAddress.state.code, name: this.state.BillFromAddress.state.name },
+            state: { code: this.state.BillFromAddress.state?this.state.BillFromAddress.state.code:"", name: this.state.BillFromAddress.state?this.state.BillFromAddress.state.name:"" },
             stateCode: this.state.BillFromAddress.stateCode,
             stateName: this.state.BillFromAddress.stateName,
           },
           contactNumber: '',
-          country: { countryName: 'India', countryCode: 'IN' },
-          currency: { code: 'INR' },
-          currencySymbol: '₹',
+          country: this.state.countryDeatils,
+          currency: { code: this.state.currency },
+          currencySymbol: this.state.currencySymbol,
           email: '',
           mobileNumber: '',
           name: this.state.partyName.name,
           // shippingDetails: this.state.partyShippingAddress,
           shippingDetails: {
             address: [this.state.BillToAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.BillToAddress.state.code, name: this.state.BillToAddress.state.name },
+            state: { code: this.state.BillToAddress.state?this.state.BillToAddress.state.code:"", name: this.state.BillToAddress.state?this.state.BillToAddress.state.name:"" },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
           },
@@ -663,19 +678,19 @@ export class PurchaseBill extends React.Component {
         company: {
           billingDetails: {
             address: [this.state.shipFromAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.shipFromAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.shipFromAddress.state.code, name: this.state.shipFromAddress.state.name },
+            state: { code: this.state.shipFromAddress.state?this.state.shipFromAddress.state.code :"", name: this.state.shipFromAddress.state?this.state.shipFromAddress.state.name:"" },
             stateCode: this.state.shipFromAddress.stateCode,
             stateName: this.state.shipFromAddress.stateName,
           },
           shippingDetails: {
             address: [this.state.shipToAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.shipToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.shipToAddress.state.code, name: this.state.shipToAddress.state.name },
+            state: { code: this.state.shipToAddress.state? this.state.shipToAddress.state.code:"", name: this.state.shipToAddress.state?this.state.shipToAddress.state.name:"" },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
           },
@@ -723,8 +738,8 @@ export class PurchaseBill extends React.Component {
 
   renderAmount() {
     return (
-      <View style={{ paddingVertical: 10, paddingHorizontal: 40 }}>
-        <Text style={style.invoiceAmountText}>{'₹' + this.getTotalAmount()}</Text>
+      <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
+        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
       </View>
     );
   }
@@ -856,7 +871,9 @@ export class PurchaseBill extends React.Component {
               ? this.state.BillFromAddress.address
               : this.state.BillFromAddress.stateName
                 ? this.state.BillFromAddress.stateName
-                : 'Select Billing Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
         </TouchableOpacity>
@@ -885,7 +902,9 @@ export class PurchaseBill extends React.Component {
               ? this.state.BillToAddress.address
               : this.state.BillToAddress.stateName
                 ? this.state.BillToAddress.stateName
-                : 'Select Billing Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Billing Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -1265,7 +1284,7 @@ export class PurchaseBill extends React.Component {
           </View>
         )}
 
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems:'center' }}>
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems: 'center' }}>
           <View>
             <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginBottom: 3 }}
               onPress={() => {
@@ -1403,6 +1422,7 @@ export class PurchaseBill extends React.Component {
         </Animated.ScrollView>
         {this.state.showItemDetails && (
           <PurchaseItemEdit
+            currencySymbol={this.state.currencySymbol}
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {

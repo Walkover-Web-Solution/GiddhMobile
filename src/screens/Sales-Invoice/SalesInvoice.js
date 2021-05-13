@@ -139,6 +139,12 @@ export class SalesInvoice extends React.Component<Props> {
         customField3: null,
       },
       ShareModal: false,
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -393,6 +399,16 @@ export class SalesInvoice extends React.Component<Props> {
     return undefined;
   }
 
+  async getExchangeRateToINR(currency) {
+    try {
+      const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
+      if (results.body && results.status == 'success') {
+        return results.body;
+      }
+    } catch (e) { }
+    return 1
+  }
+
   _renderSearchList() {
     return (
       // <Modal animationType="none" transparent={true} visible={true}>
@@ -480,6 +496,9 @@ export class SalesInvoice extends React.Component<Props> {
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
+          countryDeatils: results.body.country,
+          currency: results.body.currency,
+          currencySymbol: results.body.currencySymbol,
           addressArray: results.body.addresses,
           partyBillingAddress: results.body.addresses[0],
           partyShippingAddress: results.body.addresses[0],
@@ -550,6 +569,13 @@ export class SalesInvoice extends React.Component<Props> {
         customField2: null,
         customField3: null,
       },
+      ShareModal: false,
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     });
   };
   getDiscountForEntry(item) {
@@ -617,13 +643,14 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({ loading: true });
     try {
       console.log('came to this');
+      const exchangeRate = await this.state.currency!="INR"? await this.getExchangeRateToINR(this.state.currency): 1
       let postBody = {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
           billingDetails: {
             address: [this.state.partyBillingAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
             state: { code: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : "" },
@@ -631,16 +658,16 @@ export class SalesInvoice extends React.Component<Props> {
             stateName: this.state.partyBillingAddress.stateName,
           },
           contactNumber: '',
-          country: { countryName: 'India', countryCode: 'IN' },
-          currency: { code: 'INR' },
-          currencySymbol: '₹',
+          country: this.state.countryDeatils,
+          currency: { code: this.state.currency },
+          currencySymbol: this.state.currencySymbol,
           email: '',
           mobileNumber: '',
           name: this.state.partyName.name,
           // shippingDetails: this.state.partyShippingAddress,
           shippingDetails: {
             address: [this.state.partyShippingAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
             state: { code: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : "" },
@@ -658,7 +685,7 @@ export class SalesInvoice extends React.Component<Props> {
           amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
         },
         entries: this.getEntries(),
-        exchangeRate: 1,
+        exchangeRate: exchangeRate,
         passportNumber: '',
         templateDetails: {
           other: {
@@ -695,7 +722,7 @@ export class SalesInvoice extends React.Component<Props> {
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+        await DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
         if (type == "navigate") {
           if (invoiceType == INVOICE_TYPE.cash) {
             this.props.navigation.goBack();
@@ -727,8 +754,8 @@ export class SalesInvoice extends React.Component<Props> {
   }
   renderAmount() {
     return (
-      <View style={{ paddingVertical: 10, paddingHorizontal: 40 }}>
-        <Text style={style.invoiceAmountText}>{'₹' + this.getTotalAmount()}</Text>
+      <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
+        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
       </View>
     );
   }
@@ -839,6 +866,7 @@ export class SalesInvoice extends React.Component<Props> {
           onPress={() => {
             this.state.invoiceType == INVOICE_TYPE.cash ?
               this.props.navigation.navigate('EditAddress', {
+                dontChangeCountry: true,
                 addressArray: this.state.partyBillingAddress,
                 selectAddress: (this.selectBillingAddress).bind(this),
                 statusBarColor: "#0E7942"
@@ -864,7 +892,9 @@ export class SalesInvoice extends React.Component<Props> {
               ? this.state.partyBillingAddress.address
               : this.state.partyBillingAddress.stateName
                 ? this.state.partyBillingAddress.stateName
-                : 'Select Billing Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
         </TouchableOpacity>
@@ -873,6 +903,7 @@ export class SalesInvoice extends React.Component<Props> {
           onPress={() => {
             this.state.invoiceType == INVOICE_TYPE.cash ?
               this.props.navigation.navigate('EditAddress', {
+                dontChangeCountry: true,
                 addressArray: this.state.partyShippingAddress,
                 selectAddress: (this.selectShippingAddress).bind(this),
                 statusBarColor: "#0E7942"
@@ -897,7 +928,9 @@ export class SalesInvoice extends React.Component<Props> {
               ? this.state.partyShippingAddress.address
               : this.state.partyShippingAddress.stateName
                 ? this.state.partyShippingAddress.stateName
-                : 'Select Shipping Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Shipping Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -909,7 +942,7 @@ export class SalesInvoice extends React.Component<Props> {
   //https://api.giddh.com/company/mobileindore15161037983790ggm19/account-search?q=c&page=1&group=sundrydebtors&branchUniqueName=allmobileshop
   setCashTypeInvoice = async () => {
     await this.resetState()
-    await this.setState({ invoiceType: INVOICE_TYPE.cash, showInvoiceModal: false });
+    await this.setState({ invoiceType: INVOICE_TYPE.cash, showInvoiceModal: false, currencySymbol: "₹" });
   }
   setCreditTypeInvoice = async () => {
     await this.resetState()
@@ -1101,7 +1134,7 @@ export class SalesInvoice extends React.Component<Props> {
     }
     return 0;
   }
-  
+
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
     console.log('rate', itemDetails.rate);
@@ -1509,6 +1542,7 @@ export class SalesInvoice extends React.Component<Props> {
         </Animated.ScrollView>
         {this.state.showItemDetails && (
           <EditItemDetail
+            currencySymbol={this.state.currencySymbol}
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {

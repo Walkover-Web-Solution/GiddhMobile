@@ -171,6 +171,19 @@ export class InvoiceService {
       });
   }
 
+  static getExchangeRate(date:any,currency:any){
+    console.log(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`,`${currency}`))
+    return httpInstance
+      .get(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`,`${currency}`), {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+        return null;
+      });
+  }
+
   static getVoucherInvoice(date: any, payload: any) {
     console.log(invoiceUrls.getVoucherInvoice.replace(`:voucherDate`, `${date}`), payload)
     return httpInstance

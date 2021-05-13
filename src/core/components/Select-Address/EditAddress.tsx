@@ -187,7 +187,7 @@ export class EditAddress extends React.Component<any, any> {
     console.log("country" + this.state.selectedCountry);
     if (this.state.selectedCountry.countryName == "") {
       alert("Please Enter Country Name");
-    } else if (this.state.selectedCountry.countryName == "India" && this.state.state_billing == "Select") {
+    } else if (this.state.selectedCountry.countryName == "India"&& !this.props.route.params.dontChangeCountry && this.state.state_billing == "Select") {
       alert("Please Enter State Name");
     }
     else if (this.state.gstNo && this.state.gstNo.length != 15) {
@@ -263,6 +263,7 @@ export class EditAddress extends React.Component<any, any> {
             value={this.state.address}></TextInput>
           <Text style={style.BMfieldTitle}>Country*</Text>
           <Dropdown
+            disabled={this.props.route.params.dontChangeCountry}
             ref={(ref) => this.state.addresssDropDown = ref}
             style={style.dropDown}
             textStyle={{ color: '#1c1c1c' }}

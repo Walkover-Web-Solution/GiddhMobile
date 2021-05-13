@@ -35,8 +35,11 @@ export const invoiceUrls = {
   getBriefAccount: createEndpoint(
     'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts&count=0&currency=INR,%20INR&branchUniqueName=:branchUniqueName',
   ),
-  getVoucherInvoice:createEndpoint(
+  getVoucherInvoice: createEndpoint(
     'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName',
+  ),
+  getExchangeRateToINR: createEndpoint(
+    'currency/rate?from=:from&to=INR&date=:date&branchUniqueName=:branchUniqueName'
   )
 };
 /*
