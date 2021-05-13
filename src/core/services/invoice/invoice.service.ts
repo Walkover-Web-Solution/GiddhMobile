@@ -129,7 +129,7 @@ export class InvoiceService {
    * @param invoiceType 
    * @returns 
    */
-  static createDebitNote(payload:any, accountUniqueName:any, invoiceType:any) {
+  static createDebitNote(payload: any, accountUniqueName: any, invoiceType: any) {
     console.log(invoiceUrls.generateDebitNote.replace(':accountUniqueName', `${accountUniqueName}`));
     console.log('invoice type', invoiceType);
     return httpInstance
@@ -140,7 +140,7 @@ export class InvoiceService {
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
-        Alert.alert("Error", err.data.message , [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
@@ -171,6 +171,19 @@ export class InvoiceService {
       });
   }
 
+  static getVoucherInvoice(date: any, payload: any) {
+    console.log(invoiceUrls.getVoucherInvoice.replace(`:voucherDate`, `${date}`), payload)
+    return httpInstance
+      .post(invoiceUrls.getVoucherInvoice.replace(`:voucherDate`, `${date}`), payload)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        JSON.stringify("ERROR"+JSON.stringify(err));
+        return null;
+      });
+  }
+
   static createCreditNote(payload, accountUniqueName, invoiceType) {
     console.log(invoiceUrls.generateCreditNote.replace(':accountUniqueName', `${accountUniqueName}`));
     console.log('invoice type', invoiceType);
@@ -182,7 +195,7 @@ export class InvoiceService {
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
-        // alert(JSON.stringify(err));
+        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }

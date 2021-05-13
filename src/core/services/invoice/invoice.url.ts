@@ -24,7 +24,7 @@ export const invoiceUrls = {
     'company/:companyUniqueName/accounts/:accountUniqueName/purchase-record/generate?branchUniqueName=:branchUniqueName',
   ),
   generateCreditNote: createEndpoint(
-    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate'
+    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
   ),
   generateDebitNote: createEndpoint(
     'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
@@ -35,6 +35,9 @@ export const invoiceUrls = {
   getBriefAccount: createEndpoint(
     'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts&count=0&currency=INR,%20INR&branchUniqueName=:branchUniqueName',
   ),
+  getVoucherInvoice:createEndpoint(
+    'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName',
+  )
 };
 /*
 https://api.giddh.com/company/mobileindore15161037983790ggm19/brief-accounts?group=cash,%20bankaccounts&count=0&currency=INR,%20INR&branchUniqueName=allmobileshop

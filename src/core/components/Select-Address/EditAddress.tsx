@@ -156,7 +156,7 @@ export class EditAddress extends React.Component<any, any> {
   }
 
   getDetails = async () => {
-    this.setState({ loading: true });
+    await this.setState({ loading: true });
     if (this.state.gstNo != "") {
       this.setState({ selectStateDisable: true })
     }
@@ -175,7 +175,7 @@ export class EditAddress extends React.Component<any, any> {
     };
     await this.setState({ allCountry: allCountry.body, allStates: allStateName.body.stateList, selectedCountry: this.props.route.params.addressArray.selectedCountry != null ? this.props.route.params.addressArray.selectedCountry : countryIndia });
     console.log(this.state.selectedCountry);
-    this.setState({ loading: false });
+    await this.setState({ loading: false });
   }
 
   changeactiveIndex = (value: number) => {
@@ -185,8 +185,10 @@ export class EditAddress extends React.Component<any, any> {
   onSubmit = () => {
     console.log("state" + this.state.state_billing == "");
     console.log("country" + this.state.selectedCountry);
-    if (this.state.state_billing == "Select" || this.state.selectedCountry.countryName == "") {
-      alert("Please Enter Country and State Name");
+    if (this.state.selectedCountry.countryName == "") {
+      alert("Please Enter Country Name");
+    } else if (this.state.selectedCountry.countryName == "India" && this.state.state_billing == "Select") {
+      alert("Please Enter State Name");
     }
     else if (this.state.gstNo && this.state.gstNo.length != 15) {
       alert("Enter a valid gst number, should be 15 characters long");
@@ -199,7 +201,7 @@ export class EditAddress extends React.Component<any, any> {
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
-        state: this.state.state_billing,
+        state: this.state.state_billing!="Select"?this.state.state_billing:"",
         stateCode: this.state.state_billing.code,
         stateName: this.state.state_billing.name,
       }

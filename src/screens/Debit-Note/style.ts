@@ -78,6 +78,12 @@ export default StyleSheet.create({
     marginLeft: 10,
     alignSelf: 'center',
   },
+  InvoiceHeading :{
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
+    alignSelf: 'center',
+    marginTop:-2
+  },
   addressHeaderText: {
     fontFamily: FONT_FAMILY.regular,
     fontSize: 14,
