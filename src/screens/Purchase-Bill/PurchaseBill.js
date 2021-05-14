@@ -1169,6 +1169,28 @@ export class PurchaseBill extends React.Component {
   //   return Number(totalTax);
   // }
 
+  // calculatedTaxAmount(itemDetails) {
+  //   let totalTax = 0;
+  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+  //   let taxArr = this.state.taxArray;
+  //   if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+  //     for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
+  //       let item = itemDetails.stock.taxes[i];
+  //       for (let j = 0; j < taxArr.length; j++) {
+  //         if (item == taxArr[j].uniqueName) {
+  //           // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
+  //           let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+  //           let taxAmount = (taxPercent * Number(amt)) / 100;
+  //           totalTax = totalTax + taxAmount;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // console.log('calculated tax is ', totalTax);
+  //   return Number(totalTax);
+  // }
+
   getTotalAmount() {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {

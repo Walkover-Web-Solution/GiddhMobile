@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter,FlatList ,useWindowDimensions } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -10,18 +10,16 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { FONT_FAMILY } from '@/utils/constants';
-import CheckBox from '@react-native-community/checkbox'
 import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
-import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel, } from 'react-native-simple-radio-button';
-import { CustomerService } from '@/core/services/customer-vendor/customer-vendor.service';
+import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
-import AsyncStorage from '@react-native-community/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
+import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
 interface Props {
   navigation: any;
@@ -30,20 +28,19 @@ interface Props {
 export class Customers extends React.Component<Props> {
   constructor(props: any) {
     super(props);
-    this.getAllDeatils();
   }
 
   async getAllDeatils() {
     await this.setState({ loading: true });
-    let allPartyTypes = await CustomerService.getAllPartyType()
-    let allStateName = await CustomerService.getAllStateName("IN")
-    let allCurrency = await CustomerService.getAllCurrency()
-    let allCountry = await CustomerService.getAllCountryName()
-    let allCallingCode = await CustomerService.getAllCallingCode()
-    //Alert.alert(JSON.stringify(allCurrency.body[0].code))
-    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
-    //allStates: allStateName.body.stateList 
+    let allPartyTypes = await CustomerVendorService.getAllPartyType()
+    // let allStateName = await CustomerVendorService.getAllStateName("IN")
+    let allCurrency = await CustomerVendorService.getAllCurrency()
+    // let allCountry = await CustomerVendorService.getAllCountryName()
+    let allCallingCode = await CustomerVendorService.getAllCallingCode()
+    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
+    // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     await this.setState({ loading: false });
+    console.log(this.state.allPartyType);
   }
 
   state = {
@@ -51,7 +48,7 @@ export class Customers extends React.Component<Props> {
     partyName: "",
     contactNumber: "",
     emailId: "",
-    partyType: "Party Type*",
+    partyType: "",
     allPartyType: [],
     AllGroups: ["Sundry Debtors"],
     ref: RBSheet,
@@ -59,19 +56,12 @@ export class Customers extends React.Component<Props> {
     savedAddress: {
       street_billing: "",
       gstin_billing: "",
-      state_billing: '',
-      street_shipping: "",
-      gstin_shipping: "",
-      state_shipping: '',
-      shippingSame: false,
+      state_billing: "",
+      pincode: ""
     },
     street_billing: "",
     gstin_billing: "",
     state_billing: '',
-    street_shipping: "",
-    gstin_shipping: "",
-    state_shipping: '',
-    shippingSame: false,
     openAddress: false,
     showBalanceDetails: false,
     creditPeriodRef: Dropdown,
@@ -96,7 +86,16 @@ export class Customers extends React.Component<Props> {
     selectedCallingCode: "91",
     successDialog: false,
     faliureDialog: false,
-    selectedGroup: "Sundry Debtors"
+    selectedGroup: "Sundry Debtors",
+    partyDropDown: Dropdown,
+    pincode: "",
+    isEmailInvalid: false,
+    isMobileNoValid: false,
+    groupDropDown: Dropdown,
+    isGroupDD: false,
+    isPartyDD: false,
+    partyPlaceHolder: "",
+    partyDialog: false,
   }
 
   radio_props = [
@@ -121,134 +120,9 @@ export class Customers extends React.Component<Props> {
   setCountrySelected = async (value: any) => {
     this.setState({ loading: true });
     await this.setState({ state_billing: '', selectedCountry: value, selectedCurrency: value.currency.code, selectedCallingCode: value.callingCode })
-    let allStateName = await CustomerService.getAllStateName(value.alpha2CountryCode)
+    let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
     await this.setState({ allStates: allStateName.body.stateList })
     this.setState({ loading: false });
-  }
-
-  renderAddressDetails = () => {
-    return (<View style={{ flex: 1 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, paddingLeft: 20 }} >
-        <TouchableOpacity
-          style={{ marginVertical: 10 }}
-          onPress={() => {
-            this.state.ref.close();
-          }}>
-          <Icon name={'Backward-arrow'} size={16} color={'#808080'} />
-        </TouchableOpacity>
-        <Text style={styles.addressDetails}>Address Details</Text>
-      </View>
-      <View style={{ borderBottomColor: '#808080', borderBottomWidth: 0.5 }}></View>
-      <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 3 }}>
-        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-          <Ionicons name="location-sharp" size={18} color="#808080" />
-          <Text style={{ paddingLeft: 15, color: '#1C1C1C' }} >Billing Address</Text>
-        </View>
-        <Text style={{ color: '#808080', marginLeft: 35, marginTop: 7, fontSize: 13 }}>Street</Text>
-        <TextInput
-          style={styles.inputStyle}
-          value={this.state.street_billing != "" ? this.state.street_billing : ""}
-          multiline={true}
-          onChangeText={(text) => this.setStreetBilling(text)} />
-        <Text style={styles.GreyText}>GSTIN</Text>
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="GSTIN (if applicable)"
-          value={this.state.gstin_billing != "" ? this.state.gstin_billing : ""}
-          multiline={true}
-          onChangeText={(text) => this.setGSTINBilling(text)} />
-        <Text style={styles.GreyText}>Country*</Text>
-        <Dropdown
-          ref={(ref) => this.state.creditPeriodRef = ref}
-          style={styles.dropDown}
-          textStyle={{ color: '#1c1c1c' }}
-          defaultValue={this.state.selectedCountry.countryName}
-          options={this.state.allCountry}
-          renderSeparator={() => {
-            return (<View></View>);
-          }}
-          dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, marginLeft: -35, }}
-          dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
-          renderRow={(options) => {
-            return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.countryName}</Text>);
-          }}
-          renderButtonText={(text) => text.countryName}
-          onSelect={(idx, value) => this.setCountrySelected(value)}
-        />
-        <Text style={styles.GreyText}>State*</Text>
-        <Dropdown
-          ref={(ref) => this.state.creditPeriodRef = ref}
-          style={styles.dropDown}
-          textStyle={{ color: '#1c1c1c', fontSize: 14 }}
-          defaultValue={this.state.state_billing != '' ? this.state.state_billing.name : "Select"}
-          options={this.state.allStates}
-          renderSeparator={() => {
-            return (<View></View>);
-          }}
-          dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, marginLeft: -35, }}
-          dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
-          renderRow={(options) => {
-            return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>);
-          }}
-          renderButtonText={(text) => text.name}
-          onSelect={(idx, value) => this.setState({ state_billing: value })}
-        />
-        {/* <View style={styles.rowContainer} >
-          <CheckBox value={this.state.shippingSame} onValueChange={(val) => this.setState({ shippingSame: val })} />
-          <Text style={{ color: '#1c1c1c', marginLeft: 3 }}>Shipping Address Same as Billing*</Text>
-        </View> */}
-        {/* {!this.state.shippingSame ? <View>
-          <Text style={{ color: '#808080', marginLeft: 35, marginTop: 7, fontSize: 13 }}>Street</Text>
-          <TextInput style={styles.inputStyle} multiline={true}
-            value={this.state.street_shipping != "" ? this.state.street_shipping : ""}
-            onChangeText={(text) => this.setStreetShipping(text)} />
-          <Text style={styles.GreyText}>GSTIN</Text>
-          <TextInput
-            style={styles.inputStyle}
-            defaultValue="GSTIN (if applicable)"
-            value={this.state.gstin_shipping != "" ? this.state.gstin_shipping : ""}
-            multiline={true}
-            onChangeText={(text) => this.setGSTINShipping(text)}
-          />
-          <Text style={styles.GreyText}>State*</Text>
-          <Dropdown
-            style={styles.dropDown}
-            textStyle={{ color: '#1c1c1c' }}
-            defaultValue={this.state.state_shipping != "" ? this.state.state_shipping.name : "select"}
-            options={this.state.allStates}
-            renderSeparator={() => {
-              return (<View></View>);
-            }}
-            renderButtonText={(text) => text.name}
-            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, marginLeft: -35, }}
-            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
-            renderRow={(options) => {
-              return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>);
-            }}
-            onSelect={(idx, value) => this.setState({ state_shipping: value })}
-          />
-        </View> : <View></View>} */}
-      </ScrollView>
-      <TouchableOpacity
-        style={styles.saveBtn}
-        onPress={() => {
-          const newAddress = {
-            street_billing: this.state.street_billing,
-            gstin_billing: this.state.gstin_billing,
-            state_billing: this.state.state_billing,
-            street_shipping: this.state.street_billing,
-            gstin_shipping: this.state.gstin_shipping,
-            state_shipping: this.state.state_shipping,
-            shippingSame: this.state.shippingSame
-          };
-          this.setState({ savedAddress: newAddress });
-          this.state.ref.close();
-        }}
-      >
-        <Text style={{ color: 'white', padding: 10, }}>Save</Text>
-      </TouchableOpacity>
-    </View>
-    );
   }
 
   renderSavedAddress = () => {
@@ -256,19 +130,9 @@ export class Customers extends React.Component<Props> {
       <View style={{ marginLeft: 46 }}>
         <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
         {this.state.savedAddress.street_billing != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_billing}</Text>}
-        {this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing}</Text>}
+        {this.state.savedAddress.state_billing.name != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing.name}</Text>}
+        {this.state.savedAddress.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.pincode}</Text>}
         {this.state.savedAddress.gstin_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.gstin_billing}</Text>}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -5 }} >
-          <CheckBox value={this.state.savedAddress.shippingSame} onValueChange={(val) => this.setState({ savedAddress: { shippingSame: val } })} />
-          <Text style={{ color: '#1c1c1c' }}>Shipping Address Same as Billing*</Text>
-        </View>
-        {this.state.savedAddress.shippingSame && <View>
-          <Text style={{ fontFamily: FONT_FAMILY.bold }}>Shipping Address*</Text>
-          {this.state.savedAddress.street_shipping != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_shipping}</Text>}
-          {this.state.savedAddress.state_shipping != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_shipping}</Text>}
-          {this.state.savedAddress.gstin_shipping != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.gstin_shipping}</Text>}
-
-        </View>}
       </View>);
   };
 
@@ -277,14 +141,14 @@ export class Customers extends React.Component<Props> {
     return (
       <View style={{ marginHorizontal: 15, marginVertical: 10, marginRight: 20, overflow: 'hidden' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, }}>
-          <View style={{ width: "80%", }}>
+          <View style={{ width: "74%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Set Currency (account)</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginStart: -24, marginTop: 5, paddingHorizontal: 10, marginHorizontal: 10, height: 40, width: "34%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden' }}>
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden' }}>
             <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}
@@ -298,7 +162,7 @@ export class Customers extends React.Component<Props> {
               }}
               onSelect={(idx, value) => this.setState({ selectedCurrency: value.code })}
 
-              dropdownStyle={{ width: '29%', marginTop: 11, borderRadius: 8, marginRight: -73 }}
+              dropdownStyle={{ width: '25%', marginTop: 11,marginRight:-60 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.code}</Text>);
@@ -316,7 +180,7 @@ export class Customers extends React.Component<Props> {
           </View>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
-          <View style={{ width: "80%" }}>
+          <View style={{ width: "74%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
@@ -328,10 +192,10 @@ export class Customers extends React.Component<Props> {
             onChangeText={(val) => { this.setState({ foreignOpeningBalance: val }) }}
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
-            style={{ borderWidth: 1, borderColor: "#d9d9d9", height: '80%', width: "34%", paddingStart: 10, marginStart: -24, }} />
+            style={{ borderWidth: 1, borderColor: "#d9d9d9", width: "30%", height: '80%', paddingStart: 10, }} />
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 20 }}>
-          <View style={{ width: "50%" }}>
+        <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 5 }}>
+          <View style={{ width: "70%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
@@ -345,7 +209,6 @@ export class Customers extends React.Component<Props> {
               {
                 this.radio_props.map((obj, i) => (
                   <RadioButton labelHorizontal={true} key={i} style={{ alignItems: 'center' }} >
-                    {/*  You can set RadioButtonLabel before RadioButtonInput */}
                     <RadioButtonInput
                       obj={obj}
                       index={i}
@@ -368,8 +231,7 @@ export class Customers extends React.Component<Props> {
                       labelWrapStyle={{ marginRight: 10, marginTop: 10 }}
                     />
                   </RadioButton>
-                ))
-              }
+                ))}
             </RadioForm>
           </View>
           <TextInput
@@ -379,27 +241,79 @@ export class Customers extends React.Component<Props> {
             }}
             value={this.state.openingBalance}
             placeholder="Amount"
-            style={{ borderWidth: 1, borderColor: "#d9d9d9", height: '70%', width: "32.5%", paddingStart: 10, marginTop: 5 }} />
+            style={{ borderWidth: 1, width: "30%", borderColor: "#d9d9d9", height: '70%', paddingStart: 10, marginTop: 5 }} />
         </View>
       </View>
     );
   }
 
   isCreateButtonVisible = () => {
-    if (this.state.partyName && this.state.savedAddress.state_billing) {
+    if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.savedAddress.state_billing) {
       return true;
     } else {
       return false;
     }
   }
 
+  validateMobileNumber = () => {
+    if (this.state.contactNumber == "") {
+      return true
+    }
+    var pattern = new RegExp(/^[0-9\b]+$/);
+    if (!pattern.test(this.state.contactNumber)) {
+      Alert.alert("Error", 'Please enter only number.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      return false;
+    } else if (this.state.contactNumber.length != 10) {
+      Alert.alert("Error", 'Please enter valid phone number.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      return false;
+    }
+    return true
+  }
+
+  validateMobileNumberTextInput = (mobileNo: any) => {
+    if (mobileNo == "") {
+      return true
+    }
+    var pattern = new RegExp(/^[0-9\b]+$/);
+    if (!pattern.test(mobileNo)) {
+      return false;
+    } else if (mobileNo.length != 10) {
+      return false;
+    }
+    return true
+  }
+
+  validateEmailTextInput = (emailId: any) => {
+    if (emailId == "") {
+      return true
+    }
+    const expression = /(?!.*\.{2})^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([\t]*\r\n)?[\t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([\t]*\r\n)?[\t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+    if (!expression.test(String(emailId).toLowerCase())) {
+      return false;
+    }
+    return true
+  }
+
+  validateEmail = () => {
+    if (this.state.emailId == "") {
+      return true
+    }
+    const expression = /(?!.*\.{2})^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([\t]*\r\n)?[\t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([\t]*\r\n)?[\t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+    if (!expression.test(String(this.state.emailId).toLowerCase())) {
+      Alert.alert("Error", 'Please enter correct email-address.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      return false;
+    }
+    return true
+  }
   genrateCustomer = () => {
     if (!this.state.partyName) {
       Alert.alert("Error", 'Please select a party.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else if (!this.state.savedAddress.state_billing) {
       Alert.alert("Error", 'Please select state to proceed.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
-      this.createCustomerRequest();
+      if (this.validateMobileNumber() && this.validateEmail()) {
+        this.createCustomerRequest();
+      }
     }
   }
 
@@ -410,7 +324,7 @@ export class Customers extends React.Component<Props> {
         activeGroupUniqueName: "sundrydebtors",
         name: this.state.partyName,
         uniqueName: "",
-        openingBalanceType: "CREDIT",
+        openingBalanceType: this.state.radioBtn == 0 ? "DEBIT" : "CREDIT",
         foreignOpeningBalance: this.state.foreignOpeningBalance,
         openingBalance: this.state.openingBalance,
         mobileNo: this.state.contactNumber,
@@ -428,7 +342,7 @@ export class Customers extends React.Component<Props> {
             isDefault: false,
             isComposite: false,
             partyType: this.state.partyType,
-            pincode: null
+            pincode: this.state.savedAddress.pincode
           }
         ],
         country: {
@@ -443,10 +357,11 @@ export class Customers extends React.Component<Props> {
         sacNumber: ""
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
-      const results = await CustomerService.createCustomer(postBody);
+      const results = await CustomerVendorService.createCustomer(postBody);
       if (results.status == "success") {
-        DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
+        await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
+        this.state.partyDropDown.select(-1);
         await this.setState({ successDialog: true, });
         await this.getAllDeatils()
         await this.setState({ loading: false, });
@@ -477,18 +392,8 @@ export class Customers extends React.Component<Props> {
         street_billing: "",
         gstin_billing: "",
         state_billing: '',
-        street_shipping: "",
-        gstin_shipping: "",
-        state_shipping: '',
-        shippingSame: false,
+        pincode: ""
       },
-      street_billing: "",
-      gstin_billing: "",
-      state_billing: '',
-      street_shipping: "",
-      gstin_shipping: "",
-      state_shipping: '',
-      shippingSame: false,
       openAddress: false,
       showBalanceDetails: false,
       creditPeriodRef: Dropdown,
@@ -513,12 +418,63 @@ export class Customers extends React.Component<Props> {
       selectedCallingCode: "91",
       successDialog: false,
       faliureDialog: false,
-      selectedGroup: "Sundry Debtors"
+      selectedGroup: "Sundry Debtors",
+      partyDropDown: Dropdown,
+      pincode: "",
+      isEmailInvalid: false,
+      isMobileNoValid: false
     })
   }
+
+  selectBillingAddress = (address) => {
+    console.log(address);
+    const newAddress = {
+      street_billing: address.address,
+      gstin_billing: address.gstNumber,
+      state_billing: address.state,
+      pincode: address.pincode
+    };
+    this.setState({
+      savedAddress: newAddress, selectedCountry: address.selectedCountry,
+      selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
+    });
+  };
+ 
+  componentDidMount(){
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async() => {
+      await this.resetState();
+      await this.getAllDeatils();
+    });
+  }
+
   render() {
     return (
       <View style={styles.customerMainContainer}>
+        <Dialog.Container
+          visible={this.state.partyDialog}
+          onBackdropPress={() => {
+            console.log("w");
+            this.setState({ partyDialog: false })
+          }}
+          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: "70%" }}
+        >
+          <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
+          <FlatList
+            style={{ flex: 1, width: '100%', height: '100%' }}
+            data={this.state.allPartyType}
+            renderItem={(item) => {
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({partyType:item.item.value, partyDialog:false});
+                  }}
+                  key={item.item.value}
+                  style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
+                  <Text style={{ flex: 1, padding: 20, fontSize: 13 }}>{item.item.label}</Text>
+                </TouchableOpacity>);
+            }}
+          />
+        </Dialog.Container>
         {this.state.successDialog ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: "center", alignItems: "center" }}>
           <Award />
           <Text style={{ color: "#229F5F", fontSize: 16 }}>Success</Text>
@@ -567,10 +523,21 @@ export class Customers extends React.Component<Props> {
           <View style={styles.rowContainer}>
             <Ionicons name="person" size={18} color="#864DD3" />
             <TextInput
-              onChangeText={(text) => { this.setState({ partyName: text }) }}
-              placeholder="Enter Party Name*"
-              value={this.state.partyName}
-              style={styles.input} />
+              onBlur={() => {
+                if (this.state.partyName == "") {
+                  this.setState({ partyPlaceHolder: "" })
+                }
+              }}
+              onFocus={() => this.setState({ partyPlaceHolder: "a" })}
+              onChangeText={(text) => {
+                console.log(text)
+                this.setState({ partyName: text })
+              }
+              }
+              style={styles.input}>
+              <Text style={{ color: "rgba(80,80,80,0.5)" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
+              <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == "" ? "*" : ""}</Text>
+            </TextInput>
           </View>
           <View style={styles.rowContainer}>
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
@@ -593,22 +560,33 @@ export class Customers extends React.Component<Props> {
               }}
             />
             <TextInput
-              onChangeText={(text) => { this.setState({ contactNumber: text }) }}
+              onChangeText={(text) => {
+                this.setState({
+                  contactNumber: text,
+                  isMobileNoValid: !this.validateMobileNumberTextInput(text)
+                })
+              }}
               placeholder="Enter Contact Number"
               value={this.state.contactNumber}
               style={styles.input} />
           </View>
+          {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: "red", paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
             <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />
             <TextInput
-              onChangeText={(text) => this.setState({ emailId: text })}
+              onChangeText={(text) => this.setState({
+                emailId: text,
+                isEmailInvalid: !this.validateEmailTextInput(text)
+              })}
               value={this.state.emailId}
               placeholder="Email Address"
               style={styles.input} />
           </View>
+          {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: "red", paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
           <View style={{ ...styles.rowContainer, marginTop: 5 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
+              ref={(ref) => this.state.groupDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.selectedGroup}
@@ -616,27 +594,37 @@ export class Customers extends React.Component<Props> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
+              onDropdownWillShow={() => this.setState({ isGroupDD: true })}
+              onDropdownWillHide={() => this.setState({ isGroupDD: false })}
               dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
               }}
-              onSelect={(index, value) => { this.setState({ selectedGroup: value }) }}
-
-            />
+              onSelect={(index, value) => { this.setState({ selectedGroup: value }) }} />
             <Icon
-              style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }] }}
+              style={{ transform: [{ rotate: this.state.isGroupDD ? '180deg' : '0deg' }] }}
               name={'9'}
               size={12}
               color="#808080"
               onPress={() => {
-
+                this.setState({ isGroupDD: true });
+                this.state.groupDropDown.show();
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5 }}>
+          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
-            <Dropdown
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({ partyDialog: true })
+              }}
+              style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
+              <Text style={{ color: this.state.partyType == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }}>{this.state.partyType == "" ? "Party Type" : this.state.partyType}</Text>
+              <Text style={{ color: "#E04646" }}>{this.state.partyType == "" ? "*" : ""}</Text>
+            </TouchableOpacity>
+            {/* <Dropdown
+              ref={(ref) => this.state.partyDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.partyType}
@@ -644,6 +632,8 @@ export class Customers extends React.Component<Props> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
+              onDropdownWillShow={() => this.setState({ isPartyDD: true })}
+              onDropdownWillHide={() => this.setState({ isPartyDD: false })}
               dropdownStyle={{ marginLeft: 30, width: '75%', marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
@@ -651,23 +641,41 @@ export class Customers extends React.Component<Props> {
               }}
               renderButtonText={(text) => text.value}
               onSelect={(index, value) => { this.setState({ partyType: value.value }) }}
-            />
+            /> */}
             <Icon
-              style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }] }}
+              style={{ transform: [{ rotate: this.state.isPartyDD ? '180deg' : '0deg' }] }}
               name={'9'}
               size={12}
               color="#808080"
               onPress={() => {
-
+                this.setState({partyDialog:true});
+                // this.setState({ isPartyDD: true })
+                //this.state.partyDropDown.show();
               }}
             />
           </View>
           <TouchableOpacity
             onPress={() => {
-              this.state.ref.open();
+              const BillingAddress = {
+                address: this.state.savedAddress.street_billing,
+                stateName: this.state.savedAddress.state_billing,
+                selectedCountry: this.state.selectedCountry,
+                gstNumber: this.state.savedAddress.gstin_billing,
+                pincode: this.state.savedAddress.pincode
+              };
+              this.props.navigation.navigate('EditAddressCV', {
+                addressArray: BillingAddress,
+                selectAddress: (this.selectBillingAddress).bind(this),
+                headerColor: "#864DD3",
+                statusBarColor: "#520EAD",
+              })
             }}
             style={{ ...styles.rowContainer, justifyContent: 'space-between', marginVertical: 10, paddingVertical: 10, backgroundColor: this.state.openAddress ? "rgba(80,80,80,0.05)" : "white" }}>
-            <AntDesign name="pluscircle" size={16} color="#864DD3" />
+            <AntDesign
+              name="pluscircle"
+              size={16}
+              color="#864DD3"
+              style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
             <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
               <Text style={{ color: '#1C1C1C' }}>Address Details*</Text>
             </View>
@@ -677,8 +685,23 @@ export class Customers extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                this.state.ref.open();
-                // this.setState({ openAddress: !this.state.openAddress });
+                if (this.state.savedAddress.state_billing.name) {
+                  this.setState({ openAddress: !this.state.openAddress });
+                } else {
+                  const BillingAddress = {
+                    address: this.state.savedAddress.street_billing,
+                    stateName: this.state.savedAddress.state_billing,
+                    selectedCountry: this.state.selectedCountry,
+                    gstNumber: this.state.savedAddress.gstin_billing,
+                    pincode: this.state.savedAddress.pincode
+                  };
+                  this.props.navigation.navigate('EditAddressCV', {
+                    addressArray: BillingAddress,
+                    selectAddress: (this.selectBillingAddress).bind(this),
+                    headerColor: "#864DD3",
+                    statusBarColor: '#520EAD'
+                  })
+                }
               }}
             />
           </TouchableOpacity>
@@ -686,7 +709,11 @@ export class Customers extends React.Component<Props> {
           <TouchableOpacity
             onPress={() => { this.setState({ showBalanceDetails: !this.state.showBalanceDetails }) }}
             style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 10 }}>
-            <AntDesign name="pluscircle" size={16} color="#864DD3" style={{ transform: [{ rotate: '45deg' }] }} />
+            <AntDesign
+              name="pluscircle"
+              size={16}
+              color="#864DD3"
+              style={{ transform: [{ rotate: this.state.showBalanceDetails ? '45deg' : '0deg' }] }} />
             <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
               <Text style={{ color: '#1C1C1C' }}>Balance Details</Text>
             </View>
@@ -706,15 +733,6 @@ export class Customers extends React.Component<Props> {
           }}>
           <Icon name={'path-18'} size={48} color={'#5773FF'} />
         </TouchableOpacity>}
-        <RBSheet ref={(ref) => { this.state.ref = ref }}
-          height={500}
-          customStyles={{
-            container: {
-              borderRadius: 10
-            }
-          }}>
-          {this.renderAddressDetails()}
-        </RBSheet>
         {this.state.loading && (
           <View
             style={{

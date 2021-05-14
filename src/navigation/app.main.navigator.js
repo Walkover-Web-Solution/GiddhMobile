@@ -6,6 +6,7 @@ import PurchaseBillStack from './purchaseBillNavigator';
 import CreditNoteStack from './creditNoteNavigator';
 import CustomerStack from './customerNavigator';
 import DebitNoteStack from './debitNoteNavigator';
+import VendorStack from './vendorNavigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -18,6 +19,7 @@ export default function AppMainNav() {
       <Drawer.Screen name="CreditNoteScreens" component={CreditNoteStack} />
       <Drawer.Screen name="DebitNoteScreens" component={DebitNoteStack} />
       <Drawer.Screen name="CustomerScreens" component={CustomerStack} />
+      <Drawer.Screen name="VendorScreens" component={VendorStack} />
     </Drawer.Navigator>
   );
 }

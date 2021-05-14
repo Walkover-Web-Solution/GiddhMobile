@@ -29,6 +29,12 @@ export function* getCompanyAndBranches() {
         console.log('this always runs for company');
         if (listResponse.body && listResponse.body.length > 0) {
           let defaultComp = listResponse.body[0];
+          // console.log("rabbit"+defaultComp.userDetails.country);
+          
+          // if(defaultComp.userDetails.country){
+          //   console.log("rabbit"+defaultComp.userDetails.country.countryCode);
+          //   yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, defaultComp.userDetails.country.countryCode);
+          // }
           if (defaultComp.uniqueName) {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
           }

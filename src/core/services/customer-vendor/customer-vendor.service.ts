@@ -2,7 +2,7 @@ import httpInstance from '@/core/services/http/http.service';
 import { CustomerVendorUrls } from '@/core/services/customer-vendor/customer-vendor.url';
 import { Alert } from 'react-native';
 
-export class CustomerService {
+export class CustomerVendorService {
   /**
    * Get all currency
    * @returns 
@@ -106,10 +106,10 @@ export class CustomerService {
    * @param accountUniqueName 
    * @returns 
    */
-  static createVendor(payload: any, accountUniqueName: any) {
-    console.log(CustomerVendorUrls.generateCreateVendor.replace(':accountUniqueName', `${accountUniqueName}`));
+  static createVendor(payload: any) {
+    console.log(CustomerVendorUrls.generateCreateVendor);
     return httpInstance
-      .post(CustomerVendorUrls.generateCreateVendor.replace(':accountUniqueName', `${accountUniqueName}`), payload)
+      .post(CustomerVendorUrls.generateCreateVendor, payload)
       .then((res) => {
         console.log('yayyy!', res.data);
         return res.data;

@@ -1,18 +1,18 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
-import {View, DeviceEventEmitter} from 'react-native';
+import { connect } from 'react-redux';
+import { GDContainer } from '@/core/components/container/container.component';
+import { View, DeviceEventEmitter } from 'react-native';
 import style from '@/screens/Parties/style';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
-import {PartiesList} from '@/screens/Parties/components/parties-list.component';
-import {CommonService} from '@/core/services/common/common.service';
-import {CompanyService} from '@/core/services/company/company.service';
+import { PartiesList } from '@/screens/Parties/components/parties-list.component';
+import { CommonService } from '@/core/services/common/common.service';
+import { CompanyService } from '@/core/services/company/company.service';
 
-import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
+import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
-import {Bars} from 'react-native-loader';
-import {APP_EVENTS} from '@/utils/constants';
+import { Bars } from 'react-native-loader';
+import { APP_EVENTS } from '@/utils/constants';
 import { NavigationRouteContext } from '@react-navigation/native';
 import appNavigator from '@/navigation/app.navigator';
 
@@ -66,6 +66,16 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   };
   componentDidMount() {
     //get parties data
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
+      this.setState(
+        {
+          showLoader: true,
+        },
+        () => {
+          this.apiCalls();
+        },
+      );
+    });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
@@ -78,11 +88,11 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   }
 
   render() {
-    const {activeCompany} = this.props;
-    
+    const { activeCompany } = this.props;
+
     if (this.state.showLoader) {
       return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Bars size={15} color={color.PRIMARY_NORMAL} />
         </View>
       );
@@ -128,7 +138,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         partiesDebtData: debtors.body.results,
       });
     } catch (e) {
-      this.setState({debtData: new PartiesPaginatedResponse()});
+      this.setState({ debtData: new PartiesPaginatedResponse() });
       console.log(e);
     }
   }
@@ -142,9 +152,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         partiesCredData: creditors.body.results,
       });
     } catch (e) {
-      this.setState({partiesCredData: new PartiesPaginatedResponse()});
+      this.setState({ partiesCredData: new PartiesPaginatedResponse() });
 
-      this.setState({showLoader: false});
+      this.setState({ showLoader: false });
     }
   }
 }

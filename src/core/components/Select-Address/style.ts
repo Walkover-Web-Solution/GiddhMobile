@@ -89,4 +89,11 @@ export default StyleSheet.create({
     fontSize: 20,
     marginLeft: 20,
   },
+  dropDown: {
+    marginVertical: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#808080',
+    paddingBottom: 10,
+    marginTop: 15
+  },
 });

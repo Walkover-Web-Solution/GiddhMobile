@@ -80,8 +80,26 @@ export class SalesInvoice extends React.Component<Props> {
       date: moment(),
       displayedDate: moment(),
       showDatePicker: false,
-      partyBillingAddress: {},
-      partyShippingAddress: {},
+      partyBillingAddress: {
+        address: '',
+        gstNumber: '',
+        state: {
+          code: '',
+          name: '',
+        },
+        stateCode: '',
+        stateName: '',
+      },
+      partyShippingAddress: {
+        address: '',
+        gstNumber: '',
+        state: {
+          code: '',
+          name: '',
+        },
+        stateCode: '',
+        stateName: '',
+      },
       addressArray: [],
       addedItems: [],
       showItemDetails: false,
@@ -154,6 +172,11 @@ export class SalesInvoice extends React.Component<Props> {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      await this.resetState();
+    });
+
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
       this.updateAddedItems(data);
@@ -627,7 +650,10 @@ export class SalesInvoice extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
-            state: {code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name},
+            state: {
+              code: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : '',
+              name: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : '',
+            },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
           },
@@ -644,7 +670,10 @@ export class SalesInvoice extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
-            state: {code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name},
+            state: {
+              code: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : '',
+              name: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : '',
+            },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
           },
@@ -689,26 +718,32 @@ export class SalesInvoice extends React.Component<Props> {
         // this.setState({loading: false});
         alert('Invoice created successfully!');
         const partyDetails = this.state.partyDetails;
+        const invoiceType = this.state.invoiceType;
+        // Here for cash invoice party detail is empty {}
         this.resetState();
-        this.getAllTaxes();
-        this.getAllDiscounts();
-        this.getAllWarehouse();
-        this.getAllAccountsModes();
+        await this.getAllTaxes();
+        await this.getAllDiscounts();
+        await this.getAllWarehouse();
+        await this.getAllAccountsModes();
         DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
         if (type == 'navigate') {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
-            params: {
-              item: {
-                name: partyDetails.name,
-                uniqueName: partyDetails.uniqueName,
-                country: {code: partyDetails.country.countryCode},
-                mobileNo: partyDetails.mobileNo,
+          if (invoiceType == INVOICE_TYPE.cash) {
+            this.props.navigation.goBack();
+          } else {
+            this.props.navigation.navigate(routes.Parties, {
+              screen: 'PartiesTransactions',
+              initial: false,
+              params: {
+                item: {
+                  name: partyDetails.name,
+                  uniqueName: partyDetails.uniqueName,
+                  country: {code: partyDetails.country.countryCode},
+                  mobileNo: partyDetails.mobileNo,
+                },
+                type: 'Creditors',
               },
-              type: 'Creditors',
-            },
-          });
+            });
+          }
         }
         if (type == 'share') {
           console.log('sharing');
@@ -1168,6 +1203,27 @@ export class SalesInvoice extends React.Component<Props> {
     console.log('calculated tax is ', totalTax);
     return Number(totalTax.toFixed(2));
   }
+  // calculatedTaxAmount(itemDetails) {
+  //   let totalTax = 0;
+  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+  //   let taxArr = this.state.taxArray;
+  //   if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+  //     for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
+  //       let item = itemDetails.stock.taxes[i];
+  //       for (let j = 0; j < taxArr.length; j++) {
+  //         if (item == taxArr[j].uniqueName) {
+  //           // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
+  //           let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+  //           let taxAmount = (taxPercent * Number(amt)) / 100;
+  //           totalTax = totalTax + taxAmount;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // console.log('calculated tax is ', totalTax);
+  //   return Number(totalTax);
+  // }
 
   // calculatedTaxAmount(itemDetails) {
   //   let totalTax = 0;

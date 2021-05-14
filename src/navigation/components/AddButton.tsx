@@ -39,7 +39,7 @@ const arrButtons = [
 const SIZE = 48;
 const padding = 10;
 let itemWidth = (Dimensions.get('window').width - (SIZE + padding * 8)) / 4;
-
+const {height, width} = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 class AddButton extends Component {
@@ -82,74 +82,94 @@ class AddButton extends Component {
       <View
         style={{
           // position: 'absolute',
+
           alignItems: 'center',
+          // bottom: Dimensions.get('window').height * 0.08,
           // left: 0,
           // right: 0,
         }}>
         <Modal
+          // style={{position: 'absolute', bottom: Dimensions.get('window').height * 0.08, backgroundColor: 'pink'}}
           visible={this.state.modalVisible}
-          animationType="slide"
+          animationType="none"
           transparent={true}
           onRequestClose={() => this.setState({modalVisible: false})}>
-          <View
+          <TouchableOpacity
             style={{
               position: 'absolute',
-              alignSelf: 'center',
+              top: 0,
+              // bottom: Dimensions.get('window').height * 0.08,
               bottom: 0,
-              // height: Dimensions.get('window').width * 0.7,
-              paddingVertical: 20,
-              width: Dimensions.get('window').width * 0.9,
-              borderTopEndRadius: 15,
-              backgroundColor: '#fff',
-              alignItems: 'center',
-              elevation: 3,
-            }}>
-            {/* <TouchableOpacity
+              left: 0,
+              right: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+            onPress={() => this.setState({modalVisible: false})}>
+            <View
+              style={{
+                position: 'absolute',
+                alignSelf: 'center',
+                // bottom: 0,
+                // height: Dimensions.get('window').width * 0.7,
+                paddingVertical: 20,
+                width: width * 0.9,
+                bottom: height * 0.09,
+                borderTopEndRadius: 8,
+                borderBottomEndRadius: 8,
+                borderBottomLeftRadius: 8,
+                borderTopLeftRadius: 8,
+                backgroundColor: '#fff',
+                alignItems: 'center',
+                elevation: 3,
+              }}>
+              {/* <TouchableOpacity
               style={{height: 30, width: 30, backgroundColor: 'pink'}}
               onPress={() => console.log(this.state.buttonsDisabled)}></TouchableOpacity> */}
-            <FlatList
-              numColumns={4} // set number of columns
-              data={arrButtons}
-              showsVerticalScrollIndicator={false}
-              style={{flex: 1, alignSelf: 'center', marginBottom: SIZE}}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  style={{
-                    width: itemWidth,
-                    borderRadius: itemWidth / 2,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    margin: padding,
-                  }}
-                  // disabled={this.state.buttonsDisabled}
-                  // onPress={() => console.log('this works')}
-                  onPress={async () => {
-                    this.props.navigation.navigate(item.navigateTo);
-                    this.setState({modalVisible: false});
-
-                    // this.toggleView();
-                  }}>
-                  <View
+              <FlatList
+                numColumns={4} // set number of columns
+                data={arrButtons}
+                showsVerticalScrollIndicator={false}
+                style={{flex: 1, alignSelf: 'center', marginBottom: SIZE}}
+                renderItem={({item}) => (
+                  <TouchableOpacity
                     style={{
                       width: itemWidth,
-                      backgroundColor: item.color,
                       borderRadius: itemWidth / 2,
-                      height: itemWidth,
                       justifyContent: 'center',
                       alignItems: 'center',
+                      margin: padding,
+                    }}
+                    // disabled={this.state.buttonsDisabled}
+                    // onPress={() => console.log('this works')}
+                    onPress={async () => {
+                      DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                      this.props.navigation.navigate(item.navigateTo);
+                      this.setState({modalVisible: false});
+
+                      // this.toggleView();
                     }}>
-                    <Icon name={item.icon} size={24} color="#F8F8F8" />
-                  </View>
-                  <Text style={{fontSize: 9, textAlign: 'center', marginTop: 5}}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item) => item.name}
-            />
+                    <View
+                      style={{
+                        width: itemWidth,
+                        backgroundColor: item.color,
+                        borderRadius: itemWidth / 2,
+                        height: itemWidth,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Icon name={item.icon} size={24} color="#F8F8F8" />
+                    </View>
+                    <Text style={{fontSize: 9, textAlign: 'center', marginTop: 5}}>{item.name}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.name}
+              />
+            </View>
             <TouchableOpacity
               onPress={() => this.setState({modalVisible: false})}
               style={{
                 position: 'absolute',
-                bottom: 10,
+                bottom: (height * 0.08 - SIZE) / 2,
                 width: SIZE,
                 height: SIZE,
                 borderRadius: SIZE / 2,
@@ -157,10 +177,11 @@ class AddButton extends Component {
                 transform: [{rotate: '90deg'}],
                 justifyContent: 'center',
                 alignItems: 'center',
+                alignSelf: 'center',
               }}>
               <Entypo name="cross" size={24} color="#fff" />
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         </Modal>
 
         <TouchableHighlight
