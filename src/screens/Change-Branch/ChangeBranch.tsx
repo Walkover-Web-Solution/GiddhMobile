@@ -69,7 +69,8 @@ export class ChangeBranch extends React.Component<Props> {
                   }}>
                   <Text style={style.listItemName}>{item.alias}</Text>
                   {activeBranch && item.uniqueName == activeBranch.uniqueName && (
-                    <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
+                    // <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
+                    <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: color.PRIMARY_BASIC}}></View>
                   )}
                 </TouchableOpacity>
               )}

@@ -12,6 +12,7 @@ import {
   FlatList,
   Dimensions,
   StatusBar,
+  Alert,
 } from 'react-native';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -44,7 +45,7 @@ class EditItemDetails extends Component {
       showDiscountPopup: false,
       showTaxPopup: false,
       showUnitPopup: false,
-      selectedArrayType: [],
+      selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
       fixedDiscountSelected: false,
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
       selectedCode: this.props.itemDetails.stock ? 'hsn' : 'sac',
@@ -54,7 +55,7 @@ class EditItemDetails extends Component {
         sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
         unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates[0].stockUnitCode : '',
-        amountText: this.props.itemDetails.amount ? this.props.itemDetails.amount : '0',
+        amountText: this.props.itemDetails.rate ? this.props.itemDetails.rate : '0',
         discountValueText: this.props.itemDetails.discountValue ? this.props.itemDetails.discountValue : '',
         discountPercentageText: this.props.itemDetails.discountPercentage
           ? this.props.itemDetails.discountPercentage
@@ -66,9 +67,13 @@ class EditItemDetails extends Component {
         total: this.props.itemDetails.total ? this.props.itemDetails.total : 0,
         discountDetails: this.props.itemDetails.discountDetails ? this.props.itemDetails.discountDetails : {},
         taxDetailsArray: this.props.itemDetails.taxDetailsArray ? this.props.itemDetails.taxDetailsArray : [],
-        percentDiscountArray: [],
-        fixedDiscount: {discountValue: 0},
-        fixedDiscountUniqueName: '',
+        percentDiscountArray: this.props.itemDetails.percentDiscountArray
+          ? this.props.itemDetails.percentDiscountArray
+          : [],
+        fixedDiscount: this.props.itemDetails.fixedDiscount ? this.props.itemDetails.fixedDiscount : {discountValue: 0},
+        fixedDiscountUniqueName: this.props.itemDetails.fixedDiscountUniqueName
+          ? this.props.itemDetails.fixedDiscountUniqueName
+          : '',
       },
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -167,9 +172,7 @@ class EditItemDetails extends Component {
                 let selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
                 let selectedTaxTypeArr = this.state.selectedArrayType;
                 var filtered = _.filter(selectedTaxArray, function (o) {
-                  if (o.uniqueName == item.uniqueName) {
-                    return o;
-                  }
+                  if (o.uniqueName == item.uniqueName) return o;
                 });
                 // let disable = this._checkTax(item);
                 return (
@@ -184,9 +187,7 @@ class EditItemDetails extends Component {
                       } else {
                         let itemDetails = this.state.editItemDetails;
                         var filtered = _.filter(selectedTaxArray, function (o) {
-                          if (o.uniqueName == item.uniqueName) {
-                            return o;
-                          }
+                          if (o.uniqueName == item.uniqueName) return o;
                         });
                         if (filtered.length == 0) {
                           selectedTaxArray.push(item);
@@ -199,15 +200,11 @@ class EditItemDetails extends Component {
                           this.setState({itemDetails, selectedArrayType: arr1});
                         } else {
                           var filtered = _.filter(selectedTaxArray, function (o) {
-                            if (o.uniqueName !== item.uniqueName) {
-                              return o;
-                            }
+                            if (o.uniqueName !== item.uniqueName) return o;
                           });
 
                           let arr2 = _.filter(selectedTaxTypeArr, function (o) {
-                            if (o !== item.taxType) {
-                              return o;
-                            }
+                            if (o !== item.taxType) return o;
                           });
                           itemDetails.taxDetailsArray = filtered;
                           let tax = this.calculatedTaxAmount(itemDetails);
@@ -333,22 +330,45 @@ class EditItemDetails extends Component {
     let amount = Number(this.state.editItemDetails.rateText) * Number(this.state.editItemDetails.quantityText);
     return amount;
   }
+  // calculateDiscountedAmount(itemDetails) {
+  //   if (itemDetails.discountDetails) {
+  //     let discountType = itemDetails.discountDetails.discountType;
+  //     if (discountType == 'FIX_AMOUNT') {
+  //       let discountAmount = Number(itemDetails.discountValueText);
+  //       return discountAmount;
+  //     } else {
+  //       let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+  //       let discountAmount = (Number(itemDetails.discountValueText) * amt) / 100;
+  //       return Number(discountAmount);
+  //     }
+  //   }
+  // }
   calculateDiscountedAmount(itemDetails) {
-    if (itemDetails.discountDetails) {
-      let discountType = itemDetails.discountDetails.discountType;
-      if (discountType == 'FIX_AMOUNT') {
-        let discountAmount = Number(itemDetails.discountValueText);
-        return discountAmount;
-      } else {
-        let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
-        let discountAmount = (Number(itemDetails.discountValueText) * amt) / 100;
-        return Number(discountAmount);
-      }
+    let totalDiscount = 0;
+    let percentDiscount = 0;
+    let item = this.state.editItemDetails;
+    if (itemDetails.fixedDiscount.discountValue > 0) {
+      totalDiscount = totalDiscount + Number(itemDetails.fixedDiscount.discountValue);
     }
+    if (itemDetails.percentDiscountArray.length > 0) {
+      for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
+        percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
+        console.log(percentDiscount, '%');
+      }
+      let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+      // console.log('amt is ', amt);
+      totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
+    }
+    console.log(totalDiscount, 'is the discount');
+    item.discountValueText = totalDiscount;
+    this.setState({editDetails: item});
+    return totalDiscount;
   }
+
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
-    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+    let totalDiscount = this.calculateDiscountedAmount(itemDetails);
+    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         let item = itemDetails.taxDetailsArray[i];
@@ -361,13 +381,11 @@ class EditItemDetails extends Component {
   }
 
   calculateFinalAmount(editItemDetails) {
+    // console.log('this did not run');
     let discountAmount = this.calculateDiscountedAmount(editItemDetails);
-
     let totalTax = this.calculatedTaxAmount(editItemDetails);
-
     let amt = Number(this.state.editItemDetails.rateText) * Number(editItemDetails.quantityText);
     let finalAmt = amt;
-
     if (discountAmount) {
       finalAmt = finalAmt - discountAmount;
     }
@@ -412,14 +430,12 @@ class EditItemDetails extends Component {
               renderItem={({item}) => {
                 let selectedDiscountArray = this.state.editItemDetails.percentDiscountArray;
                 let filtered = _.filter(selectedDiscountArray, function (o) {
-                  if (o.uniqueName == item.uniqueName) {
-                    return o;
-                  }
+                  if (o.uniqueName == item.uniqueName) return o;
                 });
                 return (
                   <TouchableOpacity
                     style={{}}
-                    onFocus={() => this.onChangeText('')}
+                    // onFocus={() => this.onChangeText('')}
                     onPress={async () => {
                       if (item.discountType == 'FIX_AMOUNT') {
                         if (this.state.fixedDiscountSelected == true) {
@@ -427,13 +443,18 @@ class EditItemDetails extends Component {
                             let itemDetails = this.state.editItemDetails;
                             itemDetails.fixedDiscount = {discountValue: 0};
                             itemDetails.fixedDiscountUniqueName = '';
+                            let total = this.calculateFinalAmount(itemDetails);
+                            itemDetails.total = total;
+                            // console.log('unselected');
                             this.setState({fixedDiscountSelected: false, editItemDetails: itemDetails});
                           }
-                          console.log('didnt select');
+                          // console.log('didnt select');
                         } else {
                           let itemDetails = this.state.editItemDetails;
                           itemDetails.fixedDiscount = item;
                           itemDetails.fixedDiscountUniqueName = item.uniqueName;
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
                           // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
                           // let discount = this.calculateDiscountedAmount(itemDetails);
                           // itemDetails.discountPercentageText = String(discount);
@@ -444,14 +465,14 @@ class EditItemDetails extends Component {
                       } else {
                         let selectedDiscountArray = this.state.editItemDetails.percentDiscountArray;
                         let filtered = _.filter(selectedDiscountArray, function (o) {
-                          if (o.uniqueName == item.uniqueName) {
-                            return o;
-                          }
+                          if (o.uniqueName == item.uniqueName) return o;
                         });
                         if (filtered.length == 0) {
                           console.log('this should run');
                           let itemDetails = this.state.editItemDetails;
                           itemDetails.percentDiscountArray.push(item);
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
                           // itemDetails.discountDetails = item;
                           // itemDetails.discountValueText = String(item.discountValue);
                           // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
@@ -462,15 +483,16 @@ class EditItemDetails extends Component {
                           this.setState({editItemDetails: itemDetails}, () => {});
                         } else {
                           var newArr = _.filter(selectedDiscountArray, function (o) {
-                            if (o.uniqueName !== item.uniqueName) {
-                              return o;
-                            }
+                            if (o.uniqueName !== item.uniqueName) return o;
                           });
                           let itemDetails = this.state.editItemDetails;
                           itemDetails.percentDiscountArray = newArr;
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
                           this.setState({editItemDetails: itemDetails}, () => {});
                         }
                       }
+                      this.calculateFinalAmount(this.state.editItemDetails);
                     }}>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       <View
@@ -501,7 +523,8 @@ class EditItemDetails extends Component {
                             {(item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage') + ' -'}
                           </Text>
                           <Text style={{color: '#808080', paddingVertical: 4, fontSize: 12}}>
-                            {item.discountValue + (item.discountType !== 'FIX_AMOUNT' ? '%' : '')}
+                            {item.discountValue}
+                            {item.discountType !== 'FIX_AMOUNT' ? '%' : ''}
                           </Text>
                         </View>
                       </View>
@@ -571,7 +594,7 @@ class EditItemDetails extends Component {
               }}
               onPress={() => this.setState({selectedCode: 'hsn'})}>
               {this.state.selectedCode == 'hsn' && (
-                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#ff6961'}} />
+                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F'}}></View>
               )}
             </TouchableOpacity>
 
@@ -589,7 +612,7 @@ class EditItemDetails extends Component {
               }}
               onPress={() => this.setState({selectedCode: 'sac'})}>
               {this.state.selectedCode == 'sac' && (
-                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#ff6961'}} />
+                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F'}}></View>
               )}
             </TouchableOpacity>
 
@@ -608,13 +631,21 @@ class EditItemDetails extends Component {
           style={{borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16}}
           // editable={false}
           onChangeText={(text) => {
-            item = this.state.editItemDetails;
+            let item = this.state.editItemDetails;
             if (this.state.selectedCode == 'hsn') {
-              item.hsnNumber = text;
-              this.setState({editItemDetails: item});
+              if (item.sacNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.hsnNumber = text;
+                this.setState({editItemDetails: item});
+              }
             } else {
-              item.sacNumber = text;
-              this.setState({editItemDetails: item});
+              if (item.hsnNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.sacNumber = text;
+                this.setState({editItemDetails: item});
+              }
             }
           }}
         />
@@ -693,13 +724,18 @@ class EditItemDetails extends Component {
         break;
     }
     editItemDetails.amountText = this.caluclateTotalAmount(editItemDetails);
+    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
     editItemDetails.total = this.calculateFinalAmount(editItemDetails);
+    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
 
     this.setState({editItemDetails});
   }
   fixedDiscountValueChange = (text) => {
     let editItemDetails = this.state.editItemDetails;
     editItemDetails.fixedDiscount.discountValue = text;
+    console.log('changed discount value ', text);
+    let total = this.calculateFinalAmount(editItemDetails);
+    editItemDetails.total = total;
     this.setState({editItemDetails});
   };
   _renderTwoFieldsTextInput(
@@ -790,7 +826,7 @@ class EditItemDetails extends Component {
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
         {/*
-            Render Header with title back & delete
+            Render Header with title back & delete 
           */}
         {/* <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 16, paddingBottom: 16 }}>
             <TouchableOpacity onPress={() => { this.setState({ showItemDetails: false }) }}>
@@ -804,7 +840,7 @@ class EditItemDetails extends Component {
           </View> */}
 
         {/*
-            Render Quantity & Unit
+            Render Quantity & Unit 
           */}
 
         {this.props.itemDetails.stock &&
@@ -821,7 +857,7 @@ class EditItemDetails extends Component {
             true,
           )}
         {/*
-            Render Rate & Amount
+            Render Rate & Amount 
           */}
         {this._renderTwoFieldsTextInput(
           'Rate',
@@ -837,7 +873,7 @@ class EditItemDetails extends Component {
         )}
 
         {/*
-            Render Discount & Amount
+            Render Discount & Amount 
           */}
         {this._renderBottomItemSheetDiscountRow()}
         {this._renderBottomSheetTax()}
@@ -845,14 +881,16 @@ class EditItemDetails extends Component {
         {this._renderFinalTotal()}
 
         {/* <TouchableOpacity
-            style={{height: 50, width: 50, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.editItemDetails.fixedDiscount)}></TouchableOpacity> */}
+          style={{height: 50, width: 50, backgroundColor: 'pink'}}
+          onPress={() => console.log(this.state.editItemDetails.hsnNumber)}
+          // onPress={() => this.calculateDiscountedAmount(this.state.editItemDetails)}
+        ></TouchableOpacity> */}
 
         <TouchableOpacity
           onPress={() => {
             let editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
-            this.props.updateItems(editItemDetails);
+            this.props.updateItems(editItemDetails, this.state.selectedArrayType);
           }}
           style={{
             marginHorizontal: 16,

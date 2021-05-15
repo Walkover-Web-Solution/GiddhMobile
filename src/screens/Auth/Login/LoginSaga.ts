@@ -181,6 +181,7 @@ export function* appleLogin(action) {
     yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
   }
 }
+
 export function* logoutUser(action) {
   const state = yield select();
   const {commonReducer} = state;

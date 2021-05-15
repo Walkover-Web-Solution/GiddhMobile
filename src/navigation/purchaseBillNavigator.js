@@ -21,7 +21,6 @@ function PurchaseBillStack() {
       initialRouteName={'PurchaseBillScreen'}>
       <Screen component={PurchaseBill} name={'PurchaseBillScreen'} />
       <Screen component={PurchaseAddItem} name={'PurchaseAddItem'} />
-
       <Screen component={PurchaseBillOtherDetails} name={'PurchaseBillOtherDetails'} />
       <Screen component={SelectAddress} name={'SelectAddress'} />
       <Screen component={EditAddress} name={'EditAddress'} />

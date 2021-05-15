@@ -29,9 +29,10 @@ export default StyleSheet.create({
   },
   companyNameText: {
     color: colors.INPUT_COLOR,
-    textAlign: 'center',
+    // textAlign: '',
     fontSize: 14,
     fontFamily: 'AvenirLTStd-Black',
+    width: '75%',
     marginLeft: 10,
   },
   companyShortText: {

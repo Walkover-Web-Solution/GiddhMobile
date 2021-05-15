@@ -137,12 +137,11 @@ android {
         applicationId "com.app.Giddh"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 30007
-        versionName "3.0.7"
+        versionCode 30010
+        versionName "3.0.10"
         multiDexEnabled true
 
     }
-    
     splits {
         abi {
             reset()

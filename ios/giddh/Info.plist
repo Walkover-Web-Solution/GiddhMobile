@@ -82,7 +82,7 @@
 		<string>OpenSans-Semibold.ttf</string>
 		<string>OpenSans-SemiboldItalic.ttf</string>
 		<string>AvenirLTStd-Black.otf</string>
-		<string>AvenirLTStd-Book.otf</string>
+	<string>AvenirLTStd-Book.otf</string>
 		<string>AvenirLTStd-Roman.otf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

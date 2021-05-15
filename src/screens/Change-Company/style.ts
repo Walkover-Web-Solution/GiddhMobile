@@ -18,5 +18,5 @@ export default StyleSheet.create({
     paddingVertical: 20,
     alignItems: 'center',
   },
-  listItemName: {fontSize: 15, marginLeft: 15, fontFamily: 'AvenirLTStd-Book'},
+  listItemName: {fontSize: 15, marginLeft: 15, fontFamily: 'AvenirLTStd-Book', width: '75%'},
 });

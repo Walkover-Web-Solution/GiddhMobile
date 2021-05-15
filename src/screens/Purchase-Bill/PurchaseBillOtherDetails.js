@@ -51,12 +51,12 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     this.state = {
       loading: false,
       otherDetail: {
-        shipDate: null,
-        shippedVia: '',
-        trackingNumber: '',
-        customField1: '',
-        customField2: '',
-        customField3: '',
+        shipDate: this.props.route.params.otherDetails.shipDate,
+        shippedVia: this.props.route.params.otherDetails.shippedVia,
+        trackingNumber: this.props.route.params.otherDetails.trackingNumber,
+        customField1: this.props.route.params.otherDetails.customField1,
+        customField2: this.props.route.params.otherDetails.customField2,
+        customField3: this.props.route.params.otherDetails.customField3,
       },
       isDatePickerVisible: false,
       bottomOffset: 0,
@@ -119,6 +119,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
 
   handleConfirm = (date) => {
     console.warn('A date has been picked: ', date);
+    this.hideDatePicker();
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
     this.setState((prevState) => ({
       otherDetail: {
@@ -126,7 +127,6 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
         shipDate: moment(date).format('DD-MM-YYYY'),
       },
     }));
-    this.hideDatePicker();
   };
 
   renderHeader() {
@@ -220,6 +220,20 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     }
   };
 
+  getStateName = (name) => {
+    if (name == 'Shipped Via') {
+      return this.state.otherDetail.shippedVia;
+    } else if (name == 'Tracking no') {
+      return this.state.otherDetail.trackingNumber;
+    } else if (name == 'Custom Field 1') {
+      return this.state.otherDetail.customField1;
+    } else if (name == 'Custom Field 3') {
+      return this.state.otherDetail.customField3;
+    } else {
+      return this.state.otherDetail.customField2;
+    }
+  };
+
   _renderTextField(name, icon) {
     return (
       <>
@@ -244,6 +258,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
             height: 20,
             // backgroundColor: 'pink',
           }}
+          value={this.getStateName(name)}
           onChangeText={(text) => this.textFieldState(name, text)}></TextInput>
       </>
     );
@@ -270,6 +285,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
   }
 
   render() {
+    const sDate = moment(this.state.otherDetail.shipDate, 'DD-MM-YYYY');
     return (
       // <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{flex: 1}}>
@@ -288,6 +304,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
           <DateTimePickerModal
             isVisible={this.state.isDatePickerVisible}
             mode="date"
+            date={this.state.otherDetail.shipDate == '' ? new Date() : new Date(sDate)}
             onConfirm={this.handleConfirm}
             onCancel={this.hideDatePicker}
           />

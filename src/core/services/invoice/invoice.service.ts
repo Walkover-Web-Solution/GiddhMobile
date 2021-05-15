@@ -1,8 +1,8 @@
 import httpInstance from '@/core/services/http/http.service';
-import { BaseResponse } from '@/models/classes/base-response';
-import { invoiceUrls } from '@/core/services/invoice/invoice.url';
-import { Company } from '@/models/interfaces/company';
-import { Alert } from 'react-native';
+import {BaseResponse} from '@/models/classes/base-response';
+import {invoiceUrls} from '@/core/services/invoice/invoice.url';
+import {Company} from '@/models/interfaces/company';
+import {Alert} from 'react-native';
 
 export class InvoiceService {
   /**
@@ -17,6 +17,24 @@ export class InvoiceService {
           .replace('page=', `page=${page}`)
           .replace('group=', `group=${group}`)
           .replace('withStocks=', `withStocks=${withStocks}`),
+        {},
+      )
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        alert(err);
+        return err;
+      });
+  }
+  static Pbsearch(query, page, group) {
+    return httpInstance
+      .get(
+        invoiceUrls.purchaseBillsearch
+          .replace('q=', `q=${query}`)
+          .replace('page=', `page=${page}`)
+          .replace('group=', `group=${group}`),
+        // .replace('withStocks=', `withStocks=${withStocks}`),
         {},
       )
       .then((res) => {
@@ -124,12 +142,12 @@ export class InvoiceService {
 
   /**
    * Api call to create debit note.
-   * @param payload 
-   * @param accountUniqueName 
-   * @param invoiceType 
-   * @returns 
+   * @param payload
+   * @param accountUniqueName
+   * @param invoiceType
+   * @returns
    */
-  static createDebitNote(payload:any, accountUniqueName:any, invoiceType:any) {
+  static createDebitNote(payload: any, accountUniqueName: any, invoiceType: any) {
     console.log(invoiceUrls.generateDebitNote.replace(':accountUniqueName', `${accountUniqueName}`));
     console.log('invoice type', invoiceType);
     return httpInstance
@@ -140,7 +158,7 @@ export class InvoiceService {
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
-        Alert.alert("Error", err.data.message , [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+        Alert.alert('Error', err.data.message, [{style: 'destructive', onPress: () => console.log('alert destroyed')}]);
         return null;
       });
   }
@@ -186,5 +204,4 @@ export class InvoiceService {
         return null;
       });
   }
-
 }

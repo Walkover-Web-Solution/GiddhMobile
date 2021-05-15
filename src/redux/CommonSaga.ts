@@ -26,6 +26,7 @@ export function* getCompanyAndBranches() {
       companyData.companyList = listResponse.body;
       const activeCompany = yield AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       if (!activeCompany) {
+        console.log('this always runs for company');
         if (listResponse.body && listResponse.body.length > 0) {
           let defaultComp = listResponse.body[0];
           if(defaultComp.subscription && defaultComp.subscription.country && defaultComp.subscription.country.countryCode){
@@ -43,6 +44,7 @@ export function* getCompanyAndBranches() {
       companyData.branchList = branchesResponse.body;
       const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
       if (!activeBranch) {
+        console.log('this always runs for branch');
         if (branchesResponse.body && branchesResponse.body.length > 0) {
           let defaultBranch = branchesResponse.body[0];
           if (defaultBranch.alias) {
@@ -59,7 +61,7 @@ export function* getCompanyAndBranches() {
         // }
       }
     }
-    if ((companyData.success = true)) {
+    if (companyData.success == true) {
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
     } else {
@@ -73,7 +75,10 @@ export function* getCompanyAndBranches() {
 export function* logoutUser() {
   try {
     appleAuth.Operation.LOGOUT;
-    yield AsyncStorage.clear();
+    yield AsyncStorage.removeItem(STORAGE_KEYS.token);
+    yield AsyncStorage.removeItem(STORAGE_KEYS.googleEmail);
+    yield AsyncStorage.removeItem(STORAGE_KEYS.sessionStart);
+    yield AsyncStorage.removeItem(STORAGE_KEYS.sessionEnd);
     console.log('login worked');
   } catch (e) {
     console.log(e);

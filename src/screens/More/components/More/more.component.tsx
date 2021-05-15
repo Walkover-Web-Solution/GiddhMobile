@@ -143,7 +143,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
               </View>
               <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>
-                <Text style={style.companyNameText}>{activeCompanyName}</Text>
+                <Text numberOfLines={1} style={style.companyNameText}>
+                  {activeCompanyName}
+                </Text>
 
                 <Entypo name="chevron-right" size={26} color={'#1A237E'} />
                 {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}

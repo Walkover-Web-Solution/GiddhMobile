@@ -146,6 +146,11 @@ export class DebiteNote extends React.Component<Props> {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      await this.resetState();
+    });
+
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
       this.updateAddedItems(data);
@@ -528,20 +533,40 @@ export class DebiteNote extends React.Component<Props> {
   };
   getDiscountForEntry(item) {
     // console.log('item is', item);
-
-    // if (item.discountDetails) {
-    //   return [
-    //     {
-    //       amount: {type: item.discountDetails.linkAccount.openingBalanceType, amountForAccount: 10},
-    //       calculationMethod: item.discountType,
-    //       // discountValue: item.discountPercentage,
-    //       name: item.name,
-    //       particular: '',
-    //     },
-    //   ];
-    // }
-    return [{ calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' }];
+    let discountArr = [];
+    if (item.fixedDiscount) {
+      let discountItem = {
+        calculationMethod: 'FIX_AMOUNT',
+        amount: { type: 'DEBIT', amountForAccount: item.fixedDiscount.discountValue },
+        discountValue: item.fixedDiscount.discountValue,
+        name: '',
+        particular: '',
+      };
+      discountArr.push(discountItem);
+    }
+    if (item.percentDiscountArray) {
+      if (item.percentDiscountArray.length > 0) {
+        for (let i = 0; i < item.percentDiscountArray.length; i++) {
+          let discountItem = {
+            calculationMethod: 'PERCENTAGE',
+            amount: { type: 'DEBIT', amountForAccount: item.percentDiscountArray[i].discountValue },
+            name: item.percentDiscountArray[i].name,
+            uniqueName: item.percentDiscountArray[i].uniqueName,
+            particular: item.percentDiscountArray[i].linkAccount.uniqueName,
+          };
+          discountArr.push(discountItem);
+        }
+      }
+    }
+    if (discountArr.length > 0) {
+      return discountArr;
+    } else {
+      return [
+        { calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' },
+      ];
+    }
   }
+
 
   getTaxesForEntry(item) {
     let taxArr = [];
@@ -577,6 +602,21 @@ export class DebiteNote extends React.Component<Props> {
           {
             account: { uniqueName: item.uniqueName, name: item.name },
             amount: { type: 'DEBIT', amountForAccount: Number(item.rate) * Number(item.quantity) },
+            stock: item.stock
+              ? {
+                quantity: item.quantity,
+                sku: item.stock.skuCode,
+                name: item.stock.name,
+
+                uniqueName: item.stock.uniqueName,
+                rate: {
+                  amountForAccount: Number(item.rate),
+                },
+                stockUnit: {
+                  code: item.stock.stockUnitCode,
+                },
+              }
+              : undefined,
           },
         ],
         voucherNumber: '',
@@ -600,7 +640,10 @@ export class DebiteNote extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyBillingAddress.state.code, name: this.state.partyBillingAddress.state.name },
+            state: {
+              code: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : '',
+              name: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : '',
+            },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
           },
@@ -617,7 +660,10 @@ export class DebiteNote extends React.Component<Props> {
             countryName: 'India',
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyShippingAddress.state.code, name: this.state.partyShippingAddress.state.name },
+            state: {
+              code: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : '',
+              name: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : '',
+            },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
           },
@@ -981,7 +1027,14 @@ export class DebiteNote extends React.Component<Props> {
             </View>
           </View>
 
-          <Text style={{ marginTop: 5, color: '#808080' }}>Tax : {this.calculatedTaxAmount(item)}</Text>
+          <Text style={{ marginTop: 5, color: '#808080' }}>
+            Tax : {item.currency.symbol}
+            {this.calculatedTaxAmount(item)}
+          </Text>
+          <Text style={{ marginTop: 5, color: '#808080' }}>
+            Discount : {item.currency.symbol}
+            {item.discountValue ? item.discountValue : 0}
+          </Text>
         </TouchableOpacity>
       </Swipeable>
     );
@@ -1039,25 +1092,20 @@ export class DebiteNote extends React.Component<Props> {
     }
     return 0;
   }
-  // calculatedTaxAmount(itemDetails) {
-  //   let totalTax = 0;
-  //   console.log('rate', itemDetails.rate);
-  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-  //   if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
-  //     for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-  //       let item = itemDetails.taxDetailsArray[i];
-  //       let taxPercent = Number(item.taxDetail[0].taxValue);
-  //       let taxAmount = (taxPercent * Number(amt)) / 100;
-  //       totalTax = totalTax + taxAmount;
-  //     }
-  //   }
-  //   console.log('calculated tax is ', totalTax);
-  //   return Number(totalTax);
-  // }
+
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
-    let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+    console.log('rate', itemDetails.rate);
     let taxArr = this.state.taxArray;
+    let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
+      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
+        let item = itemDetails.taxDetailsArray[i];
+        let taxPercent = Number(item.taxDetail[0].taxValue);
+        let taxAmount = (taxPercent * Number(amt)) / 100;
+        totalTax = totalTax + taxAmount;
+      }
+    }
     if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
       for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
         let item = itemDetails.stock.taxes[i];
@@ -1072,24 +1120,44 @@ export class DebiteNote extends React.Component<Props> {
         }
       }
     }
-    // console.log('calculated tax is ', totalTax);
-    return Number(totalTax);
+    console.log('calculated tax is ', totalTax);
+    return Number(totalTax.toFixed(2));
   }
+
+  // calculatedTaxAmount(itemDetails) {
+  //   let totalTax = 0;
+  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+  //   let taxArr = this.state.taxArray;
+  //   if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+  //     for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
+  //       let item = itemDetails.stock.taxes[i];
+  //       for (let j = 0; j < taxArr.length; j++) {
+  //         if (item == taxArr[j].uniqueName) {
+  //           // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
+  //           let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+  //           let taxAmount = (taxPercent * Number(amt)) / 100;
+  //           totalTax = totalTax + taxAmount;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // console.log('calculated tax is ', totalTax);
+  //   return Number(totalTax);
+  // }
 
   getTotalAmount() {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {
       let item = this.state.addedItems[i];
-      let discount = this.calculateDiscountedAmount(item);
+      let discount = item.discountValue ? item.discountValue : 0;
       let tax = this.calculatedTaxAmount(item);
-
-      //do inventory calulations
-
       let amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
-    return total;
+    return total.toFixed(2);
   }
+
 
   _renderOtherDetails() {
     return (
@@ -1209,7 +1277,10 @@ export class DebiteNote extends React.Component<Props> {
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ color: '#1C1C1C' }}>Total Amount</Text>
-              <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
+              <Text style={{ color: '#1C1C1C' }}>
+                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
+                {this.getTotalAmount()}
+              </Text>
             </View>
           </View>
         )}
@@ -1235,7 +1306,7 @@ export class DebiteNote extends React.Component<Props> {
     }
   }
 
-  updateEditedItem(details) {
+  updateEditedItem(details, selectedArrayType) {
     let itemUniqueName = details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName;
 
     let addedArray = this.state.addedItems;
@@ -1258,10 +1329,15 @@ export class DebiteNote extends React.Component<Props> {
     item.discountType = Number(details.discountType);
     item.taxType = Number(details.taxType);
     item.tax = Number(details.taxText);
+    item.hsnNumber = details.hsnNumber;
+    item.sacNumber = details.sacNumber;
     item.warehouse = Number(details.warehouse);
     item.discountDetails = details.discountDetails ? details.discountDetails : undefined;
     item.taxDetailsArray = details.taxDetailsArray;
-
+    item.percentDiscountArray = details.percentDiscountArray ? details.percentDiscountArray : [];
+    item.fixedDiscount = details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 };
+    item.fixedDiscountUniqueName = details.fixedDiscountUniqueName ? details.fixedDiscountUniqueName : '';
+    item.selectedArrayType = selectedArrayType;
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
     this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
@@ -1329,9 +1405,10 @@ export class DebiteNote extends React.Component<Props> {
             goBack={() => {
               this.setState({ showItemDetails: false });
             }}
+            // selectedArrayType={this.state.itemDetails.selectedArrayType}
             itemDetails={this.state.itemDetails}
-            updateItems={(details) => {
-              this.updateEditedItem(details);
+            updateItems={(details, selectedArr) => {
+              this.updateEditedItem(details, selectedArr);
             }}
           />
         )}

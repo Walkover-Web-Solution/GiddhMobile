@@ -114,7 +114,7 @@ class PurchaseAddItem extends React.Component<Props> {
           </TouchableOpacity>
           <TextInput
             placeholder={'Search Product/Service'}
-            placeholderTextColor={'#fff'}
+            placeholderTextColor={'#fafafa'}
             returnKeyType={'done'}
             onChangeText={(text) =>
               this.setState({searchItemName: text}, () => {
