@@ -32,6 +32,9 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import EditItemDetail from './EditItemDetails';
+import Dropdown from 'react-native-modal-dropdown';
+import { FONT_FAMILY } from '../../utils/constants';
+
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
   credit: 'sales',
@@ -114,6 +117,17 @@ export class CreditNote extends React.Component<Props> {
         customField2: null,
         customField3: null,
       },
+      linkedInvoices: "",
+      showAllInvoice: false,
+      allVoucherInvoice: [],
+      selectedInvoice: "",
+      accountDropDown: Dropdown,
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -147,6 +161,7 @@ export class CreditNote extends React.Component<Props> {
     this.getAllAccountsModes();
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      await this.state.accountDropDown.select(-1)
       await this.resetState();
     });
 
@@ -351,6 +366,29 @@ export class CreditNote extends React.Component<Props> {
     return undefined;
   }
 
+  async getAllInvoice() {
+    try {
+      let date = await moment(this.state.date).format('DD-MM-YYYY');
+      let payload = await { accountUniqueNames: [this.state.partyName.uniqueName, "sales"], voucherType: INVOICE_TYPE.creditNote }
+      const results = await InvoiceService.getVoucherInvoice(date, payload);
+      if (results.body && results.status == 'success') {
+        this.setState({ allVoucherInvoice: results.body.results });
+      }
+    } catch (e) {
+      this.setState({ allVoucherInvoice: [] });
+    }
+  }
+
+  async getExchangeRateToINR(currency) {
+    try {
+      const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
+      if (results.body && results.status == 'success') {
+        return results.body;
+      }
+    } catch (e) { }
+    return 1
+  }
+
   _renderSearchList() {
     return (
       // <Modal animationType="none" transparent={true} visible={true}>
@@ -399,6 +437,7 @@ export class CreditNote extends React.Component<Props> {
                     isSearchingParty: false,
                   },
                   () => {
+                    this.getAllInvoice()
                     this.searchAccount();
                     this.getAllAccountsModes();
                     Keyboard.dismiss();
@@ -421,8 +460,6 @@ export class CreditNote extends React.Component<Props> {
       // console.log('Creditors called');
       const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrydebtors', false);
       if (results.body && results.body.results) {
-        console.log("dog")
-        console.log(results.body.results);
         this.setState({ searchResults: results.body.results, isSearchingParty: false, searchError: '' });
       }
     } catch (e) {
@@ -439,6 +476,9 @@ export class CreditNote extends React.Component<Props> {
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
+          countryDeatils: results.body.country,
+          currency: results.body.currency,
+          currencySymbol: results.body.currencySymbol,
           addressArray: results.body.addresses,
           partyBillingAddress: results.body.addresses[0],
           partyShippingAddress: results.body.addresses[0],
@@ -509,6 +549,16 @@ export class CreditNote extends React.Component<Props> {
         customField2: null,
         customField3: null,
       },
+      linkedInvoices: "",
+      showAllInvoice: false,
+      allVoucherInvoice: [],
+      accountDropDown: Dropdown,
+      countryDeatils: {
+        countryName: "India",
+        countryCode: "IN"
+      },
+      currency: "INR",
+      currencySymbol: ""
     });
   };
 
@@ -613,7 +663,8 @@ export class CreditNote extends React.Component<Props> {
     try {
       console.log('came to this');
       const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
-      let postBody = {
+      const exchangeRate = await this.state.currency!="INR"? await this.getExchangeRateToINR(this.state.currency): 1
+      let postBody = await this.state.linkedInvoices != "" ? {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
@@ -659,7 +710,7 @@ export class CreditNote extends React.Component<Props> {
           amountForAccount: this.state.amountPaidNowText,
         },
         entries: this.getEntries(),
-        exchangeRate: 1,
+        exchangeRate: exchangeRate,
         templateDetails: {
           other: {
             shippingDate: this.state.otherDetails.shipDate,
@@ -672,7 +723,67 @@ export class CreditNote extends React.Component<Props> {
         },
         type: this.state.invoiceType,
         updateAccountDetails: false,
-      };
+        invoiceLinkingRequest: {
+          linkedInvoices: [
+            this.state.linkedInvoices
+          ]
+        }
+      } :
+        {
+          account: {
+            attentionTo: '',
+            // billingDetails: this.state.partyBillingAddress,
+            billingDetails: {
+              address: [this.state.partyBillingAddress.address],
+              countryName: this.state.countryDeatils.countryName,
+              gstNumber: this.state.partyBillingAddress.gstNumber,
+              panNumber: '',
+              state: { code: this.state.partyBillingAddress.state?this.state.partyBillingAddress.state.code:"", name: this.state.partyBillingAddress.state?this.state.partyBillingAddress.state.name:"" },
+              stateCode: this.state.partyBillingAddress.stateCode,
+              stateName: this.state.partyBillingAddress.stateName,
+            },
+            contactNumber: '',
+            country: this.state.countryDeatils,
+            currency: { code: this.state.currency },
+            currencySymbol: this.state.currencySymbol,
+            email: activeEmail,
+            mobileNumber: '',
+            name: this.state.partyName.name,
+            // shippingDetails: this.state.partyShippingAddress,
+            shippingDetails: {
+              address: [this.state.partyShippingAddress.address],
+              countryName: this.state.countryDeatils.countryName,
+              gstNumber: this.state.partyShippingAddress.gstNumber,
+              panNumber: '',
+              state: { code: this.state.partyShippingAddress.state?this.state.partyShippingAddress.state.code:"", name: this.state.partyShippingAddress.state?this.state.partyShippingAddress.state.name:"" },
+              stateCode: this.state.partyShippingAddress.stateCode,
+              stateName: this.state.partyShippingAddress.stateName,
+            },
+            uniqueName: this.state.partyName.uniqueName,
+          },
+          date: moment(this.state.date).format('DD-MM-YYYY'),
+          dueDate: moment(this.state.date).format('DD-MM-YYYY'),
+          deposit: {
+            type: 'DEBIT',
+            accountUniqueName: this.state.selectedPayMode.uniqueName,
+            amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
+          },
+          entries: this.getEntries(),
+          exchangeRate: exchangeRate,
+          templateDetails: {
+            other: {
+              shippingDate: this.state.otherDetails.shipDate,
+              shippedVia: this.state.otherDetails.shippedVia,
+              trackingNumber: this.state.otherDetails.trackingNumber,
+              customField1: this.state.otherDetails.customField1,
+              customField2: this.state.otherDetails.customField2,
+              customField3: this.state.otherDetails.customField3,
+            },
+          },
+          type: this.state.invoiceType,
+          updateAccountDetails: false,
+        }
+
       console.log('postBody is', JSON.stringify(postBody));
       const results = await InvoiceService.createCreditNote(
         postBody,
@@ -699,8 +810,8 @@ export class CreditNote extends React.Component<Props> {
   }
   renderAmount() {
     return (
-      <View style={{ paddingVertical: 10, paddingHorizontal: 40 }}>
-        <Text style={style.invoiceAmountText}>{'₹' + this.getTotalAmount()}</Text>
+      <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
+        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
       </View>
     );
   }
@@ -747,8 +858,10 @@ export class CreditNote extends React.Component<Props> {
   handleConfirm = (date) => {
     // console.log('A date has been picked: ', date);
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
-    this.setState({ date: moment(date) });
+    this.setState({ date: moment(date), selectedInvoice: "" });
     this.hideDatePicker();
+    this.state.accountDropDown.select(-1)
+    this.getAllInvoice();
   };
   _renderDateView() {
     const { date, displayedDate } = this.state;
@@ -799,6 +912,80 @@ export class CreditNote extends React.Component<Props> {
     );
   }
 
+  _renderSelectInvoice() {
+    return (
+      <View style={style.dateView}>
+        <View style={{ flexDirection: 'row' }}>
+          {/* <Icon name={'Calendar'} color={'#ff6961'} size={16} /> */}
+          <Text style={style.InvoiceHeading}>Invoice #</Text>
+          <View style={{ flexDirection: 'row', width: "80%", marginHorizontal: 15, justifyContent: "space-between" }}>
+            <Dropdown
+              ref={(ref) => this.state.accountDropDown = ref}
+              textStyle={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, }}
+              defaultValue={"Select Account"}
+              value={this.state.selectedInvoice == "" ? "Select Account" : this.state.selectedInvoice}
+              renderButtonText={(options) => {
+                return (this.state.allVoucherInvoice.length == 0 ? "Select Account" : (options.voucherNumber == null ? " - " : options.voucherNumber));
+              }}
+              options={this.state.allVoucherInvoice.length == 0 ? ["Result Not found"] : this.state.allVoucherInvoice}
+              renderSeparator={() => {
+                return (<View></View>);
+              }}
+              onSelect={(idx, value) => {
+                this.state.allVoucherInvoice.length != 0 ? this.setState({
+                  selectedInvoice: value.voucherNumber == null ? " - " : value.voucherNumber,
+                  linkedInvoices: {
+                    invoiceUniqueName: value.uniqueName,
+                    voucherType: value.voucherType
+                  }
+                }) : null
+              }}
+              dropdownStyle={{
+                fontSize: 14,
+                width: '60%',
+                height: this.state.allVoucherInvoice.length == 0 ? 40 : 100,
+                color: "white",
+                flex: 1,
+              }}
+              dropdownTextStyle={{
+                color: '#1C1C1C', fontSize: 14, fontFamily: FONT_FAMILY.regular,
+              }}
+              renderRow={(options) => {
+                return (
+                  <View style={{ paddingHorizontal: 10, paddingBottom: 10, paddingTop: this.state.allVoucherInvoice.length > 1 ? 3 : 10, borderBottomColor: "grey", borderBottomWidth: this.state.allVoucherInvoice.length > 1 ? 0.7 : 0 }}>
+                    <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.regular, }}>{this.state.allVoucherInvoice.length == 0 ? options : options.voucherNumber == null ? " - " : options.voucherNumber}</Text>
+                    {this.state.allVoucherInvoice.length != 0 ? <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular, }}>{"(Dated : " + options.voucherDate + ")"}</Text> : null}
+                    {this.state.allVoucherInvoice.length != 0 ? <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular, }}>{"(Due : " + options.voucherTotal.amountForAccount + ")"}</Text> : null}
+                  </View>
+                );
+              }}
+            />
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignSelf: 'flex-end',
+                alignItems: 'center',
+                marginHorizontal: 20,
+                marginTop: -2
+              }}
+              onPress={() => {
+                this.state.accountDropDown.select(-1),
+                  this.setState({
+                    selectedInvoice: "",
+                    linkedInvoices: ""
+                  })
+              }
+              }>
+              <Ionicons name="close-circle" size={20} color={'grey'} />
+              {/* <Text style={{marginLeft: 3}}>Close</Text> */}
+            </TouchableOpacity>
+
+          </View>
+        </View>
+      </View>
+    )
+  }
+
   _renderAddress() {
     return (
       <View style={style.senderAddress}>
@@ -832,7 +1019,9 @@ export class CreditNote extends React.Component<Props> {
               ? this.state.partyBillingAddress.address
               : this.state.partyBillingAddress.stateName
                 ? this.state.partyBillingAddress.stateName
-                : 'Select Billing Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
         </TouchableOpacity>
@@ -861,7 +1050,9 @@ export class CreditNote extends React.Component<Props> {
               ? this.state.partyShippingAddress.address
               : this.state.partyShippingAddress.stateName
                 ? this.state.partyShippingAddress.stateName
-                : 'Select Shipping Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Shipping Address'}
           </Text>
 
           {/*Shipping Address View*/}
@@ -1342,6 +1533,7 @@ export class CreditNote extends React.Component<Props> {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {this._renderSelectInvoice()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
             {this.state.addedItems.length > 0 && this._renderTotalAmount()}
@@ -1377,6 +1569,7 @@ export class CreditNote extends React.Component<Props> {
         </Animated.ScrollView>
         {this.state.showItemDetails && (
           <EditItemDetail
+            currencySymbol={this.state.currencySymbol}
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {

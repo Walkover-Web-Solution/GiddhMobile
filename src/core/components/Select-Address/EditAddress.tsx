@@ -197,20 +197,23 @@ export class EditAddress extends React.Component<any, any> {
           : countryIndia,
     });
     console.log(this.state.selectedCountry);
-    this.setState({loading: false});
-  };
+    await this.setState({ loading: false });
+  }
 
   changeactiveIndex = (value: number) => {
     this.setState({activeIndex: value});
   };
 
   onSubmit = () => {
-    console.log('state' + this.state.state_billing == '');
-    console.log('country' + this.state.selectedCountry);
-    if (this.state.state_billing == 'Select' || this.state.selectedCountry.countryName == '') {
-      alert('Please Enter Country and State Name');
-    } else if (this.state.gstNo && this.state.gstNo.length != 15) {
-      alert('Enter a valid gst number, should be 15 characters long');
+    console.log("state" + this.state.state_billing == "");
+    console.log("country" + this.state.selectedCountry);
+    if (this.state.selectedCountry.countryName == "") {
+      alert("Please Enter Country Name");
+    } else if (this.state.selectedCountry.countryName == "India"&& !this.props.route.params.dontChangeCountry && this.state.state_billing == "Select") {
+      alert("Please Enter State Name");
+    }
+    else if (this.state.gstNo && this.state.gstNo.length != 15) {
+      alert("Enter a valid gst number, should be 15 characters long");
     } else if (this.state.gstNumberWrong) {
       alert('Enter a valid gst number');
     } else {
@@ -219,7 +222,7 @@ export class EditAddress extends React.Component<any, any> {
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
-        state: this.state.state_billing,
+        state: this.state.state_billing!="Select"?this.state.state_billing:"",
         stateCode: this.state.state_billing.code,
         stateName: this.state.state_billing.name,
       };
@@ -295,7 +298,8 @@ export class EditAddress extends React.Component<any, any> {
             <Text style={{ color: "#E04646", marginTop:20 }}>*</Text>
           </View>
           <Dropdown
-            ref={(ref) => (this.state.addresssDropDown = ref)}
+            disabled={this.props.route.params.dontChangeCountry}
+            ref={(ref) => this.state.addresssDropDown = ref}
             style={style.dropDown}
             textStyle={{color: '#1c1c1c'}}
             defaultValue={this.state.selectedCountry.countryName != null ? this.state.selectedCountry.countryName : ''}

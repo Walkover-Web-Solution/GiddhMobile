@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter,FlatList ,useWindowDimensions } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -132,6 +132,7 @@ export class Customers extends React.Component<Props> {
     return (
       <View style={{ marginLeft: 46 }}>
         <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
+        {this.state.selectedCountry && this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }} >{this.state.selectedCountry.countryName}</Text>}
         {this.state.savedAddress.street_billing != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_billing}</Text>}
         {this.state.savedAddress.state_billing.name != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing.name}</Text>}
         {this.state.savedAddress.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.pincode}</Text>}
@@ -165,7 +166,7 @@ export class Customers extends React.Component<Props> {
               }}
               onSelect={(idx, value) => this.setState({ selectedCurrency: value.code })}
 
-              dropdownStyle={{ width: '25%', marginTop: 11,marginRight:-60 }}
+              dropdownStyle={{ width: '25%', marginTop: 11, marginRight: -60 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.code}</Text>);
@@ -253,6 +254,8 @@ export class Customers extends React.Component<Props> {
   isCreateButtonVisible = () => {
     if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.savedAddress.state_billing) {
       return true;
+    } else if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.selectedCountry.countryName != "India") {
+      return true
     } else {
       return false;
     }
@@ -311,8 +314,6 @@ export class Customers extends React.Component<Props> {
   genrateCustomer = () => {
     if (!this.state.partyName) {
       Alert.alert("Error", 'Please select a party.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-    } else if (!this.state.savedAddress.state_billing) {
-      Alert.alert("Error", 'Please select state to proceed.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
       if (this.validateMobileNumber() && this.validateEmail()) {
         this.createCustomerRequest();
@@ -340,8 +341,8 @@ export class Customers extends React.Component<Props> {
           {
             gstNumber: this.state.savedAddress.gstin_billing,
             address: this.state.savedAddress.street_billing,
-            state: this.state.savedAddress.state_billing,
-            stateCode: this.state.savedAddress.state_billing.stateGstCode,
+            state: this.state.savedAddress.state_billing != "" ? this.state.savedAddress.state_billing : { "code": null, "name": "", "stateGstCode": "" },
+            stateCode: this.state.savedAddress.state_billing.stateGstCode ? this.state.savedAddress.state_billing.stateGstCode : null,
             isDefault: false,
             isComposite: false,
             partyType: this.state.partyType,
@@ -434,7 +435,12 @@ export class Customers extends React.Component<Props> {
       showForgeinBalance: true,
       pincode: "",
       isEmailInvalid: false,
-      isMobileNoValid: false
+      isMobileNoValid: false,
+      groupDropDown: Dropdown,
+      isGroupDD: false,
+      isPartyDD: false,
+      partyPlaceHolder: "",
+      partyDialog: false,
     })
   }
 
@@ -457,9 +463,9 @@ export class Customers extends React.Component<Props> {
       selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
     });
   };
- 
-  componentDidMount(){
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async() => {
+
+  componentDidMount() {
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       await this.resetState();
       await this.getAllDeatils();
     });
