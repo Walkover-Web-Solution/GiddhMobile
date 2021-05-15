@@ -65,7 +65,8 @@ export class ChangeCompany extends React.Component<Props> {
                 <TouchableOpacity
                   style={style.listItem}
                   delayPressIn={0}
-                  onPress={async () => {
+                  onPress={async () => {                    
+                    await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, item.subscription.country.countryCode);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');

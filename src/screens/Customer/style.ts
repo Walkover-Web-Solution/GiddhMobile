@@ -25,7 +25,13 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.bold,
     fontSize: 16,
   },
-  invoiceTypeButton: { justifyContent: 'center', flexDirection: 'row', alignItems: 'center' },
+  invoiceTypeButton: {
+    flex:1,
+    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight:20
+  },
   searchResultContainer: {
     maxHeight: 300,
     width: '80%',

@@ -20,6 +20,8 @@ import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
+import AsyncStorage from '@react-native-community/async-storage';
+import { ThemeService } from '@ui-kitten/components/theme/theme/theme.service';
 
 interface Props {
   navigation: any;
@@ -49,7 +51,7 @@ export class Customers extends React.Component<Props> {
     partyName: "",
     contactNumber: "",
     emailId: "",
-    partyType: "",
+    partyType: "not applicable",
     allPartyType: [],
     AllGroups: ["Sundry Debtors"],
     ref: RBSheet,
@@ -94,6 +96,7 @@ export class Customers extends React.Component<Props> {
     isPartyDD: false,
     partyPlaceHolder: "",
     partyDialog: false,
+    showForgeinBalance: true,
   }
 
   radio_props = [
@@ -177,7 +180,7 @@ export class Customers extends React.Component<Props> {
             />
           </View>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
+        {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
           <View style={{ width: "74%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
@@ -191,7 +194,7 @@ export class Customers extends React.Component<Props> {
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
             style={{ borderWidth: 1, borderColor: "#d9d9d9", width: "30%", height: '80%', paddingStart: 10, }} />
-        </View>
+        </View>}
         <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 5 }}>
           <View style={{ width: "70%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
@@ -332,10 +335,10 @@ export class Customers extends React.Component<Props> {
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
       const results = await CustomerVendorService.createCustomer(postBody);
+      console.log("rabbit"+JSON.stringify(results));
       if (results.status == "success") {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
-        this.state.partyDropDown.select(-1);
         await this.setState({ successDialog: true, });
         await this.getAllDeatils()
         await this.setState({ loading: false, });
@@ -357,7 +360,7 @@ export class Customers extends React.Component<Props> {
       partyName: "",
       contactNumber: "",
       emailId: "",
-      partyType: "Party Type*",
+      partyType: "not applicable",
       allPartyType: [],
       AllGroups: ["Sundry Debtors"],
       ref: RBSheet,
@@ -365,9 +368,12 @@ export class Customers extends React.Component<Props> {
       savedAddress: {
         street_billing: "",
         gstin_billing: "",
-        state_billing: '',
+        state_billing: "",
         pincode: ""
       },
+      street_billing: "",
+      gstin_billing: "",
+      state_billing: '',
       openAddress: false,
       showBalanceDetails: false,
       creditPeriodRef: Dropdown,
@@ -394,11 +400,16 @@ export class Customers extends React.Component<Props> {
       faliureDialog: false,
       selectedGroup: "Sundry Debtors",
       partyDropDown: Dropdown,
-      pincode: "",
+      groupDropDown: Dropdown,
+      isGroupDD: false,
+      isPartyDD: false,
+      partyPlaceHolder: "",
+      partyDialog: false,
+      showForgeinBalance: true
     })
   }
 
-  selectBillingAddress = (address) => {
+  selectBillingAddress = async (address) => {
     console.log(address);
     const newAddress = {
       street_billing: address.address,
@@ -406,11 +417,18 @@ export class Customers extends React.Component<Props> {
       state_billing: address.state,
       pincode: address.pincode
     };
+    const companyCountry = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    if (companyCountry != address.selectedCountry.alpha2CountryCode) {
+      this.setState({ showForgeinBalance: false });
+    } else {
+      this.setState({ showForgeinBalance: true });
+    }
     this.setState({
       savedAddress: newAddress, selectedCountry: address.selectedCountry,
       selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
     });
   };
+
 
   render() {
     return (
@@ -431,7 +449,7 @@ export class Customers extends React.Component<Props> {
               return (
                 <TouchableOpacity
                   onPress={() => {
-                    this.setState({partyType:item.item.value, partyDialog:false});
+                    this.setState({ partyType: item.item.value, partyDialog: false });
                   }}
                   key={item.item.value}
                   style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
@@ -500,7 +518,7 @@ export class Customers extends React.Component<Props> {
               }
               }
               style={styles.input}>
-              <Text style={{ color: "rgba(80,80,80,0.5)" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
+              <Text style={{ color: this.state.partyPlaceHolder == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
               <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == "" ? "*" : ""}</Text>
             </TextInput>
           </View>
@@ -528,7 +546,7 @@ export class Customers extends React.Component<Props> {
               onChangeText={(text) => { this.setState({ contactNumber: text }) }}
               placeholder="Enter Contact Number"
               value={this.state.contactNumber}
-              style={styles.input} />
+              style={{ ...styles.input, color: this.state.contactNumber == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }} />
           </View>
           <View style={styles.rowContainer}>
             <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />
@@ -603,7 +621,7 @@ export class Customers extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                this.setState({partyDialog:true});
+                this.setState({ partyDialog: true });
                 // this.setState({ isPartyDD: true })
                 //this.state.partyDropDown.show();
               }}

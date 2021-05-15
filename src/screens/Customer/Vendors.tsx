@@ -51,7 +51,7 @@ export class Vendors extends React.Component<Props> {
     partyName: "",
     contactNumber: "",
     emailId: "",
-    partyType: "",
+    partyType: "not applicable",
     allPartyType: [],
     AllGroups: ["Sundry Creditors"],
     ref: RBSheet,
@@ -100,6 +100,7 @@ export class Vendors extends React.Component<Props> {
     groupDropDown: Dropdown,
     partyPlaceHolder: "",
     partyDialog: false,
+    showForgeinBalance: true
   }
 
   radio_props = [
@@ -129,7 +130,7 @@ export class Vendors extends React.Component<Props> {
     this.setState({ loading: false });
   }
 
-  selectBillingAddress = (address) => {
+  selectBillingAddress = async (address) => {
     console.log(address);
     const newAddress = {
       street_billing: address.address,
@@ -137,6 +138,12 @@ export class Vendors extends React.Component<Props> {
       state_billing: address.state,
       pincode: address.pincode
     };
+    const companyCountry = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    if (companyCountry != address.selectedCountry.alpha2CountryCode) {
+      this.setState({ showForgeinBalance: false });
+    } else {
+      this.setState({ showForgeinBalance: true });
+    }
     this.setState({
       savedAddress: newAddress, selectedCountry: address.selectedCountry,
       selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
@@ -199,7 +206,7 @@ export class Vendors extends React.Component<Props> {
             />
           </View>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
+        {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
           <View style={{ width: "74%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
@@ -213,7 +220,7 @@ export class Vendors extends React.Component<Props> {
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
             style={{ borderWidth: 1, borderColor: "#d9d9d9", width: "30%", height: '80%', paddingStart: 10, }} />
-        </View>
+        </View>}
         <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 5 }}>
           <View style={{ width: "70%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
@@ -667,7 +674,7 @@ export class Vendors extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                this.setState({partyDialog:true});
+                this.setState({ partyDialog: true });
                 //this.setState({ isPartyDD: true })
                 //this.state.partyDropDown.show();
               }}

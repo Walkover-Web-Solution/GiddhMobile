@@ -292,7 +292,7 @@ export class SalesInvoice extends React.Component<Props> {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50 }} onPress={() => { }}>
+      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems:'center', paddingRight:15 }} onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
           <Icon name={'Profile'} color={'#A6D8BF'} style={{ margin: 16 }} size={16} />
@@ -314,6 +314,7 @@ export class SalesInvoice extends React.Component<Props> {
           />
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
+        <Text style={{color:'white'}}>Clear All</Text>
       </View>
     );
   }
@@ -684,6 +685,7 @@ export class SalesInvoice extends React.Component<Props> {
         alert('Invoice created successfully!');
         const partyDetails = this.state.partyDetails;
         const invoiceType = this.state.invoiceType;
+        const partyUniqueName = this.state.partyDetails.uniqueName;
         // Here for cash invoice party detail is empty {}
         this.resetState();
         this.getAllTaxes();
@@ -711,7 +713,7 @@ export class SalesInvoice extends React.Component<Props> {
         }
         if (type == "share") {
           console.log("sharing");
-          this.downloadFile(results.body.entries[0].voucherType, results.body.entries[0].voucherNumber);
+          this.downloadFile(results.body.entries[0].voucherType, results.body.entries[0].voucherNumber, partyUniqueName);
         }
         DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
       }
@@ -1029,7 +1031,7 @@ export class SalesInvoice extends React.Component<Props> {
               },
             });
           }}>
-          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} : </Text>
+          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} {item.stock ? "(" + item.stock.name + ")" : ""}: </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ color: '#808080' }}>
@@ -1150,12 +1152,12 @@ export class SalesInvoice extends React.Component<Props> {
 
 
 
-  downloadFile = async (voucherName, voucherNo) => {
+  downloadFile = async (voucherName, voucherNo, partyUniqueName) => {
     try {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('yes its granted');
-        await this.onShare(voucherName, voucherNo);
+        await this.onShare(voucherName, voucherNo, partyUniqueName);
       } else {
         Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
       }
@@ -1164,13 +1166,13 @@ export class SalesInvoice extends React.Component<Props> {
     }
   };
 
-  onShare = async (voucherName, voucherNo) => {
+  onShare = async (voucherName, voucherNo, partyUniqueName) => {
     try {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        `https://api.giddh.com/company/${activeCompany}/accounts/${this.state.partyDetails.uniqueName}/vouchers/download-file?fileType=pdf`,
+        `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`,
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json',

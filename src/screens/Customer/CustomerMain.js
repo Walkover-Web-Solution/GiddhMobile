@@ -8,6 +8,7 @@ import {
   NativeModules,
   Dimensions,
   StatusBar,
+  InteractionManager,
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -19,6 +20,8 @@ import { useIsFocused } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Vendors } from './Vendors';
 import { Customers } from './Customers';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 
@@ -44,6 +47,7 @@ export class Customer extends React.Component<Props> {
 
     this.state = {
       currentPage: 0,
+      backRef: RBSheet
     }
   }
 
@@ -66,6 +70,7 @@ export class Customer extends React.Component<Props> {
             <Text style={style.invoiceType}>
               Create New Party
             </Text>
+            <AntDesign name={'delete'} size={16} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -87,12 +92,49 @@ export class Customer extends React.Component<Props> {
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    InteractionManager.runAfterInteractions(() => {
+      const { index } = this.props.route.params;
+      console.log(index);
+      if (index == 1 && this.state.currentPage == 0) {
+        this.scrollRef.current.scrollTo({
+          animated: true,
+          y: 0,
+          x: width * 2,
+        })
+      } else if (index == 0 && this.state.currentPage == 1) {
+        this.scrollRef.current.scrollTo({
+          animated: true,
+          y: 0,
+          x: width * -1,
+        })
+      }
+    })
+    //this.ScrollViewOnLayout();
+  }
+
+  ScrollViewOnLayout = () => {
+    // const { index } = this.props.route.params;
+    // console.log(index);
+    // if (index == 1) {
+    //   this.scrollRef.current.scrollTo({
+    //     animated: true,
+    //     y: 0,
+    //     x: width * 2,
+    //   })
+    // } else {
+    //   this.scrollRef.current.scrollTo({
+    //     animated: true,
+    //     y: 0,
+    //     x: width * -1,
+    //   })
+    // }
   }
 
   componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
+
 
   render() {
     return (
@@ -177,6 +219,7 @@ export class Customer extends React.Component<Props> {
             </View>
             <ScrollView
               ref={this.scrollRef}
+              onLayout={this.ScrollViewOnLayout}
               style={{ flex: 1 }}
               horizontal={true}
               scrollEventThrottle={16}

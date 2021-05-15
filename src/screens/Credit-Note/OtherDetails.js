@@ -1,5 +1,5 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
+import { GDContainer } from '@/core/components/container/container.component';
 import {
   View,
   Text,
@@ -15,23 +15,23 @@ import {
   Dimensions,
 } from 'react-native';
 import style from './style';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Bars} from 'react-native-loader';
+import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
-import {InvoiceService} from '@/core/services/invoice/invoice.service';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {SafeAreaView} from 'react-native-safe-area-context';
-const {SafeAreaOffsetHelper} = NativeModules;
+import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { SafeAreaView } from 'react-native-safe-area-context';
+const { SafeAreaOffsetHelper } = NativeModules;
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
@@ -69,14 +69,16 @@ class OtherDetails extends React.Component<Props> {
     if (Platform.OS == 'ios') {
       //Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
-        let {bottomOffset} = offset;
-        this.setState({bottomOffset});
+        let { bottomOffset } = offset;
+        this.setState({ bottomOffset });
       });
     }
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+    const enteredData = this.props.route.params.enteredDetails;
+    this.setState({ otherDetail: enteredData });
   }
   keyboardWillShow = (event) => {
     const value = event.endCoordinates.height - this.state.bottomOffset;
@@ -93,11 +95,11 @@ class OtherDetails extends React.Component<Props> {
     }).start();
   };
   _keyboardDidShow = () => {
-    this.setState({keyboard: true});
+    this.setState({ keyboard: true });
   };
 
   _keyboardDidHide = () => {
-    this.setState({keyboard: false});
+    this.setState({ keyboard: false });
   };
   componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
@@ -107,11 +109,11 @@ class OtherDetails extends React.Component<Props> {
   }
 
   showDatePicker = () => {
-    this.setState({isDatePickerVisible: true});
+    this.setState({ isDatePickerVisible: true });
   };
 
   hideDatePicker = () => {
-    this.setState({isDatePickerVisible: false});
+    this.setState({ isDatePickerVisible: false });
   };
 
   handleConfirm = (date) => {
@@ -128,16 +130,16 @@ class OtherDetails extends React.Component<Props> {
 
   renderHeader() {
     return (
-      <View style={[style.header, {backgroundColor: '#3497FD'}]}>
-        <View style={{flexDirection: 'row', paddingVertical: 10, alignItems: 'center'}}>
+      <View style={[style.header, { backgroundColor: '#3497FD' }]}>
+        <View style={{ flexDirection: 'row', paddingVertical: 10, alignItems: 'center' }}>
           <TouchableOpacity
-            style={{padding: 10}}
+            style={{ padding: 10 }}
             onPress={() => {
               this.props.navigation.goBack();
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <Text style={{fontSize: 16, color: 'white'}}>Other Details</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>Other Details</Text>
         </View>
       </View>
     );
@@ -153,12 +155,12 @@ class OtherDetails extends React.Component<Props> {
             warehouseArray: this.props.route.params.warehouseArray,
           })
         }>
-        <View style={{flexDirection: 'row', paddingTop: 10, paddingBottom: 4, paddingHorizontal: 16}}>
+        <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 4, paddingHorizontal: 16 }}>
           <Icon name={'path-8'} size={16} color={'#808080'} />
 
-          <Text style={{color: '#808080', marginLeft: 10}}>Warehouse</Text>
+          <Text style={{ color: '#808080', marginLeft: 10 }}>Warehouse</Text>
         </View>
-        <Text style={{color: '#808080', marginLeft: 10}}>
+        <Text style={{ color: '#808080', marginLeft: 10 }}>
           {' '}
           {this.props.route.params.selectedWareHouse
             ? this.props.route.params.selectedWareHouse.address
@@ -173,7 +175,7 @@ class OtherDetails extends React.Component<Props> {
   _renderBottomSeprator(margin = 0) {
     return (
       <View
-        style={{height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin}}
+        style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
       />
     );
   }
@@ -217,6 +219,20 @@ class OtherDetails extends React.Component<Props> {
     }
   };
 
+  textInputValue = (name) => {
+    if (name == 'Shipped Via') {
+      return this.state.otherDetail.shippedVia;
+    } else if (name == 'Tracking no') {
+      return this.state.otherDetail.trackingNumber;
+    } else if (name == 'Custom Field 1') {
+      return this.state.otherDetail.customField1;
+    } else if (name == 'Custom Field 3') {
+      return this.state.otherDetail.customField3;
+    } else {
+      return this.state.otherDetail.customField2;
+    }
+  }
+
   _renderTextField(name, icon) {
     return (
       <>
@@ -230,9 +246,10 @@ class OtherDetails extends React.Component<Props> {
             marginTop: 10,
           }}>
           {icon}
-          <Text style={{color: '#808080', marginLeft: 10}}>{name}</Text>
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{name}</Text>
         </View>
         <TextInput
+          value={this.textInputValue(name)}
           style={{
             borderBottomWidth: 1,
             borderBottomColor: '#D9D9D9',
@@ -258,7 +275,7 @@ class OtherDetails extends React.Component<Props> {
         }}
         onPress={this.showDatePicker}>
         <Icon name={'Calendar'} size={16} color={'#808080'} />
-        <Text style={{color: '#808080', marginLeft: 10}}>
+        <Text style={{ color: '#808080', marginLeft: 10 }}>
           {this.state.otherDetail.shipDate ? this.state.otherDetail.shipDate : 'Ship Date'}
         </Text>
         {this._renderBottomSeprator(16)}
@@ -268,8 +285,8 @@ class OtherDetails extends React.Component<Props> {
 
   render() {
     return (
-      <View style={{flex: 1}}>
-        <KeyboardAwareScrollView style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={{ flex: 1 }}>
+        <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
           <StatusBar backgroundColor="#2e80d1" barStyle="light-content" />
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
@@ -322,7 +339,7 @@ class OtherDetails extends React.Component<Props> {
 }
 
 function mapStateToProps(state) {
-  const {commonReducer} = state;
+  const { commonReducer } = state;
   return {
     ...commonReducer,
   };

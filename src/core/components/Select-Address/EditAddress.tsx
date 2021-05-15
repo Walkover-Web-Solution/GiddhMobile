@@ -219,7 +219,10 @@ export class EditAddress extends React.Component<any, any> {
             multiline
             onChangeText={(text) => this.setState({ address: text })}
             value={this.state.address}></TextInput>
-          <Text style={style.BMfieldTitle}>Country</Text>
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={style.BMfieldTitle}>Country</Text>
+            <Text style={{ color: "#E04646", marginTop:20 }}>*</Text>
+          </View>
           <Dropdown
             style={style.dropDown}
             textStyle={{ color: '#1c1c1c' }}
@@ -236,7 +239,10 @@ export class EditAddress extends React.Component<any, any> {
             renderButtonText={(text) => text.countryName}
             onSelect={(idx, value) => this.setCountrySelected(value)}
           />
-          <Text style={style.BMfieldTitle}>State</Text>
+          <View style={{flexDirection:'row'}}>
+            <Text style={style.BMfieldTitle}>State</Text>
+            <Text style={{ color: "#E04646", marginTop:20 }}>*</Text>
+          </View>
           <Dropdown
             style={style.dropDown}
             textStyle={{ color: '#1c1c1c', fontSize: 14 }}

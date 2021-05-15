@@ -60,6 +60,7 @@ class TransactionList extends React.Component {
     try {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        
         console.log('yes its granted');
         await this.onShare();
       } else {

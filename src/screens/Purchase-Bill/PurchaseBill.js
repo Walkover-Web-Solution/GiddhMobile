@@ -1080,7 +1080,7 @@ export class PurchaseBill extends React.Component {
               },
             });
           }}>
-          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} : </Text>
+          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} {item.stock ? "(" + item.stock.name + ")" : ""}: </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ color: '#808080' }}>
@@ -1263,7 +1263,7 @@ export class PurchaseBill extends React.Component {
           </View>
         )}
 
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems:'center' }}>
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems: 'center' }}>
           <View>
             <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginBottom: 3 }}
               onPress={() => {
