@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 // import {BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
 import HomeScreen from '@/screens/Home/Home';
@@ -19,17 +19,30 @@ import DashboardStack from './dashboard.navigator';
 const {Navigator, Screen} = createBottomTabNavigator();
 
 import {createStackNavigator} from '@react-navigation/stack';
-import {View, TouchableOpacity, Text, Dimensions} from 'react-native';
+import {View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter} from 'react-native';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import AsyncStorage from '@react-native-community/async-storage';
+
+const {height, width} = Dimensions.get('window');
+
 const Stack = createStackNavigator();
 
 export const HomeNavigator = () => {
+  const [branchSelected, setBranchSelected] = useState(true);
+  useEffect(() => {
+    isBranchSelected();
+    DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      isBranchSelected();
+    });
+  }, []);
+
   function MyTabBar({state, descriptors, navigation, renderIcon, activeTintColor, inactiveTintColor}) {
     return (
       <View
         style={{
           flexDirection: 'row',
           backgroundColor: 'white',
-          height: 50,
+          height: height * 0.08,
           justifyContent: 'space-between',
           alignItems: 'center',
           shadowColor: '#000',
@@ -77,19 +90,21 @@ export const HomeNavigator = () => {
           const renderIcon = (label) => {
             if (label == 'Dashboard') {
               return (
-                <MaterialCommunityIcons name="view-dashboard" size={26} color={isFocused ? '#5773FF' : '#808080'} />
+                <MaterialCommunityIcons name="view-dashboard" size={23} color={isFocused ? '#5773FF' : '#808080'} />
               );
             } else if (label == 'Parties') {
-              return <MaterialIcons name="person" size={26} color={isFocused ? '#5773FF' : '#808080'} />;
+              return <MaterialIcons name="person" size={23} color={isFocused ? '#5773FF' : '#808080'} />;
             } else if (label == 'More') {
               return (
-                <MaterialCommunityIcons name="dots-vertical" size={26} color={isFocused ? '#5773FF' : '#808080'} />
+                <MaterialCommunityIcons name="dots-vertical" size={23} color={isFocused ? '#5773FF' : '#808080'} />
               );
+            } else if (label == 'Inventory') {
+              return <Icon name="Path-13016" size={22} color={isFocused ? '#5773FF' : '#808080'} />;
             }
           };
 
           return route.name == 'add' ? (
-            <AddButton navigation={navigation} />
+            branchSelected && <AddButton navigation={navigation} />
           ) : (
             <TouchableOpacity
               // accessibilityRole="button"
@@ -101,14 +116,26 @@ export const HomeNavigator = () => {
               style={{alignItems: 'center', width: Dimensions.get('window').width * 0.2}}>
               {/* {renderIcon({route, focused: true, activeTintColor})} */}
               {renderIcon(label)}
-              <Text style={{color: isFocused ? '#5773FF' : '#808080'}}>{label}</Text>
+              <Text style={{color: isFocused ? '#5773FF' : '#808080', fontSize: 13, fontFamily: 'AvenirLTStd-Book'}}>
+                {label}
+              </Text>
             </TouchableOpacity>
           );
         })}
       </View>
     );
   }
-
+  const isBranchSelected = async () => {
+    const branch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    // console.log('selected branch is ', branch);
+    if (branch) {
+      setBranchSelected(true);
+      // return true;
+    } else {
+      // return false;
+      setBranchSelected(false);
+    }
+  };
   const getTabBarVisibility = (route) => {
     console.log(route);
     const routeName = route.state ? route.state.routes[route.state.index].name : '';
@@ -129,6 +156,7 @@ export const HomeNavigator = () => {
         options={({route}) => ({
           tabBarLabel: 'Dashboard',
           tabBarVisible: getTabBarVisibility(route),
+
           tabBarIcon: ({focused}) => (
             <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
           ),
@@ -143,15 +171,6 @@ export const HomeNavigator = () => {
         tabBarIcon: ({focused}) => (
           <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
         ),
-      })}
-    /> */}
-      {/* <Screen
-      name={Routes.Inventory}
-      component={InventoryMainScreen}
-      options={({route}) => ({
-        tabBarLabel: 'Inventory',
-
-        tabBarIcon: ({focused}) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
       })}
     /> */}
 
@@ -172,6 +191,15 @@ export const HomeNavigator = () => {
           tabBarLabel: '',
           // tabBarIcon: ({focused}) => (getTabBarVisibility(route) ? <AddButton navigation={navigation} /> : null),
           // tabBarIcon: ({focused}) => route=='SalesInvoiceScreen'? null:<AddButton navigation={navigation} />),
+        })}
+      />
+      <Screen
+        name={Routes.Inventory}
+        component={InventoryMainScreen}
+        options={({route}) => ({
+          tabBarLabel: 'Inventory',
+
+          tabBarIcon: ({focused}) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
         })}
       />
       <Screen

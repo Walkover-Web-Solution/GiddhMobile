@@ -1,23 +1,33 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
-import { Animated, TouchableHighlight, View, Dimensions, FlatList, Text, Modal, TouchableOpacity, DeviceEventEmitter } from 'react-native';
+import {
+  Animated,
+  TouchableHighlight,
+  View,
+  Dimensions,
+  FlatList,
+  Text,
+  Modal,
+  TouchableOpacity,
+  DeviceEventEmitter,
+} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Icon from '@/core/components/custom-icon/custom-icon';
 // import {TouchableOpacity} from 'react-native-gesture-handler';
 
 import style from '@/screens/Auth/Otp/style';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import color from '@/utils/colors';
-import { transform } from '@babel/core';
-import { APP_EVENTS } from '@/utils/constants';
+import {transform} from '@babel/core';
+import {APP_EVENTS} from '@/utils/constants';
 const arrButtons = [
-  { name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD' },
-  { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
-  { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345' },
-  { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961' },
-  { name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3' },
-  { name: 'Vendor', navigateTo: 'VendorScreens', icon: 'Group-6188', color: '#FF72BE' },
+  {name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD'},
+  {name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F'},
+  {name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345'},
+  {name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961'},
+  {name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3'},
+  {name: 'Vendor', navigateTo: 'CustomerScreens', icon: 'Group-6188', color: '#FF72BE'},
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},
@@ -29,7 +39,7 @@ const arrButtons = [
 const SIZE = 48;
 const padding = 10;
 let itemWidth = (Dimensions.get('window').width - (SIZE + padding * 8)) / 4;
-
+const {height, width} = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 class AddButton extends Component {
@@ -37,8 +47,10 @@ class AddButton extends Component {
     super(props);
     this.state = {
       modalVisible: false,
+      buttonsDisabled: false,
     };
   }
+
   mode = new Animated.Value(0);
   toggleView = () => {
     Animated.timing(this.mode, {
@@ -65,89 +77,115 @@ class AddButton extends Component {
       inputRange: [0, 1],
       outputRange: ['0deg', '45deg'],
     });
+
     return (
       <View
         style={{
           // position: 'absolute',
+
           alignItems: 'center',
+          // bottom: Dimensions.get('window').height * 0.08,
           // left: 0,
           // right: 0,
         }}>
         <Modal
+          // style={{position: 'absolute', bottom: Dimensions.get('window').height * 0.08, backgroundColor: 'pink'}}
           visible={this.state.modalVisible}
-          animationType="slide"
+          animationType="none"
           transparent={true}
-          onRequestClose={() => this.setState({ modalVisible: false })}>
-          <View
+          onRequestClose={() => this.setState({modalVisible: false})}>
+          <TouchableOpacity
             style={{
               position: 'absolute',
-              alignSelf: 'center',
+              top: 0,
+              // bottom: Dimensions.get('window').height * 0.08,
               bottom: 0,
-              // height: Dimensions.get('window').width * 0.7,
-              paddingVertical: 20,
-              width: Dimensions.get('window').width * 0.9,
-              borderTopEndRadius: 15,
-              backgroundColor: '#fff',
-              alignItems: 'center',
-              elevation: 3,
-            }}>
-            <FlatList
-              numColumns={4} // set number of columns
-              data={arrButtons}
-              showsVerticalScrollIndicator={false}
-              style={{ flex: 1, alignSelf: 'center', marginBottom: SIZE }}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={{
-                    width: itemWidth,
-                    borderRadius: itemWidth / 2,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    margin: padding,
-                  }}
-                  // onPress={() => console.log('this works')}
-                  onPress={async () => {
-                    DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                    this.props.navigation.navigate(item.navigateTo);
-                    this.setState({ modalVisible: false });
-                    // this.toggleView();
-                  }}>
-                  <View
-                    style={{
-                      width: itemWidth,
-                      backgroundColor: item.color,
-                      borderRadius: itemWidth / 2,
-                      height: itemWidth,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Icon name={item.icon} size={24} color="#F8F8F8" />
-                  </View>
-                  <Text style={{ fontSize: 9, textAlign: 'center', marginTop: 5 }}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item) => item.name}
-            />
-            <TouchableOpacity
-              onPress={() => this.setState({ modalVisible: false })}
+              left: 0,
+              right: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+            onPress={() => this.setState({modalVisible: false})}>
+            <View
               style={{
                 position: 'absolute',
-                bottom: 10,
+                alignSelf: 'center',
+                // bottom: 0,
+                // height: Dimensions.get('window').width * 0.7,
+                paddingVertical: 20,
+                width: width * 0.9,
+                bottom: height * 0.09,
+                borderTopEndRadius: 8,
+                borderBottomEndRadius: 8,
+                borderBottomLeftRadius: 8,
+                borderTopLeftRadius: 8,
+                backgroundColor: '#fff',
+                alignItems: 'center',
+                elevation: 3,
+              }}>
+              {/* <TouchableOpacity
+              style={{height: 30, width: 30, backgroundColor: 'pink'}}
+              onPress={() => console.log(this.state.buttonsDisabled)}></TouchableOpacity> */}
+              <FlatList
+                numColumns={4} // set number of columns
+                data={arrButtons}
+                showsVerticalScrollIndicator={false}
+                style={{flex: 1, alignSelf: 'center', marginBottom: SIZE}}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    style={{
+                      width: itemWidth,
+                      borderRadius: itemWidth / 2,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      margin: padding,
+                    }}
+                    // disabled={this.state.buttonsDisabled}
+                    // onPress={() => console.log('this works')}
+                    onPress={async () => {
+                      DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                      this.props.navigation.navigate(item.navigateTo);
+                      this.setState({modalVisible: false});
+
+                      // this.toggleView();
+                    }}>
+                    <View
+                      style={{
+                        width: itemWidth,
+                        backgroundColor: item.color,
+                        borderRadius: itemWidth / 2,
+                        height: itemWidth,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Icon name={item.icon} size={24} color="#F8F8F8" />
+                    </View>
+                    <Text style={{fontSize: 9, textAlign: 'center', marginTop: 5}}>{item.name}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.name}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => this.setState({modalVisible: false})}
+              style={{
+                position: 'absolute',
+                bottom: (height * 0.08 - SIZE) / 2,
                 width: SIZE,
                 height: SIZE,
                 borderRadius: SIZE / 2,
                 backgroundColor: '#5773FF',
-                transform: [{ rotate: '90deg' }],
+                transform: [{rotate: '90deg'}],
                 justifyContent: 'center',
                 alignItems: 'center',
+                alignSelf: 'center',
               }}>
               <Entypo name="cross" size={24} color="#fff" />
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         </Modal>
 
         <TouchableHighlight
-          onPress={() => this.setState({ modalVisible: !this.state.modalVisible })}
+          onPress={() => this.setState({modalVisible: !this.state.modalVisible})}
           underlayColor="#2882D8"
           style={{
             alignItems: 'center',
@@ -159,7 +197,7 @@ class AddButton extends Component {
           }}>
           <Animated.View
             style={{
-              transform: [{ rotate: rotation }],
+              transform: [{rotate: rotation}],
             }}>
             <Entypo name="plus" size={24} color="#fff" />
           </Animated.View>
@@ -170,12 +208,12 @@ class AddButton extends Component {
 }
 
 function mapStateToProps(state) {
-  const { commonReducer } = state;
+  const {commonReducer} = state;
   return {
     ...commonReducer,
   };
 }
-function mapDispatchToProps(dispatch) { }
+function mapDispatchToProps(dispatch) {}
 
 const MyComponent = connect(mapStateToProps)(AddButton);
 export default MyComponent;

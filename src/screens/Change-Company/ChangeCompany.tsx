@@ -63,7 +63,8 @@ export class ChangeCompany extends React.Component<Props> {
                 <TouchableOpacity
                   style={style.listItem}
                   delayPressIn={0}
-                  onPress={async () => {
+                  onPress={async () => {                    
+                    await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, item.subscription.country.countryCode);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
@@ -73,6 +74,7 @@ export class ChangeCompany extends React.Component<Props> {
                     this.props.navigation.popToTop();
                   }}>
                   <Text
+                    numberOfLines={2}
                     style={[
                       style.listItemName,
                       {color: item.uniqueName == activeCompany.uniqueName ? color.PRIMARY_BASIC : 'black'},
@@ -80,7 +82,7 @@ export class ChangeCompany extends React.Component<Props> {
                     {item.name}
                   </Text>
                   {item.uniqueName == activeCompany.uniqueName && (
-                    <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
+                    <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: color.PRIMARY_BASIC}}></View>
                   )}
                 </TouchableOpacity>
               )}

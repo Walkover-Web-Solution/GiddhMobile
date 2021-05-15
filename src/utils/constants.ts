@@ -75,7 +75,7 @@ export const STORAGE_KEYS = {
   sessionEnd: 'SESSION_END',
   sortBy: 'SORT_BY',
   order: 'ORDER',
-  activeCompanyCountryCode:''
+  activeCompanyCountryCode: '',
 };
 
 // APP events constants
@@ -89,8 +89,8 @@ export const APP_EVENTS = {
   PurchaseBillCreated: 'PURCHASEBILLCREATED',
   CreditNoteCreated: 'CREDITNOTECREATED',
   DebitNoteCreated: 'DEBITNOTECREATED',
-  CustomerCreated :`CUSTOMERCREATED`,
-  REFRESHPAGE:`REFRESHPAGE`,
+  CustomerCreated: `CUSTOMERCREATED`,
+  REFRESHPAGE: `REFRESHPAGE`,
 };
 
 export const FONT_FAMILY = {

@@ -569,21 +569,41 @@ export class CreditNote extends React.Component<Props> {
       totalAmountInINR: 0.00
     });
   };
+
   getDiscountForEntry(item) {
     // console.log('item is', item);
-
-    // if (item.discountDetails) {
-    //   return [
-    //     {
-    //       amount: {type: item.discountDetails.linkAccount.openingBalanceType, amountForAccount: 10},
-    //       calculationMethod: item.discountType,
-    //       // discountValue: item.discountPercentage,
-    //       name: item.name,
-    //       particular: '',
-    //     },
-    //   ];
-    // }
-    return [{ calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' }];
+    let discountArr = [];
+    if (item.fixedDiscount) {
+      let discountItem = {
+        calculationMethod: 'FIX_AMOUNT',
+        amount: { type: 'DEBIT', amountForAccount: item.fixedDiscount.discountValue },
+        discountValue: item.fixedDiscount.discountValue,
+        name: '',
+        particular: '',
+      };
+      discountArr.push(discountItem);
+    }
+    if (item.percentDiscountArray) {
+      if (item.percentDiscountArray.length > 0) {
+        for (let i = 0; i < item.percentDiscountArray.length; i++) {
+          let discountItem = {
+            calculationMethod: 'PERCENTAGE',
+            amount: { type: 'DEBIT', amountForAccount: item.percentDiscountArray[i].discountValue },
+            name: item.percentDiscountArray[i].name,
+            uniqueName: item.percentDiscountArray[i].uniqueName,
+            particular: item.percentDiscountArray[i].linkAccount.uniqueName,
+          };
+          discountArr.push(discountItem);
+        }
+      }
+    }
+    if (discountArr.length > 0) {
+      return discountArr;
+    } else {
+      return [
+        { calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' },
+      ];
+    }
   }
 
   getTaxesForEntry(item) {
@@ -620,6 +640,21 @@ export class CreditNote extends React.Component<Props> {
           {
             account: { uniqueName: item.uniqueName, name: item.name },
             amount: { type: 'DEBIT', amountForAccount: Number(item.rate) * Number(item.quantity) },
+            stock: item.stock
+              ? {
+                quantity: item.quantity,
+                sku: item.stock.skuCode,
+                name: item.stock.name,
+
+                uniqueName: item.stock.uniqueName,
+                rate: {
+                  amountForAccount: Number(item.rate),
+                },
+                stockUnit: {
+                  code: item.stock.stockUnitCode,
+                },
+              }
+              : undefined,
           },
         ],
         voucherNumber: '',
@@ -629,6 +664,7 @@ export class CreditNote extends React.Component<Props> {
     }
     return entriesArray;
   }
+
 
   async createCreditNote() {
     this.setState({ loading: true });
@@ -654,9 +690,9 @@ export class CreditNote extends React.Component<Props> {
             stateName: this.state.partyBillingAddress.stateName,
           },
           contactNumber: '',
-          country: this.state.countryDeatils,
-          currency: { code: this.state.currency },
-          currencySymbol: this.state.currencySymbol,
+          country: { countryName: 'India', countryCode: 'IN' },
+          currency: { code: 'INR' },
+          currencySymbol: '₹',
           email: activeEmail,
           mobileNumber: '',
           name: this.state.partyName.name,
@@ -677,7 +713,7 @@ export class CreditNote extends React.Component<Props> {
         deposit: {
           type: 'DEBIT',
           accountUniqueName: this.state.selectedPayMode.uniqueName,
-          amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
+          amountForAccount: this.state.amountPaidNowText,
         },
         entries: this.getEntries(),
         exchangeRate: this.state.exchangeRate,
@@ -1157,7 +1193,7 @@ export class CreditNote extends React.Component<Props> {
               },
             });
           }}>
-          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} : </Text>
+          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} {item.stock ? "(" + item.stock.name + ")" : ""}: </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ color: '#808080' }}>
@@ -1166,7 +1202,14 @@ export class CreditNote extends React.Component<Props> {
             </View>
           </View>
 
-          <Text style={{ marginTop: 5, color: '#808080' }}>Tax : {this.calculatedTaxAmount(item)}</Text>
+          <Text style={{ marginTop: 5, color: '#808080' }}>
+            Tax : {item.currency.symbol}
+            {this.calculatedTaxAmount(item)}
+          </Text>
+          <Text style={{ marginTop: 5, color: '#808080' }}>
+            Discount : {item.currency.symbol}
+            {item.discountValue ? item.discountValue : 0}
+          </Text>
         </TouchableOpacity>
       </Swipeable>
     );
@@ -1228,6 +1271,7 @@ export class CreditNote extends React.Component<Props> {
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
     console.log('rate', itemDetails.rate);
+    let taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
@@ -1237,8 +1281,22 @@ export class CreditNote extends React.Component<Props> {
         totalTax = totalTax + taxAmount;
       }
     }
+    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+      for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
+        let item = itemDetails.stock.taxes[i];
+        for (let j = 0; j < taxArr.length; j++) {
+          if (item == taxArr[j].uniqueName) {
+            // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
+            let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+            let taxAmount = (taxPercent * Number(amt)) / 100;
+            totalTax = totalTax + taxAmount;
+            break;
+          }
+        }
+      }
+    }
     console.log('calculated tax is ', totalTax);
-    return Number(totalTax);
+    return Number(totalTax.toFixed(2));
   }
 
   // calculatedTaxAmount(itemDetails) {
@@ -1267,15 +1325,12 @@ export class CreditNote extends React.Component<Props> {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {
       let item = this.state.addedItems[i];
-      let discount = this.calculateDiscountedAmount(item);
+      let discount = item.discountValue ? item.discountValue : 0;
       let tax = this.calculatedTaxAmount(item);
-
-      //do inventory calulations
-
       let amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
-    return total;
+    return total.toFixed(2);
   }
 
   _renderOtherDetails() {
@@ -1290,6 +1345,7 @@ export class CreditNote extends React.Component<Props> {
         }}
         onPress={() => {
           this.props.navigation.navigate('CreditNoteOtherDetails', {
+            enteredDetails: this.state.otherDetails,
             warehouseArray: this.state.warehouseArray,
             setOtherDetails: this.setOtherDetails,
           });
@@ -1456,7 +1512,8 @@ export class CreditNote extends React.Component<Props> {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
               <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
-                {this.state.invoiceType == 'cash' ? 0 : String(this.getTotalAmount()) - this.state.amountPaidNowText}
+                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
+                {this.getTotalAmount()}
               </Text>
             </View>
           </View>
@@ -1485,7 +1542,7 @@ export class CreditNote extends React.Component<Props> {
     }
   }
 
-  updateEditedItem(details) {
+  updateEditedItem(details, selectedArrayType) {
     let itemUniqueName = details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName;
 
     let addedArray = this.state.addedItems;
@@ -1508,10 +1565,15 @@ export class CreditNote extends React.Component<Props> {
     item.discountType = Number(details.discountType);
     item.taxType = Number(details.taxType);
     item.tax = Number(details.taxText);
+    item.hsnNumber = details.hsnNumber;
+    item.sacNumber = details.sacNumber;
     item.warehouse = Number(details.warehouse);
     item.discountDetails = details.discountDetails ? details.discountDetails : undefined;
     item.taxDetailsArray = details.taxDetailsArray;
-
+    item.percentDiscountArray = details.percentDiscountArray ? details.percentDiscountArray : [];
+    item.fixedDiscount = details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 };
+    item.fixedDiscountUniqueName = details.fixedDiscountUniqueName ? details.fixedDiscountUniqueName : '';
+    item.selectedArrayType = selectedArrayType;
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
     this.setState({ showItemDetails: false, totalAmountInINR: (Math.round(Number(details.total) * this.state.exchangeRate * 100) / 100).toFixed(2), addedItems: addedArray }, () => { });
@@ -1581,9 +1643,10 @@ export class CreditNote extends React.Component<Props> {
             goBack={() => {
               this.setState({ showItemDetails: false });
             }}
+            // selectedArrayType={this.state.itemDetails.selectedArrayType}
             itemDetails={this.state.itemDetails}
-            updateItems={(details) => {
-              this.updateEditedItem(details);
+            updateItems={(details, selectedArr) => {
+              this.updateEditedItem(details, selectedArr);
             }}
           />
         )}

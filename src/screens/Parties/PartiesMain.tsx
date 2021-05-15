@@ -97,7 +97,6 @@ export class PartiesMainScreen extends React.Component {
     if (sortBy && order) {
       this.setState({sortBy: sortBy, order: order});
     }
-    console.log('first this executes');
   };
 
   handleCustomerRefresh = () => {

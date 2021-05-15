@@ -12,6 +12,7 @@ import {
   FlatList,
   Dimensions,
   StatusBar,
+  Alert,
 } from 'react-native';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -45,7 +46,7 @@ class PurchaseItemEdit extends Component {
       showDiscountPopup: false,
       showTaxPopup: false,
       showUnitPopup: false,
-      selectedArrayType: [],
+      selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
       fixedDiscountSelected: false,
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
       selectedCode: this.props.itemDetails.stock ? 'hsn' : 'sac',
@@ -55,7 +56,7 @@ class PurchaseItemEdit extends Component {
         sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
         unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates[0].stockUnitCode : '',
-        amountText: this.props.itemDetails.amount ? this.props.itemDetails.amount : '0',
+        amountText: this.props.itemDetails.rate ? this.props.itemDetails.rate : '0',
         discountValueText: this.props.itemDetails.discountValue ? this.props.itemDetails.discountValue : '',
         discountPercentageText: this.props.itemDetails.discountPercentage
           ? this.props.itemDetails.discountPercentage
@@ -67,9 +68,13 @@ class PurchaseItemEdit extends Component {
         total: this.props.itemDetails.total ? this.props.itemDetails.total : 0,
         discountDetails: this.props.itemDetails.discountDetails ? this.props.itemDetails.discountDetails : {},
         taxDetailsArray: this.props.itemDetails.taxDetailsArray ? this.props.itemDetails.taxDetailsArray : [],
-        percentDiscountArray: [],
-        fixedDiscount: {discountValue: 0},
-        fixedDiscountUniqueName: '',
+        percentDiscountArray: this.props.itemDetails.percentDiscountArray
+          ? this.props.itemDetails.percentDiscountArray
+          : [],
+        fixedDiscount: this.props.itemDetails.fixedDiscount ? this.props.itemDetails.fixedDiscount : {discountValue: 0},
+        fixedDiscountUniqueName: this.props.itemDetails.fixedDiscountUniqueName
+          ? this.props.itemDetails.fixedDiscountUniqueName
+          : '',
       },
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -329,26 +334,52 @@ class PurchaseItemEdit extends Component {
     let amount = Number(this.state.editItemDetails.rateText) * Number(this.state.editItemDetails.quantityText);
     return amount;
   }
+  // calculateDiscountedAmount(itemDetails) {
+  //   let totalDiscount = 0;
+  //   if (itemDetails.discountDetails) {
+  //     let discountType = itemDetails.discountDetails.discountType;
+  //     if (discountType == 'FIX_AMOUNT') {
+  //       let discountAmount = Number(itemDetails.discountValueText);
+  //       return discountAmount;
+  //     } else {
+  //       let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+  //       let discountAmount = (Number(itemDetails.discountValueText) * amt) / 100;
+  //       return Number(discountAmount);
+  //     }
+  //   }
+  // }
+
   calculateDiscountedAmount(itemDetails) {
-    if (itemDetails.discountDetails) {
-      let discountType = itemDetails.discountDetails.discountType;
-      if (discountType == 'FIX_AMOUNT') {
-        let discountAmount = Number(itemDetails.discountValueText);
-        return discountAmount;
-      } else {
-        let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
-        let discountAmount = (Number(itemDetails.discountValueText) * amt) / 100;
-        return Number(discountAmount);
-      }
+    let totalDiscount = 0;
+    let percentDiscount = 0;
+    let editItemDetails = this.state.editItemDetails;
+    if (itemDetails.fixedDiscount.discountValue > 0) {
+      totalDiscount = totalDiscount + Number(itemDetails.fixedDiscount.discountValue);
     }
+    if (itemDetails.percentDiscountArray.length > 0) {
+      for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
+        percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
+        console.log(percentDiscount, '%');
+      }
+      // console.log(percentDiscount, 'total % discount');
+      let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+      // console.log('amt is ', amt);
+      totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
+    }
+    console.log(totalDiscount, 'is the discount');
+    editItemDetails.discountValueText = totalDiscount;
+    this.setState({editItemDetails});
+    return totalDiscount;
   }
+
   calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
-    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+    let totalDiscount = this.calculateDiscountedAmount(itemDetails);
+    let amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-        let item = itemDetails.taxDetailsArray[i];
-        let taxPercent = Number(item.taxDetail[0].taxValue);
+        let TaxItem = itemDetails.taxDetailsArray[i];
+        let taxPercent = Number(TaxItem.taxDetail[0].taxValue);
         let taxAmount = (taxPercent * Number(amt)) / 100;
         totalTax = totalTax + taxAmount;
       }
@@ -415,13 +446,14 @@ class PurchaseItemEdit extends Component {
                     style={{}}
                     onFocus={() => this.onChangeText('')}
                     onPress={async () => {
-                      console.log(item);
                       if (item.discountType == 'FIX_AMOUNT') {
                         if (this.state.fixedDiscountSelected == true) {
                           if (this.state.editItemDetails.fixedDiscount == item) {
                             let itemDetails = this.state.editItemDetails;
                             itemDetails.fixedDiscount = {discountValue: 0};
                             itemDetails.fixedDiscountUniqueName = '';
+                            let total = this.calculateFinalAmount(itemDetails);
+                            itemDetails.total = total;
                             this.setState({fixedDiscountSelected: false, editItemDetails: itemDetails});
                           }
                           console.log('didnt select');
@@ -429,6 +461,8 @@ class PurchaseItemEdit extends Component {
                           let itemDetails = this.state.editItemDetails;
                           itemDetails.fixedDiscount = item;
                           itemDetails.fixedDiscountUniqueName = item.uniqueName;
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
                           // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
                           // let discount = this.calculateDiscountedAmount(itemDetails);
                           // itemDetails.discountPercentageText = String(discount);
@@ -442,16 +476,11 @@ class PurchaseItemEdit extends Component {
                           if (o.uniqueName == item.uniqueName) return o;
                         });
                         if (filtered.length == 0) {
-                          console.log('this should run');
+                          // console.log('this should run');
                           let itemDetails = this.state.editItemDetails;
                           itemDetails.percentDiscountArray.push(item);
-                          // itemDetails.discountDetails = item;
-                          // itemDetails.discountValueText = String(item.discountValue);
-                          // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
-                          // let discount = this.calculateDiscountedAmount(itemDetails);
-                          // itemDetails.discountPercentageText = String(discount);
-                          // let total = this.calculateFinalAmount(itemDetails);
-                          // itemDetails.total = total;
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
                           this.setState({editItemDetails: itemDetails}, () => {});
                         } else {
                           var newArr = _.filter(selectedDiscountArray, function (o) {
@@ -459,9 +488,12 @@ class PurchaseItemEdit extends Component {
                           });
                           let itemDetails = this.state.editItemDetails;
                           itemDetails.percentDiscountArray = newArr;
+                          let total = this.calculateFinalAmount(itemDetails);
+                          itemDetails.total = total;
                           this.setState({editItemDetails: itemDetails}, () => {});
                         }
                       }
+                      this.calculateFinalAmount(this.state.editItemDetails);
                     }}>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       <View
@@ -599,13 +631,21 @@ class PurchaseItemEdit extends Component {
           style={{borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16}}
           // editable={false}
           onChangeText={(text) => {
-            item = this.state.editItemDetails;
+            let item = this.state.editItemDetails;
             if (this.state.selectedCode == 'hsn') {
-              item.hsnNumber = text;
-              this.setState({editItemDetails: item});
+              if (item.sacNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.hsnNumber = text;
+                this.setState({editItemDetails: item});
+              }
             } else {
-              item.sacNumber = text;
-              this.setState({editItemDetails: item});
+              if (item.hsnNumber && text != '') {
+                Alert.alert('', 'only one of hsn number or sac number can be entered');
+              } else {
+                item.sacNumber = text;
+                this.setState({editItemDetails: item});
+              }
             }
           }}
         />
@@ -672,7 +712,11 @@ class PurchaseItemEdit extends Component {
         break;
 
       case 'Rate':
-        editItemDetails.rateText = text;
+        if (text > 99999999999) {
+          Alert.alert('', 'the value should be less than 99999999999');
+        } else {
+          editItemDetails.rateText = text;
+        }
 
         break;
 
@@ -691,12 +735,15 @@ class PurchaseItemEdit extends Component {
     editItemDetails.amountText = this.caluclateTotalAmount(editItemDetails);
     editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
     editItemDetails.total = this.calculateFinalAmount(editItemDetails);
+    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
 
     this.setState({editItemDetails});
   }
   fixedDiscountValueChange = (text) => {
     let editItemDetails = this.state.editItemDetails;
     editItemDetails.fixedDiscount.discountValue = text;
+    let total = this.calculateFinalAmount(editItemDetails);
+    editItemDetails.total = total;
     this.setState({editItemDetails});
   };
   _renderTwoFieldsTextInput(
@@ -840,12 +887,11 @@ class PurchaseItemEdit extends Component {
         {this._renderBottomItemSheetDiscountRow()}
         {this._renderBottomSheetTax()}
         {this._renderHsn()}
-
         {this._renderFinalTotal()}
 
         {/* <TouchableOpacity
-            style={{height: 50, width: 50, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.editItemDetails.fixedDiscount)}></TouchableOpacity> */}
+          style={{height: 50, width: 50, backgroundColor: 'pink'}}
+          onPress={() => console.log(this.props.discountArray)}></TouchableOpacity> */}
 
         <TouchableOpacity
           onPress={() => {
@@ -853,7 +899,7 @@ class PurchaseItemEdit extends Component {
             // this._renderTaxName();
             let editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
-            this.props.updateItems(editItemDetails);
+            this.props.updateItems(editItemDetails, this.state.selectedArrayType);
           }}
           style={{
             marginHorizontal: 16,
@@ -908,9 +954,7 @@ class PurchaseItemEdit extends Component {
                 style={{paddingTop: 8, paddingBottom: 6, flex: 1}}
                 value={this.state.editItemDetails.fixedDiscount.discountValue}
                 // returnKeyType={'done'}
-                onChangeText={(text) => {
-                  this.fixedDiscountValueChange(text);
-                }}
+                onChangeText={(text) => this.fixedDiscountValueChange(text)}
               />
               {this._renderBottomSeprator(8)}
             </View>
