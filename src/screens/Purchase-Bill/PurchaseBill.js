@@ -160,8 +160,11 @@ export class PurchaseBill extends React.Component {
     try {
       const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
       if (results.body && results.status == 'success') {
-        await this.setState({ exchangeRate: results.body })
-      }
+        await this.setState({ 
+          totalAmountInINR:(Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
+          exchangeRate: results.body,
+        })
+        }
     } catch (e) { }
     return 1
   }
@@ -413,6 +416,9 @@ export class PurchaseBill extends React.Component {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
 
       if (results.body) {
+        if (results.body.currency != "INR") {
+          await this.getExchangeRateToINR(results.body.currency)
+        }
         await this.setState({
           partyDetails: results.body,
           isSearchingParty: false,
@@ -426,9 +432,6 @@ export class PurchaseBill extends React.Component {
           shipFromAddress: results.body.addresses[0],
           shipToAddress: results.body.addresses[0],
         });
-        if (results.body.currency != "INR") {
-          await this.getExchangeRateToINR(results.body.currency)
-        }
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });

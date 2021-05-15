@@ -322,7 +322,7 @@ export class SalesInvoice extends React.Component<Props> {
           />
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
-        <TouchableOpacity onPress={()=> this.resetState()}>
+        <TouchableOpacity onPress={() => this.resetState()}>
           <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
         </TouchableOpacity>
       </View>
@@ -403,7 +403,10 @@ export class SalesInvoice extends React.Component<Props> {
     try {
       const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
       if (results.body && results.status == 'success') {
-        await this.setState({ exchangeRate: results.body })
+        await this.setState({
+          totalAmountInINR: (Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
+          exchangeRate: results.body,
+        })
       }
     } catch (e) { }
     return 1
@@ -482,6 +485,9 @@ export class SalesInvoice extends React.Component<Props> {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
 
       if (results.body) {
+        if (results.body.currency != "INR") {
+          await this.getExchangeRateToINR(results.body.currency)
+        }
         await this.setState({
           partyDetails: results.body,
           isSearchingParty: false,
@@ -493,9 +499,6 @@ export class SalesInvoice extends React.Component<Props> {
           partyBillingAddress: results.body.addresses[0],
           partyShippingAddress: results.body.addresses[0],
         });
-        if (results.body.currency != "INR") {
-          await this.getExchangeRateToINR(results.body.currency)
-        }
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
@@ -1543,15 +1546,15 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
               ) : (
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({ showPaymentModePopup: true });
-                    }}>
-                    <Text style={{ color: '#1C1C1C' }}>
-                      {this.state.addedItems.length > 0 &&
-                        this.state.addedItems[0].currency.symbol + this.state.amountPaidNowText}
-                    </Text>
-                    {/* <TextInput
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({ showPaymentModePopup: true });
+                  }}>
+                  <Text style={{ color: '#1C1C1C' }}>
+                    {this.state.addedItems.length > 0 &&
+                      this.state.addedItems[0].currency.symbol + this.state.amountPaidNowText}
+                  </Text>
+                  {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
                     placeholder={`${this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}0.00`}
                     returnKeyType={'done'}
@@ -1562,8 +1565,8 @@ export class SalesInvoice extends React.Component<Props> {
                       this.setState({amountPaidNowText: text});
                     }}
                   /> */}
-                  </TouchableOpacity>
-                )}
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
