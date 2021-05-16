@@ -239,7 +239,7 @@ export class PurchaseBill extends React.Component {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50 }} onPress={() => { }}>
+      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems:'center' }} onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center'}}> */}
           <Icon name={'Profile'} color={'#fafafa'} style={{ margin: 16 }} size={16} />
@@ -258,6 +258,9 @@ export class PurchaseBill extends React.Component {
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
           {/* </View> */}
         </View>
+        <TouchableOpacity onPress={() => this.resetState()}>
+          <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
+        </TouchableOpacity>
       </View>
     );
   }
