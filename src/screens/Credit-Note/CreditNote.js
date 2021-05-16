@@ -14,6 +14,7 @@ import {
   Platform,
   Dimensions,
   StatusBar,
+  Alert
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -127,7 +128,9 @@ export class CreditNote extends React.Component<Props> {
         countryCode: "IN"
       },
       currency: "INR",
-      currencySymbol: ""
+      currencySymbol: "",
+      exchangeRate: 1,
+      totalAmountInINR: 0.00
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -383,8 +386,11 @@ export class CreditNote extends React.Component<Props> {
     try {
       const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
       if (results.body && results.status == 'success') {
-        return results.body;
-      }
+        await this.setState({ 
+          totalAmountInINR:(Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
+          exchangeRate: results.body,
+        })
+        }
     } catch (e) { }
     return 1
   }
@@ -472,7 +478,10 @@ export class CreditNote extends React.Component<Props> {
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
       if (results.body) {
-        this.setState({
+        if (results.body.currency != "INR") {
+          await this.getExchangeRateToINR(results.body.currency)
+        }
+        await this.setState({
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
@@ -558,7 +567,9 @@ export class CreditNote extends React.Component<Props> {
         countryCode: "IN"
       },
       currency: "INR",
-      currencySymbol: ""
+      currencySymbol: "",
+      exchangeRate: 1,
+      totalAmountInINR: 0.00
     });
   };
 
@@ -662,21 +673,22 @@ export class CreditNote extends React.Component<Props> {
     this.setState({ loading: true });
     try {
       console.log('came to this');
+      if (this.state.currency != "INR") {
+        let exchangeRate = 1
+        await this.getTotalAmount() > 0 ? (exchangeRate = (Number(this.state.totalAmountInINR) / this.getTotalAmount())) : exchangeRate = 1
+        await this.setState({ exchangeRate: exchangeRate })
+      }
       const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
-      const exchangeRate = await this.state.currency!="INR"? await this.getExchangeRateToINR(this.state.currency): 1
       let postBody = await this.state.linkedInvoices != "" ? {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
           billingDetails: {
             address: [this.state.partyBillingAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
-            state: {
-              code: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : '',
-              name: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : '',
-            },
+            state: { code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "" },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
           },
@@ -690,13 +702,10 @@ export class CreditNote extends React.Component<Props> {
           // shippingDetails: this.state.partyShippingAddress,
           shippingDetails: {
             address: [this.state.partyShippingAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
-            state: {
-              code: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : '',
-              name: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : '',
-            },
+            state: { code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "" },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
           },
@@ -710,7 +719,7 @@ export class CreditNote extends React.Component<Props> {
           amountForAccount: this.state.amountPaidNowText,
         },
         entries: this.getEntries(),
-        exchangeRate: exchangeRate,
+        exchangeRate: this.state.exchangeRate,
         templateDetails: {
           other: {
             shippingDate: this.state.otherDetails.shipDate,
@@ -738,7 +747,7 @@ export class CreditNote extends React.Component<Props> {
               countryName: this.state.countryDeatils.countryName,
               gstNumber: this.state.partyBillingAddress.gstNumber,
               panNumber: '',
-              state: { code: this.state.partyBillingAddress.state?this.state.partyBillingAddress.state.code:"", name: this.state.partyBillingAddress.state?this.state.partyBillingAddress.state.name:"" },
+              state: { code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "" },
               stateCode: this.state.partyBillingAddress.stateCode,
               stateName: this.state.partyBillingAddress.stateName,
             },
@@ -755,7 +764,7 @@ export class CreditNote extends React.Component<Props> {
               countryName: this.state.countryDeatils.countryName,
               gstNumber: this.state.partyShippingAddress.gstNumber,
               panNumber: '',
-              state: { code: this.state.partyShippingAddress.state?this.state.partyShippingAddress.state.code:"", name: this.state.partyShippingAddress.state?this.state.partyShippingAddress.state.name:"" },
+              state: { code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "" },
               stateCode: this.state.partyShippingAddress.stateCode,
               stateName: this.state.partyShippingAddress.stateName,
             },
@@ -769,7 +778,7 @@ export class CreditNote extends React.Component<Props> {
             amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
           },
           entries: this.getEntries(),
-          exchangeRate: exchangeRate,
+          exchangeRate: this.state.exchangeRate,
           templateDetails: {
             other: {
               shippingDate: this.state.otherDetails.shipDate,
@@ -1444,7 +1453,67 @@ export class CreditNote extends React.Component<Props> {
         {this.state.expandedBalance && (
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#1C1C1C' }}>Total Amount</Text>
+              <Text style={{ color: '#1C1C1C' }}>{"Total Amount " + this.state.currencySymbol}</Text>
+              <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
+            </View>
+            { this.state.currency != "INR" ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              <Text style={{ color: '#1C1C1C', textAlignVertical: "center" }}>{"Total Amount ₹"}</Text>
+              <TextInput
+                style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: "center", marginRight: -10 }}
+                placeholder={"Amount"}
+                returnKeyType={'done'}
+                keyboardType="number-pad"
+                onChangeText={async (text) => {
+                  await this.setState({ totalAmountInINR: Number(text) });
+                }}
+              >{this.state.totalAmountInINR}</TextInput>
+            </View> : null}
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: this.state.invoiceType == 'cash' ? 10 : 4,
+                // backgroundColor: 'pink',
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (this.state.modesArray.length > 0) {
+                    this.setState({ showPaymentModePopup: true });
+                  }
+                }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080', marginRight: 5 }}>
+                    {this.state.selectedPayMode.name}
+                  </Text>
+                  <Icon style={{ transform: [{ rotate: '0deg' }] }} name={'9'} size={16} color="#808080"></Icon>
+                </View>
+              </TouchableOpacity>
+              {this.state.invoiceType == 'cash' ? (
+                <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({ showPaymentModePopup: true });
+                  }}>
+                  <TextInput
+                    style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5, marginRight: -10 }}
+                    placeholder="00000.00"
+                    returnKeyType={'done'}
+                    editable={false}
+                    keyboardType="number-pad"
+                    value={this.state.amountPaidNowText}
+                    onChangeText={(text) => {
+                      this.setState({ amountPaidNowText: text });
+                    }}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+              <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
                 {this.getTotalAmount()}
@@ -1469,6 +1538,8 @@ export class CreditNote extends React.Component<Props> {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
+    } else if (this.state.currency != "INR" && this.state.totalAmountInINR < 1 && this.getTotalAmount() > 0) {
+      Alert.alert("Error", "Exchange rate/Total Amount in INR can not zero/negative", [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
       this.createCreditNote();
     }
@@ -1508,7 +1579,7 @@ export class CreditNote extends React.Component<Props> {
     item.selectedArrayType = selectedArrayType;
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
-    this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
+    this.setState({ showItemDetails: false, totalAmountInINR: (Math.round(Number(details.total) * this.state.exchangeRate * 100) / 100).toFixed(2), addedItems: addedArray }, () => { });
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
   }

@@ -14,7 +14,8 @@ import {
   Platform,
   Dimensions,
   StatusBar,
-  PermissionsAndroid
+  PermissionsAndroid,
+  Alert
 } from 'react-native';
 // import style from './style';
 import { connect } from 'react-redux';
@@ -124,7 +125,9 @@ export class PurchaseBill extends React.Component {
         countryCode: "IN"
       },
       currency: "INR",
-      currencySymbol: ""
+      currencySymbol: "",
+      exchangeRate: 1,
+      totalAmountInINR: 0.00
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -152,10 +155,19 @@ export class PurchaseBill extends React.Component {
     console.log('shipping from', address);
     this.setState({ shipFromAddress: address });
   };
-  // func1 = async () => {
-  //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
-  //   console.log(activeCompany);
-  // };
+
+  async getExchangeRateToINR(currency) {
+    try {
+      const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
+      if (results.body && results.status == 'success') {
+        await this.setState({ 
+          totalAmountInINR:(Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
+          exchangeRate: results.body,
+        })
+        }
+    } catch (e) { }
+    return 1
+  }
 
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
@@ -404,7 +416,10 @@ export class PurchaseBill extends React.Component {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
 
       if (results.body) {
-        this.setState({
+        if (results.body.currency != "INR") {
+          await this.getExchangeRateToINR(results.body.currency)
+        }
+        await this.setState({
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
@@ -489,7 +504,9 @@ export class PurchaseBill extends React.Component {
         countryCode: "IN"
       },
       currency: "INR",
-      currencySymbol: ""
+      currencySymbol: "",
+      exchangeRate: 1,
+      totalAmountInINR: 0.00
     });
   };
   getDiscountForEntry(item) {
@@ -647,6 +664,11 @@ export class PurchaseBill extends React.Component {
     this.setState({ loading: true });
     try {
       console.log('came to this');
+      if (this.state.currency != "INR") {
+        let exchangeRate = 1
+        await this.getTotalAmount() > 0 ? (exchangeRate = (Number(this.state.totalAmountInINR) / this.getTotalAmount())) : exchangeRate = 1
+        await this.setState({ exchangeRate: exchangeRate })
+      }
       let postBody = {
         account: {
           attentionTo: '',
@@ -687,7 +709,7 @@ export class PurchaseBill extends React.Component {
         //   amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
         // },
         entries: this.getEntries(),
-        // exchangeRate: 1,
+        exchangeRate: this.state.exchangeRate,
         // passportNumber: '',
         templateDetails: {
           other: {
@@ -1373,13 +1395,23 @@ export class PurchaseBill extends React.Component {
         {this.state.expandedBalance && (
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#1C1C1C' }}>Total Amount</Text>
-              <Text style={{ color: '#1C1C1C' }}>
-                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
-                {this.getTotalAmount()}
-              </Text>
+              <Text style={{ color: '#1C1C1C' }}>{"Total Amount " + this.state.currencySymbol}</Text>
+              <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+            { this.state.currency != "INR" ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              <Text style={{ color: '#1C1C1C', textAlignVertical: "center" }}>{"Total Amount ₹"}</Text>
+              <TextInput
+                style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: "center", marginRight: -10 }}
+                placeholder={"Amount"}
+                returnKeyType={'done'}
+                keyboardType="number-pad"
+                onChangeText={async (text) => {
+                  await this.setState({ totalAmountInINR: Number(text) });
+                }}
+              >{this.state.totalAmountInINR}</TextInput>
+            </View> : null}
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={{ color: '#1C1C1C' }}>Balance Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
@@ -1419,6 +1451,8 @@ export class PurchaseBill extends React.Component {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
+    } else if (this.state.currency != "INR" && this.state.totalAmountInINR < 1 && this.getTotalAmount() > 0) {
+      Alert.alert("Error", "Exchange rate/Total Amount in INR can not zero/negative", [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
       this.createPurchaseBill(type);
     }
@@ -1458,7 +1492,7 @@ export class PurchaseBill extends React.Component {
     item.selectedArrayType = selectedArrayType;
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
-    this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
+    this.setState({ showItemDetails: false, totalAmountInINR: (Math.round(Number(details.total) * this.state.exchangeRate * 100) / 100).toFixed(2), addedItems: addedArray }, () => { });
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
   }
