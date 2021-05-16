@@ -1,5 +1,4 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
 import {
   View,
   Text,
@@ -15,8 +14,6 @@ import {
 } from 'react-native';
 import style from './style';
 import {connect} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
-import moment from 'moment';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';

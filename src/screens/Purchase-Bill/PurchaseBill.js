@@ -656,7 +656,7 @@ export class PurchaseBill extends React.Component {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.BillFromAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.BillFromAddress.state?this.state.BillFromAddress.state.code:"", name: this.state.BillFromAddress.state?this.state.BillFromAddress.state.name:"" },
+            state: { code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : "", name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : "" },
             stateCode: this.state.BillFromAddress.stateCode,
             stateName: this.state.BillFromAddress.stateName,
           },
@@ -673,7 +673,7 @@ export class PurchaseBill extends React.Component {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.BillToAddress.state?this.state.BillToAddress.state.code:"", name: this.state.BillToAddress.state?this.state.BillToAddress.state.name:"" },
+            state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : "", name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : "" },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
           },
@@ -712,7 +712,7 @@ export class PurchaseBill extends React.Component {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.shipFromAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.shipFromAddress.state?this.state.shipFromAddress.state.code :"", name: this.state.shipFromAddress.state?this.state.shipFromAddress.state.name:"" },
+            state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : "", name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : "" },
             stateCode: this.state.shipFromAddress.stateCode,
             stateName: this.state.shipFromAddress.stateName,
           },
@@ -721,7 +721,7 @@ export class PurchaseBill extends React.Component {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.shipToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.shipToAddress.state? this.state.shipToAddress.state.code:"", name: this.state.shipToAddress.state?this.state.shipToAddress.state.name:"" },
+            state: { code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : "", name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : "" },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
           },
@@ -1079,6 +1079,12 @@ export class PurchaseBill extends React.Component {
     );
   }
 
+  addItem = (item) => {
+    let newItems = this.state.addedItems;
+    newItems.push(item);
+    this.setState({ addedItems: newItems });
+  }
+
   deleteItem = (item) => {
     let addedArray = this.state.addedItems;
     let itemUniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
@@ -1133,13 +1139,21 @@ export class PurchaseBill extends React.Component {
               },
             });
           }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
-            <Text style={{ color: '#1C1C1C' }}>{item.name} </Text>
-            {item.stock && (
-              <Text numberOfLines={1} style={{ color: '#1C1C1C', width: '75%' }}>
-                ( {item.stock.name} ) :
-              </Text>
-            )}
+          <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent:"space-between" }}>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ color: '#1C1C1C' }}>{item.name} </Text>
+              {item.stock && (
+                <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>
+                  ( {item.stock.name} ) :
+                </Text>
+              )}
+            </View>
+            <TouchableOpacity
+              onPress={() => this.addItem(item)}
+              style={{ flexDirection: 'row', alignItems: 'center' }} >
+              <AntDesign name={'plus'} color={'#808080'} size={15} />
+              <Text style={{ color: "#808080" }}>Add again</Text>
+            </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>

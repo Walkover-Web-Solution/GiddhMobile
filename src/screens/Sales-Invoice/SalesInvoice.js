@@ -320,7 +320,7 @@ export class SalesInvoice extends React.Component<Props> {
           />
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
-        <TouchableOpacity onPress={()=> this.resetState()}>
+        <TouchableOpacity onPress={() => this.resetState()}>
           <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
         </TouchableOpacity>
       </View>
@@ -1070,6 +1070,12 @@ export class SalesInvoice extends React.Component<Props> {
     );
   }
 
+  addItem = (item) => {
+    let newItems = this.state.addedItems;
+    newItems.push(item);
+    this.setState({ addedItems: newItems });
+  }
+
   deleteItem = (item) => {
     let addedArray = this.state.addedItems;
     let itemUniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
@@ -1125,13 +1131,21 @@ export class SalesInvoice extends React.Component<Props> {
               },
             });
           }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
-            <Text style={{ color: '#1C1C1C' }}>{item.name} </Text>
-            {item.stock && (
-              <Text numberOfLines={1} style={{ color: '#1C1C1C', width: '75%' }}>
-                ( {item.stock.name} ) :
-              </Text>
-            )}
+          <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={{ color: '#1C1C1C' }}>{item.name} </Text>
+              {item.stock && (
+                <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>
+                  ( {item.stock.name} ) :
+                </Text>
+              )}
+            </View>
+            <TouchableOpacity
+              onPress={() => this.addItem(item)}
+              style={{ flexDirection: 'row', alignItems: 'center' }} >
+              <AntDesign name={'plus'} color={'#808080'} size={15} />
+              <Text style={{ color: "#808080" }}>Add again</Text>
+            </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
