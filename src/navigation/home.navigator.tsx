@@ -173,16 +173,16 @@ export const HomeNavigator = () => {
         ),
       })}
     /> */}
-
       <Screen
-        name={Routes.Parties}
-        component={PartiesStack}
+        name={Routes.Inventory}
+        component={InventoryMainScreen}
         options={({route}) => ({
-          tabBarLabel: 'Parties',
-          tabBarVisible: getTabBarVisibility(route),
-          tabBarIcon: ({focused}) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
+          tabBarLabel: 'Inventory',
+
+          tabBarIcon: ({focused}) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
         })}
       />
+
       <Screen
         name={Routes.Add}
         component={DashboardStack}
@@ -194,12 +194,12 @@ export const HomeNavigator = () => {
         })}
       />
       <Screen
-        name={Routes.Inventory}
-        component={InventoryMainScreen}
+        name={Routes.Parties}
+        component={PartiesStack}
         options={({route}) => ({
-          tabBarLabel: 'Inventory',
-
-          tabBarIcon: ({focused}) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
+          tabBarLabel: 'Parties',
+          tabBarVisible: getTabBarVisibility(route),
+          tabBarIcon: ({focused}) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
         })}
       />
       <Screen
