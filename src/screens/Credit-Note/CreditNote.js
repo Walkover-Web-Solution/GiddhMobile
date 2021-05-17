@@ -295,6 +295,9 @@ export class CreditNote extends React.Component<Props> {
           {/* </View> */}
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
+        <TouchableOpacity onPress={() => this.resetState()}>
+          <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -386,11 +389,11 @@ export class CreditNote extends React.Component<Props> {
     try {
       const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
       if (results.body && results.status == 'success') {
-        await this.setState({ 
-          totalAmountInINR:(Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
+        await this.setState({
+          totalAmountInINR: (Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
           exchangeRate: results.body,
         })
-        }
+      }
     } catch (e) { }
     return 1
   }
@@ -1088,6 +1091,12 @@ export class CreditNote extends React.Component<Props> {
     this.setState({ addedItems: addedItems });
   };
 
+  addItem = (item) => {
+    let newItems = this.state.addedItems;
+    newItems.push(item);
+    this.setState({ addedItems: newItems });
+  }
+
   renderAddItemButton() {
     return (
       <TouchableOpacity
@@ -1196,7 +1205,15 @@ export class CreditNote extends React.Component<Props> {
               },
             });
           }}>
-          <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name} {item.stock ? "(" + item.stock.name + ")" : ""}: </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}{item.stock ? "(" + item.stock.name + ")" : ""} : </Text>
+            <TouchableOpacity
+              onPress={() => this.addItem(item)}
+              style={{ flexDirection: 'row', alignItems: 'center' }} >
+              <AntDesign name={'plus'} color={'#808080'} size={15} />
+              <Text style={{ color: "#808080" }}>Add again</Text>
+            </TouchableOpacity>
+          </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ color: '#808080' }}>
@@ -1206,11 +1223,11 @@ export class CreditNote extends React.Component<Props> {
           </View>
 
           <Text style={{ marginTop: 5, color: '#808080' }}>
-            Tax : {item.currency.symbol}
+            Tax : {this.state.currencySymbol}
             {this.calculatedTaxAmount(item)}
           </Text>
           <Text style={{ marginTop: 5, color: '#808080' }}>
-            Discount : {item.currency.symbol}
+            Discount : {this.state.currencySymbol}
             {item.discountValue ? item.discountValue : 0}
           </Text>
         </TouchableOpacity>
@@ -1493,23 +1510,23 @@ export class CreditNote extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
               ) : (
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({ showPaymentModePopup: true });
-                  }}>
-                  <TextInput
-                    style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5, marginRight: -10 }}
-                    placeholder="00000.00"
-                    returnKeyType={'done'}
-                    editable={false}
-                    keyboardType="number-pad"
-                    value={this.state.amountPaidNowText}
-                    onChangeText={(text) => {
-                      this.setState({ amountPaidNowText: text });
-                    }}
-                  />
-                </TouchableOpacity>
-              )}
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({ showPaymentModePopup: true });
+                    }}>
+                    <TextInput
+                      style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5, marginRight: -10 }}
+                      placeholder="00000.00"
+                      returnKeyType={'done'}
+                      editable={false}
+                      keyboardType="number-pad"
+                      value={this.state.amountPaidNowText}
+                      onChangeText={(text) => {
+                        this.setState({ amountPaidNowText: text });
+                      }}
+                    />
+                  </TouchableOpacity>
+                )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
