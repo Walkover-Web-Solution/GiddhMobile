@@ -70,7 +70,9 @@ export class Customer extends React.Component<Props> {
             <Text style={style.invoiceType}>
               Create New Party
             </Text>
-            <AntDesign name={'delete'} size={16} color="white" />
+            {/* <TouchableOpacity>
+              <AntDesign name={'delete'} size={16} color="white" />
+            </TouchableOpacity> */}
           </TouchableOpacity>
         </View>
       </View>
@@ -109,7 +111,6 @@ export class Customer extends React.Component<Props> {
         })
       }
     })
-    //this.ScrollViewOnLayout();
   }
 
   ScrollViewOnLayout = () => {
