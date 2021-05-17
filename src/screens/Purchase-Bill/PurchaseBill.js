@@ -1048,6 +1048,10 @@ export class PurchaseBill extends React.Component {
   };
   updateAddedItems = (addedItems) => {
     this.setState({ addedItems: addedItems });
+    this.setState({
+      totalAmountInINR:
+        (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2)
+    });
   };
 
   renderAddItemButton() {
@@ -1108,6 +1112,13 @@ export class PurchaseBill extends React.Component {
     let newItems = this.state.addedItems;
     newItems.push(item);
     this.setState({ addedItems: newItems });
+    if (item.rate) {
+      let totalAmount = this.getTotalAmount()
+      this.setState({
+        totalAmountInINR:
+          (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)
+      });
+    }
   }
 
   deleteItem = (item) => {
@@ -1123,6 +1134,13 @@ export class PurchaseBill extends React.Component {
     );
     addedArray.splice(index, 1);
     this.setState({ addedItems: addedArray, showItemDetails: false }, () => { });
+    if (item.rate) {
+      let totalAmount = this.getTotalAmount()
+      this.setState({
+        totalAmountInINR:
+          (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)
+      });
+    }
   };
 
   renderRightAction(item) {
@@ -1183,18 +1201,18 @@ export class PurchaseBill extends React.Component {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ color: '#808080' }}>
-                {String(item.quantity)} x {item.currency.symbol}
+              {String(item.quantity)} x {this.state.currencySymbol}
                 {String(item.rate)}
               </Text>
             </View>
           </View>
 
           <Text style={{ marginTop: 5, color: '#808080' }}>
-            Tax :{item.currency.symbol}
+            Tax :{this.state.currencySymbol}
             {this.calculatedTaxAmount(item)}
           </Text>
           <Text style={{ marginTop: 5, color: '#808080' }}>
-            Discount : {item.currency.symbol}
+            Discount : {this.state.currencySymbol}
             {item.discountValue ? item.discountValue : 0}
           </Text>
         </TouchableOpacity>
@@ -1417,7 +1435,7 @@ export class PurchaseBill extends React.Component {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={{ color: '#1C1C1C' }}>Balance Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
-                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
+                {this.state.addedItems.length > 0 && this.state.currencySymbol}
                 {String(this.getTotalAmount()) - this.state.amountPaidNowText}
               </Text>
             </View>
@@ -1454,7 +1472,7 @@ export class PurchaseBill extends React.Component {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
-    } else if (this.state.currency != "INR" && this.state.totalAmountInINR < 1 && this.getTotalAmount() > 0) {
+    } else if (this.state.currency != "INR" && this.state.totalAmountInINR <= 0 && this.getTotalAmount() > 0) {
       Alert.alert("Error", "Exchange rate/Total Amount in INR can not zero/negative", [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
       this.createPurchaseBill(type);
@@ -1495,7 +1513,10 @@ export class PurchaseBill extends React.Component {
     item.selectedArrayType = selectedArrayType;
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
-    this.setState({ showItemDetails: false, totalAmountInINR: (Math.round(Number(details.total) * this.state.exchangeRate * 100) / 100).toFixed(2), addedItems: addedArray }, () => { });
+    this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
+    
+    const totalAmount = this.getTotalAmount()
+    this.setState({ totalAmountInINR: (Math.round((totalAmount) * this.state.exchangeRate * 100) / 100).toFixed(2) })
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
   }

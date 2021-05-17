@@ -27,7 +27,7 @@ const arrButtons = [
   {name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345'},
   {name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961'},
   {name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3'},
-  {name: 'Vendor', navigateTo: 'CustomerScreens', icon: 'Group-6188', color: '#FF72BE'},
+  {name: 'Vendor', navigateTo: 'VendorScreens', icon: 'Group-6188', color: '#FF72BE'},
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},

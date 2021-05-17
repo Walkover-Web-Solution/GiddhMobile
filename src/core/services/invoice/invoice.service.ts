@@ -134,7 +134,7 @@ export class InvoiceService {
           return res.data;
         })
         .catch((err) => {
-          alert(JSON.stringify(err));
+          Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
           return null;
         });
     }
@@ -172,7 +172,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(JSON.stringify(err));
+        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }

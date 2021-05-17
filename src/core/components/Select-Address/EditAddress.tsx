@@ -317,13 +317,21 @@ export class EditAddress extends React.Component<any, any> {
           />
           <View style={{flexDirection:'row'}}>
             <Text style={style.BMfieldTitle}>State</Text>
-            <Text style={{ color: "#E04646", marginTop:20 }}>*</Text>
+            {this.state.selectedCountry.countryName=="India"?<Text style={{ color: "#E04646", marginTop:20 }}>*</Text>:null}
           </View>
           <Dropdown
             disabled={this.state.selectStateDisable}
             ref={(ref) => (this.state.addresssDropDown = ref)}
-            style={style.dropDown}
-            textStyle={{color: '#1c1c1c', fontSize: 14}}
+            style={{ 
+              marginVertical: 10,
+              borderBottomWidth: 0.5,
+              paddingTop:10,
+              borderBottomColor: '#808080',
+              paddingBottom: 10,
+              marginTop: 15,
+              backgroundColor:this.state.selectStateDisable?"#F1F1F2":null
+          }}
+            textStyle={{color: '#1c1c1c', fontSize: 14,}}
             defaultValue={
               this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing
             }
@@ -331,7 +339,7 @@ export class EditAddress extends React.Component<any, any> {
             renderSeparator={() => {
               return <View></View>;
             }}
-            dropdownStyle={{width: '90%', marginTop: 5, borderRadius: 10}}
+            dropdownStyle={{width: '90%', marginTop: 5, borderRadius: 10,}}
             dropdownTextStyle={{color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold}}
             renderRow={(options) => {
               return <Text style={{padding: 13, color: '#1C1C1C'}}>{options.name}</Text>;
