@@ -118,11 +118,11 @@ export class InvoiceService {
       return httpInstance
         .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`), payload)
         .then((res) => {
-          console.log('yayyy!', res.data);
+          // console.log('yayyy!', res.data);
           return res.data;
         })
         .catch((err) => {
-          console.log(JSON.stringify(err));
+          alert(JSON.stringify(err.data.message));
           // alert(JSON.stringify(err));
           return null;
         });
@@ -130,11 +130,11 @@ export class InvoiceService {
       return httpInstance
         .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', 'cash'), payload)
         .then((res) => {
-          console.log('yayyyyyyyyyyyyyyyy!', res.data);
+          // console.log('yayyyyyyyyyyyyyyyy!', res.data);
           return res.data;
         })
         .catch((err) => {
-          alert(JSON.stringify(err));
+          alert(JSON.stringify(err.data.message));
           return null;
         });
     }
@@ -172,7 +172,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(JSON.stringify(err));
+        alert(JSON.stringify(err.data.message));
         return null;
       });
   }

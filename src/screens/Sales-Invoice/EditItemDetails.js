@@ -48,7 +48,7 @@ class EditItemDetails extends Component {
       selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
       fixedDiscountSelected: false,
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
-      selectedCode: this.props.itemDetails.stock ? 'hsn' : 'sac',
+      selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
       editItemDetails: {
         quantityText: this.props.itemDetails.quantity,
         hsnNumber: this.props.itemDetails.hsnNumber,
@@ -633,19 +633,11 @@ class EditItemDetails extends Component {
           onChangeText={(text) => {
             let item = this.state.editItemDetails;
             if (this.state.selectedCode == 'hsn') {
-              if (item.sacNumber && text != '') {
-                Alert.alert('', 'only one of hsn number or sac number can be entered');
-              } else {
-                item.hsnNumber = text;
-                this.setState({editItemDetails: item});
-              }
+              item.hsnNumber = text;
+              this.setState({editItemDetails: item});
             } else {
-              if (item.hsnNumber && text != '') {
-                Alert.alert('', 'only one of hsn number or sac number can be entered');
-              } else {
-                item.sacNumber = text;
-                this.setState({editItemDetails: item});
-              }
+              item.sacNumber = text;
+              this.setState({editItemDetails: item});
             }
           }}
         />
@@ -707,10 +699,13 @@ class EditItemDetails extends Component {
         break;
 
       case 'Rate':
-        editItemDetails.rateText = text;
+        if (text > 99999999999) {
+          Alert.alert('', 'the value should be less than 99999999999');
+        } else {
+          editItemDetails.rateText = text;
+        }
 
         break;
-
       case 'Amount':
         editItemDetails.amountText = text;
         break;
@@ -882,7 +877,7 @@ class EditItemDetails extends Component {
 
         {/* <TouchableOpacity
           style={{height: 50, width: 50, backgroundColor: 'pink'}}
-          onPress={() => console.log(this.state.editItemDetails.hsnNumber)}
+          onPress={() => console.log(this.props.itemDetails)}
           // onPress={() => this.calculateDiscountedAmount(this.state.editItemDetails)}
         ></TouchableOpacity> */}
 
@@ -890,7 +885,7 @@ class EditItemDetails extends Component {
           onPress={() => {
             let editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
-            this.props.updateItems(editItemDetails, this.state.selectedArrayType);
+            this.props.updateItems(editItemDetails, this.state.selectedArrayType, this.state.selectedCode);
           }}
           style={{
             marginHorizontal: 16,
