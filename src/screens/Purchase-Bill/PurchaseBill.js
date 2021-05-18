@@ -121,13 +121,14 @@ export class PurchaseBill extends React.Component {
         customField3: null,
       },
       countryDeatils: {
-        countryName: "India",
-        countryCode: "IN"
+        countryName: "",
+        countryCode: ""
       },
-      currency: "INR",
+      currency: "",
       currencySymbol: "",
       exchangeRate: 1,
-      totalAmountInINR: 0.00
+      totalAmountInINR: 0.00,
+      companyCountryDetails: ""
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -158,20 +159,31 @@ export class PurchaseBill extends React.Component {
 
   async getExchangeRateToINR(currency) {
     try {
-      const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), currency);
+      const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), this.state.companyCountryDetails.currency.code, currency);
       if (results.body && results.status == 'success') {
-        await this.setState({ 
-          totalAmountInINR:(Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
+        await this.setState({
+          totalAmountInINR: (Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
           exchangeRate: results.body,
         })
-        }
+      }
     } catch (e) { }
     return 1
   }
 
+  async setActiveCompanyCountry() {
+    try {
+      let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      if (results.body && results.status == 'success') {
+        await this.setState({
+          companyCountryDetails: results.body.country,
+        })
+      }
+    } catch (e) { }
+  }
+
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);    this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -183,8 +195,18 @@ export class PurchaseBill extends React.Component {
       // store.dispatch.auth.logout();
     });
 
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      await this.resetState();
+      this.setActiveCompanyCountry()
+      this.getAllTaxes();
+      this.getAllDiscounts();
+      this.getAllWarehouse();
+      this.getAllAccountsModes();
+    });
+
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
+      this.setActiveCompanyCountry()
       this.getAllTaxes();
       this.getAllDiscounts();
       this.getAllWarehouse();
@@ -239,7 +261,7 @@ export class PurchaseBill extends React.Component {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems:'center' }} onPress={() => { }}>
+      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }} onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center'}}> */}
           <Icon name={'Profile'} color={'#fafafa'} style={{ margin: 16 }} size={16} />
@@ -419,10 +441,11 @@ export class PurchaseBill extends React.Component {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
 
       if (results.body) {
-        if (results.body.currency != "INR") {
+        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency)
         }
         await this.setState({
+          addedItems: [],
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
@@ -503,13 +526,14 @@ export class PurchaseBill extends React.Component {
         customField3: null,
       },
       countryDeatils: {
-        countryName: "India",
-        countryCode: "IN"
+        countryName: "",
+        countryCode: ""
       },
-      currency: "INR",
+      currency: "",
       currencySymbol: "",
       exchangeRate: 1,
-      totalAmountInINR: 0.00
+      totalAmountInINR: 0.00,
+      companyCountryDetails: ""
     });
   };
   getDiscountForEntry(item) {
@@ -667,7 +691,7 @@ export class PurchaseBill extends React.Component {
     this.setState({ loading: true });
     try {
       console.log('came to this');
-      if (this.state.currency != "INR") {
+      if (this.state.currency != this.state.companyCountryDetails.currency.code) {
         let exchangeRate = 1
         await this.getTotalAmount() > 0 ? (exchangeRate = (Number(this.state.totalAmountInINR) / this.getTotalAmount())) : exchangeRate = 1
         await this.setState({ exchangeRate: exchangeRate })
@@ -763,6 +787,7 @@ export class PurchaseBill extends React.Component {
         const partyDetails = this.state.partyDetails;
         const partyUniqueName = this.state.partyDetails.uniqueName;
         this.resetState();
+        this.setActiveCompanyCountry()
         this.getAllTaxes();
         this.getAllDiscounts();
         this.getAllWarehouse();
@@ -1046,9 +1071,25 @@ export class PurchaseBill extends React.Component {
       showDatePicker: false,
     });
   };
-  updateAddedItems = (addedItems) => {
-    this.setState({ addedItems: addedItems });
-    this.setState({
+
+  updateAddedItems = async (addedItems) => {
+    let updateAmountToCurrentCurrency = addedItems
+    if ((this.state.currency).toString() != (this.state.companyCountryDetails.currency.code).toString()) {
+      try {
+        let results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), this.state.currency, this.state.companyCountryDetails.currency.code);
+        if (results.body && results.status == 'success') {
+          for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
+            let item = updateAmountToCurrentCurrency[i];
+            if ((updateAmountToCurrentCurrency[i].currency.code).toString() != (this.state.currency).toString()) {
+              updateAmountToCurrentCurrency[i].currency = await { code: this.state.currency, symbol: this.state.currencySymbol }
+              updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body)
+            }
+          }
+        }
+      } catch (e) { }
+    }
+    await this.setState({ addedItems: updateAmountToCurrentCurrency });
+    await this.setState({
       totalAmountInINR:
         (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2)
     });
@@ -1058,10 +1099,14 @@ export class PurchaseBill extends React.Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          this.props.navigation.navigate('PurchaseAddItem', {
-            updateAddedItems: this.updateAddedItems,
-            addedItems: this.state.addedItems,
-          });
+          if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
+            this.props.navigation.navigate('PurchaseAddItem', {
+              updateAddedItems: (this.updateAddedItems).bind(this),
+              addedItems: this.state.addedItems,
+            });
+          } else {
+            alert('Please select a party.');
+          }
         }}
         // onPress={() => console.log(this.state.partyShippingAddress)}
         style={{
@@ -1091,7 +1136,7 @@ export class PurchaseBill extends React.Component {
           <TouchableOpacity
             onPress={() => {
               this.props.navigation.navigate('PurchaseAddItem', {
-                updateAddedItems: this.updateAddedItems,
+                updateAddedItems: (this.updateAddedItems).bind(this),
                 addedItems: this.state.addedItems,
               });
             }}>
@@ -1182,7 +1227,7 @@ export class PurchaseBill extends React.Component {
               },
             });
           }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent:"space-between" }}>
+          <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent: "space-between" }}>
             <View style={{ flexDirection: 'row' }}>
               <Text style={{ color: '#1C1C1C' }}>{item.name} </Text>
               {item.stock && (
@@ -1201,7 +1246,7 @@ export class PurchaseBill extends React.Component {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ color: '#808080' }}>
-              {String(item.quantity)} x {this.state.currencySymbol}
+                {String(item.quantity)} x {this.state.currencySymbol}
                 {String(item.rate)}
               </Text>
             </View>
@@ -1419,8 +1464,8 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#1C1C1C' }}>{"Total Amount " + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
             </View>
-            { this.state.currency != "INR" ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-              <Text style={{ color: '#1C1C1C', textAlignVertical: "center" }}>{"Total Amount ₹"}</Text>
+            { this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              <Text style={{ color: '#1C1C1C', textAlignVertical: "center" }}>{"Total Amount " + this.state.companyCountryDetails.currency.symbol}</Text>
               <TextInput
                 style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: "center", marginRight: -10 }}
                 placeholder={"Amount"}
@@ -1444,17 +1489,28 @@ export class PurchaseBill extends React.Component {
 
         <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems: 'center' }}>
           <View>
-            <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10, marginBottom: 3 }}
+            <TouchableOpacity style={{
+              // backgroundColor: '#5773FF',
+              // paddingVertical: 8,
+              // paddingHorizontal: 7,
+              // justifyContent: 'center',
+              // alignItems: 'center',
+              // borderRadius: 10,
+              // marginBottom: 3
+            }}
               onPress={() => {
                 this.genrateInvoice("new");
               }}>
-              <Text style={{ color: 'white' }}>Create and New</Text>
+              <Text style={{ color: '#808080', fontSize: 13, }}>Create and New</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}
+            <TouchableOpacity style={{
+              marginTop: 10
+              // backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10
+            }}
               onPress={() => {
                 this.genrateInvoice("share");
               }}>
-              <Text style={{ color: 'white' }}>Create and Share</Text>
+              <Text style={{ color: '#808080', fontSize: 13, }}>Create and Share</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity
@@ -1472,7 +1528,7 @@ export class PurchaseBill extends React.Component {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
-    } else if (this.state.currency != "INR" && this.state.totalAmountInINR <= 0 && this.getTotalAmount() > 0) {
+    } else if (this.state.currency != this.state.companyCountryDetails.currency.code && this.state.totalAmountInINR <= 0 && this.getTotalAmount() > 0) {
       Alert.alert("Error", "Exchange rate/Total Amount in INR can not zero/negative", [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
       this.createPurchaseBill(type);
@@ -1514,7 +1570,7 @@ export class PurchaseBill extends React.Component {
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
     this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
-    
+
     const totalAmount = this.getTotalAmount()
     this.setState({ totalAmountInINR: (Math.round((totalAmount) * this.state.exchangeRate * 100) / 100).toFixed(2) })
     // this.setState({ addedItems: addedItems })
@@ -1558,7 +1614,7 @@ export class PurchaseBill extends React.Component {
               style={{height: 60, width: 60, backgroundColor: 'pink'}}
               onPress={() => console.log(this.state.addedItems)}></TouchableOpacity> */}
             {/* <View style={{flexDirection: 'row'}}>
-            
+
             <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink', marginLeft: 8}}
               onPress={() => console.log(this.state.BillToAddress)}></TouchableOpacity>
