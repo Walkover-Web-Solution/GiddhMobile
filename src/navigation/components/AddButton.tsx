@@ -113,7 +113,7 @@ class AddButton extends Component {
                 // height: Dimensions.get('window').width * 0.7,
                 paddingVertical: 20,
                 width: width * 0.9,
-                bottom: height * 0.09,
+                bottom: height * 0.06 + SIZE,
                 borderTopEndRadius: 8,
                 borderBottomEndRadius: 8,
                 borderBottomLeftRadius: 8,
@@ -169,7 +169,7 @@ class AddButton extends Component {
               onPress={() => this.setState({modalVisible: false})}
               style={{
                 position: 'absolute',
-                bottom: (height * 0.08 - SIZE) / 2,
+                bottom: (height * 0.08) / 2,
                 width: SIZE,
                 height: SIZE,
                 borderRadius: SIZE / 2,
@@ -194,6 +194,7 @@ class AddButton extends Component {
             height: SIZE,
             borderRadius: SIZE / 2,
             backgroundColor: '#5773FF',
+            bottom: SIZE / 2,
           }}>
           <Animated.View
             style={{

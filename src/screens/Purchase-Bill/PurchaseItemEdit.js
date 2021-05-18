@@ -49,7 +49,7 @@ class PurchaseItemEdit extends Component {
       selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
       fixedDiscountSelected: false,
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
-      selectedCode: this.props.itemDetails.stock ? 'hsn' : 'sac',
+      selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
       editItemDetails: {
         quantityText: this.props.itemDetails.quantity,
         hsnNumber: this.props.itemDetails.hsnNumber,
@@ -633,19 +633,11 @@ class PurchaseItemEdit extends Component {
           onChangeText={(text) => {
             let item = this.state.editItemDetails;
             if (this.state.selectedCode == 'hsn') {
-              if (item.sacNumber && text != '') {
-                Alert.alert('', 'only one of hsn number or sac number can be entered');
-              } else {
-                item.hsnNumber = text;
-                this.setState({editItemDetails: item});
-              }
+              item.hsnNumber = text;
+              this.setState({editItemDetails: item});
             } else {
-              if (item.hsnNumber && text != '') {
-                Alert.alert('', 'only one of hsn number or sac number can be entered');
-              } else {
-                item.sacNumber = text;
-                this.setState({editItemDetails: item});
-              }
+              item.sacNumber = text;
+              this.setState({editItemDetails: item});
             }
           }}
         />
@@ -899,7 +891,7 @@ class PurchaseItemEdit extends Component {
             // this._renderTaxName();
             let editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
-            this.props.updateItems(editItemDetails, this.state.selectedArrayType);
+            this.props.updateItems(editItemDetails, this.state.selectedArrayType, this.state.selectedCode);
           }}
           style={{
             marginHorizontal: 16,

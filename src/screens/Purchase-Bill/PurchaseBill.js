@@ -1535,7 +1535,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  updateEditedItem(details, selectedArrayType) {
+  updateEditedItem(details, selectedArrayType, selectedCode) {
     let itemUniqueName = details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName;
 
     let addedArray = this.state.addedItems;
@@ -1558,8 +1558,8 @@ export class PurchaseBill extends React.Component {
     item.discountType = Number(details.discountType);
     item.taxType = Number(details.taxType);
     item.tax = Number(details.taxText);
-    item.hsnNumber = details.hsnNumber;
-    item.sacNumber = details.sacNumber;
+    item.hsnNumber = selectedCode == 'hsn' ? details.hsnNumber : '';
+    item.sacNumber = selectedCode == 'sac' ? details.sacNumber : '';
     item.warehouse = Number(details.warehouse);
     item.discountDetails = details.discountDetails ? details.discountDetails : undefined;
     item.taxDetailsArray = details.taxDetailsArray;
@@ -1654,8 +1654,8 @@ export class PurchaseBill extends React.Component {
             }}
             // selectedArrayType={this.state.selectedArrayType}
             itemDetails={this.state.itemDetails}
-            updateItems={(details, selectedArr) => {
-              this.updateEditedItem(details, selectedArr);
+            updateItems={(details, selectedArr, selectedCode) => {
+              this.updateEditedItem(details, selectedArr, selectedCode);
             }}
           />
         )}

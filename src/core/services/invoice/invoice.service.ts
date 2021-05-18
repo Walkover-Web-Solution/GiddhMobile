@@ -118,7 +118,7 @@ export class InvoiceService {
       return httpInstance
         .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`), payload)
         .then((res) => {
-          console.log('yayyy!', res.data);
+          // console.log('yayyy!', res.data);
           return res.data;
         })
         .catch((err) => {
@@ -130,7 +130,7 @@ export class InvoiceService {
       return httpInstance
         .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', 'cash'), payload)
         .then((res) => {
-          console.log('yayyyyyyyyyyyyyyyy!', res.data);
+          // console.log('yayyyyyyyyyyyyyyyy!', res.data);
           return res.data;
         })
         .catch((err) => {
