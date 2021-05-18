@@ -40,7 +40,10 @@ export const invoiceUrls = {
     'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName',
   ),
   getExchangeRateToINR: createEndpoint(
-    'currency/rate?from=:from&to=INR&date=:date&branchUniqueName=:branchUniqueName'
+    'currency/rate?from=:from&to=:to&date=:date&branchUniqueName=:branchUniqueName'
+  ),
+  getCountryDetails: createEndpoint(
+    'country/:countryCode'
   )
 };
 /*

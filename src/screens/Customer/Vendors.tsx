@@ -25,6 +25,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 
 interface Props {
+  resetFun: any;
   navigation: any;
 }
 
@@ -33,6 +34,7 @@ export class Vendors extends React.Component<Props> {
     super(props);
     this.getAllDeatils();
     this.checkStoredCountryCode();
+    this.props.resetFun(this.resetState);
   }
 
   async getAllDeatils() {

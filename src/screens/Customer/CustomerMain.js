@@ -47,7 +47,8 @@ export class Customer extends React.Component<Props> {
 
     this.state = {
       currentPage: 0,
-      backRef: RBSheet
+      customerReset: () => { },
+      vendorReset: () => { }
     }
   }
 
@@ -70,13 +71,29 @@ export class Customer extends React.Component<Props> {
             <Text style={style.invoiceType}>
               Create New Party
             </Text>
-            {/* <TouchableOpacity>
-              <AntDesign name={'delete'} size={16} color="white" />
-            </TouchableOpacity> */}
+            <TouchableOpacity onPress={this.resetFun}>
+              <Text style={{ color: 'white' }}>Clear All</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         </View>
       </View>
     );
+  }
+
+  resetFun = () => {
+    if (this.state.currentPage == 0) {
+      this.state.customerReset();
+    } else {
+      this.state.vendorReset();
+    }
+  }
+
+  setCustomerFun = (fun) => {
+    this.setState({ customerReset: fun });
+  }
+
+  setVendorFun = (fun) => {
+    this.setState({ vendorReset: fun });
   }
 
   setSliderPage = (event: any) => {
@@ -238,6 +255,7 @@ export class Customer extends React.Component<Props> {
                   </View>
                 ) : (
                     <Customers
+                      resetFun={this.setCustomerFun}
                       navigation={this.props.navigation}
                     />
                   )}
@@ -251,6 +269,7 @@ export class Customer extends React.Component<Props> {
                   </View>
                 ) : (
                     <Vendors
+                      resetFun={this.setVendorFun}
                       navigation={this.props.navigation}
                     />
                   )}

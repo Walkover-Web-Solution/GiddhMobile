@@ -25,6 +25,7 @@ import { ThemeService } from '@ui-kitten/components/theme/theme/theme.service';
 
 interface Props {
   navigation: any;
+  resetFun: any;
 }
 
 export class Customers extends React.Component<Props> {
@@ -32,6 +33,7 @@ export class Customers extends React.Component<Props> {
     super(props);
     this.getAllDeatils();
     this.checkStoredCountryCode();
+    this.props.resetFun(this.resetState);
   }
 
   async getAllDeatils() {

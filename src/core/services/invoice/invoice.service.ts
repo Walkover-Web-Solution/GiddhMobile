@@ -118,11 +118,11 @@ export class InvoiceService {
       return httpInstance
         .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`), payload)
         .then((res) => {
-          console.log('yayyy!', res.data);
+          // console.log('yayyy!', res.data);
           return res.data;
         })
         .catch((err) => {
-          console.log(JSON.stringify(err));
+          Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
           // alert(JSON.stringify(err));
           return null;
         });
@@ -130,11 +130,11 @@ export class InvoiceService {
       return httpInstance
         .post(invoiceUrls.genrateInvoice.replace(':accountUniqueName', 'cash'), payload)
         .then((res) => {
-          console.log('yayyyyyyyyyyyyyyyy!', res.data);
+          // console.log('yayyyyyyyyyyyyyyyy!', res.data);
           return res.data;
         })
         .catch((err) => {
-          alert(JSON.stringify(err));
+          Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
           return null;
         });
     }
@@ -172,7 +172,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(JSON.stringify(err));
+        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
@@ -189,10 +189,23 @@ export class InvoiceService {
       });
   }
 
-  static getExchangeRate(date:any,currency:any){
-    console.log(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`,`${currency}`))
+  static getCountryDetails(code: any) {
+    console.log(invoiceUrls.getCountryDetails.replace(`:countryCode`, `${code}`))
     return httpInstance
-      .get(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`,`${currency}`), {})
+      .get(invoiceUrls.getCountryDetails.replace(`:countryCode`, `${code}`), {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+        return null;
+      });
+  }
+
+  static getExchangeRate = async (date: any, to: any, currency: any) => {
+    console.log(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`, `${currency}`).replace(`:to`, `${to}`));
+    return httpInstance
+      .get(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`, `${currency}`).replace(`:to`, `${to}`), {})
       .then((res) => {
         return res.data;
       })
@@ -210,7 +223,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        JSON.stringify("ERROR"+JSON.stringify(err));
+        JSON.stringify("ERROR" + JSON.stringify(err));
         return null;
       });
   }

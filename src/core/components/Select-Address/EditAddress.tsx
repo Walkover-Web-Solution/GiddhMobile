@@ -12,114 +12,106 @@ import {
 } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {ScrollView, TextInput} from 'react-native-gesture-handler';
-const {height, width} = Dimensions.get('window');
-import {Bars} from 'react-native-loader';
+import { ScrollView, TextInput } from 'react-native-gesture-handler';
+const { height, width } = Dimensions.get('window');
+import { Bars } from 'react-native-loader';
 import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
-import {CustomerVendorService} from '@/core/services/customer-vendor/customer-vendor.service';
-import {FONT_FAMILY} from '@/utils/constants';
+import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
+import { FONT_FAMILY } from '@/utils/constants';
 
 const addresses = [
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -144,16 +136,16 @@ export class EditAddress extends React.Component<any, any> {
         this.props.route.params.addressArray.selectedCountry != null
           ? this.props.route.params.addressArray.selectedCountry
           : {
-              alpha3CountryCode: 'IND',
-              alpha2CountryCode: 'IN',
-              countryName: 'India',
-              callingCode: '91',
-              currency: {
-                code: 'INR',
-                symbol: '₹',
-              },
-              countryIndia: true,
+            alpha3CountryCode: 'IND',
+            alpha2CountryCode: 'IN',
+            countryName: 'India',
+            callingCode: '91',
+            currency: {
+              code: 'INR',
+              symbol: '₹',
             },
+            countryIndia: true,
+          },
       address: this.props.route.params.addressArray.address != null ? this.props.route.params.addressArray.address : '',
       state_billing:
         this.props.route.params.addressArray.stateName != null && this.props.route.params.addressArray.stateName != ''
@@ -171,9 +163,9 @@ export class EditAddress extends React.Component<any, any> {
   }
 
   getDetails = async () => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     if (this.state.gstNo != '') {
-      this.setState({selectStateDisable: true});
+      this.setState({ selectStateDisable: true });
     }
     let allCountry = await CustomerVendorService.getAllCountryName();
     let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
@@ -201,7 +193,7 @@ export class EditAddress extends React.Component<any, any> {
   }
 
   changeactiveIndex = (value: number) => {
-    this.setState({activeIndex: value});
+    this.setState({ activeIndex: value });
   };
 
   onSubmit = () => {
@@ -209,7 +201,7 @@ export class EditAddress extends React.Component<any, any> {
     console.log("country" + this.state.selectedCountry);
     if (this.state.selectedCountry.countryName == "") {
       alert("Please Enter Country Name");
-    } else if (this.state.selectedCountry.countryName == "India"&& !this.props.route.params.dontChangeCountry && this.state.state_billing == "Select") {
+    } else if (this.state.selectedCountry.countryName == "India" && !this.props.route.params.dontChangeCountry && this.state.state_billing == "Select") {
       alert("Please Enter State Name");
     }
     else if (this.state.gstNo && this.state.gstNo.length != 15) {
@@ -222,7 +214,7 @@ export class EditAddress extends React.Component<any, any> {
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
-        state: this.state.state_billing!="Select"?this.state.state_billing:"",
+        state: this.state.state_billing != "Select" ? this.state.state_billing : "",
         stateCode: this.state.state_billing.code,
         stateName: this.state.state_billing.name,
       };
@@ -232,7 +224,7 @@ export class EditAddress extends React.Component<any, any> {
   };
 
   setCountrySelected = async (value: any) => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     await this.setState({
       state_billing: 'Select',
       gstNo: '',
@@ -242,30 +234,30 @@ export class EditAddress extends React.Component<any, any> {
       gstNumberWrong: false,
     });
     let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode);
-    await this.setState({allStates: allStateName.body.stateList});
+    await this.setState({ allStates: allStateName.body.stateList });
     await this.state.addresssDropDown.select(-1);
-    this.setState({loading: false});
+    this.setState({ loading: false });
   };
 
   findState = async (gstNo: any) => {
     if (gstNo == '') {
-      this.setState({selectStateDisable: false, gstNumberWrong: false});
+      this.setState({ selectStateDisable: false, gstNumberWrong: false });
       return;
     }
     const gstStateCode = await gstNo.slice(0, 2);
     for (var i = 0; i < this.state.allStates.length; i++) {
       if (this.state.allStates[i].stateGstCode == gstStateCode) {
-        await this.setState({state_billing: this.state.allStates[i], selectStateDisable: true});
+        await this.setState({ state_billing: this.state.allStates[i], selectStateDisable: true });
         await this.state.addresssDropDown.select(-1);
         break;
       } else {
-        await this.setState({selectStateDisable: false});
+        await this.setState({ selectStateDisable: false });
       }
     }
     if (!this.state.selectStateDisable) {
-      this.setState({gstNumberWrong: true});
+      this.setState({ gstNumberWrong: true });
     } else {
-      this.setState({gstNumberWrong: false});
+      this.setState({ gstNumberWrong: false });
     }
   };
 
@@ -289,41 +281,59 @@ export class EditAddress extends React.Component<any, any> {
         <ScrollView style={style.body}>
           <Text style={style.BMfieldTitle}>Address</Text>
           <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 0}}
+            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10 }}
             multiline
-            onChangeText={(text) => this.setState({address: text})}
+            onChangeText={(text) => this.setState({ address: text })}
             value={this.state.address}></TextInput>
           <View style={{ flexDirection: 'row' }}>
             <Text style={style.BMfieldTitle}>Country</Text>
-            <Text style={{ color: "#E04646", marginTop:20 }}>*</Text>
+            <Text style={{ color: "#E04646", marginTop: 20 }}>*</Text>
           </View>
           <Dropdown
             disabled={this.props.route.params.dontChangeCountry}
             ref={(ref) => this.state.addresssDropDown = ref}
-            style={style.dropDown}
-            textStyle={{color: '#1c1c1c'}}
+            style={{
+              marginVertical: 10,
+              borderBottomWidth: 0.5,
+              paddingTop: 10,
+              borderBottomColor: '#808080',
+              paddingBottom: 10,
+              marginTop: 15,
+              paddingHorizontal: 10,
+              backgroundColor: this.props.route.params.dontChangeCountry ? "#F1F1F2" : ""
+            }}
+            textStyle={{ color: '#1c1c1c' }}
             defaultValue={this.state.selectedCountry.countryName != null ? this.state.selectedCountry.countryName : ''}
             options={this.state.allCountry}
             renderSeparator={() => {
               return <View></View>;
             }}
-            dropdownStyle={{width: '90%', marginTop: 5, borderRadius: 10}}
-            dropdownTextStyle={{color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold}}
+            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10 }}
+            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
             renderRow={(options) => {
-              return <Text style={{padding: 13, color: '#1C1C1C'}}>{options.countryName}</Text>;
+              return <Text style={{ padding: 13, color: '#1C1C1C' }}>{options.countryName}</Text>;
             }}
             renderButtonText={(text) => text.countryName}
             onSelect={(idx, value) => this.setCountrySelected(value)}
           />
-          <View style={{flexDirection:'row'}}>
+          <View style={{ flexDirection: 'row' }}>
             <Text style={style.BMfieldTitle}>State</Text>
-            <Text style={{ color: "#E04646", marginTop:20 }}>*</Text>
+            {this.state.selectedCountry.countryName == "India" ? <Text style={{ color: "#E04646", marginTop: 20 }}>*</Text> : null}
           </View>
           <Dropdown
             disabled={this.state.selectStateDisable}
             ref={(ref) => (this.state.addresssDropDown = ref)}
-            style={style.dropDown}
-            textStyle={{color: '#1c1c1c', fontSize: 14}}
+            style={{
+              marginVertical: 10,
+              borderBottomWidth: 0.5,
+              paddingTop: 10,
+              borderBottomColor: '#808080',
+              paddingBottom: 10,
+              marginTop: 15,
+              paddingHorizontal: 10,
+              backgroundColor: this.state.selectStateDisable ? "#F1F1F2" : null
+            }}
+            textStyle={{ color: '#1c1c1c', fontSize: 14, }}
             defaultValue={
               this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing
             }
@@ -331,29 +341,33 @@ export class EditAddress extends React.Component<any, any> {
             renderSeparator={() => {
               return <View></View>;
             }}
-            dropdownStyle={{width: '90%', marginTop: 5, borderRadius: 10}}
-            dropdownTextStyle={{color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold}}
+            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, }}
+            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
             renderRow={(options) => {
-              return <Text style={{padding: 13, color: '#1C1C1C'}}>{options.name}</Text>;
+              return <Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>;
             }}
             renderButtonText={(text) => text.name}
-            onSelect={(idx, value) => this.setState({state_billing: value})}
+            onSelect={(idx, value) => this.setState({ state_billing: value })}
           />
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5}}
+            style={{
+              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10,
+            }}
             onChangeText={(text) => {
-              this.setState({gstNo: text}), this.findState(text);
+              this.setState({ gstNo: text }), this.findState(text);
             }}
             value={this.state.gstNo}></TextInput>
           {this.state.gstNumberWrong ? (
-            <Text style={{fontSize: 10, color: 'red', marginTop: 6}}>Invalid GSTIN Number</Text>
+            <Text style={{ fontSize: 10, color: 'red', marginTop: 6,marginLeft:5}}>Invalid GSTIN Number</Text>
           ) : null}
 
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5}}
-            onChangeText={(text) => this.setState({pinCode: text})}
+            style={{
+              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10,
+            }}
+            onChangeText={(text) => this.setState({ pinCode: text })}
             value={this.state.pinCode}></TextInput>
           {/* <View style={style.DefaultAddress}>
             <TouchableOpacity onPress={() => this.setState({ isDefault: !this.state.isDefault })}>
