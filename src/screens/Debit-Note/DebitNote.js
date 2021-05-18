@@ -1229,7 +1229,7 @@ export class DebiteNote extends React.Component<Props> {
               },
             });
           }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems:'center' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}{item.stock ? "(" + item.stock.name + ")" : ""} : </Text>
             <TouchableOpacity
               onPress={() => this.addItem(item)}
@@ -1510,56 +1510,6 @@ export class DebiteNote extends React.Component<Props> {
               >{this.state.totalAmountInINR}</TextInput>
             </View> : null}
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginTop: this.state.invoiceType == 'cash' ? 10 : 4,
-                // backgroundColor: 'pink',
-                alignItems: 'center',
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  if (this.state.modesArray.length > 0) {
-                    this.setState({ showPaymentModePopup: true });
-                  }
-                }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080', marginRight: 5 }}>
-                    {this.state.selectedPayMode.name}
-                  </Text>
-                  <Icon style={{ transform: [{ rotate: '0deg' }] }} name={'9'} size={16} color="#808080" />
-                </View>
-              </TouchableOpacity>
-              {this.state.invoiceType == 'cash' ? (
-                <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
-              ) : (
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({ showPaymentModePopup: true });
-                    }}>
-                    <TextInput
-                      style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5, marginRight: -10 }}
-                      placeholder="00000.00"
-                      returnKeyType={'done'}
-                      editable={false}
-                      keyboardType="number-pad"
-                      value={this.state.amountPaidNowText}
-                      onChangeText={(text) => {
-                        this.setState({ amountPaidNowText: text });
-                      }}
-                    />
-                  </TouchableOpacity>
-                )}
-            </View>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-              <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
-              <Text style={{ color: '#1C1C1C' }}>
-                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
-                {this.getTotalAmount()}
-              </Text>
-            </View>
           </View>
         )}
 

@@ -31,6 +31,8 @@ interface Props {
 export class Vendors extends React.Component<Props> {
   constructor(props: any) {
     super(props);
+    this.getAllDeatils();
+    this.checkStoredCountryCode();
   }
 
   async getAllDeatils() {
@@ -132,7 +134,6 @@ export class Vendors extends React.Component<Props> {
   }
 
   selectBillingAddress = async (address) => {
-    console.log(address);
     const newAddress = {
       street_billing: address.address,
       gstin_billing: address.gstNumber,
@@ -140,10 +141,11 @@ export class Vendors extends React.Component<Props> {
       pincode: address.pincode
     };
     const companyCountry = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    
     if (companyCountry != address.selectedCountry.alpha2CountryCode) {
-      this.setState({ showForgeinBalance: false });
-    } else {
       this.setState({ showForgeinBalance: true });
+    } else {
+      this.setState({ showForgeinBalance: false });
     }
     this.setState({
       savedAddress: newAddress, selectedCountry: address.selectedCountry,
@@ -177,8 +179,8 @@ export class Vendors extends React.Component<Props> {
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden',backgroundColor:"rgba(0,0,0,0.08)" }}>
-            <Text style={{color: '#1C1C1C'}}>INR</Text>
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden', backgroundColor: "rgba(0,0,0,0.08)" }}>
+            <Text style={{ color: '#1C1C1C' }}>INR</Text>
             {/* <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}
@@ -460,7 +462,7 @@ export class Vendors extends React.Component<Props> {
       partyName: "",
       contactNumber: "",
       emailId: "",
-      partyType: "Party Type*",
+      partyType: "not applicable",
       allPartyType: [],
       AllGroups: ["Sundry Debtors"],
       ref: RBSheet,
@@ -523,6 +525,16 @@ export class Vendors extends React.Component<Props> {
       await this.resetState();
       await this.getAllDeatils();
     });
+    //this.checkStoredCountryCode();
+  }
+
+  checkStoredCountryCode = async () => {
+    const storedCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    if (storedCode == this.state.selectedCountry.alpha2CountryCode) {
+      this.setState({ showForgeinBalance: false })
+    } else {
+      this.setState({ showForgeinBalance: true });
+    }
   }
 
   render() {
@@ -756,8 +768,9 @@ export class Vendors extends React.Component<Props> {
               size={16}
               color="#864DD3"
               style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
-            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: '#1C1C1C' }}>Address Details*</Text>
+            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
+              <Text style={{ color: '#1C1C1C' }}>Address Details</Text>
+              <Text style={{ color: '#E04646' }}>*</Text>
             </View>
             <Icon
               style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }] }}

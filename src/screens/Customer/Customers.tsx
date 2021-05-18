@@ -30,6 +30,8 @@ interface Props {
 export class Customers extends React.Component<Props> {
   constructor(props: any) {
     super(props);
+    this.getAllDeatils();
+    this.checkStoredCountryCode();
   }
 
   async getAllDeatils() {
@@ -42,7 +44,6 @@ export class Customers extends React.Component<Props> {
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
     // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     await this.setState({ loading: false });
-    console.log(this.state.allPartyType);
   }
 
   state = {
@@ -362,7 +363,7 @@ export class Customers extends React.Component<Props> {
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
       const results = await CustomerVendorService.createCustomer(postBody);
-      console.log("rabbit"+JSON.stringify(results));
+      console.log("rabbit" + JSON.stringify(results));
       if (results.status == "success") {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
@@ -454,9 +455,9 @@ export class Customers extends React.Component<Props> {
     };
     const companyCountry = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
     if (companyCountry != address.selectedCountry.alpha2CountryCode) {
-      this.setState({ showForgeinBalance: false });
-    } else {
       this.setState({ showForgeinBalance: true });
+    } else {
+      this.setState({ showForgeinBalance: false });
     }
     this.setState({
       savedAddress: newAddress, selectedCountry: address.selectedCountry,
@@ -471,6 +472,14 @@ export class Customers extends React.Component<Props> {
     });
   }
 
+  checkStoredCountryCode = async () => {
+    const storedCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    if(storedCode == this.state.selectedCountry.alpha2CountryCode){
+      this.setState({showForgeinBalance:false})
+    }else{
+      this.setState({showForgeinBalance:true});
+    }
+  }
 
   render() {
     return (
@@ -478,7 +487,6 @@ export class Customers extends React.Component<Props> {
         <Dialog.Container
           visible={this.state.partyDialog}
           onBackdropPress={() => {
-            console.log("w");
             this.setState({ partyDialog: false })
           }}
           contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: "70%" }}
@@ -701,8 +709,9 @@ export class Customers extends React.Component<Props> {
               size={16}
               color="#864DD3"
               style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
-            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: '#1C1C1C' }}>Address Details*</Text>
+            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
+              <Text style={{ color: '#1C1C1C' }}>Address Details</Text>
+              <Text style={{ color: '#E04646' }}>*</Text>
             </View>
             <Icon
               style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }] }}

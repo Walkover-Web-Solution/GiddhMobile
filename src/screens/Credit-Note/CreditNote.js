@@ -276,7 +276,7 @@ export class CreditNote extends React.Component<Props> {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50 }} onPress={() => { }}>
+      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems:'center' }} onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
           <Icon name={'Profile'} color={'#A6D8BF'} style={{ margin: 16 }} size={16} />
@@ -797,24 +797,24 @@ export class CreditNote extends React.Component<Props> {
         }
 
       console.log('postBody is', JSON.stringify(postBody));
-      const results = await InvoiceService.createCreditNote(
-        postBody,
-        this.state.partyName.uniqueName,
-        this.state.invoiceType,
-      );
-      this.setState({ loading: false });
-      console.log(results);
-      if (results.body) {
-        // this.setState({loading: false});
-        alert('Credit Note created successfully!');
-        this.resetState();
-        this.getAllTaxes();
-        this.getAllDiscounts();
-        this.getAllWarehouse();
-        this.getAllAccountsModes();
-        this.props.navigation.goBack();
-        DeviceEventEmitter.emit(APP_EVENTS.CreditNoteCreated, {});
-      }
+      // const results = await InvoiceService.createCreditNote(
+      //   postBody,
+      //   this.state.partyName.uniqueName,
+      //   this.state.invoiceType,
+      // );
+      // this.setState({ loading: false });
+      // console.log(results);
+      // if (results.body) {
+      //   // this.setState({loading: false});
+      //   alert('Credit Note created successfully!');
+      //   this.resetState();
+      //   this.getAllTaxes();
+      //   this.getAllDiscounts();
+      //   this.getAllWarehouse();
+      //   this.getAllAccountsModes();
+      //   this.props.navigation.goBack();
+      //   DeviceEventEmitter.emit(APP_EVENTS.CreditNoteCreated, {});
+      // }
     } catch (e) {
       console.log('problem occured', e);
       this.setState({ isSearchingParty: false, loading: false });
@@ -1485,57 +1485,6 @@ export class CreditNote extends React.Component<Props> {
                 }}
               >{this.state.totalAmountInINR}</TextInput>
             </View> : null}
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginTop: this.state.invoiceType == 'cash' ? 10 : 4,
-                // backgroundColor: 'pink',
-                alignItems: 'center',
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  if (this.state.modesArray.length > 0) {
-                    this.setState({ showPaymentModePopup: true });
-                  }
-                }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080', marginRight: 5 }}>
-                    {this.state.selectedPayMode.name}
-                  </Text>
-                  <Icon style={{ transform: [{ rotate: '0deg' }] }} name={'9'} size={16} color="#808080"></Icon>
-                </View>
-              </TouchableOpacity>
-              {this.state.invoiceType == 'cash' ? (
-                <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
-              ) : (
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({ showPaymentModePopup: true });
-                    }}>
-                    <TextInput
-                      style={{ borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5, marginRight: -10 }}
-                      placeholder="00000.00"
-                      returnKeyType={'done'}
-                      editable={false}
-                      keyboardType="number-pad"
-                      value={this.state.amountPaidNowText}
-                      onChangeText={(text) => {
-                        this.setState({ amountPaidNowText: text });
-                      }}
-                    />
-                  </TouchableOpacity>
-                )}
-            </View>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-              <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
-              <Text style={{ color: '#1C1C1C' }}>
-                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
-                {this.getTotalAmount()}
-              </Text>
-            </View>
           </View>
         )}
 

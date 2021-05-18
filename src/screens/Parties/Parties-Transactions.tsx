@@ -661,6 +661,9 @@ class PartiesTransactionScreen extends React.Component {
   filterCall = _.debounce(this.getTransactions, 2000);
 
   numberWithCommas = (x) => {
+    if(x == null){
+      return "0";
+    }
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
