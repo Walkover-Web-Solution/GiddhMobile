@@ -36,6 +36,7 @@ import style from './style';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
+import { FONT_FAMILY } from '../../utils/constants';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -128,7 +129,8 @@ export class PurchaseBill extends React.Component {
       currencySymbol: "",
       exchangeRate: 1,
       totalAmountInINR: 0.00,
-      companyCountryDetails: ""
+      companyCountryDetails: "",
+      selectedInvoice: "",
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -183,7 +185,7 @@ export class PurchaseBill extends React.Component {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);    this.setActiveCompanyCountry()
+    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow); this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide); this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -533,7 +535,8 @@ export class PurchaseBill extends React.Component {
       currencySymbol: "",
       exchangeRate: 1,
       totalAmountInINR: 0.00,
-      companyCountryDetails: ""
+      companyCountryDetails: "",
+      selectedInvoice: "",
     });
   };
   getDiscountForEntry(item) {
@@ -776,6 +779,11 @@ export class PurchaseBill extends React.Component {
           },
         },
       };
+      
+      if(this.state.selectedInvoice!=""){
+        postBody["number"] =  this.state.selectedInvoice
+      }
+
       console.log('purchase bill postBody is', JSON.stringify(postBody));
       const results = await InvoiceService.createPurchaseBill(postBody, this.state.partyName.uniqueName);
       if (type != 'share') {
@@ -921,6 +929,27 @@ export class PurchaseBill extends React.Component {
       </View>
     );
   }
+
+  _renderSelectInvoice() {
+    return (
+      <View style={style.dateView}>
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={style.InvoiceHeading}>Invoice #</Text>
+          <View style={{ flexDirection: 'row', width: "75%", marginHorizontal: 15, justifyContent: "space-between",}}>
+            <TextInput
+              placeholder={"Enter Invoice name"}
+              value={this.state.selectedInvoice}
+              style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%',height:40}}
+              onChangeText={(value) => {
+                this.setState({ selectedInvoice: value })
+              }}
+            />
+          </View>
+        </View>
+      </View>
+    )
+  }
+
 
   _renderAddress() {
     return (
@@ -1601,6 +1630,7 @@ export class PurchaseBill extends React.Component {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {this._renderSelectInvoice()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
             {this.state.addedItems.length > 0 && this._renderTotalAmount()}

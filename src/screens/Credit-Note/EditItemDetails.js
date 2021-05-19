@@ -594,7 +594,7 @@ class EditItemDetails extends Component {
               }}
               onPress={() => this.setState({selectedCode: 'hsn'})}>
               {this.state.selectedCode == 'hsn' && (
-                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F'}}></View>
+                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#3497FD'}}></View>
               )}
             </TouchableOpacity>
 
@@ -612,7 +612,7 @@ class EditItemDetails extends Component {
               }}
               onPress={() => this.setState({selectedCode: 'sac'})}>
               {this.state.selectedCode == 'sac' && (
-                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F'}}></View>
+                <View style={{height: 14, width: 14, borderRadius: 7, backgroundColor: '#3497FD'}}></View>
               )}
             </TouchableOpacity>
 

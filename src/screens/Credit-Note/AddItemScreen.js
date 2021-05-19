@@ -102,7 +102,7 @@ class AddItemScreen extends React.Component<Props> {
           </TouchableOpacity>
           <TextInput
             placeholder={'Search Product/Service'}
-            placeholderTextColor={'#A6D8BF'}
+            placeholderTextColor={'#fff'}
             returnKeyType={'done'}
             onChangeText={(text) =>
               this.setState({searchItemName: text}, () => {
@@ -192,7 +192,7 @@ class AddItemScreen extends React.Component<Props> {
               {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
             </Text>
             <TouchableOpacity
-              style={{backgroundColor: '#E0F1E8', height: 32, borderRadius: 16, justifyContent: 'center'}}
+              style={{backgroundColor: '#EBF4FA', height: 32, borderRadius: 16, justifyContent: 'center'}}
               onPress={() => {
                 this.addItem(item);
               }}>
@@ -214,7 +214,7 @@ class AddItemScreen extends React.Component<Props> {
                   style={{
                     width: 24,
                     height: 24,
-                    backgroundColor: '#229F5F',
+                    backgroundColor: '#3399ff',
                     borderRadius: 12,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -242,7 +242,7 @@ class AddItemScreen extends React.Component<Props> {
                   style={{
                     width: 24,
                     height: 24,
-                    backgroundColor: '#229F5F',
+                    backgroundColor: '#3399ff',
                     borderRadius: 12,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -329,7 +329,7 @@ class AddItemScreen extends React.Component<Props> {
             </Text>
             <TouchableOpacity
               style={{
-                backgroundColor: '#E0F1E8',
+                backgroundColor: '#EBF4FA',
                 height: 32,
                 borderRadius: 16,
                 justifyContent: 'center',

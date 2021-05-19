@@ -23,6 +23,7 @@ import Award from '../../assets/images/icons/customer_success.svg';//customer_fa
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-community/async-storage';
+import { InvoiceService } from '@/core/services/invoice/invoice.service';
 
 interface Props {
   resetFun: any;
@@ -32,6 +33,7 @@ interface Props {
 export class Vendors extends React.Component<Props> {
   constructor(props: any) {
     super(props);
+    this.setActiveCompanyCountry()
     this.getAllDeatils();
     this.checkStoredCountryCode();
     this.props.resetFun(this.resetState);
@@ -46,6 +48,22 @@ export class Vendors extends React.Component<Props> {
     let allCallingCode = await CustomerVendorService.getAllCallingCode()
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCallingCode: allCallingCode.body.callingCodes })
     // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
+    await this.setState({ loading: false });
+  }
+
+  async setActiveCompanyCountry() {
+    await this.setState({ loading: true });
+    try {
+      let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      if (results.body && results.status == 'success') {
+        await this.setState({
+          activeCompanyCountryCode:activeCompanyCountryCode,
+          selectedCountry: results.body.country,
+          selectedCallingCode: results.body.country.callingCode, selectedCurrency: results.body.country.currency.code         
+        })
+      }
+    } catch (e) { }
     await this.setState({ loading: false });
   }
 
@@ -105,7 +123,8 @@ export class Vendors extends React.Component<Props> {
     groupDropDown: Dropdown,
     partyPlaceHolder: "",
     partyDialog: false,
-    showForgeinBalance: true
+    showForgeinBalance: true,
+    activeCompanyCountryCode:""
   }
 
   radio_props = [
@@ -142,7 +161,7 @@ export class Vendors extends React.Component<Props> {
       state_billing: address.state,
       pincode: address.pincode
     };
-    const companyCountry = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    const companyCountry = this.state.activeCompanyCountryCode
     
     if (companyCountry != address.selectedCountry.alpha2CountryCode) {
       this.setState({ showForgeinBalance: true });
@@ -319,8 +338,10 @@ export class Vendors extends React.Component<Props> {
 
   isCreateButtonVisible = () => {
     if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.savedAddress.state_billing) {
+      // When selected country is same as company country then state is compulsory 
       return true;
-    } else if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.selectedCountry.countryName != "India") {
+    } else if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.selectedCountry.alpha2CountryCode != this.state.activeCompanyCountryCode) {
+      // When selected country is different from company country then state is not compulsory 
       return true
     } else {
       return false;
@@ -519,12 +540,14 @@ export class Vendors extends React.Component<Props> {
       isGroupDD: false,
       isPartyDD: false,
       partyDialog: false,
+      activeCompanyCountryCode:""
     })
   }
 
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       await this.resetState();
+      await this.setActiveCompanyCountry()
       await this.getAllDeatils();
     });
     //this.checkStoredCountryCode();

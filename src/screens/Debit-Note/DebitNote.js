@@ -130,7 +130,7 @@ export class DebiteNote extends React.Component<Props> {
       currencySymbol: "",
       exchangeRate: 1,
       totalAmountInINR: 0.00,
-      selectedInvoice:"",
+      selectedInvoice: "",
       companyCountryDetails: ""
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -182,7 +182,7 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);    this.setActiveCompanyCountry()
+    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow); this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide); this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -325,7 +325,7 @@ export class DebiteNote extends React.Component<Props> {
       <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }} onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
-          <Icon name={'Profile'} color={'white'} style={{ margin: 16 }} size={16} />
+          <Icon name={'Profile'} color={"white"} style={{ margin: 16 }} size={16} />
           <TextInput
             placeholderTextColor={'white'}
             placeholder={'Search Party Name'}
@@ -614,7 +614,7 @@ export class DebiteNote extends React.Component<Props> {
       exchangeRate: 1,
       totalAmountInINR: 0.00,
       companyCountryDetails: "",
-      selectedInvoice:""
+      selectedInvoice: ""
     });
   };
   getDiscountForEntry(item) {
@@ -722,7 +722,7 @@ export class DebiteNote extends React.Component<Props> {
     }
     try {
       console.log('came to this');
-      let postBody = await this.state.linkedInvoices != "" ? {
+      let postBody = {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
@@ -777,69 +777,11 @@ export class DebiteNote extends React.Component<Props> {
         touristSchemeApplicable: false,
         type: this.state.invoiceType,
         updateAccountDetails: false,
-        invoiceLinkingRequest: {
-          linkedInvoices: [
-            this.state.linkedInvoices
-          ]
-        }
+      }
 
-      } :
-        {
-          account: {
-            attentionTo: '',
-            // billingDetails: this.state.partyBillingAddress,
-            billingDetails: {
-              address: [this.state.partyBillingAddress.address],
-              countryName: this.state.countryDeatils.countryName,
-              gstNumber: this.state.partyBillingAddress.gstNumber,
-              panNumber: '',
-              state: { code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "" },
-              stateCode: this.state.partyBillingAddress.stateCode,
-              stateName: this.state.partyBillingAddress.stateName,
-            },
-            contactNumber: '',
-            country: this.state.countryDeatils,
-            currency: { code: this.state.currency },
-            currencySymbol: this.state.currencySymbol,
-            email: '',
-            mobileNumber: '',
-            name: this.state.partyName.name,
-            // shippingDetails: this.state.partyShippingAddress,
-            shippingDetails: {
-              address: [this.state.partyShippingAddress.address],
-              countryName: this.state.countryDeatils.countryName,
-              gstNumber: this.state.partyShippingAddress.gstNumber,
-              panNumber: '',
-              state: { code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "" },
-              stateCode: this.state.partyShippingAddress.stateCode,
-              stateName: this.state.partyShippingAddress.stateName,
-            },
-            uniqueName: this.state.partyName.uniqueName,
-          },
-          date: moment(this.state.date).format('DD-MM-YYYY'),
-          dueDate: moment(this.state.date).format('DD-MM-YYYY'),
-          deposit: {
-            type: 'DEBIT',
-            accountUniqueName: this.state.selectedPayMode.uniqueName,
-            amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
-          },
-          entries: this.getEntries(),
-          exchangeRate: this.state.exchangeRate,
-          passportNumber: '',
-          templateDetails: {
-            other: {
-              shippingDate: this.state.otherDetails.shipDate,
-              shippedVia: this.state.otherDetails.shippedVia,
-              trackingNumber: this.state.otherDetails.trackingNumber,
-              customField1: this.state.otherDetails.customField1,
-              customField2: this.state.otherDetails.customField2,
-              customField3: this.state.otherDetails.customField3,
-            },
-          },
-          touristSchemeApplicable: false,
-          type: this.state.invoiceType,
-          updateAccountDetails: false,
-        };
+      if (this.state.selectedInvoice != "") {
+        postBody["invoiceLinkingRequest"] = { linkedInvoices: [this.state.linkedInvoices] }
+      }
 
       console.log('postBody is', JSON.stringify(postBody));
       const results = await InvoiceService.createDebitNote(
@@ -1017,27 +959,27 @@ export class DebiteNote extends React.Component<Props> {
                 );
               }}
             />
-            {this.state.selectedInvoice!=""?
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignSelf: 'flex-end',
-                alignItems: 'center',
-                marginHorizontal: 20,
-                marginTop: -2
-              }}
-              onPress={() => {
-                this.state.accountDropDown.select(-1),
-                  this.setState({
-                    selectedInvoice: "",
-                    linkedInvoices: ""
-                  })
-              }
-              }>
-              <Ionicons name="close-circle" size={20} color={'grey'} />
-              {/* <Text style={{marginLeft: 3}}>Close</Text> */}
-            </TouchableOpacity>
-            :null}
+            {this.state.selectedInvoice != "" ?
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'flex-end',
+                  alignItems: 'center',
+                  marginHorizontal: 20,
+                  marginTop: -2
+                }}
+                onPress={() => {
+                  this.state.accountDropDown.select(-1),
+                    this.setState({
+                      selectedInvoice: "",
+                      linkedInvoices: ""
+                    })
+                }
+                }>
+                <Ionicons name="close-circle" size={20} color={'grey'} />
+                {/* <Text style={{marginLeft: 3}}>Close</Text> */}
+              </TouchableOpacity>
+              : null}
 
 
           </View>
@@ -1169,7 +1111,7 @@ export class DebiteNote extends React.Component<Props> {
             this.props.navigation.navigate('AddInvoiceItemScreen', {
               updateAddedItems: (this.updateAddedItems).bind(this),
               addedItems: this.state.addedItems,
-              });
+            });
           } else {
             alert('Please select a party.');
           }
@@ -1305,8 +1247,8 @@ export class DebiteNote extends React.Component<Props> {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ color: '#808080' }}>
-              {String(item.quantity)} x {this.state.currencySymbol}
-              {String(item.rate)}
+                {String(item.quantity)} x {this.state.currencySymbol}
+                {String(item.rate)}
               </Text>
             </View>
           </View>

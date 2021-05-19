@@ -19,10 +19,12 @@ import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { FONT_FAMILY } from '@/utils/constants';
+import AsyncStorage from '@react-native-community/async-storage';
+import { STORAGE_KEYS } from '@/utils/constants';
 
 const addresses = [
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -34,7 +36,7 @@ const addresses = [
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -46,7 +48,7 @@ const addresses = [
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -58,7 +60,7 @@ const addresses = [
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -70,7 +72,7 @@ const addresses = [
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -82,7 +84,7 @@ const addresses = [
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -94,7 +96,7 @@ const addresses = [
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -106,7 +108,7 @@ const addresses = [
     stateName: 'Andhra Pradesh',
   },
   {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',    gstinStatus: 'VERIFIED',
+    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore', gstinStatus: 'VERIFIED',
     gstNumber: '27BKWPS7554Q1ZN',
     isComposite: false,
     isDefault: true,
@@ -155,6 +157,7 @@ export class EditAddress extends React.Component<any, any> {
         this.props.route.params.addressArray.gstNumber != null ? this.props.route.params.addressArray.gstNumber : '',
       pinCode: this.props.route.params.addressArray.pincode != null ? this.props.route.params.addressArray.pincode : '',
       loading: false,
+      activeCompanyCountryCode: ""
     };
   }
 
@@ -167,8 +170,8 @@ export class EditAddress extends React.Component<any, any> {
     if (this.state.gstNo != '') {
       this.setState({ selectStateDisable: true });
     }
+    let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
     let allCountry = await CustomerVendorService.getAllCountryName();
-    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
     const countryIndia = {
       alpha3CountryCode: 'IND',
       alpha2CountryCode: 'IN',
@@ -181,14 +184,18 @@ export class EditAddress extends React.Component<any, any> {
       countryIndia: true,
     };
     await this.setState({
+      activeCompanyCountryCode: activeCompanyCountryCode,
       allCountry: allCountry.body,
-      allStates: allStateName.body.stateList,
       selectedCountry:
         this.props.route.params.addressArray.selectedCountry != null
           ? this.props.route.params.addressArray.selectedCountry
           : countryIndia,
     });
     console.log(this.state.selectedCountry);
+    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
+    await this.setState({
+      allStates: allStateName.body.stateList,
+    });
     await this.setState({ loading: false });
   }
 
@@ -201,7 +208,7 @@ export class EditAddress extends React.Component<any, any> {
     console.log("country" + this.state.selectedCountry);
     if (this.state.selectedCountry.countryName == "") {
       alert("Please Enter Country Name");
-    } else if (this.state.selectedCountry.countryName == "India" && !this.props.route.params.dontChangeCountry && this.state.state_billing == "Select") {
+    } else if (this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode && this.state.state_billing == "Select") {
       alert("Please Enter State Name");
     }
     else if (this.state.gstNo && this.state.gstNo.length != 15) {
@@ -224,7 +231,7 @@ export class EditAddress extends React.Component<any, any> {
   };
 
   setCountrySelected = async (value: any) => {
-    this.setState({ loading: true });
+    await this.setState({ loading: true });
     await this.setState({
       state_billing: 'Select',
       gstNo: '',
@@ -236,7 +243,7 @@ export class EditAddress extends React.Component<any, any> {
     let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode);
     await this.setState({ allStates: allStateName.body.stateList });
     await this.state.addresssDropDown.select(-1);
-    this.setState({ loading: false });
+    await this.setState({ loading: false });
   };
 
   findState = async (gstNo: any) => {
@@ -318,7 +325,7 @@ export class EditAddress extends React.Component<any, any> {
           />
           <View style={{ flexDirection: 'row' }}>
             <Text style={style.BMfieldTitle}>State</Text>
-            {this.state.selectedCountry.countryName == "India" ? <Text style={{ color: "#E04646", marginTop: 20 }}>*</Text> : null}
+            {this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode ? <Text style={{ color: "#E04646", marginTop: 20 }}>*</Text> : null}
           </View>
           <Dropdown
             disabled={this.state.selectStateDisable}
@@ -359,7 +366,7 @@ export class EditAddress extends React.Component<any, any> {
             }}
             value={this.state.gstNo}></TextInput>
           {this.state.gstNumberWrong ? (
-            <Text style={{ fontSize: 10, color: 'red', marginTop: 6,marginLeft:5}}>Invalid GSTIN Number</Text>
+            <Text style={{ fontSize: 10, color: 'red', marginTop: 6, marginLeft: 5 }}>Invalid GSTIN Number</Text>
           ) : null}
 
           <Text style={style.BMfieldTitle}>PinCode</Text>

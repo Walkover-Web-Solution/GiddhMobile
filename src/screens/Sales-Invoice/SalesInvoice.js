@@ -184,7 +184,7 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);    this.setActiveCompanyCountry()
+    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow); this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide); this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -507,7 +507,7 @@ export class SalesInvoice extends React.Component<Props> {
           await this.getExchangeRateToINR(results.body.currency)
         }
         await this.setState({
-          addedItems:[],
+          addedItems: [],
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
@@ -938,6 +938,38 @@ export class SalesInvoice extends React.Component<Props> {
     );
   }
 
+  billingAddressArray() {
+    let addressArray = this.state.partyBillingAddress
+    if (this.state.partyBillingAddress.selectedCountry == null) {
+      addressArray["selectedCountry"] = this.state.companyCountryDetails
+    }
+    return addressArray
+  };
+
+  selectBillingAddressFromEditAdress = (address) => {
+    console.log(address);
+    this.setState({
+      partyBillingAddress: address,
+      countryDeatils: { countryName: address.selectedCountry.countryName, code: address.selectedCountry.currency.code }
+    });
+  };
+
+  shippingAddressArray() {
+    let addressArray = this.state.partyShippingAddress
+    if (this.state.partyShippingAddress.selectedCountry == null) {
+      addressArray["selectedCountry"] = this.state.companyCountryDetails
+    }
+    return addressArray
+  };
+
+  selectShippingAddressFromEditAdress = (address) => {
+    console.log(address);
+    this.setState({
+      partyShippingAddress: address,
+      countryDeatils: { countryName: address.selectedCountry.countryName, code: address.selectedCountry.currency.code }
+    });
+  };
+
   _renderAddress() {
     return (
       <View style={style.senderAddress}>
@@ -951,8 +983,8 @@ export class SalesInvoice extends React.Component<Props> {
             this.state.invoiceType == INVOICE_TYPE.cash ?
               this.props.navigation.navigate('EditAddress', {
                 dontChangeCountry: true,
-                addressArray: this.state.partyBillingAddress,
-                selectAddress: this.selectBillingAddress.bind(this),
+                addressArray: this.billingAddressArray(),
+                selectAddress: this.selectBillingAddressFromEditAdress.bind(this),
                 statusBarColor: '#0E7942',
               })
               : !this.state.partyName
@@ -988,8 +1020,8 @@ export class SalesInvoice extends React.Component<Props> {
             this.state.invoiceType == INVOICE_TYPE.cash ?
               this.props.navigation.navigate('EditAddress', {
                 dontChangeCountry: true,
-                addressArray: this.state.partyShippingAddress,
-                selectAddress: this.selectShippingAddress.bind(this),
+                addressArray: this.shippingAddressArray(),
+                selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
                 statusBarColor: '#0E7942',
               })
               : !this.state.partyName
@@ -1026,7 +1058,7 @@ export class SalesInvoice extends React.Component<Props> {
   //https://api.giddh.com/company/mobileindore15161037983790ggm19/account-search?q=c&page=1&group=sundrydebtors&branchUniqueName=allmobileshop
   setCashTypeInvoice = async () => {
     await this.resetState();
-    this.setActiveCompanyCountry()
+    await this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -1035,7 +1067,7 @@ export class SalesInvoice extends React.Component<Props> {
   };
   setCreditTypeInvoice = async () => {
     await this.resetState();
-    this.setActiveCompanyCountry()
+    await this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();

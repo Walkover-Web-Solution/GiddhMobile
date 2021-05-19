@@ -283,12 +283,12 @@ export class CreditNote extends React.Component<Props> {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems:'center' }} onPress={() => { }}>
+      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }} onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
-          <Icon name={'Profile'} color={'#A6D8BF'} style={{ margin: 16 }} size={16} />
+          <Icon name={'Profile'} color={'#EBF4FA'} style={{ margin: 16 }} size={16} />
           <TextInput
-            placeholderTextColor={'#A6D8BF'}
+            placeholderTextColor={'white'}
             placeholder={'Search Company Name'}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
@@ -704,7 +704,7 @@ export class CreditNote extends React.Component<Props> {
         await this.setState({ exchangeRate: exchangeRate })
       }
       const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
-      let postBody = await this.state.linkedInvoices != "" ? {
+      let postBody = {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
@@ -757,66 +757,11 @@ export class CreditNote extends React.Component<Props> {
         },
         type: this.state.invoiceType,
         updateAccountDetails: false,
-        invoiceLinkingRequest: {
-          linkedInvoices: [
-            this.state.linkedInvoices
-          ]
-        }
-      } :
-        {
-          account: {
-            attentionTo: '',
-            // billingDetails: this.state.partyBillingAddress,
-            billingDetails: {
-              address: [this.state.partyBillingAddress.address],
-              countryName: this.state.countryDeatils.countryName,
-              gstNumber: this.state.partyBillingAddress.gstNumber,
-              panNumber: '',
-              state: { code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "" },
-              stateCode: this.state.partyBillingAddress.stateCode,
-              stateName: this.state.partyBillingAddress.stateName,
-            },
-            contactNumber: '',
-            country: this.state.countryDeatils,
-            currency: { code: this.state.currency },
-            currencySymbol: this.state.currencySymbol,
-            email: activeEmail,
-            mobileNumber: '',
-            name: this.state.partyName.name,
-            // shippingDetails: this.state.partyShippingAddress,
-            shippingDetails: {
-              address: [this.state.partyShippingAddress.address],
-              countryName: this.state.countryDeatils.countryName,
-              gstNumber: this.state.partyShippingAddress.gstNumber,
-              panNumber: '',
-              state: { code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "" },
-              stateCode: this.state.partyShippingAddress.stateCode,
-              stateName: this.state.partyShippingAddress.stateName,
-            },
-            uniqueName: this.state.partyName.uniqueName,
-          },
-          date: moment(this.state.date).format('DD-MM-YYYY'),
-          dueDate: moment(this.state.date).format('DD-MM-YYYY'),
-          deposit: {
-            type: 'DEBIT',
-            accountUniqueName: this.state.selectedPayMode.uniqueName,
-            amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
-          },
-          entries: this.getEntries(),
-          exchangeRate: this.state.exchangeRate,
-          templateDetails: {
-            other: {
-              shippingDate: this.state.otherDetails.shipDate,
-              shippedVia: this.state.otherDetails.shippedVia,
-              trackingNumber: this.state.otherDetails.trackingNumber,
-              customField1: this.state.otherDetails.customField1,
-              customField2: this.state.otherDetails.customField2,
-              customField3: this.state.otherDetails.customField3,
-            },
-          },
-          type: this.state.invoiceType,
-          updateAccountDetails: false,
-        }
+      }
+
+      if (this.state.selectedInvoice != "") {
+        postBody["invoiceLinkingRequest"] = { linkedInvoices: [this.state.linkedInvoices] }
+      }
 
       console.log('postBody is', JSON.stringify(postBody));
       const results = await InvoiceService.createCreditNote(
@@ -1250,7 +1195,7 @@ export class CreditNote extends React.Component<Props> {
         onSwipeableRightOpen={() => console.log('Swiped right')}
         renderRightActions={() => this.renderRightAction(item)}>
         <TouchableOpacity
-          style={{ backgroundColor: '#E0F2E9', padding: 10, borderRadius: 2, marginBottom: 10 }}
+          style={{ backgroundColor: '#EBF4FA', padding: 10, borderRadius: 2, marginBottom: 10 }}
           onPress={() => {
             this.setState({
               showItemDetails: true,
