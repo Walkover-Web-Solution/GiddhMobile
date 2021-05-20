@@ -288,7 +288,7 @@ export class EditAddress extends React.Component<any, any> {
         <ScrollView style={style.body}>
           <Text style={style.BMfieldTitle}>Address</Text>
           <TextInput
-            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10 }}
+            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10,fontFamily: FONT_FAMILY.regular }}
             multiline
             onChangeText={(text) => this.setState({ address: text })}
             value={this.state.address}></TextInput>
@@ -309,26 +309,26 @@ export class EditAddress extends React.Component<any, any> {
               paddingHorizontal: 10,
               backgroundColor: this.props.route.params.dontChangeCountry ? "#F1F1F2" : ""
             }}
-            textStyle={{ color: '#1c1c1c' }}
+            textStyle={{ color: '#1c1c1c' ,fontFamily: FONT_FAMILY.regular}}
             defaultValue={this.state.selectedCountry.countryName != null ? this.state.selectedCountry.countryName : ''}
             options={this.state.allCountry}
             renderSeparator={() => {
               return <View></View>;
             }}
             dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10 }}
-            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
+            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.regular }}
             renderRow={(options) => {
-              return <Text style={{ padding: 13, color: '#1C1C1C' }}>{options.countryName}</Text>;
+              return <Text style={{ padding: 13, color: '#1C1C1C',fontFamily: FONT_FAMILY.regular }}>{options.countryName}</Text>;
             }}
             renderButtonText={(text) => text.countryName}
             onSelect={(idx, value) => this.setCountrySelected(value)}
           />
           <View style={{ flexDirection: 'row' }}>
-            <Text style={style.BMfieldTitle}>State</Text>
+            <Text style={style.BMfieldTitle}>State </Text>
             {this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode ? <Text style={{ color: "#E04646", marginTop: 20 }}>*</Text> : null}
           </View>
           <Dropdown
-            disabled={this.state.selectStateDisable}
+            disabled={this.state.allStates.length==0 ?true:this.state.selectStateDisable}
             ref={(ref) => (this.state.addresssDropDown = ref)}
             style={{
               marginVertical: 10,
@@ -340,7 +340,7 @@ export class EditAddress extends React.Component<any, any> {
               paddingHorizontal: 10,
               backgroundColor: this.state.selectStateDisable ? "#F1F1F2" : null
             }}
-            textStyle={{ color: '#1c1c1c', fontSize: 14, }}
+            textStyle={{ color: '#1c1c1c', fontSize: 14, fontFamily: FONT_FAMILY.regular}}
             defaultValue={
               this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing
             }
@@ -348,31 +348,34 @@ export class EditAddress extends React.Component<any, any> {
             renderSeparator={() => {
               return <View></View>;
             }}
-            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10, }}
-            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold }}
+            dropdownStyle={{ width: '90%', marginTop: 5, borderRadius: 10,}}
+            dropdownTextStyle={{ color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.regular }}
             renderRow={(options) => {
-              return <Text style={{ padding: 13, color: '#1C1C1C' }}>{options.name}</Text>;
+              return <Text style={{ padding: 13, color: '#1C1C1C',fontFamily: FONT_FAMILY.regular }}>{options.name}</Text>;
             }}
             renderButtonText={(text) => text.name}
             onSelect={(idx, value) => this.setState({ state_billing: value })}
           />
+          {this.state.allStates.length==0 ? (
+            <Text style={{ fontSize: 10, marginTop: 6, marginLeft: 5,fontFamily: FONT_FAMILY.regular }}>No State Present in Current Country</Text>
+          ) : null}
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
             style={{
-              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10,
+              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10,fontFamily: FONT_FAMILY.regular
             }}
             onChangeText={(text) => {
               this.setState({ gstNo: text }), this.findState(text);
             }}
             value={this.state.gstNo}></TextInput>
           {this.state.gstNumberWrong ? (
-            <Text style={{ fontSize: 10, color: 'red', marginTop: 6, marginLeft: 5 }}>Invalid GSTIN Number</Text>
+            <Text style={{ fontSize: 10, color: 'red', marginTop: 6, marginLeft: 5,fontFamily: FONT_FAMILY.regular }}>Invalid GSTIN Number</Text>
           ) : null}
 
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
             style={{
-              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10,
+              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10,fontFamily: FONT_FAMILY.regular
             }}
             onChangeText={(text) => this.setState({ pinCode: text })}
             value={this.state.pinCode}></TextInput>
