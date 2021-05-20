@@ -147,10 +147,6 @@ export class PurchaseBill extends React.Component {
     console.log('shipping from', address);
     this.setState({shipFromAddress: address});
   };
-  // func1 = async () => {
-  //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
-  //   console.log(activeCompany);
-  // };
 
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
@@ -397,17 +393,17 @@ export class PurchaseBill extends React.Component {
     this.setState({isSearchingParty: true});
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
-
+      // console.log('cash account is ', results);
       if (results.body) {
         this.setState({
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
-          addressArray: results.body.addresses,
-          BillFromAddress: results.body.addresses[0],
-          BillToAddress: results.body.addresses[0],
-          shipFromAddress: results.body.addresses[0],
-          shipToAddress: results.body.addresses[0],
+          addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
+          BillFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          shipFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          shipToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
         });
       }
     } catch (e) {
@@ -582,6 +578,7 @@ export class PurchaseBill extends React.Component {
           // billingDetails: this.state.partyBillingAddress,
           billingDetails: {
             address: [this.state.BillFromAddress.address],
+            // address: [''],
             countryName: 'India',
             gstNumber: this.state.BillFromAddress.gstNumber,
             panNumber: '',
@@ -1372,7 +1369,7 @@ export class PurchaseBill extends React.Component {
             />
             {/* <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink'}}
-              onPress={() => console.log(this.state.addedItems)}></TouchableOpacity> */}
+              onPress={() => console.log(this.state.addressArray)}></TouchableOpacity> */}
             {/* <View style={{flexDirection: 'row'}}>
             
             <TouchableOpacity

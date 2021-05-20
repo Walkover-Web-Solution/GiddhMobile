@@ -130,15 +130,25 @@ export class SelectAddress extends React.Component<any, any> {
     this.state = {
       activeIndex: 0,
       editAddress: false,
-      array:
-        this.props.route.params.type == 'warehouse'
-          ? this.props.route.params.warehouseArray
-          : this.props.route.params.addressArray,
+      addressList: this.props.route.params.addressArray.length > 0 ? [...this.props.route.params.addressArray] : [],
+      newList: [],
+      // this.props.route.params.type == 'warehouse'
+      //   ? this.props.route.params.warehouseArray
+      //   : ,
+      selectedAddress: {},
     };
   }
 
   changeactiveIndex = (value: number) => {
     this.setState({activeIndex: value});
+  };
+
+  addAddress = (address) => {
+    let arr = [...this.state.addressList];
+    arr.push(address);
+    // console.log('as expected', arr);
+    this.setState({addressList: arr});
+    // console.log(address);
   };
 
   render() {
@@ -158,10 +168,34 @@ export class SelectAddress extends React.Component<any, any> {
           <Text style={style.title}>
             {this.props.route.params.type == 'warehouse' ? 'Select Warehouse' : 'Select Address'}
           </Text>
+          <TouchableOpacity
+            style={{position: 'absolute', right: 20}}
+            onPress={() =>
+              this.props.navigation.navigate('EditAddress', {
+                address:
+                  this.state.addressList.length > 0
+                    ? this.state.addressList[this.state.activeIndex]
+                    : {
+                        address: '',
+                        gstNumber: '',
+                        state: {
+                          code: '',
+                          name: '',
+                        },
+                        stateCode: '',
+                        stateName: '',
+                      },
+                selectAddress: this.addAddress,
+                statusBarColor: '#ef6c00',
+                headerColor: '#FC8345',
+              })
+            }>
+            <Text style={{color: '#fff', fontFamily: 'AvenirLTStd-Black'}}>Add Address</Text>
+          </TouchableOpacity>
         </View>
         <View style={{height: height * 0.8}}>
           <FlatList
-            data={this.state.array}
+            data={this.state.addressList}
             renderItem={({item, index}) => (
               <AddressItem
                 index={index}
@@ -177,8 +211,9 @@ export class SelectAddress extends React.Component<any, any> {
         <TouchableOpacity
           style={style.button}
           onPress={() => {
-            this.props.route.params.selectAddress(this.state.array[this.state.activeIndex]);
+            this.props.route.params.selectAddress(this.state.addressList[this.state.activeIndex]);
             this.props.navigation.goBack();
+            // console.log(this.props.route.params.addressArray);
           }}
           // onPress={() => console.log(this.state.array)}
         >

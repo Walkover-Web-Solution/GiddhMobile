@@ -140,28 +140,26 @@ export class EditAddress extends React.Component<any, any> {
       editAddress: false,
       isDefault: false,
       // For Cash Invoice country name
-      selectedCountry:
-        this.props.route.params.addressArray.selectedCountry != null
-          ? this.props.route.params.addressArray.selectedCountry
-          : {
-              alpha3CountryCode: 'IND',
-              alpha2CountryCode: 'IN',
-              countryName: 'India',
-              callingCode: '91',
-              currency: {
-                code: 'INR',
-                symbol: '₹',
-              },
-              countryIndia: true,
+      selectedCountry: this.props.route.params.address.selectedCountry
+        ? this.props.route.params.address.selectedCountry
+        : {
+            alpha3CountryCode: 'IND',
+            alpha2CountryCode: 'IN',
+            countryName: 'India',
+            callingCode: '91',
+            currency: {
+              code: 'INR',
+              symbol: '₹',
             },
-      address: this.props.route.params.addressArray.address != null ? this.props.route.params.addressArray.address : '',
+            countryIndia: true,
+          },
+      address: this.props.route.params.address.address != null ? this.props.route.params.address.address : '',
       state_billing:
-        this.props.route.params.addressArray.stateName != null && this.props.route.params.addressArray.stateName != ''
-          ? this.props.route.params.addressArray.stateName
+        this.props.route.params.address.stateName != null && this.props.route.params.address.stateName != ''
+          ? this.props.route.params.address.stateName
           : 'Select',
-      gstNo:
-        this.props.route.params.addressArray.gstNumber != null ? this.props.route.params.addressArray.gstNumber : '',
-      pinCode: this.props.route.params.addressArray.pincode != null ? this.props.route.params.addressArray.pincode : '',
+      gstNo: this.props.route.params.address.gstNumber != null ? this.props.route.params.address.gstNumber : '',
+      pinCode: this.props.route.params.address.pincode != null ? this.props.route.params.address.pincode : '',
       loading: false,
     };
   }
@@ -192,8 +190,8 @@ export class EditAddress extends React.Component<any, any> {
       allCountry: allCountry.body,
       allStates: allStateName.body.stateList,
       selectedCountry:
-        this.props.route.params.addressArray.selectedCountry != null
-          ? this.props.route.params.addressArray.selectedCountry
+        this.props.route.params.address.selectedCountry != null
+          ? this.props.route.params.address.selectedCountry
           : countryIndia,
     });
     console.log(this.state.selectedCountry);

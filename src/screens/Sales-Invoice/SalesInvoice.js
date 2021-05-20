@@ -468,9 +468,33 @@ export class SalesInvoice extends React.Component<Props> {
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
-          addressArray: results.body.addresses,
-          partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
+          addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
+          partyBillingAddress:
+            results.body.addresses.length < 1
+              ? {
+                  address: '',
+                  gstNumber: '',
+                  state: {
+                    code: '',
+                    name: '',
+                  },
+                  stateCode: '',
+                  stateName: '',
+                }
+              : results.body.addresses[0],
+          partyShippingAddress:
+            results.body.addresses.length < 1
+              ? {
+                  address: '',
+                  gstNumber: '',
+                  state: {
+                    code: '',
+                    name: '',
+                  },
+                  stateCode: '',
+                  stateName: '',
+                }
+              : results.body.addresses[0],
         });
       }
     } catch (e) {
@@ -868,8 +892,8 @@ export class SalesInvoice extends React.Component<Props> {
           onPress={() => {
             this.state.invoiceType == INVOICE_TYPE.cash
               ? this.props.navigation.navigate('EditAddress', {
-                  addressArray: this.state.partyBillingAddress,
-                  selectAddress: this.selectBillingAddress.bind(this),
+                  address: this.state.partyBillingAddress,
+                  selectAddress: this.selectBillingAddress,
                   statusBarColor: '#0E7942',
                 })
               : !this.state.partyName
@@ -902,8 +926,8 @@ export class SalesInvoice extends React.Component<Props> {
           onPress={() => {
             this.state.invoiceType == INVOICE_TYPE.cash
               ? this.props.navigation.navigate('EditAddress', {
-                  addressArray: this.state.partyShippingAddress,
-                  selectAddress: this.selectShippingAddress.bind(this),
+                  address: this.state.partyShippingAddress,
+                  selectAddress: this.selectShippingAddress,
                   statusBarColor: '#0E7942',
                 })
               : !this.state.partyName
