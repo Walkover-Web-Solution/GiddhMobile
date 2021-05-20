@@ -1,20 +1,27 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {Layout} from '@ui-kitten/components';
-import {LogBox, ScrollView, View, Dimensions, Text} from 'react-native';
-import {Country} from '@/models/interfaces/country';
-import {BadgeButton} from '@/core/components/badge-button/badge-button.component';
-import {TopCard} from '@/core/components/top-card/top-card.component';
-import {BadgeTab} from '@/models/interfaces/badge-tabs';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { Layout } from '@ui-kitten/components';
+import { LogBox, ScrollView, View, Dimensions, Text } from 'react-native';
+import { Country } from '@/models/interfaces/country';
+import { BadgeButton } from '@/core/components/badge-button/badge-button.component';
+import { TopCard } from '@/core/components/top-card/top-card.component';
+import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
-import {GDContainer} from '@/core/components/container/container.component';
+import { GDContainer } from '@/core/components/container/container.component';
 import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
 import Transaction from '@/screens/Transaction/Transaction';
 import Parties from '@/screens/Parties/Parties';
 import Inventory from '@/screens/Inventory/Inventory';
 
-import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { CommonService } from '@/core/services/common/common.service';
+import { FONT_FAMILY } from '@/utils/constants';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import * as CommonActions from '../../../../redux/CommonAction';
+import { logoutUser } from '../../../../redux/CommonSaga';
+import { put } from 'redux-saga/effects';
+import store from '@/redux/store';
 
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested', // TODO: Remove when fixed
@@ -26,6 +33,8 @@ type HomeComponentProp = WithTranslation &
     isCountriesLoading: boolean;
     getCountriesAction: Function;
     logoutAction: Function;
+    setTabs: Function;
+    logout: Function;
   };
 
 type HomeComponentState = {
@@ -38,7 +47,7 @@ const FirstRoute = () => <Parties />;
 const SecondRoute = () => <Transaction />;
 // const ThirdRoute = () => <Inventory />;
 
-const initialLayout = {width: Dimensions.get('window').width};
+const initialLayout = { width: Dimensions.get('window').width };
 const renderScene = SceneMap({
   first: FirstRoute,
   second: SecondRoute,
@@ -47,14 +56,29 @@ const renderScene = SceneMap({
 class HomeComponent extends React.Component {
   constructor(props: HomeComponentProp) {
     super(props);
-
     this.state = {
       index: 0,
       routes: [
-        {key: 'first', title: 'Parties'},
-        {key: 'second', title: 'Transactions'},
+        { key: 'first', title: 'Parties' },
+        { key: 'second', title: 'Transactions' },
       ],
+      isValid: true,
     };
+    this.getPartiesSundryCreditors();
+  }
+
+  async getPartiesSundryCreditors() {
+    try {
+      const creditors = await CommonService.getPartiesSundryCreditors();
+      console.log(creditors.body.results);
+      this.props.setTabs(false);
+    } catch (e) {
+      console.log(e);
+      if (e.data.code == "UNAUTHORISED") {
+        this.setState({ isValid: false });
+        this.props.setTabs(true);
+      }
+    }
   }
 
   handleIndexChange = (index) => {
@@ -95,9 +119,9 @@ class HomeComponent extends React.Component {
   renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{backgroundColor: 'white'}}
-      style={{backgroundColor: 'white', elevation: 0}}
-      renderLabel={({route, focused, color}) => (
+      indicatorStyle={{ backgroundColor: 'white' }}
+      style={{ backgroundColor: 'white', elevation: 0 }}
+      renderLabel={({ route, focused, color }) => (
         <View
           style={{
             borderTopEndRadius: 17,
@@ -125,17 +149,28 @@ class HomeComponent extends React.Component {
     />
   );
 
+
+
   render() {
     return (
-      <View style={{flex: 1}}>
-        <TabView
-          navigationState={{index: this.state.index, routes: this.state.routes}}
+      <View style={{ flex: 1 }}>
+        {this.state.isValid ? <TabView
+          navigationState={{ index: this.state.index, routes: this.state.routes }}
           renderScene={renderScene}
           onIndexChange={this.handleIndexChange}
           initialLayout={initialLayout}
           // swipeEnabled={false}
           renderTabBar={this.renderTabBar}
-        />
+        /> :
+          <View style={{ flex: 1, justifyContent: 'center', }}>
+            <Text style={{ paddingHorizontal: 40, fontSize: 20, fontFamily: FONT_FAMILY.bold, textAlign: 'center', padding: 8 }}>Please Sign up through Giddh's web app first</Text>
+            <TouchableOpacity
+              onPress={this.props.logout}
+              style={{ marginTop: 15, width: "90%", alignSelf: 'center', borderRadius: 20, justifyContent: 'center' }}>
+              <Text style={{ color: '#5773FF', textAlign: 'center', fontSize: 16 }}>Exit</Text>
+            </TouchableOpacity>
+          </View>
+        }
       </View>
     );
   }

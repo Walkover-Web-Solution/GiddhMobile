@@ -42,7 +42,12 @@ let itemWidth = (Dimensions.get('window').width - (SIZE + padding * 8)) / 4;
 const {height, width} = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-class AddButton extends Component {
+type Props = {
+  navigation:any;
+  isDisabled: any;
+}
+
+class AddButton extends Component<Props> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -193,14 +198,14 @@ class AddButton extends Component {
             width: SIZE,
             height: SIZE,
             borderRadius: SIZE / 2,
-            backgroundColor: '#5773FF',
+            backgroundColor: this.props.isDisabled? 'rgba(00,00,00,0.1)' :'#5773FF',
             bottom: SIZE / 2,
           }}>
           <Animated.View
             style={{
               transform: [{rotate: rotation}],
             }}>
-            <Entypo name="plus" size={24} color="#fff" />
+            <Entypo name="plus" size={24} color={this.props.isDisabled?"rgba(00,00,00,0.1)":"#fff"} />
           </Animated.View>
         </TouchableHighlight>
       </View>
