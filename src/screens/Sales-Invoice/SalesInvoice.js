@@ -86,6 +86,7 @@ export class SalesInvoice extends React.Component<Props> {
         },
         stateCode: '',
         stateName: '',
+        pincode: ""
       },
       partyShippingAddress: {
         address: '',
@@ -96,6 +97,7 @@ export class SalesInvoice extends React.Component<Props> {
         },
         stateCode: '',
         stateName: '',
+        pincode: ''
       },
       addressArray: [],
       addedItems: [],
@@ -731,11 +733,12 @@ export class SalesInvoice extends React.Component<Props> {
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : '',
-              name: this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : '',
+              code: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : "" : this.state.partyBillingAddress.state.code,
+              name: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : "" : this.state.partyBillingAddress.state.name,
             },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
+            pincode: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.pincode : "" : this.state.partyBillingAddress.pincode,
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -751,11 +754,12 @@ export class SalesInvoice extends React.Component<Props> {
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : '',
-              name: this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : '',
+              code: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : "" : this.state.partyShippingAddress.state.code,
+              name: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : "" : this.state.partyShippingAddress.state.name,
             },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
+            pincode: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.pincode : "" : this.state.partyShippingAddress.pincode,
           },
           uniqueName: this.state.partyName.uniqueName,
           customerName: this.state.partyName.name,
@@ -946,12 +950,12 @@ export class SalesInvoice extends React.Component<Props> {
     return addressArray
   };
 
-  selectBillingAddressFromEditAdress = (address) => {
-    console.log(address);
-    this.setState({
+  selectBillingAddressFromEditAdress = async (address) => {
+    await this.setState({
       partyBillingAddress: address,
       countryDeatils: { countryName: address.selectedCountry.countryName, code: address.selectedCountry.currency.code }
     });
+    console.log(this.state.partyBillingAddress);
   };
 
   shippingAddressArray() {
@@ -1654,15 +1658,15 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
               ) : (
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({ showPaymentModePopup: true });
-                  }}>
-                  <Text style={{ color: '#1C1C1C' }}>
-                    {this.state.addedItems.length > 0 &&
-                      this.state.currencySymbol + this.state.amountPaidNowText}
-                  </Text>
-                  {/* <TextInput
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({ showPaymentModePopup: true });
+                    }}>
+                    <Text style={{ color: '#1C1C1C' }}>
+                      {this.state.addedItems.length > 0 &&
+                        this.state.currencySymbol + this.state.amountPaidNowText}
+                    </Text>
+                    {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
                     placeholder={`${this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}0.00`}
                     returnKeyType={'done'}
@@ -1673,8 +1677,8 @@ export class SalesInvoice extends React.Component<Props> {
                       this.setState({amountPaidNowText: text});
                     }}
                   /> */}
-                </TouchableOpacity>
-              )}
+                  </TouchableOpacity>
+                )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
