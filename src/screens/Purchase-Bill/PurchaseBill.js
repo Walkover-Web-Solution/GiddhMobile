@@ -131,6 +131,7 @@ export class PurchaseBill extends React.Component {
       totalAmountInINR: 0.00,
       companyCountryDetails: "",
       selectedInvoice: "",
+      billingToAndShippingToArray: []
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -186,6 +187,7 @@ export class PurchaseBill extends React.Component {
 
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow); this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide); this.setActiveCompanyCountry()
+    this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -310,7 +312,7 @@ export class PurchaseBill extends React.Component {
   async getAllWarehouse() {
     this.setState({ fetechingWarehouseList: true });
     try {
-      const results = await InvoiceService.getWarehouse();
+      const results = await InvoiceService.getWareHouse();
       if (results.body && results.status == 'success') {
         this.setState({ warehouseArray: results.body.results, fetechingWarehouseList: false });
       }
@@ -337,6 +339,48 @@ export class PurchaseBill extends React.Component {
     } catch (e) {
       this.setState({ fetechingTaxList: false });
     }
+  }
+
+  async getCompanyBranchDetails() {
+    const result = await InvoiceService.getCompanyBranchesDetails()
+    if (result.body && result.status == 'success') {
+      await this.setState({ billingToAndShippingToArray: result.body.addresses })
+    }
+  }
+
+  async getBillToAndShipToAddress() {
+    const wareHouse = await this.state.warehouseArray
+    const branchAdressesResult = await InvoiceService.getCompanyBranchAdresses()
+    let billingAddressDetails = {}
+    let shippingAddressDetails = {};
+    console.log("Ware house Array " + JSON.stringify(wareHouse))
+    console.log("company address Array " + JSON.stringify(branchAdressesResult.body[0].addresses))
+    if (branchAdressesResult.body && branchAdressesResult.status == 'success') {
+      for (let i = 0; i < branchAdressesResult.body[0].addresses.length; i++) {
+        var adddressArray = branchAdressesResult.body[0].addresses[i]
+        if (adddressArray.isDefault) {
+          billingAddressDetails["address"] = adddressArray.address
+          billingAddressDetails["state"] = { code: adddressArray.stateCode, name: adddressArray.stateName }
+          billingAddressDetails["stateCode"] = adddressArray.stateCode
+          billingAddressDetails["stateName"] = adddressArray.stateName
+          billingAddressDetails["pincode"] = adddressArray.pincode
+        }
+      }
+    }
+    for (let i = 0; i < wareHouse.length; i++) {
+      if (wareHouse[i].isDefault) {
+        let address = wareHouse[i].addresses[0]
+        if (address) {
+          shippingAddressDetails["address"] = address.address
+          shippingAddressDetails["state"] = { code: address.stateCode, name: address.stateName }
+          shippingAddressDetails["stateCode"] = address.stateCode
+          shippingAddressDetails["stateName"] = address.stateName
+          shippingAddressDetails["pincode"] = address.pincode
+        }
+      }
+    }
+    await this.setState({ shipToAddress: shippingAddressDetails, BillToAddress: billingAddressDetails});
+    await this.getCompanyBranchDetails();
   }
 
   getTaxDeatilsForUniqueName(uniqueName) {
@@ -455,11 +499,12 @@ export class PurchaseBill extends React.Component {
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
           addressArray: results.body.addresses,
-          BillFromAddress: results.body.addresses[0],
-          BillToAddress: results.body.addresses[0],
-          shipFromAddress: results.body.addresses[0],
-          shipToAddress: results.body.addresses[0],
+          BillFromAddress: results.body.addresses[0] ? results.body.addresses[0] : {},
+          // BillToAddress: results.body.addresses[0],
+          shipFromAddress: results.body.addresses[0] ? results.body.addresses[0] : {},
+          // shipToAddress: results.body.addresses[0],
         });
+        await this.getBillToAndShipToAddress();
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
@@ -537,6 +582,7 @@ export class PurchaseBill extends React.Component {
       totalAmountInINR: 0.00,
       companyCountryDetails: "",
       selectedInvoice: "",
+      billingToAndShippingToArray: []
     });
   };
   getDiscountForEntry(item) {
@@ -721,13 +767,13 @@ export class PurchaseBill extends React.Component {
           name: this.state.partyName.name,
           // shippingDetails: this.state.partyShippingAddress,
           shippingDetails: {
-            address: [this.state.BillToAddress.address],
+            address: [this.state.shipFromAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.BillToAddress.gstNumber,
+            gstNumber: this.state.shipFromAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : "", name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : "" },
-            stateCode: this.state.BillToAddress.stateCode,
-            stateName: this.state.BillToAddress.stateName,
+            state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : "", name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : "" },
+            stateCode: this.state.shipFromAddress.stateCode,
+            stateName: this.state.shipFromAddress.stateName,
           },
           uniqueName: this.state.partyName.uniqueName,
         },
@@ -760,13 +806,13 @@ export class PurchaseBill extends React.Component {
         // voucherAdjustments: {adjustments: []},
         company: {
           billingDetails: {
-            address: [this.state.shipFromAddress.address],
+            address: [this.state.BillToAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.shipFromAddress.gstNumber,
+            gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : "", name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : "" },
-            stateCode: this.state.shipFromAddress.stateCode,
-            stateName: this.state.shipFromAddress.stateName,
+            state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : "", name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : "" },
+            stateCode: this.state.BillToAddress.stateCode,
+            stateName: this.state.BillToAddress.stateName,
           },
           shippingDetails: {
             address: [this.state.shipToAddress.address],
@@ -779,9 +825,9 @@ export class PurchaseBill extends React.Component {
           },
         },
       };
-      
-      if(this.state.selectedInvoice!=""){
-        postBody["number"] =  this.state.selectedInvoice
+
+      if (this.state.selectedInvoice != "") {
+        postBody["number"] = this.state.selectedInvoice
       }
 
       console.log('purchase bill postBody is', JSON.stringify(postBody));
@@ -935,11 +981,11 @@ export class PurchaseBill extends React.Component {
       <View style={style.dateView}>
         <View style={{ flexDirection: 'row' }}>
           <Text style={style.InvoiceHeading}>Invoice #</Text>
-          <View style={{ flexDirection: 'row', width: "75%", marginHorizontal: 15, justifyContent: "space-between",}}>
+          <View style={{ flexDirection: 'row', width: "75%", marginHorizontal: 15, justifyContent: "space-between", }}>
             <TextInput
               placeholder={"Enter Invoice name"}
               value={this.state.selectedInvoice}
-              style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%',height:40}}
+              style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%', height: 40 }}
               onChangeText={(value) => {
                 this.setState({ selectedInvoice: value })
               }}
@@ -967,8 +1013,9 @@ export class PurchaseBill extends React.Component {
               this.props.navigation.navigate('SelectAddress', {
                 addressArray: this.state.addressArray,
                 type: 'address',
-                selectAddress: this.selectBillFromAddress,
+                selectAddress: this.selectBillFromAddress.bind(this),
                 color: '#FC8345',
+                statusBarColor: "#ef6c00"
               });
             }
           }}>
@@ -999,8 +1046,42 @@ export class PurchaseBill extends React.Component {
               this.props.navigation.navigate('SelectAddress', {
                 addressArray: this.state.addressArray,
                 type: 'address',
-                selectAddress: this.selectBillToAddress,
+                selectAddress: this.selectShipFromAddress.bind(this),
                 color: '#FC8345',
+                statusBarColor: "#ef6c00"
+              });
+            }
+          }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text numberOfLines={2} style={style.senderAddressText}>
+              {'Shipping From'}
+            </Text>
+            <AntDesign name={'right'} size={18} color={'#808080'} />
+          </View>
+          <Text numberOfLines={2} style={style.selectedAddressText}>
+            {this.state.shipFromAddress.address
+              ? this.state.shipFromAddress.address
+              : this.state.shipFromAddress.stateName
+                ? this.state.shipFromAddress.stateName
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Shipping Address'}
+          </Text>
+
+          {/*Shipping Address View*/}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
+          onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.props.navigation.navigate('SelectAddress', {
+                addressArray: this.state.billingToAndShippingToArray,
+                type: 'address',
+                selectAddress: this.selectBillToAddress.bind(this),
+                color: '#FC8345',
+                statusBarColor: "#ef6c00"
               });
             }
           }}>
@@ -1029,40 +1110,11 @@ export class PurchaseBill extends React.Component {
               alert('Please select a party.');
             } else {
               this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.addressArray,
+                addressArray: this.state.billingToAndShippingToArray,
                 type: 'address',
-                selectAddress: this.selectShipFromAddress,
+                selectAddress: this.selectShipToAddress.bind(this),
                 color: '#FC8345',
-              });
-            }
-          }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={2} style={style.senderAddressText}>
-              {'Shipping From'}
-            </Text>
-            <AntDesign name={'right'} size={18} color={'#808080'} />
-          </View>
-          <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.shipFromAddress.address
-              ? this.state.shipFromAddress.address
-              : this.state.shipFromAddress.stateName
-                ? this.state.shipFromAddress.stateName
-                : 'Select Shipping Address'}
-          </Text>
-
-          {/*Shipping Address View*/}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
-          onPress={() => {
-            if (!this.state.partyName) {
-              alert('Please select a party.');
-            } else {
-              this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.addressArray,
-                type: 'address',
-                selectAddress: this.selectShipToAddress,
-                color: '#FC8345',
+                statusBarColor: "#ef6c00"
               });
             }
           }}>
@@ -1077,7 +1129,9 @@ export class PurchaseBill extends React.Component {
               ? this.state.shipToAddress.address
               : this.state.shipToAddress.stateName
                 ? this.state.shipToAddress.stateName
-                : 'Select Shipping Address'}
+                : this.state.countryDeatils.countryName
+                  ? this.state.countryDeatils.countryName
+                  : 'Select Shipping Address'}
           </Text>
 
           {/*Shipping Address View*/}

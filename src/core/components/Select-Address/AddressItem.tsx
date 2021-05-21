@@ -28,10 +28,10 @@ export class AddressItem extends React.Component<any, any> {
       <TouchableOpacity
         activeOpacity={0.5}
         style={{
-          height: height * 0.15,
+          height: height * 0.1,
           width: width,
           //   backgroundColor: 'pink',
-          marginVertical: 10,
+          marginVertical:0,
           flexDirection: 'row',
           alignItems: 'center',
           paddingHorizontal: 15,
@@ -51,7 +51,7 @@ export class AddressItem extends React.Component<any, any> {
             <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: this.props.color}}></View>
           )}
         </View>
-        <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 15}} numberOfLines={4}>
+        <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 15,}} numberOfLines={4}>
           {this.props.item.address ? this.props.item.address : this.props.item.stateName}
         </Text>
       </TouchableOpacity>

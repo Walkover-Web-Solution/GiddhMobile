@@ -1,8 +1,8 @@
 import httpInstance from '@/core/services/http/http.service';
-import {BaseResponse} from '@/models/classes/base-response';
-import {invoiceUrls} from '@/core/services/invoice/invoice.url';
-import {Company} from '@/models/interfaces/company';
-import {Alert} from 'react-native';
+import { BaseResponse } from '@/models/classes/base-response';
+import { invoiceUrls } from '@/core/services/invoice/invoice.url';
+import { Company } from '@/models/interfaces/company';
+import { Alert } from 'react-native';
 
 export class InvoiceService {
   /**
@@ -57,6 +57,46 @@ export class InvoiceService {
         return err;
       });
   }
+
+
+  /**
+   * get company Address
+   */
+  static getCompanyBranchesDetails() {
+    return httpInstance.get(invoiceUrls.companyBranchDeatils, {}).then((res) => {
+      return res.data;
+    }).catch((err) => {
+      console.log(err)
+      return null;
+    });
+
+  }
+
+
+  static getCompanyBranchAdresses() {
+    return httpInstance
+      .get(invoiceUrls.getCompanyBranchAddresses, {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(err)
+        return null;
+      });
+  }
+
+  static getWareHouse() {
+    return httpInstance
+      .get(invoiceUrls.getWareHouse, {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(err)
+        return null;
+      });
+  }
+
   //  stockDetailService: createEndpoint('v2/company/:companyUniqueName/particular/sales?stockUniqueName=&branchUniqueName=:branchUniqueName'),
   //serviceType - servicesales|sales
   static getStockDetails(uniqueName, stockUniqueName) {
