@@ -345,42 +345,35 @@ export class PurchaseBill extends React.Component {
     const result = await InvoiceService.getCompanyBranchesDetails()
     if (result.body && result.status == 'success') {
       await this.setState({ billingToAndShippingToArray: result.body.addresses })
+      for (let i = 0; i < result.body.addresses.length; i++) {
+        var adddressArray = await result.body.addresses[i]
+        if (adddressArray.branches) {
+          for (var j = 0; j < adddressArray.branches.length; j++) {
+            let address = adddressArray.branches[j]
+            if (address.isDefault && address.isHeadQuarter) {
+              console.log("company address Array " + JSON.stringify(adddressArray))
+              await this.setState({ BillToAddress: adddressArray });
+              break
+            }
+          }
+        }
+      }
     }
   }
 
   async getBillToAndShipToAddress() {
+    await this.getCompanyBranchDetails();
     const wareHouse = await this.state.warehouseArray
-    const branchAdressesResult = await InvoiceService.getCompanyBranchAdresses()
-    let billingAddressDetails = {}
-    let shippingAddressDetails = {};
     console.log("Ware house Array " + JSON.stringify(wareHouse))
-    console.log("company address Array " + JSON.stringify(branchAdressesResult.body[0].addresses))
-    if (branchAdressesResult.body && branchAdressesResult.status == 'success') {
-      for (let i = 0; i < branchAdressesResult.body[0].addresses.length; i++) {
-        var adddressArray = branchAdressesResult.body[0].addresses[i]
-        if (adddressArray.isDefault) {
-          billingAddressDetails["address"] = adddressArray.address
-          billingAddressDetails["state"] = { code: adddressArray.stateCode, name: adddressArray.stateName }
-          billingAddressDetails["stateCode"] = adddressArray.stateCode
-          billingAddressDetails["stateName"] = adddressArray.stateName
-          billingAddressDetails["pincode"] = adddressArray.pincode
-        }
-      }
-    }
     for (let i = 0; i < wareHouse.length; i++) {
       if (wareHouse[i].isDefault) {
         let address = wareHouse[i].addresses[0]
         if (address) {
-          shippingAddressDetails["address"] = address.address
-          shippingAddressDetails["state"] = { code: address.stateCode, name: address.stateName }
-          shippingAddressDetails["stateCode"] = address.stateCode
-          shippingAddressDetails["stateName"] = address.stateName
-          shippingAddressDetails["pincode"] = address.pincode
+          await this.setState({ shipToAddress: address, });
+          break
         }
       }
     }
-    await this.setState({ shipToAddress: shippingAddressDetails, BillToAddress: billingAddressDetails});
-    await this.getCompanyBranchDetails();
   }
 
   getTaxDeatilsForUniqueName(uniqueName) {
