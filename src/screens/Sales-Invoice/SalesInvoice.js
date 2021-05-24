@@ -516,9 +516,33 @@ export class SalesInvoice extends React.Component<Props> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses,
-          partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
+          addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
+          partyBillingAddress:
+            results.body.addresses.length < 1
+              ? {
+                  address: '',
+                  gstNumber: '',
+                  state: {
+                    code: '',
+                    name: '',
+                  },
+                  stateCode: '',
+                  stateName: '',
+                }
+              : results.body.addresses[0],
+          partyShippingAddress:
+            results.body.addresses.length < 1
+              ? {
+                  address: '',
+                  gstNumber: '',
+                  state: {
+                    code: '',
+                    name: '',
+                  },
+                  stateCode: '',
+                  stateName: '',
+                }
+              : results.body.addresses[0],
         });
       }
     } catch (e) {
@@ -987,7 +1011,7 @@ export class SalesInvoice extends React.Component<Props> {
             this.state.invoiceType == INVOICE_TYPE.cash ?
               this.props.navigation.navigate('EditAddress', {
                 dontChangeCountry: true,
-                addressArray: this.billingAddressArray(),
+                address: this.billingAddressArray(),
                 selectAddress: this.selectBillingAddressFromEditAdress.bind(this),
                 statusBarColor: '#0E7942',
               })
@@ -1024,7 +1048,7 @@ export class SalesInvoice extends React.Component<Props> {
             this.state.invoiceType == INVOICE_TYPE.cash ?
               this.props.navigation.navigate('EditAddress', {
                 dontChangeCountry: true,
-                addressArray: this.shippingAddressArray(),
+                address: this.shippingAddressArray(),
                 selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
                 statusBarColor: '#0E7942',
               })
