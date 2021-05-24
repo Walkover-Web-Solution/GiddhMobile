@@ -10,7 +10,6 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { FONT_FAMILY } from '@/utils/constants';
-import CheckBox from '@react-native-community/checkbox'
 import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel, } from 'react-native-simple-radio-button';

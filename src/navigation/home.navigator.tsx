@@ -1,34 +1,35 @@
-import React, {useEffect, useState} from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import React, { useEffect, useState } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // import {BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
 import HomeScreen from '@/screens/Home/Home';
 import Routes from './routes';
-import {BigButton} from '@/core/components/big-button/big-button.component';
-import {InventoryMainScreen} from '@/screens/Inventory/Inventory-Main';
+import { BigButton } from '@/core/components/big-button/big-button.component';
+import { InventoryMainScreen } from '@/screens/Inventory/Inventory-Main';
 import Transactions from '@/screens/Transaction/Transaction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {PartiesMainScreen} from '@/screens/Parties/PartiesMain';
-import {MoreScreen} from '@/screens/More/More';
+import { PartiesMainScreen } from '@/screens/Parties/PartiesMain';
+import { MoreScreen } from '@/screens/More/More';
 import MoreStack from './more.navigator';
-import {PartiesStack} from './parties.navigator';
+import { PartiesStack } from './parties.navigator';
 import AddButton from './components/AddButton';
 import DashboardStack from './dashboard.navigator';
 
-const {Navigator, Screen} = createBottomTabNavigator();
+const { Navigator, Screen } = createBottomTabNavigator();
 
-import {createStackNavigator} from '@react-navigation/stack';
-import {View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter} from 'react-native';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import { createStackNavigator } from '@react-navigation/stack';
+import { View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter } from 'react-native';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const Stack = createStackNavigator();
 
 export const HomeNavigator = () => {
   const [branchSelected, setBranchSelected] = useState(true);
+  const [disableTabs, setTabs] = useState(true);
   useEffect(() => {
     isBranchSelected();
     DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
@@ -36,12 +37,13 @@ export const HomeNavigator = () => {
     });
   }, []);
 
-  function MyTabBar({state, descriptors, navigation, renderIcon, activeTintColor, inactiveTintColor}) {
+  function MyTabBar({ state, descriptors, navigation, renderIcon, activeTintColor, inactiveTintColor }) {
     return (
       <View
+        pointerEvents={disableTabs ? 'none' : 'auto'}
         style={{
           flexDirection: 'row',
-          backgroundColor: 'white',
+          backgroundColor: disableTabs ? "rgba(00,00,00,0.1)" : "white",
           height: height * 0.08,
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -52,16 +54,16 @@ export const HomeNavigator = () => {
           },
           shadowOpacity: 0.22,
           shadowRadius: 2.22,
-          elevation: 3,
+          elevation: disableTabs ? 0 : 3,
         }}>
         {state.routes.map((route, index) => {
-          const {options} = descriptors[route.key];
+          const { options } = descriptors[route.key];
           const label =
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
-              ? options.title
-              : route.name;
+                ? options.title
+                : route.name;
 
           const isFocused = state.index === index;
 
@@ -90,7 +92,7 @@ export const HomeNavigator = () => {
           const renderIcon = (label) => {
             if (label == 'Dashboard') {
               return (
-                <MaterialCommunityIcons name="view-dashboard" size={23} color={isFocused ? '#5773FF' : '#808080'} />
+                <MaterialCommunityIcons name="view-dashboard" size={23} color={disableTabs ? '#808080' : isFocused ? '#5773FF' : '#808080'} />
               );
             } else if (label == 'Parties') {
               return <MaterialIcons name="person" size={23} color={isFocused ? '#5773FF' : '#808080'} />;
@@ -104,23 +106,23 @@ export const HomeNavigator = () => {
           };
 
           return route.name == 'add' ? (
-            branchSelected && <AddButton navigation={navigation} />
+            branchSelected && <AddButton isDisabled={disableTabs} navigation={navigation} />
           ) : (
-            <TouchableOpacity
-              // accessibilityRole="button"
-              // accessibilityStates={isFocused ? ['selected'] : []}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
-              // testID={options.tabBarTestID}
-              onPress={onPress}
-              onLongPress={onLongPress}
-              style={{alignItems: 'center', width: Dimensions.get('window').width * 0.2}}>
-              {/* {renderIcon({route, focused: true, activeTintColor})} */}
-              {renderIcon(label)}
-              <Text style={{color: isFocused ? '#5773FF' : '#808080', fontSize: 13, fontFamily: 'AvenirLTStd-Book'}}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          );
+              <TouchableOpacity
+                // accessibilityRole="button"
+                // accessibilityStates={isFocused ? ['selected'] : []}
+                accessibilityLabel={options.tabBarAccessibilityLabel}
+                // testID={options.tabBarTestID}
+                onPress={onPress}
+                onLongPress={onLongPress}
+                style={{ alignItems: 'center', width: Dimensions.get('window').width * 0.2 }}>
+                {/* {renderIcon({route, focused: true, activeTintColor})} */}
+                {renderIcon(label)}
+                <Text style={{ color: disableTabs?'#808080': isFocused ? '#5773FF' : '#808080', fontSize: 13, fontFamily: 'AvenirLTStd-Book' }}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
         })}
       </View>
     );
@@ -148,19 +150,21 @@ export const HomeNavigator = () => {
     return true;
   };
 
+
   return (
     <Navigator tabBar={(props) => <MyTabBar {...props} />}>
       <Screen
         name={Routes.Transaction}
         component={HomeScreen}
-        options={({route}) => ({
+        initialParams={{ setTabs: setTabs }}
+        options={({ route }) => ({
           tabBarLabel: 'Dashboard',
           tabBarVisible: getTabBarVisibility(route),
-
-          tabBarIcon: ({focused}) => (
+          tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
           ),
-        })}
+        })
+        }
       />
 
       {/* <Screen
@@ -176,17 +180,17 @@ export const HomeNavigator = () => {
       <Screen
         name={Routes.Inventory}
         component={InventoryMainScreen}
-        options={({route}) => ({
+        options={({ route }) => ({
           tabBarLabel: 'Inventory',
 
-          tabBarIcon: ({focused}) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
+          tabBarIcon: ({ focused }) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />,
         })}
       />
 
       <Screen
         name={Routes.Add}
         component={DashboardStack}
-        options={({route, navigation}) => ({
+        options={({ route, navigation }) => ({
           tabBarVisible: getTabBarVisibility(route),
           tabBarLabel: '',
           // tabBarIcon: ({focused}) => (getTabBarVisibility(route) ? <AddButton navigation={navigation} /> : null),
@@ -196,19 +200,19 @@ export const HomeNavigator = () => {
       <Screen
         name={Routes.Parties}
         component={PartiesStack}
-        options={({route}) => ({
+        options={({ route }) => ({
           tabBarLabel: 'Parties',
           tabBarVisible: getTabBarVisibility(route),
-          tabBarIcon: ({focused}) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
+          tabBarIcon: ({ focused }) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />,
         })}
       />
       <Screen
         name={Routes.More}
         component={MoreStack}
-        options={({route}) => ({
+        options={({ route }) => ({
           tabBarLabel: 'More',
           tabBarVisible: getTabBarVisibility(route),
-          tabBarIcon: ({focused}) => (
+          tabBarIcon: ({ focused }) => (
             <MaterialCommunityIcons name="dots-vertical" size={26} color={focused ? '#5773FF' : '#808080'} />
           ),
         })}

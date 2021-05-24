@@ -73,6 +73,7 @@ export function* getCompanyAndBranches() {
 }
 
 export function* logoutUser() {
+  console.log("here")
   try {
     appleAuth.Operation.LOGOUT;
     yield AsyncStorage.removeItem(STORAGE_KEYS.token);
