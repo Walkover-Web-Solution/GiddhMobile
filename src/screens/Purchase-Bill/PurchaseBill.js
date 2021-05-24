@@ -341,7 +341,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  async getCompanyBranchDetails() {
+  async getCompanyAddress() {
     const result = await InvoiceService.getCompanyBranchesDetails()
     if (result.body && result.status == 'success') {
       await this.setState({ billingToAndShippingToArray: result.body.addresses })
@@ -362,7 +362,7 @@ export class PurchaseBill extends React.Component {
   }
 
   async getBillToAndShipToAddress() {
-    await this.getCompanyBranchDetails();
+    await this.getCompanyAddress();
     const wareHouse = await this.state.warehouseArray
     console.log("Ware house Array " + JSON.stringify(wareHouse))
     for (let i = 0; i < wareHouse.length; i++) {
