@@ -131,7 +131,7 @@ export class PurchaseBill extends React.Component {
       totalAmountInINR: 0.00,
       companyCountryDetails: "",
       selectedInvoice: "",
-      billingToAndShippingToArray: []
+      allBillingToAddresses: []
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -153,7 +153,7 @@ export class PurchaseBill extends React.Component {
   };
   selectShipToAddress = (address) => {
     console.log('shipping to', address);
-    this.setState({ shipToAddress: address });
+    this.setState({ shipToAddress: address.addresses[0] });
   };
   selectShipFromAddress = (address) => {
     console.log('shipping from', address);
@@ -344,7 +344,7 @@ export class PurchaseBill extends React.Component {
   async getCompanyAddress() {
     const result = await InvoiceService.getCompanyBranchesDetails()
     if (result.body && result.status == 'success') {
-      await this.setState({ billingToAndShippingToArray: result.body.addresses })
+      await this.setState({ allBillingToAddresses: result.body.addresses })
       for (let i = 0; i < result.body.addresses.length; i++) {
         var adddressArray = await result.body.addresses[i]
         if (adddressArray.branches) {
@@ -575,7 +575,7 @@ export class PurchaseBill extends React.Component {
       totalAmountInINR: 0.00,
       companyCountryDetails: "",
       selectedInvoice: "",
-      billingToAndShippingToArray: []
+      allBillingToAddresses: []
     });
   };
   getDiscountForEntry(item) {
@@ -1070,7 +1070,7 @@ export class PurchaseBill extends React.Component {
               alert('Please select a party.');
             } else {
               this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.billingToAndShippingToArray,
+                addressArray: this.state.allBillingToAddresses,
                 type: 'address',
                 selectAddress: this.selectBillToAddress.bind(this),
                 color: '#FC8345',
@@ -1103,8 +1103,8 @@ export class PurchaseBill extends React.Component {
               alert('Please select a party.');
             } else {
               this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.billingToAndShippingToArray,
-                type: 'address',
+                warehouseArray: this.state.warehouseArray,
+                type: 'warehouse',
                 selectAddress: this.selectShipToAddress.bind(this),
                 color: '#FC8345',
                 statusBarColor: "#ef6c00"

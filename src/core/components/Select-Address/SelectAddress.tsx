@@ -13,9 +13,9 @@ import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AddressItem from './AddressItem';
-import {TextInput} from 'react-native-gesture-handler';
+import { TextInput } from 'react-native-gesture-handler';
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const addresses = [
   {
@@ -25,7 +25,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -38,7 +38,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -51,7 +51,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -64,7 +64,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -77,7 +77,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -90,7 +90,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -103,7 +103,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -116,7 +116,7 @@ const addresses = [
     isComposite: false,
     isDefault: true,
     partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
+    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
     stateCode: 'AP',
     stateCodeString: '37',
     stateGstCode: '37',
@@ -138,7 +138,7 @@ export class SelectAddress extends React.Component<any, any> {
   }
 
   changeactiveIndex = (value: number) => {
-    this.setState({activeIndex: value});
+    this.setState({ activeIndex: value });
   };
 
   render() {
@@ -150,7 +150,7 @@ export class SelectAddress extends React.Component<any, any> {
         <View
           style={[
             style.header,
-            {backgroundColor: this.props.route.params.color ? this.props.route.params.color : '#229F5F'},
+            { backgroundColor: this.props.route.params.color ? this.props.route.params.color : '#229F5F' },
           ]}>
           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward-arrow'} color="#fff" size={18} />
@@ -159,12 +159,13 @@ export class SelectAddress extends React.Component<any, any> {
             {this.props.route.params.type == 'warehouse' ? 'Select Warehouse' : 'Select Address'}
           </Text>
         </View>
-        <View style={{height: height * 0.8}}>
+        <View style={{ height: height * 0.8 }}>
           <FlatList
             data={this.state.array}
-            renderItem={({item, index}) => (
+            renderItem={({ item, index }) => (
               <AddressItem
                 index={index}
+                type={this.props.route.params.type}
                 item={item}
                 activeIndex={this.state.activeIndex}
                 changeactiveIndex={this.changeactiveIndex}
@@ -180,7 +181,7 @@ export class SelectAddress extends React.Component<any, any> {
             this.props.route.params.selectAddress(this.state.array[this.state.activeIndex]);
             this.props.navigation.goBack();
           }}
-          // onPress={() => console.log(this.state.array)}
+        // onPress={() => console.log(this.state.array)}
         >
           <Text style={style.buttonText}>Select</Text>
         </TouchableOpacity>
