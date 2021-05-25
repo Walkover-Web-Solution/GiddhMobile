@@ -97,6 +97,13 @@ export default StyleSheet.create({
     color: '#808080',
     marginVertical: 6,
   },
+  addressSameCheckBoxText:{
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 12,
+    color: '#808080',
+    marginTop:5,
+    marginLeft:5
+  },
   inventoryNameText: {
     fontFamily: FONT_FAMILY.regular,
     fontSize: 14,

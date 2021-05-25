@@ -64,6 +64,13 @@ export default StyleSheet.create({
     // shadowRadius: 2,
     // elevation: 5,
   },
+  addressSameCheckBoxText:{
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 12,
+    color: '#808080',
+    marginTop:5,
+    marginLeft:5
+  },
   dateView: {
     flexDirection: 'row',
     paddingHorizontal: 16,
