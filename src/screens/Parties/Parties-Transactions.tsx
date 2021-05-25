@@ -1,6 +1,6 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
+import { connect } from 'react-redux';
+import { GDRoundedDateRangeInput } from '@/core/components/input/rounded-date-range-input.component';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
 import _ from 'lodash';
 import {
@@ -14,18 +14,20 @@ import {
   Alert,
   Linking,
   StatusBar,
+  Modal,
+  ToastAndroid,
 } from 'react-native';
 import style from '@/screens/Transaction/style';
-import {useIsFocused} from '@react-navigation/native';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import { useIsFocused } from '@react-navigation/native';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {CommonService} from '@/core/services/common/common.service';
+import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-community/async-storage';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {Bars} from 'react-native-loader';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
 import httpInstance from '@/core/services/http/http.service';
-import {commonUrls} from '@/core/services/common/common.url';
+import { commonUrls } from '@/core/services/common/common.url';
 import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -36,11 +38,16 @@ import PDFModal from './components/pdfModal';
 import DownloadModal from './components/downloadingModal';
 import RNFetchBlob from 'rn-fetch-blob';
 import getSymbolFromCurrency from 'currency-symbol-map';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { format } from 'date-fns';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import PushNotification, { Importance } from 'react-native-push-notification';
 
 import Share from 'react-native-share';
 import base64 from 'react-native-base64';
 import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
+import { catch } from 'metro.config';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -68,11 +75,54 @@ class PartiesTransactionScreen extends React.Component {
       debitTotal: 0,
       activeDateFilter: '',
       dateMode: 'defaultDates',
+      remainderModal: false,
+      datePicker: false,
+      timePicker: false,
+      dateTime: new Date(Date.now()),
     };
+
   }
   componentDidMount() {
     this.getTransactions();
+    PushNotification.popInitialNotification((notification) => {
+      console.log('Initial Notification', notification);
+    });
   }
+
+  createChannel = () => {
+    PushNotification.createChannel(
+      {
+        channelId: "channel-id",
+        channelName: "My channel",
+        channelDescription: "reminders channel",
+        playSound: false,
+        soundName: "default",
+        importance: Importance.HIGH,
+        vibrate: true,
+      },
+      (created) => console.log(`createChannel returned '${created}'`) 
+    );
+  }
+
+  sendNotification = async (companyName) => {
+    try {
+      this.createChannel();
+      PushNotification.localNotificationSchedule({
+        date: this.state.dateTime,
+        message: 'Payment to ' + companyName + " is due",
+        allowWhileIdle: true,
+        channelId: 'channel-id',
+        smallIcon: 'ic_launcher',
+        title: 'Reminder'
+      });
+      this.setState({remainderModal:false});
+      Alert.alert("Success", "Reminder successfully activated", [{style:'destructive', text:'Okay'}]);
+    } catch (error) {
+      console.log("failed to push notification" + error);
+      Alert.alert("Fail", "Failed to activat reminder", [{style:'destructive', text:'Okay'}])
+    }
+  }
+
 
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
@@ -202,23 +252,23 @@ class PartiesTransactionScreen extends React.Component {
   };
 
   transactionsLoader = () => {
-    this.setState({transactionsLoader: true});
+    this.setState({ transactionsLoader: true });
   };
 
   modalVisible = () => {
-    this.setState({voucherModal: false});
+    this.setState({ voucherModal: false });
   };
   pdfmodalVisible = () => {
-    this.setState({pdfModal: false});
+    this.setState({ pdfModal: false });
   };
   shareModalVisible = (value) => {
-    this.setState({ShareModal: value});
+    this.setState({ ShareModal: value });
   };
   downloadModalVisible = (value) => {
-    this.setState({DownloadModal: value});
+    this.setState({ DownloadModal: value });
   };
   moreModalVisible = () => {
-    this.setState({MoreModal: false});
+    this.setState({ MoreModal: false });
   };
 
   onWhatsApp = () => {
@@ -439,7 +489,7 @@ class PartiesTransactionScreen extends React.Component {
       });
     } catch (e) {
       console.log(e);
-      this.setState({showLoader: false});
+      this.setState({ showLoader: false });
     }
   }
   async handleLoadMore() {
@@ -472,7 +522,7 @@ class PartiesTransactionScreen extends React.Component {
       //   });
     } catch (e) {
       console.log(e);
-      this.setState({showLoader: false, loadingMore: false});
+      this.setState({ showLoader: false, loadingMore: false });
     }
   }
   handleRefresh = () => {
@@ -522,7 +572,7 @@ class PartiesTransactionScreen extends React.Component {
         let base69 = base64.decode(base64Str);
         let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
         RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-        this.setState({DownloadModal: false});
+        this.setState({ DownloadModal: false });
       });
     } catch (e) {
       console.log(e);
@@ -585,7 +635,7 @@ class PartiesTransactionScreen extends React.Component {
           let base69 = base64.decode(base64Str);
           let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
           RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-          this.setState({ShareModal: false});
+          this.setState({ ShareModal: false });
         })
         .then(() => {
           Share.open({
@@ -614,7 +664,7 @@ class PartiesTransactionScreen extends React.Component {
           Alert.alert('', 'Please install whats app to send direct message via whats app');
         } else {
           try {
-            this.setState({ShareModal: true});
+            this.setState({ ShareModal: true });
             const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
             const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
             const shareOptions = {
@@ -637,7 +687,7 @@ class PartiesTransactionScreen extends React.Component {
                 let base69 = base64.decode(base64Str);
                 let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
                 RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-                this.setState({ShareModal: false});
+                this.setState({ ShareModal: false });
               })
               .then(() => {
                 Share.shareSingle(shareOptions)
@@ -661,11 +711,21 @@ class PartiesTransactionScreen extends React.Component {
   filterCall = _.debounce(this.getTransactions, 2000);
 
   numberWithCommas = (x) => {
-    if(x == null){
+    if (x == null) {
       return "0";
     }
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
+
+  scheduleNotification = () => {
+    const today = new Date(Date.now());
+    const selected: Date = this.state.dateTime;
+    if (today.getDate() == selected.getDate() && today.getMonth() == selected.getMonth() && today.getFullYear() == selected.getFullYear() && this.state.dateTime.getTime() <= new Date(Date.now()).getTime()) {
+      Alert.alert("Invalid time", "Please enter a valid time", [{ style: 'destructive', text: 'Okay' }]);
+    } else {
+      this.sendNotification(this.props.route.params.item.name);
+    }
+  }
 
   _renderFooter = () => {
     if (!this.state.loadingMore) return null;
@@ -688,14 +748,14 @@ class PartiesTransactionScreen extends React.Component {
   render() {
     if (this.state.showLoader) {
       return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
           {this.FocusAwareStatusBar(this.props.isFocused)}
           <Bars size={15} color={colors.PRIMARY_NORMAL} />
         </View>
       );
     } else {
       return (
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
           {this.FocusAwareStatusBar(this.props.isFocused)}
           <View
             style={{
@@ -709,7 +769,7 @@ class PartiesTransactionScreen extends React.Component {
               <Icon name={'Backward-arrow'} color="#fff" size={18} />
             </TouchableOpacity>
 
-            <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF'}}>
+            <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
               {this.props.route.params.item.name}
             </Text>
           </View>
@@ -723,19 +783,19 @@ class PartiesTransactionScreen extends React.Component {
               paddingHorizontal: 20,
               justifyContent: 'space-between',
             }}>
-            <View style={{alignSelf: 'center'}}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#616161'}}>Credit Total :</Text>
-                <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 5}}>
+            <View style={{ alignSelf: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Credit Total :</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 5 }}>
                   {this.props.route.params.item.country.code == 'IN'
                     ? '₹'
                     : getSymbolFromCurrency(this.props.route.params.item.country.code)}
                   {this.numberWithCommas(this.state.creditTotal)}
                 </Text>
               </View>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={{fontFamily: 'AvenirLTStd-Book', color: '#616161'}}>Debit Total :</Text>
-                <Text style={{fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 8}}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Debit Total :</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 8 }}>
                   {this.props.route.params.item.country.code == 'IN'
                     ? '₹'
                     : getSymbolFromCurrency(this.props.route.params.item.country.code)}
@@ -743,24 +803,26 @@ class PartiesTransactionScreen extends React.Component {
                 </Text>
               </View>
             </View>
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {this.state.transactionsData.length == 0 ? null : (
-                <TouchableOpacity delayPressIn={0} style={{padding: 5}} onPress={() => this.setState({pdfModal: true})}>
+                <TouchableOpacity delayPressIn={0} style={{ padding: 5 }} onPress={() => this.setState({ pdfModal: true })}>
                   <AntDesign name="pdffile1" size={22} color={'#FF7C7C'} />
                 </TouchableOpacity>
               )}
-
+              <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => this.setState({ remainderModal: true })}>
+                <MaterialCommunityIcons name="bell-ring" size={22} color={"#808080"} />
+              </TouchableOpacity>
               {this.props.route.params.item.mobileNo && (
                 <TouchableOpacity
                   delayPressIn={0}
-                  style={{marginLeft: 20, padding: 5}}
-                  onPress={() => this.setState({MoreModal: true})}>
+                  style={{ marginLeft: 15, padding: 5 }}
+                  onPress={() => this.setState({ MoreModal: true })}>
                   <Entypo name="dots-three-vertical" size={22} color={'#808080'} />
                 </TouchableOpacity>
               )}
             </View>
           </View>
-          <View style={{marginTop: Dimensions.get('window').height * 0.02}} />
+          <View style={{ marginTop: Dimensions.get('window').height * 0.02 }} />
           <View
             style={{
               flexDirection: 'row',
@@ -788,22 +850,22 @@ class PartiesTransactionScreen extends React.Component {
                   setActiveDateFilter: this.setActiveDateFilter,
                 })
               }>
-              <View style={{marginLeft: 10}} />
+              <View style={{ marginLeft: 10 }} />
               <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
-              <Text style={{fontFamily: 'AvenirLTStd-Book', marginLeft: 5}}>
+              <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
                 {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +
                   ' - ' +
                   moment(this.state.endDate, 'DD-MM-YYYY').format('DD MMM YY')}
               </Text>
             </TouchableWithoutFeedback>
-            <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity style={{padding: 5}} onPress={() => this.dateShift('left')}>
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity style={{ padding: 5 }} onPress={() => this.dateShift('left')}>
                 <Entypo name="chevron-left" size={22} color={'#808080'} />
               </TouchableOpacity>
               <TouchableOpacity
-                style={{padding: 5}}
+                style={{ padding: 5 }}
                 onPress={() => this.dateShift('right')}
-                // onPress={this.tryDate}
+              // onPress={this.tryDate}
               >
                 <Entypo name="chevron-right" size={22} color={'#808080'} />
               </TouchableOpacity>
@@ -821,9 +883,9 @@ class PartiesTransactionScreen extends React.Component {
                 borderWidth: 1,
                 borderColor: '#D9D9D9',
               }}
-              onPress={() => this.setState({voucherModal: true})}
-              // onPress={() => this.tryDate()}
-              // onPress={() => console.log(this.props.route.params.item.uniqueName, 'hello')}
+              onPress={() => this.setState({ voucherModal: true })}
+            // onPress={() => this.tryDate()}
+            // onPress={() => console.log(this.props.route.params.item.uniqueName, 'hello')}
             >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
@@ -852,39 +914,39 @@ class PartiesTransactionScreen extends React.Component {
             onPress={() => console.log(this.state.transactionsData)}></TouchableOpacity> */}
 
           {this.state.transactionsLoader ? (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
               <Bars size={15} color={colors.PRIMARY_NORMAL} />
             </View>
           ) : (
-            <>
-              {this.state.transactionsData.length == 0 ? (
-                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
-                  <Image
-                    source={require('@/assets/images/noTransactions.png')}
-                    style={{resizeMode: 'contain', height: 250, width: 300}}
-                  />
-                  <Text style={{fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10}}>No Transactions</Text>
-                </View>
-              ) : (
-                <FlatList
-                  style={{marginTop: 20}}
-                  data={this.state.transactionsData}
-                  renderItem={({item}) => (
-                    <TransactionList
-                      item={item}
-                      downloadModal={this.shareModalVisible}
-                      transactionType={'partyTransaction'}
-                      phoneNo={this.props.route.params.item.mobileNo}
+              <>
+                {this.state.transactionsData.length == 0 ? (
+                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
+                    <Image
+                      source={require('@/assets/images/noTransactions.png')}
+                      style={{ resizeMode: 'contain', height: 250, width: 300 }}
+                    />
+                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
+                  </View>
+                ) : (
+                    <FlatList
+                      style={{ marginTop: 20 }}
+                      data={this.state.transactionsData}
+                      renderItem={({ item }) => (
+                        <TransactionList
+                          item={item}
+                          downloadModal={this.shareModalVisible}
+                          transactionType={'partyTransaction'}
+                          phoneNo={this.props.route.params.item.mobileNo}
+                        />
+                      )}
+                      keyExtractor={(item) => item.uniqueName}
+                      onEndReachedThreshold={0.2}
+                      onEndReached={() => this.handleRefresh()}
+                      ListFooterComponent={this._renderFooter}
                     />
                   )}
-                  keyExtractor={(item) => item.uniqueName}
-                  onEndReachedThreshold={0.2}
-                  onEndReached={() => this.handleRefresh()}
-                  ListFooterComponent={this._renderFooter}
-                />
-              )}
-            </>
-          )}
+              </>
+            )}
 
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.ShareModal} />
@@ -910,6 +972,89 @@ class PartiesTransactionScreen extends React.Component {
             onWhatsApp={this.onWhatsApp}
             onCall={this.onCall}
           />
+          <Modal visible={this.state.remainderModal}>
+            <View style={{ flex: 1 }}>
+              {this.FocusAwareStatusBar(this.props.isFocused)}
+              <View
+                style={{
+                  height: Dimensions.get('window').height * 0.08,
+                  backgroundColor: '#864DD3',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 20,
+                }}>
+                <TouchableOpacity onPress={() => this.setState({ remainderModal: false })}>
+                  <Icon name={'Backward-arrow'} color="#fff" size={18} />
+                </TouchableOpacity>
+                <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
+                  Set Remainder
+                </Text>
+              </View>
+              <View style={{ padding: 50, justifyContent: 'center', flex: 1 }}>
+                <Text style={{ fontSize: 12 }}>Date</Text>
+                <TouchableOpacity
+                  onPress={() => this.setState({ datePicker: true })}
+                  style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
+                  <View style={{ flexDirection: "row", alignItems: 'center' }}>
+                    <Fontisto name="date" size={12} color="#808080" style={{ marginLeft: 5 }} />
+                    <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
+                  </View>
+                </TouchableOpacity>
+                <Text style={{ fontSize: 12, marginTop: 10 }}>Time</Text>
+                <TouchableOpacity
+                  onPress={() => this.setState({ timePicker: true })}
+                  style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
+                  <View style={{ flexDirection: "row", alignItems: 'center' }}>
+                    <MaterialCommunityIcons name="clock-time-five-outline" size={15} color="#808080" style={{ marginLeft: 5 }} />
+                    <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.scheduleNotification()}
+                  style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 10, backgroundColor: '#5773FF', marginTop: 50, borderRadius: 50 }}>
+                  <Text style={{ color: 'white' }}>DONE</Text>
+                </TouchableOpacity>
+                <DateTimePickerModal
+                  isVisible={this.state.datePicker}
+                  mode="date"
+                  date={this.state.dateTime}
+                  onConfirm={(date) => {
+                    if (Number(format(date, "MM")) < Number(format(new Date(Date.now()), "MM"))) {
+                      Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
+                    }
+                    else if (Number(format(date, "MM")) == Number(format(new Date(Date.now()), "MM")) && Number(format(date, "dd")) < Number(format(new Date(Date.now()), "dd"))) {
+                      Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
+                    } else {
+                      const newDate: Date = this.state.dateTime;
+                      newDate.setDate(date.getDate());
+                      newDate.setMonth(date.getMonth());
+                      newDate.setFullYear(date.getFullYear());
+                      console.log(newDate);
+                      this.setState({ dateTime: newDate });
+                    }
+                    this.setState({ datePicker: false });
+                  }}
+                  onCancel={(date) => {
+                    this.setState({ datePicker: false });
+                  }}
+                />
+                <DateTimePickerModal
+                  isVisible={this.state.timePicker}
+                  mode="time"
+                  date={this.state.dateTime}
+                  onConfirm={(date) => {
+                    const newTime: Date = this.state.dateTime;
+                    newTime.setTime(date.getTime());
+                    console.log(newTime);
+                    this.setState({ timePicker: false, dateTime: newTime });
+                  }}
+                  onCancel={(date) => {
+                    this.setState({ timePicker: false });
+                  }}
+                />
+              </View>
+            </View>
+          </Modal>
         </View>
       );
     }

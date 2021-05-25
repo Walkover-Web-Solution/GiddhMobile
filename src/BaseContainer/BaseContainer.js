@@ -1,16 +1,27 @@
-import React, {Component} from 'react';
-import {Platform, DeviceEventEmitter} from 'react-native';
+import React, { Component } from 'react';
+import {
+  Platform,
+  DeviceEventEmitter,
+  NativeEventEmitter,
+  NativeModules
+} from 'react-native';
 import AppNavigator from '@/navigation/app.navigator';
 
-import {connect} from 'react-redux';
-import {getCompanyAndBranches, renewAccessToken} from '../redux/CommonAction';
+import { connect } from 'react-redux';
+import { getCompanyAndBranches, renewAccessToken } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import AppMainNav from '@/navigation/app.main.navigator';
+
 
 class BaseContainer extends Component {
   componentDidMount() {
     SplashScreen.hide();
-
+    // const { RNAlarmNotification } = NativeModules;
+    // const RNAlarmEmitter = new NativeEventEmitter(RNAlarmNotification);
+    // const openedSubscription = RNAlarmEmitter.addListener(
+    //   'OnNotificationOpened', (data) => { console.log(JSON.parse(data)); }
+    // );
+    
     if (this.props.isUserAuthenticated) {
       this.props.getCompanyAndBranches();
     }
@@ -21,7 +32,7 @@ class BaseContainer extends Component {
     // });
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() { }
 
   componentDidUpdate(prevProps) {
     if (this.props.isUserAuthenticated && !prevProps.isUserAuthenticated) {
@@ -39,7 +50,7 @@ class BaseContainer extends Component {
   }
 }
 function mapStateToProps(state) {
-  const {commonReducer, LoginReducer} = state;
+  const { commonReducer, LoginReducer } = state;
   return {
     ...commonReducer,
     ...LoginReducer,
