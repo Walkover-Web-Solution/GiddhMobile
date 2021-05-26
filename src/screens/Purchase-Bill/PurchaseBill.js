@@ -820,7 +820,7 @@ export class PurchaseBill extends React.Component {
         company: {
           billingDetails: {
             address: [this.state.BillToAddress.address],
-            countryName: this.state.countryDeatils.countryName,
+            countryName: this.state.companyCountryDetails.countryName,
             gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
             state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : "", name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : "" },
@@ -830,7 +830,7 @@ export class PurchaseBill extends React.Component {
           },
           shippingDetails: {
             address: [this.state.shipToAddress.address],
-            countryName: this.state.countryDeatils.countryName,
+            countryName: this.state.companyCountryDetails.countryName,
             gstNumber: this.state.shipToAddress.gstNumber,
             panNumber: '',
             state: { code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : "", name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : "" },
@@ -1011,6 +1011,44 @@ export class PurchaseBill extends React.Component {
     )
   }
 
+  billingFromAddressArray() {
+    let addressArray = this.state.BillFromAddress
+    if (this.state.BillFromAddress.selectedCountry == null) {
+      addressArray["selectedCountry"] = this.state.countryDeatils
+    }
+    return addressArray
+  };
+
+  selectBillingFromAddressFromEditAdress = async (address) => {
+    console.log(JSON.stringify(address));
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
+    await this.setState({
+      BillFromAddress: address,
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode},
+      currency:countryCode
+    });
+    if (this.state.billFromSameAsShipFrom) {
+      this.setState({ shipFromAddress: address })
+    }
+  };
+
+  shippingFromAddressArray() {
+    let addressArray = this.state.shipFromAddress
+    if (this.state.shipFromAddress.selectedCountry == null) {
+      addressArray["selectedCountry"] = this.state.countryDeatils
+    }
+    return addressArray
+  };
+
+  selectShippingFromAddressFromEditAdress = (address) => {
+    console.log(address);
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
+    this.setState({
+      shipFromAddress: address,
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
+      currency:countryCode
+    });
+  };
 
   _renderAddress() {
     return (
@@ -1046,8 +1084,8 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('EditAddress', {
                   dontChangeCountry: true,
-                  address: this.state.BillFromAddress,
-                  selectAddress: this.selectBillFromAddress.bind(this),
+                  address: this.billingFromAddressArray(),
+                  selectAddress: this.selectBillingFromAddressFromEditAdress.bind(this),
                   color: '#FC8345',
                   statusBarColor: "#ef6c00",
                   headerColor: '#FC8345',
@@ -1129,8 +1167,8 @@ export class PurchaseBill extends React.Component {
               } else if (!this.state.billFromSameAsShipFrom) {
                 this.props.navigation.navigate('EditAddress', {
                   dontChangeCountry: true,
-                  address: this.state.shipFromAddress,
-                  selectAddress: this.selectShipFromAddress.bind(this),
+                  address: this.shippingFromAddressArray(),
+                  selectAddress: this.selectShippingFromAddressFromEditAdress.bind(this),
                   color: '#FC8345',
                   statusBarColor: "#ef6c00",
                   headerColor: '#FC8345',
@@ -1226,8 +1264,8 @@ export class PurchaseBill extends React.Component {
                 ? this.state.BillToAddress.address
                 : this.state.BillToAddress.stateName
                   ? this.state.BillToAddress.stateName
-                  : this.state.countryDeatils.countryName
-                    ? this.state.countryDeatils.countryName
+                  : this.state.companyCountryDetails.countryName
+                    ? this.state.companyCountryDetails.countryName
                     : 'Select Billing Address'}
             </Text>
           </TouchableOpacity>
@@ -1306,8 +1344,8 @@ export class PurchaseBill extends React.Component {
                 ? this.state.shipToAddress.address
                 : this.state.shipToAddress.stateName
                   ? this.state.shipToAddress.stateName
-                  : this.state.countryDeatils.countryName
-                    ? this.state.countryDeatils.countryName
+                  : this.state.companyCountryDetails.countryName
+                    ? this.state.companyCountryDetails.countryName
                     : 'Select Shipping Address'}
             </Text>
           </TouchableOpacity>
