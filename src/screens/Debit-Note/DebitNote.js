@@ -741,6 +741,7 @@ export class DebiteNote extends React.Component<Props> {
             state: { code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "" },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
+            pincode: this.state.partyBillingAddress.pincode,
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -758,6 +759,7 @@ export class DebiteNote extends React.Component<Props> {
             state: { code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "" },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
+            pincode: this.state.partyShippingAddress.pincode,
           },
           uniqueName: this.state.partyName.uniqueName,
         },
@@ -995,6 +997,45 @@ export class DebiteNote extends React.Component<Props> {
     )
   }
 
+  billingAddressArray() {
+    let addressArray = this.state.partyBillingAddress
+    if (this.state.partyBillingAddress.selectedCountry == null) {
+      addressArray["selectedCountry"] = this.state.countryDeatils
+    }
+    return addressArray
+  };
+
+  selectBillingAddressFromEditAdress = async (address) => {
+    console.log(JSON.stringify(address));
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
+    await this.setState({
+      partyBillingAddress: address,
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
+      currency:countryCode
+    });
+    if (this.state.billSameAsShip) {
+      this.setState({ partyShippingAddress: address })
+    }
+  };
+
+  shippingAddressArray() {
+    let addressArray = this.state.partyShippingAddress
+    if (this.state.partyShippingAddress.selectedCountry == null) {
+      addressArray["selectedCountry"] = this.state.countryDeatils
+    }
+    return addressArray
+  };
+
+  selectShippingAddressFromEditAdress = (address) => {
+    console.log(address);
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
+    this.setState({
+      partyShippingAddress: address,
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
+      currency:countryCode
+    });
+  };
+
   _renderAddress() {
     return (
       <View style={style.senderAddress}>
@@ -1030,8 +1071,8 @@ export class DebiteNote extends React.Component<Props> {
                 } else {
                   this.props.navigation.navigate('EditAddress', {
                     dontChangeCountry: true,
-                    address: this.state.partyBillingAddress,
-                    selectAddress: this.selectBillingAddress.bind(this),
+                    address: this.billingAddressArray(),
+                    selectAddress: this.selectBillingAddressFromEditAdress.bind(this),  
                     statusBarColor: "#ff5355",
                     headerColor: '#ff6961',
                   })
@@ -1112,8 +1153,8 @@ export class DebiteNote extends React.Component<Props> {
                 } else if (!this.state.billSameAsShip) {
                   this.props.navigation.navigate('EditAddress', {
                     dontChangeCountry: true,
-                    address: this.state.partyShippingAddress,
-                    selectAddress: this.selectShippingAddress.bind(this),
+                    address: this.shippingAddressArray(),
+                    selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
                     statusBarColor: "#ff5355",
                     headerColor: '#ff6961',
                   })

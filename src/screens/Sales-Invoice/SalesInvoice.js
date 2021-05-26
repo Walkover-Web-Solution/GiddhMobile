@@ -753,6 +753,7 @@ export class SalesInvoice extends React.Component<Props> {
         await this.getTotalAmount() > 0 ? (exchangeRate = (Number(this.state.totalAmountInINR) / this.getTotalAmount())) : exchangeRate = 1
         await this.setState({ exchangeRate: exchangeRate })
       }
+      console.log("Yyyyyyyyyyyyyyyyyyyyyyy"+JSON.stringify(this.state.partyShippingAddress.state))
       let postBody = {
         account: {
           attentionTo: '',
@@ -763,12 +764,12 @@ export class SalesInvoice extends React.Component<Props> {
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : "" : this.state.partyBillingAddress.state.code,
-              name: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : "" : this.state.partyBillingAddress.state.name,
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "",
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "",
             },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
-            pincode: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.pincode : "" : this.state.partyBillingAddress.pincode,
+            pincode: this.state.partyBillingAddress.pincode,
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -784,12 +785,12 @@ export class SalesInvoice extends React.Component<Props> {
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : "" : this.state.partyShippingAddress.state.code,
-              name: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : "" : this.state.partyShippingAddress.state.name,
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "",
+              name : this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "",
             },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
-            pincode: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.pincode : "" : this.state.partyShippingAddress.pincode,
+            pincode: this.state.partyShippingAddress.pincode,
           },
           uniqueName: this.state.partyName.uniqueName,
           customerName: this.state.partyName.name,
@@ -975,35 +976,39 @@ export class SalesInvoice extends React.Component<Props> {
   billingAddressArray() {
     let addressArray = this.state.partyBillingAddress
     if (this.state.partyBillingAddress.selectedCountry == null) {
-      addressArray["selectedCountry"] = this.state.companyCountryDetails
+      addressArray["selectedCountry"] = this.state.invoiceType==INVOICE_TYPE.credit?this.state.countryDeatils:this.state.companyCountryDetails
     }
     return addressArray
   };
 
   selectBillingAddressFromEditAdress = async (address) => {
+    console.log(JSON.stringify(address));
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
     await this.setState({
       partyBillingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code: address.selectedCountry.currency.code }
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
+      currency:countryCode
     });
     if (this.state.billSameAsShip) {
       this.setState({ partyShippingAddress: address })
     }
-    console.log(this.state.partyBillingAddress);
   };
 
   shippingAddressArray() {
     let addressArray = this.state.partyShippingAddress
     if (this.state.partyShippingAddress.selectedCountry == null) {
-      addressArray["selectedCountry"] = this.state.companyCountryDetails
+      addressArray["selectedCountry"] = this.state.invoiceType==INVOICE_TYPE.credit?this.state.countryDeatils:this.state.companyCountryDetails
     }
     return addressArray
   };
 
   selectShippingAddressFromEditAdress = (address) => {
     console.log(address);
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
     this.setState({
       partyShippingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code: address.selectedCountry.currency.code }
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
+      currency:countryCode
     });
   };
 

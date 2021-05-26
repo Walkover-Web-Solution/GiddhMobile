@@ -183,7 +183,7 @@ export class EditAddress extends React.Component<any, any> {
           : this.state.companyCountryDetails,
     });
     console.log(this.state.selectedCountry);
-    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
+    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode?this.state.selectedCountry.alpha2CountryCode:this.state.selectedCountry.countryCode);
     await this.setState({
       allStates: allStateName.body.stateList,
     });

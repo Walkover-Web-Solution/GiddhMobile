@@ -768,6 +768,7 @@ export class PurchaseBill extends React.Component {
             state: { code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : "", name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : "" },
             stateCode: this.state.BillFromAddress.stateCode,
             stateName: this.state.BillFromAddress.stateName,
+            pincode: this.state.BillFromAddress.pincode,
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -785,6 +786,7 @@ export class PurchaseBill extends React.Component {
             state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : "", name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : "" },
             stateCode: this.state.shipFromAddress.stateCode,
             stateName: this.state.shipFromAddress.stateName,
+            pincode: this.state.shipFromAddress.pincode,
           },
           uniqueName: this.state.partyName.uniqueName,
         },
@@ -824,6 +826,7 @@ export class PurchaseBill extends React.Component {
             state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : "", name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : "" },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
+            pincode: this.state.BillToAddress.pincode,
           },
           shippingDetails: {
             address: [this.state.shipToAddress.address],
@@ -833,6 +836,7 @@ export class PurchaseBill extends React.Component {
             state: { code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : "", name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : "" },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
+            pincode: this.state.shipToAddress.pincode,
           },
         },
       };
