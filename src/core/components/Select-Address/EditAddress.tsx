@@ -169,8 +169,9 @@ export class EditAddress extends React.Component<any, any> {
 
   getDetails = async () => {
     this.setState({ loading: true });
-    if (this.state.gstNo != '') {
-      this.setState({ selectStateDisable: true });
+    if (this.state.gstNo != '' || (this.props.route.params.address.taxNumber!=undefined && this.props.route.params.address.taxNumber!='')) {
+      this.setState({ selectStateDisable: true});
+      this.props.route.params.address.taxNumber?this.setState({ gstNo:this.props.route.params.address.taxNumber}):null
     }
     let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
     let allCountry = await CustomerVendorService.getAllCountryName();
