@@ -15,6 +15,8 @@ import MoreStack from './more.navigator';
 import { PartiesStack } from './parties.navigator';
 import AddButton from './components/AddButton';
 import DashboardStack from './dashboard.navigator';
+import { CommonService } from '@/core/services/common/common.service';
+
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -31,11 +33,25 @@ export const HomeNavigator = () => {
   const [branchSelected, setBranchSelected] = useState(true);
   const [disableTabs, setTabs] = useState(true);
   useEffect(() => {
+    getPartiesSundryCreditors();
     isBranchSelected();
     DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       isBranchSelected();
     });
   }, []);
+
+  const getPartiesSundryCreditors = async () => {
+    try {
+      const creditors = await CommonService.getPartiesSundryCreditors();
+      console.log(creditors.body.results);
+      setTabs(false);
+    } catch (e) {
+      console.log(e);
+      if (e.data.code == "UNAUTHORISED") {
+        setTabs(true);
+      }
+    }
+  }
 
   function MyTabBar({ state, descriptors, navigation, renderIcon, activeTintColor, inactiveTintColor }) {
     return (
@@ -118,7 +134,7 @@ export const HomeNavigator = () => {
                 style={{ alignItems: 'center', width: Dimensions.get('window').width * 0.2 }}>
                 {/* {renderIcon({route, focused: true, activeTintColor})} */}
                 {renderIcon(label)}
-                <Text style={{ color: disableTabs?'#808080': isFocused ? '#5773FF' : '#808080', fontSize: 13, fontFamily: 'AvenirLTStd-Book' }}>
+                <Text style={{ color: disableTabs ? '#808080' : isFocused ? '#5773FF' : '#808080', fontSize: 13, fontFamily: 'AvenirLTStd-Book' }}>
                   {label}
                 </Text>
               </TouchableOpacity>
@@ -156,7 +172,6 @@ export const HomeNavigator = () => {
       <Screen
         name={Routes.Transaction}
         component={HomeScreen}
-        initialParams={{ setTabs: setTabs }}
         options={({ route }) => ({
           tabBarLabel: 'Dashboard',
           tabBarVisible: getTabBarVisibility(route),

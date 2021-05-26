@@ -13,9 +13,9 @@ import color from '@/utils/colors';
 import Transaction from '@/screens/Transaction/Transaction';
 import Parties from '@/screens/Parties/Parties';
 import Inventory from '@/screens/Inventory/Inventory';
+import { CommonService } from '@/core/services/common/common.service';
 
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { CommonService } from '@/core/services/common/common.service';
 import { FONT_FAMILY } from '@/utils/constants';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as CommonActions from '../../../../redux/CommonAction';
@@ -33,7 +33,6 @@ type HomeComponentProp = WithTranslation &
     isCountriesLoading: boolean;
     getCountriesAction: Function;
     logoutAction: Function;
-    setTabs: Function;
     logout: Function;
   };
 
@@ -67,19 +66,18 @@ class HomeComponent extends React.Component {
     this.getPartiesSundryCreditors();
   }
 
-  async getPartiesSundryCreditors() {
+  async getPartiesSundryCreditors(){
     try {
       const creditors = await CommonService.getPartiesSundryCreditors();
       console.log(creditors.body.results);
-      this.props.setTabs(false);
     } catch (e) {
       console.log(e);
       if (e.data.code == "UNAUTHORISED") {
-        this.setState({ isValid: false });
-        this.props.setTabs(true);
+        this.setState({isValid:false});
       }
     }
   }
+
 
   handleIndexChange = (index) => {
     this.setState({

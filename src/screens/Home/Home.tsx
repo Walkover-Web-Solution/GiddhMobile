@@ -23,13 +23,11 @@ export class HomeScreen extends React.Component<Props, {}> {
   };
 
   render() {    
-    const {setTabs} = this.props.route.params;
     return (
       <GDContainer>
         {this.FocusAwareStatusBar(this.props.isFocused)}
         <HomeComponent
           countries={this.props.countries}
-          setTabs = {setTabs}
           logout={this.props.logout}
           getCountriesAction={this.props.getCountriesAction}
           isCountriesLoading={this.props.isCountriesLoading}
