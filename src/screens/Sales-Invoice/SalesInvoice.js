@@ -36,6 +36,7 @@ import EditItemDetail from './EditItemDetails';
 import routes from '@/navigation/routes';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
+import CheckBox from 'react-native-check-box'
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -148,7 +149,8 @@ export class SalesInvoice extends React.Component<Props> {
       currencySymbol: "",
       exchangeRate: 1,
       totalAmountInINR: 0.00,
-      companyCountryDetails: ""
+      companyCountryDetails: "",
+      billSameAsShip: true,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -160,6 +162,9 @@ export class SalesInvoice extends React.Component<Props> {
   selectBillingAddress = (address) => {
     console.log(address);
     this.setState({ partyBillingAddress: address });
+    if (this.state.billSameAsShip) {
+      this.setState({ partyShippingAddress: address })
+    }
   };
   selectShippingAddress = (address) => {
     console.log('shipping add', address);
@@ -516,9 +521,33 @@ export class SalesInvoice extends React.Component<Props> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses,
-          partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
+          addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
+          partyBillingAddress:
+            results.body.addresses.length < 1
+              ? {
+                address: '',
+                gstNumber: '',
+                state: {
+                  code: '',
+                  name: '',
+                },
+                stateCode: '',
+                stateName: '',
+              }
+              : results.body.addresses[0],
+          partyShippingAddress:
+            results.body.addresses.length < 1
+              ? {
+                address: '',
+                gstNumber: '',
+                state: {
+                  code: '',
+                  name: '',
+                },
+                stateCode: '',
+                stateName: '',
+              }
+              : results.body.addresses[0],
         });
       }
     } catch (e) {
@@ -616,7 +645,8 @@ export class SalesInvoice extends React.Component<Props> {
         stateCode: '',
         stateName: '',
       },
-      companyCountryDetails: ""
+      companyCountryDetails: "",
+      billSameAsShip: true,
     });
   };
   getDiscountForEntry(item) {
@@ -723,6 +753,7 @@ export class SalesInvoice extends React.Component<Props> {
         await this.getTotalAmount() > 0 ? (exchangeRate = (Number(this.state.totalAmountInINR) / this.getTotalAmount())) : exchangeRate = 1
         await this.setState({ exchangeRate: exchangeRate })
       }
+      console.log("Yyyyyyyyyyyyyyyyyyyyyyy"+JSON.stringify(this.state.partyShippingAddress.state))
       let postBody = {
         account: {
           attentionTo: '',
@@ -733,12 +764,12 @@ export class SalesInvoice extends React.Component<Props> {
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.code : "" : this.state.partyBillingAddress.state.code,
-              name: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.state.name : "" : this.state.partyBillingAddress.state.name,
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "",
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "",
             },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
-            pincode: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyBillingAddress.size > 0 ? this.state.partyBillingAddress.pincode : "" : this.state.partyBillingAddress.pincode,
+            pincode: this.state.partyBillingAddress.pincode,
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -754,12 +785,12 @@ export class SalesInvoice extends React.Component<Props> {
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.code : "" : this.state.partyShippingAddress.state.code,
-              name: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.state.name : "" : this.state.partyShippingAddress.state.name,
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "",
+              name : this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "",
             },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
-            pincode: this.state.invoiceType == INVOICE_TYPE.credit ? this.state.partyShippingAddress.size > 0 ? this.state.partyShippingAddress.pincode : "" : this.state.partyShippingAddress.pincode,
+            pincode: this.state.partyShippingAddress.pincode,
           },
           uniqueName: this.state.partyName.uniqueName,
           customerName: this.state.partyName.name,
@@ -945,32 +976,39 @@ export class SalesInvoice extends React.Component<Props> {
   billingAddressArray() {
     let addressArray = this.state.partyBillingAddress
     if (this.state.partyBillingAddress.selectedCountry == null) {
-      addressArray["selectedCountry"] = this.state.companyCountryDetails
+      addressArray["selectedCountry"] = this.state.invoiceType==INVOICE_TYPE.credit?this.state.countryDeatils:this.state.companyCountryDetails
     }
     return addressArray
   };
 
   selectBillingAddressFromEditAdress = async (address) => {
+    console.log(JSON.stringify(address));
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
     await this.setState({
       partyBillingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code: address.selectedCountry.currency.code }
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
+      currency:countryCode
     });
-    console.log(this.state.partyBillingAddress);
+    if (this.state.billSameAsShip) {
+      this.setState({ partyShippingAddress: address })
+    }
   };
 
   shippingAddressArray() {
     let addressArray = this.state.partyShippingAddress
     if (this.state.partyShippingAddress.selectedCountry == null) {
-      addressArray["selectedCountry"] = this.state.companyCountryDetails
+      addressArray["selectedCountry"] = this.state.invoiceType==INVOICE_TYPE.credit?this.state.countryDeatils:this.state.companyCountryDetails
     }
     return addressArray
   };
 
   selectShippingAddressFromEditAdress = (address) => {
     console.log(address);
+    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
     this.setState({
       partyShippingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code: address.selectedCountry.currency.code }
+      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
+      currency:countryCode
     });
   };
 
@@ -981,80 +1019,171 @@ export class SalesInvoice extends React.Component<Props> {
           <Icon name={'8'} color={'#229F5F'} size={16} />
           <Text style={style.addressHeaderText}>{'Address'}</Text>
         </View>
-        <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
-          onPress={() => {
-            this.state.invoiceType == INVOICE_TYPE.cash ?
-              this.props.navigation.navigate('EditAddress', {
-                dontChangeCountry: true,
-                addressArray: this.billingAddressArray(),
-                selectAddress: this.selectBillingAddressFromEditAdress.bind(this),
-                statusBarColor: '#0E7942',
-              })
-              : !this.state.partyName
-                ? alert('Please select a party.')
-                : this.props.navigation.navigate('SelectAddress', {
-                  addressArray: this.state.addressArray,
-                  type: 'address',
-                  selectAddress: this.selectBillingAddress,
-                  statusBarColor: '#0E7942',
-                });
-          }}>
+        <View
+          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={2} style={style.senderAddressText}>
-              {'Billing Address'}
-            </Text>
-            <AntDesign name={'right'} size={18} color={'#808080'} />
+            <TouchableOpacity style={{ width: "90%",}}
+              onPress={() => {
+                this.state.invoiceType == INVOICE_TYPE.cash ?
+                  this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.billingAddressArray(),
+                    selectAddress: this.selectBillingAddressFromEditAdress.bind(this),
+                    statusBarColor: '#0E7942',
+                  })
+                  : !this.state.partyName
+                    ? alert('Please select a party.')
+                    : this.props.navigation.navigate('SelectAddress', {
+                      addressArray: this.state.addressArray,
+                      type: 'address',
+                      selectAddress: this.selectBillingAddress,
+                      statusBarColor: '#0E7942',
+                    });
+              }}>
+              <Text numberOfLines={2} style={style.senderAddressText}>
+                {'Billing Address'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ height: "250%", width: "10%", }}
+              onPress={() => {
+                if (!this.state.partyName && this.state.invoiceType != INVOICE_TYPE.cash) {
+                  alert('Please select a party.');
+                } else {
+                  this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.billingAddressArray(),
+                    selectAddress: this.selectBillingAddressFromEditAdress.bind(this),
+                    statusBarColor: '#0E7942',
+                  })
+                }
+              }}
+            >
+              {this.state.invoiceType == INVOICE_TYPE.cash ? <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} /> :
+                <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+              }
+            </TouchableOpacity>
           </View>
           {/* <Icon name={'8'} color={'#229F5F'} size={16} /> */}
-          <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.partyBillingAddress.address
-              ? this.state.partyBillingAddress.address
-              : this.state.partyBillingAddress.stateName
-                ? this.state.partyBillingAddress.stateName
-                : this.state.countryDeatils.countryName
-                  ? this.state.countryDeatils.countryName
-                  : 'Select Billing Address'}
-          </Text>
-          {/*Sender Address View*/}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
-          onPress={() => {
-            this.state.invoiceType == INVOICE_TYPE.cash ?
-              this.props.navigation.navigate('EditAddress', {
-                dontChangeCountry: true,
-                addressArray: this.shippingAddressArray(),
-                selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
-                statusBarColor: '#0E7942',
-              })
-              : !this.state.partyName
-                ? alert('Please select a party.')
-                : this.props.navigation.navigate('SelectAddress', {
-                  addressArray: this.state.addressArray,
-                  type: 'address',
-                  selectAddress: this.selectShippingAddress,
+          <TouchableOpacity style={{ width: "90%",}}
+            onPress={() => {
+              this.state.invoiceType == INVOICE_TYPE.cash ?
+                this.props.navigation.navigate('EditAddress', {
+                  dontChangeCountry: true,
+                  address: this.billingAddressArray(),
+                  selectAddress: this.selectBillingAddressFromEditAdress.bind(this),
                   statusBarColor: '#0E7942',
-                });
-          }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={2} style={style.senderAddressText}>
-              {'Shipping Address'}
+                })
+                : !this.state.partyName
+                  ? alert('Please select a party.')
+                  : this.props.navigation.navigate('SelectAddress', {
+                    addressArray: this.state.addressArray,
+                    type: 'address',
+                    selectAddress: this.selectBillingAddress,
+                    statusBarColor: '#0E7942',
+                  });
+            }}          >
+            <Text numberOfLines={2} style={style.selectedAddressText}>
+              {this.state.partyBillingAddress.address
+                ? this.state.partyBillingAddress.address
+                : this.state.partyBillingAddress.stateName
+                  ? this.state.partyBillingAddress.stateName
+                  : this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils.countryName
+                    : 'Select Billing Address'}
             </Text>
-            <AntDesign name={'right'} size={18} color={'#808080'} />
+          </TouchableOpacity>
+          {/*Sender Address View*/}
+        </View>
+        <View style={{ flexDirection: 'row' }}>
+        <CheckBox
+            checkBoxColor={"#5773FF"}
+            uncheckedCheckBoxColor={"#808080"}
+            style={{ marginLeft: -3 }}
+            onClick={() => {
+              this.setState({
+                billSameAsShip: !this.state.billSameAsShip,
+                partyShippingAddress: this.state.partyBillingAddress
+              })
+            }}
+            isChecked={this.state.billSameAsShip}
+          />
+          <Text style={style.addressSameCheckBoxText}>Shipping Address Same as Billing</Text>
+          {/* <Text style={{ color: "#E04646", marginTop: 4 }}>*</Text> */}
+        </View>
+        <View
+          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <TouchableOpacity style={{ width: "90%", }}
+              onPress={() => {
+                this.state.invoiceType == INVOICE_TYPE.cash ?
+                  (!this.state.billSameAsShip ? this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.shippingAddressArray(),
+                    selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
+                    statusBarColor: '#0E7942',
+                  }) : null)
+                  : !this.state.partyName
+                    ? alert('Please select a party.')
+                    : this.props.navigation.navigate('SelectAddress', {
+                      addressArray: this.state.addressArray,
+                      type: 'address',
+                      selectAddress: this.selectShippingAddress,
+                      statusBarColor: '#0E7942',
+                    });
+              }}>
+              <Text numberOfLines={2} style={style.senderAddressText}>
+                {'Shipping Address'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ height: "250%", width: "10%", }}
+              onPress={() => {
+                if (!this.state.partyName && this.state.invoiceType != INVOICE_TYPE.cash) {
+                  alert('Please select a party.');
+                } else {
+                  (!this.state.billSameAsShip ? this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.shippingAddressArray(),
+                    selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
+                    statusBarColor: '#0E7942',
+                  }) : null)
+                }
+              }}
+            >
+              {this.state.invoiceType == INVOICE_TYPE.cash ? <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} /> :
+                <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+              }
+            </TouchableOpacity>
           </View>
-          <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.partyShippingAddress.address
-              ? this.state.partyShippingAddress.address
-              : this.state.partyShippingAddress.stateName
-                ? this.state.partyShippingAddress.stateName
-                : this.state.countryDeatils.countryName
-                  ? this.state.countryDeatils.countryName
-                  : 'Select Shipping Address'}
-          </Text>
-
+          <TouchableOpacity style={{ width: "90%", }}
+            onPress={() => {
+              this.state.invoiceType == INVOICE_TYPE.cash ?
+                (!this.state.billSameAsShip ? this.props.navigation.navigate('EditAddress', {
+                  dontChangeCountry: true,
+                  address: this.shippingAddressArray(),
+                  selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
+                  statusBarColor: '#0E7942',
+                }) : null)
+                : !this.state.partyName
+                  ? alert('Please select a party.')
+                  : this.props.navigation.navigate('SelectAddress', {
+                    addressArray: this.state.addressArray,
+                    type: 'address',
+                    selectAddress: this.selectShippingAddress,
+                    statusBarColor: '#0E7942',
+                  });
+            }}>
+            <Text numberOfLines={2} style={style.selectedAddressText}>
+              {this.state.partyShippingAddress.address
+                ? this.state.partyShippingAddress.address
+                : this.state.partyShippingAddress.stateName
+                  ? this.state.partyShippingAddress.stateName
+                  : this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils.countryName
+                    : 'Select Shipping Address'}
+            </Text>
+          </TouchableOpacity>
           {/*Shipping Address View*/}
-        </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -1658,15 +1787,15 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
               ) : (
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({ showPaymentModePopup: true });
-                    }}>
-                    <Text style={{ color: '#1C1C1C' }}>
-                      {this.state.addedItems.length > 0 &&
-                        this.state.currencySymbol + this.state.amountPaidNowText}
-                    </Text>
-                    {/* <TextInput
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({ showPaymentModePopup: true });
+                  }}>
+                  <Text style={{ color: '#1C1C1C' }}>
+                    {this.state.addedItems.length > 0 &&
+                      this.state.currencySymbol + this.state.amountPaidNowText}
+                  </Text>
+                  {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
                     placeholder={`${this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}0.00`}
                     returnKeyType={'done'}
@@ -1677,8 +1806,8 @@ export class SalesInvoice extends React.Component<Props> {
                       this.setState({amountPaidNowText: text});
                     }}
                   /> */}
-                  </TouchableOpacity>
-                )}
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>

@@ -719,7 +719,7 @@ export class Customers extends React.Component<Props> {
                 pincode: this.state.savedAddress.pincode
               };
               this.props.navigation.navigate('EditAddressCV', {
-                addressArray: BillingAddress,
+                address: BillingAddress,
                 selectAddress: (this.selectBillingAddress).bind(this),
                 headerColor: "#864DD3",
                 statusBarColor: "#520EAD",
@@ -752,7 +752,7 @@ export class Customers extends React.Component<Props> {
                     pincode: this.state.savedAddress.pincode
                   };
                   this.props.navigation.navigate('EditAddressCV', {
-                    addressArray: BillingAddress,
+                    address: BillingAddress,
                     selectAddress: (this.selectBillingAddress).bind(this),
                     headerColor: "#864DD3",
                     statusBarColor: '#520EAD'

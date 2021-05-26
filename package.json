@@ -66,6 +66,7 @@
     "react-native-appearance": "0.3.4",
     "react-native-base64": "^0.2.1",
     "react-native-calendars": "1.403.0",
+    "react-native-check-box": "^2.1.7",
     "react-native-daterange-picker": "1.4.0",
     "react-native-dialog": "^8.0.1",
     "react-native-dropdown-picker": "^3.7.8",

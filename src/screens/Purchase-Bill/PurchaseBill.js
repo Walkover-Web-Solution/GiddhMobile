@@ -37,6 +37,7 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import { FONT_FAMILY } from '../../utils/constants';
+import CheckBox from 'react-native-check-box'
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -131,6 +132,9 @@ export class PurchaseBill extends React.Component {
       totalAmountInINR: 0.00,
       companyCountryDetails: "",
       selectedInvoice: "",
+      allBillingToAddresses: [],
+      billFromSameAsShipFrom: true,
+      billToSameAsShipTo: false
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -145,12 +149,22 @@ export class PurchaseBill extends React.Component {
   selectBillToAddress = (address) => {
     console.log(address);
     this.setState({ BillToAddress: address });
+    if (this.state.billToSameAsShipTo) {
+      this.setState({ shipToAddress: address })
+    }
   };
   selectBillFromAddress = (address) => {
     console.log('bill from', address);
     this.setState({ BillFromAddress: address });
+    if (this.state.billFromSameAsShipFrom) {
+      this.setState({ shipFromAddress: address })
+    }
   };
   selectShipToAddress = (address) => {
+    console.log('shipping to', address);
+    this.setState({ shipToAddress: address.addresses[0] });
+  };
+  selectShipToAddressFromEditAddressScreen = (address) => {
     console.log('shipping to', address);
     this.setState({ shipToAddress: address });
   };
@@ -186,6 +200,7 @@ export class PurchaseBill extends React.Component {
 
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow); this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide); this.setActiveCompanyCountry()
+    this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -310,7 +325,7 @@ export class PurchaseBill extends React.Component {
   async getAllWarehouse() {
     this.setState({ fetechingWarehouseList: true });
     try {
-      const results = await InvoiceService.getWarehouse();
+      const results = await InvoiceService.getWareHouse();
       if (results.body && results.status == 'success') {
         this.setState({ warehouseArray: results.body.results, fetechingWarehouseList: false });
       }
@@ -336,6 +351,44 @@ export class PurchaseBill extends React.Component {
       }
     } catch (e) {
       this.setState({ fetechingTaxList: false });
+    }
+  }
+
+  async getCompanyAddress() {
+    const result = await InvoiceService.getCompanyBranchesDetails()
+    if (result.body && result.status == 'success') {
+      await this.setState({ allBillingToAddresses: result.body.addresses })
+      for (let i = 0; i < result.body.addresses.length; i++) {
+        var adddressArray = await result.body.addresses[i]
+        if (adddressArray.branches) {
+          for (var j = 0; j < adddressArray.branches.length; j++) {
+            let address = adddressArray.branches[j]
+            if (address.isDefault && address.isHeadQuarter) {
+              console.log("company address Array " + JSON.stringify(adddressArray))
+              await this.setState({ BillToAddress: adddressArray });
+              await this.state.billToSameAsShipTo ? this.setState({ shipToAddress: adddressArray }) : null;
+              break
+            }
+          }
+        }
+      }
+    }
+  }
+
+  async getBillToAndShipToAddress() {
+    await this.getCompanyAddress();
+    if (!this.state.billToSameAsShipTo) {
+      const wareHouse = await this.state.warehouseArray
+      console.log("Ware house Array " + JSON.stringify(wareHouse))
+      for (let i = 0; i < wareHouse.length; i++) {
+        if (wareHouse[i].isDefault) {
+          let address = wareHouse[i].addresses[0]
+          if (address) {
+            await this.setState({ shipToAddress: address, });
+            break
+          }
+        }
+      }
     }
   }
 
@@ -441,7 +494,7 @@ export class PurchaseBill extends React.Component {
     this.setState({ isSearchingParty: true });
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
-
+      // console.log('cash account is ', results);
       if (results.body) {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency)
@@ -454,12 +507,13 @@ export class PurchaseBill extends React.Component {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses,
-          BillFromAddress: results.body.addresses[0],
-          BillToAddress: results.body.addresses[0],
-          shipFromAddress: results.body.addresses[0],
-          shipToAddress: results.body.addresses[0],
+          addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
+          BillFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          // BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          shipFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          // shipToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
         });
+        await this.getBillToAndShipToAddress();
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
@@ -537,6 +591,9 @@ export class PurchaseBill extends React.Component {
       totalAmountInINR: 0.00,
       companyCountryDetails: "",
       selectedInvoice: "",
+      allBillingToAddresses: [],
+      billFromSameAsShipFrom: true,
+      billToSameAsShipTo: false
     });
   };
   getDiscountForEntry(item) {
@@ -711,6 +768,7 @@ export class PurchaseBill extends React.Component {
             state: { code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : "", name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : "" },
             stateCode: this.state.BillFromAddress.stateCode,
             stateName: this.state.BillFromAddress.stateName,
+            pincode: this.state.BillFromAddress.pincode,
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -721,13 +779,14 @@ export class PurchaseBill extends React.Component {
           name: this.state.partyName.name,
           // shippingDetails: this.state.partyShippingAddress,
           shippingDetails: {
-            address: [this.state.BillToAddress.address],
+            address: [this.state.shipFromAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.BillToAddress.gstNumber,
+            gstNumber: this.state.shipFromAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : "", name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : "" },
-            stateCode: this.state.BillToAddress.stateCode,
-            stateName: this.state.BillToAddress.stateName,
+            state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : "", name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : "" },
+            stateCode: this.state.shipFromAddress.stateCode,
+            stateName: this.state.shipFromAddress.stateName,
+            pincode: this.state.shipFromAddress.pincode,
           },
           uniqueName: this.state.partyName.uniqueName,
         },
@@ -760,13 +819,14 @@ export class PurchaseBill extends React.Component {
         // voucherAdjustments: {adjustments: []},
         company: {
           billingDetails: {
-            address: [this.state.shipFromAddress.address],
+            address: [this.state.BillToAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.shipFromAddress.gstNumber,
+            gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : "", name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : "" },
-            stateCode: this.state.shipFromAddress.stateCode,
-            stateName: this.state.shipFromAddress.stateName,
+            state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : "", name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : "" },
+            stateCode: this.state.BillToAddress.stateCode,
+            stateName: this.state.BillToAddress.stateName,
+            pincode: this.state.BillToAddress.pincode,
           },
           shippingDetails: {
             address: [this.state.shipToAddress.address],
@@ -776,12 +836,13 @@ export class PurchaseBill extends React.Component {
             state: { code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : "", name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : "" },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
+            pincode: this.state.shipToAddress.pincode,
           },
         },
       };
-      
-      if(this.state.selectedInvoice!=""){
-        postBody["number"] =  this.state.selectedInvoice
+
+      if (this.state.selectedInvoice != "") {
+        postBody["number"] = this.state.selectedInvoice
       }
 
       console.log('purchase bill postBody is', JSON.stringify(postBody));
@@ -935,11 +996,11 @@ export class PurchaseBill extends React.Component {
       <View style={style.dateView}>
         <View style={{ flexDirection: 'row' }}>
           <Text style={style.InvoiceHeading}>Invoice #</Text>
-          <View style={{ flexDirection: 'row', width: "75%", marginHorizontal: 15, justifyContent: "space-between",}}>
+          <View style={{ flexDirection: 'row', width: "75%", marginHorizontal: 15, justifyContent: "space-between", }}>
             <TextInput
               placeholder={"Enter Invoice name"}
               value={this.state.selectedInvoice}
-              style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%',height:40}}
+              style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%', height: 40 }}
               onChangeText={(value) => {
                 this.setState({ selectedInvoice: value })
               }}
@@ -958,130 +1019,301 @@ export class PurchaseBill extends React.Component {
           <Icon name={'8'} color={'#FC8345'} size={16} />
           <Text style={style.addressHeaderText}>{'Address'}</Text>
         </View>
-        <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
-          onPress={() => {
-            if (!this.state.partyName) {
-              alert('Please select a party.');
-            } else {
-              this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.addressArray,
-                type: 'address',
-                selectAddress: this.selectBillFromAddress,
-                color: '#FC8345',
-              });
-            }
-          }}>
+        <View
+          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={2} style={style.senderAddressText}>
-              {'Billing From'}
-            </Text>
-            <AntDesign name={'right'} size={18} color={'#808080'} />
+            <TouchableOpacity style={{ width: "90%", }}
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else {
+                  this.props.navigation.navigate('SelectAddress', {
+                    addressArray: this.state.addressArray,
+                    type: 'address',
+                    selectAddress: this.selectBillFromAddress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: "#ef6c00"
+                  });
+                }
+              }}>
+              <Text numberOfLines={2} style={style.senderAddressText}>
+                {'Billing From'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ height: "250%", width: "10%", }} onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.props.navigation.navigate('EditAddress', {
+                  dontChangeCountry: true,
+                  address: this.state.BillFromAddress,
+                  selectAddress: this.selectBillFromAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00",
+                  headerColor: '#FC8345',
+                })
+              }
+            }}>
+              <AntDesign name={"plus"} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+            </TouchableOpacity>
           </View>
           {/* <Icon name={'8'} color={'#229F5F'} size={16} /> */}
-          <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.BillFromAddress.address
-              ? this.state.BillFromAddress.address
-              : this.state.BillFromAddress.stateName
-                ? this.state.BillFromAddress.stateName
-                : this.state.countryDeatils.countryName
-                  ? this.state.countryDeatils.countryName
-                  : 'Select Billing Address'}
-          </Text>
+          <TouchableOpacity
+            style={{ width: "90%" }}
+            onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.props.navigation.navigate('SelectAddress', {
+                  addressArray: this.state.addressArray,
+                  type: 'address',
+                  selectAddress: this.selectBillFromAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00"
+                });
+              }
+            }}>
+            <Text numberOfLines={2} style={style.selectedAddressText}>
+              {this.state.BillFromAddress.address
+                ? this.state.BillFromAddress.address
+                : this.state.BillFromAddress.stateName
+                  ? this.state.BillFromAddress.stateName
+                  : this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils.countryName
+                    : 'Select Billing Address'}
+            </Text>
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row' }}>
+            <CheckBox
+              checkBoxColor={"#5773FF"}
+              uncheckedCheckBoxColor={"#808080"}
+              style={{ marginLeft: -3 }}
+              onClick={() => {
+                this.setState({
+                  billFromSameAsShipFrom: !this.state.billFromSameAsShipFrom,
+                  shipFromAddress: this.state.BillFromAddress
+                })
+              }}
+              isChecked={this.state.billFromSameAsShipFrom}
+            />
+
+            <Text style={style.addressSameCheckBoxText}>Shipping Address Same as Billing</Text>
+            {/* <Text style={{ color: "#E04646", marginTop: 4 }}>*</Text> */}
+          </View>
           {/*Sender Address View*/}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
-          onPress={() => {
-            if (!this.state.partyName) {
-              alert('Please select a party.');
-            } else {
-              this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.addressArray,
-                type: 'address',
-                selectAddress: this.selectBillToAddress,
-                color: '#FC8345',
-              });
-            }
-          }}>
+        </View>
+        <View
+          style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={2} style={style.senderAddressText}>
-              {'Billing To'}
-            </Text>
-            <AntDesign name={'right'} size={18} color={'#808080'} />
+            <TouchableOpacity style={{ width: "90%", }}
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else {
+                  this.props.navigation.navigate('SelectAddress', {
+                    addressArray: this.state.addressArray,
+                    type: 'address',
+                    selectAddress: this.selectShipFromAddress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: "#ef6c00"
+                  });
+                }
+              }}>
+              <Text numberOfLines={2} style={style.senderAddressText}>
+                {'Shipping From'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ height: "250%", width: "10%", }} onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else if (!this.state.billFromSameAsShipFrom) {
+                this.props.navigation.navigate('EditAddress', {
+                  dontChangeCountry: true,
+                  address: this.state.shipFromAddress,
+                  selectAddress: this.selectShipFromAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00",
+                  headerColor: '#FC8345',
+                })
+              }
+            }}>
+              <AntDesign name={"plus"} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+            </TouchableOpacity>
           </View>
-          <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.BillToAddress.address
-              ? this.state.BillToAddress.address
-              : this.state.BillToAddress.stateName
-                ? this.state.BillToAddress.stateName
-                : this.state.countryDeatils.countryName
-                  ? this.state.countryDeatils.countryName
-                  : 'Select Billing Address'}
-          </Text>
+          <TouchableOpacity
+            style={{ width: "90%", }}
+            onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.props.navigation.navigate('SelectAddress', {
+                  addressArray: this.state.addressArray,
+                  type: 'address',
+                  selectAddress: this.selectShipFromAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00"
+                });
+              }
+            }}
+          >
+            <Text numberOfLines={2} style={style.selectedAddressText}>
+              {this.state.shipFromAddress.address
+                ? this.state.shipFromAddress.address
+                : this.state.shipFromAddress.stateName
+                  ? this.state.shipFromAddress.stateName
+                  : this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils.countryName
+                    : 'Select Shipping Address'}
+            </Text>
+          </TouchableOpacity>
+          {/*Shipping Address View*/}
+        </View>
+        <View
+          style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <TouchableOpacity style={{ width: "90%", }}
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else {
+                  this.props.navigation.navigate('SelectAddress', {
+                    addressArray: this.state.allBillingToAddresses,
+                    type: 'address',
+                    selectAddress: this.selectBillToAddress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: "#ef6c00"
+                  });
+                }
+              }}>
+              <Text numberOfLines={2} style={style.senderAddressText}>
+                {'Billing To'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ height: "250%", width: "10%", }} onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.props.navigation.navigate('EditAddress', {
+                  dontChangeCountry: true,
+                  address: this.state.BillToAddress,
+                  selectAddress: this.selectBillToAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00",
+                  headerColor: '#FC8345',
+                })
+              }
+            }}>
+              <AntDesign name={"plus"} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={{ width: "90%", }}
+            onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.props.navigation.navigate('SelectAddress', {
+                  addressArray: this.state.allBillingToAddresses,
+                  type: 'address',
+                  selectAddress: this.selectBillToAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00"
+                });
+              }
+            }}>
+            <Text numberOfLines={2} style={style.selectedAddressText}>
+              {this.state.BillToAddress.address
+                ? this.state.BillToAddress.address
+                : this.state.BillToAddress.stateName
+                  ? this.state.BillToAddress.stateName
+                  : this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils.countryName
+                    : 'Select Billing Address'}
+            </Text>
+          </TouchableOpacity>
+          {/*Shipping Address View*/}
+          <View style={{ flexDirection: 'row' }}>
+            <CheckBox
+              checkBoxColor={"#5773FF"}
+              uncheckedCheckBoxColor={"#808080"}
+              style={{ marginLeft: -3 }}
+              onClick={() => {
+                this.setState({
+                  billToSameAsShipTo: !this.state.billToSameAsShipTo,
+                  shipToAddress: this.state.BillToAddress
+                })
+              }}
+              isChecked={this.state.billToSameAsShipTo}
+            />
+            <Text style={style.addressSameCheckBoxText}>Shipping Address Same as Billing</Text>
+            {/* <Text style={{ color: "#E04646", marginTop: 4 }}>*</Text> */}
+          </View>
+        </View>
+        <View
+          style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
+            <TouchableOpacity onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.props.navigation.navigate('SelectAddress', {
+                  warehouseArray: this.state.warehouseArray,
+                  type: 'warehouse',
+                  selectAddress: this.selectShipToAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00"
+                });
+              }
+            }} style={{ width: "90%", }}>
+              <Text numberOfLines={2} style={style.senderAddressText}>
+                {'Shipping To'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ height: "200%", width: "10%" }} onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else if (!this.state.billToSameAsShipTo) {
+                this.props.navigation.navigate('EditAddress', {
+                  dontChangeCountry: true,
+                  address: this.state.shipToAddress,
+                  selectAddress: this.selectShipToAddressFromEditAddressScreen.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00",
+                  headerColor: '#FC8345',
+                })
+              }
+            }}>
+              <AntDesign name={"plus"} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={{ width: "90%" }}
+            onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.props.navigation.navigate('SelectAddress', {
+                  warehouseArray: this.state.warehouseArray,
+                  type: 'warehouse',
+                  selectAddress: this.selectShipToAddress.bind(this),
+                  color: '#FC8345',
+                  statusBarColor: "#ef6c00"
+                });
+              }
+            }} >
+            <Text numberOfLines={2} style={style.selectedAddressText}>
+              {this.state.shipToAddress.address
+                ? this.state.shipToAddress.address
+                : this.state.shipToAddress.stateName
+                  ? this.state.shipToAddress.stateName
+                  : this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils.countryName
+                    : 'Select Shipping Address'}
+            </Text>
+          </TouchableOpacity>
 
           {/*Shipping Address View*/}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
-          onPress={() => {
-            if (!this.state.partyName) {
-              alert('Please select a party.');
-            } else {
-              this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.addressArray,
-                type: 'address',
-                selectAddress: this.selectShipFromAddress,
-                color: '#FC8345',
-              });
-            }
-          }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={2} style={style.senderAddressText}>
-              {'Shipping From'}
-            </Text>
-            <AntDesign name={'right'} size={18} color={'#808080'} />
-          </View>
-          <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.shipFromAddress.address
-              ? this.state.shipFromAddress.address
-              : this.state.shipFromAddress.stateName
-                ? this.state.shipFromAddress.stateName
-                : 'Select Shipping Address'}
-          </Text>
-
-          {/*Shipping Address View*/}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}
-          onPress={() => {
-            if (!this.state.partyName) {
-              alert('Please select a party.');
-            } else {
-              this.props.navigation.navigate('SelectAddress', {
-                addressArray: this.state.addressArray,
-                type: 'address',
-                selectAddress: this.selectShipToAddress,
-                color: '#FC8345',
-              });
-            }
-          }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text numberOfLines={2} style={style.senderAddressText}>
-              {'Shipping To'}
-            </Text>
-            <AntDesign name={'right'} size={18} color={'#808080'} />
-          </View>
-          <Text numberOfLines={2} style={style.selectedAddressText}>
-            {this.state.shipToAddress.address
-              ? this.state.shipToAddress.address
-              : this.state.shipToAddress.stateName
-                ? this.state.shipToAddress.stateName
-                : 'Select Shipping Address'}
-          </Text>
-
-          {/*Shipping Address View*/}
-        </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -1643,7 +1875,7 @@ export class PurchaseBill extends React.Component {
             />
             {/* <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink'}}
-              onPress={() => console.log(this.state.addedItems)}></TouchableOpacity> */}
+              onPress={() => console.log(this.state.addressArray)}></TouchableOpacity> */}
             {/* <View style={{flexDirection: 'row'}}>
 
             <TouchableOpacity
