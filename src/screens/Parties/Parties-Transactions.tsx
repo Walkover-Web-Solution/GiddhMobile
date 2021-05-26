@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { GDRoundedDateRangeInput } from '@/core/components/input/rounded-date-range-input.component';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
 import _ from 'lodash';
 import {
@@ -23,11 +22,9 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-community/async-storage';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
-import httpInstance from '@/core/services/http/http.service';
-import { commonUrls } from '@/core/services/common/common.url';
 import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -42,6 +39,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PushNotification, { Importance } from 'react-native-push-notification';
+import Dialog from 'react-native-dialog';
 
 import Share from 'react-native-share';
 import base64 from 'react-native-base64';
@@ -100,7 +98,7 @@ class PartiesTransactionScreen extends React.Component {
         importance: Importance.HIGH,
         vibrate: true,
       },
-      (created) => console.log(`createChannel returned '${created}'`) 
+      (created) => console.log(`createChannel returned '${created}'`)
     );
   }
 
@@ -115,11 +113,11 @@ class PartiesTransactionScreen extends React.Component {
         smallIcon: 'ic_launcher',
         title: 'Reminder'
       });
-      this.setState({remainderModal:false});
-      Alert.alert("Success", "Reminder successfully activated", [{style:'destructive', text:'Okay'}]);
+      this.setState({ remainderModal: false });
+      Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]);
     } catch (error) {
       console.log("failed to push notification" + error);
-      Alert.alert("Fail", "Failed to activat reminder", [{style:'destructive', text:'Okay'}])
+      Alert.alert("Fail", "Failed to activat reminder", [{ style: 'destructive', text: 'Okay' }])
     }
   }
 
@@ -972,7 +970,74 @@ class PartiesTransactionScreen extends React.Component {
             onWhatsApp={this.onWhatsApp}
             onCall={this.onCall}
           />
-          <Modal visible={this.state.remainderModal}>
+          <Dialog.Container
+            visible={this.state.remainderModal}
+            onBackdropPress={() => this.setState({ remainderModal: false })}>
+
+            <Text style={{textAlign:'center',fontSize:18, marginBottom:10, fontFamily:FONT_FAMILY.bold}}>Set Reminder</Text>
+            <View>
+              <Text>Date</Text>
+              <TouchableOpacity
+                onPress={() => this.setState({ datePicker: true })}
+                style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
+                <View style={{ flexDirection: "row", alignItems: 'center' }}>
+                  <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
+                </View>
+              </TouchableOpacity>
+              <Text style={{marginTop:20}}>Time</Text>
+              <TouchableOpacity
+                onPress={() => this.setState({ timePicker: true })}
+                style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
+                <View style={{ flexDirection: "row", alignItems: 'center' }}>
+                  <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.scheduleNotification()}
+                style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 5, backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50 }}>
+                <Text style={{ color: 'white' }}>Done</Text>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={this.state.datePicker}
+                mode="date"
+                date={this.state.dateTime}
+                onConfirm={(date) => {
+                  if (Number(format(date, "MM")) < Number(format(new Date(Date.now()), "MM"))) {
+                    Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
+                  }
+                  else if (Number(format(date, "MM")) == Number(format(new Date(Date.now()), "MM")) && Number(format(date, "dd")) < Number(format(new Date(Date.now()), "dd"))) {
+                    Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
+                  } else {
+                    const newDate: Date = this.state.dateTime;
+                    newDate.setDate(date.getDate());
+                    newDate.setMonth(date.getMonth());
+                    newDate.setFullYear(date.getFullYear());
+                    console.log(newDate);
+                    this.setState({ dateTime: newDate });
+                  }
+                  this.setState({ datePicker: false });
+                }}
+                onCancel={(date) => {
+                  this.setState({ datePicker: false });
+                }}
+              />
+              <DateTimePickerModal
+                isVisible={this.state.timePicker}
+                mode="time"
+                date={this.state.dateTime}
+                onConfirm={(date) => {
+                  const newTime: Date = this.state.dateTime;
+                  newTime.setTime(date.getTime());
+                  console.log(newTime);
+                  this.setState({ timePicker: false, dateTime: newTime });
+                }}
+                onCancel={(date) => {
+                  this.setState({ timePicker: false });
+                }}
+              />
+            </View>
+          </Dialog.Container>
+          <Modal visible={false}>
             <View style={{ flex: 1 }}>
               {this.FocusAwareStatusBar(this.props.isFocused)}
               <View
@@ -989,69 +1054,6 @@ class PartiesTransactionScreen extends React.Component {
                 <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
                   Set Remainder
                 </Text>
-              </View>
-              <View style={{ padding: 50, justifyContent: 'center', flex: 1 }}>
-                <Text style={{ fontSize: 12 }}>Date</Text>
-                <TouchableOpacity
-                  onPress={() => this.setState({ datePicker: true })}
-                  style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
-                  <View style={{ flexDirection: "row", alignItems: 'center' }}>
-                    <Fontisto name="date" size={12} color="#808080" style={{ marginLeft: 5 }} />
-                    <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
-                  </View>
-                </TouchableOpacity>
-                <Text style={{ fontSize: 12, marginTop: 10 }}>Time</Text>
-                <TouchableOpacity
-                  onPress={() => this.setState({ timePicker: true })}
-                  style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
-                  <View style={{ flexDirection: "row", alignItems: 'center' }}>
-                    <MaterialCommunityIcons name="clock-time-five-outline" size={15} color="#808080" style={{ marginLeft: 5 }} />
-                    <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => this.scheduleNotification()}
-                  style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 10, backgroundColor: '#5773FF', marginTop: 50, borderRadius: 50 }}>
-                  <Text style={{ color: 'white' }}>DONE</Text>
-                </TouchableOpacity>
-                <DateTimePickerModal
-                  isVisible={this.state.datePicker}
-                  mode="date"
-                  date={this.state.dateTime}
-                  onConfirm={(date) => {
-                    if (Number(format(date, "MM")) < Number(format(new Date(Date.now()), "MM"))) {
-                      Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
-                    }
-                    else if (Number(format(date, "MM")) == Number(format(new Date(Date.now()), "MM")) && Number(format(date, "dd")) < Number(format(new Date(Date.now()), "dd"))) {
-                      Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
-                    } else {
-                      const newDate: Date = this.state.dateTime;
-                      newDate.setDate(date.getDate());
-                      newDate.setMonth(date.getMonth());
-                      newDate.setFullYear(date.getFullYear());
-                      console.log(newDate);
-                      this.setState({ dateTime: newDate });
-                    }
-                    this.setState({ datePicker: false });
-                  }}
-                  onCancel={(date) => {
-                    this.setState({ datePicker: false });
-                  }}
-                />
-                <DateTimePickerModal
-                  isVisible={this.state.timePicker}
-                  mode="time"
-                  date={this.state.dateTime}
-                  onConfirm={(date) => {
-                    const newTime: Date = this.state.dateTime;
-                    newTime.setTime(date.getTime());
-                    console.log(newTime);
-                    this.setState({ timePicker: false, dateTime: newTime });
-                  }}
-                  onCancel={(date) => {
-                    this.setState({ timePicker: false });
-                  }}
-                />
               </View>
             </View>
           </Modal>
