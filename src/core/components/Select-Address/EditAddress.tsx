@@ -169,9 +169,9 @@ export class EditAddress extends React.Component<any, any> {
 
   getDetails = async () => {
     this.setState({ loading: true });
-    if (this.state.gstNo != '' || (this.props.route.params.address.taxNumber!=undefined && this.props.route.params.address.taxNumber!='')) {
-      this.setState({ selectStateDisable: true});
-      this.props.route.params.address.taxNumber?this.setState({ gstNo:this.props.route.params.address.taxNumber}):null
+    if (this.state.gstNo != '' || (this.props.route.params.address.taxNumber != undefined && this.props.route.params.address.taxNumber != '')) {
+      this.setState({ selectStateDisable: true });
+      this.props.route.params.address.taxNumber ? this.setState({ gstNo: this.props.route.params.address.taxNumber }) : null
     }
     let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
     let allCountry = await CustomerVendorService.getAllCountryName();
@@ -184,7 +184,7 @@ export class EditAddress extends React.Component<any, any> {
           : this.state.companyCountryDetails,
     });
     console.log(this.state.selectedCountry);
-    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode?this.state.selectedCountry.alpha2CountryCode:this.state.selectedCountry.countryCode);
+    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode ? this.state.selectedCountry.alpha2CountryCode : this.state.selectedCountry.countryCode);
     await this.setState({
       allStates: allStateName.body.stateList,
     });
@@ -207,6 +207,11 @@ export class EditAddress extends React.Component<any, any> {
     } catch (e) { }
   }
 
+  gstValidator() {
+    const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
+    var vadidatorResult = this.state.gstNo != undefined && this.state.gstNo != '' ? regex.test(this.state.gstNo) : true
+    return vadidatorResult
+  }
 
   onSubmit = () => {
     console.log("state" + this.state.state_billing);
@@ -218,7 +223,7 @@ export class EditAddress extends React.Component<any, any> {
     }
     else if (this.state.gstNo && this.state.gstNo.length != 15) {
       alert("Enter a valid gst number, should be 15 characters long");
-    } else if (this.state.gstNumberWrong) {
+    } else if (this.state.gstNumberWrong || !this.gstValidator()) {
       alert('Enter a valid gst number');
     } else {
       var address = {
@@ -293,7 +298,7 @@ export class EditAddress extends React.Component<any, any> {
         <ScrollView style={style.body}>
           <Text style={style.BMfieldTitle}>Address</Text>
           <TextInput
-            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10, fontFamily: FONT_FAMILY.regular }}
+            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 5, fontFamily: FONT_FAMILY.regular }}
             multiline
             onChangeText={(text) => this.setState({ address: text })}
             value={this.state.address}></TextInput>
@@ -311,7 +316,7 @@ export class EditAddress extends React.Component<any, any> {
               borderBottomColor: '#808080',
               paddingBottom: 10,
               marginTop: 15,
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
               backgroundColor: this.props.route.params.dontChangeCountry ? "#F1F1F2" : ""
             }}
             textStyle={{ color: '#1c1c1c', fontFamily: FONT_FAMILY.regular }}
@@ -342,7 +347,7 @@ export class EditAddress extends React.Component<any, any> {
               borderBottomColor: '#808080',
               paddingBottom: 10,
               marginTop: 15,
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
               backgroundColor: this.state.selectStateDisable ? "#F1F1F2" : null
             }}
             textStyle={{ color: '#1c1c1c', fontSize: 14, fontFamily: FONT_FAMILY.regular }}
@@ -367,7 +372,7 @@ export class EditAddress extends React.Component<any, any> {
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
             style={{
-              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10, fontFamily: FONT_FAMILY.regular
+              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 5, fontFamily: FONT_FAMILY.regular
             }}
             onChangeText={(text) => {
               this.setState({ gstNo: text }), this.findState(text);
@@ -381,7 +386,7 @@ export class EditAddress extends React.Component<any, any> {
           <TextInput
             keyboardType="number-pad"
             style={{
-              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 10, fontFamily: FONT_FAMILY.regular
+              borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 5, fontFamily: FONT_FAMILY.regular
             }}
             onChangeText={(text) => this.setState({ pinCode: text })}
             value={this.state.pinCode}></TextInput>
