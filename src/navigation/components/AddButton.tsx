@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 import {
   Animated,
@@ -17,17 +17,17 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 // import {TouchableOpacity} from 'react-native-gesture-handler';
 
 import style from '@/screens/Auth/Otp/style';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import color from '@/utils/colors';
-import {transform} from '@babel/core';
-import {APP_EVENTS} from '@/utils/constants';
+import { transform } from '@babel/core';
+import { APP_EVENTS } from '@/utils/constants';
 const arrButtons = [
-  {name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD'},
-  {name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F'},
-  {name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345'},
-  {name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961'},
-  {name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3'},
-  {name: 'Vendor', navigateTo: 'VendorScreens', icon: 'Group-6188', color: '#FF72BE'},
+  { name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD' },
+  { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
+  { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345' },
+  { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961' },
+  { name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3' },
+  { name: 'Vendor', navigateTo: 'VendorScreens', icon: 'Group-6188', color: '#FF72BE' },
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},
@@ -39,11 +39,11 @@ const arrButtons = [
 const SIZE = 48;
 const padding = 10;
 let itemWidth = (Dimensions.get('window').width - (SIZE + padding * 8)) / 4;
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 type Props = {
-  navigation:any;
+  navigation: any;
   isDisabled: any;
 }
 
@@ -98,7 +98,7 @@ class AddButton extends Component<Props> {
           visible={this.state.modalVisible}
           animationType="none"
           transparent={true}
-          onRequestClose={() => this.setState({modalVisible: false})}>
+          onRequestClose={() => this.setState({ modalVisible: false })}>
           <TouchableOpacity
             style={{
               position: 'absolute',
@@ -109,7 +109,7 @@ class AddButton extends Component<Props> {
               right: 0,
               backgroundColor: 'rgba(0,0,0,0.5)',
             }}
-            onPress={() => this.setState({modalVisible: false})}>
+            onPress={() => this.setState({ modalVisible: false })}>
             <View
               style={{
                 position: 'absolute',
@@ -134,8 +134,8 @@ class AddButton extends Component<Props> {
                 numColumns={4} // set number of columns
                 data={arrButtons}
                 showsVerticalScrollIndicator={false}
-                style={{flex: 1, alignSelf: 'center', marginBottom: SIZE}}
-                renderItem={({item}) => (
+                style={{ flex: 1, alignSelf: 'center', marginBottom: SIZE }}
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     style={{
                       width: itemWidth,
@@ -149,7 +149,7 @@ class AddButton extends Component<Props> {
                     onPress={async () => {
                       DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                       this.props.navigation.navigate(item.navigateTo);
-                      this.setState({modalVisible: false});
+                      this.setState({ modalVisible: false });
 
                       // this.toggleView();
                     }}>
@@ -164,14 +164,14 @@ class AddButton extends Component<Props> {
                       }}>
                       <Icon name={item.icon} size={24} color="#F8F8F8" />
                     </View>
-                    <Text style={{fontSize: 9, textAlign: 'center', marginTop: 5}}>{item.name}</Text>
+                    <Text style={{ fontSize: 9, textAlign: 'center', marginTop: 5 }}>{item.name}</Text>
                   </TouchableOpacity>
                 )}
                 keyExtractor={(item) => item.name}
               />
             </View>
             <TouchableOpacity
-              onPress={() => this.setState({modalVisible: false})}
+              onPress={() => this.setState({ modalVisible: false })}
               style={{
                 position: 'absolute',
                 bottom: (height * 0.08) / 2,
@@ -179,7 +179,7 @@ class AddButton extends Component<Props> {
                 height: SIZE,
                 borderRadius: SIZE / 2,
                 backgroundColor: '#5773FF',
-                transform: [{rotate: '90deg'}],
+                transform: [{ rotate: '90deg' }],
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignSelf: 'center',
@@ -190,7 +190,8 @@ class AddButton extends Component<Props> {
         </Modal>
 
         <TouchableHighlight
-          onPress={() => this.setState({modalVisible: !this.state.modalVisible})}
+          disabled={this.props.isDisabled}
+          onPress={() => this.setState({ modalVisible: !this.state.modalVisible })}
           underlayColor="#2882D8"
           style={{
             alignItems: 'center',
@@ -198,14 +199,14 @@ class AddButton extends Component<Props> {
             width: SIZE,
             height: SIZE,
             borderRadius: SIZE / 2,
-            backgroundColor: this.props.isDisabled? 'rgba(00,00,00,0.1)' :'#5773FF',
+            backgroundColor: this.props.isDisabled ? 'rgba(00,00,00,0.1)' : '#5773FF',
             bottom: SIZE / 2,
           }}>
           <Animated.View
             style={{
-              transform: [{rotate: rotation}],
+              transform: [{ rotate: rotation }],
             }}>
-            <Entypo name="plus" size={24} color={this.props.isDisabled?"rgba(00,00,00,0.1)":"#fff"} />
+            <Entypo name="plus" size={24} color={this.props.isDisabled ? "rgba(00,00,00,0.1)" : "#fff"} />
           </Animated.View>
         </TouchableHighlight>
       </View>
@@ -214,12 +215,12 @@ class AddButton extends Component<Props> {
 }
 
 function mapStateToProps(state) {
-  const {commonReducer} = state;
+  const { commonReducer } = state;
   return {
     ...commonReducer,
   };
 }
-function mapDispatchToProps(dispatch) {}
+function mapDispatchToProps(dispatch) { }
 
 const MyComponent = connect(mapStateToProps)(AddButton);
 export default MyComponent;

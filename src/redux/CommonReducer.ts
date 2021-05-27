@@ -8,10 +8,21 @@ const initialState = {
   comapnyList: undefined,
   branchList: undefined,
   isFetchingCompanyList: false,
+  isUnauth: false,
 };
 
 export default (state = initialState, action: Action) => {
   switch (action.type) {
+    case ActionConstants.IS_AUTHORSIED:
+      return{
+        ...state,
+        isUnauth: false,
+      }
+    case ActionConstants.IS_UNAUTHORSIED:
+      return{
+        ...state,
+        isUnauth: true,
+      }
     case REHYDRATE:
       if (action.payload && action.payload.commonReducer) {
         const commonReducer = action.payload.commonReducer;

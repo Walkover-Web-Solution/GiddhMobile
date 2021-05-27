@@ -22,6 +22,7 @@ import * as CommonActions from '../../../../redux/CommonAction';
 import { logoutUser } from '../../../../redux/CommonSaga';
 import { put } from 'redux-saga/effects';
 import store from '@/redux/store';
+import { connect } from 'react-redux';
 
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested', // TODO: Remove when fixed
@@ -61,22 +62,21 @@ class HomeComponent extends React.Component {
         { key: 'first', title: 'Parties' },
         { key: 'second', title: 'Transactions' },
       ],
-      isValid: true,
     };
-    this.getPartiesSundryCreditors();
+    //this.getPartiesSundryCreditors();
   }
 
-  async getPartiesSundryCreditors(){
-    try {
-      const creditors = await CommonService.getPartiesSundryCreditors();
-      console.log(creditors.body.results);
-    } catch (e) {
-      console.log(e);
-      if (e.data.code == "UNAUTHORISED") {
-        this.setState({isValid:false});
-      }
-    }
-  }
+  // async getPartiesSundryCreditors(){
+  //   try {
+  //     const creditors = await CommonService.getPartiesSundryCreditors();
+  //     console.log(creditors.body.results);
+  //   } catch (e) {
+  //     console.log(e);
+  //     if (e.data.code == "UNAUTHORISED") {
+  //       this.setState({isValid:false});
+  //     }
+  //   }
+  // }
 
 
   handleIndexChange = (index) => {
@@ -152,7 +152,7 @@ class HomeComponent extends React.Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        {this.state.isValid ? <TabView
+        {!this.props.isInvalid ? <TabView
           navigationState={{ index: this.state.index, routes: this.state.routes }}
           renderScene={renderScene}
           onIndexChange={this.handleIndexChange}
@@ -174,4 +174,10 @@ class HomeComponent extends React.Component {
   }
 }
 
-export default withTranslation()(HomeComponent);
+const mapStateToProps = (state) => ({
+  isInvalid: state.commonReducer.isUnauth,
+});
+const mapDispatchToProps = (state) => ({
+});
+
+export default withTranslation()(connect(mapStateToProps, mapDispatchToProps)(HomeComponent));

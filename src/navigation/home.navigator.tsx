@@ -24,6 +24,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter } from 'react-native';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 
@@ -31,32 +32,31 @@ const Stack = createStackNavigator();
 
 export const HomeNavigator = () => {
   const [branchSelected, setBranchSelected] = useState(true);
-  const [disableTabs, setTabs] = useState(true);
+  const disableTabs = useSelector((state)=>state.commonReducer.isUnauth);
   useEffect(() => {
-    getPartiesSundryCreditors();
+    //getPartiesSundryCreditors();
     isBranchSelected();
     DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       isBranchSelected();
     });
   }, []);
 
-  const getPartiesSundryCreditors = async () => {
-    try {
-      const creditors = await CommonService.getPartiesSundryCreditors();
-      console.log(creditors.body.results);
-      setTabs(false);
-    } catch (e) {
-      console.log(e);
-      if (e.data.code == "UNAUTHORISED") {
-        setTabs(true);
-      }
-    }
-  }
+  // const getPartiesSundryCreditors = async () => {
+  //   try {
+  //     const creditors = await CommonService.getPartiesSundryCreditors();
+  //     console.log(creditors.body.results);
+  //     setTabs(false);
+  //   } catch (e) {
+  //     console.log(e);
+  //     if (e.data.code == "UNAUTHORISED") {
+  //       setTabs(true);
+  //     }
+  //   }
+  // }
 
   function MyTabBar({ state, descriptors, navigation, renderIcon, activeTintColor, inactiveTintColor }) {
     return (
       <View
-        pointerEvents={disableTabs ? 'none' : 'auto'}
         style={{
           flexDirection: 'row',
           backgroundColor: disableTabs ? "rgba(00,00,00,0.1)" : "white",
@@ -125,6 +125,7 @@ export const HomeNavigator = () => {
             branchSelected && <AddButton isDisabled={disableTabs} navigation={navigation} />
           ) : (
               <TouchableOpacity
+              disabled={disableTabs}
                 // accessibilityRole="button"
                 // accessibilityStates={isFocused ? ['selected'] : []}
                 accessibilityLabel={options.tabBarAccessibilityLabel}

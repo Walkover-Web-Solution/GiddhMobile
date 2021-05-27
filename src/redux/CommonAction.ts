@@ -34,3 +34,15 @@ export function reset() {
     type: Actions.RESET,
   };
 }
+
+export function isUnauth(){
+  return {
+    type: Actions.IS_UNAUTHORSIED,
+  };
+}
+
+export function isAuth(){
+  return {
+    type: Actions.IS_AUTHORSIED,
+  };
+}

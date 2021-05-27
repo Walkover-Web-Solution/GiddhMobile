@@ -28,6 +28,7 @@ export function* getCompanyAndBranches() {
       if (!activeCompany) {
         console.log('this always runs for company');
         if (listResponse.body && listResponse.body.length > 0) {
+          yield put(CommonActions.isAuth());
           let defaultComp = listResponse.body[0];
           if(defaultComp.subscription && defaultComp.subscription.country && defaultComp.subscription.country.countryCode){
             console.log("country code is "+defaultComp.subscription.country.countryCode);
@@ -36,10 +37,13 @@ export function* getCompanyAndBranches() {
           if (defaultComp.uniqueName) {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
           }
+        }else{
+          yield put(CommonActions.isUnauth());
         }
       }
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
+    console.log("googleRat3", branchesResponse);
     if (branchesResponse && branchesResponse.status == 'success') {
       companyData.branchList = branchesResponse.body;
       const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
@@ -80,6 +84,7 @@ export function* logoutUser() {
     yield AsyncStorage.removeItem(STORAGE_KEYS.googleEmail);
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionStart);
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionEnd);
+    yield AsyncStorage.removeItem(STORAGE_KEYS.activeCompanyUniqueName);
     console.log('login worked');
   } catch (e) {
     console.log(e);
