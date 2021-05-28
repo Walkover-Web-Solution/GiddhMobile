@@ -1,51 +1,47 @@
 import React from 'react';
 import {
-  Alert,
   Modal,
   StyleSheet,
   Text,
-  TouchableHighlight,
   Dimensions,
   View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
+  TouchableOpacity
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Entypo from 'react-native-vector-icons/Entypo';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
-function MoreModal({modalVisible, setModalVisible, onWhatsApp, onCall}) {
+function MoreModal ({ modalVisible, setModalVisible, onWhatsApp, onCall }) {
   return (
     <Modal animationType="none" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible()}>
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           {/* <Text style={{fontSize: 20}}>Sort</Text> */}
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <TouchableOpacity
-              style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}
+              style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
               onPress={() => {
                 onWhatsApp();
                 setModalVisible();
               }}>
               <FontAwesome name="whatsapp" size={22} color={'#25D366'} />
-              <Text style={{fontSize: 18, marginLeft: 15}}>Chat on WhatsApp</Text>
+              <Text style={{ fontSize: 18, marginLeft: 15 }}>Chat on WhatsApp</Text>
             </TouchableOpacity>
             {/* {activeFilter == 'AZ' && (
               <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: '#520EAD', marginRight: 10}} />
             )} */}
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 30}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 30 }}>
             <TouchableOpacity
-              style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}
+              style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
               onPress={() => {
                 onCall();
 
                 setModalVisible();
               }}>
               <FontAwesome name="phone" size={22} color={'#4285F4'} />
-              <Text style={{fontSize: 18, marginLeft: 15}}>Phone Call </Text>
+              <Text style={{ fontSize: 18, marginLeft: 15 }}>Phone Call </Text>
             </TouchableOpacity>
             {/* {activeFilter == 'ZA' && (
               <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: '#520EAD', marginRight: 10}} />
@@ -76,7 +72,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)'
     // justifyContent: 'center',
     // alignItems: 'center',
   },
@@ -89,7 +85,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 1
     },
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
@@ -97,8 +93,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 15,
     marginTop: Screen_height * 0.15,
-    padding: 15,
-  },
+    padding: 15
+  }
 });
 
 export default MoreModal;

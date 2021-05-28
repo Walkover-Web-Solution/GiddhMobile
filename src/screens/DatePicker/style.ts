@@ -1,18 +1,18 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'pink',
+    backgroundColor: 'pink'
   },
   customContainer: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 20,
+    paddingHorizontal: 20
   },
   periodContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff'
   },
   periodButton: {
     flexDirection: 'row',
@@ -21,11 +21,11 @@ export default StyleSheet.create({
     // backgroundColor: 'pink',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    marginTop: '10%',
+    marginTop: '10%'
   },
-  periodText: {fontFamily: 'AvenirLTStd-Black', fontSize: 16},
-  periodDot: {height: 10, width: 10, borderRadius: 5, backgroundColor: '#5773FF'},
-  customHeading: {fontSize: 18, fontFamily: 'AvenirLTStd-Black', marginTop: '5%'},
+  periodText: { fontFamily: 'AvenirLTStd-Black', fontSize: 16 },
+  periodDot: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#5773FF' },
+  customHeading: { fontSize: 18, fontFamily: 'AvenirLTStd-Black', marginTop: '5%' },
   customDatePicker: {
     height: 40,
     // width: Dimensions.get('window').width * 0.85,
@@ -34,7 +34,7 @@ export default StyleSheet.create({
     marginTop: 10,
     borderWidth: 1,
     borderColor: '#D9D9D9',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
-  customDateStyle: {marginLeft: 15, fontFamily: 'AvenirLTStd-Book'},
+  customDateStyle: { marginLeft: 15, fontFamily: 'AvenirLTStd-Book' }
 });

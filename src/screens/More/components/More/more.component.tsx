@@ -1,21 +1,14 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {ScrollView, View, Text, TouchableOpacity, DeviceEventEmitter} from 'react-native';
-import {Country} from '@/models/interfaces/country';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { View, Text, TouchableOpacity, DeviceEventEmitter } from 'react-native';
+import { Country } from '@/models/interfaces/country';
 
-import MoreList from '@/screens/More/components/More/more-list.component';
-import MenuList from '@/screens/More/components/More/menu-list.component';
-import HelpList from '@/screens/More/components/More/help-list.component';
-import OtherList from '@/screens/More/components/More/other-list.component';
-import {BadgeTab} from '@/models/interfaces/badge-tabs';
+import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
-import {GdSVGIcons} from '@/utils/icons-pack';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
-import Icon from '@/core/components/custom-icon/custom-icon';
-import colors from '../../../../utils/colors';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {Bars} from 'react-native-loader';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -36,23 +29,25 @@ type MoreComponentState = {
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
-  constructor(props: MoreComponentProp) {
+  constructor (props: MoreComponentProp) {
     super(props);
     this.state = {
       activeCompany: undefined,
-      activeBranch: undefined,
+      activeBranch: undefined
     };
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this._getActiveCompany();
     });
     this._getActiveCompany();
   }
-  componentDidUpdate() {
+
+  componentDidUpdate () {
     // this._getActiveCompany();
   }
+
   changeLanguage = () => {
     this.props.i18n.changeLanguage('hi');
   };
@@ -64,32 +59,32 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     });
     tab.isActive = !tab.isActive;
     this.state.badgeTabs[index] = tab;
-    this.setState({badgeTabs: this.state.badgeTabs});
+    this.setState({ badgeTabs: this.state.badgeTabs });
   };
 
-  async _getActiveCompany() {
+  async _getActiveCompany () {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
 
-    var companyResults = _.find(this.props.companyList, function (item) {
+    const companyResults = _.find(this.props.companyList, function (item) {
       return item.uniqueName == activeCompany;
     });
     if (companyResults) {
-      this.setState({activeCompany: companyResults});
+      this.setState({ activeCompany: companyResults });
     } else {
-      this.setState({activeCompany: undefined});
+      this.setState({ activeCompany: undefined });
     }
-    var branchResults = _.find(this.props.branchList, function (item) {
+    const branchResults = _.find(this.props.branchList, function (item) {
       return item.uniqueName == activeBranch;
     });
     if (branchResults) {
-      this.setState({activeBranch: branchResults});
+      this.setState({ activeBranch: branchResults });
     } else {
-      this.setState({activeBranch: undefined});
+      this.setState({ activeBranch: undefined });
     }
   }
 
-  getInitails(name) {
+  getInitails (name) {
     const allWords = name.split(' ');
     if (allWords.length > 2) {
       const twoLaterWord = allWords[0] + ' ' + allWords[allWords.length - 1];
@@ -104,16 +99,18 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         .join('');
     }
   }
+
   func1 = async () => {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     console.log(activeCompany);
     // console.log(this.props.companyList);
   };
-  render() {
+
+  render () {
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
-    const {navigation} = this.props;
+    const { navigation } = this.props;
     if (this.props.isFetchingCompanyList) {
       return (
         <View
@@ -125,24 +122,24 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             left: 0,
             right: 0,
             bottom: 0,
-            top: 0,
+            top: 0
           }}>
           <Bars size={15} color={color.PRIMARY_NORMAL} />
         </View>
       );
     } else {
       return (
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
           {activeCompanyName && activeCompanyName.length > 1 ? (
             <TouchableOpacity
               style={style.companyView}
               onPress={() => {
-                navigation.navigate('ChangeCompany', {activeCompany: this.state.activeCompany});
+                navigation.navigate('ChangeCompany', { activeCompany: this.state.activeCompany });
               }}>
               <View style={style.companyShortView}>
                 <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
               </View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                 <Text numberOfLines={1} style={style.companyNameText}>
                   {activeCompanyName}
                 </Text>
@@ -156,13 +153,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               <View style={style.companyShortView}>
                 <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
               </View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
                 <Text style={style.companyNameText}>{activeCompanyName}</Text>
               </View>
             </View>
           )}
           {
-            //Switch Branch
+            // Switch Branch
           }
           {this.props.branchList && this.props.branchList.length > 1 && (
             <TouchableOpacity
@@ -170,13 +167,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               onPress={() => {
                 navigation.navigate('BranchChange', {
                   branches: this.props.branchList,
-                  activeBranch: this.state.activeBranch,
+                  activeBranch: this.state.activeBranch
                 });
               }}>
-              <View style={{marginLeft: 15}}>
+              <View style={{ marginLeft: 15 }}>
                 <MaterialIcons name="compare-arrows" size={26} color={'#1A237E'} />
               </View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                 <Text style={style.companyNameText}>
                   {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
                 </Text>
@@ -201,17 +198,17 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               shadowColor: '#000',
               shadowOffset: {
                 width: 0,
-                height: 1,
+                height: 1
               },
               shadowOpacity: 0.22,
               shadowRadius: 2.22,
-              elevation: 3,
+              elevation: 3
             }}
             onPress={this.props.logout}
             // onPress={() => console.log('working ?')}
           >
             <Ionicons name="ios-power" size={26} color={'#5773FF'} />
-            <Text style={{fontFamily: 'AvenirLTStd-Black', marginLeft: 20}}>Logout</Text>
+            <Text style={{ fontFamily: 'AvenirLTStd-Black', marginLeft: 20 }}>Logout</Text>
           </TouchableOpacity>
           {/* <MoreList />
           {

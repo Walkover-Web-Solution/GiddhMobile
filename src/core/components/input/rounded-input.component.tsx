@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {GestureResponderEvent, StyleProp, TextInput, TextStyle, View, ViewStyle} from 'react-native';
-import {InputSize} from '@/models/enums/input';
-import {Noop} from '@/utils/helper';
-import {Icon} from '@ui-kitten/components';
+import { Component } from 'react';
+import { GestureResponderEvent, StyleProp, TextInput, TextStyle, View, ViewStyle } from 'react-native';
+import { InputSize } from '@/models/enums/input';
+import { Noop } from '@/utils/helper';
+import { Icon } from '@ui-kitten/components';
 
 import styles from '@/core/components/input/styles';
 
@@ -37,14 +37,14 @@ export class GDRoundedInput extends Component<GDRoundedInputProps, GDRoundedInpu
     onFocus: Noop,
     onChange: Noop,
     onBlur: Noop,
-    color: 'string',
+    color: 'string'
   };
 
-  constructor(props: GDRoundedInputProps) {
+  constructor (props: GDRoundedInputProps) {
     super(props);
   }
 
-  render() {
+  render () {
     const CustomTag = this.props.svg;
     let checkTag = 1;
     if (this.props.svg === '') {

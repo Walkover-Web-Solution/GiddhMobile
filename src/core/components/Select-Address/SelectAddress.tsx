@@ -5,138 +5,28 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
-  StatusBar,
-  PermissionsAndroid,
-  Animated,
+  StatusBar
 } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import AddressItem from './AddressItem';
-import { TextInput } from 'react-native-gesture-handler';
 
-const { height, width } = Dimensions.get('window');
-
-const addresses = [
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: { stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP' },
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-];
+const { height } = Dimensions.get('window');
 
 export class SelectAddress extends React.Component<any, any> {
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
     this.state = {
       activeIndex: 0,
       editAddress: false,
-      addressList: this.props.route.params.type == 'address' ? (this.props.route.params.addressArray.length > 0 ? [...this.props.route.params.addressArray] : []) :
-        (this.props.route.params.warehouseArray.length > 0 ? [...this.props.route.params.warehouseArray] : []),
+      addressList: this.props.route.params.type == 'address'
+        ? (this.props.route.params.addressArray.length > 0 ? [...this.props.route.params.addressArray] : [])
+        : (this.props.route.params.warehouseArray.length > 0 ? [...this.props.route.params.warehouseArray] : []),
       newList: [],
       // this.props.route.params.type == 'warehouse'
       //   ? this.props.route.params.warehouseArray
       //   : ,
-      selectedAddress: {},
+      selectedAddress: {}
     };
   }
 
@@ -144,15 +34,15 @@ export class SelectAddress extends React.Component<any, any> {
     this.setState({ activeIndex: value });
   };
 
-  addAddress = (address) => {
-    let arr = [...this.state.addressList];
+  addAddress = (address: any) => {
+    const arr = [...this.state.addressList];
     arr.push(address);
     // console.log('as expected', arr);
     this.setState({ addressList: arr });
     // console.log(address);
   };
 
-  render() {
+  render () {
     return (
       <View style={style.container}>
         {this.props.route.params.statusBarColor && (
@@ -161,7 +51,7 @@ export class SelectAddress extends React.Component<any, any> {
         <View
           style={[
             style.header,
-            { backgroundColor: this.props.route.params.color ? this.props.route.params.color : '#229F5F' },
+            { backgroundColor: this.props.route.params.color ? this.props.route.params.color : '#229F5F' }
           ]}>
           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward-arrow'} color="#fff" size={18} />

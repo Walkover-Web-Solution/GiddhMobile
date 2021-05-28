@@ -1,10 +1,8 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {FlatList, SafeAreaView, Text, TouchableOpacity, View} from 'react-native';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { FlatList, SafeAreaView, Text, TouchableOpacity } from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
 import Icon from '@/core/components/custom-icon/custom-icon';
-
-import {AutocompleteItem} from '@ui-kitten/components';
 
 type HelpListProp = WithTranslation & WithTranslationProps & {navigation: any};
 
@@ -15,28 +13,28 @@ class HelpList extends React.Component<HelpListProp, HelpListState> {
     {
       id: 1,
       item_name: 'Blogs & Tutorials',
-      icon: <Icon name={'gstr'} size={20} color={'#5773FF'} />,
+      icon: <Icon name={'gstr'} size={20} color={'#5773FF'} />
     },
     {
       id: 2,
       item_name: 'Help & Support',
       icon: <Icon name={'report'} size={20} color={'#5773FF'} />,
-      Screen: 'HelpScreen',
-    },
+      Screen: 'HelpScreen'
+    }
   ];
 
-  constructor(props: HelpListProp) {
+  constructor (props: HelpListProp) {
     super(props);
   }
 
-  render() {
-    const {navigation} = this.props;
+  render () {
+    const { navigation } = this.props;
     return (
       <SafeAreaView>
         <FlatList
           data={this.listData}
           showsVerticalScrollIndicator={false}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.listItem}
               onPress={() => (item.Screen ? navigation.navigate(item.Screen) : null)}>

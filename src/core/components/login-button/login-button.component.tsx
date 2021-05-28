@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {GestureResponderEvent, StyleProp, Text, TouchableOpacity, View, ViewStyle} from 'react-native';
-import {ButtonSize} from '@/models/enums/button';
+import { Component } from 'react';
+import { GestureResponderEvent, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { ButtonSize } from '@/models/enums/button';
 import styles from '@/core/components/login-button/styles';
-import {Icon} from '@ui-kitten/components';
+import { Icon } from '@ui-kitten/components';
 
 type LoginButtonProps = {
   label: string;
@@ -17,14 +17,14 @@ type LoginButtonStat = {};
 
 class LoginButton extends Component<LoginButtonProps, LoginButtonStat> {
   static defaultProps: {};
-  constructor(props: LoginButtonProps) {
+  constructor (props: LoginButtonProps) {
     super(props);
   }
 
-  render() {
-    //Button style pushed into style based on condition
+  render () {
+    // Button style pushed into style based on condition
 
-    let btnStyle: StyleProp<ViewStyle>[] = [this.props.style, styles.button];
+    const btnStyle: StyleProp<ViewStyle>[] = [this.props.style, styles.button];
 
     return (
       <View>
@@ -39,7 +39,7 @@ class LoginButton extends Component<LoginButtonProps, LoginButtonStat> {
 }
 
 LoginButton.defaultProps = {
-  size: ButtonSize.medium,
+  size: ButtonSize.medium
 };
 
 export default LoginButton;

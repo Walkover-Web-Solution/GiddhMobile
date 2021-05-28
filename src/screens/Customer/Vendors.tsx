@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -9,18 +9,17 @@ import Dropdown from 'react-native-modal-dropdown';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { FONT_FAMILY } from '@/utils/constants';
+import { FONT_FAMILY, APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
-import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel, } from 'react-native-simple-radio-button';
+import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+
 import Dialog from 'react-native-dialog';
-import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
+import Award from '../../assets/images/icons/customer_success.svg';// customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
-import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 
@@ -30,7 +29,7 @@ interface Props {
 }
 
 export class Vendors extends React.Component<Props> {
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
     this.setActiveCompanyCountry()
     this.getAllDeatils();
@@ -38,28 +37,29 @@ export class Vendors extends React.Component<Props> {
     this.props.resetFun(this.resetState);
   }
 
-  async getAllDeatils() {
+  async getAllDeatils () {
     await this.setState({ loading: true });
-    let allPartyTypes = await CustomerVendorService.getAllPartyType()
+    const allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
-    //let allCurrency = await CustomerVendorService.getAllCurrency()
+    // let allCurrency = await CustomerVendorService.getAllCurrency()
     // let allCountry = await CustomerVendorService.getAllCountryName()
-    let allCallingCode = await CustomerVendorService.getAllCallingCode()
+    const allCallingCode = await CustomerVendorService.getAllCallingCode()
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCallingCode: allCallingCode.body.callingCodes })
     // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     await this.setState({ loading: false });
   }
 
-  async setActiveCompanyCountry() {
+  async setActiveCompanyCountry () {
     await this.setState({ loading: true });
     try {
-      let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
       if (results.body && results.status == 'success') {
         await this.setState({
-          activeCompanyCountryCode:activeCompanyCountryCode,
+          activeCompanyCountryCode: activeCompanyCountryCode,
           selectedCountry: results.body.country,
-          selectedCallingCode: results.body.country.callingCode, selectedCurrency: results.body.country.currency.code         
+          selectedCallingCode: results.body.country.callingCode,
+          selectedCurrency: results.body.country.currency.code
         })
       }
     } catch (e) { }
@@ -68,62 +68,62 @@ export class Vendors extends React.Component<Props> {
 
   state = {
     loading: false,
-    partyName: "",
-    contactNumber: "",
-    emailId: "",
-    partyType: "not applicable",
+    partyName: '',
+    contactNumber: '',
+    emailId: '',
+    partyType: 'not applicable',
     allPartyType: [],
-    AllGroups: ["Sundry Creditors"],
+    AllGroups: ['Sundry Creditors'],
     ref: RBSheet,
     allStates: [],
     savedAddress: {
-      street_billing: "",
-      gstin_billing: "",
-      state_billing: "",
-      pincode: ""
+      street_billing: '',
+      gstin_billing: '',
+      state_billing: '',
+      pincode: ''
     },
-    street_billing: "",
-    gstin_billing: "",
+    street_billing: '',
+    gstin_billing: '',
     state_billing: '',
     openAddress: false,
     showBalanceDetails: false,
     creditPeriodRef: Dropdown,
     radioBtn: 0,
-    foreignOpeningBalance: "0",
+    foreignOpeningBalance: '0',
     openingBalance: '0',
-    selectedCurrency: "INR",
+    selectedCurrency: 'INR',
     allCurrency: [],
     selectedCountry: {
-      "alpha3CountryCode": "IND",
-      "alpha2CountryCode": "IN",
-      "countryName": "India",
-      "callingCode": "91",
-      "currency": {
-        "code": "INR",
-        "symbol": "₹"
+      alpha3CountryCode: 'IND',
+      alpha2CountryCode: 'IN',
+      countryName: 'India',
+      callingCode: '91',
+      currency: {
+        code: 'INR',
+        symbol: '₹'
       },
-      "countryIndia": true
+      countryIndia: true
     },
     allCountry: [],
     allCallingCode: [],
-    selectedCallingCode: "91",
+    selectedCallingCode: '91',
     successDialog: false,
     faliureDialog: false,
-    selectedGroup: "Sundry Creditors",
+    selectedGroup: 'Sundry Creditors',
     partyDropDown: Dropdown,
     showBankDetails: false,
-    bankName: "",
-    bankAccountNumber: "",
-    IFSC_Code: "",
+    bankName: '',
+    bankAccountNumber: '',
+    IFSC_Code: '',
     isEmailInvalid: false,
     isMobileNoValid: false,
     isGroupDD: false,
     isPartyDD: false,
     groupDropDown: Dropdown,
-    partyPlaceHolder: "",
+    partyPlaceHolder: '',
     partyDialog: false,
     showForgeinBalance: true,
-    activeCompanyCountryCode:""
+    activeCompanyCountryCode: ''
   }
 
   radio_props = [
@@ -134,6 +134,7 @@ export class Vendors extends React.Component<Props> {
   setStreetBilling = (text: string) => {
     this.setState({ street_billing: text });
   }
+
   setGSTINBilling = (text: string) => {
     this.setState({ gstin_billing: text });
   }
@@ -141,6 +142,7 @@ export class Vendors extends React.Component<Props> {
   setStreetShipping = (text: string) => {
     this.setState({ street_shipping: text });
   }
+
   setGSTINShipping = (text: string) => {
     this.setState({ gstin_shipping: text });
   }
@@ -148,7 +150,7 @@ export class Vendors extends React.Component<Props> {
   setCountrySelected = async (value: any) => {
     this.setState({ loading: true });
     await this.setState({ state_billing: '', selectedCountry: value, selectedCurrency: value.currency.code, selectedCallingCode: value.callingCode })
-    let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
+    const allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
     await this.setState({ allStates: allStateName.body.stateList })
     this.setState({ loading: false });
   }
@@ -161,45 +163,44 @@ export class Vendors extends React.Component<Props> {
       pincode: address.pincode
     };
     const companyCountry = this.state.activeCompanyCountryCode
-    
+
     if (companyCountry != address.selectedCountry.alpha2CountryCode) {
       this.setState({ showForgeinBalance: true });
     } else {
       this.setState({ showForgeinBalance: false });
     }
     this.setState({
-      savedAddress: newAddress, selectedCountry: address.selectedCountry,
-      selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
+      savedAddress: newAddress,
+      selectedCountry: address.selectedCountry,
+      selectedCallingCode: address.selectedCountry.callingCode,
+      selectedCurrency: address.selectedCountry.currency.code
     });
   };
-
-
 
   renderSavedAddress = () => {
     return (
       <View style={{ marginLeft: 46 }}>
         <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
-        {this.state.selectedCountry && this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }} >{this.state.selectedCountry.countryName}</Text>}
-        {this.state.savedAddress.street_billing != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_billing}</Text>}
-        {this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing.name}</Text>}
-        {this.state.savedAddress.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.pincode}</Text>}
-        {this.state.savedAddress.gstin_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.gstin_billing}</Text>}
+        {this.state.selectedCountry && this.state.savedAddress.state_billing != '' && <Text style={{ color: '#808080' }} >{this.state.selectedCountry.countryName}</Text>}
+        {this.state.savedAddress.street_billing != '' && <Text style={{ color: '#808080' }} >{this.state.savedAddress.street_billing}</Text>}
+        {this.state.savedAddress.state_billing != '' && <Text style={{ color: '#808080' }}>{this.state.savedAddress.state_billing.name}</Text>}
+        {this.state.savedAddress.pincode != '' && <Text style={{ color: '#808080' }}>{this.state.savedAddress.pincode}</Text>}
+        {this.state.savedAddress.gstin_billing != '' && <Text style={{ color: '#808080' }}>{this.state.savedAddress.gstin_billing}</Text>}
       </View>);
   };
 
   renderBalanceDetails = () => {
-
     return (
       <View style={{ marginHorizontal: 15, marginVertical: 10, marginRight: 20, overflow: 'hidden' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, }}>
-          <View style={{ width: "74%", }}>
-            <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20 }}>
+          <View style={{ width: '74%' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Set Currency (account)</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden', backgroundColor: "rgba(0,0,0,0.08)" }}>
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.08)' }}>
             <Text style={{ color: '#1C1C1C' }}>INR</Text>
             {/* <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
@@ -232,8 +233,8 @@ export class Vendors extends React.Component<Props> {
           </View>
         </View>
         {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
-          <View style={{ width: "74%", }}>
-            <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
+          <View style={{ width: '74%' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
@@ -244,11 +245,11 @@ export class Vendors extends React.Component<Props> {
             onChangeText={(val) => { this.setState({ foreignOpeningBalance: val }) }}
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
-            style={{ borderWidth: 1, borderColor: "#d9d9d9", width: "30%", height: '80%', paddingStart: 10, }} />
+            style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: '80%', paddingStart: 10 }} />
         </View>}
-        <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 5 }}>
-          <View style={{ width: "70%", }}>
-            <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+          <View style={{ width: '70%' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
@@ -267,7 +268,7 @@ export class Vendors extends React.Component<Props> {
                       onPress={(val) => { this.setState({ radioBtn: val }) }}
                       borderWidth={1}
                       buttonInnerColor={'#864DD3'}
-                      buttonOuterColor={this.state.radioBtn === i ? "#864DD3" : '#808080'}
+                      buttonOuterColor={this.state.radioBtn === i ? '#864DD3' : '#808080'}
                       buttonSize={8}
                       buttonOuterSize={15}
                       buttonStyle={{}}
@@ -292,7 +293,7 @@ export class Vendors extends React.Component<Props> {
             }}
             value={this.state.openingBalance}
             placeholder="Amount"
-            style={{ borderWidth: 1, width: "30%", borderColor: "#d9d9d9", height: '70%', paddingStart: 10, marginTop: 5 }} />
+            style={{ borderWidth: 1, width: '30%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5 }} />
         </View>
       </View>
     );
@@ -308,7 +309,7 @@ export class Vendors extends React.Component<Props> {
             borderBottomWidth: 0.55,
             paddingBottom: -5
           }}
-          value={this.state.bankName != "" ? this.state.bankName : ""}
+          value={this.state.bankName != '' ? this.state.bankName : ''}
           multiline={true}
           onChangeText={(text) => this.setState({ bankName: text })} />
         <Text style={{ color: '#808080', marginTop: 10, fontSize: 13 }}>Account Number</Text>
@@ -318,7 +319,7 @@ export class Vendors extends React.Component<Props> {
             borderBottomWidth: 0.55,
             paddingBottom: -5
           }}
-          value={this.state.bankAccountNumber != "" ? this.state.showBankDetails : ""}
+          value={this.state.bankAccountNumber != '' ? this.state.showBankDetails : ''}
           multiline={true}
           onChangeText={(text) => this.setState({ bankAccountNumber: text })} />
         <Text style={{ color: '#808080', marginTop: 10, fontSize: 13 }}>IFSC Code</Text>
@@ -328,7 +329,7 @@ export class Vendors extends React.Component<Props> {
             borderBottomWidth: 0.55,
             paddingBottom: -5
           }}
-          value={this.state.IFSC_Code != "" ? this.state.IFSC_Code : ""}
+          value={this.state.IFSC_Code != '' ? this.state.IFSC_Code : ''}
           multiline={true}
           onChangeText={(text) => this.setState({ IFSC_Code: text })} />
       </View>
@@ -336,11 +337,11 @@ export class Vendors extends React.Component<Props> {
   }
 
   isCreateButtonVisible = () => {
-    if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.savedAddress.state_billing) {
-      // When selected country is same as company country then state is compulsory 
+    if (this.state.partyName && this.state.partyType != 'Party Type*' && this.state.savedAddress.state_billing) {
+      // When selected country is same as company country then state is compulsory
       return true;
-    } else if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.selectedCountry.alpha2CountryCode != this.state.activeCompanyCountryCode) {
-      // When selected country is different from company country then state is not compulsory 
+    } else if (this.state.partyName && this.state.partyType != 'Party Type*' && this.state.selectedCountry.alpha2CountryCode != this.state.activeCompanyCountryCode) {
+      // When selected country is different from company country then state is not compulsory
       return true
     } else {
       return false;
@@ -348,25 +349,25 @@ export class Vendors extends React.Component<Props> {
   }
 
   validateMobileNumber = () => {
-    if (this.state.contactNumber == "") {
+    if (this.state.contactNumber == '') {
       return true
     }
-    var pattern = new RegExp(/^[0-9\b]+$/);
+    const pattern = new RegExp(/^[0-9\b]+$/);
     if (!pattern.test(this.state.contactNumber)) {
-      Alert.alert("Error", 'Please enter only number.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      Alert.alert('Error', 'Please enter only number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
       return false;
     } else if (this.state.contactNumber.length != 10) {
-      Alert.alert("Error", 'Please enter valid phone number.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      Alert.alert('Error', 'Please enter valid phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
       return false;
     }
     return true
   }
 
   validateMobileNumberTextInput = (mobileNo: any) => {
-    if (mobileNo == "") {
+    if (mobileNo == '') {
       return true
     }
-    var pattern = new RegExp(/^[0-9\b]+$/);
+    const pattern = new RegExp(/^[0-9\b]+$/);
     if (!pattern.test(mobileNo)) {
       return false;
     } else if (mobileNo.length != 10) {
@@ -376,19 +377,19 @@ export class Vendors extends React.Component<Props> {
   }
 
   validateEmail = () => {
-    if (this.state.emailId == "") {
+    if (this.state.emailId == '') {
       return true
     }
     const expression = /(?!.*\.{2})^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([\t]*\r\n)?[\t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([\t]*\r\n)?[\t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
     if (!expression.test(String(this.state.emailId).toLowerCase())) {
-      Alert.alert("Error", 'Please enter correct email-address.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      Alert.alert('Error', 'Please enter correct email-address.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
       return false;
     }
     return true
   }
 
   validateEmailTextInput = (emailId: any) => {
-    if (emailId == "") {
+    if (emailId == '') {
       return true
     }
     const expression = /(?!.*\.{2})^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([\t]*\r\n)?[\t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([\t]*\r\n)?[\t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
@@ -400,7 +401,7 @@ export class Vendors extends React.Component<Props> {
 
   genrateCustomer = () => {
     if (!this.state.partyName) {
-      Alert.alert("Error", 'Please select a party.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      Alert.alert('Error', 'Please select a party.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
     } else {
       if (this.validateMobileNumber() && this.validateEmail()) {
         this.createCustomerRequest();
@@ -411,24 +412,24 @@ export class Vendors extends React.Component<Props> {
   createCustomerRequest = async () => {
     this.setState({ loading: true });
     try {
-      let postBody = {
-        activeGroupUniqueName: "sundrycreditors",
+      const postBody = {
+        activeGroupUniqueName: 'sundrycreditors',
         name: this.state.partyName,
-        uniqueName: "",
-        openingBalanceType: this.state.radioBtn == 0 ? "DEBIT" : "CREDIT",
+        uniqueName: '',
+        openingBalanceType: this.state.radioBtn == 0 ? 'DEBIT' : 'CREDIT',
         foreignOpeningBalance: this.state.foreignOpeningBalance,
         openingBalance: this.state.openingBalance,
         mobileNo: this.state.contactNumber,
-        mobileCode: "",
+        mobileCode: '',
         email: this.state.emailId,
-        companyName: "",
-        attentionTo: "",
-        description: "",
+        companyName: '',
+        attentionTo: '',
+        description: '',
         addresses: [
           {
             gstNumber: this.state.savedAddress.gstin_billing,
             address: this.state.savedAddress.street_billing,
-            state: this.state.savedAddress.state_billing != "" ? this.state.savedAddress.state_billing : { "code": null, "name": "", "stateGstCode": "" },
+            state: this.state.savedAddress.state_billing != '' ? this.state.savedAddress.state_billing : { code: null, name: '', stateGstCode: '' },
             stateCode: this.state.savedAddress.state_billing.stateGstCode ? this.state.savedAddress.state_billing.stateGstCode : null,
             isDefault: false,
             isComposite: false,
@@ -441,39 +442,39 @@ export class Vendors extends React.Component<Props> {
         },
         // currency: this.state.selectedCurrency,
         // In Vendor Account with different currency cannot be created.
-        currency: "INR",
+        currency: 'INR',
         accountBankDetails: [{
           bankName: this.state.bankName,
           bankAccountNo: this.state.bankAccountNumber,
           ifsc: this.state.IFSC_Code,
-          beneficiaryName: "",
-          branchName: "",
-          swiftCode: ""
+          beneficiaryName: '',
+          branchName: '',
+          swiftCode: ''
         }],
-        closingBalanceTriggerAmount: "",
-        closingBalanceTriggerAmountType: "CREDIT",
+        closingBalanceTriggerAmount: '',
+        closingBalanceTriggerAmountType: 'CREDIT',
         customFields: [
         ],
-        hsnNumber: "",
-        sacNumber: ""
+        hsnNumber: '',
+        sacNumber: ''
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
       const results = await CustomerVendorService.createVendor(postBody);
-      if (results.status == "success") {
+      if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
-        //this.state.partyDropDown.select(-1);
-        await this.setState({ successDialog: true, });
+        // this.state.partyDropDown.select(-1);
+        await this.setState({ successDialog: true });
         await this.getAllDeatils()
-        await this.setState({ loading: false, });
+        await this.setState({ loading: false });
       } else {
-        this.setState({ faliureDialog: true, });
-        this.setState({ loading: false, });
+        this.setState({ faliureDialog: true });
+        this.setState({ loading: false });
       }
     } catch (e) {
       console.log('problem occured', e);
-      this.setState({ faliureDialog: true, });
-      this.setState({ loading: false, });
+      this.setState({ faliureDialog: true });
+      this.setState({ loading: false });
     }
     this.setState({ loading: false });
   }
@@ -481,75 +482,75 @@ export class Vendors extends React.Component<Props> {
   resetState = () => {
     this.setState({
       loading: false,
-      partyName: "",
-      contactNumber: "",
-      emailId: "",
-      partyType: "not applicable",
+      partyName: '',
+      contactNumber: '',
+      emailId: '',
+      partyType: 'not applicable',
       allPartyType: [],
-      AllGroups: ["Sundry Debtors"],
+      AllGroups: ['Sundry Debtors'],
       ref: RBSheet,
       allStates: [],
       savedAddress: {
-        street_billing: "",
-        gstin_billing: "",
+        street_billing: '',
+        gstin_billing: '',
         state_billing: '',
-        pincode: ""
+        pincode: ''
       },
-      street_billing: "",
-      gstin_billing: "",
+      street_billing: '',
+      gstin_billing: '',
       state_billing: '',
-      street_shipping: "",
-      gstin_shipping: "",
+      street_shipping: '',
+      gstin_shipping: '',
       state_shipping: '',
       shippingSame: false,
       openAddress: false,
       showBalanceDetails: false,
       creditPeriodRef: Dropdown,
       radioBtn: 0,
-      foreignOpeningBalance: "0",
+      foreignOpeningBalance: '0',
       openingBalance: '0',
-      selectedCurrency: "INR",
+      selectedCurrency: 'INR',
       allCurrency: [],
       selectedCountry: {
-        "alpha3CountryCode": "IND",
-        "alpha2CountryCode": "IN",
-        "countryName": "India",
-        "callingCode": "91",
-        "currency": {
-          "code": "INR",
-          "symbol": "₹"
+        alpha3CountryCode: 'IND',
+        alpha2CountryCode: 'IN',
+        countryName: 'India',
+        callingCode: '91',
+        currency: {
+          code: 'INR',
+          symbol: '₹'
         },
-        "countryIndia": true
+        countryIndia: true
       },
       allCountry: [],
       allCallingCode: [],
-      selectedCallingCode: "91",
+      selectedCallingCode: '91',
       successDialog: false,
       faliureDialog: false,
-      selectedGroup: "Sundry Debtors",
+      selectedGroup: 'Sundry Debtors',
       partyDropDown: Dropdown,
       showBankDetails: false,
-      bankName: "",
-      bankAccountNumber: "",
-      IFSC_Code: "",
+      bankName: '',
+      bankAccountNumber: '',
+      IFSC_Code: '',
       isEmailInvalid: false,
       isMobileNoValid: false,
-      partyPlaceHolder: "",
+      partyPlaceHolder: '',
       groupDropDown: Dropdown,
       isGroupDD: false,
       isPartyDD: false,
       partyDialog: false,
-      activeCompanyCountryCode:""
+      activeCompanyCountryCode: ''
     })
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       await this.resetState();
       await this.setActiveCompanyCountry()
       await this.getAllDeatils();
     });
-    //this.checkStoredCountryCode();
+    // this.checkStoredCountryCode();
   }
 
   checkStoredCountryCode = async () => {
@@ -561,16 +562,16 @@ export class Vendors extends React.Component<Props> {
     }
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.customerMainContainer}>
         <Dialog.Container
           visible={this.state.partyDialog}
           onBackdropPress={() => {
-            console.log("w");
+            console.log('w');
             this.setState({ partyDialog: false })
           }}
-          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: "70%" }}
+          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%' }}
         >
           <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
           <FlatList
@@ -589,14 +590,15 @@ export class Vendors extends React.Component<Props> {
             }}
           />
         </Dialog.Container>
-        {this.state.successDialog ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: "center", alignItems: "center" }}>
+        {this.state.successDialog
+          ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
           <Award />
-          <Text style={{ color: "#229F5F", fontSize: 16 }}>Success</Text>
-          <Text style={{ fontSize: 14, marginTop: 10, textAlign: "center" }}>The Vendor is created successfully.</Text>
+          <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
+          <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>The Vendor is created successfully.</Text>
           <TouchableOpacity
             style={{
               alignItems: 'center',
-              width: "70%",
+              width: '70%',
               alignSelf: 'center',
               borderRadius: 30,
               backgroundColor: '#229F5F',
@@ -608,17 +610,19 @@ export class Vendors extends React.Component<Props> {
               this.props.navigation.goBack();
             }}
           >
-            <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: "center" }}>Done</Text>
+            <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Done</Text>
           </TouchableOpacity>
-        </Dialog.Container> : null}
-        {this.state.faliureDialog ? <Dialog.Container visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: "center", alignItems: "center" }}>
+        </Dialog.Container>
+          : null}
+        {this.state.faliureDialog
+          ? <Dialog.Container visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
           <Faliure />
-          <Text style={{ color: "#F2596F", fontSize: 16 }}>Error!</Text>
-          <Text style={{ fontSize: 14, marginTop: 10, textAlign: "center" }}>Sorry, Failed to import the entries.</Text>
+          <Text style={{ color: '#F2596F', fontSize: 16 }}>Error!</Text>
+          <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>Sorry, Failed to import the entries.</Text>
           <TouchableOpacity
             style={{
               alignItems: 'center',
-              width: "70%",
+              width: '70%',
               alignSelf: 'center',
               borderRadius: 30,
               backgroundColor: '#F2596F',
@@ -629,28 +633,29 @@ export class Vendors extends React.Component<Props> {
               this.setState({ faliureDialog: false });
             }}
           >
-            <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: "center" }}>Try Again</Text>
+            <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Try Again</Text>
           </TouchableOpacity>
-        </Dialog.Container> : null}
+        </Dialog.Container>
+          : null}
 
         <View style={{ flex: 1 }}>
           <View style={styles.rowContainer}>
             <Ionicons name="person" size={18} color="#864DD3" />
             <TextInput
               onBlur={() => {
-                if (this.state.partyName == "") {
-                  this.setState({ partyPlaceHolder: "" })
+                if (this.state.partyName == '') {
+                  this.setState({ partyPlaceHolder: '' })
                 }
               }}
-              onFocus={() => this.setState({ partyPlaceHolder: "a" })}
+              onFocus={() => this.setState({ partyPlaceHolder: 'a' })}
               onChangeText={(text) => {
                 console.log(text)
                 this.setState({ partyName: text })
               }
               }
               style={styles.input}>
-              <Text style={{ color: "rgba(80,80,80,0.5)" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
-              <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == "" ? "*" : ""}</Text>
+              <Text style={{ color: 'rgba(80,80,80,0.5)' }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
+              <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
             </TextInput>
           </View>
           <View style={styles.rowContainer}>
@@ -667,8 +672,8 @@ export class Vendors extends React.Component<Props> {
               }}
               onSelect={(idx, value) => this.setState({ selectedCallingCode: value })}
 
-              dropdownStyle={{ width: '17%', }}
-              dropdownTextStyle={{ color: '#1C1C1C', }}
+              dropdownStyle={{ width: '17%' }}
+              dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
               }}
@@ -684,7 +689,7 @@ export class Vendors extends React.Component<Props> {
               value={this.state.contactNumber}
               style={styles.input} />
           </View>
-          {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: "red", paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
+          {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
             <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />
             <TextInput
@@ -696,7 +701,7 @@ export class Vendors extends React.Component<Props> {
               placeholder="Email Address"
               style={styles.input} />
           </View>
-          {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: "red", paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
+          {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
           <View style={{ ...styles.rowContainer, marginTop: 5 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
@@ -736,8 +741,8 @@ export class Vendors extends React.Component<Props> {
                 this.setState({ partyDialog: true })
               }}
               style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: this.state.partyType == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }}>{this.state.partyType == "" ? "Party Type" : this.state.partyType}</Text>
-              <Text style={{ color: "#E04646" }}>{this.state.partyType == "" ? "*" : ""}</Text>
+              <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}</Text>
+              <Text style={{ color: '#E04646' }}>{this.state.partyType == '' ? '*' : ''}</Text>
             </TouchableOpacity>
             {/* <Dropdown
               ref={(ref) => this.state.partyDropDown = ref}
@@ -765,8 +770,8 @@ export class Vendors extends React.Component<Props> {
               color="#808080"
               onPress={() => {
                 this.setState({ partyDialog: true });
-                //this.setState({ isPartyDD: true })
-                //this.state.partyDropDown.show();
+                // this.setState({ isPartyDD: true })
+                // this.state.partyDropDown.show();
               }}
             />
           </View>
@@ -782,11 +787,11 @@ export class Vendors extends React.Component<Props> {
               this.props.navigation.navigate('EditAddressCV', {
                 address: BillingAddress,
                 selectAddress: (this.selectBillingAddress).bind(this),
-                headerColor: "#864DD3",
+                headerColor: '#864DD3',
                 statusBarColor: '#520EAD'
               })
             }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', marginVertical: 10, paddingVertical: 10, backgroundColor: this.state.openAddress ? "rgba(80,80,80,0.05)" : "white" }}>
+            style={{ ...styles.rowContainer, justifyContent: 'space-between', marginVertical: 10, paddingVertical: 10, backgroundColor: this.state.openAddress ? 'rgba(80,80,80,0.05)' : 'white' }}>
             <AntDesign
               name="pluscircle"
               size={16}
@@ -815,7 +820,7 @@ export class Vendors extends React.Component<Props> {
                   this.props.navigation.navigate('EditAddressCV', {
                     address: BillingAddress,
                     selectAddress: (this.selectBillingAddress).bind(this),
-                    headerColor: "#864DD3",
+                    headerColor: '#864DD3',
                     statusBarColor: '#520EAD'
                   })
                 }
@@ -888,7 +893,7 @@ export class Vendors extends React.Component<Props> {
               left: 0,
               right: 0,
               bottom: 0,
-              top: 0,
+              top: 0
             }}>
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
@@ -904,7 +909,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <Vendors {...props} isFocused={isFocused} />;

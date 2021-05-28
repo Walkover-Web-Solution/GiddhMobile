@@ -1,11 +1,11 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import routes from '@/navigation/routes';
 
 import CompanyInfoOne from '@/screens/Company-Information/CompanyInfo-One';
 import CompanyInfoTwo from '@/screens/Company-Information/CompanyInfo-Two';
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
 export const CompanyInfoStack = () => {
   return (
@@ -14,14 +14,14 @@ export const CompanyInfoStack = () => {
         name={routes.CompanyInfoOne}
         component={CompanyInfoOne}
         options={{
-          animationTypeForReplace: 'pop',
+          animationTypeForReplace: 'pop'
         }}
       />
       <Screen
         name={routes.CompanyInfoTwo}
         component={CompanyInfoTwo}
         options={{
-          animationTypeForReplace: 'pop',
+          animationTypeForReplace: 'pop'
         }}
       />
     </Navigator>

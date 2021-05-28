@@ -5,87 +5,91 @@ import { Alert } from 'react-native';
 export class CustomerVendorService {
   /**
    * Get all currency
-   * @returns 
+   * @returns
    */
-  static getAllCurrency() {
+  static getAllCurrency () {
     return httpInstance
       .get(CustomerVendorUrls.getAllCurrency, {})
       .then((res) => {
         return res.data;
       })
       .catch((err) => {
-        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+        Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });
   }
+
   /**
    * Get all calling code
-   * @returns 
+   * @returns
    */
-  static getAllCallingCode() {
+  static getAllCallingCode () {
     return httpInstance
       .get(CustomerVendorUrls.getCallingCode, {})
       .then((res) => {
         return res.data;
       })
-      .catch((err) => {
-        //Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      .catch((_err) => {
+        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
+
   /**
    * Get all currency
-   * @returns 
+   * @returns
    */
-  static getAllCountryName() {
+  static getAllCountryName () {
     return httpInstance
       .get(CustomerVendorUrls.getAllCountry, {})
       .then((res) => {
         return res.data;
       })
-      .catch((err) => {
-        //Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      .catch((_err) => {
+        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
+
   /**
    * Get all currency
-   * @returns 
+   * @returns
    */
-  static getAllStateName(countryCode: any) {
+  static getAllStateName (countryCode: any) {
     return httpInstance
       .get(CustomerVendorUrls.getAllState.replace(':countryCode', `${countryCode}`), {})
       .then((res) => {
         return res.data;
       })
-      .catch((err) => {
-        //Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      .catch((_err) => {
+        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
+
   /**
    * Get all currency
-   * @returns 
+   * @returns
    */
-  static getAllPartyType() {
+  static getAllPartyType () {
     return httpInstance
       .get(CustomerVendorUrls.getAllPartyType, {})
       .then((res) => {
         return res.data;
       })
-      .catch((err) => {
-        //Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      .catch((_err) => {
+        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
 
   /**
    * Create Customer
-   * @param payload 
-   * @param accountUniqueName 
-   * @returns 
+   * @param payload
+   * @param accountUniqueName
+   * @returns
    */
-  static createCustomer(payload: any) {
+  static createCustomer (payload: any) {
     console.log(CustomerVendorUrls.generateCreateCustomer);
     return httpInstance
       .post(CustomerVendorUrls.generateCreateCustomer, payload)
@@ -95,18 +99,18 @@ export class CustomerVendorService {
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
-        //Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
 
   /**
    * Create Vendor
-   * @param payload 
-   * @param accountUniqueName 
-   * @returns 
+   * @param payload
+   * @param accountUniqueName
+   * @returns
    */
-  static createVendor(payload: any) {
+  static createVendor (payload: any) {
     console.log(CustomerVendorUrls.generateCreateVendor);
     return httpInstance
       .post(CustomerVendorUrls.generateCreateVendor, payload)
@@ -116,9 +120,8 @@ export class CustomerVendorService {
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
-        //Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
-
 }

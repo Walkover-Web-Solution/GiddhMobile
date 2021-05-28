@@ -1,14 +1,14 @@
 import React from 'react';
-import {SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle, FlatList} from 'react-native';
+import { StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import styles from '@/screens/Parties/components/PMstyle';
-import {GdSVGIcons} from '@/utils/icons-pack';
-import {SwipeListView} from 'react-native-swipe-list-view';
-import colors, {baseColor} from '@/utils/colors';
+import { GdSVGIcons } from '@/utils/icons-pack';
+import { SwipeListView } from 'react-native-swipe-list-view';
+import colors, { baseColor } from '@/utils/colors';
 import * as constants from '@/utils/constants';
-import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
+import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
-import {Company} from '@/models/interfaces/company';
+import { Company } from '@/models/interfaces/company';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -19,12 +19,12 @@ const renderHiddenItem = () => (
   <View style={styles.rowBack}>
     <TouchableOpacity style={styles.swipeRight}>
       <GdSVGIcons.compose style={styles.iconStyle} width={14} height={14} />
-      <View style={{width: 10}} />
+      <View style={{ width: 10 }} />
       <Text style={styles.swipeText}>Edit</Text>
     </TouchableOpacity>
     <TouchableOpacity style={styles.swipeLeft}>
       <Text style={styles.swipeText}>Send</Text>
-      <View style={{width: 10}} />
+      <View style={{ width: 10 }} />
       <GdSVGIcons.send_white style={styles.iconStyle} width={14} height={14} />
     </TouchableOpacity>
   </View>
@@ -42,14 +42,14 @@ const amountColorStyle = (type: string) => {
   return {
     color: bgColor,
     fontFamily: 'AvenirLTStd-Black',
-    fontSize: constants.GD_FONT_SIZE.medium,
+    fontSize: constants.GD_FONT_SIZE.medium
   };
 };
 
 export const PartiesMainList = (props: PartiesListProp) => {
-  const {partiesData, activeCompany} = props;
+  const { partiesData, activeCompany } = props;
 
-  function currencyFormat(amount: number, currencyType: string | undefined) {
+  function currencyFormat (amount: number, currencyType: string | undefined) {
     switch (currencyType) {
       case 'IND_COMMA_SEPARATED':
         // eslint-disable-next-line no-lone-blocks
@@ -97,7 +97,7 @@ export const PartiesMainList = (props: PartiesListProp) => {
       // leftOpenValue={100}
       // rightOpenValue={-100}
       // renderHiddenItem={renderHiddenItem}
-      renderItem={({item}) => (
+      renderItem={({ item }) => (
         <View style={styles.rowFront}>
           <View style={styles.viewWrap}>
             <Text style={styles.partiesName} numberOfLines={1}>
@@ -117,7 +117,7 @@ export const PartiesMainList = (props: PartiesListProp) => {
                     {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                   </Text>
                 )}
-                <View style={{width: 2}} />
+                <View style={{ width: 2 }} />
                 {item.category === 'liabilities' && (
                   <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
                 )}

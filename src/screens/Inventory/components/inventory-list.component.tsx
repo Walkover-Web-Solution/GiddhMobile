@@ -1,9 +1,7 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {FlatList, SafeAreaView, Text, View} from 'react-native';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { Text, View } from 'react-native';
 import styles from '@/screens/Inventory/components/styles';
-import {GdSVGIcons} from '@/utils/icons-pack';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 
 type InventoryListProp = WithTranslation & WithTranslationProps & {};
 
@@ -17,7 +15,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'proxqima@appdividend.com',
+      email: 'proxqima@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -25,7 +23,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'ebofny@appdividend.com',
+      email: 'ebofny@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -33,7 +31,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'proxafaima@appdividend.com',
+      email: 'proxafaima@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -41,15 +39,15 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'ebsonyfa@appdividend.com',
-    },
+      email: 'ebsonyfa@appdividend.com'
+    }
   ];
 
-  constructor(props: InventoryListProp) {
+  constructor (props: InventoryListProp) {
     super(props);
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.flatList}>
         <View style={styles.balData}>
@@ -63,7 +61,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
           <View style={styles.stockRow1}>
             <View style={styles.stockDataWrap}>
               <Text style={styles.stockTitle}>Inward</Text>
-              <View style={{height: 5}} />
+              <View style={{ height: 5 }} />
               <Text style={styles.stockSubTitle}>
                 {this.props.item.inwards.quantity == 0
                   ? '-'
@@ -74,7 +72,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
           <View style={styles.stockRow2}>
             <View style={styles.stockDataWrap}>
               <Text style={styles.stockTitle}>Outward</Text>
-              <View style={{marginTop: 5}} />
+              <View style={{ marginTop: 5 }} />
               <Text style={styles.stockSubTitle}>
                 {this.props.item.outwards.quantity == 0
                   ? '-'

@@ -1,22 +1,19 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import SalesInvoiceScreen from '../screens/Sales-Invoice/SalesInvoice';
 import OtherDetails from '../screens/Sales-Invoice/OtherDetails';
-import HomeScreen from '@/screens/Home/Home';
-import AddButton from './components/AddButton';
 import AddInvoiceItemScreen from '@/screens/Sales-Invoice/AddItemScreen';
-import {AddressStack} from './addressNavigator';
 import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 import EditAddress from '@/core/components/Select-Address/EditAddress';
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
-function DashboardStack() {
+function DashboardStack () {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: false
       }}
       initialRouteName={'SalesInvoiceScreen'}>
       {/* <Screen component={HomeScreen} name={'Dashboard'} /> */}

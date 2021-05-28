@@ -1,6 +1,6 @@
-import {StyleSheet, Platform} from 'react-native';
+import { StyleSheet } from 'react-native';
 import colors from '@/utils/colors';
-import {GD_BUTTON_SIZE, GD_CIRCLE_BUTTON, GD_ICON_SIZE, GD_RADIUS} from '@/utils/constants';
+import { GD_BUTTON_SIZE, GD_CIRCLE_BUTTON, GD_ICON_SIZE, GD_RADIUS } from '@/utils/constants';
 
 export default StyleSheet.create({
   circleLabelStyle: {
@@ -9,19 +9,19 @@ export default StyleSheet.create({
     fontSize: GD_CIRCLE_BUTTON.fontSize,
     marginTop: -5,
     marginLeft: 1,
-    fontFamily: 'AvenirLTStd-Book',
+    fontFamily: 'AvenirLTStd-Book'
   },
   textStyle: {
     color: colors.WHITE,
     textAlign: 'center',
-    fontFamily: 'AvenirLTStd-Book',
+    fontFamily: 'AvenirLTStd-Book'
   },
   button: {
     borderRadius: GD_RADIUS.r_medium,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 38,
+    height: 38
   },
   // Medium/ Large sizem
   small: {
@@ -29,7 +29,7 @@ export default StyleSheet.create({
     borderRadius: GD_RADIUS.r_small,
     paddingHorizontal: 14,
     paddingVertical: 11,
-    fontSize: GD_BUTTON_SIZE.font_small,
+    fontSize: GD_BUTTON_SIZE.font_small
   },
   medium: {
     minHeight: GD_BUTTON_SIZE.h_medium,
@@ -37,41 +37,41 @@ export default StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: GD_BUTTON_SIZE.font_medium,
-    height: 44,
+    height: 44
   },
   large: {
     minHeight: GD_BUTTON_SIZE.h_large,
     borderRadius: GD_RADIUS.r_large,
     paddingVertical: 13,
     paddingHorizontal: 20,
-    fontSize: GD_BUTTON_SIZE.font_large,
+    fontSize: GD_BUTTON_SIZE.font_large
   },
   // Primary/ Secondary color
   primary: {
     backgroundColor: colors.PRIMARY_NORMAL,
-    color: colors.WHITE,
+    color: colors.WHITE
   },
   primaryBasic: {
     backgroundColor: colors.PRIMARY_BASIC,
-    color: colors.WHITE,
+    color: colors.WHITE
   },
   secondary: {
     backgroundColor: colors.SECONDARY_NORMAL,
-    color: colors.WHITE,
+    color: colors.WHITE
   },
 
   // Circle shape
   circle: {
     borderRadius: GD_CIRCLE_BUTTON.radius,
     height: GD_CIRCLE_BUTTON.height,
-    width: GD_CIRCLE_BUTTON.width,
+    width: GD_CIRCLE_BUTTON.width
   },
   circleFontSize: {
-    fontSize: GD_CIRCLE_BUTTON.fontSize,
+    fontSize: GD_CIRCLE_BUTTON.fontSize
   },
 
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
-    width: GD_ICON_SIZE.input_icon,
-  },
+    width: GD_ICON_SIZE.input_icon
+  }
 });

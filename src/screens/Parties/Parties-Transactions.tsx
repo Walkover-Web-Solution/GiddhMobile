@@ -974,7 +974,7 @@ class PartiesTransactionScreen extends React.Component {
             visible={this.state.remainderModal}
             onBackdropPress={() => this.setState({ remainderModal: false })}>
 
-            <Text style={{textAlign:'center',fontSize:18, marginBottom:10, fontFamily:FONT_FAMILY.bold}}>Set Reminder</Text>
+            <Text style={{ textAlign: 'center', fontSize: 18, marginBottom: 10, fontFamily: FONT_FAMILY.bold }}>Set Reminder</Text>
             <View>
               <Text>Date</Text>
               <TouchableOpacity
@@ -984,7 +984,7 @@ class PartiesTransactionScreen extends React.Component {
                   <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
                 </View>
               </TouchableOpacity>
-              <Text style={{marginTop:20}}>Time</Text>
+              <Text style={{ marginTop: 20 }}>Time</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ timePicker: true })}
                 style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>

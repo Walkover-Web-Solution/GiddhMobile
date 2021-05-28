@@ -6,11 +6,11 @@ import Customer from '../screens/Customer/CustomerMain';
 
 const { Navigator, Screen } = createStackNavigator();
 
-function CustomerStack() {
+function CustomerStack () {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: false
       }}
       initialRouteName={'CustomerScreens'}>
       <Screen component={Customer} name={'Customer'} initialParams={{ index: 0 }} />

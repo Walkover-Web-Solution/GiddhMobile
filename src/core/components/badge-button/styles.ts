@@ -1,6 +1,6 @@
-import {StyleSheet, Dimensions} from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import colors from '@/utils/colors';
-import {GD_FONT_SIZE} from '@/utils/constants';
+import { GD_FONT_SIZE } from '@/utils/constants';
 
 export default StyleSheet.create({
   badgeStyle: {
@@ -10,14 +10,14 @@ export default StyleSheet.create({
     borderColor: colors.BORDER_COLOR,
     borderRadius: 16,
     borderBottomRightRadius: 0,
-    width: Dimensions.get('window').width * 0.35,
+    width: Dimensions.get('window').width * 0.35
   },
   labelStyle: {
     paddingHorizontal: 14,
     paddingVertical: 7,
     color: colors.LABEL_COLOR,
     textAlign: 'center',
-    fontSize: GD_FONT_SIZE.normal,
+    fontSize: GD_FONT_SIZE.normal
   },
   // Active mode
   activeBadgeStyle: {
@@ -28,7 +28,7 @@ export default StyleSheet.create({
     borderRadius: 16,
     borderBottomRightRadius: 0,
     width: Dimensions.get('window').width * 0.35,
-    fontFamily: 'AvenirLTStd-Black',
+    fontFamily: 'AvenirLTStd-Black'
   },
   activeLabelStyle: {
     paddingHorizontal: 14,
@@ -37,5 +37,5 @@ export default StyleSheet.create({
     textAlign: 'center',
     fontSize: GD_FONT_SIZE.normal,
     fontFamily: 'AvenirLTStd-Black'
-  },
+  }
 });

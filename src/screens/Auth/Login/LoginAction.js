@@ -1,7 +1,6 @@
 import * as Actions from './ActionConstants';
 
-
-export function googleLogin(token, email) {
+export function googleLogin (token, email) {
   return {
     type: Actions.GOOGLE_USER_LOGIN,
     payload: {
@@ -11,112 +10,108 @@ export function googleLogin(token, email) {
   }
 }
 
-
-export function googleLoginUserSuccess(payload) {
+export function googleLoginUserSuccess (payload) {
   return {
     type: Actions.GOOGLE_USER_LOGIN_SUCCESS,
     payload: payload
   }
 }
 
-export function googleLoginUserFailure(error) {
+export function googleLoginUserFailure (error) {
   return {
-    type: Actions.GOOGLE_USER_LOGIN_FAILURE, 
+    type: Actions.GOOGLE_USER_LOGIN_FAILURE,
     payload: error
   }
 }
 
-export function twoFactorAuthenticationStarted(payload) {
+export function twoFactorAuthenticationStarted (payload) {
   return {
-    type: Actions.TFA_STARTED, 
+    type: Actions.TFA_STARTED,
     payload: payload
   }
 }
 
-export function verifyOTP(otp, countryCode, mobileNumber) {
+export function verifyOTP (otp, countryCode, mobileNumber) {
   return {
-    type: Actions.VERIFY_OTP, 
+    type: Actions.VERIFY_OTP,
     payload: {
       otp: otp, countryCode: countryCode, mobileNumber: mobileNumber
     }
   }
 }
 
-export function verifyOTPFailed(error) {
+export function verifyOTPFailed (error) {
   return {
-    type: Actions.VERIFY_OTP_FAILURE, 
+    type: Actions.VERIFY_OTP_FAILURE,
     payload: error
   }
 }
 
-
-export function resetPassword(error) {
+export function resetPassword (error) {
   return {
-    type: Actions.RESET_PASSWORD, 
+    type: Actions.RESET_PASSWORD,
     payload: error
   }
 }
 
-export function resetPasswordSuccess(error) {
+export function resetPasswordSuccess (error) {
   return {
-    type: Actions.RESET_PASSWORD_SUCCESS, 
+    type: Actions.RESET_PASSWORD_SUCCESS,
     payload: error
   }
 }
-export function resetPasswordFailure(error) {
+export function resetPasswordFailure (error) {
   return {
-    type: Actions.RESET_PASSWORD_FAILURE, 
+    type: Actions.RESET_PASSWORD_FAILURE,
     payload: error
   }
 }
 
-
-
-export function clearOTPError() {
+export function clearOTPError () {
   return {
-    type: Actions.CLEAR_OTP_ERROR, 
+    type: Actions.CLEAR_OTP_ERROR,
     payload: ''
   }
 }
 
-export function appleLogin(payload) {
+export function appleLogin (payload) {
   return {
     type: Actions.APPLE_USER_LOGIN,
-    payload:payload
+    payload: payload
   }
 }
 
-export function appleLoginUserSuccess(payload) {
+export function appleLoginUserSuccess (payload) {
   return {
     type: Actions.APPLE_USER_LOGIN_SUCCESS,
     payload: payload
   }
 }
 
-export function appleLoginUserFailure(error) {
+export function appleLoginUserFailure (error) {
   return {
-    type: Actions.APPLE_USER_LOGIN_FAILURE, 
+    type: Actions.APPLE_USER_LOGIN_FAILURE,
     payload: error
   }
 }
 
-export function userEmailLogin(payload) {
+export function userEmailLogin (payload) {
   return {
     type: Actions.USER_EMAIL_LOGIN,
-    payload:payload
+    payload: payload
   }
 }
 
-export function loginUserSuccess(payload) {
+export function loginUserSuccess (payload) {
   return {
     type: Actions.USER_EMAIL_LOGIN_SUCCESS,
     payload: payload
   }
 }
 
-export function loginUserFailure(error) {
+export function loginUserFailure (error) {
   return {
-    type: Actions.USER_EMAIL_LOGIN_FAILURE, 
+    type: Actions.USER_EMAIL_LOGIN_FAILURE,
     payload: error
   }
 }

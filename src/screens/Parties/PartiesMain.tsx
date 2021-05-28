@@ -1,6 +1,8 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable no-use-before-define */
+/* eslint-disable semi */
 import React from 'react';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
+import { connect } from 'react-redux';
 import {
   View,
   Text,
@@ -9,36 +11,30 @@ import {
   Dimensions,
   ScrollView,
   TextInput,
-  StatusBar,
-  Alert,
+  StatusBar
 } from 'react-native';
 import style from '@/screens/Parties/style';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import color from '@/utils/colors';
-import {PartiesMainList} from '@/screens/Parties/components/partiesmain-listcomponent';
 import SortModal from '@/screens/Parties/components/sortModal';
-import {CommonService} from '@/core/services/common/common.service';
-import {CompanyService} from '@/core/services/company/company.service';
+import { CommonService } from '@/core/services/common/common.service';
 import _ from 'lodash';
-import {BadgeButton} from '@/core/components/badge-button/badge-button.component';
-import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
-import DropDownPicker from 'react-native-dropdown-picker';
+import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
-import {Bars} from 'react-native-loader';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import { Bars } from 'react-native-loader';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 
-import {Vendors} from './components/Vendors';
-import {Customers} from './components/Customers';
+import { Vendors } from './components/Vendors';
+import { Customers } from './components/Customers';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {commonUrls} from '@/core/services/common/common.url';
 import AsyncStorage from '@react-native-community/async-storage';
 
-const {width, height} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export class PartiesMainScreen extends React.Component {
   private scrollRef;
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollRef = React.createRef();
@@ -59,22 +55,22 @@ export class PartiesMainScreen extends React.Component {
       customerLoadingMore: false,
       vendorLoadingMore: false,
       activeFilter: 'AZ',
-      currentPage: 0,
+      currentPage: 0
     };
   }
 
-  FocusAwareStatusBar = (isFocused) => {
+  FocusAwareStatusBar = (isFocused: any) => {
     return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
   };
 
   setSliderPage = (event: any) => {
-    const {currentPage} = this.state;
-    const {x} = event.nativeEvent.contentOffset;
+    const { currentPage } = this.state;
+    const { x } = event.nativeEvent.contentOffset;
     const indexOfNextScreen = Math.round(x / width);
 
     if (indexOfNextScreen !== currentPage) {
       this.setState({
-        currentPage: indexOfNextScreen,
+        currentPage: indexOfNextScreen
       });
     }
   };
@@ -95,7 +91,7 @@ export class PartiesMainScreen extends React.Component {
     const sortBy = await AsyncStorage.getItem(STORAGE_KEYS.sortBy);
     const order = await AsyncStorage.getItem(STORAGE_KEYS.order);
     if (sortBy && order) {
-      this.setState({sortBy: sortBy, order: order});
+      this.setState({ sortBy: sortBy, order: order });
     }
   };
 
@@ -105,7 +101,7 @@ export class PartiesMainScreen extends React.Component {
       this.setState(
         {
           customerPage: this.state.customerPage + 1,
-          customerLoadingMore: true,
+          customerLoadingMore: true
         },
         () => {
           this.loadDebtors(
@@ -113,13 +109,14 @@ export class PartiesMainScreen extends React.Component {
             this.state.sortBy,
             this.state.order,
             this.state.count,
-            this.state.customerPage,
+            this.state.customerPage
           );
           console.log('this executes now');
-        },
+        }
       );
     }
   };
+
   handleVendorRefresh = () => {
     console.log('vendor refresh executed');
     // console.log(this.state.totalVendorPages);
@@ -127,7 +124,7 @@ export class PartiesMainScreen extends React.Component {
       this.setState(
         {
           VendorPage: this.state.VendorPage + 1,
-          vendorLoadingMore: true,
+          vendorLoadingMore: true
         },
         () => {
           this.loadCreditors(
@@ -135,16 +132,16 @@ export class PartiesMainScreen extends React.Component {
             this.state.sortBy,
             this.state.order,
             this.state.count,
-            this.state.VendorPage,
+            this.state.VendorPage
           );
           console.log('this executes vendor now');
-        },
+        }
       );
     }
   };
 
   modalVisible = () => {
-    this.setState({sortModal: false});
+    this.setState({ sortModal: false });
   };
 
   apiCalls = async () => {
@@ -154,14 +151,14 @@ export class PartiesMainScreen extends React.Component {
       this.state.sortBy,
       this.state.order,
       this.state.count,
-      this.state.customerPage,
+      this.state.customerPage
     );
     await this.getPartiesMainSundryCreditors(
       this.state.searchQuery,
       this.state.sortBy,
       this.state.order,
       this.state.count,
-      this.state.VendorPage,
+      this.state.VendorPage
     );
   };
 
@@ -171,14 +168,14 @@ export class PartiesMainScreen extends React.Component {
       this.state.sortBy,
       this.state.order,
       this.state.count,
-      this.state.customerPage,
+      this.state.customerPage
     );
     await this.getPartiesMainSundryCreditors(
       this.state.searchQuery,
       this.state.sortBy,
       this.state.order,
       this.state.count,
-      this.state.VendorPage,
+      this.state.VendorPage
     );
   };
 
@@ -190,15 +187,15 @@ export class PartiesMainScreen extends React.Component {
         searchQuery: text,
         showLoader: true,
         customerPage: 1,
-        VendorPage: 1,
+        VendorPage: 1
       },
       () => {
         this.searchCalls();
-      },
+      }
     );
   };
 
-  filter = async (filterType) => {
+  filter = async (filterType: string) => {
     if (filterType == 'AZ') {
       await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'name');
       await AsyncStorage.setItem(STORAGE_KEYS.order, 'aesc');
@@ -208,11 +205,11 @@ export class PartiesMainScreen extends React.Component {
           order: 'aesc',
           customerPage: 1,
           VendorPage: 1,
-          showLoader: true,
+          showLoader: true
         },
         () => {
           this.filterCalls();
-        },
+        }
       );
     } else if (filterType == 'ZA') {
       await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'name');
@@ -223,11 +220,11 @@ export class PartiesMainScreen extends React.Component {
           order: 'desc',
           customerPage: 1,
           VendorPage: 1,
-          showLoader: true,
+          showLoader: true
         },
         () => {
           this.filterCalls();
-        },
+        }
       );
     } else if (filterType == '10') {
       await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'closingBalance');
@@ -238,11 +235,11 @@ export class PartiesMainScreen extends React.Component {
           order: 'aesc',
           customerPage: 1,
           VendorPage: 1,
-          showLoader: true,
+          showLoader: true
         },
         () => {
           this.filterCalls();
-        },
+        }
       );
     } else {
       await AsyncStorage.setItem(STORAGE_KEYS.sortBy, 'closingBalance');
@@ -253,26 +250,26 @@ export class PartiesMainScreen extends React.Component {
           order: 'desc',
           customerPage: 1,
           VendorPage: 1,
-          showLoader: true,
+          showLoader: true
         },
         () => {
           this.filterCalls();
-        },
+        }
       );
     }
   };
 
-  componentDidMount() {
+  componentDidMount () {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {
           showLoader: true,
           customerPage: 1,
-          VendorPage: 1,
+          VendorPage: 1
         },
         () => {
           this.apiCalls();
-        },
+        }
       );
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
@@ -280,19 +277,19 @@ export class PartiesMainScreen extends React.Component {
         {
           showLoader: true,
           customerPage: 1,
-          VendorPage: 1,
+          VendorPage: 1
         },
         () => {
           this.apiCalls();
-        },
+        }
       );
     });
     this.apiCalls();
   }
 
-  render() {
+  render () {
     return (
-      <View style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         {this.FocusAwareStatusBar(this.props.isFocused)}
         <View
           style={{
@@ -300,54 +297,56 @@ export class PartiesMainScreen extends React.Component {
             backgroundColor: '#864DD3',
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 20,
+            paddingHorizontal: 20
           }}>
-          {this.state.textInputOpen ? (
-            <>
-              <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
+          {this.state.textInputOpen
+            ? (
+              <>
+                <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
 
-              <TextInput
-                placeholder={'Search name'}
-                ref={this.inputRef}
-                placeholderTextColor={'white'}
-                style={{fontSize: 18, width: Dimensions.get('window').width * 0.6, marginLeft: 10, color: '#fff'}}
-                onChangeText={this.handleSearch}
-                value={this.state.searchQuery}
-              />
+                <TextInput
+                  placeholder={'Search name'}
+                  ref={this.inputRef}
+                  placeholderTextColor={'white'}
+                  style={{ fontSize: 18, width: Dimensions.get('window').width * 0.6, marginLeft: 10, color: '#fff' }}
+                  onChangeText={this.handleSearch}
+                  value={this.state.searchQuery}
+                />
 
-              <TouchableOpacity
-                style={{position: 'absolute', right: 20, padding: 8}}
-                onPress={() => {
-                  if (this.state.searchQuery != '') {
-                    this.inputRef.current.clear();
-                    this.handleSearch('');
-                  }
-                  this.setState({textInputOpen: false});
-                }}>
-                <AntDesign name={'close'} size={25} color={'#FFFFFF'} />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={{fontSize: 20, fontWeight: 'bold', color: '#fff'}}>Parties</Text>
-              <View style={{position: 'absolute', right: 20, flexDirection: 'row', padding: 10}}>
                 <TouchableOpacity
-                  delayPressIn={0}
-                  onPress={() => this.setState({sortModal: true})}
-                  style={{padding: 8}}>
-                  <Icon name={'Group-6191'} size={20} color={'#FFFFFF'} />
+                  style={{ position: 'absolute', right: 20, padding: 8 }}
+                  onPress={() => {
+                    if (this.state.searchQuery != '') {
+                      this.inputRef.current.clear();
+                      this.handleSearch('');
+                    }
+                    this.setState({ textInputOpen: false });
+                  }}>
+                  <AntDesign name={'close'} size={25} color={'#FFFFFF'} />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={{padding: 8, marginLeft: 15}}
-                  delayPressIn={0}
-                  onPress={() => this.setState({textInputOpen: true}, () => this.inputRef.current.focus())}
+              </>
+              )
+            : (
+              <>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Parties</Text>
+                <View style={{ position: 'absolute', right: 20, flexDirection: 'row', padding: 10 }}>
+                  <TouchableOpacity
+                    delayPressIn={0}
+                    onPress={() => this.setState({ sortModal: true })}
+                    style={{ padding: 8 }}>
+                    <Icon name={'Group-6191'} size={20} color={'#FFFFFF'} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ padding: 8, marginLeft: 15 }}
+                    delayPressIn={0}
+                    onPress={() => this.setState({ textInputOpen: true }, () => this.inputRef.current.focus())}
                   // onPress={() => console.log(this.state.vendorData)}
-                >
-                  <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
+                  >
+                    <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
+                  </TouchableOpacity>
+                </View>
+              </>
+              )}
 
           {/* <TouchableOpacity
               style={{position: 'absolute', right: 20}}
@@ -362,7 +361,7 @@ export class PartiesMainScreen extends React.Component {
 
             justifyContent: 'space-around',
             flexDirection: 'row',
-            marginBottom: 15,
+            marginBottom: 15
           }}>
           <TouchableOpacity
             style={{
@@ -374,13 +373,13 @@ export class PartiesMainScreen extends React.Component {
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 7,
-              borderWidth: 1,
+              borderWidth: 1
             }}
             onPress={() =>
               this.scrollRef.current.scrollTo({
                 animated: true,
                 y: 0,
-                x: width * -1,
+                x: width * -1
               })
             }>
             <Text
@@ -388,7 +387,7 @@ export class PartiesMainScreen extends React.Component {
               style={{
                 color: this.state.currentPage == 0 ? '#5773FF' : '#808080',
                 // fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-                fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal',
+                fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal'
               }}>
               Customers
             </Text>
@@ -403,13 +402,13 @@ export class PartiesMainScreen extends React.Component {
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 2,
-              borderWidth: 1,
+              borderWidth: 1
             }}
             onPress={() =>
               this.scrollRef.current.scrollTo({
                 animated: true,
                 y: 0,
-                x: width * 2,
+                x: width * 2
               })
             }>
             <Text
@@ -417,7 +416,7 @@ export class PartiesMainScreen extends React.Component {
               style={{
                 color: this.state.currentPage == 1 ? '#5773FF' : '#808080',
                 // fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-                fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal',
+                fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal'
               }}>
               Vendors
             </Text>
@@ -429,7 +428,7 @@ export class PartiesMainScreen extends React.Component {
         {/* <View style={{height: height * 0.75, width: width}}> */}
         <ScrollView
           ref={this.scrollRef}
-          style={{flex: 1}}
+          style={{ flex: 1 }}
           horizontal={true}
           scrollEventThrottle={16}
           pagingEnabled={true}
@@ -437,39 +436,43 @@ export class PartiesMainScreen extends React.Component {
           onScroll={(event) => {
             this.setSliderPage(event);
           }}>
-          <View style={{height: '100%', width: width}}>
-            {this.state.showLoader ? (
-              <View style={{flex: 1}}>
-                <View style={style.alignLoader}>
-                  <Bars size={15} color={color.PRIMARY_NORMAL} />
+          <View style={{ height: '100%', width: width }}>
+            {this.state.showLoader
+              ? (
+                <View style={{ flex: 1 }}>
+                  <View style={style.alignLoader}>
+                    <Bars size={15} color={color.PRIMARY_NORMAL} />
+                  </View>
                 </View>
-              </View>
-            ) : (
-              <Customers
-                navigation={this.props.navigation}
-                partiesData={this.state.customerData}
-                activeCompany={this.props.activeCompany}
-                handleRefresh={this.handleCustomerRefresh}
-                loadMore={this.state.customerLoadingMore}
-              />
-            )}
+                )
+              : (
+                <Customers
+                  navigation={this.props.navigation}
+                  partiesData={this.state.customerData}
+                  activeCompany={this.props.activeCompany}
+                  handleRefresh={this.handleCustomerRefresh}
+                  loadMore={this.state.customerLoadingMore}
+                />
+                )}
           </View>
-          <View style={{height: '100%', width: width}}>
-            {this.state.showLoader ? (
-              <View style={{flex: 1}}>
-                <View style={style.alignLoader}>
-                  <Bars size={15} color={color.PRIMARY_NORMAL} />
+          <View style={{ height: '100%', width: width }}>
+            {this.state.showLoader
+              ? (
+                <View style={{ flex: 1 }}>
+                  <View style={style.alignLoader}>
+                    <Bars size={15} color={color.PRIMARY_NORMAL} />
+                  </View>
                 </View>
-              </View>
-            ) : (
-              <Vendors
-                navigation={this.props.navigation}
-                partiesData={this.state.vendorData}
-                activeCompany={this.props.activeCompany}
-                handleRefresh={this.handleVendorRefresh}
-                loadMore={this.state.vendorLoadingMore}
-              />
-            )}
+                )
+              : (
+                <Vendors
+                  navigation={this.props.navigation}
+                  partiesData={this.state.vendorData}
+                  activeCompany={this.props.activeCompany}
+                  handleRefresh={this.handleVendorRefresh}
+                  loadMore={this.state.vendorLoadingMore}
+                />
+                )}
           </View>
         </ScrollView>
         {/* <View style={style.paginationWrapper}>
@@ -491,68 +494,70 @@ export class PartiesMainScreen extends React.Component {
     );
   }
 
-  private async getPartiesMainSundryDebtors(query, sortBy, order, count, page) {
+  private async getPartiesMainSundryDebtors (query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
       // console.log('data is', ...debtors.body.results, ...creditors.body.results);
       this.setState(
         {
           customerData: debtors.body.results,
-          totalCustomerPages: debtors.body.totalPages,
-        },
+          totalCustomerPages: debtors.body.totalPages
+        }
         // () => console.log(this.state.customerData),
       );
     } catch (e) {
-      this.setState({customerData: new PartiesPaginatedResponse()});
+      this.setState({ customerData: new PartiesPaginatedResponse() });
       console.log(e);
     }
   }
 
-  private async getPartiesMainSundryCreditors(query, sortBy, order, count, page) {
+  private async getPartiesMainSundryCreditors (query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
       this.setState({
         vendorData: creditors.body.results,
         totalVendorPages: creditors.body.totalPages,
-        showLoader: false,
+        showLoader: false
       });
     } catch (e) {
-      this.setState({vendorData: new PartiesPaginatedResponse()});
+      this.setState({ vendorData: new PartiesPaginatedResponse() });
     }
   }
-  private async loadDebtors(query, sortBy, order, count, page) {
+
+  private async loadDebtors (query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
       this.setState({
         customerData: [...this.state.customerData, ...debtors.body.results],
-        customerLoadingMore: false,
+        customerLoadingMore: false
       });
     } catch (e) {
-      this.setState({customerData: new PartiesPaginatedResponse()});
+      this.setState({ customerData: new PartiesPaginatedResponse() });
       console.log(e);
     }
   }
-  private async loadCreditors(query, sortBy, order, count, page) {
+
+  private async loadCreditors (query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
 
       this.setState({
         vendorData: [...this.state.vendorData, ...creditors.body.results],
-        vendorLoadingMore: false,
+        vendorLoadingMore: false
       });
     } catch (e) {
-      this.setState({vendorData: new PartiesPaginatedResponse()});
+      this.setState({ vendorData: new PartiesPaginatedResponse() });
     }
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = () => {
   return {
     // activeCompany: state.company.activeCompany,
   };
 };
 
-function Screen(props) {
+function Screen (props: JSX.IntrinsicAttributes & JSX.IntrinsicClassAttributes<PartiesMainScreen> & Readonly<{}> & Readonly<{ children?: React.ReactNode; }>) {
   const isFocused = useIsFocused();
 
   return <PartiesMainScreen {...props} isFocused={isFocused} />;

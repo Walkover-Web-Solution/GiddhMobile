@@ -1,16 +1,16 @@
 import React from 'react';
-import {LogBox, ScrollView, View, Dimensions, Text, TouchableOpacity} from 'react-native';
+import { View, Dimensions, Text, TouchableOpacity } from 'react-native';
 
 import styles from './style';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 export class Custom extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
     this.state = {
       isStartDatePickerVisible: false,
@@ -18,36 +18,37 @@ export class Custom extends React.Component {
       //   startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
       //   endDate: moment().format('DD-MM-YYYY'),
       startDate: this.props.startDate,
-      endDate: this.props.endDate,
+      endDate: this.props.endDate
     };
   }
 
   showStartDatePicker = () => {
     this.setState({
-      isStartDatePickerVisible: true,
+      isStartDatePickerVisible: true
     });
   };
 
   hideStartDatePicker = () => {
     this.setState({
-      isStartDatePickerVisible: false,
+      isStartDatePickerVisible: false
     });
   };
+
   showEndDatePicker = () => {
     this.setState({
-      isEndDatePickerVisible: true,
+      isEndDatePickerVisible: true
     });
   };
 
   hideEndDatePicker = () => {
     this.setState({
-      isEndDatePickerVisible: false,
+      isEndDatePickerVisible: false
     });
   };
 
   startDateConfirm = (date) => {
     this.hideStartDatePicker();
-    this.setState({startDate: moment(date).format('DD-MM-YYYY')});
+    this.setState({ startDate: moment(date).format('DD-MM-YYYY') });
     // console.log('startDate: ', moment(date).format('DD-MM-YYYY'));
 
     // this.props.selectDate(date, null);
@@ -55,22 +56,23 @@ export class Custom extends React.Component {
 
   endDateConfirm = (date) => {
     this.hideEndDatePicker();
-    this.setState({endDate: moment(date).format('DD-MM-YYYY')});
+    this.setState({ endDate: moment(date).format('DD-MM-YYYY') });
     // console.log('EndDate ', moment(date).format('DD-MM-YYYY'));
     // this.props.selectDate(null, date);
   };
-  render() {
+
+  render () {
     const sDate = moment(this.state.startDate, 'DD-MM-YYYY');
     const eDate = moment(this.state.endDate, 'DD-MM-YYYY');
     return (
       <View style={styles.customContainer}>
-        <View style={{height: '5%'}} />
+        <View style={{ height: '5%' }} />
 
         <Text style={styles.customHeading}>Start Date :</Text>
         <TouchableWithoutFeedback style={styles.customDatePicker} onPress={() => this.showStartDatePicker()}>
           <Text style={styles.customDateStyle}>{this.state.startDate}</Text>
         </TouchableWithoutFeedback>
-        <View style={{height: '2%'}} />
+        <View style={{ height: '2%' }} />
         <Text style={styles.customHeading}>End Date :</Text>
         <TouchableWithoutFeedback style={styles.customDatePicker} onPress={() => this.showEndDatePicker()}>
           <Text style={styles.customDateStyle}>{this.state.endDate}</Text>
@@ -85,7 +87,7 @@ export class Custom extends React.Component {
             right: 15,
             borderRadius: 10,
             justifyContent: 'center',
-            alignItems: 'center',
+            alignItems: 'center'
           }}
           onPress={() => {
             this.props.selectDate(`${this.state.startDate}`, `${this.state.endDate}`);
@@ -94,7 +96,7 @@ export class Custom extends React.Component {
           }}
           //   onPress={() => console.log(moment().subtract(1, 'quarter').endOf('quarter').format('DD-MM-YYYY'))}
         >
-          <Text style={{color: '#fff', fontFamily: 'AvenirLTStd-Black'}}>Done</Text>
+          <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Done</Text>
         </TouchableOpacity>
         <DateTimePickerModal
           isVisible={this.state.isStartDatePickerVisible}

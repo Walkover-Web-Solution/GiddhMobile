@@ -1,5 +1,4 @@
 import React from 'react';
-import { GDContainer } from '@/core/components/container/container.component';
 import {
   View,
   Text,
@@ -42,7 +41,7 @@ import CheckBox from 'react-native-check-box'
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
   debit: 'debit note',
-  cash: 'cash',
+  cash: 'cash'
 };
 interface Props {
   navigation: any;
@@ -53,13 +52,13 @@ const { width, height } = Dimensions.get('window');
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
     KEYBOARD_WILL_SHOW: 'keyboardWillShow',
-    KEYBOARD_WILL_HIDE: 'keyboardWillHide',
+    KEYBOARD_WILL_HIDE: 'keyboardWillHide'
   },
   KEYBOARD_DID_SHOW: 'keyboardDidShow',
-  KEYBOARD_DID_HIDE: 'keyboardDidHide',
+  KEYBOARD_DID_HIDE: 'keyboardDidHide'
 };
 export class DebiteNote extends React.Component<Props> {
-  constructor(props) {
+  constructor (props) {
     super(props);
     this.state = {
       loading: false,
@@ -92,7 +91,7 @@ export class DebiteNote extends React.Component<Props> {
       showPaymentModePopup: false,
       selectedPayMode: {
         name: 'Cash',
-        uniqueName: 'cash',
+        uniqueName: 'cash'
       },
       modesArray: [],
       editItemDetails: {
@@ -106,7 +105,7 @@ export class DebiteNote extends React.Component<Props> {
         taxType: '',
         taxText: '',
         warehouse: '',
-        total: 0,
+        total: 0
       },
       fetechingDiscountList: false,
       fetechingTaxList: false,
@@ -118,23 +117,23 @@ export class DebiteNote extends React.Component<Props> {
         trackingNumber: null,
         customField1: null,
         customField2: null,
-        customField3: null,
+        customField3: null
       },
-      linkedInvoices: "",
+      linkedInvoices: '',
       showAllInvoice: false,
       allVoucherInvoice: [],
       accountDropDown: Dropdown,
       countryDeatils: {
-        countryName: "",
-        countryCode: ""
+        countryName: '',
+        countryCode: ''
       },
-      currency: "",
-      currencySymbol: "",
+      currency: '',
+      currencySymbol: '',
       exchangeRate: 1,
       totalAmountInINR: 0.00,
-      selectedInvoice: "",
-      companyCountryDetails: "",
-      billSameAsShip: true,
+      selectedInvoice: '',
+      companyCountryDetails: '',
+      billSameAsShip: true
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -150,10 +149,12 @@ export class DebiteNote extends React.Component<Props> {
       this.setState({ partyShippingAddress: address })
     }
   };
+
   selectShippingAddress = (address) => {
     console.log('shipping add', address);
     this.setState({ partyShippingAddress: address });
   };
+
   // func1 = async () => {
   //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
   //   console.log(activeCompany);
@@ -162,32 +163,32 @@ export class DebiteNote extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#ff5355" barStyle="light-content" /> : null;
   };
 
-  async getExchangeRateToINR(currency) {
+  async getExchangeRateToINR (currency) {
     try {
       const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), this.state.companyCountryDetails.currency.code, currency);
       if (results.body && results.status == 'success') {
         await this.setState({
           totalAmountInINR: (Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
-          exchangeRate: results.body,
+          exchangeRate: results.body
         })
       }
     } catch (e) { }
     return 1
   }
 
-  async setActiveCompanyCountry() {
+  async setActiveCompanyCountry () {
     try {
-      let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
       if (results.body && results.status == 'success') {
         await this.setState({
-          companyCountryDetails: results.body.country,
+          companyCountryDetails: results.body.country
         })
       }
     } catch (e) { }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow); this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide); this.setActiveCompanyCountry()
     this.getAllTaxes();
     this.getAllDiscounts();
@@ -221,13 +222,14 @@ export class DebiteNote extends React.Component<Props> {
     });
 
     if (Platform.OS == 'ios') {
-      //Native Bridge for giving the bottom offset //Our own created
+      // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
-        let { bottomOffset } = offset;
+        const { bottomOffset } = offset;
         this.setState({ bottomOffset });
       });
     }
   }
+
   /*
        Added Keyboard Listner for making view scroll if needed
      */
@@ -235,18 +237,18 @@ export class DebiteNote extends React.Component<Props> {
     const value = event.endCoordinates.height - this.state.bottomOffset;
     Animated.timing(this.keyboardMargin, {
       duration: event.duration,
-      toValue: value,
+      toValue: value
     }).start();
   };
 
   keyboardWillHide = (event) => {
     Animated.timing(this.keyboardMargin, {
       duration: event.duration,
-      toValue: 0,
+      toValue: 0
     }).start();
   };
 
-  renderHeader() {
+  renderHeader () {
     return (
       <View style={[style.header, { paddingTop: 10 }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -283,7 +285,7 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  renderInvoiceTypeModal() {
+  renderInvoiceTypeModal () {
     return (
       <Modal
         isVisible={this.state.showInvoiceModal}
@@ -299,7 +301,7 @@ export class DebiteNote extends React.Component<Props> {
           right: 0,
           left: 0,
           bottom: 0,
-          top: 0,
+          top: 0
         }}>
         <View
           style={{
@@ -307,7 +309,7 @@ export class DebiteNote extends React.Component<Props> {
             overflow: 'hidden',
             alignSelf: 'center',
             width: '100%',
-            height: '100%',
+            height: '100%'
           }}>
           <View style={{ backgroundColor: 'white', marginTop: 70, marginHorizontal: 40, borderRadius: 10 }}>
             <TouchableOpacity
@@ -326,12 +328,12 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  renderSelectPartyName() {
+  renderSelectPartyName () {
     return (
       <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }} onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
-          <Icon name={'Profile'} color={"white"} style={{ margin: 16 }} size={16} />
+          <Icon name={'Profile'} color={'white'} style={{ margin: 16 }} size={16} />
           <TextInput
             placeholderTextColor={'white'}
             placeholder={'Search Party Name'}
@@ -353,14 +355,16 @@ export class DebiteNote extends React.Component<Props> {
       </View>
     );
   }
+
   onLayout = (e) => {
     this.setState({
-      searchTop: e.nativeEvent.layout.height + e.nativeEvent.layout.y,
+      searchTop: e.nativeEvent.layout.height + e.nativeEvent.layout.y
     });
   };
+
   searchCalls = _.debounce(this.searchUser, 2000);
 
-  async getAllDiscounts() {
+  async getAllDiscounts () {
     this.setState({ fetechingDiscountList: true });
     try {
       const results = await InvoiceService.getDiscounts();
@@ -372,7 +376,7 @@ export class DebiteNote extends React.Component<Props> {
     }
   }
 
-  async getAllWarehouse() {
+  async getAllWarehouse () {
     this.setState({ fetechingWarehouseList: true });
     try {
       const results = await InvoiceService.getWarehouse();
@@ -383,7 +387,8 @@ export class DebiteNote extends React.Component<Props> {
       this.setState({ fetechingWarehouseList: false });
     }
   }
-  async getAllAccountsModes() {
+
+  async getAllAccountsModes () {
     try {
       const results = await InvoiceService.getBriefAccount();
       if (results.body && results.status == 'success') {
@@ -392,10 +397,10 @@ export class DebiteNote extends React.Component<Props> {
     } catch (e) { }
   }
 
-  async getAllInvoice() {
+  async getAllInvoice () {
     try {
-      let date = await moment(this.state.date).format('DD-MM-YYYY');
-      let payload = await { accountUniqueNames: [this.state.partyName.uniqueName, "sales"], voucherType: INVOICE_TYPE.debit }
+      const date = await moment(this.state.date).format('DD-MM-YYYY');
+      const payload = await { accountUniqueNames: [this.state.partyName.uniqueName, 'sales'], voucherType: INVOICE_TYPE.debit }
       const results = await InvoiceService.getVoucherInvoice(date, payload);
       if (results.body && results.status == 'success') {
         this.setState({ allVoucherInvoice: results.body.results });
@@ -405,7 +410,7 @@ export class DebiteNote extends React.Component<Props> {
     }
   }
 
-  async getAllTaxes() {
+  async getAllTaxes () {
     this.setState({ fetechingTaxList: true });
     try {
       const results = await InvoiceService.getTaxes();
@@ -417,8 +422,8 @@ export class DebiteNote extends React.Component<Props> {
     }
   }
 
-  getTaxDeatilsForUniqueName(uniqueName) {
-    var filtered = _.filter(this.state.taxArray, function (o) {
+  getTaxDeatilsForUniqueName (uniqueName) {
+    const filtered = _.filter(this.state.taxArray, function (o) {
       if (o.uniqueName == uniqueName) {
         return o;
       }
@@ -429,8 +434,8 @@ export class DebiteNote extends React.Component<Props> {
     return undefined;
   }
 
-  getDiscountDeatilsForUniqueName(uniqueName) {
-    var filtered = _.filter(this.state.discountArray, function (o) {
+  getDiscountDeatilsForUniqueName (uniqueName) {
+    const filtered = _.filter(this.state.discountArray, function (o) {
       if (o.uniqueName == uniqueName) {
         return o;
       }
@@ -441,14 +446,14 @@ export class DebiteNote extends React.Component<Props> {
     return undefined;
   }
 
-  _renderSearchList() {
+  _renderSearchList () {
     return (
-      // <Modal animationType="none" transparent={true} visible={true}>
-      //   <TouchableOpacity
-      //     style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.5)'}}
-      //     onPress={() =>
-      //       this.setState({
-      //         searchResults: [],
+    // <Modal animationType="none" transparent={true} visible={true}>
+    //   <TouchableOpacity
+    //     style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.5)'}}
+    //     onPress={() =>
+    //       this.setState({
+    //         searchResults: [],
 
       //         searchError: '',
       //         isSearchingParty: false,
@@ -460,13 +465,13 @@ export class DebiteNote extends React.Component<Props> {
             flexDirection: 'row',
             alignSelf: 'flex-end',
             padding: 5,
-            alignItems: 'center',
+            alignItems: 'center'
           }}
           onPress={() =>
             this.setState({
               searchResults: [],
               searchError: '',
-              isSearchingParty: false,
+              isSearchingParty: false
             })
           }>
           <Ionicons name="close-circle" size={20} color={'#424242'} />
@@ -486,14 +491,14 @@ export class DebiteNote extends React.Component<Props> {
                     searchResults: [],
                     searchPartyName: item.name,
                     searchError: '',
-                    isSearchingParty: false,
+                    isSearchingParty: false
                   },
                   () => {
                     this.getAllInvoice()
                     this.searchAccount();
                     this.getAllAccountsModes();
                     Keyboard.dismiss();
-                  },
+                  }
                 );
               }}>
               <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}</Text>
@@ -506,7 +511,7 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  async searchUser() {
+  async searchUser () {
     this.setState({ isSearchingParty: true });
     try {
       // console.log('Creditors called');
@@ -520,7 +525,7 @@ export class DebiteNote extends React.Component<Props> {
     }
   }
 
-  async searchAccount() {
+  async searchAccount () {
     this.setState({ isSearchingParty: true });
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
@@ -539,7 +544,7 @@ export class DebiteNote extends React.Component<Props> {
           currencySymbol: results.body.currencySymbol,
           addressArray: results.body.addresses,
           partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
+          partyShippingAddress: results.body.addresses[0]
         });
       }
     } catch (e) {
@@ -579,7 +584,7 @@ export class DebiteNote extends React.Component<Props> {
       showPaymentModePopup: false,
       selectedPayMode: {
         name: 'Cash',
-        uniqueName: 'cash',
+        uniqueName: 'cash'
       },
       modesArray: [],
       editItemDetails: {
@@ -593,7 +598,7 @@ export class DebiteNote extends React.Component<Props> {
         taxType: '',
         taxText: '',
         warehouse: '',
-        total: 0,
+        total: 0
       },
       fetechingDiscountList: false,
       fetechingTaxList: false,
@@ -605,47 +610,48 @@ export class DebiteNote extends React.Component<Props> {
         trackingNumber: null,
         customField1: null,
         customField2: null,
-        customField3: null,
+        customField3: null
       },
-      linkedInvoices: "",
+      linkedInvoices: '',
       showAllInvoice: false,
       allVoucherInvoice: [],
       accountDropDown: Dropdown,
       countryDeatils: {
-        countryName: "",
-        countryCode: ""
+        countryName: '',
+        countryCode: ''
       },
-      currency: "",
-      currencySymbol: "",
+      currency: '',
+      currencySymbol: '',
       exchangeRate: 1,
       totalAmountInINR: 0.00,
-      companyCountryDetails: "",
-      selectedInvoice: "",
-      billSameAsShip: true,
+      companyCountryDetails: '',
+      selectedInvoice: '',
+      billSameAsShip: true
     });
   };
-  getDiscountForEntry(item) {
+
+  getDiscountForEntry (item) {
     // console.log('item is', item);
-    let discountArr = [];
+    const discountArr = [];
     if (item.fixedDiscount) {
-      let discountItem = {
+      const discountItem = {
         calculationMethod: 'FIX_AMOUNT',
         amount: { type: 'DEBIT', amountForAccount: item.fixedDiscount.discountValue },
         discountValue: item.fixedDiscount.discountValue,
         name: '',
-        particular: '',
+        particular: ''
       };
       discountArr.push(discountItem);
     }
     if (item.percentDiscountArray) {
       if (item.percentDiscountArray.length > 0) {
         for (let i = 0; i < item.percentDiscountArray.length; i++) {
-          let discountItem = {
+          const discountItem = {
             calculationMethod: 'PERCENTAGE',
             amount: { type: 'DEBIT', amountForAccount: item.percentDiscountArray[i].discountValue },
             name: item.percentDiscountArray[i].name,
             uniqueName: item.percentDiscountArray[i].uniqueName,
-            particular: item.percentDiscountArray[i].linkAccount.uniqueName,
+            particular: item.percentDiscountArray[i].linkAccount.uniqueName
           };
           discountArr.push(discountItem);
         }
@@ -655,19 +661,18 @@ export class DebiteNote extends React.Component<Props> {
       return discountArr;
     } else {
       return [
-        { calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' },
+        { calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' }
       ];
     }
   }
 
-
-  getTaxesForEntry(item) {
-    let taxArr = [];
+  getTaxesForEntry (item) {
+    const taxArr = [];
     // console.log(' tax item is', item);
     if (item.taxDetailsArray) {
       for (let i = 0; i < item.taxDetailsArray.length; i++) {
-        let tax = item.taxDetailsArray[i];
-        let taxItem = { uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount' };
+        const tax = item.taxDetailsArray[i];
+        const taxItem = { uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount' };
         taxArr.push(taxItem);
       }
       return taxArr;
@@ -675,12 +680,12 @@ export class DebiteNote extends React.Component<Props> {
     return [];
   }
 
-  getEntries() {
-    let entriesArray = [];
+  getEntries () {
+    const entriesArray = [];
     for (let i = 0; i < this.state.addedItems.length; i++) {
-      let item = this.state.addedItems[i];
+      const item = this.state.addedItems[i];
       console.log('item is', item);
-      let entry = {
+      const entry = {
         date: moment(this.state.date).format('DD-MM-YYYY'),
         discounts: this.getDiscountForEntry(item),
         // discounts: [
@@ -697,30 +702,30 @@ export class DebiteNote extends React.Component<Props> {
             amount: { type: 'DEBIT', amountForAccount: Number(item.rate) * Number(item.quantity) },
             stock: item.stock
               ? {
-                quantity: item.quantity,
-                sku: item.stock.skuCode,
-                name: item.stock.name,
+                  quantity: item.quantity,
+                  sku: item.stock.skuCode,
+                  name: item.stock.name,
 
-                uniqueName: item.stock.uniqueName,
-                rate: {
-                  amountForAccount: Number(item.rate),
-                },
-                stockUnit: {
-                  code: item.stock.stockUnitCode,
-                },
-              }
-              : undefined,
-          },
+                  uniqueName: item.stock.uniqueName,
+                  rate: {
+                    amountForAccount: Number(item.rate)
+                  },
+                  stockUnit: {
+                    code: item.stock.stockUnitCode
+                  }
+                }
+              : undefined
+          }
         ],
         voucherNumber: '',
-        voucherType: this.state.invoiceType,
+        voucherType: this.state.invoiceType
       };
       entriesArray.push(entry);
     }
     return entriesArray;
   }
 
-  async createInvoice() {
+  async createInvoice () {
     this.setState({ loading: true });
     if (this.state.currency != this.state.companyCountryDetails.currency.code) {
       let exchangeRate = 1
@@ -729,7 +734,7 @@ export class DebiteNote extends React.Component<Props> {
     }
     try {
       console.log('came to this');
-      let postBody = {
+      const postBody = {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
@@ -738,10 +743,10 @@ export class DebiteNote extends React.Component<Props> {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyBillingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : "", name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : "" },
+            state: { code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '', name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '' },
             stateCode: this.state.partyBillingAddress.stateCode,
             stateName: this.state.partyBillingAddress.stateName,
-            pincode: this.state.partyBillingAddress.pincode,
+            pincode: this.state.partyBillingAddress.pincode
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -756,19 +761,19 @@ export class DebiteNote extends React.Component<Props> {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.partyShippingAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : "", name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : "" },
+            state: { code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '', name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '' },
             stateCode: this.state.partyShippingAddress.stateCode,
             stateName: this.state.partyShippingAddress.stateName,
-            pincode: this.state.partyShippingAddress.pincode,
+            pincode: this.state.partyShippingAddress.pincode
           },
-          uniqueName: this.state.partyName.uniqueName,
+          uniqueName: this.state.partyName.uniqueName
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: moment(this.state.date).format('DD-MM-YYYY'),
         deposit: {
           type: 'DEBIT',
           accountUniqueName: this.state.selectedPayMode.uniqueName,
-          amountForAccount: this.state.amountPaidNowText,
+          amountForAccount: this.state.amountPaidNowText
         },
         entries: this.getEntries(),
         exchangeRate: this.state.exchangeRate,
@@ -780,23 +785,23 @@ export class DebiteNote extends React.Component<Props> {
             trackingNumber: this.state.otherDetails.trackingNumber,
             customField1: this.state.otherDetails.customField1,
             customField2: this.state.otherDetails.customField2,
-            customField3: this.state.otherDetails.customField3,
-          },
+            customField3: this.state.otherDetails.customField3
+          }
         },
         touristSchemeApplicable: false,
         type: this.state.invoiceType,
-        updateAccountDetails: false,
+        updateAccountDetails: false
       }
 
-      if (this.state.selectedInvoice != "") {
-        postBody["invoiceLinkingRequest"] = { linkedInvoices: [this.state.linkedInvoices] }
+      if (this.state.selectedInvoice != '') {
+        postBody.invoiceLinkingRequest = { linkedInvoices: [this.state.linkedInvoices] }
       }
 
       console.log('postBody is', JSON.stringify(postBody));
       const results = await InvoiceService.createDebitNote(
         postBody,
         this.state.partyName.uniqueName,
-        this.state.invoiceType,
+        this.state.invoiceType
       );
       this.setState({ loading: false });
       if (results.body) {
@@ -816,7 +821,8 @@ export class DebiteNote extends React.Component<Props> {
       this.setState({ isSearchingParty: false, loading: false });
     }
   }
-  renderAmount() {
+
+  renderAmount () {
     return (
       <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
         <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
@@ -824,26 +830,26 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  getSelectedDateDisplay() { }
-  getYesterdayDate() {
+  getSelectedDateDisplay () { }
+  getYesterdayDate () {
     this.setState({ date: moment().subtract(1, 'days') });
   }
 
-  getTodayDate() {
+  getTodayDate () {
     this.setState({ date: moment() });
   }
 
-  formatDate() {
-    var fulldays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  formatDate () {
+    const fulldays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    let someDateTimeStamp = this.state.date;
-    var dt = (dt = new Date(someDateTimeStamp)),
-      date = dt.getDate(),
-      month = months[dt.getMonth()],
-      timeDiff = someDateTimeStamp - Date.now(),
-      diffDays = new Date().getDate() - date,
-      diffYears = new Date().getFullYear() - dt.getFullYear();
+    const someDateTimeStamp = this.state.date;
+    var dt = (dt = new Date(someDateTimeStamp));
+    const date = dt.getDate();
+    const month = months[dt.getMonth()];
+    const timeDiff = someDateTimeStamp - Date.now();
+    const diffDays = new Date().getDate() - date;
+    const diffYears = new Date().getFullYear() - dt.getFullYear();
 
     if (diffYears === 0 && diffDays === 0) {
       return 'Today';
@@ -859,6 +865,7 @@ export class DebiteNote extends React.Component<Props> {
       return month + ' ' + date;
     }
   }
+
   hideDatePicker = () => {
     this.setState({ showDatePicker: false });
   };
@@ -866,39 +873,40 @@ export class DebiteNote extends React.Component<Props> {
   handleConfirm = (date) => {
     // console.log('A date has been picked: ', date);
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
-    this.setState({ date: moment(date), selectedInvoice: "" });
+    this.setState({ date: moment(date), selectedInvoice: '' });
     this.hideDatePicker();
     this.state.accountDropDown.select(-1)
     this.getAllInvoice();
   };
-  _renderDateView() {
+
+  _renderDateView () {
     const { date, displayedDate } = this.state;
 
     return (
-      // <DateRangePicker
-      // onChange={this.onDateChange}
-      //   date={date}
-      //   open={this.state.showDatePicker}
-      //   displayedDate={displayedDate}
-      //   buttonStyle={style.dateView}>
-      //   <View style={style.dateView}>
-      //     <View style={{flexDirection: 'row'}}>
-      //       <Icon name={'Calendar'} color={'#ff6961'} size={16} />
-      //       <Text style={style.selectedDateText}>{this.formatDate()}</Text>
-      //     </View>
-      //     <TouchableOpacity
-      //       style={{borderColor: '#D9D9D9', borderWidth: 1, backgroundColor: 'pink'}}
-      //       onPress={() =>
-      //         this.state.date.startOf('day').isSame(moment().startOf('day'))
-      //           ? this.getYesterdayDate()
-      //           : this.getTodayDate()
-      //       }>
-      //       <Text style={{color: '#808080'}}>
-      //         {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
-      //       </Text>
-      //     </TouchableOpacity>
-      //   </View>
-      // </DateRangePicker>
+    // <DateRangePicker
+    // onChange={this.onDateChange}
+    //   date={date}
+    //   open={this.state.showDatePicker}
+    //   displayedDate={displayedDate}
+    //   buttonStyle={style.dateView}>
+    //   <View style={style.dateView}>
+    //     <View style={{flexDirection: 'row'}}>
+    //       <Icon name={'Calendar'} color={'#ff6961'} size={16} />
+    //       <Text style={style.selectedDateText}>{this.formatDate()}</Text>
+    //     </View>
+    //     <TouchableOpacity
+    //       style={{borderColor: '#D9D9D9', borderWidth: 1, backgroundColor: 'pink'}}
+    //       onPress={() =>
+    //         this.state.date.startOf('day').isSame(moment().startOf('day'))
+    //           ? this.getYesterdayDate()
+    //           : this.getTodayDate()
+    //       }>
+    //       <Text style={{color: '#808080'}}>
+    //         {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+    //       </Text>
+    //     </TouchableOpacity>
+    //   </View>
+    // </DateRangePicker>
 
       <View style={style.dateView}>
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
@@ -920,56 +928,58 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  _renderSelectInvoice() {
+  _renderSelectInvoice () {
     return (
       <View style={style.dateView}>
         <View style={{ flexDirection: 'row' }}>
           {/* <Icon name={'Calendar'} color={'#ff6961'} size={16} /> */}
           <Text style={style.InvoiceHeading}>Invoice #</Text>
-          <View style={{ flexDirection: 'row', width: "80%", marginHorizontal: 15, justifyContent: "space-between" }}>
+          <View style={{ flexDirection: 'row', width: '80%', marginHorizontal: 15, justifyContent: 'space-between' }}>
             <Dropdown
               ref={(ref) => this.state.accountDropDown = ref}
-              textStyle={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, }}
-              defaultValue={"Select Account"}
-              value={this.state.selectedInvoice == "" ? "Select Account" : this.state.selectedInvoice}
+              textStyle={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular }}
+              defaultValue={'Select Account'}
+              value={this.state.selectedInvoice == '' ? 'Select Account' : this.state.selectedInvoice}
               renderButtonText={(options) => {
-                return (this.state.allVoucherInvoice.length == 0 ? "Select Account" : (options.voucherNumber == null ? " - " : options.voucherNumber));
+                return (this.state.allVoucherInvoice.length == 0 ? 'Select Account' : (options.voucherNumber == null ? ' - ' : options.voucherNumber));
               }}
-              options={this.state.allVoucherInvoice.length == 0 ? ["Result Not found"] : this.state.allVoucherInvoice}
+              options={this.state.allVoucherInvoice.length == 0 ? ['Result Not found'] : this.state.allVoucherInvoice}
               renderSeparator={() => {
                 return (<View></View>);
               }}
               onSelect={async (idx, value) => {
-                this.state.allVoucherInvoice.length > 0 ? this.setState({
-                  selectedInvoice: value.voucherNumber == null ? " - " : value.voucherNumber,
-                  linkedInvoices: {
-                    invoiceUniqueName: value.uniqueName,
-                    voucherType: value.voucherType
-                  }
-                }) : null
+                this.state.allVoucherInvoice.length > 0
+                  ? this.setState({
+                    selectedInvoice: value.voucherNumber == null ? ' - ' : value.voucherNumber,
+                    linkedInvoices: {
+                      invoiceUniqueName: value.uniqueName,
+                      voucherType: value.voucherType
+                    }
+                  })
+                  : null
               }}
               dropdownStyle={{
                 fontSize: 14,
                 width: '60%',
                 height: this.state.allVoucherInvoice.length == 0 ? 40 : 100,
-                color: "white",
-                flex: 1,
+                color: 'white',
+                flex: 1
               }}
               dropdownTextStyle={{
-                color: '#1C1C1C', fontSize: 14, fontFamily: FONT_FAMILY.regular,
+                color: '#1C1C1C', fontSize: 14, fontFamily: FONT_FAMILY.regular
               }}
               renderRow={(options) => {
                 return (
-                  <View style={{ paddingHorizontal: 10, paddingBottom: 10, paddingTop: this.state.allVoucherInvoice.length > 1 ? 3 : 10, borderBottomColor: "grey", borderBottomWidth: this.state.allVoucherInvoice.length > 1 ? 0.7 : 0 }}>
-                    <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.regular, }}>{this.state.allVoucherInvoice.length == 0 ? options : options.voucherNumber == null ? " - " : options.voucherNumber}</Text>
-                    {this.state.allVoucherInvoice.length != 0 ? <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular, }}>{"(Dated : " + options.voucherDate + ")"}</Text> : null}
-                    {this.state.allVoucherInvoice.length != 0 ? <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular, }}>{"(Due : " + options.voucherTotal.amountForAccount + ")"}</Text> : null}
+                  <View style={{ paddingHorizontal: 10, paddingBottom: 10, paddingTop: this.state.allVoucherInvoice.length > 1 ? 3 : 10, borderBottomColor: 'grey', borderBottomWidth: this.state.allVoucherInvoice.length > 1 ? 0.7 : 0 }}>
+                    <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.regular }}>{this.state.allVoucherInvoice.length == 0 ? options : options.voucherNumber == null ? ' - ' : options.voucherNumber}</Text>
+                    {this.state.allVoucherInvoice.length != 0 ? <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>{'(Dated : ' + options.voucherDate + ')'}</Text> : null}
+                    {this.state.allVoucherInvoice.length != 0 ? <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>{'(Due : ' + options.voucherTotal.amountForAccount + ')'}</Text> : null}
                   </View>
                 );
               }}
             />
-            {this.state.selectedInvoice != "" ?
-              <TouchableOpacity
+            {this.state.selectedInvoice != ''
+              ? <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   alignSelf: 'flex-end',
@@ -979,10 +989,10 @@ export class DebiteNote extends React.Component<Props> {
                 }}
                 onPress={() => {
                   this.state.accountDropDown.select(-1),
-                    this.setState({
-                      selectedInvoice: "",
-                      linkedInvoices: ""
-                    })
+                  this.setState({
+                    selectedInvoice: '',
+                    linkedInvoices: ''
+                  })
                 }
                 }>
                 <Ionicons name="close-circle" size={20} color={'grey'} />
@@ -990,53 +1000,52 @@ export class DebiteNote extends React.Component<Props> {
               </TouchableOpacity>
               : null}
 
-
           </View>
         </View>
       </View>
     )
   }
 
-  billingAddressArray() {
-    let addressArray = this.state.partyBillingAddress
+  billingAddressArray () {
+    const addressArray = this.state.partyBillingAddress
     if (this.state.partyBillingAddress.selectedCountry == null) {
-      addressArray["selectedCountry"] = this.state.countryDeatils
+      addressArray.selectedCountry = this.state.countryDeatils
     }
     return addressArray
   };
 
   selectBillingAddressFromEditAdress = async (address) => {
     console.log(JSON.stringify(address));
-    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
+    const countryCode = address.selectedCountry.currency ? address.selectedCountry.currency.code : address.selectedCountry.countryCode
     await this.setState({
       partyBillingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
-      currency:countryCode
+      countryDeatils: { countryName: address.selectedCountry.countryName, code: countryCode },
+      currency: countryCode
     });
     if (this.state.billSameAsShip) {
       this.setState({ partyShippingAddress: address })
     }
   };
 
-  shippingAddressArray() {
-    let addressArray = this.state.partyShippingAddress
+  shippingAddressArray () {
+    const addressArray = this.state.partyShippingAddress
     if (this.state.partyShippingAddress.selectedCountry == null) {
-      addressArray["selectedCountry"] = this.state.countryDeatils
+      addressArray.selectedCountry = this.state.countryDeatils
     }
     return addressArray
   };
 
   selectShippingAddressFromEditAdress = (address) => {
     console.log(address);
-    let countryCode = address.selectedCountry.currency?address.selectedCountry.currency.code:address.selectedCountry.countryCode
+    const countryCode = address.selectedCountry.currency ? address.selectedCountry.currency.code : address.selectedCountry.countryCode
     this.setState({
       partyShippingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code:countryCode  },
-      currency:countryCode
+      countryDeatils: { countryName: address.selectedCountry.countryName, code: countryCode },
+      currency: countryCode
     });
   };
 
-  _renderAddress() {
+  _renderAddress () {
     return (
       <View style={style.senderAddress}>
         <View style={{ flexDirection: 'row' }}>
@@ -1046,7 +1055,7 @@ export class DebiteNote extends React.Component<Props> {
         <View
           style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity style={{ width: "90%", }}
+            <TouchableOpacity style={{ width: '90%' }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1056,7 +1065,7 @@ export class DebiteNote extends React.Component<Props> {
                     type: 'address',
                     selectAddress: this.selectBillingAddress.bind(this),
                     color: '#ff6961',
-                    statusBarColor: '#ff5355',
+                    statusBarColor: '#ff5355'
                   });
                 }
               }}>
@@ -1064,7 +1073,7 @@ export class DebiteNote extends React.Component<Props> {
                 {'Billing Address'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ height: "250%", width: "10%", }}
+            <TouchableOpacity style={{ height: '250%', width: '10%' }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1072,18 +1081,18 @@ export class DebiteNote extends React.Component<Props> {
                   this.props.navigation.navigate('EditAddress', {
                     dontChangeCountry: true,
                     address: this.billingAddressArray(),
-                    selectAddress: this.selectBillingAddressFromEditAdress.bind(this),  
-                    statusBarColor: "#ff5355",
-                    headerColor: '#ff6961',
+                    selectAddress: this.selectBillingAddressFromEditAdress.bind(this),
+                    statusBarColor: '#ff5355',
+                    headerColor: '#ff6961'
                   })
                 }
               }}
             >
-              <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+              <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
             </TouchableOpacity>
           </View>
           {/* <Icon name={'8'} color={'#229F5F'} size={16} /> */}
-          <TouchableOpacity style={{ width: "90%", }}
+          <TouchableOpacity style={{ width: '90%' }}
             onPress={() => {
               if (!this.state.partyName) {
                 alert('Please select a party.');
@@ -1093,7 +1102,7 @@ export class DebiteNote extends React.Component<Props> {
                   type: 'address',
                   selectAddress: this.selectBillingAddress.bind(this),
                   color: '#ff6961',
-                  statusBarColor: '#ff5355',
+                  statusBarColor: '#ff5355'
                 });
               }
             }} >
@@ -1107,12 +1116,12 @@ export class DebiteNote extends React.Component<Props> {
                     : 'Select Billing Address'}
             </Text>
           </TouchableOpacity>
-          {/*Sender Address View*/}
+          {/* Sender Address View */}
         </View>
         <View style={{ flexDirection: 'row' }}>
         <CheckBox
-            checkBoxColor={"#5773FF"}
-            uncheckedCheckBoxColor={"#808080"}
+            checkBoxColor={'#5773FF'}
+            uncheckedCheckBoxColor={'#808080'}
             style={{ marginLeft: -3 }}
             onClick={() => {
               this.setState({
@@ -1128,7 +1137,7 @@ export class DebiteNote extends React.Component<Props> {
         <View
           style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity style={{ width: "90%", }}
+            <TouchableOpacity style={{ width: '90%' }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1138,7 +1147,7 @@ export class DebiteNote extends React.Component<Props> {
                     type: 'address',
                     selectAddress: this.selectShippingAddress.bind(this),
                     color: '#ff6961',
-                    statusBarColor: '#ff5355',
+                    statusBarColor: '#ff5355'
                   });
                 }
               }}>
@@ -1146,7 +1155,7 @@ export class DebiteNote extends React.Component<Props> {
                 {'Shipping Address'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ height: "250%", width: "10%", }}
+            <TouchableOpacity style={{ height: '250%', width: '10%' }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1155,17 +1164,17 @@ export class DebiteNote extends React.Component<Props> {
                     dontChangeCountry: true,
                     address: this.shippingAddressArray(),
                     selectAddress: this.selectShippingAddressFromEditAdress.bind(this),
-                    statusBarColor: "#ff5355",
-                    headerColor: '#ff6961',
+                    statusBarColor: '#ff5355',
+                    headerColor: '#ff6961'
                   })
                 }
               }}
             >
-              <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: "50%" }} />
+              <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
 
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={{ width: "90%", }}
+          <TouchableOpacity style={{ width: '90%' }}
             onPress={() => {
               if (!this.state.partyName) {
                 alert('Please select a party.');
@@ -1175,7 +1184,7 @@ export class DebiteNote extends React.Component<Props> {
                   type: 'address',
                   selectAddress: this.selectShippingAddress.bind(this),
                   color: '#ff6961',
-                  statusBarColor: '#ff5355',
+                  statusBarColor: '#ff5355'
                 });
               }
             }}>
@@ -1189,35 +1198,36 @@ export class DebiteNote extends React.Component<Props> {
                     : 'Select Shipping Address'}
             </Text>
           </TouchableOpacity>
-          {/*Shipping Address View*/}
+          {/* Shipping Address View */}
         </View>
       </View>
     );
   }
 
-  //https://api.giddh.com/company/mobileindore15161037983790ggm19/account-search?q=c&page=1&group=sundrydebtors&branchUniqueName=allmobileshop
-  setCashTypeInvoice() {
+  // https://api.giddh.com/company/mobileindore15161037983790ggm19/account-search?q=c&page=1&group=sundrydebtors&branchUniqueName=allmobileshop
+  setCashTypeInvoice () {
     this.setState({ invoiceType: INVOICE_TYPE.cash, showInvoiceModal: false });
   }
-  setCreditTypeInvoice() {
+
+  setCreditTypeInvoice () {
     this.setState({ invoiceType: INVOICE_TYPE.debit, showInvoiceModal: false });
   }
 
   onDateChange = (dates) => {
     this.setState({
       ...dates,
-      showDatePicker: false,
+      showDatePicker: false
     });
   };
 
   updateAddedItems = async (addedItems) => {
-    let updateAmountToCurrentCurrency = addedItems
+    const updateAmountToCurrentCurrency = addedItems
     if ((this.state.currency).toString() != (this.state.companyCountryDetails.currency.code).toString()) {
       try {
-        let results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), this.state.currency, this.state.companyCountryDetails.currency.code);
+        const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), this.state.currency, this.state.companyCountryDetails.currency.code);
         if (results.body && results.status == 'success') {
           for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
-            let item = updateAmountToCurrentCurrency[i];
+            const item = updateAmountToCurrentCurrency[i];
             if ((updateAmountToCurrentCurrency[i].currency.code).toString() != (this.state.currency).toString()) {
               updateAmountToCurrentCurrency[i].currency = await { code: this.state.currency, symbol: this.state.currencySymbol }
               updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body)
@@ -1233,14 +1243,14 @@ export class DebiteNote extends React.Component<Props> {
     });
   };
 
-  renderAddItemButton() {
+  renderAddItemButton () {
     return (
       <TouchableOpacity
         onPress={() => {
           if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
             this.props.navigation.navigate('AddInvoiceItemScreen', {
               updateAddedItems: (this.updateAddedItems).bind(this),
-              addedItems: this.state.addedItems,
+              addedItems: this.state.addedItems
             });
           } else {
             alert('Please select a party.');
@@ -1255,7 +1265,7 @@ export class DebiteNote extends React.Component<Props> {
           borderWidth: 2,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '90%',
+          width: '90%'
         }}>
         <AntDesign name={'plus'} color={'#ff6961'} size={18} style={{ marginHorizontal: 8 }} />
         <Text style={style.addItemMain}> Add Item</Text>
@@ -1263,7 +1273,7 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  _renderSelectedStock() {
+  _renderSelectedStock () {
     return (
       <View>
         <View style={{ flexDirection: 'row', marginHorizontal: 16, marginVertical: 10, justifyContent: 'space-between' }}>
@@ -1275,7 +1285,7 @@ export class DebiteNote extends React.Component<Props> {
             onPress={() => {
               this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
-                addedItems: this.state.addedItems,
+                addedItems: this.state.addedItems
               });
             }}>
             <Icon name={'path-15'} color="#808080" size={18} />
@@ -1292,11 +1302,11 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   addItem = (item) => {
-    let newItems = this.state.addedItems;
+    const newItems = this.state.addedItems;
     newItems.push(item);
     this.setState({ addedItems: newItems });
     if (item.rate) {
-      let totalAmount = this.getTotalAmount()
+      const totalAmount = this.getTotalAmount()
       this.setState({
         totalAmountInINR:
           (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)
@@ -1305,20 +1315,20 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   deleteItem = (item) => {
-    let addedArray = this.state.addedItems;
-    let itemUniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
-    let index = _.findIndex(
+    const addedArray = this.state.addedItems;
+    const itemUniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
+    const index = _.findIndex(
       addedArray,
       (e) => {
-        let ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
+        const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
         return ouniqueName == itemUniqueName;
       },
-      0,
+      0
     );
     addedArray.splice(index, 1);
     this.setState({ addedItems: addedArray, showItemDetails: false }, () => { });
     if (item.rate) {
-      let totalAmount = this.getTotalAmount()
+      const totalAmount = this.getTotalAmount()
       this.setState({
         totalAmountInINR:
           (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)
@@ -1326,7 +1336,7 @@ export class DebiteNote extends React.Component<Props> {
     }
   };
 
-  renderRightAction(item) {
+  renderRightAction (item) {
     return (
       <TouchableOpacity
         onPress={() => {
@@ -1339,7 +1349,7 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  renderStockItem(item) {
+  renderStockItem (item) {
     return (
       <Swipeable
         onSwipeableRightOpen={() => console.log('Swiped right')}
@@ -1361,17 +1371,17 @@ export class DebiteNote extends React.Component<Props> {
                 taxType: '',
                 taxText: '',
                 warehouse: '',
-                total: 0,
-              },
+                total: 0
+              }
             });
           }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}{item.stock ? "(" + item.stock.name + ")" : ""} : </Text>
+            <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}{item.stock ? '(' + item.stock.name + ')' : ''} : </Text>
             <TouchableOpacity
               onPress={() => this.addItem(item)}
               style={{ flexDirection: 'row', alignItems: 'center' }} >
               <AntDesign name={'plus'} color={'#808080'} size={15} />
-              <Text style={{ color: "#808080" }}>Add again</Text>
+              <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -1395,8 +1405,8 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  onChangeTextBottomItemSheet(text, field) {
-    let editItemDetails = this.state.editItemDetails;
+  onChangeTextBottomItemSheet (text, field) {
+    const editItemDetails = this.state.editItemDetails;
     switch (field) {
       case 'Quantity':
         editItemDetails.quantityText = text;
@@ -1425,7 +1435,7 @@ export class DebiteNote extends React.Component<Props> {
     this.setState({ editItemDetails });
   }
 
-  _renderBottomSeprator(margin = 0) {
+  _renderBottomSeprator (margin = 0) {
     return (
       <View
         style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
@@ -1433,43 +1443,43 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  calculateDiscountedAmount(itemDetails) {
+  calculateDiscountedAmount (itemDetails) {
     if (itemDetails.discountDetails) {
-      let discountType = itemDetails.discountDetails.discountType;
+      const discountType = itemDetails.discountDetails.discountType;
       if (discountType == 'FIX_AMOUNT') {
-        let discountAmount = Number(itemDetails.discountValue);
+        const discountAmount = Number(itemDetails.discountValue);
         return discountAmount;
       } else {
-        let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-        let discountAmount = (Number(itemDetails.discountValue) * amt) / 100;
+        const amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+        const discountAmount = (Number(itemDetails.discountValue) * amt) / 100;
         return Number(discountAmount);
       }
     }
     return 0;
   }
 
-  calculatedTaxAmount(itemDetails) {
+  calculatedTaxAmount (itemDetails) {
     let totalTax = 0;
     console.log('rate', itemDetails.rate);
-    let taxArr = this.state.taxArray;
+    const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
     amt = amt - Number(itemDetails.discountValue);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-        let item = itemDetails.taxDetailsArray[i];
-        let taxPercent = Number(item.taxDetail[0].taxValue);
-        let taxAmount = (taxPercent * Number(amt)) / 100;
+        const item = itemDetails.taxDetailsArray[i];
+        const taxPercent = Number(item.taxDetail[0].taxValue);
+        const taxAmount = (taxPercent * Number(amt)) / 100;
         totalTax = totalTax + taxAmount;
       }
     }
     if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
       for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
-        let item = itemDetails.stock.taxes[i];
+        const item = itemDetails.stock.taxes[i];
         for (let j = 0; j < taxArr.length; j++) {
           if (item == taxArr[j].uniqueName) {
             // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
-            let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-            let taxAmount = (taxPercent * Number(amt)) / 100;
+            const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+            const taxAmount = (taxPercent * Number(amt)) / 100;
             totalTax = totalTax + taxAmount;
             break;
           }
@@ -1502,20 +1512,19 @@ export class DebiteNote extends React.Component<Props> {
   //   return Number(totalTax);
   // }
 
-  getTotalAmount() {
+  getTotalAmount () {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {
-      let item = this.state.addedItems[i];
-      let discount = item.discountValue ? item.discountValue : 0;
-      let tax = this.calculatedTaxAmount(item);
-      let amount = Number(item.rate) * Number(item.quantity);
+      const item = this.state.addedItems[i];
+      const discount = item.discountValue ? item.discountValue : 0;
+      const tax = this.calculatedTaxAmount(item);
+      const amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
     return total.toFixed(2);
   }
 
-
-  _renderOtherDetails() {
+  _renderOtherDetails () {
     return (
       <TouchableOpacity
         style={{
@@ -1523,13 +1532,13 @@ export class DebiteNote extends React.Component<Props> {
           justifyContent: 'space-between',
           paddingVertical: 8,
           paddingHorizontal: 16,
-          marginTop: 8,
+          marginTop: 8
         }}
         onPress={() => {
           this.props.navigation.navigate('InvoiceOtherDetailScreen', {
             enteredDetails: this.state.otherDetails,
             warehouseArray: this.state.warehouseArray,
-            setOtherDetails: this.setOtherDetails,
+            setOtherDetails: this.setOtherDetails
           });
         }}>
         <View style={{ flexDirection: 'row' }}>
@@ -1541,7 +1550,7 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  _renderPaymentMode() {
+  _renderPaymentMode () {
     return (
       <Modal
         animationType="none"
@@ -1558,7 +1567,7 @@ export class DebiteNote extends React.Component<Props> {
             left: 0,
             right: 0,
             backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
+            justifyContent: 'center'
           }}
           onPress={() => {
             this.setState({ showPaymentModePopup: false });
@@ -1584,7 +1593,7 @@ export class DebiteNote extends React.Component<Props> {
                     borderColor: '#ff6961',
                     alignSelf: 'flex-start',
                     // backgroundColor: 'pink',
-                    width: '100%',
+                    width: '100%'
                   }}
                   onFocus={() => this.onChangeText('')}
                   onPress={async () => {
@@ -1603,7 +1612,7 @@ export class DebiteNote extends React.Component<Props> {
     );
   }
 
-  _renderTotalAmount() {
+  _renderTotalAmount () {
     return (
       <View>
         <View
@@ -1612,7 +1621,7 @@ export class DebiteNote extends React.Component<Props> {
             flexDirection: 'row',
             paddingVertical: 9,
             paddingHorizontal: 16,
-            justifyContent: 'space-between',
+            justifyContent: 'space-between'
           }}>
           <View style={{ flexDirection: 'row' }}>
             <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color="#ff6961" />
@@ -1632,21 +1641,23 @@ export class DebiteNote extends React.Component<Props> {
         {this.state.expandedBalance && (
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#1C1C1C' }}>{"Total Amount " + this.state.currencySymbol}</Text>
+              <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
             </View>
-            { this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-              <Text style={{ color: '#1C1C1C', textAlignVertical: "center" }}>{"Total Amount " + this.state.companyCountryDetails.currency.symbol}</Text>
+            { this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash
+              ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>{'Total Amount ' + this.state.companyCountryDetails.currency.symbol}</Text>
               <TextInput
-                style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: "center", marginRight: -10 }}
-                placeholder={"Amount"}
+                style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: 'center', marginRight: -10 }}
+                placeholder={'Amount'}
                 returnKeyType={'done'}
                 keyboardType="number-pad"
                 onChangeText={async (text) => {
                   await this.setState({ totalAmountInINR: Number(text) });
                 }}
               >{this.state.totalAmountInINR}</TextInput>
-            </View> : null}
+            </View>
+              : null}
 
           </View>
         )}
@@ -1662,31 +1673,32 @@ export class DebiteNote extends React.Component<Props> {
       </View>
     );
   }
-  genrateInvoice() {
+
+  genrateInvoice () {
     if (!this.state.partyName) {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
     } else if (this.state.currency != this.state.companyCountryDetails.currency.code && this.state.totalAmountInINR <= 0 && this.getTotalAmount() > 0) {
-      Alert.alert("Error", "Exchange rate/Total Amount in INR can not zero/negative", [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+      Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
     } else {
       this.createInvoice();
     }
   }
 
-  updateEditedItem(details, selectedArrayType) {
-    let itemUniqueName = details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName;
+  updateEditedItem (details, selectedArrayType) {
+    const itemUniqueName = details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName;
 
-    let addedArray = this.state.addedItems;
-    let index = _.findIndex(
+    const addedArray = this.state.addedItems;
+    const index = _.findIndex(
       addedArray,
       (e) => {
-        let ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
+        const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
         return ouniqueName == itemUniqueName;
       },
-      0,
+      0
     );
-    let item = this.state.addedItems[index];
+    const item = this.state.addedItems[index];
     item.quantity = Number(details.quantityText);
     item.rate = Number(details.rateText);
     item.unit = Number(details.unitText);
@@ -1715,12 +1727,13 @@ export class DebiteNote extends React.Component<Props> {
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
   }
-  componentWillUnmount() {
+
+  componentWillUnmount () {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
 
-  render() {
+  render () {
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
@@ -1764,7 +1777,7 @@ export class DebiteNote extends React.Component<Props> {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                top: 0,
+                top: 0
               }}>
               <Bars size={15} color={color.PRIMARY_NORMAL} />
             </View>
@@ -1790,21 +1803,21 @@ export class DebiteNote extends React.Component<Props> {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps (state) {
   const { commonReducer } = state;
   return {
-    ...commonReducer,
+    ...commonReducer
   };
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
-    },
+    }
   };
 }
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <DebiteNote {...props} isFocused={isFocused} />;

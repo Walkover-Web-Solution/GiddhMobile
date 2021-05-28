@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {GestureResponderEvent, StyleProp, Text, TextStyle, TouchableOpacity, View, ViewStyle} from 'react-native';
-import {ButtonShape, ButtonSize, ButtonType} from '@/models/enums/button';
-import {Noop} from '@/utils/helper';
+import { Component } from 'react';
+import { GestureResponderEvent, StyleProp, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { ButtonShape, ButtonSize, ButtonType } from '@/models/enums/button';
+import { Noop } from '@/utils/helper';
 import styles from '@/core/components/button/styles';
 
 type GDButtonProps = typeof GDButton.defaultProps & {
@@ -22,10 +22,10 @@ export class GDButton extends Component<GDButtonProps, GDButtonStat> {
     size: ButtonSize.small,
     type: ButtonType.primary,
     shape: ButtonShape.rounded,
-    onPress: Noop,
+    onPress: Noop
   };
 
-  constructor(props: GDButtonProps) {
+  constructor (props: GDButtonProps) {
     super(props);
   }
 
@@ -61,10 +61,10 @@ export class GDButton extends Component<GDButtonProps, GDButtonStat> {
     return btnStyle;
   };
 
-  render() {
-    //Button style pushed into style based on condition
-    let btnStyle: StyleProp<ViewStyle>[] = [this.props.style, styles.button];
-    let labelStyle: StyleProp<TextStyle> =
+  render () {
+    // Button style pushed into style based on condition
+    const btnStyle: StyleProp<ViewStyle>[] = [this.props.style, styles.button];
+    const labelStyle: StyleProp<TextStyle> =
       this.props.shape === ButtonShape.circle ? styles.circleLabelStyle : this.props.labelStyle || styles.textStyle;
 
     if (this.props.shape === ButtonShape.circle) {

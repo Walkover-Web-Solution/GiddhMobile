@@ -1,60 +1,60 @@
-import {StyleSheet, Platform, Dimensions} from 'react-native';
-import colors, {baseColor} from '@/utils/colors';
-import {GD_FONT_SIZE, GD_ICON_SIZE} from '@/utils/constants';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
+import colors, { baseColor } from '@/utils/colors';
+import { GD_FONT_SIZE, GD_ICON_SIZE } from '@/utils/constants';
 
 export default StyleSheet.create({
   flexGrow: {
-    flexGrow: 0.97,
+    flexGrow: 0.97
   },
   inputTextStyle: {
     fontSize: GD_FONT_SIZE.medium,
     color: colors.INPUT_COLOR,
     paddingTop: 9,
-    width: '100%',
+    width: '100%'
   },
   inputTextStyleSmall: {
-    fontSize: GD_FONT_SIZE.normal,
+    fontSize: GD_FONT_SIZE.normal
   },
   viewArea: {
     minHeight: 50,
     width: '100%',
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   labelArea: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   labelStyle: {
     color: colors.LABEL_COLOR,
-    fontSize: GD_FONT_SIZE.normal,
+    fontSize: GD_FONT_SIZE.normal
   },
   labelStyleSmall: {
-    fontSize: GD_FONT_SIZE.small,
+    fontSize: GD_FONT_SIZE.small
   },
   requiredText: {
     color: baseColor.PRIMARY_RED,
-    paddingLeft: 1,
+    paddingLeft: 1
   },
   iconBox: {
     backgroundColor: '#fefefe',
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
-    marginRight: 10,
+    marginRight: 10
   },
   iconSize: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
-    color: colors.WHITE,
+    color: colors.WHITE
   },
   borderBottom: {
     borderBottomColor: colors.BORDER_COLOR,
-    borderBottomWidth: 1,
+    borderBottomWidth: 1
   },
 
-  //Rounded input
+  // Rounded input
   datePickerStyle: {
-    borderColor: colors.BORDER_COLOR,
+    borderColor: colors.BORDER_COLOR
   },
   roundedInputTextStyle: {
     fontSize: GD_FONT_SIZE.small_m,
@@ -63,7 +63,7 @@ export default StyleSheet.create({
     paddingBottom: 4,
     width: '100%',
     paddingLeft: 5,
-    fontFamily: 'AvenirLTStd-Book',
+    fontFamily: 'AvenirLTStd-Book'
   },
   roundedViewArea: {
     height: 48,
@@ -77,7 +77,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     flexGrow: 0.97,
     marginVertical: 12,
-    paddingVertical: 0,
+    paddingVertical: 0
   },
 
   roundedViewAreaForInput: {
@@ -115,6 +115,6 @@ export default StyleSheet.create({
     marginRight: 0,
     // textAlign: 'center',
     justifyContent: 'center',
-    flexGrow: 0.03,
-  },
+    flexGrow: 0.03
+  }
 });

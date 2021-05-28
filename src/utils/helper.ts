@@ -1,7 +1,7 @@
-import {Dimensions} from 'react-native';
+import { Dimensions } from 'react-native';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
-import {API_URL} from '@/env.json';
+import { API_URL } from '@/env.json';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;

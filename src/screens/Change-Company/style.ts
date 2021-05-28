@@ -1,14 +1,14 @@
-import {StyleSheet} from 'react-native';
-import {GD_ICON_SIZE} from '@/utils/constants';
+import { StyleSheet } from 'react-native';
+import { GD_ICON_SIZE } from '@/utils/constants';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: 'white'
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
-    width: GD_ICON_SIZE.input_icon,
+    width: GD_ICON_SIZE.input_icon
   },
   listItem: {
     flexDirection: 'row',
@@ -16,7 +16,7 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 20,
-    alignItems: 'center',
+    alignItems: 'center'
   },
-  listItemName: {fontSize: 15, marginLeft: 15, fontFamily: 'AvenirLTStd-Book', width: '75%'},
+  listItemName: { fontSize: 15, marginLeft: 15, fontFamily: 'AvenirLTStd-Book', width: '75%' }
 });

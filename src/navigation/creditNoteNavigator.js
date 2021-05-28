@@ -1,5 +1,5 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import CreditNote from '../screens/Credit-Note/CreditNote';
 import CreditNoteOtherDetails from '../screens/Credit-Note/OtherDetails';
@@ -7,13 +7,13 @@ import CreditNoteAddItem from '@/screens/Credit-Note/AddItemScreen';
 import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 import EditAddress from '@/core/components/Select-Address/EditAddress';
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
-function CreditNoteStack() {
+function CreditNoteStack () {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: false
       }}
       initialRouteName={'CreditNoteScreen'}>
       <Screen component={CreditNote} name={'CreditNoteScreen'} />

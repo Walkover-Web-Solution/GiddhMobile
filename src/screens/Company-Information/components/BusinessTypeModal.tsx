@@ -1,11 +1,10 @@
 import React from 'react';
-import {Text, View, TextInput, TouchableOpacity, Modal, Dimensions} from 'react-native';
-import style from './ModalStyle';
+import { Text, View, TouchableOpacity, Modal, Dimensions } from 'react-native';
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 class BusinessTypeModal extends React.Component<any, any> {
-  render() {
+  render () {
     return (
       <Modal animationType="fade" transparent={true} visible={this.props.modalVisible}>
         <View
@@ -17,27 +16,27 @@ class BusinessTypeModal extends React.Component<any, any> {
             backgroundColor: 'white',
             elevation: 3,
             alignItems: 'center',
-            alignSelf: 'center',
+            alignSelf: 'center'
           }}>
-          <Text style={{fontSize: 18, color: '#424242'}}>Select Business Type</Text>
+          <Text style={{ fontSize: 18, color: '#424242' }}>Select Business Type</Text>
           {/* <View style={{marginTop: 10, flex: 1, backgroundColor: 'pink'}}></View> */}
           <TouchableOpacity onPress={() => this.props.onClose}>
-            <Text style={{fontSize: 18, marginTop: 20}}>Registered</Text>
+            <Text style={{ fontSize: 18, marginTop: 20 }}>Registered</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.props.onClose}>
-            <Text style={{fontSize: 18, marginTop: 18}}>Unregistered</Text>
+            <Text style={{ fontSize: 18, marginTop: 18 }}>Unregistered</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.props.onClose}>
-            <Text style={{fontSize: 18, marginTop: 18}}>Deemed Export</Text>
+            <Text style={{ fontSize: 18, marginTop: 18 }}>Deemed Export</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.props.onClose}>
-            <Text style={{fontSize: 18, marginTop: 18}}>Government Entity</Text>
+            <Text style={{ fontSize: 18, marginTop: 18 }}>Government Entity</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={this.props.onClose}>
-            <Text style={{fontSize: 18, marginTop: 18}}>SEZ</Text>
+            <Text style={{ fontSize: 18, marginTop: 18 }}>SEZ</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={this.props.onClose} style={{position: 'absolute', bottom: 5}}>
-            <Text style={{fontSize: 18}}>Close</Text>
+          <TouchableOpacity onPress={this.props.onClose} style={{ position: 'absolute', bottom: 5 }}>
+            <Text style={{ fontSize: 18 }}>Close</Text>
           </TouchableOpacity>
         </View>
       </Modal>

@@ -12,5 +12,5 @@ export default {
   BigButton: 'bigButton',
   Welcome: 'Welcome',
   CompanyInfoOne: 'CompanyInfoOne',
-  CompanyInfoTwo: 'CompanyInfoTwo',
+  CompanyInfoTwo: 'CompanyInfoTwo'
 };

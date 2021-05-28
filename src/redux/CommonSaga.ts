@@ -1,25 +1,25 @@
-import {call, put, takeLatest, select, takeEvery} from 'redux-saga/effects';
+import { call, put, takeLatest, select, takeEvery } from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as CommonActions from './CommonAction';
 import * as CommonService from './CommonService';
 import AsyncStorage from '@react-native-community/async-storage';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {DeviceEventEmitter} from 'react-native';
-import {appleAuth} from '@invertase/react-native-apple-authentication';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { DeviceEventEmitter } from 'react-native';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
 
-export default function* watcherFCMTokenSaga() {
+export default function * watcherFCMTokenSaga () {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
 }
 
-export function* getCompanyAndBranches() {
+export function * getCompanyAndBranches () {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     // console.log('list response is' + listResponse.body);
     // console.log('list response is' + JSON.stringify(listResponse));
-    let companyData = {};
+    const companyData = {};
     companyData.success = false;
     if (listResponse && listResponse.status == 'success') {
       companyData.success = true;
@@ -29,33 +29,33 @@ export function* getCompanyAndBranches() {
         console.log('this always runs for company');
         if (listResponse.body && listResponse.body.length > 0) {
           yield put(CommonActions.isAuth());
-          let defaultComp = listResponse.body[0];
-          if(defaultComp.subscription && defaultComp.subscription.country && defaultComp.subscription.country.countryCode){
-            console.log("country code is "+defaultComp.subscription.country.countryCode);
+          const defaultComp = listResponse.body[0];
+          if (defaultComp.subscription && defaultComp.subscription.country && defaultComp.subscription.country.countryCode) {
+            console.log('country code is ' + defaultComp.subscription.country.countryCode);
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, defaultComp.subscription.country.countryCode);
           }
           if (defaultComp.uniqueName) {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
           }
-        }else{
+        } else {
           yield put(CommonActions.isUnauth());
         }
       }
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
-    console.log("googleRat3", branchesResponse);
+    console.log('googleRat3', branchesResponse);
     if (branchesResponse && branchesResponse.status == 'success') {
       companyData.branchList = branchesResponse.body;
       const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
       if (!activeBranch) {
         console.log('this always runs for branch');
         if (branchesResponse.body && branchesResponse.body.length > 0) {
-          let defaultBranch = branchesResponse.body[0];
+          const defaultBranch = branchesResponse.body[0];
           if (defaultBranch.alias) {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.uniqueName);
           }
         }
-        //set active comapny if not found
+        // set active comapny if not found
 
         // if (response.status == false) {
         //     yield put(CommonActions.loginUserFailure(response.message));
@@ -76,8 +76,8 @@ export function* getCompanyAndBranches() {
   }
 }
 
-export function* logoutUser() {
-  console.log("here")
+export function * logoutUser () {
+  console.log('here')
   try {
     appleAuth.Operation.LOGOUT;
     yield AsyncStorage.removeItem(STORAGE_KEYS.token);

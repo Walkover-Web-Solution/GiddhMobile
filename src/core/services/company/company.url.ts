@@ -1,4 +1,4 @@
-import {createEndpoint} from '@/utils/helper';
+import { createEndpoint } from '@/utils/helper';
 
 export const companyUrls = {
   companyDetails: createEndpoint('company/:companyUniqueName'),

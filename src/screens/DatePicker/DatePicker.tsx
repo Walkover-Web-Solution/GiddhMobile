@@ -1,36 +1,37 @@
 import React from 'react';
 
-import {LogBox, ScrollView, View, Dimensions, Text} from 'react-native';
+import { View, Dimensions, Text } from 'react-native';
 import styles from './style';
-import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Custom from './Custom';
 import Period from './Period';
 
-const initialLayout = {width: Dimensions.get('window').width};
+const initialLayout = { width: Dimensions.get('window').width };
 
 export class AppDatePicker extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
     this.state = {
       index: 0,
       routes: [
-        {key: 'first', title: 'Period'},
-        {key: 'second', title: 'Custom'},
-      ],
+        { key: 'first', title: 'Period' },
+        { key: 'second', title: 'Custom' }
+      ]
     };
   }
 
   handleIndexChange = (index) => {
     this.setState({
-      index,
+      index
     });
   };
+
   renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{backgroundColor: 'white'}}
-      style={{backgroundColor: 'white', elevation: 0}}
-      renderLabel={({route, focused, color}) => (
+      indicatorStyle={{ backgroundColor: 'white' }}
+      style={{ backgroundColor: 'white', elevation: 0 }}
+      renderLabel={({ route, focused }) => (
         <View
           style={{
             borderTopEndRadius: 17,
@@ -43,14 +44,14 @@ export class AppDatePicker extends React.Component {
             alignItems: 'center',
             justifyContent: 'center',
             paddingVertical: 7,
-            borderWidth: 1,
+            borderWidth: 1
           }}>
           <Text
             numberOfLines={1}
             style={{
               color: focused ? '#5773FF' : '#808080',
               // fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-              fontWeight: focused ? 'bold' : 'normal',
+              fontWeight: focused ? 'bold' : 'normal'
             }}>
             {route.title}
           </Text>
@@ -58,7 +59,8 @@ export class AppDatePicker extends React.Component {
       )}
     />
   );
-  render() {
+
+  render () {
     const FirstRoute = () => (
       <Period
         selectDate={this.props.route.params.selectDate}
@@ -80,13 +82,13 @@ export class AppDatePicker extends React.Component {
 
     const renderScene = SceneMap({
       first: FirstRoute,
-      second: SecondRoute,
+      second: SecondRoute
       // third: ThirdRoute,
     });
     return (
       <View style={styles.container}>
         <TabView
-          navigationState={{index: this.state.index, routes: this.state.routes}}
+          navigationState={{ index: this.state.index, routes: this.state.routes }}
           renderScene={renderScene}
           onIndexChange={this.handleIndexChange}
           initialLayout={initialLayout}

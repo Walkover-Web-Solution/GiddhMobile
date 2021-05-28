@@ -1,62 +1,61 @@
 import React from 'react';
-import {Text} from '@ui-kitten/components';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
+import { Text } from '@ui-kitten/components';
+import { connect } from 'react-redux';
 
-import {Image, View, TouchableOpacity, Keyboard, Platform, ScrollView} from 'react-native';
-import {GDButton} from '@/core/components/button/button.component';
+import { Image, View, Keyboard, Platform } from 'react-native';
+import { GDButton } from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
 import style from '@/screens/Auth/Login/style';
-import {GDRoundedInput} from '@/core/components/input/rounded-input.component';
-//google sign in
-import {GoogleSignin, statusCodes} from '@react-native-community/google-signin';
-import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
-import {ButtonSize} from '@/models/enums/button';
-import {GdImages} from '@/utils/icons-pack';
-import {WEBCLIENT_ID} from '@/env.json';
+import { GDRoundedInput } from '@/core/components/input/rounded-input.component';
+// google sign in
+import { GoogleSignin, statusCodes } from '@react-native-community/google-signin';
+import { ButtonSize } from '@/models/enums/button';
+import { GdImages } from '@/utils/icons-pack';
+import { WEBCLIENT_ID } from '@/env.json';
 // @ts-ignore
-import {Bars} from 'react-native-loader';
-import {googleLogin, appleLogin, userEmailLogin} from './LoginAction';
-import {appleAuth} from '@invertase/react-native-apple-authentication';
+import { Bars } from 'react-native-loader';
+import { googleLogin, appleLogin, userEmailLogin } from './LoginAction';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 class Login extends React.Component<any, any> {
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
     this.state = {
       showLoader: false,
       keyboard: false,
       username: '',
-      password: '',
+      password: ''
     };
   }
 
-  componentDidMount() {
-    //initial google sign in configuration
+  componentDidMount () {
+    // initial google sign in configuration
     GoogleSignin.configure({
-      webClientId: `${WEBCLIENT_ID}`,
+      webClientId: `${WEBCLIENT_ID}`
     });
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     if (!prevProps.startTFA && this.props.startTFA) {
-      this.setState({showLoader: false});
+      this.setState({ showLoader: false });
       this.props.navigation.navigate('Otp');
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
   }
-  async onAppleButtonPress() {
+
+  async onAppleButtonPress () {
     // performs login request
     try {
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME]
       });
       // get current authentication state for user
       // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
@@ -71,21 +70,22 @@ class Login extends React.Component<any, any> {
       alert(err);
     }
   }
+
   _googleSignIn = async () => {
-    //Prompts a modal to let the user sign in into your application.
+    // Prompts a modal to let the user sign in into your application.
     try {
       await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
+        showPlayServicesUpdateDialog: true
       });
       // await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
       await GoogleSignin.signIn();
-      this.setState({showLoader: true});
+      this.setState({ showLoader: true });
       const getGoogleToken = await GoogleSignin.getTokens();
       const userInfo = await GoogleSignin.getCurrentUser();
       this.props.googleLogin(getGoogleToken.accessToken, userInfo.user.email);
     } catch (error) {
-      this.setState({showLoader: false});
+      this.setState({ showLoader: false });
       console.log('Message', error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User Cancelled the Login Flow');
@@ -99,12 +99,12 @@ class Login extends React.Component<any, any> {
     }
   };
 
-  signInWithUsernamePassword() {
-    this.props.userLogin({username: this.state.username, password: this.state.password});
+  signInWithUsernamePassword () {
+    this.props.userLogin({ username: this.state.username, password: this.state.password });
   }
 
   _googleSignOut = async () => {
-    //Remove user session from the device.
+    // Remove user session from the device.
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
@@ -114,14 +114,14 @@ class Login extends React.Component<any, any> {
   };
 
   _keyboardDidShow = () => {
-    this.setState({keyboard: true});
+    this.setState({ keyboard: true });
   };
 
   _keyboardDidHide = () => {
-    this.setState({keyboard: false});
+    this.setState({ keyboard: false });
   };
 
-  render() {
+  render () {
     // if (this.state.showLoader) {
     //   return (
     //     <GDContainer>
@@ -134,7 +134,7 @@ class Login extends React.Component<any, any> {
     // } else {
     return (
       <View style={style.loginContainer}>
-        <View style={[style.socialLoginContainer, {marginTop: this.state.keyboard ? 10 : 50}]}>
+        <View style={[style.socialLoginContainer, { marginTop: this.state.keyboard ? 10 : 50 }]}>
           <View style={style.titleContainer}>
             <Text style={style.loginTextStyle}>Login to </Text>
             <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
@@ -144,7 +144,7 @@ class Login extends React.Component<any, any> {
           <LoginButton
             size={ButtonSize.medium}
             label={'Sign in with Google'}
-            style={[style.gmailButton, {marginTop: this.state.keyboard ? 15 : 30}]}
+            style={[style.gmailButton, { marginTop: this.state.keyboard ? 15 : 30 }]}
             onPress={this._googleSignIn}
             icon="gmail"
           />
@@ -165,29 +165,29 @@ class Login extends React.Component<any, any> {
           <View style={style.horizontalRule} />
         </View>
 
-        <View style={[style.loginFormContainer, {marginTop: this.state.keyboard ? 10 : 30}]}>
+        <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>
           <View>
             <Text style={style.registerStyle}>Registered Email ID</Text>
           </View>
 
           <View style={style.formInput}>
-            <View style={{height: 10}}></View>
+            <View style={{ height: 10 }}></View>
             <GDRoundedInput
               icon="email"
               label="Company Name"
               value={this.state.username}
               placeholder="sampleaddress@mail.com"
-              onChange={(value) => this.setState({username: value})}
+              onChange={(value) => this.setState({ username: value })}
             />
-            <View style={{height: 10}}></View>
+            <View style={{ height: 10 }}></View>
             <GDRoundedInput
               secureTextEntry={true}
-              style={{marginTop: 6}}
+              style={{ marginTop: 6 }}
               icon="lock"
               label="Company Name"
               value={this.state.password}
               placeholder="********"
-              onChange={(value) => this.setState({password: value})}
+              onChange={(value) => this.setState({ password: value })}
             />
           </View>
 
@@ -198,7 +198,7 @@ class Login extends React.Component<any, any> {
               label={'Login'}
               onPress={() => this.signInWithUsernamePassword()}
             />
-            {/* <TouchableOpacity onPress={() => 
+            {/* <TouchableOpacity onPress={() =>
               {
                 this.props.navigation.navigate('Password')
               }}>
@@ -224,26 +224,26 @@ class Login extends React.Component<any, any> {
               left: 0,
               right: 0,
               bottom: 0,
-              top: 0,
+              top: 0
             }}>
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
         )}
       </View>
     );
-    //}
+    // }
   }
 }
 
 const mapStateToProps = (state: RootState) => {
-  const {LoginReducer} = state;
+  const { LoginReducer } = state;
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
-    ...LoginReducer,
+    ...LoginReducer
   };
 };
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
     googleLogin: (token, email) => {
       dispatch(googleLogin(token, email));
@@ -253,7 +253,7 @@ function mapDispatchToProps(dispatch) {
     },
     userLogin: (payload) => {
       dispatch(userEmailLogin(payload));
-    },
+    }
   };
 }
 

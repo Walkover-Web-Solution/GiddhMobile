@@ -1,50 +1,51 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar} from 'react-native';
+import { GDContainer } from '@/core/components/container/container.component';
+import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar } from 'react-native';
 import style from './style';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
-import {getCompanyAndBranches} from '../../redux/CommonAction';
+import { getCompanyAndBranches } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {Bars} from 'react-native-loader';
+import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 
 interface Props {
   navigation: any;
 }
 
 export class ChangeCompany extends React.Component<Props> {
-  constructor(props: MoreComponentProp) {
+  constructor (props: MoreComponentProp) {
     super(props);
     this.state = {
-      loading: false,
+      loading: false
     };
   }
+
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
   };
 
-  render() {
-    let activeCompany = this.props.route.params.activeCompany;
-    let companyList = this.props.comapnyList.sort((a, b) =>
-      a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
+  render () {
+    const activeCompany = this.props.route.params.activeCompany;
+    const companyList = this.props.comapnyList.sort((a, b) =>
+      a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
     );
 
     return (
       <GDContainer>
         {this.FocusAwareStatusBar(this.props.isFocused)}
         <View style={style.container}>
-          <View style={{flex: 1, backgroundColor: 'rgba(87,115,255,0.03)'}}>
+          <View style={{ flex: 1, backgroundColor: 'rgba(87,115,255,0.03)' }}>
             <View
               style={{
                 flexDirection: 'row',
-                alignItems: 'center',
+                alignItems: 'center'
               }}>
-              <View style={{marginLeft: 20}}>
+              <View style={{ marginLeft: 20 }}>
                 <Icon
                   size={20}
                   name={'Backward-arrow'}
@@ -54,16 +55,16 @@ export class ChangeCompany extends React.Component<Props> {
                 />
               </View>
 
-              <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black'}}>Switch Company</Text>
+              <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>Switch Company</Text>
             </View>
             <FlatList
               data={companyList}
               showsVerticalScrollIndicator={false}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <TouchableOpacity
                   style={style.listItem}
                   delayPressIn={0}
-                  onPress={async () => {                    
+                  onPress={async () => {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, item.subscription.country.countryCode);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
@@ -77,12 +78,12 @@ export class ChangeCompany extends React.Component<Props> {
                     numberOfLines={2}
                     style={[
                       style.listItemName,
-                      {color: item.uniqueName == activeCompany.uniqueName ? color.PRIMARY_BASIC : 'black'},
+                      { color: item.uniqueName == activeCompany.uniqueName ? color.PRIMARY_BASIC : 'black' }
                     ]}>
                     {item.name}
                   </Text>
                   {item.uniqueName == activeCompany.uniqueName && (
-                    <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: color.PRIMARY_BASIC}}></View>
+                    <View style={{ height: 10, width: 10, borderRadius: 5, backgroundColor: color.PRIMARY_BASIC }}></View>
                   )}
                 </TouchableOpacity>
               )}
@@ -103,7 +104,7 @@ export class ChangeCompany extends React.Component<Props> {
               left: 0,
               right: 0,
               bottom: 0,
-              top: 0,
+              top: 0
             }}>
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
@@ -113,21 +114,21 @@ export class ChangeCompany extends React.Component<Props> {
   }
 }
 
-function mapStateToProps(state) {
-  const {commonReducer} = state;
+function mapStateToProps (state) {
+  const { commonReducer } = state;
   return {
-    ...commonReducer,
+    ...commonReducer
   };
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
-    },
+    }
   };
 }
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <ChangeCompany {...props} isFocused={isFocused} />;

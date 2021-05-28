@@ -1,5 +1,5 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import MoreScreen from '../screens/More/More';
 import SettingsScreen from '../screens/Settings/Settings';
@@ -8,13 +8,13 @@ import HelpScreen from '../screens/Help-Support/Help-Support';
 import BranchChange from '../screens/Change-Branch/ChangeBranch';
 import SalesInvoiceScreen from '../screens/Sales-Invoice/SalesInvoice';
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
-function MoreStack() {
+function MoreStack () {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: false
       }}
       initialRouteName={'MoreScreen'}>
       <Screen component={MoreScreen} name={'More'} />
