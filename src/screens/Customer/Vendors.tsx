@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -34,7 +34,15 @@ export class Vendors extends React.Component<Props> {
     this.setActiveCompanyCountry()
     this.getAllDeatils();
     this.checkStoredCountryCode();
-    this.props.resetFun(this.resetState);
+    this.props.resetFun(this.clearAll);
+  }
+
+  clearAll = () => {
+    this.resetState();
+    Keyboard.dismiss();
+    this.getAllDeatils();
+    this.setActiveCompanyCountry()
+    this.checkStoredCountryCode();
   }
 
   async getAllDeatils () {
@@ -654,7 +662,7 @@ export class Vendors extends React.Component<Props> {
               }
               }
               style={styles.input}>
-              <Text style={{ color: 'rgba(80,80,80,0.5)' }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
+              <Text style={{ color: this.state.partyPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
               <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
             </TextInput>
           </View>

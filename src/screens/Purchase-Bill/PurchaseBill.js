@@ -217,14 +217,14 @@ export class PurchaseBill extends React.Component {
       // store.dispatch.auth.logout();
     });
 
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-      await this.resetState();
-      this.setActiveCompanyCountry()
-      this.getAllTaxes();
-      this.getAllDiscounts();
-      this.getAllWarehouse();
-      this.getAllAccountsModes();
-    });
+    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+    //   await this.resetState();
+    //   this.setActiveCompanyCountry()
+    //   this.getAllTaxes();
+    //   this.getAllDiscounts();
+    //   this.getAllWarehouse();
+    //   this.getAllAccountsModes();
+    // });
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
@@ -303,7 +303,7 @@ export class PurchaseBill extends React.Component {
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
           {/* </View> */}
         </View>
-        <TouchableOpacity onPress={() => this.resetState()}>
+        <TouchableOpacity onPress={() => this.clearAll()}>
           <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
         </TouchableOpacity>
       </View>
@@ -503,7 +503,7 @@ export class PurchaseBill extends React.Component {
     this.setState({ isSearchingParty: true });
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
-      // console.log('cash account is ', results);
+      console.log('cash account is ', results);
       if (results.body) {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency)
@@ -774,12 +774,12 @@ export class PurchaseBill extends React.Component {
           billingDetails: {
             address: [this.state.BillFromAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.BillFromAddress.gstNumber,
+            gstNumber: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.gstNumber : '',
             panNumber: '',
             state: { code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '', name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '' },
-            stateCode: this.state.BillFromAddress.stateCode,
-            stateName: this.state.BillFromAddress.stateName,
-            pincode: this.state.BillFromAddress.pincode
+            stateCode: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.stateCode : '',
+            stateName: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.stateName : '',
+            pincode: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.pincode : ''
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -792,12 +792,12 @@ export class PurchaseBill extends React.Component {
           shippingDetails: {
             address: [this.state.shipFromAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.shipFromAddress.gstNumber,
+            gstNumber: this.state.shipFromAddress.size != {} ? this.state.shipFromAddress.gstNumber : '',
             panNumber: '',
             state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '', name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '' },
-            stateCode: this.state.shipFromAddress.stateCode,
-            stateName: this.state.shipFromAddress.stateName,
-            pincode: this.state.shipFromAddress.pincode
+            stateCode: this.state.shipFromAddress != {} ? this.state.shipFromAddress.stateCode : '',
+            stateName: this.state.shipFromAddress != {} ? this.state.shipFromAddress.stateName : '',
+            pincode: this.state.shipFromAddress.size != {} ? this.state.shipFromAddress.pincode : ''
           },
           uniqueName: this.state.partyName.uniqueName
         },
@@ -898,6 +898,15 @@ export class PurchaseBill extends React.Component {
       console.log('problem occured', e);
       this.setState({ isSearchingParty: false, loading: false });
     }
+  }
+
+  clearAll = () => {
+    this.resetState();
+    this.setActiveCompanyCountry()
+    this.getAllTaxes();
+    this.getAllDiscounts();
+    this.getAllWarehouse();
+    this.getAllAccountsModes();
   }
 
   renderAmount () {
