@@ -35,7 +35,7 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_HIDE: 'keyboardDidHide'
 };
 export class Customer extends React.Component<Props> {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollRef = React.createRef();
@@ -51,10 +51,11 @@ export class Customer extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
   };
 
-  renderHeader () {
+  renderHeader() {
     return (
-      <View style={[style.header, { paddingTop: 10 }]}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+      <View style={[style.header, { paddingTop: 10,height: Dimensions.get('window').height * 0.08,}]}>
+        <View style={{
+          flexDirection: 'row', justifyContent: 'center'}}>
           <TouchableOpacity
             style={{ padding: 10 }}
             onPress={() => {
@@ -103,12 +104,9 @@ export class Customer extends React.Component<Props> {
     }
   };
 
-  componentDidMount () {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+  componentDidMount() {
+    const { index } = this.props.route.params;
     InteractionManager.runAfterInteractions(() => {
-      const { index } = this.props.route.params;
-      console.log(index);
       if (index == 1 && this.state.currentPage == 0) {
         this.scrollRef.current.scrollTo({
           animated: true,
@@ -123,6 +121,8 @@ export class Customer extends React.Component<Props> {
         })
       }
     })
+    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
   }
 
   ScrollViewOnLayout = () => {
@@ -143,12 +143,12 @@ export class Customer extends React.Component<Props> {
     // }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
 
-  render () {
+  render() {
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
@@ -243,34 +243,34 @@ export class Customer extends React.Component<Props> {
               <View style={{ height: '100%', width: width }}>
                 {this.state.showLoader
                   ? (
-                  <View style={{ flex: 1 }}>
-                    <View style={style.alignLoader}>
-                      <Bars size={15} color={color.PRIMARY_NORMAL} />
+                    <View style={{ flex: 1 }}>
+                      <View style={style.alignLoader}>
+                        <Bars size={15} color={color.PRIMARY_NORMAL} />
+                      </View>
                     </View>
-                  </View>
-                    )
+                  )
                   : (
                     <Customers
                       resetFun={this.setCustomerFun}
                       navigation={this.props.navigation}
                     />
-                    )}
+                  )}
               </View>
               <View style={{ height: '100%', width: width }}>
                 {this.state.showLoader
                   ? (
-                  <View style={{ flex: 1 }}>
-                    <View style={style.alignLoader}>
-                      <Bars size={15} color={color.PRIMARY_NORMAL} />
+                    <View style={{ flex: 1 }}>
+                      <View style={style.alignLoader}>
+                        <Bars size={15} color={color.PRIMARY_NORMAL} />
+                      </View>
                     </View>
-                  </View>
-                    )
+                  )
                   : (
                     <Vendors
                       resetFun={this.setVendorFun}
                       navigation={this.props.navigation}
                     />
-                    )}
+                  )}
               </View>
             </ScrollView>
 
@@ -281,13 +281,13 @@ export class Customer extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
@@ -295,7 +295,7 @@ function mapDispatchToProps (dispatch) {
   };
 }
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <Customer {...props} isFocused={isFocused} />;
