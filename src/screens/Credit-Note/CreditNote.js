@@ -171,15 +171,15 @@ export class CreditNote extends React.Component<Props> {
     this.getAllWarehouse();
     this.getAllAccountsModes();
 
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-      await this.state.accountDropDown.select(-1)
-      await this.resetState();
-      this.setActiveCompanyCountry()
-      this.getAllTaxes();
-      this.getAllDiscounts();
-      this.getAllWarehouse();
-      this.getAllAccountsModes();
-    });
+    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+    //   await this.state.accountDropDown.select(-1)
+    //   await this.resetState();
+    //   this.setActiveCompanyCountry()
+    //   this.getAllTaxes();
+    //   this.getAllDiscounts();
+    //   this.getAllWarehouse();
+    //   this.getAllAccountsModes();
+    // });
 
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updateItemInCreditNote, (data) => {
@@ -310,11 +310,21 @@ export class CreditNote extends React.Component<Props> {
           {/* </View> */}
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
-        <TouchableOpacity onPress={() => this.resetState()}>
+        <TouchableOpacity onPress={() => this.clearAll()}>
           <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
         </TouchableOpacity>
       </View>
     );
+  }
+
+  clearAll = async () => {
+    await this.state.accountDropDown.select(-1)
+    await this.resetState();
+    await this.setActiveCompanyCountry()
+    await this.getAllTaxes();
+    await this.getAllDiscounts();
+    await this.getAllWarehouse();
+    await this.getAllAccountsModes();
   }
 
   onLayout = (e) => {
