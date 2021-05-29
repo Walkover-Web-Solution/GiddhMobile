@@ -455,6 +455,7 @@ export class PurchaseBill extends React.Component {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
+        // console.log('address body', results.body);
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1700,7 +1701,7 @@ export class PurchaseBill extends React.Component {
             />
             {/* <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink'}}
-              onPress={() => console.log(this.state.addressArray)}></TouchableOpacity> */}
+              onPress={() => console.log(this.state.BillFromAddress)}></TouchableOpacity> */}
             {/* <View style={{flexDirection: 'row'}}>
 
             <TouchableOpacity

@@ -7,7 +7,6 @@ import {AuthService} from '../../../core/services/auth/auth.service';
 import {getCompanyAndBranches} from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
-import {func} from 'prop-types';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
