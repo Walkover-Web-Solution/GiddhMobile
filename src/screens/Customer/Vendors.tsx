@@ -495,7 +495,7 @@ export class Vendors extends React.Component<Props> {
       emailId: '',
       partyType: 'not applicable',
       allPartyType: [],
-      AllGroups: ['Sundry Debtors'],
+      AllGroups: ['Sundry Creditors'],
       ref: RBSheet,
       allStates: [],
       savedAddress: {
@@ -535,7 +535,7 @@ export class Vendors extends React.Component<Props> {
       selectedCallingCode: '91',
       successDialog: false,
       faliureDialog: false,
-      selectedGroup: 'Sundry Debtors',
+      selectedGroup: 'Sundry Creditors',
       partyDropDown: Dropdown,
       showBankDetails: false,
       bankName: '',
