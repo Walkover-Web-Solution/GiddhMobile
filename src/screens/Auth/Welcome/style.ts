@@ -1,23 +1,22 @@
-import {StyleSheet, Platform, Dimensions} from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import colors from '@/utils/colors';
-import {GD_FONT_SIZE} from '@/utils/constants';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 export default StyleSheet.create({
-  container: {flex: 1, backgroundColor: 'white'},
+  container: { flex: 1, backgroundColor: 'white' },
   buttonContainer: {
     position: 'absolute',
     bottom: 10,
     alignSelf: 'center',
-    padding: 5,
+    padding: 5
   },
   createAccount: {
     fontSize: 20,
-    color: 'white',
+    color: 'white'
   },
   login: {
     fontSize: 20,
-    color: colors.PRIMARY_BASIC,
+    color: colors.PRIMARY_BASIC
   },
   createAccountButton: {
     height: 50,
@@ -25,7 +24,7 @@ export default StyleSheet.create({
     backgroundColor: colors.PRIMARY_BASIC,
     borderRadius: 25,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   loginButton: {
     height: 50,
@@ -35,7 +34,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: colors.PRIMARY_BASIC,
+    borderColor: colors.PRIMARY_BASIC
   },
   paginationWrapper: {
     position: 'absolute',
@@ -44,13 +43,13 @@ export default StyleSheet.create({
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   paginationDots: {
     height: 8,
     width: 8,
     borderRadius: 8 / 2,
     backgroundColor: '#5773FF',
-    marginLeft: 10,
-  },
+    marginLeft: 10
+  }
 });

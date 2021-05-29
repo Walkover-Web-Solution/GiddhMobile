@@ -5,7 +5,7 @@ export const GD_DATE_RANGE_FORMAT = 'DD MMM YY';
 // Font size to be used in across the app
 export const GD_FONT_WEIGHT = {
   normal: 400,
-  bold: '700',
+  bold: '700'
 };
 // Font size to be used in across the app
 export const GD_FONT_SIZE = {
@@ -22,7 +22,7 @@ export const GD_FONT_SIZE = {
   xxlarge: 22,
   font_25: 25,
   font_36: 36,
-  font_40: 40,
+  font_40: 40
 };
 
 // Button size to be used in across the app
@@ -33,7 +33,7 @@ export const GD_BUTTON_SIZE = {
 
   font_small: 14,
   font_medium: 18,
-  font_large: 20,
+  font_large: 20
 };
 
 // Button size to be used in across the app
@@ -41,19 +41,19 @@ export const GD_CIRCLE_BUTTON = {
   height: 48,
   width: 48,
   radius: 24,
-  fontSize: 36,
+  fontSize: 36
 };
 
 // Radius size to be used in across the app
 export const GD_RADIUS = {
   r_small: 19, //
   r_medium: 21, //
-  r_large: 25, // for normally large controls like  button, inputs
+  r_large: 25 // for normally large controls like  button, inputs
 };
 
 // Radius size to be used in across the app
 export const GD_ICON_SIZE = {
-  input_icon: 16, //
+  input_icon: 16 //
 };
 
 // Per page items count
@@ -75,7 +75,7 @@ export const STORAGE_KEYS = {
   sessionEnd: 'SESSION_END',
   sortBy: 'SORT_BY',
   order: 'ORDER',
-  activeCompanyCountryCode: '',
+  activeCompanyCountryCode: ''
 };
 
 // APP events constants
@@ -89,12 +89,12 @@ export const APP_EVENTS = {
   PurchaseBillCreated: 'PURCHASEBILLCREATED',
   CreditNoteCreated: 'CREDITNOTECREATED',
   DebitNoteCreated: 'DEBITNOTECREATED',
-  CustomerCreated: `CUSTOMERCREATED`,
-  REFRESHPAGE: `REFRESHPAGE`,
+  CustomerCreated: 'CUSTOMERCREATED',
+  REFRESHPAGE: 'REFRESHPAGE'
 };
 
 export const FONT_FAMILY = {
   regular: 'AvenirLTStd-Book',
   bold: 'AvenirLTStd-Black',
-  semibold: 'AvenirLTStd-Roman',
+  semibold: 'AvenirLTStd-Roman'
 };

@@ -1,14 +1,14 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
-import {CommonService} from '@/core/services/common/common.service';
+import { connect } from 'react-redux';
+import { GDContainer } from '@/core/components/container/container.component';
+import { CommonService } from '@/core/services/common/common.service';
 import DemoComponent from '@/screens/Demo/components/Demo/demo.component';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
 export class DemoScreen extends React.Component<Props, {}> {
-  constructor(props: Props) {
+  constructor (props: Props) {
     super(props);
   }
 
@@ -16,7 +16,7 @@ export class DemoScreen extends React.Component<Props, {}> {
     await CommonService.getCurrencies();
   };
 
-  render() {
+  render () {
     return (
       <GDContainer>
         <DemoComponent
@@ -32,7 +32,7 @@ export class DemoScreen extends React.Component<Props, {}> {
 
 const mapStateToProps = (state: RootState) => {
   return {
-    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser
     // countries: state.common.countries,
     // isCountriesLoading: state.common.isCountriesLoading,
   };
@@ -41,7 +41,7 @@ const mapStateToProps = (state: RootState) => {
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     getCountriesAction: dispatch.common.getCountriesAction,
-    logoutAction: dispatch.auth.logoutAction,
+    logoutAction: dispatch.auth.logoutAction
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(DemoScreen);

@@ -1,133 +1,16 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  Dimensions,
-  StatusBar,
-  PermissionsAndroid,
-  Animated,
-  Alert,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StatusBar} from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import {ScrollView, TextInput} from 'react-native-gesture-handler';
-const {height, width} = Dimensions.get('window');
 import {Bars} from 'react-native-loader';
 import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
 import {CustomerVendorService} from '@/core/services/customer-vendor/customer-vendor.service';
-import {FONT_FAMILY} from '@/utils/constants';
+import {FONT_FAMILY, STORAGE_KEYS} from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
 
-const addresses = [
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-  {
-    address: 'Thergaon , Pune, Mob. No. 9850778048, 5454 ols palasia near saker and greater kailesh hoshpital,  indore',
-    gstinStatus: 'VERIFIED',
-    gstNumber: '27BKWPS7554Q1ZN',
-    isComposite: false,
-    isDefault: true,
-    partyType: 'NOT APPLICABLE',
-    state: {stateGstCode: '37', name: 'Andhra Pradesh', code: 'AP'},
-    stateCode: 'AP',
-    stateCodeString: '37',
-    stateGstCode: '37',
-    stateName: 'Andhra Pradesh',
-  },
-];
+import {InvoiceService} from '@/core/services/invoice/invoice.service';
 
 export class EditAddress extends React.Component<any, any> {
   constructor(props: any) {
@@ -160,45 +43,47 @@ export class EditAddress extends React.Component<any, any> {
         this.props.route.params.address.stateName != null && this.props.route.params.address.stateName != ''
           ? this.props.route.params.address.stateName
           : 'Select',
+      stateCode: this.props.route.params.address.stateCode ? this.props.route.params.address.stateCode : '',
       gstNo: this.props.route.params.address.gstNumber != null ? this.props.route.params.address.gstNumber : '',
       pinCode: this.props.route.params.address.pincode != null ? this.props.route.params.address.pincode : '',
       loading: false,
       activeCompanyCountryCode: '',
+      companyCountryDetails: '',
     };
   }
 
   componentDidMount() {
+    this.setActiveCompanyCountry();
     this.getDetails();
   }
 
   getDetails = async () => {
     this.setState({loading: true});
-    if (this.state.gstNo != '') {
+    if (
+      this.state.gstNo != '' ||
+      (this.props.route.params.address.taxNumber != undefined && this.props.route.params.address.taxNumber != '')
+    ) {
       this.setState({selectStateDisable: true});
+      this.props.route.params.address.taxNumber
+        ? this.setState({gstNo: this.props.route.params.address.taxNumber})
+        : null;
     }
-    let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
-    let allCountry = await CustomerVendorService.getAllCountryName();
-    const countryIndia = {
-      alpha3CountryCode: 'IND',
-      alpha2CountryCode: 'IN',
-      countryName: 'India',
-      callingCode: '91',
-      currency: {
-        code: 'INR',
-        symbol: '₹',
-      },
-      countryIndia: true,
-    };
+    const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    const allCountry = await CustomerVendorService.getAllCountryName();
     await this.setState({
       activeCompanyCountryCode: activeCompanyCountryCode,
       allCountry: allCountry.body,
       selectedCountry:
         this.props.route.params.address.selectedCountry != null
           ? this.props.route.params.address.selectedCountry
-          : countryIndia,
+          : this.state.companyCountryDetails,
     });
     console.log(this.state.selectedCountry);
-    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
+    const allStateName = await CustomerVendorService.getAllStateName(
+      this.state.selectedCountry.alpha2CountryCode
+        ? this.state.selectedCountry.alpha2CountryCode
+        : this.state.selectedCountry.countryCode,
+    );
     await this.setState({
       allStates: allStateName.body.stateList,
     });
@@ -209,8 +94,27 @@ export class EditAddress extends React.Component<any, any> {
     this.setState({activeIndex: value});
   };
 
+  async setActiveCompanyCountry() {
+    try {
+      const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      if (results.body && results.status == 'success') {
+        await this.setState({
+          companyCountryDetails: results.body.country,
+        });
+      }
+    } catch (e) {}
+  }
+
+  gstValidator() {
+    const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    const vadidatorResult =
+      this.state.gstNo != undefined && this.state.gstNo != '' ? regex.test(this.state.gstNo) : true;
+    return vadidatorResult;
+  }
+
   onSubmit = () => {
-    console.log('state' + this.state.state_billing == '');
+    console.log('state' + this.state.state_billing);
     console.log('country' + this.state.selectedCountry);
     if (this.state.selectedCountry.countryName == '') {
       alert('Please Enter Country Name');
@@ -221,17 +125,21 @@ export class EditAddress extends React.Component<any, any> {
       alert('Please Enter State Name');
     } else if (this.state.gstNo && this.state.gstNo.length != 15) {
       alert('Enter a valid gst number, should be 15 characters long');
-    } else if (this.state.gstNumberWrong) {
+    } else if (this.state.gstNumberWrong || !this.gstValidator()) {
       alert('Enter a valid gst number');
     } else {
-      var address = {
+      const address = {
         address: this.state.address,
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
         state: this.state.state_billing != 'Select' ? this.state.state_billing : '',
-        stateCode: this.state.state_billing.code,
-        stateName: this.state.state_billing.name,
+        stateCode: this.state.stateCode,
+        stateName: this.state.state_billing.name
+          ? this.state.state_billing.name
+          : this.state.state_billing != 'Select'
+          ? this.state.state_billing
+          : '',
       };
       this.props.route.params.selectAddress(address);
       this.props.navigation.goBack();
@@ -248,7 +156,7 @@ export class EditAddress extends React.Component<any, any> {
       selectStateDisable: false,
       gstNumberWrong: false,
     });
-    let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode);
+    const allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode);
     await this.setState({allStates: allStateName.body.stateList});
     await this.state.addresssDropDown.select(-1);
     await this.setState({loading: false});
@@ -260,9 +168,13 @@ export class EditAddress extends React.Component<any, any> {
       return;
     }
     const gstStateCode = await gstNo.slice(0, 2);
-    for (var i = 0; i < this.state.allStates.length; i++) {
+    for (let i = 0; i < this.state.allStates.length; i++) {
       if (this.state.allStates[i].stateGstCode == gstStateCode) {
-        await this.setState({state_billing: this.state.allStates[i], selectStateDisable: true});
+        await this.setState({
+          state_billing: this.state.allStates[i],
+          stateCode: this.state.allStates[i].code,
+          selectStateDisable: true,
+        });
         await this.state.addresssDropDown.select(-1);
         break;
       } else {
@@ -300,7 +212,7 @@ export class EditAddress extends React.Component<any, any> {
               borderColor: '#D9D9D9',
               borderBottomWidth: 1,
               paddingVertical: 5,
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
               fontFamily: FONT_FAMILY.regular,
             }}
             multiline
@@ -320,7 +232,7 @@ export class EditAddress extends React.Component<any, any> {
               borderBottomColor: '#808080',
               paddingBottom: 10,
               marginTop: 15,
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
               backgroundColor: this.props.route.params.dontChangeCountry ? '#F1F1F2' : '',
             }}
             textStyle={{color: '#1c1c1c', fontFamily: FONT_FAMILY.regular}}
@@ -357,7 +269,7 @@ export class EditAddress extends React.Component<any, any> {
               borderBottomColor: '#808080',
               paddingBottom: 10,
               marginTop: 15,
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
               backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null,
             }}
             textStyle={{color: '#1c1c1c', fontSize: 14, fontFamily: FONT_FAMILY.regular}}
@@ -376,7 +288,7 @@ export class EditAddress extends React.Component<any, any> {
               );
             }}
             renderButtonText={(text) => text.name}
-            onSelect={(idx, value) => this.setState({state_billing: value})}
+            onSelect={(idx, value) => this.setState({state_billing: value, stateCode: value.code})}
           />
           {this.state.allStates.length == 0 ? (
             <Text style={{fontSize: 10, marginTop: 6, marginLeft: 5, fontFamily: FONT_FAMILY.regular}}>
@@ -389,7 +301,7 @@ export class EditAddress extends React.Component<any, any> {
               borderColor: '#D9D9D9',
               borderBottomWidth: 1,
               paddingVertical: 5,
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
               fontFamily: FONT_FAMILY.regular,
             }}
             onChangeText={(text) => {
@@ -404,11 +316,12 @@ export class EditAddress extends React.Component<any, any> {
 
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
+            keyboardType="number-pad"
             style={{
               borderColor: '#D9D9D9',
               borderBottomWidth: 1,
               paddingVertical: 5,
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
               fontFamily: FONT_FAMILY.regular,
             }}
             onChangeText={(text) => this.setState({pinCode: text})}

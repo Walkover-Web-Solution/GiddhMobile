@@ -19,7 +19,7 @@ export function* getCompanyAndBranches() {
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     // console.log('list response is' + listResponse.body);
     // console.log('list response is' + JSON.stringify(listResponse));
-    let companyData = {};
+    const companyData = {};
     companyData.success = false;
     if (listResponse && listResponse.status == 'success') {
       companyData.success = true;
@@ -28,30 +28,41 @@ export function* getCompanyAndBranches() {
       if (!activeCompany) {
         console.log('this always runs for company');
         if (listResponse.body && listResponse.body.length > 0) {
-          let defaultComp = listResponse.body[0];
-          if(defaultComp.subscription && defaultComp.subscription.country && defaultComp.subscription.country.countryCode){
-            console.log("country code is "+defaultComp.subscription.country.countryCode);
-            yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, defaultComp.subscription.country.countryCode);
+          yield put(CommonActions.isAuth());
+          const defaultComp = listResponse.body[0];
+          if (
+            defaultComp.subscription &&
+            defaultComp.subscription.country &&
+            defaultComp.subscription.country.countryCode
+          ) {
+            console.log('country code is ' + defaultComp.subscription.country.countryCode);
+            yield AsyncStorage.setItem(
+              STORAGE_KEYS.activeCompanyCountryCode,
+              defaultComp.subscription.country.countryCode,
+            );
           }
           if (defaultComp.uniqueName) {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
           }
+        } else {
+          yield put(CommonActions.isUnauth());
         }
       }
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
+    console.log('googleRat3', branchesResponse);
     if (branchesResponse && branchesResponse.status == 'success') {
       companyData.branchList = branchesResponse.body;
       const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
       if (!activeBranch) {
         console.log('this always runs for branch');
         if (branchesResponse.body && branchesResponse.body.length > 0) {
-          let defaultBranch = branchesResponse.body[0];
+          const defaultBranch = branchesResponse.body[0];
           if (defaultBranch.alias) {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.uniqueName);
           }
         }
-        //set active comapny if not found
+        // set active comapny if not found
 
         // if (response.status == false) {
         //     yield put(CommonActions.loginUserFailure(response.message));
@@ -73,12 +84,14 @@ export function* getCompanyAndBranches() {
 }
 
 export function* logoutUser() {
+  console.log('here');
   try {
     appleAuth.Operation.LOGOUT;
     yield AsyncStorage.removeItem(STORAGE_KEYS.token);
     yield AsyncStorage.removeItem(STORAGE_KEYS.googleEmail);
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionStart);
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionEnd);
+    // yield AsyncStorage.removeItem(STORAGE_KEYS.activeCompanyUniqueName);
     console.log('login worked');
   } catch (e) {
     console.log(e);

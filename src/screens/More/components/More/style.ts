@@ -1,31 +1,30 @@
-import {StyleSheet, Platform} from 'react-native';
+import { StyleSheet } from 'react-native';
 import colors from '../../../../utils/colors';
-import {InputSize} from '../../../../models/enums/input';
-import {GD_BUTTON_SIZE, GD_CIRCLE_BUTTON, GD_ICON_SIZE, GD_RADIUS} from '@/utils/constants';
+import { GD_ICON_SIZE } from '@/utils/constants';
 
 export default StyleSheet.create({
   countriesContainer: {
     paddingHorizontal: 20,
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   exampleContainer: {
     backgroundColor: '#fff',
     padding: 20,
     paddingTop: 40,
-    paddingBottom: 80,
+    paddingBottom: 80
   },
   commonStyle: {
-    marginBottom: 15,
+    marginBottom: 15
   },
   translationButton: {
     marginBottom: 15,
-    width: '50%',
+    width: '50%'
   },
   cardContainer: {
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   topScroll: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 15
   },
   companyNameText: {
     color: colors.INPUT_COLOR,
@@ -33,14 +32,14 @@ export default StyleSheet.create({
     fontSize: 14,
     fontFamily: 'AvenirLTStd-Black',
     width: '75%',
-    marginLeft: 10,
+    marginLeft: 10
   },
   companyShortText: {
     color: colors.WHITE,
     textAlign: 'center',
     fontSize: 11,
     fontFamily: 'AvenirLTStd-Book',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase'
   },
   companyShortView: {
     backgroundColor: colors.SECONDARY,
@@ -50,7 +49,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 15,
-    alignSelf: 'center',
+    alignSelf: 'center'
   },
   leftView: {
     width: 26,
@@ -58,7 +57,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 20,
-    alignSelf: 'center',
+    alignSelf: 'center'
   },
   companyView: {
     paddingVertical: 10,
@@ -67,7 +66,7 @@ export default StyleSheet.create({
     backgroundColor: colors.BACKGROUND,
     width: '100%',
     alignItems: 'center',
-    height: 78,
+    height: 78
   },
   branchView: {
     paddingVertical: 6,
@@ -76,10 +75,10 @@ export default StyleSheet.create({
     backgroundColor: '#fff',
     width: '100%',
     alignItems: 'center',
-    height: 78,
+    height: 78
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
-    width: GD_ICON_SIZE.input_icon,
-  },
+    width: GD_ICON_SIZE.input_icon
+  }
 });

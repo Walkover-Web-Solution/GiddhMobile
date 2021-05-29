@@ -1,13 +1,13 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {StyleProp, Text, TextStyle, View, ViewStyle, TouchableOpacity} from 'react-native';
-import {InputSize} from '@/models/enums/input';
+import { Component } from 'react';
+import { StyleProp, Text, TextStyle, View, ViewStyle, TouchableOpacity } from 'react-native';
+import { InputSize } from '@/models/enums/input';
 import moment from 'moment';
 import DateRangePicker from 'react-native-daterange-picker';
 
 import styles from '@/core/components/input/styles';
-import {GD_DATE_RANGE_FORMAT} from '@/utils/constants';
-import {GdSVGIcons} from '@/utils/icons-pack';
+import { GD_DATE_RANGE_FORMAT } from '@/utils/constants';
+import { GdSVGIcons } from '@/utils/icons-pack';
 
 type GDRoundedDateRangeInputProps = typeof GDRoundedDateRangeInput.defaultProps & {
   value?: string;
@@ -31,18 +31,18 @@ type GDRoundedDateRangeInputStat = {
   displayedDate: any;
   visible: boolean;
 };
-let processStartDate: string = '',
-  processEndDate: string = '';
+let processStartDate: string = '';
+let processEndDate: string = '';
 export class GDRoundedDateRangeInput extends Component<GDRoundedDateRangeInputProps, GDRoundedDateRangeInputStat> {
   static defaultProps = {
     endDate: moment('Dec 25, 2025'),
     startDate: moment(),
     minDate: moment('Dec 25, 1995'),
     maxDate: moment('Dec 25, 2025'),
-    size: InputSize.small,
+    size: InputSize.small
   };
 
-  constructor(props: GDRoundedDateRangeInputProps) {
+  constructor (props: GDRoundedDateRangeInputProps) {
     super(props);
     this.state = {
       endDate: moment('Dec 25, 2025'),
@@ -51,9 +51,10 @@ export class GDRoundedDateRangeInput extends Component<GDRoundedDateRangeInputPr
       minDate: moment('Dec 25, 1995'),
       maxDate: moment('Dec 25, 2025'),
       displayedDate: moment(),
-      visible: true,
+      visible: true
     };
   }
+
   setDates = (dates: any) => {
     processStartDate = dates.startDate
       ? moment(dates.startDate).format(GD_DATE_RANGE_FORMAT)
@@ -63,13 +64,13 @@ export class GDRoundedDateRangeInput extends Component<GDRoundedDateRangeInputPr
     console.log(dates.endDate);
     this.setState({
       ...dates,
-      processedDate: processStartDate + processEndDate,
+      processedDate: processStartDate + processEndDate
     });
     this.props.onChangeDate(dates.startDate, dates.endDate);
   };
 
-  render() {
-    const {startDate, endDate, displayedDate, minDate, maxDate}: any = this.state;
+  render () {
+    const { startDate, endDate, displayedDate, minDate, maxDate }: any = this.state;
     return (
       <DateRangePicker
         onChange={this.setDates}

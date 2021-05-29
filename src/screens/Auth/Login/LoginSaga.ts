@@ -3,7 +3,6 @@ import {call, put, takeLatest, select} from 'redux-saga/effects';
 import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
-import {AuthService} from '../../../core/services/auth/auth.service';
 import {getCompanyAndBranches} from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
@@ -17,7 +16,7 @@ export default function* watcherSaga() {
 }
 
 export function* resetPassword(action) {
-  let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
     alert('Please enter valid email & Password');
     yield put(LoginAction.resetPasswordFailure('Please enter valid email'));
@@ -33,7 +32,7 @@ export function* resetPassword(action) {
 }
 
 export function* verifyUserEmailPasswordLogin(action) {
-  let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
     alert('Please enter valid email & Password');
     yield put(LoginAction.loginUserFailure('Please enter valid email & Password'));
@@ -48,10 +47,10 @@ export function* verifyUserEmailPasswordLogin(action) {
       // const response = await AuthService.submitGoogleAuthToken(payload.token);
       yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
       // get state details
-      //TODO: await dispatch.common.getStateDetailsAction();
+      // TODO: await dispatch.common.getStateDetailsAction();
 
       // get company details
-      //TODO:  await dispatch.company.getCompanyDetailsAction();
+      // TODO:  await dispatch.company.getCompanyDetailsAction();
       yield put(getCompanyAndBranches());
       yield put(
         LoginAction.loginUserSuccess({
@@ -87,10 +86,10 @@ export function* googleLogin(action) {
     // const response = await AuthService.submitGoogleAuthToken(payload.token);
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
     // get state details
-    //TODO: await dispatch.common.getStateDetailsAction();
+    // TODO: await dispatch.common.getStateDetailsAction();
 
     // get company details
-    //TODO:  await dispatch.company.getCompanyDetailsAction();
+    // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());
     yield put(
       LoginAction.googleLoginUserSuccess({
@@ -127,10 +126,10 @@ export function* verifyOTP(action) {
     // const response = await AuthService.submitGoogleAuthToken(payload.token);
     // yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
     // get state details
-    //TODO: await dispatch.common.getStateDetailsAction();
+    // TODO: await dispatch.common.getStateDetailsAction();
 
     // get company details
-    //TODO:  await dispatch.company.getCompanyDetailsAction();
+    // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
@@ -155,10 +154,10 @@ export function* appleLogin(action) {
     // const response = await AuthService.submitGoogleAuthToken(payload.token);
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
     // get state details
-    //TODO: await dispatch.common.getStateDetailsAction();
+    // TODO: await dispatch.common.getStateDetailsAction();
 
     // get company details
-    //TODO:  await dispatch.company.getCompanyDetailsAction();
+    // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());
     yield put(
       LoginAction.googleLoginUserSuccess({
@@ -181,10 +180,10 @@ export function* appleLogin(action) {
   }
 }
 
-export function* logoutUser(action) {
+export function* logoutUser() {
   const state = yield select();
   const {commonReducer} = state;
-  let id = commonReducer.userData.data.data[0].id;
+  const id = commonReducer.userData.data.data[0].id;
 
   try {
     const response = yield call(LoginService.logout, id);

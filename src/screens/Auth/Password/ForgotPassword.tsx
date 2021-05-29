@@ -4,38 +4,35 @@ import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
 import { Image, View } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
-import color from '@/utils/colors';
 import style from '@/screens/Auth/Password/style';
-//google sign in
+// google sign in
 import { GoogleSignin, statusCodes } from '@react-native-community/google-signin';
-import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import { ButtonSize } from '@/models/enums/button';
 import { GdImages } from '@/utils/icons-pack';
 import { GDRoundedInput } from '@/core/components/input/rounded-input.component';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import {resetPassword} from '../Login/LoginAction';
-import {Bars} from 'react-native-loader';
+import { resetPassword } from '../Login/LoginAction';
 
 class ForgotPassword extends React.Component<any, any> {
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
     this.state = {
       email: ''
     }
   }
 
-  componentDidMount() {
-    //initial google sign in configuration
+  componentDidMount () {
+    // initial google sign in configuration
     GoogleSignin.configure({
-      webClientId: '641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com',
+      webClientId: '641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com'
     });
   }
 
   _googleSignIn = async () => {
-    //Prompts a modal to let the user sign in into your application.
+    // Prompts a modal to let the user sign in into your application.
     try {
       await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
+        showPlayServicesUpdateDialog: true
       });
       await GoogleSignin.signIn();
       const getGoogleToken = await GoogleSignin.getTokens();
@@ -55,7 +52,7 @@ class ForgotPassword extends React.Component<any, any> {
   };
 
   _googleSignOut = async () => {
-    //Remove user session from the device.
+    // Remove user session from the device.
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
@@ -64,7 +61,7 @@ class ForgotPassword extends React.Component<any, any> {
     }
   };
 
-  render() {
+  render () {
     return (
       <GDContainer>
         <View style={style.backgroundContainer}>
@@ -83,23 +80,23 @@ class ForgotPassword extends React.Component<any, any> {
               <View>
                 <GDRoundedInput
                   onChange={(value) => this.setState({ email: value })}
-                  icon="email" 
-                  label="Company Name" 
-                  value="" 
-                  style ={{flex:1}}
+                  icon="email"
+                  label="Company Name"
+                  value=""
+                  style ={{ flex: 1 }}
                   placeholder="*********" />
                    {/* <GDRoundedInput
                   onChange={(value) => this.setState({ email: value })}
-                  icon="" 
-                  label="Password" 
-                  value="" 
+                  icon=""
+                  label="Password"
+                  value=""
                   style ={{flex:1}}
                   placeholder="*********" /> */}
                    {/* <GDRoundedInput
                   onChange={(value) => this.setState({ email: value })}
-                  icon="email" 
-                  label="Company Name" 
-                  value="" 
+                  icon="email"
+                  label="Company Name"
+                  value=""
                   style ={{flex:1}}
                   placeholder="sampleaddress@mail.com" /> */}
               </View>
@@ -123,17 +120,16 @@ class ForgotPassword extends React.Component<any, any> {
 }
 
 const mapStateToProps = (state) => {
-  const {LoginReducer} = state;
+  const { LoginReducer } = state;
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
-    ...LoginReducer,
+    ...LoginReducer
   };
 };
 
-
 const mapDispatchToProps = (dispatch) => {
   return {
-    resetPassword:(email)=> {
+    resetPassword: (email) => {
       dispatch(resetPassword(email));
     }
   };

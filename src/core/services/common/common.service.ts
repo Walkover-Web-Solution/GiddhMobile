@@ -1,18 +1,16 @@
 import httpInstance from '@/core/services/http/http.service';
-import {commonUrls} from './common.url';
-import {BaseResponse} from '@/models/classes/base-response';
-import {Country} from '@/models/interfaces/country';
-import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
-import {UserStateDetails} from '@/models/interfaces/user';
-import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
+import { commonUrls } from './common.url';
+import { BaseResponse } from '@/models/classes/base-response';
+import { Country } from '@/models/interfaces/country';
+import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
+import { UserStateDetails } from '@/models/interfaces/user';
 
 export class CommonService {
   /**
    * get currencies
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static getCurrencies(): Promise<BaseResponse<Country[]>> {
+  static getCurrencies (): Promise<BaseResponse<Country[]>> {
     return httpInstance.get(commonUrls.currency).then((res) => {
       return res.data;
     });
@@ -22,7 +20,7 @@ export class CommonService {
    * get state details
    * @returns {Promise<BaseResponse<UserStateDetails[]>>}
    */
-  static getStateDetails(): Promise<BaseResponse<UserStateDetails>> {
+  static getStateDetails (): Promise<BaseResponse<UserStateDetails>> {
     return httpInstance.get(commonUrls.stateDetails).then((res) => {
       return res.data;
     });
@@ -32,7 +30,7 @@ export class CommonService {
    * get sundry debtors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static async getTransactions(startDate, endDate, page): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static async getTransactions (startDate: string, endDate: string, page: any): Promise<BaseResponse<PartiesPaginatedResponse>> {
     // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     return httpInstance
       .post(
@@ -41,18 +39,19 @@ export class CommonService {
           .replace(':endDate', endDate)
           .replace('page=1', `page=${page}`),
         // .replace(':branchUniqueName', `${branchName}`),
-        {},
+        {}
       )
       .then((res) => {
         return res.data;
       });
   }
-  static getPartyTransactions(
-    startDate,
-    endDate,
-    page,
-    party,
-    vouchers = [],
+
+  static getPartyTransactions (
+    startDate: string,
+    endDate: string,
+    page: any,
+    party: any,
+    vouchers = []
   ): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance
       .post(
@@ -64,15 +63,15 @@ export class CommonService {
           includeParticulars: true,
           particulars: [party],
           includeVouchers: true,
-          vouchers: vouchers,
-        },
+          vouchers: vouchers
+        }
       )
       .then((res) => {
         return res.data;
       });
   }
 
-  static getPartiesSundryCreditors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static getPartiesSundryCreditors (): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
       return res.data;
     });
@@ -82,17 +81,18 @@ export class CommonService {
    * get sundry creditors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static getPartiesSundryDebtors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static getPartiesSundryDebtors (): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_debtors, {}).then((res) => {
       return res.data;
     });
   }
-  static getPartiesMainSundryDebtors(
-    query,
-    sortBy,
-    order,
-    count,
-    page,
+
+  static getPartiesMainSundryDebtors (
+    query: any,
+    sortBy: any,
+    order: any,
+    count: any,
+    page: any
   ): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance
       .post(
@@ -102,19 +102,19 @@ export class CommonService {
           .replace('count=10', `count=${count}`)
           .replace('page=1', `page=${page}`)
           .replace('sortBy=closingBalance', `sortBy=${sortBy}`),
-        {},
+        {}
       )
       .then((res) => {
         return res.data;
       });
   }
 
-  static getPartiesMainSundryCreditors(
-    query,
-    sortBy,
-    order,
-    count,
-    page,
+  static getPartiesMainSundryCreditors (
+    query: any,
+    sortBy: any,
+    order: any,
+    count: any,
+    page: any
   ): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance
       .post(
@@ -124,7 +124,7 @@ export class CommonService {
           .replace('count=10', `count=${count}`)
           .replace('page=1', `page=${page}`)
           .replace('sortBy=closingBalance', `sortBy=${sortBy}`),
-        {},
+        {}
       )
       .then((res) => {
         return res.data;
@@ -135,7 +135,7 @@ export class CommonService {
    * get currencies
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static renewAccessToken() {
+  static renewAccessToken () {
     return httpInstance.put(commonUrls.refreshAccessToken).then((res) => {
       return res.data;
     });

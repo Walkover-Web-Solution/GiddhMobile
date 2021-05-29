@@ -1,14 +1,12 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
-import {View, TouchableOpacity, Text, FlatList, DeviceEventEmitter, Image} from 'react-native';
+import { connect } from 'react-redux';
+import { View, Text, FlatList, DeviceEventEmitter, Image } from 'react-native';
 import style from '@/screens/Inventory/style';
 import InventoryList from '@/screens/Inventory/components/inventory-list.component';
 import AsyncStorage from '@react-native-community/async-storage';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import httpInstance from '@/core/services/http/http.service';
-import {Bars} from 'react-native-loader';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
 import moment from 'moment';
 
@@ -23,7 +21,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'proxqima@appdividend.com',
+      email: 'proxqima@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -31,7 +29,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'ebofny@appdividend.com',
+      email: 'ebofny@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -39,7 +37,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'proxafaima@appdividend.com',
+      email: 'proxafaima@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -47,10 +45,11 @@ export class InventoryScreen extends React.Component<Props, {}> {
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'ebsonyfa@appdividend.com',
-    },
+      email: 'ebsonyfa@appdividend.com'
+    }
   ];
-  constructor(props: Props) {
+
+  constructor (props: Props) {
     super(props);
     this.state = {
       showLoader: true,
@@ -59,25 +58,26 @@ export class InventoryScreen extends React.Component<Props, {}> {
       endDate: moment().format('DD-MM-YYYY'),
       page: 1,
       totalPages: 1,
-      loadingMore: false,
+      loadingMore: false
     };
   }
-  componentDidMount() {
+
+  componentDidMount () {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
           showLoader: true,
           page: 1,
           totalPages: 1,
-          inventoryData: [],
+          inventoryData: []
         },
-        () => this.getInventories(),
+        () => this.getInventories()
       );
     });
     this.getInventories();
   }
 
-  async getInventories() {
+  async getInventories () {
     try {
       let totalPages = 0;
       let result = [];
@@ -85,7 +85,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
       await httpInstance
         .post(
           `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=1&nonZeroInward=true&nonZeroOutward=true`,
-          {},
+          {}
         )
         .then((res) => {
           totalPages = res.data.body.totalPages;
@@ -101,7 +101,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
         await httpInstance
           .post(
             `https://api.giddh.com/company/${companyName}/stock-summary?from=${this.state.startDate}&to=${this.state.endDate}&page=${i}&nonZeroInward=true&nonZeroOutward=true`,
-            {},
+            {}
           )
           .then((res) => {
             // result.push(res.data.body.stockReport);
@@ -110,17 +110,17 @@ export class InventoryScreen extends React.Component<Props, {}> {
       }
       this.setState({
         inventoryData: result,
-        showLoader: false,
+        showLoader: false
       });
     } catch (e) {
-      this.setState({showLoader: false});
+      this.setState({ showLoader: false });
     }
   }
 
-  render() {
+  render () {
     if (this.state.showLoader) {
       return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Bars size={15} color={colors.PRIMARY_NORMAL} />
         </View>
       );
@@ -141,21 +141,23 @@ export class InventoryScreen extends React.Component<Props, {}> {
             <Text>press</Text>
           </TouchableOpacity> */}
 
-          {this.state.inventoryData.length == 0 ? (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
+          {this.state.inventoryData.length == 0
+            ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
               <Image
                 source={require('@/assets/images/noInventory.png')}
-                style={{resizeMode: 'contain', height: 250, width: 300}}
+                style={{ resizeMode: 'contain', height: 250, width: 300 }}
               />
-              <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10}}>No Inventory</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Inventory</Text>
             </View>
-          ) : (
+              )
+            : (
             <FlatList
               data={this.state.inventoryData}
-              renderItem={({item}) => <InventoryList item={item} />}
+              renderItem={({ item }) => <InventoryList item={item} />}
               keyExtractor={(item) => item.stockUniqueName}
             />
-          )}
+              )}
 
           {/* <FlatList
             data={this.state.inventoryData}
@@ -171,11 +173,11 @@ export class InventoryScreen extends React.Component<Props, {}> {
 
 const mapStateToProps = (state) => {
   return {
-    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = () => {
   return {
     // getCountriesAction: dispatch.common.getCountriesAction,
     // logoutAction: dispatch.auth.logoutAction,

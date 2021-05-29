@@ -1,8 +1,6 @@
-import {Action} from '../util/types';
+import { Action } from '../util/types';
 import * as ActionConstants from './ActionConstants';
-import {REHYDRATE} from 'redux-persist';
-import {verify} from 'crypto';
-import {act} from 'react-test-renderer';
+import { REHYDRATE } from 'redux-persist';
 import * as CommonConstants from '@/redux/ActionConstants';
 
 const initialState = {
@@ -14,7 +12,7 @@ const initialState = {
   expiresAt: undefined,
   startTFA: undefined,
   isVerifyingOTP: false,
-  otpVerificationError: '',
+  otpVerificationError: ''
 };
 
 export default (state = initialState, action: Action) => {
@@ -29,7 +27,7 @@ export default (state = initialState, action: Action) => {
           isAuthenticatingUser: false,
           startTFA: false,
           isVerifyingOTP: false,
-          otpVerificationError: '',
+          otpVerificationError: ''
           // Ensure isConnecting is reset to false on app restart
         };
       } else {
@@ -39,7 +37,7 @@ export default (state = initialState, action: Action) => {
       return {
         ...state,
         isAuthenticatingUser: true,
-        error: '',
+        error: ''
       };
     case ActionConstants.GOOGLE_USER_LOGIN_SUCCESS:
       return {
@@ -47,52 +45,52 @@ export default (state = initialState, action: Action) => {
         isAuthenticatingUser: false,
         error: '',
         token: action.payload.token,
-        isUserAuthenticated: true,
+        isUserAuthenticated: true
       };
     case ActionConstants.GOOGLE_USER_LOGIN_FAILURE:
       return {
         ...state,
         isAuthenticatingUser: false,
         error: action.payload,
-        isUserAuthenticated: false,
+        isUserAuthenticated: false
       };
     case ActionConstants.TFA_STARTED:
       return {
         ...state,
         startTFA: true,
         tfaDetails: action.payload,
-        isAuthenticatingUser: true,
+        isAuthenticatingUser: true
       };
 
     case ActionConstants.VERIFY_OTP_FAILURE:
       return {
         ...state,
         otpVerificationError: action.payload,
-        isVerifyingOTP: false,
+        isVerifyingOTP: false
       };
     case ActionConstants.VERIFY_OTP:
       return {
         ...state,
         isVerifyingOTP: true,
-        isAuthenticatingUser: true,
+        isAuthenticatingUser: true
       };
     case ActionConstants.VERIFY_OTP_SUCCESS:
       return {
         ...state,
         token: action.payload.token,
         isUserAuthenticated: true,
-        isVerifyingOTP: false,
+        isVerifyingOTP: false
       };
     case ActionConstants.CLEAR_OTP_ERROR:
       return {
         ...state,
-        otpVerificationError: '',
+        otpVerificationError: ''
       };
     case ActionConstants.USER_EMAIL_LOGIN:
       return {
         ...state,
         isAuthenticatingUser: true,
-        error: '',
+        error: ''
       };
     case ActionConstants.USER_EMAIL_LOGIN_SUCCESS:
       return {
@@ -100,20 +98,20 @@ export default (state = initialState, action: Action) => {
         isAuthenticatingUser: false,
         error: '',
         token: action.payload.token,
-        isUserAuthenticated: true,
+        isUserAuthenticated: true
       };
     case ActionConstants.USER_EMAIL_LOGIN_FAILURE:
       return {
         ...state,
         isAuthenticatingUser: false,
         error: action.payload,
-        isUserAuthenticated: false,
+        isUserAuthenticated: false
       };
     case ActionConstants.APPLE_USER_LOGIN:
       return {
         ...state,
         isAuthenticatingUser: true,
-        error: '',
+        error: ''
       };
     case ActionConstants.APPLE_USER_LOGIN_SUCCESS:
       return {
@@ -121,23 +119,23 @@ export default (state = initialState, action: Action) => {
         isAuthenticatingUser: false,
         error: '',
         token: action.payload.token,
-        isUserAuthenticated: true,
+        isUserAuthenticated: true
       };
     case ActionConstants.APPLE_USER_LOGIN_FAILURE:
       return {
         ...state,
         isAuthenticatingUser: false,
         error: action.payload,
-        isUserAuthenticated: false,
+        isUserAuthenticated: false
       };
     case CommonConstants.LOGOUT:
       return {
         ...state,
-        isUserAuthenticated: false,
+        isUserAuthenticated: false
       };
     case CommonConstants.RESET:
       return {
-        ...initialState,
+        ...initialState
       };
     default:
       return state;

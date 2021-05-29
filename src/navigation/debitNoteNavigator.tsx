@@ -1,22 +1,19 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import DebiteNote from '../screens/Debit-Note/DebitNote';
 import OtherDetails from '../screens/Debit-Note/OtherDetails';
-import HomeScreen from '@/screens/Home/Home';
-import AddButton from './components/AddButton';
 import AddInvoiceItemScreen from '@/screens/Debit-Note/AddItemScreen';
-import {AddressStack} from './addressNavigator';
 import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 import EditAddress from '@/core/components/Select-Address/EditAddress';
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
-function DebitNoteStack() {
+function DebitNoteStack () {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: false
       }}
       initialRouteName={'DebitNoteScreens'}>
       {/* <Screen component={HomeScreen} name={'Dashboard'} /> */}

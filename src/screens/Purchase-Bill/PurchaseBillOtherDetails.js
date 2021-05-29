@@ -1,52 +1,43 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
 import {
   View,
   Text,
   TouchableOpacity,
   Animated,
-  FlatList,
   TextInput,
-  DeviceEventEmitter,
   StatusBar,
   Keyboard,
-  ActivityIndicator,
   NativeModules,
-  Dimensions,
+  Dimensions
 } from 'react-native';
 import style from './style';
-import {connect} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
+import { connect } from 'react-redux';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Bars} from 'react-native-loader';
-import color from '@/utils/colors';
 import _ from 'lodash';
-import {InvoiceService} from '@/core/services/invoice/invoice.service';
-import {useIsFocused} from '@react-navigation/native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-const {SafeAreaOffsetHelper} = NativeModules;
+import { useIsFocused } from '@react-navigation/native';
+const { SafeAreaOffsetHelper } = NativeModules;
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
     KEYBOARD_WILL_SHOW: 'keyboardWillShow',
-    KEYBOARD_WILL_HIDE: 'keyboardWillHide',
+    KEYBOARD_WILL_HIDE: 'keyboardWillHide'
   },
   KEYBOARD_DID_SHOW: 'keyboardDidShow',
-  KEYBOARD_DID_HIDE: 'keyboardDidHide',
+  KEYBOARD_DID_HIDE: 'keyboardDidHide'
 };
 
 interface Props {
   navigation: any;
 }
 class PurchaseBillOtherDetails extends React.Component<Props> {
-  constructor(props) {
+  constructor (props) {
     super(props);
     this.state = {
       loading: false,
@@ -56,24 +47,25 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
         trackingNumber: this.props.route.params.otherDetails.trackingNumber,
         customField1: this.props.route.params.otherDetails.customField1,
         customField2: this.props.route.params.otherDetails.customField2,
-        customField3: this.props.route.params.otherDetails.customField3,
+        customField3: this.props.route.params.otherDetails.customField3
       },
       isDatePickerVisible: false,
       bottomOffset: 0,
-      keyboard: false,
+      keyboard: false
     };
     this.keyboardMargin = new Animated.Value(0);
   }
+
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle="light-content" /> : null;
   };
 
-  componentDidMount() {
+  componentDidMount () {
     if (Platform.OS == 'ios') {
-      //Native Bridge for giving the bottom offset //Our own created
+      // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
-        let {bottomOffset} = offset;
-        this.setState({bottomOffset});
+        const { bottomOffset } = offset;
+        this.setState({ bottomOffset });
       });
     }
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
@@ -81,28 +73,31 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
+
   keyboardWillShow = (event) => {
     const value = event.endCoordinates.height - this.state.bottomOffset;
     Animated.timing(this.keyboardMargin, {
       duration: event.duration,
-      toValue: value,
+      toValue: value
     }).start();
   };
 
   keyboardWillHide = (event) => {
     Animated.timing(this.keyboardMargin, {
       duration: event.duration,
-      toValue: 0,
+      toValue: 0
     }).start();
   };
+
   _keyboardDidShow = () => {
-    this.setState({keyboard: true});
+    this.setState({ keyboard: true });
   };
 
   _keyboardDidHide = () => {
-    this.setState({keyboard: false});
+    this.setState({ keyboard: false });
   };
-  componentWillUnmount() {
+
+  componentWillUnmount () {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
     this.keyboardDidShowListener.remove();
@@ -110,11 +105,11 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
   }
 
   showDatePicker = () => {
-    this.setState({isDatePickerVisible: true});
+    this.setState({ isDatePickerVisible: true });
   };
 
   hideDatePicker = () => {
-    this.setState({isDatePickerVisible: false});
+    this.setState({ isDatePickerVisible: false });
   };
 
   handleConfirm = (date) => {
@@ -124,44 +119,44 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     this.setState((prevState) => ({
       otherDetail: {
         ...prevState.otherDetail,
-        shipDate: moment(date).format('DD-MM-YYYY'),
-      },
+        shipDate: moment(date).format('DD-MM-YYYY')
+      }
     }));
   };
 
-  renderHeader() {
+  renderHeader () {
     return (
-      <View style={[style.header, {backgroundColor: '#FC8345'}]}>
-        <View style={{flexDirection: 'row', paddingVertical: 10, alignItems: 'center'}}>
+      <View style={[style.header, { backgroundColor: '#FC8345' }]}>
+        <View style={{ flexDirection: 'row', paddingVertical: 10, alignItems: 'center' }}>
           <TouchableOpacity
-            style={{padding: 10}}
+            style={{ padding: 10 }}
             onPress={() => {
               this.props.navigation.goBack();
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <Text style={{fontSize: 16, color: 'white'}}>Other Details</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>Other Details</Text>
         </View>
       </View>
     );
   }
 
-  _renderSelectWareHouse() {
+  _renderSelectWareHouse () {
     return (
-      //this.props.route.params.warehouseArray
+      // this.props.route.params.warehouseArray
       <TouchableOpacity
         onPress={() =>
           this.props.navigation.navigate('SelectAddress', {
             type: 'warehouse',
-            warehouseArray: this.props.route.params.warehouseArray,
+            warehouseArray: this.props.route.params.warehouseArray
           })
         }>
-        <View style={{flexDirection: 'row', paddingTop: 10, paddingBottom: 4, paddingHorizontal: 16}}>
+        <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 4, paddingHorizontal: 16 }}>
           <Icon name={'path-8'} size={16} color={'#808080'} />
 
-          <Text style={{color: '#808080', marginLeft: 10}}>Warehouse</Text>
+          <Text style={{ color: '#808080', marginLeft: 10 }}>Warehouse</Text>
         </View>
-        <Text style={{color: '#808080', marginLeft: 10}}>
+        <Text style={{ color: '#808080', marginLeft: 10 }}>
           {' '}
           {this.props.route.params.selectedWareHouse
             ? this.props.route.params.selectedWareHouse.address
@@ -173,10 +168,10 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     );
   }
 
-  _renderBottomSeprator(margin = 0) {
+  _renderBottomSeprator (margin = 0) {
     return (
       <View
-        style={{height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin}}
+        style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
       />
     );
   }
@@ -186,36 +181,36 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
       this.setState((prevState) => ({
         otherDetail: {
           ...prevState.otherDetail,
-          shippedVia: text,
-        },
+          shippedVia: text
+        }
       }));
     } else if (name == 'Tracking no') {
       this.setState((prevState) => ({
         otherDetail: {
           ...prevState.otherDetail,
-          trackingNumber: text,
-        },
+          trackingNumber: text
+        }
       }));
     } else if (name == 'Custom Field 1') {
       this.setState((prevState) => ({
         otherDetail: {
           ...prevState.otherDetail,
-          customField1: text,
-        },
+          customField1: text
+        }
       }));
     } else if (name == 'Custom Field 3') {
       this.setState((prevState) => ({
         otherDetail: {
           ...prevState.otherDetail,
-          customField3: text,
-        },
+          customField3: text
+        }
       }));
     } else {
       this.setState((prevState) => ({
         otherDetail: {
           ...prevState.otherDetail,
-          customField2: text,
-        },
+          customField2: text
+        }
       }));
     }
   };
@@ -234,7 +229,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     }
   };
 
-  _renderTextField(name, icon) {
+  _renderTextField (name, icon) {
     return (
       <>
         <View
@@ -244,10 +239,10 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
             paddingBottom: 4,
             paddingHorizontal: 16,
             // backgroundColor: 'pink',
-            marginTop: 10,
+            marginTop: 10
           }}>
           {icon}
-          <Text style={{color: '#808080', marginLeft: 10}}>{name}</Text>
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{name}</Text>
         </View>
         <TextInput
           style={{
@@ -255,7 +250,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
             borderBottomColor: '#D9D9D9',
             padding: 0,
             marginHorizontal: 16,
-            height: 20,
+            height: 20
             // backgroundColor: 'pink',
           }}
           value={this.getStateName(name)}
@@ -263,7 +258,8 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
       </>
     );
   }
-  _renderShipDate() {
+
+  _renderShipDate () {
     return (
       <TouchableOpacity
         style={{
@@ -272,11 +268,11 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
           paddingBottom: 4,
           paddingHorizontal: 16,
           //   backgroundColor: 'pink',
-          marginTop: 10,
+          marginTop: 10
         }}
         onPress={this.showDatePicker}>
         <Icon name={'Calendar'} size={16} color={'#808080'} />
-        <Text style={{color: '#808080', marginLeft: 10}}>
+        <Text style={{ color: '#808080', marginLeft: 10 }}>
           {this.state.otherDetail.shipDate ? this.state.otherDetail.shipDate : 'Ship Date'}
         </Text>
         {this._renderBottomSeprator(16)}
@@ -284,12 +280,12 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     );
   }
 
-  render() {
+  render () {
     const sDate = moment(this.state.otherDetail.shipDate, 'DD-MM-YYYY');
     return (
       // <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <View style={{flex: 1}}>
-        <KeyboardAwareScrollView style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={{ flex: 1 }}>
+        <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
           {this.FocusAwareStatusBar(this.props.isFocused)}
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
@@ -324,7 +320,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
               alignItems: 'center',
               alignSelf: 'center',
               position: 'absolute',
-              bottom: height * 0.01,
+              bottom: height * 0.01
             }}
             onPress={() => {
               this.props.route.params.setOtherDetails(this.state.otherDetail);
@@ -334,7 +330,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
               style={{
                 fontFamily: 'AvenirLTStd-Black',
                 color: '#fff',
-                fontSize: 20,
+                fontSize: 20
               }}>
               Save
             </Text>
@@ -345,21 +341,21 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
   }
 }
 
-function mapStateToProps(state) {
-  const {commonReducer} = state;
+function mapStateToProps (state) {
+  const { commonReducer } = state;
   return {
-    ...commonReducer,
+    ...commonReducer
   };
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
-    },
+    }
   };
 }
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <PurchaseBillOtherDetails {...props} isFocused={isFocused} />;

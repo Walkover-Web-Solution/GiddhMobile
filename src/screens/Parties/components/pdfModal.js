@@ -1,14 +1,11 @@
 import React from 'react';
 import {
-  Alert,
   Modal,
   StyleSheet,
   Text,
-  TouchableHighlight,
   Dimensions,
   View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
+  TouchableOpacity
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -17,7 +14,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
-function PDFModal({
+function PDFModal ({
   modalVisible,
   setModalVisible,
   onExport,
@@ -25,51 +22,51 @@ function PDFModal({
   downloadModal,
   onWhatsAppShare,
   phoneNo,
-  shareModal,
+  shareModal
 }) {
   return (
     <Modal animationType="none" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible()}>
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
           {/* <Text style={{fontSize: 20}}>Sort</Text> */}
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <TouchableOpacity
-              style={{flex: 1, flexDirection: 'row'}}
+              style={{ flex: 1, flexDirection: 'row' }}
               onPress={() => {
                 onExport();
                 downloadModal(true);
                 setModalVisible();
               }}>
               <AntDesign name="download" size={22} color={'black'} />
-              <Text style={{fontSize: 18, marginLeft: 15}}>Export</Text>
+              <Text style={{ fontSize: 18, marginLeft: 15 }}>Export</Text>
             </TouchableOpacity>
             {/* {activeFilter == 'AZ' && (
               <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: '#520EAD', marginRight: 10}} />
             )} */}
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20 }}>
             <TouchableOpacity
-              style={{flex: 1, flexDirection: 'row'}}
+              style={{ flex: 1, flexDirection: 'row' }}
               onPress={() => {
                 onShare();
                 shareModal(true);
                 setModalVisible();
               }}>
               <Entypo name="share" size={22} color={'black'} />
-              <Text style={{fontSize: 18, marginLeft: 15}}>Share</Text>
+              <Text style={{ fontSize: 18, marginLeft: 15 }}>Share</Text>
             </TouchableOpacity>
           </View>
 
           {phoneNo && (
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20 }}>
               <TouchableOpacity
-                style={{flex: 1, flexDirection: 'row'}}
+                style={{ flex: 1, flexDirection: 'row' }}
                 onPress={() => {
                   onWhatsAppShare();
                   setModalVisible();
                 }}>
                 <MaterialCommunityIcons name="whatsapp" size={22} color={'#000000'} />
-                <Text style={{fontSize: 18, marginLeft: 15}}>Share on WhatsApp</Text>
+                <Text style={{ fontSize: 18, marginLeft: 15 }}>Share on WhatsApp</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -86,7 +83,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)'
     // justifyContent: 'center',
     // alignItems: 'center',
   },
@@ -99,7 +96,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 1
     },
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
@@ -107,8 +104,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 15,
     marginTop: Screen_height * 0.15,
-    padding: 15,
-  },
+    padding: 15
+  }
 });
 
 export default PDFModal;

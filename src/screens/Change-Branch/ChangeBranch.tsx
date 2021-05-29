@@ -1,13 +1,13 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
-import {View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar} from 'react-native';
+import { GDContainer } from '@/core/components/container/container.component';
+import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar } from 'react-native';
 import style from './style';
-import {connect} from 'react-redux';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import { connect } from 'react-redux';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
-import {getCompanyAndBranches} from '../../redux/CommonAction';
+import { getCompanyAndBranches } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import color from '@/utils/colors';
 
@@ -19,21 +19,22 @@ export class ChangeBranch extends React.Component<Props> {
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
   };
-  render() {
-    let branches = this.props.route.params.branches.sort((a, b) =>
-      a.alias.toUpperCase().split(' ')[0].localeCompare(b.alias.toUpperCase().split(' ')[0]),
+
+  render () {
+    const branches = this.props.route.params.branches.sort((a, b) =>
+      a.alias.toUpperCase().split(' ')[0].localeCompare(b.alias.toUpperCase().split(' ')[0])
     );
-    let activeBranch = this.props.route.params.activeBranch;
+    const activeBranch = this.props.route.params.activeBranch;
 
     return (
       <GDContainer>
         {this.FocusAwareStatusBar(this.props.isFocused)}
         <View style={style.container}>
-          <View style={{flex: 1, backgroundColor: 'rgba(87,115,255,0.03)'}}>
+          <View style={{ flex: 1, backgroundColor: 'rgba(87,115,255,0.03)' }}>
             {/* <TouchableOpacity
               style={{height: 40, width: 140, backgroundColor: 'pink'}}
               onPress={() => console.log(branches)}></TouchableOpacity> */}
-            <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 20}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
               <Icon
                 size={20}
                 name={'Backward-arrow'}
@@ -41,10 +42,10 @@ export class ChangeBranch extends React.Component<Props> {
                   this.props.navigation.goBack();
                 }}
               />
-              <Text style={{fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black'}}>Switch Branch</Text>
+              <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>Switch Branch</Text>
             </View>
             <TouchableOpacity
-              style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}
+              style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}
               onPress={async () => {
                 await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
                 DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
@@ -56,8 +57,8 @@ export class ChangeBranch extends React.Component<Props> {
             <FlatList
               data={branches}
               showsVerticalScrollIndicator={false}
-              style={{flex: 1}}
-              renderItem={({item}) => (
+              style={{ flex: 1 }}
+              renderItem={({ item }) => (
                 <TouchableOpacity
                   style={style.listItem}
                   delayPressIn={0}
@@ -70,7 +71,7 @@ export class ChangeBranch extends React.Component<Props> {
                   <Text style={style.listItemName}>{item.alias}</Text>
                   {activeBranch && item.uniqueName == activeBranch.uniqueName && (
                     // <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
-                    <View style={{height: 10, width: 10, borderRadius: 5, backgroundColor: color.PRIMARY_BASIC}}></View>
+                    <View style={{ height: 10, width: 10, borderRadius: 5, backgroundColor: color.PRIMARY_BASIC }}></View>
                   )}
                 </TouchableOpacity>
               )}
@@ -83,18 +84,18 @@ export class ChangeBranch extends React.Component<Props> {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps (state) {
   return {};
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
-    },
+    }
   };
 }
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <ChangeBranch {...props} isFocused={isFocused} />;

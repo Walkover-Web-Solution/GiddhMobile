@@ -1,14 +1,12 @@
 import React from 'react';
-import {FlatList, SafeAreaView, Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking} from 'react-native';
+import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking } from 'react-native';
 import styles from '@/screens/Transaction/components/styles';
 import colors from '@/utils/colors';
-import {GdSVGIcons} from '@/utils/icons-pack';
+import { GdSVGIcons } from '@/utils/icons-pack';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
-import base64 from 'react-native-base64';
 import AsyncStorage from '@react-native-community/async-storage';
-import {PropsService} from '@ui-kitten/components/devsupport';
-import {STORAGE_KEYS} from '@/utils/constants';
+import { STORAGE_KEYS } from '@/utils/constants';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import getSymbolFromCurrency from 'currency-symbol-map';
 
@@ -21,7 +19,7 @@ class TransactionList extends React.Component {
       date: '05 Jul 20',
       total: '500000',
       bal: '500000',
-      email: 'proxqima@appdividend.com',
+      email: 'proxqima@appdividend.com'
     },
     {
       title: 'Walkover Web Solutions Private Limited',
@@ -30,7 +28,7 @@ class TransactionList extends React.Component {
       date: '05 Jul 20',
       total: '500000',
       bal: '10000',
-      email: 'ebofny@appdividend.com',
+      email: 'ebofny@appdividend.com'
     },
     {
       title: 'Walkover Web Solutions Private Limited',
@@ -38,7 +36,7 @@ class TransactionList extends React.Component {
       invoice: '9879',
       date: '05 Jul 20',
       bal: '10000',
-      email: 'proxafaima@appdividend.com',
+      email: 'proxafaima@appdividend.com'
     },
     {
       title: 'Shubhendra Agrawal',
@@ -46,21 +44,20 @@ class TransactionList extends React.Component {
       invoice: '9879',
       date: '05 Jul 20',
       bal: '10000',
-      email: 'ebsonyfa@appdividend.com',
-    },
+      email: 'ebsonyfa@appdividend.com'
+    }
   ];
 
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
   }
 
-  componentDidMount() {}
+  componentDidMount () {}
 
   downloadFile = async () => {
     try {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        
         console.log('yes its granted');
         await this.onShare();
       } else {
@@ -80,16 +77,16 @@ class TransactionList extends React.Component {
         `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`,
         {
           'session-id': `${token}`,
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         JSON.stringify({
           voucherNumber: [`${this.props.item.voucherNo}`],
-          voucherType: `${this.props.item.voucherName}`,
-        }),
+          voucherType: `${this.props.item.voucherName}`
+        })
       )
         .then((res) => {
-          let base64Str = res.base64();
-          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
+          const base64Str = res.base64();
+          const pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
           RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
           this.props.downloadModal(false);
         })
@@ -98,12 +95,12 @@ class TransactionList extends React.Component {
             title: 'This is the report',
             message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`,
-            subject: 'Transaction report',
+            subject: 'Transaction report'
           })
             .then((res) => {
               console.log(res);
             })
-            .catch((err) => {
+            .catch(() => {
               // err && console.log(err);
             });
         });
@@ -144,24 +141,24 @@ class TransactionList extends React.Component {
               url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`,
               social: Share.Social.WHATSAPP,
               whatsAppNumber: this.props.phoneNo.replace(/\D/g, ''),
-              filename: 'Voucher share',
+              filename: 'Voucher share'
             };
             RNFetchBlob.fetch(
               'POST',
               `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`,
               {
                 'session-id': `${token}`,
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
               },
               JSON.stringify({
                 voucherNumber: [`${this.props.item.voucherNo}`],
-                voucherType: `${this.props.item.voucherName}`,
-              }),
+                voucherType: `${this.props.item.voucherName}`
+              })
             )
               .then((res) => {
                 // console.log(res.base64());
-                let base64Str = res.base64();
-                let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
+                const base64Str = res.base64();
+                const pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
                 RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
                 this.props.downloadModal(false);
               })
@@ -185,8 +182,8 @@ class TransactionList extends React.Component {
   };
 
   numberWithCommas = (x) => {
-    if(x == null){
-      return "0";
+    if (x == null) {
+      return '0';
     }
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
@@ -195,7 +192,7 @@ class TransactionList extends React.Component {
     return prev.amount > current.amount ? prev : current;
   });
 
-  render() {
+  render () {
     return (
       <View style={styles.flatList}>
         <Text style={styles.listHeading}>
@@ -232,7 +229,7 @@ class TransactionList extends React.Component {
             {this.props.item.voucherNo && (
               <TouchableOpacity
                 delayPressIn={0}
-                style={{padding: 5}}
+                style={{ padding: 5 }}
                 onPress={() => {
                   this.props.downloadModal(true);
                   this.downloadFile();
@@ -241,7 +238,7 @@ class TransactionList extends React.Component {
               </TouchableOpacity>
             )}
 
-            <View style={{width: 10}} />
+            <View style={{ width: 10 }} />
             {this.props.transactionType == 'partyTransaction' && this.props.item.voucherNo && this.props.phoneNo ? (
               <TouchableOpacity
                 delayPressIn={0}
@@ -266,11 +263,7 @@ class TransactionList extends React.Component {
     );
   }
 
-  private currencyFormat(currency: string) {
-    return currency.replace(/(\d)(?=(\d\d)+\d$)/g, '$1,');
-  }
-
-  private bannerColorStyle(type: string) {
+  private bannerColorStyle (type: string) {
     let bgColor = colors.TRANSACTION_PURCHASE;
     if (type === 'sales') {
       bgColor = colors.TRANSACTION_RECEIPT;
@@ -301,18 +294,8 @@ class TransactionList extends React.Component {
       paddingRight: 10,
       height: 25,
       justifyContent: 'center',
-      alignItems: 'center',
+      alignItems: 'center'
     };
-  }
-
-  private totalType(type: string) {
-    let totalType = 'Bal : ₹';
-    if (type === 'Sales') {
-      totalType = 'Due : ₹';
-    } else if (type === 'Payment' || type === 'Contra') {
-      totalType = 'Total : ₹';
-    }
-    return totalType;
   }
 }
 export default TransactionList;

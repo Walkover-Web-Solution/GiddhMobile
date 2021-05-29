@@ -1,18 +1,18 @@
 import React from 'react';
 
-import {LogBox, ScrollView, View, Dimensions, Text, TouchableOpacity} from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 import styles from './style';
 
 export class Period extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
     this.state = {
-      activeFilter: '',
+      activeFilter: ''
     };
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.periodContainer}>
         <TouchableOpacity
@@ -32,7 +32,7 @@ export class Period extends React.Component {
 
             this.props.selectDate(
               moment().subtract(1, 'months').startOf('month').format('DD-MM-YYYY'),
-              moment().subtract(1, 'months').endOf('month').format('DD-MM-YYYY'),
+              moment().subtract(1, 'months').endOf('month').format('DD-MM-YYYY')
             );
             this.props.navigation.goBack();
           }}>
@@ -57,7 +57,7 @@ export class Period extends React.Component {
 
             this.props.selectDate(
               moment().subtract(1, 'quarter').startOf('quarter').format('DD-MM-YYYY'),
-              moment().subtract(1, 'quarter').endOf('quarter').format('DD-MM-YYYY'),
+              moment().subtract(1, 'quarter').endOf('quarter').format('DD-MM-YYYY')
             );
             this.props.navigation.goBack();
           }}>

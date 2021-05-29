@@ -1,11 +1,8 @@
 import React from 'react';
 import SafeAreaView from 'react-native-safe-area-view';
-import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
-import {HomeNavigator} from '@/navigation/home.navigator';
-import {connect} from 'react-redux';
-import {AuthStack} from './auth.navigator';
-import {CompanyInfoStack} from './companyInfo.navigator';
-import style from '@/screens/Inventory/style';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import { AuthStack } from './auth.navigator';
 import analytics from '@react-native-firebase/analytics';
 import AppMainNav from './app.main.navigator';
 
@@ -13,11 +10,11 @@ const navigatorTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: 'transparent',
-  },
+    background: 'transparent'
+  }
 };
 
-const getActiveRouteName = (navigationState) => {
+const getActiveRouteName = (navigationState: any) => {
   if (!navigationState) {
     return null;
   }
@@ -30,11 +27,11 @@ const getActiveRouteName = (navigationState) => {
 };
 
 const AppNavigator = (props: any): React.ReactElement => {
-  const {isUserAuthenticated} = props;
+  const { isUserAuthenticated } = props;
   const routeNameRef = React.createRef();
   const navigationRef = React.createRef();
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       {
         <NavigationContainer
           ref={navigationRef}
@@ -46,7 +43,7 @@ const AppNavigator = (props: any): React.ReactElement => {
               // console.log('currentScreen is', currentRouteName);
               await analytics().logScreenView({
                 screen_name: currentRouteName,
-                screen_class: currentRouteName,
+                screen_class: currentRouteName
               });
             }
           }}>
@@ -59,7 +56,7 @@ const AppNavigator = (props: any): React.ReactElement => {
 
 const mapStateToProps = (state) => {
   return {
-    isUserAuthenticated: state.LoginReducer.isUserAuthenticated,
+    isUserAuthenticated: state.LoginReducer.isUserAuthenticated
   };
 };
 

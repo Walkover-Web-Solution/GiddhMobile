@@ -1,18 +1,16 @@
-import {StyleSheet, Dimensions} from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import colors from '@/utils/colors';
-import {GD_FONT_SIZE} from '@/utils/constants';
-import {color} from 'react-native-reanimated';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default StyleSheet.create({
   borderStyleBase: {
     width: 30,
-    height: 45,
+    height: 45
   },
 
   borderStyleHighLighted: {
-    borderColor: '#03DAC6',
+    borderColor: '#03DAC6'
   },
 
   underlineStyleBase: {
@@ -25,22 +23,22 @@ export default StyleSheet.create({
   },
 
   underlineStyleHighLighted: {
-    borderColor: colors.PRIMARY_BASIC,
+    borderColor: colors.PRIMARY_BASIC
   },
   logoStyle: {
     resizeMode: 'contain',
     height: 30,
-    width: 120,
+    width: 120
   },
   upperContainer: {
     backgroundColor: '#e0e0e0',
     width: width,
     height: height * 0.1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
-  heading: {fontSize: 20,fontFamily: 'AvenirLTStd-Black', marginTop: height * 0.1},
-  message: {fontSize: 18, textAlign: 'center', color: '#808080', marginTop: 10},
+  heading: { fontSize: 20, fontFamily: 'AvenirLTStd-Black', marginTop: height * 0.1 },
+  message: { fontSize: 18, textAlign: 'center', color: '#808080', marginTop: 10 },
   submitButton: {
     backgroundColor: colors.PRIMARY_NORMAL,
     height: 50,
@@ -48,6 +46,6 @@ export default StyleSheet.create({
     marginTop: 10,
     borderRadius: 25,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 });

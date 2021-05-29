@@ -1,37 +1,27 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {GDRoundedDateRangeInput} from '@/core/components/input/rounded-date-range-input.component';
+import { connect } from 'react-redux';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
 import {
   View,
-  TouchableOpacity,
   DeviceEventEmitter,
-  ActivityIndicator,
-  Dimensions,
   FlatList,
   Image,
-  Text,
-  Alert,
+  Text
 } from 'react-native';
 import style from '@/screens/Transaction/style';
-import styles from '@/screens/Transaction/components/styles';
-import {GdSVGIcons} from '@/utils/icons-pack';
-import {CommonService} from '@/core/services/common/common.service';
+import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-community/async-storage';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {Bars} from 'react-native-loader';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
-import httpInstance from '@/core/services/http/http.service';
-import {commonUrls} from '@/core/services/common/common.url';
 import moment from 'moment';
 import DownloadModal from '@/screens/Parties/components/downloadingModal';
-import analytics from '@react-native-firebase/analytics';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
 export class TransactionScreen extends React.Component {
-  constructor(props: Props) {
+  constructor (props: Props) {
     super(props);
 
     this.state = {
@@ -43,55 +33,56 @@ export class TransactionScreen extends React.Component {
       totalPages: 0,
       onEndReachedCalledDuringMomentum: true,
       loadingMore: false,
-      DownloadModal: false,
+      DownloadModal: false
     };
   }
-  componentDidMount() {
+
+  componentDidMount () {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
       this.setState(
         {
-          showLoader: true,
+          showLoader: true
         },
-        () => this.getTransactions(),
+        () => this.getTransactions()
       );
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
-          showLoader: true,
+          showLoader: true
         },
-        () => this.getTransactions(),
+        () => this.getTransactions()
       );
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, () => {
       this.setState(
         {
-          showLoader: true,
+          showLoader: true
         },
-        () => this.getTransactions(),
+        () => this.getTransactions()
       );
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
       this.setState(
         {
-          showLoader: true,
+          showLoader: true
         },
-        () => this.getTransactions(),
+        () => this.getTransactions()
       );
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.DebitNoteCreated, () => {
       this.setState(
         {
-          showLoader: true,
+          showLoader: true
         },
-        () => this.getTransactions(),
+        () => this.getTransactions()
       );
     });
     this.getTransactions();
   }
 
   downloadModalVisible = (value) => {
-    this.setState({DownloadModal: value});
+    this.setState({ DownloadModal: value });
   };
 
   func1 = async () => {
@@ -99,54 +90,55 @@ export class TransactionScreen extends React.Component {
     console.log(v1);
   };
 
-  async getTransactions() {
+  async getTransactions () {
     try {
       const transactions = await CommonService.getTransactions(
         this.state.startDate,
         this.state.endDate,
-        this.state.page,
+        this.state.page
       );
       this.setState(
         {
           transactionsData: transactions.body.entries,
           totalPages: transactions.body.totalPages,
-          showLoader: false,
-        },
+          showLoader: false
+        }
         // () => console.log(JSON.stringify(transactions)),
       );
     } catch (e) {
       console.log(e);
-      this.setState({showLoader: false});
+      this.setState({ showLoader: false });
     }
   }
 
-  async handleLoadMore() {
+  async handleLoadMore () {
     try {
       const transactions = await CommonService.getTransactions(
         this.state.startDate,
         this.state.endDate,
-        this.state.page,
+        this.state.page
       );
       this.setState({
         transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
         showLoader: false,
-        loadingMore: false,
+        loadingMore: false
       });
     } catch (e) {
       console.log(e);
-      this.setState({showLoader: false});
+      this.setState({ showLoader: false });
     }
   }
+
   handleRefresh = () => {
     if (this.state.page < this.state.totalPages) {
       this.setState(
         {
           page: this.state.page + 1,
-          loadingMore: true,
+          loadingMore: true
         },
         () => {
           this.handleLoadMore();
-        },
+        }
       );
     }
   };
@@ -154,16 +146,17 @@ export class TransactionScreen extends React.Component {
   changeDate = (SD, ED) => {
     if (SD) {
       this.setState({
-        startDate: moment(SD).format('DD-MM-YYYY'),
+        startDate: moment(SD).format('DD-MM-YYYY')
       });
     }
     if (ED) {
       this.setState({
-        endDate: moment(ED).format('DD-MM-YYYY'),
+        endDate: moment(ED).format('DD-MM-YYYY')
       });
       this.getTransactions();
     }
   };
+
   _renderFooter = () => {
     if (!this.state.loadingMore) return null;
 
@@ -176,16 +169,17 @@ export class TransactionScreen extends React.Component {
           bottom: 10,
           // backgroundColor: 'pink',
           justifyContent: 'center',
-          alignItems: 'center',
+          alignItems: 'center'
         }}>
         <Bars size={15} color={colors.PRIMARY_NORMAL} />
       </View>
     );
   };
-  render() {
+
+  render () {
     if (this.state.showLoader) {
       return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Bars size={15} color={colors.PRIMARY_NORMAL} />
         </View>
       );
@@ -215,24 +209,26 @@ export class TransactionScreen extends React.Component {
               })
             }></TouchableOpacity> */}
 
-          {this.state.transactionsData.length == 0 ? (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30}}>
+          {this.state.transactionsData.length == 0
+            ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
               <Image
                 source={require('@/assets/images/noTransactions.png')}
-                style={{resizeMode: 'contain', height: 250, width: 300}}
+                style={{ resizeMode: 'contain', height: 250, width: 300 }}
               />
-              <Text style={{fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10}}>No Transactions</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
             </View>
-          ) : (
+              )
+            : (
             <FlatList
               data={this.state.transactionsData}
-              renderItem={({item}) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}
+              renderItem={({ item }) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}
               keyExtractor={(item) => item.createdAt}
               onEndReachedThreshold={0.2}
               onEndReached={() => this.handleRefresh()}
               ListFooterComponent={this._renderFooter}
             />
-          )}
+              )}
           <DownloadModal modalVisible={this.state.DownloadModal} />
         </View>
       );
@@ -242,7 +238,7 @@ export class TransactionScreen extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser
   };
 };
 

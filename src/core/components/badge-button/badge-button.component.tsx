@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {GestureResponderEvent, StyleProp, Text, TouchableOpacity, View, ViewStyle} from 'react-native';
+import { Component } from 'react';
+import { GestureResponderEvent, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import styles from '@/core/components/badge-button/styles';
 
 type BadgeButtonProps = {
@@ -12,14 +12,14 @@ type BadgeButtonProps = {
 type BadgeButtonStat = {};
 
 export class BadgeButton extends Component<BadgeButtonProps, BadgeButtonStat> {
-  constructor(props: BadgeButtonProps) {
+  constructor (props: BadgeButtonProps) {
     super(props);
   }
 
-  render() {
-    //Button style pushed into style based on condition
-    let btnStyle: StyleProp<ViewStyle>[] = [this.props.isActive ? styles.activeBadgeStyle : styles.badgeStyle];
-    let labelStyle: StyleProp<ViewStyle>[] = [this.props.isActive ? styles.activeLabelStyle : styles.labelStyle];
+  render () {
+    // Button style pushed into style based on condition
+    const btnStyle: StyleProp<ViewStyle>[] = [this.props.isActive ? styles.activeBadgeStyle : styles.badgeStyle];
+    const labelStyle: StyleProp<ViewStyle>[] = [this.props.isActive ? styles.activeLabelStyle : styles.labelStyle];
 
     return (
       <View style={btnStyle}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, ImageRequireSource} from 'react-native';
+import { Image, ImageRequireSource } from 'react-native';
 import Send_white from '../assets/images/icons/send_white.svg';
 import Compose from '../assets/images/icons/compose.svg';
 import Send from '../assets/images/icons/send.svg';
@@ -33,7 +33,7 @@ import Product from '../assets/images/icons/Product.svg';
 import Gstin from '../assets/images/icons/gstin.svg';
 
 const IconProvider = (source: ImageRequireSource) => ({
-  toReactElement: ({...style}) => <Image style={style} source={source} />,
+  toReactElement: ({ ...style }) => <Image style={style} source={source} />
 });
 
 export const GdIconsPack = {
@@ -51,8 +51,8 @@ export const GdIconsPack = {
     download: IconProvider(require('../assets/images/icons/download.svg')),
     calendar: IconProvider(require('../assets/images/icons/calendar.svg')),
     more: IconProvider(require('../assets/images/icons/more.png')),
-    plus: IconProvider(require('../assets/images/icons/plus.png')),
-  },
+    plus: IconProvider(require('../assets/images/icons/plus.png'))
+  }
 };
 
 export const GdSVGIcons = {
@@ -86,7 +86,7 @@ export const GdSVGIcons = {
   phone: Phone,
   location: Location,
   gstin: Gstin,
-  product: Product,
+  product: Product
 };
 
 export const GdImages = {
@@ -94,6 +94,6 @@ export const GdImages = {
   icons: {
     logo: require('../assets/images/logo2x.png'),
     logoSmall: require('../assets/images/logo.png'),
-    logoGiddh: require('../assets/images/giddh.png'),
-  },
+    logoGiddh: require('../assets/images/giddh.png')
+  }
 };

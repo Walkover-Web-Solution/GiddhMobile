@@ -1,23 +1,17 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {Layout} from '@ui-kitten/components';
-import {LogBox, ScrollView, View, Dimensions, Text} from 'react-native';
-import {Country} from '@/models/interfaces/country';
-import {BadgeButton} from '@/core/components/badge-button/badge-button.component';
-import {TopCard} from '@/core/components/top-card/top-card.component';
-import {BadgeTab} from '@/models/interfaces/badge-tabs';
-import style from './style';
-import {GDContainer} from '@/core/components/container/container.component';
-import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
-import color from '@/utils/colors';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { LogBox, View, Dimensions, Text } from 'react-native';
+import { Country } from '@/models/interfaces/country';
 import Transaction from '@/screens/Transaction/Transaction';
 import Parties from '@/screens/Parties/Parties';
-import Inventory from '@/screens/Inventory/Inventory';
 
-import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { FONT_FAMILY } from '@/utils/constants';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { connect } from 'react-redux';
 
 LogBox.ignoreLogs([
-  'VirtualizedLists should never be nested', // TODO: Remove when fixed
+  'VirtualizedLists should never be nested' // TODO: Remove when fixed
 ]);
 
 type HomeComponentProp = WithTranslation &
@@ -26,40 +20,48 @@ type HomeComponentProp = WithTranslation &
     isCountriesLoading: boolean;
     getCountriesAction: Function;
     logoutAction: Function;
+    logout: Function;
   };
-
-type HomeComponentState = {
-  badgeTabs: BadgeTab[];
-  val: number;
-};
 
 const FirstRoute = () => <Parties />;
 
 const SecondRoute = () => <Transaction />;
 // const ThirdRoute = () => <Inventory />;
 
-const initialLayout = {width: Dimensions.get('window').width};
+const initialLayout = { width: Dimensions.get('window').width };
 const renderScene = SceneMap({
   first: FirstRoute,
-  second: SecondRoute,
+  second: SecondRoute
   // third: ThirdRoute,
 });
 class HomeComponent extends React.Component {
-  constructor(props: HomeComponentProp) {
+  constructor (props: HomeComponentProp) {
     super(props);
-
     this.state = {
       index: 0,
       routes: [
-        {key: 'first', title: 'Parties'},
-        {key: 'second', title: 'Transactions'},
-      ],
+        { key: 'first', title: 'Parties' },
+        { key: 'second', title: 'Transactions' }
+      ]
     };
+    // this.getPartiesSundryCreditors();
   }
+
+  // async getPartiesSundryCreditors(){
+  //   try {
+  //     const creditors = await CommonService.getPartiesSundryCreditors();
+  //     console.log(creditors.body.results);
+  //   } catch (e) {
+  //     console.log(e);
+  //     if (e.data.code == "UNAUTHORISED") {
+  //       this.setState({isValid:false});
+  //     }
+  //   }
+  // }
 
   handleIndexChange = (index) => {
     this.setState({
-      index,
+      index
     });
   };
 
@@ -95,9 +97,9 @@ class HomeComponent extends React.Component {
   renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{backgroundColor: 'white'}}
-      style={{backgroundColor: 'white', elevation: 0}}
-      renderLabel={({route, focused, color}) => (
+      indicatorStyle={{ backgroundColor: 'white' }}
+      style={{ backgroundColor: 'white', elevation: 0 }}
+      renderLabel={({ route, focused }) => (
         <View
           style={{
             borderTopEndRadius: 17,
@@ -109,14 +111,14 @@ class HomeComponent extends React.Component {
             alignItems: 'center',
             justifyContent: 'center',
             paddingVertical: 7,
-            borderWidth: 1,
+            borderWidth: 1
           }}>
           <Text
             numberOfLines={1}
             style={{
               color: focused ? '#5773FF' : '#808080',
               // fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-              fontWeight: focused ? 'bold' : 'normal',
+              fontWeight: focused ? 'bold' : 'normal'
             }}>
             {route.title}
           </Text>
@@ -125,20 +127,35 @@ class HomeComponent extends React.Component {
     />
   );
 
-  render() {
+  render () {
     return (
-      <View style={{flex: 1}}>
-        <TabView
-          navigationState={{index: this.state.index, routes: this.state.routes}}
+      <View style={{ flex: 1 }}>
+        {!this.props.isInvalid ? <TabView
+          navigationState={{ index: this.state.index, routes: this.state.routes }}
           renderScene={renderScene}
           onIndexChange={this.handleIndexChange}
           initialLayout={initialLayout}
           // swipeEnabled={false}
           renderTabBar={this.renderTabBar}
         />
+          : <View style={{ flex: 1, justifyContent: 'center' }}>
+            <Text style={{ paddingHorizontal: 40, fontSize: 20, fontFamily: FONT_FAMILY.bold, textAlign: 'center', padding: 8 }}>Please Sign up through Giddh's web app first</Text>
+            <TouchableOpacity
+              onPress={this.props.logout}
+              style={{ marginTop: 15, width: '90%', alignSelf: 'center', borderRadius: 20, justifyContent: 'center' }}>
+              <Text style={{ color: '#5773FF', textAlign: 'center', fontSize: 16 }}>Exit</Text>
+            </TouchableOpacity>
+          </View>
+        }
       </View>
     );
   }
 }
 
-export default withTranslation()(HomeComponent);
+const mapStateToProps = (state) => ({
+  isInvalid: state.commonReducer.isUnauth
+});
+const mapDispatchToProps = () => ({
+});
+
+export default withTranslation()(connect(mapStateToProps, mapDispatchToProps)(HomeComponent));

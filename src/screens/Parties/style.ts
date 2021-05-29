@@ -1,5 +1,5 @@
-import {StyleSheet} from 'react-native';
-import {GD_ICON_SIZE} from '@/utils/constants';
+import { StyleSheet } from 'react-native';
+import { GD_ICON_SIZE } from '@/utils/constants';
 import colors from '@/utils/colors';
 
 export default StyleSheet.create({
@@ -7,11 +7,11 @@ export default StyleSheet.create({
     flex: 1,
 
     backgroundColor: colors.BACKGROUND,
-    justifyContent: 'flex-start',
+    justifyContent: 'flex-start'
   },
   alignLoader: {
     alignItems: 'center',
-    marginTop: 150,
+    marginTop: 150
   },
 
   filterStyle: {
@@ -20,15 +20,15 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginTop: 0,
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   dateRangePickerStyle: {
-    width: '70%',
+    width: '70%'
   },
   iconPlacingStyle: {
     display: 'flex',
     justifyContent: 'flex-end',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   iconCard: {
     padding: 15,
@@ -39,10 +39,10 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     maxHeight: 38,
-    maxWidth: 38,
+    maxWidth: 38
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
-    width: GD_ICON_SIZE.input_icon,
-  },
+    width: GD_ICON_SIZE.input_icon
+  }
 });

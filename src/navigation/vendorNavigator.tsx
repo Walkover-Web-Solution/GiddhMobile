@@ -6,11 +6,11 @@ import EditAddress from '@/core/components/Select-Address/EditAddress';
 
 const { Navigator, Screen } = createStackNavigator();
 
-function VendorStack() {
+function VendorStack () {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: false
       }}
       initialRouteName={'VendorScreens'}>
       <Screen component={Customer} name={'Customer'} initialParams={{ index: 1 }} />

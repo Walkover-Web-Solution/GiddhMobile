@@ -1,15 +1,15 @@
 import React from 'react';
-import {SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle, FlatList} from 'react-native';
+import { SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle, FlatList } from 'react-native';
 import styles from '@/screens/Parties/components/PMstyle';
-import {GdSVGIcons} from '@/utils/icons-pack';
-import {SwipeListView} from 'react-native-swipe-list-view';
-import colors, {baseColor} from '@/utils/colors';
+import { GdSVGIcons } from '@/utils/icons-pack';
+import { SwipeListView } from 'react-native-swipe-list-view';
+import colors, { baseColor } from '@/utils/colors';
 import * as constants from '@/utils/constants';
-import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
+import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
-import {Company} from '@/models/interfaces/company';
-import {Bars} from 'react-native-loader';
+import { Company } from '@/models/interfaces/company';
+import { Bars } from 'react-native-loader';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -20,12 +20,12 @@ const renderHiddenItem = () => (
   <View style={styles.rowBack}>
     <TouchableOpacity style={styles.swipeRight}>
       <GdSVGIcons.compose style={styles.iconStyle} width={14} height={14} />
-      <View style={{width: 10}} />
+      <View style={{ width: 10 }} />
       <Text style={styles.swipeText}>Edit</Text>
     </TouchableOpacity>
     <TouchableOpacity style={styles.swipeLeft}>
       <Text style={styles.swipeText}>Send</Text>
-      <View style={{width: 10}} />
+      <View style={{ width: 10 }} />
       <GdSVGIcons.send_white style={styles.iconStyle} width={14} height={14} />
     </TouchableOpacity>
   </View>
@@ -43,14 +43,14 @@ const amountColorStyle = (type: string) => {
   return {
     color: bgColor,
     fontFamily: 'AvenirLTStd-Black',
-    fontSize: constants.GD_FONT_SIZE.medium,
+    fontSize: constants.GD_FONT_SIZE.medium
   };
 };
 
 export const Vendors = (props) => {
-  const {partiesData, activeCompany, handleRefresh, loadMore, navigation} = props;
+  const { partiesData, activeCompany, handleRefresh, loadMore, navigation } = props;
 
-  function _renderFooter() {
+  function _renderFooter () {
     if (!loadMore) return null;
 
     return (
@@ -62,14 +62,14 @@ export const Vendors = (props) => {
           bottom: 10,
           // backgroundColor: 'pink',
           justifyContent: 'center',
-          alignItems: 'center',
+          alignItems: 'center'
         }}>
         <Bars size={15} color={colors.PRIMARY_NORMAL} />
       </View>
     );
   }
 
-  function currencyFormat(amount: number, currencyType: string | undefined) {
+  function currencyFormat (amount: number, currencyType: string | undefined) {
     switch (currencyType) {
       case 'IND_COMMA_SEPARATED':
         // eslint-disable-next-line no-lone-blocks
@@ -123,10 +123,10 @@ export const Vendors = (props) => {
       onEndReachedThreshold={0.2}
       onEndReached={handleRefresh}
       ListFooterComponent={_renderFooter}
-      renderItem={({item}) => (
+      renderItem={({ item }) => (
         <TouchableOpacity
           style={styles.rowFront}
-          onPress={() => navigation.navigate('PartiesTransactions', {item: item, type: 'Vendors'})}>
+          onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Vendors' })}>
           <View style={styles.viewWrap}>
             <Text style={styles.partiesName} numberOfLines={1}>
               {item.name}
@@ -145,7 +145,7 @@ export const Vendors = (props) => {
                     {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
                   </Text>
                 )}
-                <View style={{width: 2}} />
+                <View style={{ width: 2 }} />
                 {item.closingBalance.type == 'CREDIT' && (
                   <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
                 )}
