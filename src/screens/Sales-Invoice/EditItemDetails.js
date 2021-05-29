@@ -648,7 +648,7 @@ class EditItemDetails extends Component {
     return (
       <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 16}}>
         <Text>Total Amount</Text>
-        <Text style={style.finalItemAmount}>{`₹${this.state.editItemDetails.total.toFixed(2)}`}</Text>
+        <Text style={style.finalItemAmount}>{`${(this.props.currencySymbol?this.props.currencySymbol:"")+""+this.state.editItemDetails.total.toFixed(2)}`}</Text>
       </View>
     );
   }

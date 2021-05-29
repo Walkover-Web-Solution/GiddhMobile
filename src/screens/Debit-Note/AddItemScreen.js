@@ -200,7 +200,7 @@ class AddItemScreen extends React.Component<Props> {
               {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
             </Text>
             <TouchableOpacity
-              style={{backgroundColor: '#E0F1E8', height: 32, borderRadius: 16, justifyContent: 'center'}}
+              style={{backgroundColor: 'rgba(255, 99, 71, 0.1)', height: 32, borderRadius: 16, justifyContent: 'center'}}
               onPress={() => {
                 this.addItem(item);
               }}>
@@ -222,7 +222,7 @@ class AddItemScreen extends React.Component<Props> {
                   style={{
                     width: 24,
                     height: 24,
-                    backgroundColor: '#3399ff',
+                    backgroundColor: '#ff6961',
                     borderRadius: 12,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -250,7 +250,7 @@ class AddItemScreen extends React.Component<Props> {
                   style={{
                     width: 24,
                     height: 24,
-                    backgroundColor: '#3399ff',
+                    backgroundColor: '#ff6961',
                     borderRadius: 12,
                     justifyContent: 'center',
                     alignItems: 'center',

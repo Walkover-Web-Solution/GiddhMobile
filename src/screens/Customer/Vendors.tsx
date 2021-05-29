@@ -23,25 +23,47 @@ import Award from '../../assets/images/icons/customer_success.svg';//customer_fa
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-community/async-storage';
+import { InvoiceService } from '@/core/services/invoice/invoice.service';
 
 interface Props {
+  resetFun: any;
   navigation: any;
 }
 
 export class Vendors extends React.Component<Props> {
   constructor(props: any) {
     super(props);
+    this.setActiveCompanyCountry()
+    this.getAllDeatils();
+    this.checkStoredCountryCode();
+    this.props.resetFun(this.resetState);
   }
 
   async getAllDeatils() {
     await this.setState({ loading: true });
     let allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
-    let allCurrency = await CustomerVendorService.getAllCurrency()
+    //let allCurrency = await CustomerVendorService.getAllCurrency()
     // let allCountry = await CustomerVendorService.getAllCountryName()
     let allCallingCode = await CustomerVendorService.getAllCallingCode()
-    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
+    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCallingCode: allCallingCode.body.callingCodes })
     // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
+    await this.setState({ loading: false });
+  }
+
+  async setActiveCompanyCountry() {
+    await this.setState({ loading: true });
+    try {
+      let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      if (results.body && results.status == 'success') {
+        await this.setState({
+          activeCompanyCountryCode:activeCompanyCountryCode,
+          selectedCountry: results.body.country,
+          selectedCallingCode: results.body.country.callingCode, selectedCurrency: results.body.country.currency.code         
+        })
+      }
+    } catch (e) { }
     await this.setState({ loading: false });
   }
 
@@ -50,7 +72,7 @@ export class Vendors extends React.Component<Props> {
     partyName: "",
     contactNumber: "",
     emailId: "",
-    partyType: "",
+    partyType: "not applicable",
     allPartyType: [],
     AllGroups: ["Sundry Creditors"],
     ref: RBSheet,
@@ -101,6 +123,8 @@ export class Vendors extends React.Component<Props> {
     groupDropDown: Dropdown,
     partyPlaceHolder: "",
     partyDialog: false,
+    showForgeinBalance: true,
+    activeCompanyCountryCode:""
   }
 
   radio_props = [
@@ -130,14 +154,20 @@ export class Vendors extends React.Component<Props> {
     this.setState({ loading: false });
   }
 
-  selectBillingAddress = (address) => {
-    console.log(address);
+  selectBillingAddress = async (address) => {
     const newAddress = {
       street_billing: address.address,
       gstin_billing: address.gstNumber,
       state_billing: address.state,
       pincode: address.pincode
     };
+    const companyCountry = this.state.activeCompanyCountryCode
+    
+    if (companyCountry != address.selectedCountry.alpha2CountryCode) {
+      this.setState({ showForgeinBalance: true });
+    } else {
+      this.setState({ showForgeinBalance: false });
+    }
     this.setState({
       savedAddress: newAddress, selectedCountry: address.selectedCountry,
       selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
@@ -150,6 +180,7 @@ export class Vendors extends React.Component<Props> {
     return (
       <View style={{ marginLeft: 46 }}>
         <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
+        {this.state.selectedCountry && this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }} >{this.state.selectedCountry.countryName}</Text>}
         {this.state.savedAddress.street_billing != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_billing}</Text>}
         {this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing.name}</Text>}
         {this.state.savedAddress.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.pincode}</Text>}
@@ -169,8 +200,9 @@ export class Vendors extends React.Component<Props> {
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden' }}>
-            <Dropdown
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden', backgroundColor: "rgba(0,0,0,0.08)" }}>
+            <Text style={{ color: '#1C1C1C' }}>INR</Text>
+            {/* <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.selectedCurrency}
@@ -188,8 +220,8 @@ export class Vendors extends React.Component<Props> {
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.code}</Text>);
               }}
-            />
-            <Icon
+            /> */}
+            {/* <Icon
               style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }], paddingLeft: 20 }}
               name={'9'}
               size={12}
@@ -197,10 +229,10 @@ export class Vendors extends React.Component<Props> {
               onPress={() => {
                 this.state.creditPeriodRef.show();
               }}
-            />
+            /> */}
           </View>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
+        {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
           <View style={{ width: "74%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
@@ -214,7 +246,7 @@ export class Vendors extends React.Component<Props> {
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
             style={{ borderWidth: 1, borderColor: "#d9d9d9", width: "30%", height: '80%', paddingStart: 10, }} />
-        </View>
+        </View>}
         <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 5 }}>
           <View style={{ width: "70%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
@@ -306,7 +338,11 @@ export class Vendors extends React.Component<Props> {
 
   isCreateButtonVisible = () => {
     if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.savedAddress.state_billing) {
+      // When selected country is same as company country then state is compulsory 
       return true;
+    } else if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.selectedCountry.alpha2CountryCode != this.state.activeCompanyCountryCode) {
+      // When selected country is different from company country then state is not compulsory 
+      return true
     } else {
       return false;
     }
@@ -366,8 +402,6 @@ export class Vendors extends React.Component<Props> {
   genrateCustomer = () => {
     if (!this.state.partyName) {
       Alert.alert("Error", 'Please select a party.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-    } else if (!this.state.savedAddress.state_billing) {
-      Alert.alert("Error", 'Please select state to proceed.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
       if (this.validateMobileNumber() && this.validateEmail()) {
         this.createCustomerRequest();
@@ -395,8 +429,8 @@ export class Vendors extends React.Component<Props> {
           {
             gstNumber: this.state.savedAddress.gstin_billing,
             address: this.state.savedAddress.street_billing,
-            state: this.state.savedAddress.state_billing,
-            stateCode: this.state.savedAddress.state_billing.stateGstCode,
+            state: this.state.savedAddress.state_billing != "" ? this.state.savedAddress.state_billing : { "code": null, "name": "", "stateGstCode": "" },
+            stateCode: this.state.savedAddress.state_billing.stateGstCode ? this.state.savedAddress.state_billing.stateGstCode : null,
             isDefault: false,
             isComposite: false,
             partyType: this.state.partyType,
@@ -406,7 +440,9 @@ export class Vendors extends React.Component<Props> {
         country: {
           countryCode: this.state.selectedCountry.alpha2CountryCode
         },
-        currency: this.state.selectedCurrency,
+        // currency: this.state.selectedCurrency,
+        // In Vendor Account with different currency cannot be created.
+        currency: "INR",
         accountBankDetails: [{
           bankName: this.state.bankName,
           bankAccountNo: this.state.bankAccountNumber,
@@ -427,7 +463,7 @@ export class Vendors extends React.Component<Props> {
       if (results.status == "success") {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
-        this.state.partyDropDown.select(-1);
+        //this.state.partyDropDown.select(-1);
         await this.setState({ successDialog: true, });
         await this.getAllDeatils()
         await this.setState({ loading: false, });
@@ -449,7 +485,7 @@ export class Vendors extends React.Component<Props> {
       partyName: "",
       contactNumber: "",
       emailId: "",
-      partyType: "Party Type*",
+      partyType: "not applicable",
       allPartyType: [],
       AllGroups: ["Sundry Debtors"],
       ref: RBSheet,
@@ -499,15 +535,31 @@ export class Vendors extends React.Component<Props> {
       IFSC_Code: "",
       isEmailInvalid: false,
       isMobileNoValid: false,
-      partyPlaceHolder: ""
+      partyPlaceHolder: "",
+      groupDropDown: Dropdown,
+      isGroupDD: false,
+      isPartyDD: false,
+      partyDialog: false,
+      activeCompanyCountryCode:""
     })
   }
 
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       await this.resetState();
+      await this.setActiveCompanyCountry()
       await this.getAllDeatils();
     });
+    //this.checkStoredCountryCode();
+  }
+
+  checkStoredCountryCode = async () => {
+    const storedCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    if (storedCode == this.state.selectedCountry.alpha2CountryCode) {
+      this.setState({ showForgeinBalance: false })
+    } else {
+      this.setState({ showForgeinBalance: true });
+    }
   }
 
   render() {
@@ -713,7 +765,7 @@ export class Vendors extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                this.setState({partyDialog:true});
+                this.setState({ partyDialog: true });
                 //this.setState({ isPartyDD: true })
                 //this.state.partyDropDown.show();
               }}
@@ -741,8 +793,9 @@ export class Vendors extends React.Component<Props> {
               size={16}
               color="#864DD3"
               style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
-            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: '#1C1C1C' }}>Address Details*</Text>
+            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
+              <Text style={{ color: '#1C1C1C' }}>Address Details</Text>
+              <Text style={{ color: '#E04646' }}>*</Text>
             </View>
             <Icon
               style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }] }}

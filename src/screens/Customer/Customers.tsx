@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter,FlatList ,useWindowDimensions } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -20,14 +20,21 @@ import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';//customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
+import AsyncStorage from '@react-native-community/async-storage';
+import { InvoiceService } from '@/core/services/invoice/invoice.service';
 
 interface Props {
   navigation: any;
+  resetFun: any;
 }
 
 export class Customers extends React.Component<Props> {
   constructor(props: any) {
     super(props);
+    this.getAllDeatils();
+    this.setActiveCompanyCountry()
+    this.checkStoredCountryCode();
+    this.props.resetFun(this.resetState);
   }
 
   async getAllDeatils() {
@@ -40,7 +47,20 @@ export class Customers extends React.Component<Props> {
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
     // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     await this.setState({ loading: false });
-    console.log(this.state.allPartyType);
+  }
+
+  async setActiveCompanyCountry() {
+    try {
+      let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      if (results.body && results.status == 'success') {
+        await this.setState({
+          activeCompanyCountryCode:activeCompanyCountryCode,
+          selectedCountry: results.body.country,
+          selectedCallingCode: results.body.country.callingCode, selectedCurrency: results.body.country.currency.code         
+        })
+      }
+    } catch (e) { }
   }
 
   state = {
@@ -48,7 +68,7 @@ export class Customers extends React.Component<Props> {
     partyName: "",
     contactNumber: "",
     emailId: "",
-    partyType: "",
+    partyType: "not applicable",
     allPartyType: [],
     AllGroups: ["Sundry Debtors"],
     ref: RBSheet,
@@ -96,6 +116,8 @@ export class Customers extends React.Component<Props> {
     isPartyDD: false,
     partyPlaceHolder: "",
     partyDialog: false,
+    showForgeinBalance: true,
+    activeCompanyCountryCode:""
   }
 
   radio_props = [
@@ -129,6 +151,7 @@ export class Customers extends React.Component<Props> {
     return (
       <View style={{ marginLeft: 46 }}>
         <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
+        {this.state.selectedCountry && this.state.savedAddress.state_billing != "" && <Text style={{ color: "#808080" }} >{this.state.selectedCountry.countryName}</Text>}
         {this.state.savedAddress.street_billing != "" && <Text style={{ color: "#808080" }} >{this.state.savedAddress.street_billing}</Text>}
         {this.state.savedAddress.state_billing.name != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.state_billing.name}</Text>}
         {this.state.savedAddress.pincode != "" && <Text style={{ color: "#808080" }}>{this.state.savedAddress.pincode}</Text>}
@@ -162,7 +185,7 @@ export class Customers extends React.Component<Props> {
               }}
               onSelect={(idx, value) => this.setState({ selectedCurrency: value.code })}
 
-              dropdownStyle={{ width: '25%', marginTop: 11,marginRight:-60 }}
+              dropdownStyle={{ width: '25%', marginTop: 11, marginRight: -60 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.code}</Text>);
@@ -179,7 +202,7 @@ export class Customers extends React.Component<Props> {
             />
           </View>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
+        {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
           <View style={{ width: "74%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
@@ -193,7 +216,7 @@ export class Customers extends React.Component<Props> {
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
             style={{ borderWidth: 1, borderColor: "#d9d9d9", width: "30%", height: '80%', paddingStart: 10, }} />
-        </View>
+        </View>}
         <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 5 }}>
           <View style={{ width: "70%", }}>
             <View style={{ flexDirection: 'row', alignItems: "flex-end" }}>
@@ -247,9 +270,13 @@ export class Customers extends React.Component<Props> {
     );
   }
 
-  isCreateButtonVisible = () => {
+  isCreateButtonVisible =  () => {
     if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.savedAddress.state_billing) {
+      // When selected country is same as company country then state is compulsory 
       return true;
+    } else if (this.state.partyName && this.state.partyType != "Party Type*" && this.state.selectedCountry.alpha2CountryCode != this.state.activeCompanyCountryCode) {
+      // When selected country is different from company country then state is not compulsory 
+      return true
     } else {
       return false;
     }
@@ -308,8 +335,6 @@ export class Customers extends React.Component<Props> {
   genrateCustomer = () => {
     if (!this.state.partyName) {
       Alert.alert("Error", 'Please select a party.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-    } else if (!this.state.savedAddress.state_billing) {
-      Alert.alert("Error", 'Please select state to proceed.', [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
     } else {
       if (this.validateMobileNumber() && this.validateEmail()) {
         this.createCustomerRequest();
@@ -337,8 +362,8 @@ export class Customers extends React.Component<Props> {
           {
             gstNumber: this.state.savedAddress.gstin_billing,
             address: this.state.savedAddress.street_billing,
-            state: this.state.savedAddress.state_billing,
-            stateCode: this.state.savedAddress.state_billing.stateGstCode,
+            state: this.state.savedAddress.state_billing != "" ? this.state.savedAddress.state_billing : { "code": null, "name": "", "stateGstCode": "" },
+            stateCode: this.state.savedAddress.state_billing.stateGstCode ? this.state.savedAddress.state_billing.stateGstCode : null,
             isDefault: false,
             isComposite: false,
             partyType: this.state.partyType,
@@ -358,10 +383,10 @@ export class Customers extends React.Component<Props> {
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
       const results = await CustomerVendorService.createCustomer(postBody);
+      console.log("rabbit" + JSON.stringify(results));
       if (results.status == "success") {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
-        this.state.partyDropDown.select(-1);
         await this.setState({ successDialog: true, });
         await this.getAllDeatils()
         await this.setState({ loading: false, });
@@ -383,7 +408,7 @@ export class Customers extends React.Component<Props> {
       partyName: "",
       contactNumber: "",
       emailId: "",
-      partyType: "Party Type*",
+      partyType: "not applicable",
       allPartyType: [],
       AllGroups: ["Sundry Debtors"],
       ref: RBSheet,
@@ -391,9 +416,12 @@ export class Customers extends React.Component<Props> {
       savedAddress: {
         street_billing: "",
         gstin_billing: "",
-        state_billing: '',
+        state_billing: "",
         pincode: ""
       },
+      street_billing: "",
+      gstin_billing: "",
+      state_billing: '',
       openAddress: false,
       showBalanceDetails: false,
       creditPeriodRef: Dropdown,
@@ -420,13 +448,25 @@ export class Customers extends React.Component<Props> {
       faliureDialog: false,
       selectedGroup: "Sundry Debtors",
       partyDropDown: Dropdown,
+      groupDropDown: Dropdown,
+      isGroupDD: false,
+      isPartyDD: false,
+      partyPlaceHolder: "",
+      partyDialog: false,
+      showForgeinBalance: true,
       pincode: "",
       isEmailInvalid: false,
-      isMobileNoValid: false
+      isMobileNoValid: false,
+      groupDropDown: Dropdown,
+      isGroupDD: false,
+      isPartyDD: false,
+      partyPlaceHolder: "",
+      partyDialog: false,
+      activeCompanyCountryCode:""
     })
   }
 
-  selectBillingAddress = (address) => {
+  selectBillingAddress = async (address) => {
     console.log(address);
     const newAddress = {
       street_billing: address.address,
@@ -434,17 +474,33 @@ export class Customers extends React.Component<Props> {
       state_billing: address.state,
       pincode: address.pincode
     };
+    const companyCountry = this.state.activeCompanyCountryCode;
+    if (companyCountry != address.selectedCountry.alpha2CountryCode) {
+      this.setState({ showForgeinBalance: true });
+    } else {
+      this.setState({ showForgeinBalance: false });
+    }
     this.setState({
       savedAddress: newAddress, selectedCountry: address.selectedCountry,
       selectedCallingCode: address.selectedCountry.callingCode, selectedCurrency: address.selectedCountry.currency.code
     });
   };
- 
-  componentDidMount(){
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async() => {
+
+  componentDidMount() {
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       await this.resetState();
+      await this.setActiveCompanyCountry()
       await this.getAllDeatils();
     });
+  }
+
+  checkStoredCountryCode = async () => {
+    const storedCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+    if(storedCode == this.state.selectedCountry.alpha2CountryCode){
+      this.setState({showForgeinBalance:false})
+    }else{
+      this.setState({showForgeinBalance:true});
+    }
   }
 
   render() {
@@ -453,7 +509,6 @@ export class Customers extends React.Component<Props> {
         <Dialog.Container
           visible={this.state.partyDialog}
           onBackdropPress={() => {
-            console.log("w");
             this.setState({ partyDialog: false })
           }}
           contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: "70%" }}
@@ -466,7 +521,7 @@ export class Customers extends React.Component<Props> {
               return (
                 <TouchableOpacity
                   onPress={() => {
-                    this.setState({partyType:item.item.value, partyDialog:false});
+                    this.setState({ partyType: item.item.value, partyDialog: false });
                   }}
                   key={item.item.value}
                   style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
@@ -535,7 +590,7 @@ export class Customers extends React.Component<Props> {
               }
               }
               style={styles.input}>
-              <Text style={{ color: "rgba(80,80,80,0.5)" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
+              <Text style={{ color: this.state.partyPlaceHolder == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }}>{this.state.partyPlaceHolder == "" ? "Enter Party Name" : this.state.partyName}</Text>
               <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == "" ? "*" : ""}</Text>
             </TextInput>
           </View>
@@ -568,7 +623,7 @@ export class Customers extends React.Component<Props> {
               }}
               placeholder="Enter Contact Number"
               value={this.state.contactNumber}
-              style={styles.input} />
+              style={{ ...styles.input, color: this.state.contactNumber == "" ? "rgba(80,80,80,0.5)" : "#1c1c1c" }} />
           </View>
           {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: "red", paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
@@ -648,7 +703,7 @@ export class Customers extends React.Component<Props> {
               size={12}
               color="#808080"
               onPress={() => {
-                this.setState({partyDialog:true});
+                this.setState({ partyDialog: true });
                 // this.setState({ isPartyDD: true })
                 //this.state.partyDropDown.show();
               }}
@@ -676,8 +731,9 @@ export class Customers extends React.Component<Props> {
               size={16}
               color="#864DD3"
               style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
-            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: '#1C1C1C' }}>Address Details*</Text>
+            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
+              <Text style={{ color: '#1C1C1C' }}>Address Details</Text>
+              <Text style={{ color: '#E04646' }}>*</Text>
             </View>
             <Icon
               style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }] }}

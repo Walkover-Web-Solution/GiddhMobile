@@ -55,7 +55,7 @@ export default StyleSheet.create({
     fontSize: 18,
   },
   senderAddress: {
-    marginVertical: 14,
+    marginTop: 14,
     marginHorizontal: 16,
     // padding:20,
     // backgroundColor: 'white',
@@ -160,5 +160,11 @@ export default StyleSheet.create({
     fontSize: 16,
     color: '#FC8345',
     alignSelf: 'center',
+  },
+  InvoiceHeading :{
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
+    alignSelf: 'center',
+    marginTop:-2
   },
 });

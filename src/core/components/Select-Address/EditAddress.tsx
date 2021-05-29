@@ -19,6 +19,8 @@ import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
 import {CustomerVendorService} from '@/core/services/customer-vendor/customer-vendor.service';
 import {FONT_FAMILY} from '@/utils/constants';
+import AsyncStorage from '@react-native-community/async-storage';
+import {STORAGE_KEYS} from '@/utils/constants';
 
 const addresses = [
   {
@@ -161,6 +163,7 @@ export class EditAddress extends React.Component<any, any> {
       gstNo: this.props.route.params.address.gstNumber != null ? this.props.route.params.address.gstNumber : '',
       pinCode: this.props.route.params.address.pincode != null ? this.props.route.params.address.pincode : '',
       loading: false,
+      activeCompanyCountryCode: '',
     };
   }
 
@@ -173,8 +176,8 @@ export class EditAddress extends React.Component<any, any> {
     if (this.state.gstNo != '') {
       this.setState({selectStateDisable: true});
     }
+    let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
     let allCountry = await CustomerVendorService.getAllCountryName();
-    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
     const countryIndia = {
       alpha3CountryCode: 'IND',
       alpha2CountryCode: 'IN',
@@ -187,15 +190,19 @@ export class EditAddress extends React.Component<any, any> {
       countryIndia: true,
     };
     await this.setState({
+      activeCompanyCountryCode: activeCompanyCountryCode,
       allCountry: allCountry.body,
-      allStates: allStateName.body.stateList,
       selectedCountry:
         this.props.route.params.address.selectedCountry != null
           ? this.props.route.params.address.selectedCountry
           : countryIndia,
     });
     console.log(this.state.selectedCountry);
-    this.setState({loading: false});
+    let allStateName = await CustomerVendorService.getAllStateName(this.state.selectedCountry.alpha2CountryCode);
+    await this.setState({
+      allStates: allStateName.body.stateList,
+    });
+    await this.setState({loading: false});
   };
 
   changeactiveIndex = (value: number) => {
@@ -205,8 +212,13 @@ export class EditAddress extends React.Component<any, any> {
   onSubmit = () => {
     console.log('state' + this.state.state_billing == '');
     console.log('country' + this.state.selectedCountry);
-    if (this.state.state_billing == 'Select' || this.state.selectedCountry.countryName == '') {
-      alert('Please Enter Country and State Name');
+    if (this.state.selectedCountry.countryName == '') {
+      alert('Please Enter Country Name');
+    } else if (
+      this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode &&
+      this.state.state_billing == 'Select'
+    ) {
+      alert('Please Enter State Name');
     } else if (this.state.gstNo && this.state.gstNo.length != 15) {
       alert('Enter a valid gst number, should be 15 characters long');
     } else if (this.state.gstNumberWrong) {
@@ -217,7 +229,7 @@ export class EditAddress extends React.Component<any, any> {
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
-        state: this.state.state_billing,
+        state: this.state.state_billing != 'Select' ? this.state.state_billing : '',
         stateCode: this.state.state_billing.code,
         stateName: this.state.state_billing.name,
       };
@@ -227,7 +239,7 @@ export class EditAddress extends React.Component<any, any> {
   };
 
   setCountrySelected = async (value: any) => {
-    this.setState({loading: true});
+    await this.setState({loading: true});
     await this.setState({
       state_billing: 'Select',
       gstNo: '',
@@ -239,7 +251,7 @@ export class EditAddress extends React.Component<any, any> {
     let allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode);
     await this.setState({allStates: allStateName.body.stateList});
     await this.state.addresssDropDown.select(-1);
-    this.setState({loading: false});
+    await this.setState({loading: false});
   };
 
   findState = async (gstNo: any) => {
@@ -284,34 +296,71 @@ export class EditAddress extends React.Component<any, any> {
         <ScrollView style={style.body}>
           <Text style={style.BMfieldTitle}>Address</Text>
           <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5, paddingHorizontal: 0}}
+            style={{
+              borderColor: '#D9D9D9',
+              borderBottomWidth: 1,
+              paddingVertical: 5,
+              paddingHorizontal: 10,
+              fontFamily: FONT_FAMILY.regular,
+            }}
             multiline
             onChangeText={(text) => this.setState({address: text})}
             value={this.state.address}></TextInput>
-          <Text style={style.BMfieldTitle}>Country*</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={style.BMfieldTitle}>Country</Text>
+            <Text style={{color: '#E04646', marginTop: 20}}>*</Text>
+          </View>
           <Dropdown
+            disabled={this.props.route.params.dontChangeCountry}
             ref={(ref) => (this.state.addresssDropDown = ref)}
-            style={style.dropDown}
-            textStyle={{color: '#1c1c1c'}}
+            style={{
+              marginVertical: 10,
+              borderBottomWidth: 0.5,
+              paddingTop: 10,
+              borderBottomColor: '#808080',
+              paddingBottom: 10,
+              marginTop: 15,
+              paddingHorizontal: 10,
+              backgroundColor: this.props.route.params.dontChangeCountry ? '#F1F1F2' : '',
+            }}
+            textStyle={{color: '#1c1c1c', fontFamily: FONT_FAMILY.regular}}
             defaultValue={this.state.selectedCountry.countryName != null ? this.state.selectedCountry.countryName : ''}
             options={this.state.allCountry}
             renderSeparator={() => {
               return <View></View>;
             }}
             dropdownStyle={{width: '90%', marginTop: 5, borderRadius: 10}}
-            dropdownTextStyle={{color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold}}
+            dropdownTextStyle={{color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.regular}}
             renderRow={(options) => {
-              return <Text style={{padding: 13, color: '#1C1C1C'}}>{options.countryName}</Text>;
+              return (
+                <Text style={{padding: 13, color: '#1C1C1C', fontFamily: FONT_FAMILY.regular}}>
+                  {options.countryName}
+                </Text>
+              );
             }}
             renderButtonText={(text) => text.countryName}
             onSelect={(idx, value) => this.setCountrySelected(value)}
           />
-          <Text style={style.BMfieldTitle}>State*</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={style.BMfieldTitle}>State </Text>
+            {this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode ? (
+              <Text style={{color: '#E04646', marginTop: 20}}>*</Text>
+            ) : null}
+          </View>
           <Dropdown
-            disabled={this.state.selectStateDisable}
+            disabled={this.state.allStates.length == 0 ? true : this.state.selectStateDisable}
             ref={(ref) => (this.state.addresssDropDown = ref)}
-            style={style.dropDown}
-            textStyle={{color: '#1c1c1c', fontSize: 14}}
+            style={{
+              marginVertical: 10,
+              borderBottomWidth: 0.5,
+              paddingTop: 10,
+              borderBottomColor: '#808080',
+              paddingBottom: 10,
+              marginTop: 15,
+              paddingHorizontal: 10,
+              backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null,
+            }}
+            textStyle={{color: '#1c1c1c', fontSize: 14, fontFamily: FONT_FAMILY.regular}}
             defaultValue={
               this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing
             }
@@ -320,27 +369,48 @@ export class EditAddress extends React.Component<any, any> {
               return <View></View>;
             }}
             dropdownStyle={{width: '90%', marginTop: 5, borderRadius: 10}}
-            dropdownTextStyle={{color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.bold}}
+            dropdownTextStyle={{color: '#1C1C1C', fontSize: 18, fontFamily: FONT_FAMILY.regular}}
             renderRow={(options) => {
-              return <Text style={{padding: 13, color: '#1C1C1C'}}>{options.name}</Text>;
+              return (
+                <Text style={{padding: 13, color: '#1C1C1C', fontFamily: FONT_FAMILY.regular}}>{options.name}</Text>
+              );
             }}
             renderButtonText={(text) => text.name}
             onSelect={(idx, value) => this.setState({state_billing: value})}
           />
+          {this.state.allStates.length == 0 ? (
+            <Text style={{fontSize: 10, marginTop: 6, marginLeft: 5, fontFamily: FONT_FAMILY.regular}}>
+              No State Present in Current Country
+            </Text>
+          ) : null}
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5}}
+            style={{
+              borderColor: '#D9D9D9',
+              borderBottomWidth: 1,
+              paddingVertical: 5,
+              paddingHorizontal: 10,
+              fontFamily: FONT_FAMILY.regular,
+            }}
             onChangeText={(text) => {
               this.setState({gstNo: text}), this.findState(text);
             }}
             value={this.state.gstNo}></TextInput>
           {this.state.gstNumberWrong ? (
-            <Text style={{fontSize: 10, color: 'red', marginTop: 6}}>Invalid GSTIN Number</Text>
+            <Text style={{fontSize: 10, color: 'red', marginTop: 6, marginLeft: 5, fontFamily: FONT_FAMILY.regular}}>
+              Invalid GSTIN Number
+            </Text>
           ) : null}
 
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
-            style={{borderColor: '#D9D9D9', borderBottomWidth: 1, paddingVertical: 5}}
+            style={{
+              borderColor: '#D9D9D9',
+              borderBottomWidth: 1,
+              paddingVertical: 5,
+              paddingHorizontal: 10,
+              fontFamily: FONT_FAMILY.regular,
+            }}
             onChangeText={(text) => this.setState({pinCode: text})}
             value={this.state.pinCode}></TextInput>
           {/* <View style={style.DefaultAddress}>

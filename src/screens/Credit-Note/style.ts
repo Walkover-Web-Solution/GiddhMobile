@@ -18,7 +18,12 @@ export default StyleSheet.create({
     fontSize: 12,
     color: 'white',
   },
-
+  InvoiceHeading :{
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
+    alignSelf: 'center',
+    marginTop:-2
+  },
   invoiceType: {
     justifyContent: 'center',
     color: 'white',

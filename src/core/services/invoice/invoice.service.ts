@@ -122,7 +122,7 @@ export class InvoiceService {
           return res.data;
         })
         .catch((err) => {
-          alert(JSON.stringify(err.data.message));
+          Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
           // alert(JSON.stringify(err));
           return null;
         });
@@ -134,7 +134,7 @@ export class InvoiceService {
           return res.data;
         })
         .catch((err) => {
-          alert(JSON.stringify(err.data.message));
+          Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
           return null;
         });
     }
@@ -158,7 +158,7 @@ export class InvoiceService {
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
-        Alert.alert('Error', err.data.message, [{style: 'destructive', onPress: () => console.log('alert destroyed')}]);
+        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
@@ -172,7 +172,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(JSON.stringify(err.data.message));
+        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }
@@ -189,6 +189,45 @@ export class InvoiceService {
       });
   }
 
+  static getCountryDetails(code: any) {
+    console.log(invoiceUrls.getCountryDetails.replace(`:countryCode`, `${code}`))
+    return httpInstance
+      .get(invoiceUrls.getCountryDetails.replace(`:countryCode`, `${code}`), {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+        return null;
+      });
+  }
+
+  static getExchangeRate = async (date: any, to: any, currency: any) => {
+    console.log(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`, `${currency}`).replace(`:to`, `${to}`));
+    return httpInstance
+      .get(invoiceUrls.getExchangeRateToINR.replace(`:date`, `${date}`).replace(`:from`, `${currency}`).replace(`:to`, `${to}`), {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+        return null;
+      });
+  }
+
+  static getVoucherInvoice(date: any, payload: any) {
+    console.log(invoiceUrls.getVoucherInvoice.replace(`:voucherDate`, `${date}`), payload)
+    return httpInstance
+      .post(invoiceUrls.getVoucherInvoice.replace(`:voucherDate`, `${date}`), payload)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        JSON.stringify("ERROR" + JSON.stringify(err));
+        return null;
+      });
+  }
+
   static createCreditNote(payload, accountUniqueName, invoiceType) {
     console.log(invoiceUrls.generateCreditNote.replace(':accountUniqueName', `${accountUniqueName}`));
     console.log('invoice type', invoiceType);
@@ -200,7 +239,7 @@ export class InvoiceService {
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
-        // alert(JSON.stringify(err));
+        Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
         return null;
       });
   }

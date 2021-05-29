@@ -1,5 +1,4 @@
 import React from 'react';
-import {GDContainer} from '@/core/components/container/container.component';
 import {
   View,
   Text,
@@ -15,12 +14,13 @@ import {
   Platform,
   Dimensions,
   StatusBar,
+  PermissionsAndroid,
+  Alert,
 } from 'react-native';
 // import style from './style';
 import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
-
 import Icon from '@/core/components/custom-icon/custom-icon';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -31,11 +31,12 @@ import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {InvoiceService} from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {useIsFocused} from '@react-navigation/native';
-
 import PurchaseItemEdit from './PurchaseItemEdit';
 import style from './style';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import {ScrollView} from 'react-native-gesture-handler';
+import Share from 'react-native-share';
+import RNFetchBlob from 'rn-fetch-blob';
+import {FONT_FAMILY} from '../../utils/constants';
 
 const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
@@ -120,6 +121,16 @@ export class PurchaseBill extends React.Component {
         customField2: null,
         customField3: null,
       },
+      countryDeatils: {
+        countryName: '',
+        countryCode: '',
+      },
+      currency: '',
+      currencySymbol: '',
+      exchangeRate: 1,
+      totalAmountInINR: 0.0,
+      companyCountryDetails: '',
+      selectedInvoice: '',
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -148,9 +159,39 @@ export class PurchaseBill extends React.Component {
     this.setState({shipFromAddress: address});
   };
 
+  async getExchangeRateToINR(currency) {
+    try {
+      const results = await InvoiceService.getExchangeRate(
+        moment().format('DD-MM-YYYY'),
+        this.state.companyCountryDetails.currency.code,
+        currency,
+      );
+      if (results.body && results.status == 'success') {
+        await this.setState({
+          totalAmountInINR: (Math.round(Number(this.getTotalAmount()) * results.body * 100) / 100).toFixed(2),
+          exchangeRate: results.body,
+        });
+      }
+    } catch (e) {}
+    return 1;
+  }
+
+  async setActiveCompanyCountry() {
+    try {
+      let activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      if (results.body && results.status == 'success') {
+        await this.setState({
+          companyCountryDetails: results.body.country,
+        });
+      }
+    } catch (e) {}
+  }
+
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -162,8 +203,18 @@ export class PurchaseBill extends React.Component {
       // store.dispatch.auth.logout();
     });
 
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      await this.resetState();
+      this.setActiveCompanyCountry();
+      this.getAllTaxes();
+      this.getAllDiscounts();
+      this.getAllWarehouse();
+      this.getAllAccountsModes();
+    });
+
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
+      this.setActiveCompanyCountry();
       this.getAllTaxes();
       this.getAllDiscounts();
       this.getAllWarehouse();
@@ -218,7 +269,10 @@ export class PurchaseBill extends React.Component {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{flexDirection: 'row', minHeight: 50}} onPress={() => {}}>
+      <View
+        onLayout={this.onLayout}
+        style={{flexDirection: 'row', minHeight: 50, alignItems: 'center'}}
+        onPress={() => {}}>
         <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center'}}> */}
           <Icon name={'Profile'} color={'#fafafa'} style={{margin: 16}} size={16} />
@@ -237,6 +291,9 @@ export class PurchaseBill extends React.Component {
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
           {/* </View> */}
         </View>
+        <TouchableOpacity onPress={() => this.resetState()}>
+          <Text style={{color: 'white', marginRight: 16}}>Clear All</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -395,10 +452,17 @@ export class PurchaseBill extends React.Component {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
       // console.log('cash account is ', results);
       if (results.body) {
-        this.setState({
+        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
+          await this.getExchangeRateToINR(results.body.currency);
+        }
+        await this.setState({
+          addedItems: [],
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
+          countryDeatils: results.body.country,
+          currency: results.body.currency,
+          currencySymbol: results.body.currencySymbol,
           addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
           BillFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
@@ -472,6 +536,16 @@ export class PurchaseBill extends React.Component {
         customField2: null,
         customField3: null,
       },
+      countryDeatils: {
+        countryName: '',
+        countryCode: '',
+      },
+      currency: '',
+      currencySymbol: '',
+      exchangeRate: 1,
+      totalAmountInINR: 0.0,
+      companyCountryDetails: '',
+      selectedInvoice: '',
     });
   };
   getDiscountForEntry(item) {
@@ -568,38 +642,107 @@ export class PurchaseBill extends React.Component {
     return entriesArray;
   }
 
-  async createPurchaseBill() {
+  downloadFile = async (voucherName, voucherNo, partyUniqueName) => {
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('yes its granted');
+        await this.onShare(voucherName, voucherNo, partyUniqueName);
+      } else {
+        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  onShare = async (voucherName, voucherNo, partyUniqueName) => {
+    try {
+      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      RNFetchBlob.fetch(
+        'POST',
+        `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`,
+        {
+          'session-id': `${token}`,
+          'Content-Type': 'application/json',
+        },
+        JSON.stringify({
+          voucherNumber: [`${voucherNo}`],
+          voucherType: `${voucherName}`,
+        }),
+      )
+        .then((res) => {
+          let base64Str = res.base64();
+          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
+          RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          this.setState({loading: false});
+        })
+        .then(() => {
+          Share.open({
+            title: 'This is the report',
+            message: 'Message:',
+            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
+            subject: 'Transaction report',
+          })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              // err && console.log(err);
+            });
+        });
+    } catch (e) {
+      this.setState({loading: false});
+      console.log(e);
+      console.log(e);
+    }
+  };
+
+  async createPurchaseBill(type) {
     this.setState({loading: true});
     try {
       console.log('came to this');
+      if (this.state.currency != this.state.companyCountryDetails.currency.code) {
+        let exchangeRate = 1;
+        (await this.getTotalAmount()) > 0
+          ? (exchangeRate = Number(this.state.totalAmountInINR) / this.getTotalAmount())
+          : (exchangeRate = 1);
+        await this.setState({exchangeRate: exchangeRate});
+      }
       let postBody = {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
           billingDetails: {
             address: [this.state.BillFromAddress.address],
-            // address: [''],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.BillFromAddress.gstNumber,
             panNumber: '',
-            state: {code: this.state.BillFromAddress.state.code, name: this.state.BillFromAddress.state.name},
+            state: {
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '',
+              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '',
+            },
             stateCode: this.state.BillFromAddress.stateCode,
             stateName: this.state.BillFromAddress.stateName,
           },
           contactNumber: '',
-          country: {countryName: 'India', countryCode: 'IN'},
-          currency: {code: 'INR'},
-          currencySymbol: '₹',
+          country: this.state.countryDeatils,
+          currency: {code: this.state.currency},
+          currencySymbol: this.state.currencySymbol,
           email: '',
           mobileNumber: '',
           name: this.state.partyName.name,
           // shippingDetails: this.state.partyShippingAddress,
           shippingDetails: {
             address: [this.state.BillToAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
-            state: {code: this.state.BillToAddress.state.code, name: this.state.BillToAddress.state.name},
+            state: {
+              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : '',
+              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : '',
+            },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
           },
@@ -613,7 +756,7 @@ export class PurchaseBill extends React.Component {
         //   amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
         // },
         entries: this.getEntries(),
-        // exchangeRate: 1,
+        exchangeRate: this.state.exchangeRate,
         // passportNumber: '',
         templateDetails: {
           other: {
@@ -635,37 +778,76 @@ export class PurchaseBill extends React.Component {
         company: {
           billingDetails: {
             address: [this.state.shipFromAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.shipFromAddress.gstNumber,
             panNumber: '',
-            state: {code: this.state.shipFromAddress.state.code, name: this.state.shipFromAddress.state.name},
+            state: {
+              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '',
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '',
+            },
             stateCode: this.state.shipFromAddress.stateCode,
             stateName: this.state.shipFromAddress.stateName,
           },
           shippingDetails: {
             address: [this.state.shipToAddress.address],
-            countryName: 'India',
+            countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.shipToAddress.gstNumber,
             panNumber: '',
-            state: {code: this.state.shipToAddress.state.code, name: this.state.shipToAddress.state.name},
+            state: {
+              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : '',
+              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : '',
+            },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
           },
         },
       };
+
+      if (this.state.selectedInvoice != '') {
+        postBody['number'] = this.state.selectedInvoice;
+      }
+
       console.log('purchase bill postBody is', JSON.stringify(postBody));
       const results = await InvoiceService.createPurchaseBill(postBody, this.state.partyName.uniqueName);
-      this.setState({loading: false});
+      if (type != 'share') {
+        this.setState({loading: false});
+      }
       if (results.body) {
         // this.setState({loading: false});
         alert('Purchase Bill created successfully!');
+        const partyDetails = this.state.partyDetails;
+        const partyUniqueName = this.state.partyDetails.uniqueName;
         this.resetState();
+        this.setActiveCompanyCountry();
         this.getAllTaxes();
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
         this.props.navigation.goBack();
         DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
+        if (type == 'navigate') {
+          this.props.navigation.navigate(routes.Parties, {
+            screen: 'PartiesTransactions',
+            initial: false,
+            params: {
+              item: {
+                name: partyDetails.name,
+                uniqueName: partyDetails.uniqueName,
+                country: {code: partyDetails.country.countryCode},
+                mobileNo: partyDetails.mobileNo,
+              },
+              type: 'Creditors',
+            },
+          });
+        }
+        if (type == 'share') {
+          console.log('sharing');
+          this.downloadFile(
+            results.body.entries[0].voucherType,
+            results.body.entries[0].voucherNumber,
+            partyUniqueName,
+          );
+        }
       }
     } catch (e) {
       console.log('problem occured', e);
@@ -675,8 +857,8 @@ export class PurchaseBill extends React.Component {
 
   renderAmount() {
     return (
-      <View style={{paddingVertical: 10, paddingHorizontal: 40}}>
-        <Text style={style.invoiceAmountText}>{'₹' + this.getTotalAmount()}</Text>
+      <View style={{paddingVertical: 10, paddingHorizontal: 15}}>
+        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
       </View>
     );
   }
@@ -775,6 +957,26 @@ export class PurchaseBill extends React.Component {
     );
   }
 
+  _renderSelectInvoice() {
+    return (
+      <View style={style.dateView}>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={style.InvoiceHeading}>Invoice #</Text>
+          <View style={{flexDirection: 'row', width: '75%', marginHorizontal: 15, justifyContent: 'space-between'}}>
+            <TextInput
+              placeholder={'Enter Invoice name'}
+              value={this.state.selectedInvoice}
+              style={{color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%', height: 40}}
+              onChangeText={(value) => {
+                this.setState({selectedInvoice: value});
+              }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   _renderAddress() {
     return (
       <View style={style.senderAddress}>
@@ -808,6 +1010,8 @@ export class PurchaseBill extends React.Component {
               ? this.state.BillFromAddress.address
               : this.state.BillFromAddress.stateName
               ? this.state.BillFromAddress.stateName
+              : this.state.countryDeatils.countryName
+              ? this.state.countryDeatils.countryName
               : 'Select Billing Address'}
           </Text>
           {/*Sender Address View*/}
@@ -837,6 +1041,8 @@ export class PurchaseBill extends React.Component {
               ? this.state.BillToAddress.address
               : this.state.BillToAddress.stateName
               ? this.state.BillToAddress.stateName
+              : this.state.countryDeatils.countryName
+              ? this.state.countryDeatils.countryName
               : 'Select Billing Address'}
           </Text>
 
@@ -920,18 +1126,48 @@ export class PurchaseBill extends React.Component {
       showDatePicker: false,
     });
   };
-  updateAddedItems = (addedItems) => {
-    this.setState({addedItems: addedItems});
+
+  updateAddedItems = async (addedItems) => {
+    let updateAmountToCurrentCurrency = addedItems;
+    if (this.state.currency.toString() != this.state.companyCountryDetails.currency.code.toString()) {
+      try {
+        let results = await InvoiceService.getExchangeRate(
+          moment().format('DD-MM-YYYY'),
+          this.state.currency,
+          this.state.companyCountryDetails.currency.code,
+        );
+        if (results.body && results.status == 'success') {
+          for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
+            let item = updateAmountToCurrentCurrency[i];
+            if (updateAmountToCurrentCurrency[i].currency.code.toString() != this.state.currency.toString()) {
+              updateAmountToCurrentCurrency[i].currency = await {
+                code: this.state.currency,
+                symbol: this.state.currencySymbol,
+              };
+              updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body);
+            }
+          }
+        }
+      } catch (e) {}
+    }
+    await this.setState({addedItems: updateAmountToCurrentCurrency});
+    await this.setState({
+      totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2),
+    });
   };
 
   renderAddItemButton() {
     return (
       <TouchableOpacity
         onPress={() => {
-          this.props.navigation.navigate('PurchaseAddItem', {
-            updateAddedItems: this.updateAddedItems,
-            addedItems: this.state.addedItems,
-          });
+          if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
+            this.props.navigation.navigate('PurchaseAddItem', {
+              updateAddedItems: this.updateAddedItems.bind(this),
+              addedItems: this.state.addedItems,
+            });
+          } else {
+            alert('Please select a party.');
+          }
         }}
         // onPress={() => console.log(this.state.partyShippingAddress)}
         style={{
@@ -961,7 +1197,7 @@ export class PurchaseBill extends React.Component {
           <TouchableOpacity
             onPress={() => {
               this.props.navigation.navigate('PurchaseAddItem', {
-                updateAddedItems: this.updateAddedItems,
+                updateAddedItems: this.updateAddedItems.bind(this),
                 addedItems: this.state.addedItems,
               });
             }}>
@@ -978,6 +1214,18 @@ export class PurchaseBill extends React.Component {
     );
   }
 
+  addItem = (item) => {
+    let newItems = this.state.addedItems;
+    newItems.push(item);
+    this.setState({addedItems: newItems});
+    if (item.rate) {
+      let totalAmount = this.getTotalAmount();
+      this.setState({
+        totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2),
+      });
+    }
+  };
+
   deleteItem = (item) => {
     let addedArray = this.state.addedItems;
     let itemUniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
@@ -991,6 +1239,12 @@ export class PurchaseBill extends React.Component {
     );
     addedArray.splice(index, 1);
     this.setState({addedItems: addedArray, showItemDetails: false}, () => {});
+    if (item.rate) {
+      let totalAmount = this.getTotalAmount();
+      this.setState({
+        totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2),
+      });
+    }
   };
 
   renderRightAction(item) {
@@ -1032,29 +1286,35 @@ export class PurchaseBill extends React.Component {
               },
             });
           }}>
-          <View style={{flexDirection: 'row', paddingVertical: 10}}>
-            <Text style={{color: '#1C1C1C'}}>{item.name} </Text>
-            {item.stock && (
-              <Text numberOfLines={1} style={{color: '#1C1C1C', width: '75%'}}>
-                ( {item.stock.name} ) :
-              </Text>
-            )}
+          <View style={{flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between'}}>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={{color: '#1C1C1C'}}>{item.name} </Text>
+              {item.stock && (
+                <Text numberOfLines={1} style={{color: '#1C1C1C'}}>
+                  ( {item.stock.name} ) :
+                </Text>
+              )}
+            </View>
+            <TouchableOpacity onPress={() => this.addItem(item)} style={{flexDirection: 'row', alignItems: 'center'}}>
+              <AntDesign name={'plus'} color={'#808080'} size={15} />
+              <Text style={{color: '#808080'}}>Add again</Text>
+            </TouchableOpacity>
           </View>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <View>
               <Text style={{color: '#808080'}}>
-                {String(item.quantity)} x {item.currency.symbol}
+                {String(item.quantity)} x {this.state.currencySymbol}
                 {String(item.rate)}
               </Text>
             </View>
           </View>
 
           <Text style={{marginTop: 5, color: '#808080'}}>
-            Tax :{item.currency.symbol}
+            Tax :{this.state.currencySymbol}
             {this.calculatedTaxAmount(item)}
           </Text>
           <Text style={{marginTop: 5, color: '#808080'}}>
-            Discount : {item.currency.symbol}
+            Discount : {this.state.currencySymbol}
             {item.discountValue ? item.discountValue : 0}
           </Text>
         </TouchableOpacity>
@@ -1119,6 +1379,7 @@ export class PurchaseBill extends React.Component {
     let taxArr = this.state.taxArray;
     console.log('rate', itemDetails.rate);
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+    amt = amt - Number(itemDetails.discountValue);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         let item = itemDetails.taxDetailsArray[i];
@@ -1258,26 +1519,84 @@ export class PurchaseBill extends React.Component {
         {this.state.expandedBalance && (
           <View style={{margin: 16}}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{color: '#1C1C1C'}}>Total Amount</Text>
-              <Text style={{color: '#1C1C1C'}}>
-                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
-                {this.getTotalAmount()}
-              </Text>
+              <Text style={{color: '#1C1C1C'}}>{'Total Amount ' + this.state.currencySymbol}</Text>
+              <Text style={{color: '#1C1C1C'}}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
             </View>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4}}>
+            {this.state.currency != this.state.companyCountryDetails.currency.code &&
+            this.state.invoiceType != INVOICE_TYPE.cash ? (
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 5}}>
+                <Text style={{color: '#1C1C1C', textAlignVertical: 'center'}}>
+                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
+                </Text>
+                <TextInput
+                  style={{
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#808080',
+                    color: '#1C1C1C',
+                    textAlign: 'center',
+                    marginRight: -10,
+                  }}
+                  placeholder={'Amount'}
+                  returnKeyType={'done'}
+                  keyboardType="number-pad"
+                  onChangeText={async (text) => {
+                    await this.setState({totalAmountInINR: Number(text)});
+                  }}>
+                  {this.state.totalAmountInINR}
+                </TextInput>
+              </View>
+            ) : null}
+
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 8}}>
               <Text style={{color: '#1C1C1C'}}>Balance Due</Text>
               <Text style={{color: '#1C1C1C'}}>
-                {this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}
+                {this.state.addedItems.length > 0 && this.state.currencySymbol}
                 {String(this.getTotalAmount()) - this.state.amountPaidNowText}
               </Text>
             </View>
           </View>
         )}
 
-        <View style={{justifyContent: 'flex-end', flexDirection: 'row', marginTop: 20, margin: 16}}>
+        <View
+          style={{
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            marginTop: 20,
+            margin: 16,
+            alignItems: 'center',
+          }}>
+          <View>
+            <TouchableOpacity
+              style={
+                {
+                  // backgroundColor: '#5773FF',
+                  // paddingVertical: 8,
+                  // paddingHorizontal: 7,
+                  // justifyContent: 'center',
+                  // alignItems: 'center',
+                  // borderRadius: 10,
+                  // marginBottom: 3
+                }
+              }
+              onPress={() => {
+                this.genrateInvoice('new');
+              }}>
+              <Text style={{color: '#808080', fontSize: 13}}>Create and New</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                marginTop: 10,
+                // backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10
+              }}
+              onPress={() => {
+                this.genrateInvoice('share');
+              }}>
+              <Text style={{color: '#808080', fontSize: 13}}>Create and Share</Text>
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity
             onPress={() => {
-              this.genrateInvoice();
+              this.genrateInvoice('navigate');
             }}>
             <Icon name={'path-18'} size={48} color={'#5773FF'} />
           </TouchableOpacity>
@@ -1285,13 +1604,21 @@ export class PurchaseBill extends React.Component {
       </View>
     );
   }
-  genrateInvoice() {
+  genrateInvoice(type) {
     if (!this.state.partyName) {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
+    } else if (
+      this.state.currency != this.state.companyCountryDetails.currency.code &&
+      this.state.totalAmountInINR <= 0 &&
+      this.getTotalAmount() > 0
+    ) {
+      Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
+        {style: 'destructive', onPress: () => console.log('alert destroyed')},
+      ]);
     } else {
-      this.createPurchaseBill();
+      this.createPurchaseBill(type);
     }
   }
 
@@ -1330,6 +1657,9 @@ export class PurchaseBill extends React.Component {
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
     this.setState({showItemDetails: false, addedItems: addedArray}, () => {});
+
+    const totalAmount = this.getTotalAmount();
+    this.setState({totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)});
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
   }
@@ -1357,6 +1687,7 @@ export class PurchaseBill extends React.Component {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {this._renderSelectInvoice()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
             {this.state.addedItems.length > 0 && this._renderTotalAmount()}
@@ -1371,7 +1702,7 @@ export class PurchaseBill extends React.Component {
               style={{height: 60, width: 60, backgroundColor: 'pink'}}
               onPress={() => console.log(this.state.addressArray)}></TouchableOpacity> */}
             {/* <View style={{flexDirection: 'row'}}>
-            
+
             <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink', marginLeft: 8}}
               onPress={() => console.log(this.state.BillToAddress)}></TouchableOpacity>
@@ -1403,6 +1734,7 @@ export class PurchaseBill extends React.Component {
         </Animated.ScrollView>
         {this.state.showItemDetails && (
           <PurchaseItemEdit
+            currencySymbol={this.state.currencySymbol}
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {
