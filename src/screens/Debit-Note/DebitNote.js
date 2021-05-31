@@ -1691,9 +1691,9 @@ export class DebiteNote extends React.Component<Props> {
       alert('Please select entries to proceed.');
     } else if (this.state.currency != this.state.companyCountryDetails.currency.code && this.state.totalAmountInINR <= 0 && this.getTotalAmount() > 0) {
       Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
-    } else if (!this.state.partyBillingAddress.stateName || !this.state.partyBillingAddress.stateCode || !this.state.partyBillingAddress.state) {
+    } else if (this.state.currency == this.state.companyCountryDetails.currency.code && (!this.state.partyBillingAddress.stateName || !this.state.partyBillingAddress.stateCode || !this.state.partyBillingAddress.state)) {
       Alert.alert('Empty state details', 'Please add state details for Billing From', [{ style: 'destructive', text: 'Okay' }]);
-    } else if (!this.state.partyShippingAddress.stateName || !this.state.partyShippingAddress.stateCode || !this.state.partyShippingAddress.state) {
+    } else if (this.state.currency == this.state.companyCountryDetails.currency.code && (!this.state.partyShippingAddress.stateName || !this.state.partyShippingAddress.stateCode || !this.state.partyShippingAddress.state)) {
       Alert.alert('Empty state details', 'Please add state details for Shipping From', [{ style: 'destructive', text: 'Okay' }]);
     } else {
       this.createInvoice();

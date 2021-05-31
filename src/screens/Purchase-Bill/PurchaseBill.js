@@ -1857,9 +1857,9 @@ export class PurchaseBill extends React.Component {
       alert('Please select entries to proceed.');
     } else if (this.state.currency != this.state.companyCountryDetails.currency.code && this.state.totalAmountInINR <= 0 && this.getTotalAmount() > 0) {
       Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
-    } else if (!this.state.BillFromAddress.stateName || !this.state.BillFromAddress.stateCode || !this.state.BillFromAddress.state) {
+    } else if (this.state.currency == this.state.companyCountryDetails.currency.code && (!this.state.BillFromAddress.stateName || !this.state.BillFromAddress.stateCode || !this.state.BillFromAddress.state)) {
       Alert.alert('Empty state details', 'Please add state details for Billing From', [{ style: 'destructive', text: 'Okay' }]);
-    } else if (!this.state.shipFromAddress.stateName || !this.state.shipFromAddress.stateCode || !this.state.shipFromAddress.state) {
+    } else if (this.state.currency == this.state.companyCountryDetails.currency.code && (!this.state.shipFromAddress.stateName || !this.state.shipFromAddress.stateCode || !this.state.shipFromAddress.state)) {
       Alert.alert('Empty state details', 'Please add state details for Shipping From', [{ style: 'destructive', text: 'Okay' }]);
     } else {
       this.createPurchaseBill(type);
