@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -34,7 +34,15 @@ export class Customers extends React.Component<Props> {
     this.getAllDeatils();
     this.setActiveCompanyCountry()
     this.checkStoredCountryCode();
-    this.props.resetFun(this.resetState);
+    this.props.resetFun(this.clearAll);
+  }
+
+  clearAll = () => {
+    this.resetState();
+    Keyboard.dismiss();
+    this.getAllDeatils();
+    this.setActiveCompanyCountry()
+    this.checkStoredCountryCode();
   }
 
   async getAllDeatils () {
@@ -460,11 +468,6 @@ export class Customers extends React.Component<Props> {
       pincode: '',
       isEmailInvalid: false,
       isMobileNoValid: false,
-      groupDropDown: Dropdown,
-      isGroupDD: false,
-      isPartyDD: false,
-      partyPlaceHolder: '',
-      partyDialog: false,
       activeCompanyCountryCode: ''
     })
   }
@@ -594,7 +597,7 @@ export class Customers extends React.Component<Props> {
               }}
               onFocus={() => this.setState({ partyPlaceHolder: 'a' })}
               onChangeText={(text) => {
-                console.log(text)
+                console.log(text);
                 this.setState({ partyName: text })
               }
               }

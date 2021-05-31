@@ -201,14 +201,15 @@ export class SalesInvoice extends React.Component<Props> {
     this.getAllWarehouse();
     this.getAllAccountsModes();
 
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-      await this.resetState();
-      this.setActiveCompanyCountry();
-      this.getAllTaxes();
-      this.getAllDiscounts();
-      this.getAllWarehouse();
-      this.getAllAccountsModes();
-    });
+    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+    // console.log('resetDog');
+    // await this.resetState();
+    // this.setActiveCompanyCountry()
+    // this.getAllTaxes();
+    // this.getAllDiscounts();
+    // this.getAllWarehouse();
+    // this.getAllAccountsModes();
+    // });
 
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
@@ -234,6 +235,15 @@ export class SalesInvoice extends React.Component<Props> {
       });
     }
   }
+
+  clearAll = () => {
+    this.resetState();
+    this.setActiveCompanyCountry();
+    this.getAllTaxes();
+    this.getAllDiscounts();
+    this.getAllWarehouse();
+    this.getAllAccountsModes();
+  };
 
   /*
        Added Keyboard Listner for making view scroll if needed
@@ -355,7 +365,7 @@ export class SalesInvoice extends React.Component<Props> {
           />
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
-        <TouchableOpacity onPress={() => this.resetState()}>
+        <TouchableOpacity onPress={() => this.clearAll()}>
           <Text style={{color: 'white', marginRight: 16}}>Clear All</Text>
         </TouchableOpacity>
       </View>

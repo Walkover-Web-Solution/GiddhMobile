@@ -50,6 +50,8 @@ import { catch } from 'metro.config';
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
+const {width, height} = Dimensions.get('window');
+
 class PartiesTransactionScreen extends React.Component {
   constructor(props: Props) {
     super(props);
@@ -992,9 +994,10 @@ class PartiesTransactionScreen extends React.Component {
                   <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
+              <TouchableOpacity 
                 onPress={() => this.scheduleNotification()}
-                style={{ width: '100%', justifyContent: 'center', alignItems: 'center', paddingVertical: 5, backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50 }}>
+                style={{ height: height * 0.06,
+                width: width * 0.8, justifyContent: 'center', alignItems: 'center', paddingVertical: 5, backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50 }}>
                 <Text style={{ color: 'white' }}>Done</Text>
               </TouchableOpacity>
               <DateTimePickerModal
