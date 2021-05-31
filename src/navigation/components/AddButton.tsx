@@ -22,8 +22,8 @@ const arrButtons = [
   { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
   { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345' },
   { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961' },
-  { name: 'Customer', navigateTo: 'CustomerScreens', icon: 'Group-6187', color: '#864DD3' },
-  { name: 'Vendor', navigateTo: 'VendorScreens', icon: 'Group-6188', color: '#FF72BE' }
+  { name: 'Customer', navigateTo: 'CustomerVendorScreens', icon: 'Group-6187', color: '#864DD3' },
+  { name: 'Vendor', navigateTo: 'CustomerVendorScreens', icon: 'Group-6188', color: '#FF72BE' }
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},
@@ -132,7 +132,15 @@ class AddButton extends Component<Props> {
                     // onPress={() => console.log('this works')}
                     onPress={async () => {
                       await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                      await this.props.navigation.navigate(item.navigateTo);
+                      if (item.name == 'Customer') {
+                        await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 0 } });
+                        await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                      } else if (item.name == 'Vendor') {
+                        await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 1 } });
+                        await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                      } else {
+                        await this.props.navigation.navigate(item.navigateTo);
+                      }
                       await this.setState({ modalVisible: false });
                       // this.toggleView();
                     }}>

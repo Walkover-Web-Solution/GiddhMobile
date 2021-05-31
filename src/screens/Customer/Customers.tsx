@@ -15,7 +15,7 @@ import Foundation from 'react-native-vector-icons/Foundation';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
-
+import { useIsFocused } from '@react-navigation/native';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';// customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
@@ -29,11 +29,12 @@ interface Props {
 }
 
 export class Customers extends React.Component<Props> {
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
   }
 
   clearAll = async () => {
+    console.log('CLEAR ALLL Customer')
     await this.resetState();
     await Keyboard.dismiss();
     await this.getAllDeatils();
@@ -42,7 +43,7 @@ export class Customers extends React.Component<Props> {
     await this.state.partyDropDown.select(-1);
   }
 
-  async getAllDeatils() {
+  async getAllDeatils () {
     await this.setState({ loading: true });
     const allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
@@ -54,7 +55,7 @@ export class Customers extends React.Component<Props> {
     await this.setState({ loading: false });
   }
 
-  async setActiveCompanyCountry() {
+  async setActiveCompanyCountry () {
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
@@ -491,16 +492,12 @@ export class Customers extends React.Component<Props> {
     });
   };
 
-  componentDidMount() {
-    this.getAllDeatils();
+  componentDidMount () {
+    console.log('mounting Customer');
     this.setActiveCompanyCountry()
+    this.getAllDeatils();
     this.checkStoredCountryCode();
     this.props.resetFun(this.clearAll);
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-    //   await this.resetState();
-    //   await this.setActiveCompanyCountry()
-    //   await this.getAllDeatils();
-    // });
   }
 
   checkStoredCountryCode = async () => {
@@ -512,7 +509,7 @@ export class Customers extends React.Component<Props> {
     }
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.customerMainContainer}>
         <Dialog.Container
@@ -829,7 +826,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <Customers {...props} isFocused={isFocused} />;

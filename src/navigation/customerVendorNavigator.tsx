@@ -1,22 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-
-import Customer from '../screens/Customer/CustomerMain';
 import EditAddress from '@/core/components/Select-Address/EditAddress';
+
+import CustomerVendor from '../screens/Customer/CustomerMain';
 
 const { Navigator, Screen } = createStackNavigator();
 
-function VendorStack () {
+function CustomerStack (props: Props) {
   return (
     <Navigator
       screenOptions={{
         headerShown: false
       }}
-      initialRouteName={'VendorScreens'}>
-      <Screen component={Customer} name={'Customer'} initialParams={{ index: 1 }} />
+      initialRouteName={'CustomerVendorScreens'}>
+      <Screen component={CustomerVendor} name={'CustomerVendorScreens'} />
       <Screen component={EditAddress} name={'EditAddressCV'} />
     </Navigator>
   );
 }
 
-export default VendorStack;
+export default CustomerStack;
