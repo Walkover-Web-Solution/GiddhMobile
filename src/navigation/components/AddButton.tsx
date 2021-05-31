@@ -131,10 +131,9 @@ class AddButton extends Component<Props> {
                     // disabled={this.state.buttonsDisabled}
                     // onPress={() => console.log('this works')}
                     onPress={async () => {
-                      DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                      this.props.navigation.navigate(item.navigateTo);
-                      this.setState({ modalVisible: false });
-
+                      await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                      await this.props.navigation.navigate(item.navigateTo);
+                      await this.setState({ modalVisible: false });
                       // this.toggleView();
                     }}>
                     <View

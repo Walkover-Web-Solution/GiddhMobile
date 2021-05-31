@@ -171,15 +171,15 @@ export class CreditNote extends React.Component<Props> {
     this.getAllWarehouse();
     this.getAllAccountsModes();
 
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-      await this.state.accountDropDown.select(-1)
-      await this.resetState();
-      this.setActiveCompanyCountry()
-      this.getAllTaxes();
-      this.getAllDiscounts();
-      this.getAllWarehouse();
-      this.getAllAccountsModes();
-    });
+    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+    //   await this.state.accountDropDown.select(-1)
+    //   await this.resetState();
+    //   this.setActiveCompanyCountry()
+    //   this.getAllTaxes();
+    //   this.getAllDiscounts();
+    //   this.getAllWarehouse();
+    //   this.getAllAccountsModes();
+    // });
 
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updateItemInCreditNote, (data) => {
@@ -317,14 +317,15 @@ export class CreditNote extends React.Component<Props> {
     );
   }
 
-  clearAll = () => {
+  clearAll = async () => {
+    await this.state.accountDropDown.select(-1);
     Keyboard.dismiss();
-    this.resetState();
-    this.setActiveCompanyCountry()
-    this.getAllTaxes();
-    this.getAllDiscounts();
-    this.getAllWarehouse();
-    this.getAllAccountsModes();
+    await this.resetState();
+    await this.setActiveCompanyCountry()
+    await this.getAllTaxes();
+    await this.getAllDiscounts();
+    await this.getAllWarehouse();
+    await this.getAllAccountsModes();
   }
 
   onLayout = (e) => {
@@ -1637,7 +1638,7 @@ export class CreditNote extends React.Component<Props> {
             </View>
             { this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash
               ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-              <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>{'Total Amount ' + this.state.companyCountryDetails.currency.symbol}</Text>
+              <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
               <TextInput
                 style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: 'center', marginRight: -10 }}
                 placeholder={'Amount'}

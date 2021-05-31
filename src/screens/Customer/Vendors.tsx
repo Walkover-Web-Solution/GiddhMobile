@@ -29,35 +29,32 @@ interface Props {
 }
 
 export class Vendors extends React.Component<Props> {
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
-    this.setActiveCompanyCountry()
-    this.getAllDeatils();
-    this.checkStoredCountryCode();
-    this.props.resetFun(this.clearAll);
   }
 
-  clearAll = () => {
-    this.resetState();
-    Keyboard.dismiss();
-    this.getAllDeatils();
-    this.setActiveCompanyCountry()
-    this.checkStoredCountryCode();
+  clearAll = async() => {
+    await this.resetState();
+    await Keyboard.dismiss();
+    await this.getAllDeatils();
+    await this.setActiveCompanyCountry()
+    await this.checkStoredCountryCode();
+    await this.state.partyDropDown.select(-1);
   }
 
-  async getAllDeatils () {
+  async getAllDeatils() {
     await this.setState({ loading: true });
     const allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
-    // let allCurrency = await CustomerVendorService.getAllCurrency()
+    let allCurrency = await CustomerVendorService.getAllCurrency()
     // let allCountry = await CustomerVendorService.getAllCountryName()
     const allCallingCode = await CustomerVendorService.getAllCallingCode()
-    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCallingCode: allCallingCode.body.callingCodes })
+    await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
     // await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allStates: allStateName.body.stateList, allCurrency: allCurrency.body, allCountry: allCountry.body, allCallingCode: allCallingCode.body.callingCodes })
     await this.setState({ loading: false });
   }
 
-  async setActiveCompanyCountry () {
+  async setActiveCompanyCountry() {
     await this.setState({ loading: true });
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
@@ -208,9 +205,8 @@ export class Vendors extends React.Component<Props> {
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.08)' }}>
-            <Text style={{ color: '#1C1C1C' }}>INR</Text>
-            {/* <Dropdown
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden', }}>
+            <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.selectedCurrency}
@@ -228,8 +224,8 @@ export class Vendors extends React.Component<Props> {
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.code}</Text>);
               }}
-            /> */}
-            {/* <Icon
+            />
+            <Icon
               style={{ transform: [{ rotate: 0 ? '180deg' : '0deg' }], paddingLeft: 20 }}
               name={'9'}
               size={12}
@@ -237,7 +233,7 @@ export class Vendors extends React.Component<Props> {
               onPress={() => {
                 this.state.creditPeriodRef.show();
               }}
-            /> */}
+            />
           </View>
         </View>
         {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
@@ -362,7 +358,7 @@ export class Vendors extends React.Component<Props> {
     }
     const pattern = new RegExp(/^[0-9\b]+$/);
     if (!pattern.test(this.state.contactNumber)) {
-      Alert.alert('Error', 'Please enter only number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+      Alert.alert('Error', 'Please enter only number in phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
       return false;
     } else if (this.state.contactNumber.length != 10) {
       Alert.alert('Error', 'Please enter valid phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
@@ -448,9 +444,8 @@ export class Vendors extends React.Component<Props> {
         country: {
           countryCode: this.state.selectedCountry.alpha2CountryCode
         },
-        // currency: this.state.selectedCurrency,
-        // In Vendor Account with different currency cannot be created.
-        currency: 'INR',
+        currency: this.state.selectedCurrency,
+        // currency: 'INR',
         accountBankDetails: [{
           bankName: this.state.bankName,
           bankAccountNo: this.state.bankAccountNumber,
@@ -552,12 +547,16 @@ export class Vendors extends React.Component<Props> {
     })
   }
 
-  componentDidMount () {
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-      await this.resetState();
-      await this.setActiveCompanyCountry()
-      await this.getAllDeatils();
-    });
+  componentDidMount() {
+    this.setActiveCompanyCountry()
+    this.getAllDeatils();
+    this.checkStoredCountryCode();
+    this.props.resetFun(this.clearAll);
+    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+    //   await this.resetState();
+    //   await this.setActiveCompanyCountry()
+    //   await this.getAllDeatils();
+    // });
     // this.checkStoredCountryCode();
   }
 
@@ -570,7 +569,7 @@ export class Vendors extends React.Component<Props> {
     }
   }
 
-  render () {
+  render() {
     return (
       <View style={styles.customerMainContainer}>
         <Dialog.Container
@@ -600,50 +599,50 @@ export class Vendors extends React.Component<Props> {
         </Dialog.Container>
         {this.state.successDialog
           ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
-          <Award />
-          <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
-          <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>The Vendor is created successfully.</Text>
-          <TouchableOpacity
-            style={{
-              alignItems: 'center',
-              width: '70%',
-              alignSelf: 'center',
-              borderRadius: 30,
-              backgroundColor: '#229F5F',
-              marginTop: 30,
-              height: 50
-            }}
-            onPress={() => {
-              this.setState({ successDialog: false });
-              this.props.navigation.goBack();
-            }}
-          >
-            <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Done</Text>
-          </TouchableOpacity>
-        </Dialog.Container>
+            <Award />
+            <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
+            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>The Vendor is created successfully.</Text>
+            <TouchableOpacity
+              style={{
+                alignItems: 'center',
+                width: '70%',
+                alignSelf: 'center',
+                borderRadius: 30,
+                backgroundColor: '#229F5F',
+                marginTop: 30,
+                height: 50
+              }}
+              onPress={() => {
+                this.setState({ successDialog: false });
+                this.props.navigation.goBack();
+              }}
+            >
+              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Done</Text>
+            </TouchableOpacity>
+          </Dialog.Container>
           : null}
         {this.state.faliureDialog
           ? <Dialog.Container visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
-          <Faliure />
-          <Text style={{ color: '#F2596F', fontSize: 16 }}>Error!</Text>
-          <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>Sorry, Failed to import the entries.</Text>
-          <TouchableOpacity
-            style={{
-              alignItems: 'center',
-              width: '70%',
-              alignSelf: 'center',
-              borderRadius: 30,
-              backgroundColor: '#F2596F',
-              marginTop: 30,
-              height: 50
-            }}
-            onPress={() => {
-              this.setState({ faliureDialog: false });
-            }}
-          >
-            <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Try Again</Text>
-          </TouchableOpacity>
-        </Dialog.Container>
+            <Faliure />
+            <Text style={{ color: '#F2596F', fontSize: 16 }}>Error!</Text>
+            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>Sorry, Failed to import the entries.</Text>
+            <TouchableOpacity
+              style={{
+                alignItems: 'center',
+                width: '70%',
+                alignSelf: 'center',
+                borderRadius: 30,
+                backgroundColor: '#F2596F',
+                marginTop: 30,
+                height: 50
+              }}
+              onPress={() => {
+                this.setState({ faliureDialog: false });
+              }}
+            >
+              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Try Again</Text>
+            </TouchableOpacity>
+          </Dialog.Container>
           : null}
 
         <View style={{ flex: 1 }}>
@@ -669,6 +668,7 @@ export class Vendors extends React.Component<Props> {
           <View style={styles.rowContainer}>
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
             <Dropdown
+              ref={(ref) => this.state.partyDropDown = ref}
               textStyle={{ color: '#808080', fontSize: 15, marginTop: -1 }}
               defaultValue={this.state.selectedCallingCode}
               renderButtonText={(text) => {
@@ -917,7 +917,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <Vendors {...props} isFocused={isFocused} />;
