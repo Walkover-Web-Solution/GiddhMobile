@@ -16,7 +16,7 @@ import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'reac
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
-
+import { useIsFocused } from '@react-navigation/native';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';// customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
@@ -33,7 +33,8 @@ export class Vendors extends React.Component<Props> {
     super(props);
   }
 
-  clearAll = async() => {
+  clearAll = async () => {
+    console.log("CLEAR ALLL Vendor")
     await this.resetState();
     await Keyboard.dismiss();
     await this.getAllDeatils();
