@@ -1527,8 +1527,10 @@ export class SalesInvoice extends React.Component<Props> {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
         // console.log("Item Details taxDetailsArray " + JSON.stringify(item))
-        if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code) {
-          if ((item.taxType == "tdspay" || item.taxType == "tcspay" || this.state.invoiceType == INVOICE_TYPE.cash || calculateFor == "taxAmount")) {
+        if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType!=INVOICE_TYPE.cash) {
+           // In case of company country india, if any foriegn country customer exist then invoice due is only contains tcs/tds tax 
+          // And in case of tax calculation we add all taxes awith tcs/tds. 
+          if ((item.taxType == "tdspay" || item.taxType == "tcspay" || calculateFor == "taxAmount")) {
             const taxPercent = Number(item.taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
             totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
@@ -1536,6 +1538,8 @@ export class SalesInvoice extends React.Component<Props> {
         } else {
           const taxPercent = Number(item.taxDetail[0].taxValue);
           const taxAmount = (taxPercent * Number(amt)) / 100;
+          // In normal case, for tax and invoice due we calculate all taxes( including tds/tcs),
+          // But when we calculating total amount we did not include tcs/tds tax.
           if (calculateFor == "taxAmount" || calculateFor == "InvoiceDue") {
             totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
           } else {
@@ -1550,8 +1554,8 @@ export class SalesInvoice extends React.Component<Props> {
         for (let j = 0; j < taxArr.length; j++) {
           if (item == taxArr[j].uniqueName) {
             // console.log("Item Deatils stocks " + JSON.stringify(taxArr[j]))
-            if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code) {
-              if ((taxArr[j].taxType == "tdspay" || taxArr[j].taxType == "tcspay" || this.state.invoiceType == INVOICE_TYPE.cash || calculateFor == "taxAmount")) {
+            if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType!=INVOICE_TYPE.cash) {
+              if ((taxArr[j].taxType == "tdspay" || taxArr[j].taxType == "tcspay" || calculateFor == "taxAmount")) {
                 const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
                 const taxAmount = (taxPercent * Number(amt)) / 100;
                 totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
@@ -1890,7 +1894,7 @@ export class SalesInvoice extends React.Component<Props> {
                   data={this.state.tdsOrTcsArray}
                   renderItem={({ item }) => {
                     return (
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
                         <Text style={{ color: '#1C1C1C' }}>{item.name}</Text>
                         <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + item.amount}</Text>
                       </View>
@@ -1921,7 +1925,7 @@ export class SalesInvoice extends React.Component<Props> {
                 </View>
               </TouchableOpacity>
               {this.state.invoiceType == 'cash' ? (
-                <Text style={{ color: '#1C1C1C' }}>{this.getTotalAmount()}</Text>
+                <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
               ) : (
                 <TouchableOpacity
                   onPress={() => {
@@ -2074,8 +2078,8 @@ export class SalesInvoice extends React.Component<Props> {
     for (let i = 0; i < addedArray.length; i++) {
       let tdsOrTcsTaxObj = this.calculatedTdsOrTcsTaxAmount(addedArray[i]);
       if (tdsOrTcsTaxObj != null) {
-        tdsTaxObj.amount = tdsOrTcsTaxObj.name == "tdspay" ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)) : tdsTaxObj.amount
-        tcsTaxObj.amount = tdsOrTcsTaxObj.name == "tcspay" ? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)) : tcsTaxObj.amount
+        tdsTaxObj.amount = tdsOrTcsTaxObj.name == "tdspay" ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
+        tcsTaxObj.amount = tdsOrTcsTaxObj.name == "tcspay" ? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
       }
     }
     tcsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tcsTaxObj) : null
