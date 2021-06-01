@@ -659,8 +659,8 @@ export class DebiteNote extends React.Component<Props> {
       const discountItem = {
         calculationMethod: 'FIX_AMOUNT',
         uniqueName: item.fixedDiscount.uniqueName,
-        amount: {type: 'DEBIT', amountForAccount: item.fixedDiscount.discountValue},
-        discountValue: item.fixedDiscount.discountValue,
+        amount: {type: 'DEBIT', amountForAccount: Number(item.fixedDiscount.discountValue)},
+        discountValue: Number(item.fixedDiscount.discountValue),
         name: '',
         particular: '',
       };
@@ -671,9 +671,10 @@ export class DebiteNote extends React.Component<Props> {
         for (let i = 0; i < item.percentDiscountArray.length; i++) {
           const discountItem = {
             calculationMethod: 'PERCENTAGE',
-            amount: {type: 'DEBIT', amountForAccount: item.percentDiscountArray[i].discountValue},
-            name: item.percentDiscountArray[i].name,
             uniqueName: item.percentDiscountArray[i].uniqueName,
+            amount: {type: 'DEBIT', amountForAccount: item.percentDiscountArray[i].discountValue},
+            discountValue: item.percentDiscountArray[i].discountValue,
+            name: item.percentDiscountArray[i].name,
             particular: item.percentDiscountArray[i].linkAccount.uniqueName,
           };
           discountArr.push(discountItem);
