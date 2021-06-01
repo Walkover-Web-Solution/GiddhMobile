@@ -358,13 +358,14 @@ export class DebiteNote extends React.Component<Props> {
 
   clearAll =async () => {
     await this.state.accountDropDown.select(-1)
+    Keyboard.dismiss();
     await this.resetState();
     await this.setActiveCompanyCountry()
     await this.getAllTaxes();
     await this.getAllDiscounts();
     await this.getAllWarehouse();
     await this.getAllAccountsModes();
-}
+  }
 
   onLayout = (e) => {
     this.setState({

@@ -29,12 +29,12 @@ interface Props {
 }
 
 export class Vendors extends React.Component<Props> {
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
   }
 
   clearAll = async () => {
-    console.log("CLEAR ALLL Vendor")
+    console.log('CLEAR ALLL Vendor')
     await this.resetState();
     await Keyboard.dismiss();
     await this.getAllDeatils();
@@ -43,11 +43,11 @@ export class Vendors extends React.Component<Props> {
     await this.state.partyDropDown.select(-1);
   }
 
-  async getAllDeatils() {
+  async getAllDeatils () {
     await this.setState({ loading: true });
     const allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
-    let allCurrency = await CustomerVendorService.getAllCurrency()
+    const allCurrency = await CustomerVendorService.getAllCurrency()
     // let allCountry = await CustomerVendorService.getAllCountryName()
     const allCallingCode = await CustomerVendorService.getAllCallingCode()
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes, allCurrency: allCurrency.body, allCallingCode: allCallingCode.body.callingCodes })
@@ -55,7 +55,7 @@ export class Vendors extends React.Component<Props> {
     await this.setState({ loading: false });
   }
 
-  async setActiveCompanyCountry() {
+  async setActiveCompanyCountry () {
     await this.setState({ loading: true });
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
@@ -211,7 +211,7 @@ export class Vendors extends React.Component<Props> {
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden', }}>
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden' }}>
             <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}
@@ -655,17 +655,12 @@ export class Vendors extends React.Component<Props> {
     })
   }
 
-  componentDidMount() {
+  componentDidMount () {
+    console.log('mounting Vendor');
     this.setActiveCompanyCountry()
     this.getAllDeatils();
     this.checkStoredCountryCode();
     this.props.resetFun(this.clearAll);
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-    //   await this.resetState();
-    //   await this.setActiveCompanyCountry()
-    //   await this.getAllDeatils();
-    // });
-    // this.checkStoredCountryCode();
   }
 
   checkStoredCountryCode = async () => {
@@ -677,7 +672,7 @@ export class Vendors extends React.Component<Props> {
     }
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.customerMainContainer}>
         <Dialog.Container
@@ -1025,7 +1020,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <Vendors {...props} isFocused={isFocused} />;

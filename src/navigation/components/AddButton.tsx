@@ -132,11 +132,13 @@ class AddButton extends Component<Props> {
                     // onPress={() => console.log('this works')}
                     onPress={async () => {
                       await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                      if (item.name == "Customer" ){
-                        await this.props.navigation.navigate(item.navigateTo,{index: 0});
-                      }else if ( item.name =="Vendor" ){
-                        await this.props.navigation.navigate(item.navigateTo,{index: 1});
-                       }else{
+                      if (item.name == 'Customer') {
+                        await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 0 } });
+                        await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                      } else if (item.name == 'Vendor') {
+                        await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 1 } });
+                        await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                      } else {
                         await this.props.navigation.navigate(item.navigateTo);
                       }
                       await this.setState({ modalVisible: false });

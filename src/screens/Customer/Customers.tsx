@@ -29,12 +29,12 @@ interface Props {
 }
 
 export class Customers extends React.Component<Props> {
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
   }
 
   clearAll = async () => {
-    console.log("CLEAR ALLL Customer")
+    console.log('CLEAR ALLL Customer')
     await this.resetState();
     await Keyboard.dismiss();
     await this.getAllDeatils();
@@ -43,7 +43,7 @@ export class Customers extends React.Component<Props> {
     await this.state.partyDropDown.select(-1);
   }
 
-  async getAllDeatils() {
+  async getAllDeatils () {
     await this.setState({ loading: true });
     const allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
@@ -55,7 +55,7 @@ export class Customers extends React.Component<Props> {
     await this.setState({ loading: false });
   }
 
-  async setActiveCompanyCountry() {
+  async setActiveCompanyCountry () {
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
@@ -494,16 +494,12 @@ export class Customers extends React.Component<Props> {
     });
   };
 
-  componentDidMount() {
+  componentDidMount () {
+    console.log('mounting Customer');
     this.setActiveCompanyCountry()
     this.getAllDeatils();
     this.checkStoredCountryCode();
     this.props.resetFun(this.clearAll);
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-    //   await this.resetState();
-    //   await this.setActiveCompanyCountry()
-    //   await this.getAllDeatils();
-    // });
   }
 
   checkStoredCountryCode = async () => {
@@ -515,7 +511,7 @@ export class Customers extends React.Component<Props> {
     }
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.customerMainContainer}>
         <Dialog.Container
@@ -832,7 +828,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <Customers {...props} isFocused={isFocused} />;

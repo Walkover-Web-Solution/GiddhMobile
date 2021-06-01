@@ -37,11 +37,11 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_HIDE: 'keyboardDidHide'
 };
 export class Customer extends React.Component<Props> {
-  constructor(props) {
+  constructor (props) {
     super(props);
+    console.log('main constructor called');
     this.inputRef = React.createRef();
     this.scrollRef = React.createRef();
-
     this.state = {
       currentPage: 0,
       index: 0,
@@ -50,12 +50,12 @@ export class Customer extends React.Component<Props> {
     }
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    let index = 0
-    index = nextProps.route.name == "Customer" ? 0 : 1
-    console.log("getDerivedStateFromProps Index Value  " + JSON.stringify(index))
+  static getDerivedStateFromProps (nextProps, prevState) {
+    let index = 0;
+    index = nextProps.route.params.index;
+    console.log('getDerivedStateFromProps Index Value  ' + JSON.stringify(index))
     return {
-      index: index,
+      index: index
     };
   }
 
@@ -63,11 +63,10 @@ export class Customer extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
   };
 
-  renderHeader() {
+  renderHeader () {
     return (
-      <View style={[style.header, { paddingTop: 10, height: Dimensions.get('window').height * 0.08, }]}>
-        <View style={{
-          flexDirection: 'row', justifyContent: 'center'}}>
+      <View style={[style.header, { paddingTop: 10, height: Dimensions.get('window').height * 0.08 }]}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <TouchableOpacity
             style={{ padding: 10 }}
             onPress={() => {
@@ -116,15 +115,20 @@ export class Customer extends React.Component<Props> {
     }
   };
 
-  componentDidMount() {
+  componentDidMount () {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      console.log('refresh captured');
+      const index = 0;
+      console.log(this.props.route.params.index);
+      console.log('componentDidMount Index Value  ' + JSON.stringify(index))
+      await this.setState({ index: index });
       if (this.state.index == 1 && this.state.currentPage == 0) {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
           x: width * 2
         })
-      } else if (this.state.index  == 0 && this.state.currentPage == 1) {
+      } else if (this.state.index == 0 && this.state.currentPage == 1) {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
@@ -151,12 +155,12 @@ export class Customer extends React.Component<Props> {
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
 
-  render() {
+  render () {
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
@@ -256,13 +260,13 @@ export class Customer extends React.Component<Props> {
                         <Bars size={15} color={color.PRIMARY_NORMAL} />
                       </View>
                     </View>
-                  )
+                    )
                   : (
                     <Customers
                       resetFun={this.setCustomerFun}
                       navigation={this.props.navigation}
                     />
-                  )}
+                    )}
               </View>
               <View style={{ height: '100%', width: width }}>
                 {this.state.showLoader
@@ -272,13 +276,13 @@ export class Customer extends React.Component<Props> {
                         <Bars size={15} color={color.PRIMARY_NORMAL} />
                       </View>
                     </View>
-                  )
+                    )
                   : (
                     <Vendors
                       resetFun={this.setVendorFun}
                       navigation={this.props.navigation}
                     />
-                  )}
+                    )}
               </View>
             </ScrollView>
 
@@ -289,13 +293,13 @@ export class Customer extends React.Component<Props> {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps (state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
@@ -303,7 +307,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-function Screen(props) {
+function Screen (props) {
   const isFocused = useIsFocused();
 
   return <Customer {...props} isFocused={isFocused} />;

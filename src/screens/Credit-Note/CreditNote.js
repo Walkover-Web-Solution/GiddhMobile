@@ -318,7 +318,8 @@ export class CreditNote extends React.Component<Props> {
   }
 
   clearAll = async () => {
-    await this.state.accountDropDown.select(-1)
+    await this.state.accountDropDown.select(-1);
+    Keyboard.dismiss();
     await this.resetState();
     await this.setActiveCompanyCountry()
     await this.getAllTaxes();
