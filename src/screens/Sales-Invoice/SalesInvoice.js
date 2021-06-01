@@ -77,7 +77,9 @@ export class SalesInvoice extends React.Component<Props> {
       endDate: null,
       date: moment(),
       displayedDate: moment(),
+      dueDate: moment().add(10, 'day'),
       showDatePicker: false,
+      showDueDatePicker: false,
       partyBillingAddress: {
         address: '',
         gstNumber: '',
@@ -591,7 +593,9 @@ export class SalesInvoice extends React.Component<Props> {
       endDate: null,
       date: moment(),
       displayedDate: moment(),
+      dueDate: moment().add(10, 'day'),
       showDatePicker: false,
+      showDueDatePicker: false,
       partyBillingAddress: {},
       partyShippingAddress: {},
       addressArray: [],
@@ -816,7 +820,7 @@ export class SalesInvoice extends React.Component<Props> {
           customerName: this.state.partyName.name
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
-        dueDate: moment(this.state.date).format('DD-MM-YYYY'),
+        dueDate: moment(this.state.dueDate).format('DD-MM-YYYY'),
         deposit: {
           type: 'DEBIT',
           accountUniqueName: this.state.selectedPayMode.uniqueName,
@@ -910,11 +914,11 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({ date: moment() });
   }
 
-  formatDate() {
+  formatDate(dateType) {
     const fulldays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    const someDateTimeStamp = this.state.date;
+    const someDateTimeStamp = dateType == "InvoiceDate" ? this.state.date : this.state.dueDate;
     var dt = (dt = new Date(someDateTimeStamp));
     const date = dt.getDate();
     const month = months[dt.getMonth()];
@@ -944,8 +948,17 @@ export class SalesInvoice extends React.Component<Props> {
   handleConfirm = (date) => {
     // console.log('A date has been picked: ', date);
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
-    this.setState({ date: moment(date) });
+    this.setState({ date: moment(date),dueDate: moment(date).add(10, 'day')});
     this.hideDatePicker();
+  };
+
+  handleDueDateConfirm = (dueDate) => {
+    this.setState({ dueDate: moment(dueDate) });
+    this.hideDueDatePicker();
+  }
+
+  hideDueDatePicker = () => {
+    this.setState({ showDueDatePicker: false });
   };
 
   _renderDateView() {
@@ -976,22 +989,31 @@ export class SalesInvoice extends React.Component<Props> {
       //     </TouchableOpacity>
       //   </View>
       // </DateRangePicker>
-      <View style={style.dateView}>
-        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
-          <Icon name={'Calendar'} color={'#229F5F'} size={16} />
-          <Text style={style.selectedDateText}>{this.formatDate()}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2 }}
-          onPress={() =>
-            this.state.date.startOf('day').isSame(moment().startOf('day'))
-              ? this.getYesterdayDate()
-              : this.getTodayDate()
-          }>
-          <Text style={{ color: '#808080' }}>
-            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
-          </Text>
-        </TouchableOpacity>
+      <View>
+        <View style={style.dateView}>
+          <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
+            <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+            <Text style={style.selectedDateText}>{"Invoice Date - " + this.formatDate("InvoiceDate")}</Text>
+            {/* <Text style={style.selectedDateText}>{"Invoice Date "}</Text> */}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2 }}
+            onPress={() =>
+              this.state.date.startOf('day').isSame(moment().startOf('day'))
+                ? this.getYesterdayDate()
+                : this.getTodayDate()
+            }>
+            <Text style={{ color: '#808080' }}>
+              {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={style.dueDateView}>
+          <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDueDatePicker: true })}>
+            <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+            <Text style={style.selectedDateText}>{"Due Date - " + this.formatDate("DueDate")}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -1527,8 +1549,8 @@ export class SalesInvoice extends React.Component<Props> {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
         // console.log("Item Details taxDetailsArray " + JSON.stringify(item))
-        if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType!=INVOICE_TYPE.cash) {
-           // In case of company country india, if any foriegn country customer exist then invoice due is only contains tcs/tds tax 
+        if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash) {
+          // In case of company country india, if any foriegn country customer exist then invoice due only contains tcs/tds tax 
           // And in case of tax calculation we add all taxes awith tcs/tds. 
           if ((item.taxType == "tdspay" || item.taxType == "tcspay" || calculateFor == "taxAmount")) {
             const taxPercent = Number(item.taxDetail[0].taxValue);
@@ -1554,7 +1576,7 @@ export class SalesInvoice extends React.Component<Props> {
         for (let j = 0; j < taxArr.length; j++) {
           if (item == taxArr[j].uniqueName) {
             // console.log("Item Deatils stocks " + JSON.stringify(taxArr[j]))
-            if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType!=INVOICE_TYPE.cash) {
+            if (this.state.companyCountryDetails.currency.code == "INR" && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash) {
               if ((taxArr[j].taxType == "tdspay" || taxArr[j].taxType == "tcspay" || calculateFor == "taxAmount")) {
                 const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
                 const taxAmount = (taxPercent * Number(amt)) / 100;
@@ -2118,6 +2140,12 @@ export class SalesInvoice extends React.Component<Props> {
               mode="date"
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
+            />
+            <DateTimePickerModal
+              isVisible={this.state.showDueDatePicker}
+              mode="date"
+              onConfirm={this.handleDueDateConfirm}
+              onCancel={this.hideDueDatePicker}
             />
             {/* <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink'}}

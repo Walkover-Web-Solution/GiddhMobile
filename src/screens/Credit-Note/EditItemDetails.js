@@ -37,7 +37,7 @@ export const KEYBOARD_EVENTS = {
  * UI For Create account screen
  */
 class EditItemDetails extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       bottomOffset: 0,
@@ -79,7 +79,7 @@ class EditItemDetails extends Component {
     this.keyboardMargin = new Animated.Value(0);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.caluclateTotalAmount();
@@ -92,7 +92,7 @@ class EditItemDetails extends Component {
     }
   }
 
-  renderHeader () {
+  renderHeader() {
     return (
       <View style={style.header}>
         <View
@@ -135,7 +135,7 @@ class EditItemDetails extends Component {
   //   return true;
   // };
 
-  _renderTax () {
+  _renderTax() {
     return (
       <Modal
         animationType="none"
@@ -182,7 +182,9 @@ class EditItemDetails extends Component {
                     // disabled={true}
                     // style={{backgroundColor: 'pink'}}
                     onPress={async () => {
-                      if (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) {
+                      if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) || (selectedTaxTypeArr.includes("tdspay") && item.taxType == "tcspay") ||
+                        (selectedTaxTypeArr.includes("tcspay") && item.taxType == "tdspay")
+                      ) {
                         console.log('did not select');
                       } else {
                         const itemDetails = this.state.editItemDetails;
@@ -252,7 +254,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  _renderUnit () {
+  _renderUnit() {
     return (
       <Modal
         animationType="none"
@@ -326,7 +328,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  caluclateTotalAmount () {
+  caluclateTotalAmount() {
     const amount = Number(this.state.editItemDetails.rateText) * Number(this.state.editItemDetails.quantityText);
     return amount;
   }
@@ -344,7 +346,7 @@ class EditItemDetails extends Component {
   //     }
   //   }
   // }
-  calculateDiscountedAmount (itemDetails) {
+  calculateDiscountedAmount(itemDetails) {
     let totalDiscount = 0;
     let percentDiscount = 0;
     const item = this.state.editItemDetails;
@@ -366,7 +368,7 @@ class EditItemDetails extends Component {
     return totalDiscount;
   }
 
-  calculatedTaxAmount (itemDetails) {
+  calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
     const totalDiscount = this.calculateDiscountedAmount(itemDetails);
     const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
@@ -375,13 +377,14 @@ class EditItemDetails extends Component {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        totalTax = totalTax + taxAmount;
+        // totalTax = totalTax + taxAmount;
+        totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
       }
     }
     return Number(totalTax);
   }
 
-  calculateFinalAmount (editItemDetails) {
+  calculateFinalAmount(editItemDetails) {
     // console.log('this did not run');
     const discountAmount = this.calculateDiscountedAmount(editItemDetails);
     const totalTax = this.calculatedTaxAmount(editItemDetails);
@@ -396,7 +399,7 @@ class EditItemDetails extends Component {
     return finalAmt;
   }
 
-  _renderDiscounts () {
+  _renderDiscounts() {
     return (
       <Modal
         animationType="none"
@@ -462,7 +465,7 @@ class EditItemDetails extends Component {
                           // itemDetails.discountPercentageText = String(discount);
                           // let total = this.calculateFinalAmount(itemDetails);
                           // itemDetails.total = total;
-                          this.setState({ editItemDetails: itemDetails, fixedDiscountSelected: true }, () => {});
+                          this.setState({ editItemDetails: itemDetails, fixedDiscountSelected: true }, () => { });
                         }
                       } else {
                         const selectedDiscountArray = this.state.editItemDetails.percentDiscountArray;
@@ -482,7 +485,7 @@ class EditItemDetails extends Component {
                           // itemDetails.discountPercentageText = String(discount);
                           // let total = this.calculateFinalAmount(itemDetails);
                           // itemDetails.total = total;
-                          this.setState({ editItemDetails: itemDetails }, () => {});
+                          this.setState({ editItemDetails: itemDetails }, () => { });
                         } else {
                           const newArr = _.filter(selectedDiscountArray, function (o) {
                             if (o.uniqueName !== item.uniqueName) return o;
@@ -491,7 +494,7 @@ class EditItemDetails extends Component {
                           itemDetails.percentDiscountArray = newArr;
                           const total = this.calculateFinalAmount(itemDetails);
                           itemDetails.total = total;
-                          this.setState({ editItemDetails: itemDetails }, () => {});
+                          this.setState({ editItemDetails: itemDetails }, () => { });
                         }
                       }
                       this.calculateFinalAmount(this.state.editItemDetails);
@@ -514,10 +517,10 @@ class EditItemDetails extends Component {
                         <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
                       )} */}
                         {filtered.length > 0 ||
-                        this.state.editItemDetails.fixedDiscountUniqueName == item.uniqueName
+                          this.state.editItemDetails.fixedDiscountUniqueName == item.uniqueName
                           ? (
-                          <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
-                            )
+                            <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
+                          )
                           : null}
                       </View>
                       <View style={{ marginLeft: 10 }}>
@@ -543,7 +546,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     const editDetails = this.state.editItemDetails;
@@ -576,7 +579,7 @@ class EditItemDetails extends Component {
     }).start();
   };
 
-  _renderHsn () {
+  _renderHsn() {
     return (
       <View
         style={{
@@ -658,7 +661,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  _renderFinalTotal () {
+  _renderFinalTotal() {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 16 }}>
         <Text>Total Amount</Text>
@@ -667,7 +670,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  render () {
+  render() {
     return (
       <View
         style={{
@@ -698,12 +701,12 @@ class EditItemDetails extends Component {
     );
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
 
-  onChangeTextBottomItemSheet (text, field) {
+  onChangeTextBottomItemSheet(text, field) {
     const editItemDetails = this.state.editItemDetails;
     switch (field) {
       case 'Quantity':
@@ -748,7 +751,7 @@ class EditItemDetails extends Component {
     this.setState({ editItemDetails });
   };
 
-  _renderTwoFieldsTextInput (
+  _renderTwoFieldsTextInput(
     field1,
     field1Value,
     field2,
@@ -792,7 +795,7 @@ class EditItemDetails extends Component {
                   console.log('didnt open');
                 }
               }}
-              // onPress={() => console.log(this.state.unitArray)}
+            // onPress={() => console.log(this.state.unitArray)}
             >
               <Icon name={icon2} size={12} color="#808080" />
               <Text style={{ marginLeft: 10 }}>{field2}</Text>
@@ -833,7 +836,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  _renderScreenElements () {
+  _renderScreenElements() {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         {/*
@@ -918,7 +921,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  _renderBottomItemSheetDiscountRow () {
+  _renderBottomItemSheetDiscountRow() {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <TouchableOpacity
@@ -934,13 +937,13 @@ class EditItemDetails extends Component {
           </View>
           {this.state.editItemDetails.percentDiscountArray.length > 0
             ? (
-            <Text style={style.TaxText} numberOfLines={2}>
-              {this.state.editItemDetails.percentDiscountArray.map((item) => `${item.discountValue}%  `)}
-            </Text>
-              )
+              <Text style={style.TaxText} numberOfLines={2}>
+                {this.state.editItemDetails.percentDiscountArray.map((item) => `${item.discountValue}%  `)}
+              </Text>
+            )
             : (
-            <Text style={style.bottomSheetSelectTaxText}>Select Discount</Text>
-              )}
+              <Text style={style.bottomSheetSelectTaxText}>Select Discount</Text>
+            )}
           {/* <Text style={style.bottomSheetSelectTaxText}>
             {this.state.editItemDetails.discountType ? this.state.editItemDetails.discountType : 'Select Discount'}
           </Text> */}
@@ -984,7 +987,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  _renderBottomSheetTax () {
+  _renderBottomSheetTax() {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={{ marginHorizontal: 16, flex: 1, paddingVertical: 10 }}>
@@ -999,13 +1002,13 @@ class EditItemDetails extends Component {
             </View>
             {this.state.editItemDetails.taxDetailsArray.length > 0
               ? (
-              <Text style={style.TaxText} numberOfLines={2}>
-                {this.state.editItemDetails.taxDetailsArray.map((item) => `${item.name}  `)}
-              </Text>
-                )
+                <Text style={style.TaxText} numberOfLines={2}>
+                  {this.state.editItemDetails.taxDetailsArray.map((item) => `${item.name}  `)}
+                </Text>
+              )
               : (
-              <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text>
-                )}
+                <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text>
+              )}
             {/* <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text> */}
           </TouchableOpacity>
           {this._renderBottomSeprator()}
@@ -1029,7 +1032,7 @@ class EditItemDetails extends Component {
     );
   }
 
-  _renderBottomSeprator (margin = 0) {
+  _renderBottomSeprator(margin = 0) {
     return (
       <View
         style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
