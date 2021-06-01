@@ -787,15 +787,15 @@ export class PurchaseBill extends React.Component {
           billingDetails: {
             address: [this.state.BillFromAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.gstNumber : '',
+            gstNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
             panNumber: '',
             state: {
               code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '',
               name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '',
             },
-            stateCode: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.stateCode : '',
-            stateName: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.stateName : '',
-            pincode: this.state.BillFromAddress.size != {} ? this.state.BillFromAddress.pincode : '',
+            stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : '',
+            stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : '',
+            pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : '',
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -808,15 +808,15 @@ export class PurchaseBill extends React.Component {
           shippingDetails: {
             address: [this.state.shipFromAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.shipFromAddress.size != {} ? this.state.shipFromAddress.gstNumber : '',
+            gstNumber: this.state.shipFromAddress.gstNumber ? this.state.shipFromAddress.gstNumber : '',
             panNumber: '',
             state: {
               code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '',
               name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '',
             },
-            stateCode: this.state.shipFromAddress != {} ? this.state.shipFromAddress.stateCode : '',
-            stateName: this.state.shipFromAddress != {} ? this.state.shipFromAddress.stateName : '',
-            pincode: this.state.shipFromAddress.size != {} ? this.state.shipFromAddress.pincode : '',
+            stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : '',
+            stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : '',
+            pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
         },
@@ -1926,6 +1926,24 @@ export class PurchaseBill extends React.Component {
     ) {
       Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
         {style: 'destructive', onPress: () => console.log('alert destroyed')},
+      ]);
+    } else if (
+      this.state.currency == this.state.companyCountryDetails.currency.code &&
+      (!this.state.BillFromAddress.stateName ||
+        !this.state.BillFromAddress.stateCode ||
+        !this.state.BillFromAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Billing From', [
+        {style: 'destructive', text: 'Okay'},
+      ]);
+    } else if (
+      this.state.currency == this.state.companyCountryDetails.currency.code &&
+      (!this.state.shipFromAddress.stateName ||
+        !this.state.shipFromAddress.stateCode ||
+        !this.state.shipFromAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Shipping From', [
+        {style: 'destructive', text: 'Okay'},
       ]);
     } else {
       this.createPurchaseBill(type);

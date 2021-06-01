@@ -151,6 +151,7 @@ export class SalesInvoice extends React.Component<Props> {
       totalAmountInINR: 0.0,
       companyCountryDetails: '',
       billSameAsShip: true,
+      tdsOrTcsArray: [],
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -672,11 +673,12 @@ export class SalesInvoice extends React.Component<Props> {
       },
       companyCountryDetails: '',
       billSameAsShip: true,
+      tdsOrTcsArray: [],
     });
   };
 
   getDiscountForEntry(item) {
-    console.log(' discount item is', item);
+    // console.log('item is', item);
     const discountArr = [];
     if (item.fixedDiscount) {
       const discountItem = {
@@ -783,7 +785,7 @@ export class SalesInvoice extends React.Component<Props> {
           : (exchangeRate = 1);
         await this.setState({exchangeRate: exchangeRate});
       }
-      console.log('Yyyyyyyyyyyyyyyyyyyyyyy' + JSON.stringify(this.state.partyShippingAddress.state));
+      console.log('Response' + JSON.stringify(this.state.partyShippingAddress.state));
       const postBody = {
         account: {
           attentionTo: '',
@@ -791,15 +793,15 @@ export class SalesInvoice extends React.Component<Props> {
           billingDetails: {
             address: [this.state.partyBillingAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.partyBillingAddress.gstNumber,
+            gstNumber: this.state.partyBillingAddress.gstNumber ? this.state.partyBillingAddress.gstNumber : '',
             panNumber: '',
             state: {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
             },
-            stateCode: this.state.partyBillingAddress.stateCode,
-            stateName: this.state.partyBillingAddress.stateName,
-            pincode: this.state.partyBillingAddress.pincode,
+            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : '',
+            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
+            pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -812,15 +814,15 @@ export class SalesInvoice extends React.Component<Props> {
           shippingDetails: {
             address: [this.state.partyShippingAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.partyShippingAddress.gstNumber,
+            gstNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
             },
-            stateCode: this.state.partyShippingAddress.stateCode,
-            stateName: this.state.partyShippingAddress.stateName,
-            pincode: this.state.partyShippingAddress.pincode,
+            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : '',
+            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : '',
+            pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
           customerName: this.state.partyName.name,
@@ -1362,6 +1364,7 @@ export class SalesInvoice extends React.Component<Props> {
     const newItems = this.state.addedItems;
     newItems.push(item);
     this.setState({addedItems: newItems});
+    this.updateTCSAndTDSTaxAmount(newItems);
     if (item.rate) {
       const totalAmount = this.getTotalAmount();
       this.setState({
@@ -1383,6 +1386,7 @@ export class SalesInvoice extends React.Component<Props> {
     );
     addedArray.splice(index, 1);
     this.setState({addedItems: addedArray, showItemDetails: false}, () => {});
+    this.updateTCSAndTDSTaxAmount(addedArray);
     if (item.rate) {
       const totalAmount = this.getTotalAmount();
       this.setState({
@@ -1456,7 +1460,7 @@ export class SalesInvoice extends React.Component<Props> {
 
           <Text style={{marginTop: 5, color: '#808080'}}>
             Tax : {this.state.currencySymbol}
-            {this.calculatedTaxAmount(item)}
+            {this.calculatedTaxAmount(item, 'taxAmount')}
           </Text>
           <Text style={{marginTop: 5, color: '#808080'}}>
             Discount : {this.state.currencySymbol}
@@ -1538,9 +1542,94 @@ export class SalesInvoice extends React.Component<Props> {
     return totalDiscount;
   }
 
-  calculatedTaxAmount(itemDetails) {
+  calculatedTaxAmount(itemDetails, calculateFor) {
     let totalTax = 0;
     console.log('rate', itemDetails.rate);
+    const taxArr = this.state.taxArray;
+    if (
+      this.state.invoiceType == INVOICE_TYPE.credit &&
+      calculateFor != 'taxAmount' &&
+      calculateFor != 'InvoiceDue' &&
+      this.state.currency != this.state.companyCountryDetails.currency.code &&
+      this.state.companyCountryDetails.currency.code == 'INR'
+    ) {
+      return 0;
+    }
+    let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+    amt = amt - Number(itemDetails.discountValue);
+    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
+      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
+        const item = itemDetails.taxDetailsArray[i];
+        // console.log("Item Details taxDetailsArray " + JSON.stringify(item))
+        if (
+          this.state.companyCountryDetails.currency.code == 'INR' &&
+          this.state.currency != this.state.companyCountryDetails.currency.code
+        ) {
+          if (
+            item.taxType == 'tdspay' ||
+            item.taxType == 'tcspay' ||
+            this.state.invoiceType == INVOICE_TYPE.cash ||
+            calculateFor == 'taxAmount'
+          ) {
+            const taxPercent = Number(item.taxDetail[0].taxValue);
+            const taxAmount = (taxPercent * Number(amt)) / 100;
+            totalTax = item.taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
+          }
+        } else {
+          const taxPercent = Number(item.taxDetail[0].taxValue);
+          const taxAmount = (taxPercent * Number(amt)) / 100;
+          if (calculateFor == 'taxAmount' || calculateFor == 'InvoiceDue') {
+            totalTax = item.taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
+          } else {
+            totalTax = item.taxType == 'tdspay' || item.taxType == 'tcspay' ? totalTax : totalTax + taxAmount;
+          }
+        }
+      }
+    }
+    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+      for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
+        const item = itemDetails.stock.taxes[i];
+        for (let j = 0; j < taxArr.length; j++) {
+          if (item == taxArr[j].uniqueName) {
+            // console.log("Item Deatils stocks " + JSON.stringify(taxArr[j]))
+            if (
+              this.state.companyCountryDetails.currency.code == 'INR' &&
+              this.state.currency != this.state.companyCountryDetails.currency.code
+            ) {
+              if (
+                taxArr[j].taxType == 'tdspay' ||
+                taxArr[j].taxType == 'tcspay' ||
+                this.state.invoiceType == INVOICE_TYPE.cash ||
+                calculateFor == 'taxAmount'
+              ) {
+                const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+                const taxAmount = (taxPercent * Number(amt)) / 100;
+                totalTax = item.taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
+                break;
+              }
+            } else {
+              const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+              const taxAmount = (taxPercent * Number(amt)) / 100;
+              if (calculateFor == 'taxAmount' || calculateFor == 'InvoiceDue') {
+                totalTax = item.taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
+              } else {
+                totalTax = item.taxType == 'tdspay' || item.taxType == 'tcspay' ? totalTax : totalTax + taxAmount;
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    console.log('calculated tax is ', totalTax);
+    return Number(totalTax.toFixed(2));
+  }
+
+  calculatedTdsOrTcsTaxAmount(itemDetails) {
+    let totalTcsorTdsTax = 0;
+    let totalTcsorTdsTaxName = '';
+
     const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
     amt = amt - Number(itemDetails.discountValue);
@@ -1549,7 +1638,11 @@ export class SalesInvoice extends React.Component<Props> {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        totalTax = totalTax + taxAmount;
+        if (item.taxType == 'tdspay' || item.taxType == 'tcspay') {
+          totalTcsorTdsTax = taxAmount;
+          totalTcsorTdsTaxName = item.taxType;
+          break;
+        }
       }
     }
     if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
@@ -1557,18 +1650,26 @@ export class SalesInvoice extends React.Component<Props> {
         const item = itemDetails.stock.taxes[i];
         for (let j = 0; j < taxArr.length; j++) {
           if (item == taxArr[j].uniqueName) {
-            // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
-            totalTax = totalTax + taxAmount;
+            if (item.taxType == 'tdspay' || item.taxType == 'tcspay') {
+              totalTcsorTdsTaxName = taxAmount;
+              totalTcsorTdsTaxName = taxArr[j].taxType;
+            }
             break;
           }
         }
       }
     }
-    console.log('calculated tax is ', totalTax);
-    return Number(totalTax.toFixed(2));
+    console.log('TCS Or TDS Tax is ' + totalTcsorTdsTax);
+    if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
+      let tdsOrTcsTaxObj = {name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2)};
+      return tdsOrTcsTaxObj;
+    } else {
+      return null;
+    }
   }
+
   // calculatedTaxAmount(itemDetails) {
   //   let totalTax = 0;
   //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
@@ -1618,7 +1719,19 @@ export class SalesInvoice extends React.Component<Props> {
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
       const discount = item.discountValue ? item.discountValue : 0;
-      const tax = this.calculatedTaxAmount(item);
+      const tax = this.calculatedTaxAmount(item, 'totalAmount');
+      const amount = Number(item.rate) * Number(item.quantity);
+      total = total + amount - discount + tax;
+    }
+    return total.toFixed(2);
+  }
+
+  getInvoiceDueTotalAmount() {
+    let total = 0;
+    for (let i = 0; i < this.state.addedItems.length; i++) {
+      const item = this.state.addedItems[i];
+      const discount = item.discountValue ? item.discountValue : 0;
+      const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
       const amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
@@ -1830,6 +1943,19 @@ export class SalesInvoice extends React.Component<Props> {
                 </TextInput>
               </View>
             ) : null}
+            {this.state.tdsOrTcsArray.length != 0 ? (
+              <FlatList
+                data={this.state.tdsOrTcsArray}
+                renderItem={({item}) => {
+                  return (
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5}}>
+                      <Text style={{color: '#1C1C1C'}}>{item.name}</Text>
+                      <Text style={{color: '#1C1C1C'}}>{this.state.currencySymbol + item.amount}</Text>
+                    </View>
+                  );
+                }}
+              />
+            ) : null}
 
             <View
               style={{
@@ -1881,7 +2007,9 @@ export class SalesInvoice extends React.Component<Props> {
               <Text style={{color: '#1C1C1C'}}>Invoice Due</Text>
               <Text style={{color: '#1C1C1C'}}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {this.state.invoiceType == 'cash' ? 0 : String(this.getTotalAmount()) - this.state.amountPaidNowText}
+                {this.state.invoiceType == 'cash'
+                  ? 0
+                  : String(this.getInvoiceDueTotalAmount()) - this.state.amountPaidNowText}
               </Text>
             </View>
           </View>
@@ -1953,6 +2081,26 @@ export class SalesInvoice extends React.Component<Props> {
       Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
         {style: 'destructive', onPress: () => console.log('alert destroyed')},
       ]);
+    } else if (
+      (this.state.currency == this.state.companyCountryDetails.currency.code ||
+        this.state.invoiceType == INVOICE_TYPE.cash) &&
+      (!this.state.partyBillingAddress.stateName ||
+        !this.state.partyBillingAddress.stateCode ||
+        !this.state.partyBillingAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Billing From', [
+        {style: 'destructive', text: 'Okay'},
+      ]);
+    } else if (
+      (this.state.currency == this.state.companyCountryDetails.currency.code ||
+        this.state.invoiceType == INVOICE_TYPE.cash) &&
+      (!this.state.partyShippingAddress.stateName ||
+        !this.state.partyShippingAddress.stateCode ||
+        !this.state.partyShippingAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Shipping From', [
+        {style: 'destructive', text: 'Okay'},
+      ]);
     } else {
       this.createInvoice(type);
     }
@@ -1996,8 +2144,28 @@ export class SalesInvoice extends React.Component<Props> {
 
     const totalAmount = this.getTotalAmount();
     this.setState({totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)});
+
+    this.updateTCSAndTDSTaxAmount(addedArray);
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
+  }
+
+  updateTCSAndTDSTaxAmount(addedArray) {
+    let alltdsOrTcsTaxArr = [];
+    let tcsTaxObj = {name: 'TCS', amount: 0};
+    let tdsTaxObj = {name: 'TDS', amount: 0};
+    for (let i = 0; i < addedArray.length; i++) {
+      let tdsOrTcsTaxObj = this.calculatedTdsOrTcsTaxAmount(addedArray[i]);
+      if (tdsOrTcsTaxObj != null) {
+        tdsTaxObj.amount =
+          tdsOrTcsTaxObj.name == 'tdspay' ? Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount) : tdsTaxObj.amount;
+        tcsTaxObj.amount =
+          tdsOrTcsTaxObj.name == 'tcspay' ? Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount) : tcsTaxObj.amount;
+      }
+    }
+    tcsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tcsTaxObj) : null;
+    tdsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tdsTaxObj) : null;
+    this.setState({tdsOrTcsArray: alltdsOrTcsTaxArr});
   }
 
   componentWillUnmount() {

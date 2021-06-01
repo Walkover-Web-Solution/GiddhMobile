@@ -766,15 +766,15 @@ export class DebiteNote extends React.Component<Props> {
           billingDetails: {
             address: [this.state.partyBillingAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.partyBillingAddress.gstNumber,
+            gstNumber: this.state.partyBillingAddress.gstNumber ? this.state.partyBillingAddress.gstNumber : '',
             panNumber: '',
             state: {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
             },
-            stateCode: this.state.partyBillingAddress.stateCode,
-            stateName: this.state.partyBillingAddress.stateName,
-            pincode: this.state.partyBillingAddress.pincode,
+            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : '',
+            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
+            pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -787,15 +787,15 @@ export class DebiteNote extends React.Component<Props> {
           shippingDetails: {
             address: [this.state.partyShippingAddress.address],
             countryName: this.state.countryDeatils.countryName,
-            gstNumber: this.state.partyShippingAddress.gstNumber,
+            gstNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
             },
-            stateCode: this.state.partyShippingAddress.stateCode,
-            stateName: this.state.partyShippingAddress.stateName,
-            pincode: this.state.partyShippingAddress.pincode,
+            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : '',
+            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : '',
+            pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
         },
@@ -1761,6 +1761,24 @@ export class DebiteNote extends React.Component<Props> {
     ) {
       Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
         {style: 'destructive', onPress: () => console.log('alert destroyed')},
+      ]);
+    } else if (
+      this.state.currency == this.state.companyCountryDetails.currency.code &&
+      (!this.state.partyBillingAddress.stateName ||
+        !this.state.partyBillingAddress.stateCode ||
+        !this.state.partyBillingAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Billing From', [
+        {style: 'destructive', text: 'Okay'},
+      ]);
+    } else if (
+      this.state.currency == this.state.companyCountryDetails.currency.code &&
+      (!this.state.partyShippingAddress.stateName ||
+        !this.state.partyShippingAddress.stateCode ||
+        !this.state.partyShippingAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Shipping From', [
+        {style: 'destructive', text: 'Okay'},
       ]);
     } else {
       this.createInvoice();

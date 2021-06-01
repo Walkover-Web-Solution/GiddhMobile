@@ -182,7 +182,11 @@ class EditItemDetails extends Component {
                     // disabled={true}
                     // style={{backgroundColor: 'pink'}}
                     onPress={async () => {
-                      if (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) {
+                      if (
+                        (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                        (selectedTaxTypeArr.includes('tdspay') && item.taxType == 'tcspay') ||
+                        (selectedTaxTypeArr.includes('tcspay') && item.taxType == 'tdspay')
+                      ) {
                         console.log('did not select');
                       } else {
                         const itemDetails = this.state.editItemDetails;
@@ -375,7 +379,8 @@ class EditItemDetails extends Component {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        totalTax = totalTax + taxAmount;
+        // totalTax = totalTax + taxAmount;
+        totalTax = item.taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
       }
     }
     return Number(totalTax);

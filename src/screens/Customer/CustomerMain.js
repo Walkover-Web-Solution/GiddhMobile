@@ -44,9 +44,19 @@ export class Customer extends React.Component<Props> {
 
     this.state = {
       currentPage: 0,
+      index: 0,
       customerReset: () => { },
       vendorReset: () => { }
     }
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    let index = 0
+    index = nextProps.route.name == "Customer" ? 0 : 1
+    console.log("getDerivedStateFromProps Index Value  " + JSON.stringify(index))
+    return {
+      index: index,
+    };
   }
 
   FocusAwareStatusBar = (isFocused) => {
@@ -108,41 +118,37 @@ export class Customer extends React.Component<Props> {
 
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-      const { index } = await this.props.route.params;
-      if (index == 1 && this.state.currentPage == 0) {
+      if (this.state.index == 1 && this.state.currentPage == 0) {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
           x: width * 2
         })
-      } else if (index == 0 && this.state.currentPage == 1) {
+      } else if (this.state.index  == 0 && this.state.currentPage == 1) {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
           x: width * -1
         })
       }
-    });
+    })
+    InteractionManager.runAfterInteractions(() => {
+      if (this.state.index == 1 && this.state.currentPage == 0) {
+        this.scrollRef.current.scrollTo({
+          animated: true,
+          y: 0,
+          x: width * 2
+        })
+      } else if (this.state.index == 0 && this.state.currentPage == 1) {
+        this.scrollRef.current.scrollTo({
+          animated: true,
+          y: 0,
+          x: width * -1
+        })
+      }
+    })
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-  }
-
-  ScrollViewOnLayout = () => {
-    // const { index } = this.props.route.params;
-    // console.log(index);
-    // if (index == 1) {
-    //   this.scrollRef.current.scrollTo({
-    //     animated: true,
-    //     y: 0,
-    //     x: width * 2,
-    //   })
-    // } else {
-    //   this.scrollRef.current.scrollTo({
-    //     animated: true,
-    //     y: 0,
-    //     x: width * -1,
-    //   })
-    // }
   }
 
   componentWillUnmount() {
