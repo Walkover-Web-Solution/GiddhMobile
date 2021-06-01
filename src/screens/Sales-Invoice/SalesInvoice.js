@@ -1299,7 +1299,8 @@ export class SalesInvoice extends React.Component<Props> {
           if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
             this.props.navigation.navigate('AddInvoiceItemScreen', {
               updateAddedItems: (this.updateAddedItems).bind(this),
-              addedItems: this.state.addedItems
+              addedItems: this.state.addedItems,
+              currencySymbol:this.state.invoiceType==INVOICE_TYPE.cash?this.state.companyCountryDetails.currency.symbol:this.state.currencySymbol
             });
           } else {
             alert('Please select a party.');
@@ -1334,7 +1335,8 @@ export class SalesInvoice extends React.Component<Props> {
             onPress={() => {
               this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
-                addedItems: this.state.addedItems
+                addedItems: this.state.addedItems,
+                currencySymbol:this.state.invoiceType==INVOICE_TYPE.cash?this.state.companyCountryDetails.currency.symbol:this.state.currencySymbol
               });
             }}>
             <Icon name={'path-15'} color="#808080" size={18} />
@@ -1580,16 +1582,16 @@ export class SalesInvoice extends React.Component<Props> {
               if ((taxArr[j].taxType == "tdspay" || taxArr[j].taxType == "tcspay" || calculateFor == "taxAmount")) {
                 const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
                 const taxAmount = (taxPercent * Number(amt)) / 100;
-                totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+                totalTax = taxArr[j].taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
                 break;
               }
             } else {
               const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
               const taxAmount = (taxPercent * Number(amt)) / 100;
               if (calculateFor == "taxAmount" || calculateFor == "InvoiceDue") {
-                totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+                totalTax = taxArr[j].taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
               } else {
-                totalTax = item.taxType == "tdspay" || item.taxType == "tcspay" ? totalTax : totalTax + taxAmount;
+                totalTax = taxArr[j].taxType == "tdspay" || taxArr[j].taxType  == "tcspay" ? totalTax : totalTax + taxAmount;
               }
               break;
             }

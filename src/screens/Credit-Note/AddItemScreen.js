@@ -36,7 +36,7 @@ interface Props {
   navigation: any;
 }
 class AddItemScreen extends React.Component<Props> {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       loading: false,
@@ -51,7 +51,7 @@ class AddItemScreen extends React.Component<Props> {
     this.keyboardMargin = new Animated.Value(0);
   }
 
-  componentDidMount () {
+  componentDidMount() {
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
@@ -79,12 +79,12 @@ class AddItemScreen extends React.Component<Props> {
     }).start();
   };
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
 
-  renderHeader () {
+  renderHeader() {
     return (
       <View style={style.header}>
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, alignItems: 'center' }}>
@@ -110,7 +110,7 @@ class AddItemScreen extends React.Component<Props> {
         </View>
         <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
         <View style={{ marginRight: 10 }}>
-          <Text style={style.footerItemsTotalText}>{`₹${this.performCalulations()}`}</Text>
+          <Text style={style.footerItemsTotalText}>{this.props.route.params.currencySymbol + `${this.performCalulations()}`}</Text>
           <Text style={{ color: 'white' }}>{`Items: ${this.state.addedItems.length}`}</Text>
         </View>
       </View>
@@ -119,7 +119,7 @@ class AddItemScreen extends React.Component<Props> {
 
   searchCalls = _.debounce(this.searchUser, 2000);
 
-  _renderSearchList () {
+  _renderSearchList() {
     return (
       <View style={{}}>
         <FlatList
@@ -151,7 +151,7 @@ class AddItemScreen extends React.Component<Props> {
     );
   }
 
-  serviceRateValueChange (item, text) {
+  serviceRateValueChange(item, text) {
     const itemUniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
     const addedArray = this.state.addedItems;
     // var index = _.findIndex(addedArray, { uniqueName: item.uniqueName });
@@ -170,7 +170,7 @@ class AddItemScreen extends React.Component<Props> {
     this.setState({ addedItems: addedArray });
   }
 
-  _renderStockView (item) {
+  _renderStockView(item) {
     const filtered = _.filter(this.state.addedItems, function (o) {
       const ouniqueName = o.stock ? o.stock.uniqueName : o.uniqueName;
 
@@ -302,7 +302,7 @@ class AddItemScreen extends React.Component<Props> {
     );
   }
 
-  _renderServiceView (item) {
+  _renderServiceView(item) {
     const filtered = _.filter(this.state.addedItems, function (o) {
       if (o.uniqueName == item.uniqueName) return o;
     });
@@ -402,7 +402,7 @@ class AddItemScreen extends React.Component<Props> {
     );
   }
 
-  async searchUser () {
+  async searchUser() {
     this.setState({ isSearchingParty: true });
     try {
       const results = await InvoiceService.search(
@@ -424,7 +424,7 @@ class AddItemScreen extends React.Component<Props> {
     }
   }
 
-  async addItem (item) {
+  async addItem(item) {
     this.setState({ loading: true });
     try {
       if (item.stock) {
@@ -462,7 +462,7 @@ class AddItemScreen extends React.Component<Props> {
     }
   }
 
-  createNewEntry (item) {
+  createNewEntry(item) {
     const entry = item;
     if (item.stock) {
       entry.quantity = 1;
@@ -470,14 +470,14 @@ class AddItemScreen extends React.Component<Props> {
     return entry;
   }
 
-  getItemFromAddedList (uniqueName) {
+  getItemFromAddedList(uniqueName) {
     const filtered = _.filter(this.state.addedItems, function (o) {
       if (o.uniqueName == uniqueName) return o;
     });
     return filtered[0];
   }
 
-  updateQuantityOfItem (item, performedType) {
+  updateQuantityOfItem(item, performedType) {
     if (performedType == 'add') {
       const addedArray = this.state.addedItems;
       const index = _.findIndex(
@@ -493,7 +493,7 @@ class AddItemScreen extends React.Component<Props> {
 
       // Replace item at index using native splice
       addedArray.splice(index, 1, item);
-      this.setState({ addedItems: addedArray }, () => {});
+      this.setState({ addedItems: addedArray }, () => { });
     } else if (performedType == 'minus') {
       if (item.quantity == 1) {
         const addedArray = this.state.addedItems;
@@ -506,7 +506,7 @@ class AddItemScreen extends React.Component<Props> {
           0
         ); // Replace item at index using native splice
         addedArray.splice(index, 1);
-        this.setState({ addedItems: addedArray }, () => {});
+        this.setState({ addedItems: addedArray }, () => { });
         // del the item form selected list
       } else {
         const addedArray = this.state.addedItems;
@@ -522,12 +522,12 @@ class AddItemScreen extends React.Component<Props> {
 
         // Replace item at index using native splice
         addedArray.splice(index, 1, item);
-        this.setState({ addedItems: addedArray }, () => {});
+        this.setState({ addedItems: addedArray }, () => { });
       }
     }
   }
 
-  deleteItemFromList (item) {
+  deleteItemFromList(item) {
     const uniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
 
     const addedArray = this.state.addedItems;
@@ -540,10 +540,10 @@ class AddItemScreen extends React.Component<Props> {
       0
     ); // Replace item at index using native splice
     addedArray.splice(index, 1);
-    this.setState({ addedItems: addedArray }, () => {});
+    this.setState({ addedItems: addedArray }, () => { });
   }
 
-  checkIfItemIsSelcted (item) {
+  checkIfItemIsSelcted(item) {
     const uniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
     if (item) {
       var filtered = _.filter(this.state.addedItems, function (o) {
@@ -558,7 +558,7 @@ class AddItemScreen extends React.Component<Props> {
     return false;
   }
 
-  _renderSummaryFooter () {
+  _renderSummaryFooter() {
     return (
       <Animated.View style={[style.footerAddItemConatiner, { marginBottom: this.keyboardMargin }]}>
         {/* <View>
@@ -584,7 +584,7 @@ class AddItemScreen extends React.Component<Props> {
     );
   }
 
-  performCalulations () {
+  performCalulations() {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
@@ -608,7 +608,7 @@ class AddItemScreen extends React.Component<Props> {
     return total;
   }
 
-  render () {
+  render() {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         <StatusBar backgroundColor="#2e80d1" barStyle="light-content" />
@@ -642,13 +642,13 @@ class AddItemScreen extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());

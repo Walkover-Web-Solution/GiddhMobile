@@ -121,7 +121,7 @@ class AddItemScreen extends React.Component<Props> {
         </View>
         <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
         <View style={{ marginRight: 10 }}>
-          <Text style={style.footerItemsTotalText}>{`₹${this.performCalulations()}`}</Text>
+          <Text style={style.footerItemsTotalText}>{this.props.route.params.currencySymbol+`${this.performCalulations()}`}</Text>
           <Text style={{ color: 'white' }}>{`Items: ${this.state.addedItems.length}`}</Text>
         </View>
       </View>
