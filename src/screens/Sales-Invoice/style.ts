@@ -73,10 +73,17 @@ export default StyleSheet.create({
   dateView: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingTop: 14,
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 50
+    height: 45
+  },
+  dueDateView: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 45
   },
   selectedDateText: {
     fontFamily: FONT_FAMILY.regular,

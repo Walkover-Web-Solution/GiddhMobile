@@ -133,7 +133,8 @@ export class CreditNote extends React.Component<Props> {
       exchangeRate: 1,
       totalAmountInINR: 0.0,
       companyCountryDetails: '',
-      billSameAsShip: true
+      billSameAsShip: true,
+      tdsOrTcsArray: [],
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -321,7 +322,6 @@ export class CreditNote extends React.Component<Props> {
 
   clearAll = async () => {
     await this.state.accountDropDown.select(-1);
-    Keyboard.dismiss();
     await this.resetState();
     await this.setActiveCompanyCountry();
     await this.getAllTaxes();
@@ -626,7 +626,8 @@ export class CreditNote extends React.Component<Props> {
       totalAmountInINR: 0.0,
       companyCountryDetails: '',
       selectedInvoice: '',
-      billSameAsShip: true
+      billSameAsShip: true,
+      tdsOrTcsArray: [],
     });
   };
 
@@ -1297,6 +1298,7 @@ export class CreditNote extends React.Component<Props> {
     const newItems = this.state.addedItems;
     newItems.push(item);
     this.setState({ addedItems: newItems });
+    this.updateTCSAndTDSTaxAmount(newItems)
     if (item.rate) {
       const totalAmount = this.getTotalAmount();
       this.setState({
@@ -1311,8 +1313,9 @@ export class CreditNote extends React.Component<Props> {
         onPress={() => {
           if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
             this.props.navigation.navigate('CreditNoteAddItem', {
-              updateAddedItems: this.updateAddedItems.bind(this),
-              addedItems: this.state.addedItems
+              updateAddedItems: (this.updateAddedItems).bind(this),
+              addedItems: this.state.addedItems,
+              currencySymbol:this.state.currencySymbol
             });
           } else {
             alert('Please select a party.');
@@ -1346,8 +1349,9 @@ export class CreditNote extends React.Component<Props> {
           <TouchableOpacity
             onPress={() => {
               this.props.navigation.navigate('CreditNoteAddItem', {
-                updateAddedItems: this.updateAddedItems.bind(this),
-                addedItems: this.state.addedItems
+                updateAddedItems: (this.updateAddedItems).bind(this),
+                addedItems: this.state.addedItems,
+                currencySymbol:this.state.currencySymbol
               });
             }}>
             <Icon name={'path-15'} color="#808080" size={18} />
@@ -1375,7 +1379,8 @@ export class CreditNote extends React.Component<Props> {
       0
     );
     addedArray.splice(index, 1);
-    this.setState({ addedItems: addedArray, showItemDetails: false }, () => {});
+    this.setState({ addedItems: addedArray, showItemDetails: false }, () => { });
+    this.updateTCSAndTDSTaxAmount(newItems)
     if (item.rate) {
       const totalAmount = this.getTotalAmount();
       this.setState({
@@ -1444,7 +1449,7 @@ export class CreditNote extends React.Component<Props> {
 
           <Text style={{ marginTop: 5, color: '#808080' }}>
             Tax : {this.state.currencySymbol}
-            {this.calculatedTaxAmount(item)}
+            {this.calculatedTaxAmount(item, "taxAmount")}
           </Text>
           <Text style={{ marginTop: 5, color: '#808080' }}>
             Discount : {this.state.currencySymbol}
@@ -1508,7 +1513,7 @@ export class CreditNote extends React.Component<Props> {
     return 0;
   }
 
-  calculatedTaxAmount (itemDetails) {
+  calculatedTaxAmount(itemDetails, calculateFor) {
     let totalTax = 0;
     console.log('rate', itemDetails.rate);
     const taxArr = this.state.taxArray;
@@ -1519,7 +1524,13 @@ export class CreditNote extends React.Component<Props> {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        totalTax = totalTax + taxAmount;
+        // For tax and invoice due we calculate all taxes( including tds/tcs),
+        // But when we calculating total amount we did not include tcs/tds tax.
+        if (calculateFor == "taxAmount") {
+          totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+        } else {
+          totalTax = item.taxType == "tdspay" || item.taxType == "tcspay" ? totalTax : totalTax + taxAmount;
+        }
       }
     }
     if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
@@ -1530,7 +1541,11 @@ export class CreditNote extends React.Component<Props> {
             // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
-            totalTax = totalTax + taxAmount;
+            if (calculateFor == "taxAmount") {
+              totalTax = taxArr[j].taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+            } else {
+              totalTax = taxArr[j].taxType == "tdspay" || taxArr[j].taxType  == "tcspay" ? totalTax : totalTax + taxAmount;
+            }
             break;
           }
         }
@@ -1538,6 +1553,50 @@ export class CreditNote extends React.Component<Props> {
     }
     console.log('calculated tax is ', totalTax);
     return Number(totalTax.toFixed(2));
+  }
+
+  calculatedTdsOrTcsTaxAmount(itemDetails) {
+    let totalTcsorTdsTax = 0;
+    let totalTcsorTdsTaxName = "";
+
+    const taxArr = this.state.taxArray;
+    let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+    amt = amt - Number(itemDetails.discountValue);
+    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
+      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
+        const item = itemDetails.taxDetailsArray[i];
+        const taxPercent = Number(item.taxDetail[0].taxValue);
+        const taxAmount = (taxPercent * Number(amt)) / 100;
+        if (item.taxType == "tdspay" || item.taxType == "tcspay") {
+          totalTcsorTdsTax = taxAmount;
+          totalTcsorTdsTaxName = item.taxType
+          break
+        }
+      }
+    }
+    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+      for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
+        const item = itemDetails.stock.taxes[i];
+        for (let j = 0; j < taxArr.length; j++) {
+          if (item == taxArr[j].uniqueName) {
+            const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+            const taxAmount = (taxPercent * Number(amt)) / 100;
+            if (item.taxType == "tdspay" || item.taxType == "tcspay") {
+              totalTcsorTdsTaxName = taxAmount;
+              totalTcsorTdsTaxName = taxArr[j].taxType
+            }
+            break;
+          }
+        }
+      }
+    }
+    console.log("TCS Or TDS Tax is " + totalTcsorTdsTax)
+    if (totalTcsorTdsTaxName != "" && totalTcsorTdsTax != 0) {
+      let tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) }
+      return tdsOrTcsTaxObj
+    } else {
+      return null
+    }
   }
 
   // calculatedTaxAmount(itemDetails) {
@@ -1567,7 +1626,7 @@ export class CreditNote extends React.Component<Props> {
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
       const discount = item.discountValue ? item.discountValue : 0;
-      const tax = this.calculatedTaxAmount(item);
+      const tax = this.calculatedTaxAmount(item, "totalAmount");
       const amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
@@ -1694,35 +1753,36 @@ export class CreditNote extends React.Component<Props> {
               <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
             </View>
-            {this.state.currency != this.state.companyCountryDetails.currency.code &&
-            this.state.invoiceType != INVOICE_TYPE.cash
-              ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
-                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
-                </Text>
+            { this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash
+              ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>{'Total Amount ' + this.state.companyCountryDetails.currency.symbol}</Text>
                 <TextInput
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#808080',
-                    color: '#1C1C1C',
-                    textAlign: 'center',
-                    marginRight: -10
-                  }}
+                  style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: 'center', marginRight: -10 }}
                   placeholder={'Amount'}
                   returnKeyType={'done'}
                   keyboardType="number-pad"
                   onChangeText={async (text) => {
                     await this.setState({ totalAmountInINR: Number(text) });
-                  }}>
-                  {this.state.totalAmountInINR}
-                </TextInput>
+                  }}
+                >{this.state.totalAmountInINR}</TextInput>
               </View>
-                )
               : null}
           </View>
         )}
-
+        {
+          this.state.tdsOrTcsArray.length != 0 ?
+            <FlatList
+              data={this.state.tdsOrTcsArray}
+              renderItem={({ item }) => {
+                return (
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 16, marginVertical: 6 }}>
+                    <Text style={{ color: '#1C1C1C' }}>{item.name}</Text>
+                    <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + item.amount}</Text>
+                  </View>
+                )
+              }} />
+            : null
+        }
         <View style={{ justifyContent: 'flex-end', flexDirection: 'row', marginTop: 20, margin: 16 }}>
           <TouchableOpacity
             onPress={() => {
@@ -1807,13 +1867,31 @@ export class CreditNote extends React.Component<Props> {
     addedArray.splice(index, 1, item);
     this.setState({ showItemDetails: false, addedItems: addedArray }, () => {});
 
-    const totalAmount = this.getTotalAmount();
-    this.setState({ totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2) });
+    const totalAmount = this.getTotalAmount()
+    this.setState({ totalAmountInINR: (Math.round((totalAmount) * this.state.exchangeRate * 100) / 100).toFixed(2) })
+
+    this.updateTCSAndTDSTaxAmount(addedArray)
     // this.setState({ addedItems: addedItems })
     // this.setState({showItemDetails:false})
   }
 
-  componentWillUnmount () {
+  updateTCSAndTDSTaxAmount(addedArray) {
+    let alltdsOrTcsTaxArr = []
+    let tcsTaxObj = { name: "TCS", amount: 0 }
+    let tdsTaxObj = { name: "TDS", amount: 0 }
+    for (let i = 0; i < addedArray.length; i++) {
+      let tdsOrTcsTaxObj = this.calculatedTdsOrTcsTaxAmount(addedArray[i]);
+      if (tdsOrTcsTaxObj != null) {
+        tdsTaxObj.amount = tdsOrTcsTaxObj.name == "tdspay" ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
+        tcsTaxObj.amount = tdsOrTcsTaxObj.name == "tcspay" ? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
+      }
+    }
+    tcsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tcsTaxObj) : null
+    tdsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tdsTaxObj) : null
+    this.setState({ tdsOrTcsArray: alltdsOrTcsTaxArr })
+  }
+
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
@@ -1888,7 +1966,7 @@ export class CreditNote extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
