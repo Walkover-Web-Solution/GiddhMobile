@@ -397,7 +397,9 @@ export class Customers extends React.Component<Props> {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
         await this.setState({ successDialog: true });
-        await this.getAllDeatils()
+        this.setActiveCompanyCountry()
+        this.getAllDeatils();
+        this.checkStoredCountryCode();
         await this.setState({ loading: false });
       } else {
         this.setState({ faliureDialog: true });

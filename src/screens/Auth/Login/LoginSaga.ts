@@ -1,13 +1,13 @@
-import { call, put, takeLatest, select } from 'redux-saga/effects';
+import {call, put, takeLatest, select} from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
-import { getCompanyAndBranches } from '../../../redux/CommonAction';
+import {getCompanyAndBranches} from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
-import { STORAGE_KEYS } from '@/utils/constants';
+import {STORAGE_KEYS} from '@/utils/constants';
 
-export default function * watcherSaga () {
+export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
   yield takeLatest(ActionConstants.GOOGLE_USER_LOGIN, googleLogin);
   yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);
@@ -15,7 +15,7 @@ export default function * watcherSaga () {
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
 }
 
-export function * resetPassword (action) {
+export function* resetPassword(action) {
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
     alert('Please enter valid email & Password');
@@ -31,7 +31,7 @@ export function * resetPassword (action) {
   }
 }
 
-export function * verifyUserEmailPasswordLogin (action) {
+export function* verifyUserEmailPasswordLogin(action) {
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
     alert('Please enter valid email & Password');
@@ -56,8 +56,8 @@ export function * verifyUserEmailPasswordLogin (action) {
         LoginAction.loginUserSuccess({
           token: response.body.session.id,
           createdAt: response.body.session.createdAt,
-          expiresAt: response.body.session.expiresAt
-        })
+          expiresAt: response.body.session.expiresAt,
+        }),
       );
     } else if (
       response &&
@@ -74,7 +74,7 @@ export function * verifyUserEmailPasswordLogin (action) {
   }
 }
 
-export function * googleLogin (action) {
+export function* googleLogin(action) {
   console.log('googleLogin  -----');
   const response = yield call(LoginService.googleLogin, action.payload.token);
   console.log('response is ', response);
@@ -95,8 +95,8 @@ export function * googleLogin (action) {
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
         createdAt: response.body.session.createdAt,
-        expiresAt: response.body.session.expiresAt
-      })
+        expiresAt: response.body.session.expiresAt,
+      }),
     );
   } else if (
     response &&
@@ -110,12 +110,12 @@ export function * googleLogin (action) {
     yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
   }
 }
-export function * verifyOTP (action) {
+export function* verifyOTP(action) {
   const response = yield call(
     LoginService.verifyOTP,
     action.payload.otp,
     action.payload.mobileNumber,
-    action.payload.countryCode
+    action.payload.countryCode,
   );
   console.log('otp response is', response);
   if (response && response.body && response.body.session) {
@@ -134,15 +134,15 @@ export function * verifyOTP (action) {
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
         createdAt: response.body.session.createdAt,
-        expiresAt: response.body.session.expiresAt
-      })
+        expiresAt: response.body.session.expiresAt,
+      }),
     );
   } else {
     yield put(LoginAction.verifyOTPFailed(response.data.message));
   }
 }
 
-export function * appleLogin (action) {
+export function* appleLogin(action) {
   console.log('apple Login  -----');
   const response = yield call(LoginService.appleLogin, action.payload);
 
@@ -163,8 +163,8 @@ export function * appleLogin (action) {
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
         createdAt: response.body.session.createdAt,
-        expiresAt: response.body.session.expiresAt
-      })
+        expiresAt: response.body.session.expiresAt,
+      }),
     );
   } else if (
     response &&
@@ -180,9 +180,9 @@ export function * appleLogin (action) {
   }
 }
 
-export function * logoutUser () {
+export function* logoutUser() {
   const state = yield select();
-  const { commonReducer } = state;
+  const {commonReducer} = state;
   const id = commonReducer.userData.data.data[0].id;
 
   try {
