@@ -87,14 +87,16 @@ export class AppDatePicker extends React.Component {
     });
     return (
       <View style={styles.container}>
-        <TabView
-          navigationState={{ index: this.state.index, routes: this.state.routes }}
-          renderScene={renderScene}
-          onIndexChange={this.handleIndexChange}
-          initialLayout={initialLayout}
-          // swipeEnabled={false}
-          renderTabBar={this.renderTabBar}
-        />
+        {this.props.route.params.DateRangeOnly ? SecondRoute()
+          : <TabView
+            navigationState={{ index: this.state.index, routes: this.state.routes }}
+            renderScene={renderScene}
+            onIndexChange={this.handleIndexChange}
+            initialLayout={initialLayout}
+            // swipeEnabled={false}
+            renderTabBar={this.renderTabBar}
+          />
+        }
       </View>
     );
   }

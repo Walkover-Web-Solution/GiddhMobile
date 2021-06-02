@@ -16,6 +16,7 @@ import { View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter } from 're
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useSelector } from 'react-redux';
+import { InventoryNavigator } from './inventory.navigator';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -186,7 +187,7 @@ export const HomeNavigator = () => {
     /> */}
       <Screen
         name={Routes.Inventory}
-        component={InventoryMainScreen}
+        component={InventoryNavigator}
         options={({ }) => ({
           tabBarLabel: 'Inventory',
 
