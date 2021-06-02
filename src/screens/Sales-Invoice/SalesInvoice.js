@@ -925,16 +925,16 @@ export class SalesInvoice extends React.Component<Props> {
     const timeDiff = someDateTimeStamp - Date.now();
     const diffDays = new Date().getDate() - date;
     const diffYears = new Date().getFullYear() - dt.getFullYear();
-
+    const diffMonth = new Date().getMonth() - dt.getMonth();
     if (diffYears === 0 && diffDays === 0) {
       return 'Today';
     } else if (diffYears === 0 && diffDays === 1) {
       return 'Yesterday';
     } else if (diffYears === 0 && diffDays === -1) {
       return 'Tomorrow';
-    } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
+    } else if (diffYears === 0 && diffMonth===0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
-    } else if (diffYears >= 1) {
+    } else if (diffYears!==0 ) {
       return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     } else {
       return month + ' ' + date;
