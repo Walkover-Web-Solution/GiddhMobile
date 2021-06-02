@@ -210,16 +210,19 @@ export class InventoryScreen extends React.Component<Props, {}> {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            paddingHorizontal: 5
+            paddingHorizontal: 10,
+            marginTop: 15
           }}>
-          <TouchableWithoutFeedback
-            style={{
-              height: 40,
-              width: Dimensions.get('window').width * 0.6,
+            <View style={{
               borderRadius: 20,
               borderWidth: 1,
-              // marginLeft: 15,
               borderColor: '#D9D9D9',
+              height: 40,
+              width: Dimensions.get('window').width * 0.75,
+              justifyContent: 'center'
+            }}>
+          <TouchableWithoutFeedback
+            style={{
               alignItems: 'center',
               flexDirection: 'row'
             }}
@@ -242,6 +245,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
               </Text>
             </View>
           </TouchableWithoutFeedback>
+          </View>
           <View style={{ flexDirection: 'row' }}>
             <TouchableOpacity style={{ padding: 5 }}
               onPress={() => this.dateShift('left')}>
