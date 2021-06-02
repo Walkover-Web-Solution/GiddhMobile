@@ -131,7 +131,6 @@ class AddButton extends Component<Props> {
                     // disabled={this.state.buttonsDisabled}
                     // onPress={() => console.log('this works')}
                     onPress={async () => {
-                      await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                       if (item.name == 'Customer') {
                         await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 0 } });
                         await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
@@ -139,6 +138,7 @@ class AddButton extends Component<Props> {
                         await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 1 } });
                         await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                       } else {
+                        await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                         await this.props.navigation.navigate(item.navigateTo);
                       }
                       await this.setState({ modalVisible: false });

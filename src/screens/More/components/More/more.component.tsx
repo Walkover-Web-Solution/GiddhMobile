@@ -130,7 +130,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     } else {
       return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
-          {activeCompanyName && activeCompanyName.length > 1 ? (
+          {activeCompanyName && activeCompanyName.length > 1
+            ? (
             <TouchableOpacity
               style={style.companyView}
               onPress={() => {
@@ -148,7 +149,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
               </View>
             </TouchableOpacity>
-          ) : (
+              )
+            : (
             <View style={style.companyView}>
               <View style={style.companyShortView}>
                 <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
@@ -157,7 +159,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 <Text style={style.companyNameText}>{activeCompanyName}</Text>
               </View>
             </View>
-          )}
+              )}
           {
             // Switch Branch
           }

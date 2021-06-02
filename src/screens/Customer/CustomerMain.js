@@ -118,8 +118,9 @@ export class Customer extends React.Component<Props> {
   componentDidMount () {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       console.log('refresh captured');
-      const index = 0;
+      let index = 0;
       console.log(this.props.route.params.index);
+      index = this.props.route.params.index;
       console.log('componentDidMount Index Value  ' + JSON.stringify(index))
       await this.setState({ index: index });
       if (this.state.index == 1 && this.state.currentPage == 0) {
