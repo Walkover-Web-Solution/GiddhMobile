@@ -15,7 +15,7 @@ import {
   Dimensions,
   StatusBar,
   PermissionsAndroid,
-  Alert
+  Alert,
 } from 'react-native';
 // import style from './style';
 import { connect } from 'react-redux';
@@ -37,12 +37,12 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import { FONT_FAMILY } from '../../utils/constants';
-import CheckBox from 'react-native-check-box'
+import CheckBox from 'react-native-check-box';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
   credit: 'sales',
-  cash: 'cash'
+  cash: 'cash',
 };
 // interface Props {
 //   navigation: any;
@@ -53,10 +53,10 @@ const { width, height } = Dimensions.get('window');
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
     KEYBOARD_WILL_SHOW: 'keyboardWillShow',
-    KEYBOARD_WILL_HIDE: 'keyboardWillHide'
+    KEYBOARD_WILL_HIDE: 'keyboardWillHide',
   },
   KEYBOARD_DID_SHOW: 'keyboardDidShow',
-  KEYBOARD_DID_HIDE: 'keyboardDidHide'
+  KEYBOARD_DID_HIDE: 'keyboardDidHide',
 };
 export class PurchaseBill extends React.Component {
   constructor(props) {
@@ -94,7 +94,7 @@ export class PurchaseBill extends React.Component {
       fetechingWarehouseList: false,
       selectedPayMode: {
         name: 'Cash',
-        uniqueName: 'cash'
+        uniqueName: 'cash',
       },
       modesArray: [],
       editItemDetails: {
@@ -108,7 +108,7 @@ export class PurchaseBill extends React.Component {
         taxType: '',
         taxText: '',
         warehouse: '',
-        total: 0
+        total: 0,
       },
       fetechingDiscountList: false,
       fetechingTaxList: false,
@@ -120,16 +120,16 @@ export class PurchaseBill extends React.Component {
         trackingNumber: null,
         customField1: null,
         customField2: null,
-        customField3: null
+        customField3: null,
       },
       countryDeatils: {
         countryName: '',
-        countryCode: ''
+        countryCode: '',
       },
       currency: '',
       currencySymbol: '',
       exchangeRate: 1,
-      totalAmountInINR: 0.00,
+      totalAmountInINR: 0.0,
       companyCountryDetails: '',
       selectedInvoice: '',
       allBillingToAddresses: [],
@@ -152,7 +152,7 @@ export class PurchaseBill extends React.Component {
     console.log(address);
     this.setState({ BillToAddress: address });
     if (this.state.billToSameAsShipTo) {
-      this.setState({ shipToAddress: address })
+      this.setState({ shipToAddress: address });
     }
   };
 
@@ -160,7 +160,7 @@ export class PurchaseBill extends React.Component {
     console.log('bill from', address);
     this.setState({ BillFromAddress: address });
     if (this.state.billFromSameAsShipFrom) {
-      this.setState({ shipFromAddress: address })
+      this.setState({ shipFromAddress: address });
     }
   };
 
@@ -181,15 +181,19 @@ export class PurchaseBill extends React.Component {
 
   async getExchangeRateToINR(currency) {
     try {
-      const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), this.state.companyCountryDetails.currency.code, currency);
+      const results = await InvoiceService.getExchangeRate(
+        moment().format('DD-MM-YYYY'),
+        this.state.companyCountryDetails.currency.code,
+        currency,
+      );
       if (results.body && results.status == 'success') {
         await this.setState({
-          totalAmountInINR: (Math.round(Number(this.getTotalAmount()) * (results.body) * 100) / 100).toFixed(2),
-          exchangeRate: results.body
-        })
+          totalAmountInINR: (Math.round(Number(this.getTotalAmount()) * results.body * 100) / 100).toFixed(2),
+          exchangeRate: results.body,
+        });
       }
     } catch (e) { }
-    return 1
+    return 1;
   }
 
   async setActiveCompanyCountry() {
@@ -198,15 +202,17 @@ export class PurchaseBill extends React.Component {
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
       if (results.body && results.status == 'success') {
         await this.setState({
-          companyCountryDetails: results.body.country
-        })
+          companyCountryDetails: results.body.country,
+        });
       }
     } catch (e) { }
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow); this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide); this.setActiveCompanyCountry()
-    this.setActiveCompanyCountry()
+    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    this.setActiveCompanyCountry();
+    this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
@@ -229,7 +235,7 @@ export class PurchaseBill extends React.Component {
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
-      this.setActiveCompanyCountry()
+      this.setActiveCompanyCountry();
       this.getAllTaxes();
       this.getAllDiscounts();
       this.getAllWarehouse();
@@ -252,14 +258,14 @@ export class PurchaseBill extends React.Component {
     const value = event.endCoordinates.height - this.state.bottomOffset;
     Animated.timing(this.keyboardMargin, {
       duration: event.duration,
-      toValue: value
+      toValue: value,
     }).start();
   };
 
   keyboardWillHide = (event) => {
     Animated.timing(this.keyboardMargin, {
       duration: event.duration,
-      toValue: 0
+      toValue: 0,
     }).start();
   };
 
@@ -285,7 +291,10 @@ export class PurchaseBill extends React.Component {
 
   renderSelectPartyName() {
     return (
-      <View onLayout={this.onLayout} style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }} onPress={() => { }}>
+      <View
+        onLayout={this.onLayout}
+        style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }}
+        onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center'}}> */}
           <Icon name={'Profile'} color={'#fafafa'} style={{ margin: 16 }} size={16} />
@@ -313,7 +322,7 @@ export class PurchaseBill extends React.Component {
 
   onLayout = (e) => {
     this.setState({
-      searchTop: e.nativeEvent.layout.height + e.nativeEvent.layout.y
+      searchTop: e.nativeEvent.layout.height + e.nativeEvent.layout.y,
     });
   };
 
@@ -365,19 +374,19 @@ export class PurchaseBill extends React.Component {
   }
 
   async getCompanyAddress() {
-    const result = await InvoiceService.getCompanyBranchesDetails()
+    const result = await InvoiceService.getCompanyBranchesDetails();
     if (result.body && result.status == 'success') {
-      await this.setState({ allBillingToAddresses: result.body.addresses })
+      await this.setState({ allBillingToAddresses: result.body.addresses });
       for (let i = 0; i < result.body.addresses.length; i++) {
-        const adddressArray = await result.body.addresses[i]
+        const adddressArray = await result.body.addresses[i];
         if (adddressArray.branches) {
           for (let j = 0; j < adddressArray.branches.length; j++) {
-            const address = adddressArray.branches[j]
+            const address = adddressArray.branches[j];
             if (address.isDefault && address.isHeadQuarter) {
-              console.log('company address Array ' + JSON.stringify(adddressArray))
+              console.log('company address Array ' + JSON.stringify(adddressArray));
               await this.setState({ BillToAddress: adddressArray });
-              await this.state.billToSameAsShipTo ? this.setState({ shipToAddress: adddressArray }) : null;
-              break
+              (await this.state.billToSameAsShipTo) ? this.setState({ shipToAddress: adddressArray }) : null;
+              break;
             }
           }
         }
@@ -388,14 +397,14 @@ export class PurchaseBill extends React.Component {
   async getBillToAndShipToAddress() {
     await this.getCompanyAddress();
     if (!this.state.billToSameAsShipTo) {
-      const wareHouse = await this.state.warehouseArray
-      console.log('Ware house Array ' + JSON.stringify(wareHouse))
+      const wareHouse = await this.state.warehouseArray;
+      console.log('Ware house Array ' + JSON.stringify(wareHouse));
       for (let i = 0; i < wareHouse.length; i++) {
         if (wareHouse[i].isDefault) {
-          const address = wareHouse[i].addresses[0]
+          const address = wareHouse[i].addresses[0];
           if (address) {
             await this.setState({ shipToAddress: address });
-            break
+            break;
           }
         }
       }
@@ -442,13 +451,13 @@ export class PurchaseBill extends React.Component {
               flexDirection: 'row',
               alignSelf: 'flex-end',
               padding: 5,
-              alignItems: 'center'
+              alignItems: 'center',
             }}
             onPress={() =>
               this.setState({
                 searchResults: [],
                 searchError: '',
-                isSearchingParty: false
+                isSearchingParty: false,
               })
             }>
             <Ionicons name="close-circle" size={20} color={'#424242'} />
@@ -468,13 +477,13 @@ export class PurchaseBill extends React.Component {
                       searchResults: [],
                       searchPartyName: item.name,
                       searchError: '',
-                      isSearchingParty: false
+                      isSearchingParty: false,
                     },
                     () => {
                       this.searchAccount();
                       this.getAllAccountsModes();
                       Keyboard.dismiss();
-                    }
+                    },
                   );
                 }}>
                 <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}</Text>
@@ -507,8 +516,9 @@ export class PurchaseBill extends React.Component {
       console.log('cash account is ', results);
       if (results.body) {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
-          await this.getExchangeRateToINR(results.body.currency)
+          await this.getExchangeRateToINR(results.body.currency);
         }
+        // console.log('address body', results.body);
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -520,7 +530,7 @@ export class PurchaseBill extends React.Component {
           addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
           BillFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           // BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
-          shipFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0]
+          shipFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           // shipToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
         });
         await this.getBillToAndShipToAddress();
@@ -563,7 +573,7 @@ export class PurchaseBill extends React.Component {
       fetechingWarehouseList: false,
       selectedPayMode: {
         name: 'Cash',
-        uniqueName: 'cash'
+        uniqueName: 'cash',
       },
       modesArray: [],
       editItemDetails: {
@@ -577,7 +587,7 @@ export class PurchaseBill extends React.Component {
         taxType: '',
         taxText: '',
         warehouse: '',
-        total: 0
+        total: 0,
       },
       fetechingDiscountList: false,
       fetechingTaxList: false,
@@ -589,16 +599,16 @@ export class PurchaseBill extends React.Component {
         trackingNumber: null,
         customField1: null,
         customField2: null,
-        customField3: null
+        customField3: null,
       },
       countryDeatils: {
         countryName: '',
-        countryCode: ''
+        countryCode: '',
       },
       currency: '',
       currencySymbol: '',
       exchangeRate: 1,
-      totalAmountInINR: 0.00,
+      totalAmountInINR: 0.0,
       companyCountryDetails: '',
       selectedInvoice: '',
       allBillingToAddresses: [],
@@ -614,10 +624,11 @@ export class PurchaseBill extends React.Component {
     if (item.fixedDiscount) {
       const discountItem = {
         calculationMethod: 'FIX_AMOUNT',
-        amount: { type: 'DEBIT', amountForAccount: item.fixedDiscount.discountValue },
-        discountValue: item.fixedDiscount.discountValue,
+        uniqueName: item.fixedDiscount.uniqueName,
+        amount: { type: 'DEBIT', amountForAccount: Number(item.fixedDiscount.discountValue) },
+        discountValue: Number(item.fixedDiscount.discountValue),
         name: '',
-        particular: ''
+        particular: '',
       };
       discountArr.push(discountItem);
     }
@@ -626,10 +637,11 @@ export class PurchaseBill extends React.Component {
         for (let i = 0; i < item.percentDiscountArray.length; i++) {
           const discountItem = {
             calculationMethod: 'PERCENTAGE',
-            amount: { type: 'DEBIT', amountForAccount: item.percentDiscountArray[i].discountValue },
-            name: item.percentDiscountArray[i].name,
             uniqueName: item.percentDiscountArray[i].uniqueName,
-            particular: item.percentDiscountArray[i].linkAccount.uniqueName
+            amount: { type: 'DEBIT', amountForAccount: item.percentDiscountArray[i].discountValue },
+            discountValue: item.percentDiscountArray[i].discountValue,
+            name: item.percentDiscountArray[i].name,
+            particular: item.percentDiscountArray[i].linkAccount.uniqueName,
           };
           discountArr.push(discountItem);
         }
@@ -639,7 +651,7 @@ export class PurchaseBill extends React.Component {
       return discountArr;
     } else {
       return [
-        { calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' }
+        { calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' },
       ];
     }
   }
@@ -686,17 +698,17 @@ export class PurchaseBill extends React.Component {
 
                 uniqueName: item.stock.uniqueName,
                 rate: {
-                  amountForAccount: Number(item.rate)
+                  amountForAccount: Number(item.rate),
                 },
                 stockUnit: {
-                  code: item.stock.stockUnitCode
-                }
+                  code: item.stock.stockUnitCode,
+                },
               }
-              : undefined
-          }
+              : undefined,
+          },
         ],
         voucherNumber: '',
-        voucherType: 'purchase'
+        voucherType: 'purchase',
       };
       entriesArray.push(entry);
     }
@@ -726,12 +738,12 @@ export class PurchaseBill extends React.Component {
         `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`,
         {
           'session-id': `${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         JSON.stringify({
           voucherNumber: [`${voucherNo}`],
-          voucherType: `${voucherName}`
-        })
+          voucherType: `${voucherName}`,
+        }),
       )
         .then((res) => {
           const base64Str = res.base64();
@@ -744,7 +756,7 @@ export class PurchaseBill extends React.Component {
             title: 'This is the report',
             message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
-            subject: 'Transaction report'
+            subject: 'Transaction report',
           })
             .then((res) => {
               console.log(res);
@@ -765,9 +777,11 @@ export class PurchaseBill extends React.Component {
     try {
       console.log('came to this');
       if (this.state.currency != this.state.companyCountryDetails.currency.code) {
-        let exchangeRate = 1
-        await this.getTotalAmount() > 0 ? (exchangeRate = (Number(this.state.totalAmountInINR) / this.getTotalAmount())) : exchangeRate = 1
-        await this.setState({ exchangeRate: exchangeRate })
+        let exchangeRate = 1;
+        (await this.getTotalAmount()) > 0
+          ? (exchangeRate = Number(this.state.totalAmountInINR) / this.getTotalAmount())
+          : (exchangeRate = 1);
+        await this.setState({ exchangeRate: exchangeRate });
       }
       const postBody = {
         account: {
@@ -778,10 +792,13 @@ export class PurchaseBill extends React.Component {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
             panNumber: '',
-            state: { code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '', name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '' },
+            state: {
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '',
+              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '',
+            },
             stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : '',
             stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : '',
-            pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : ''
+            pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : '',
           },
           contactNumber: '',
           country: this.state.countryDeatils,
@@ -796,12 +813,15 @@ export class PurchaseBill extends React.Component {
             countryName: this.state.countryDeatils.countryName,
             gstNumber: this.state.shipFromAddress.gstNumber ? this.state.shipFromAddress.gstNumber : '',
             panNumber: '',
-            state: { code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '', name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '' },
+            state: {
+              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '',
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '',
+            },
             stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : '',
             stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : '',
-            pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : ''
+            pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
           },
-          uniqueName: this.state.partyName.uniqueName
+          uniqueName: this.state.partyName.uniqueName,
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: moment(this.state.date).format('DD-MM-YYYY'),
@@ -820,8 +840,8 @@ export class PurchaseBill extends React.Component {
             trackingNumber: this.state.otherDetails.trackingNumber,
             customField1: this.state.otherDetails.customField1,
             customField2: this.state.otherDetails.customField2,
-            customField3: this.state.otherDetails.customField3
-          }
+            customField3: this.state.otherDetails.customField3,
+          },
         },
         // touristSchemeApplicable: false,
         type: 'purchase',
@@ -836,26 +856,32 @@ export class PurchaseBill extends React.Component {
             countryName: this.state.companyCountryDetails.countryName,
             gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : '', name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : '' },
+            state: {
+              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : '',
+              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : '',
+            },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
-            pincode: this.state.BillToAddress.pincode
+            pincode: this.state.BillToAddress.pincode,
           },
           shippingDetails: {
             address: [this.state.shipToAddress.address],
             countryName: this.state.companyCountryDetails.countryName,
             gstNumber: this.state.shipToAddress.gstNumber,
             panNumber: '',
-            state: { code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : '', name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : '' },
+            state: {
+              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : '',
+              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : '',
+            },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
-            pincode: this.state.shipToAddress.pincode
-          }
-        }
+            pincode: this.state.shipToAddress.pincode,
+          },
+        },
       };
 
       if (this.state.selectedInvoice != '') {
-        postBody.number = this.state.selectedInvoice
+        postBody.number = this.state.selectedInvoice;
       }
 
       console.log('purchase bill postBody is', JSON.stringify(postBody));
@@ -869,7 +895,7 @@ export class PurchaseBill extends React.Component {
         const partyDetails = this.state.partyDetails;
         const partyUniqueName = this.state.partyDetails.uniqueName;
         this.resetState();
-        this.setActiveCompanyCountry()
+        this.setActiveCompanyCountry();
         this.getAllTaxes();
         this.getAllDiscounts();
         this.getAllWarehouse();
@@ -885,15 +911,19 @@ export class PurchaseBill extends React.Component {
                 name: partyDetails.name,
                 uniqueName: partyDetails.uniqueName,
                 country: { code: partyDetails.country.countryCode },
-                mobileNo: partyDetails.mobileNo
+                mobileNo: partyDetails.mobileNo,
               },
-              type: 'Creditors'
-            }
+              type: 'Creditors',
+            },
           });
         }
         if (type == 'share') {
           console.log('sharing');
-          this.downloadFile(results.body.entries[0].voucherType, results.body.entries[0].voucherNumber, partyUniqueName);
+          this.downloadFile(
+            results.body.entries[0].voucherType,
+            results.body.entries[0].voucherNumber,
+            partyUniqueName,
+          );
         }
       }
     } catch (e) {
@@ -904,12 +934,12 @@ export class PurchaseBill extends React.Component {
 
   clearAll = () => {
     this.resetState();
-    this.setActiveCompanyCountry()
+    this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
-  }
+  };
 
   renderAmount() {
     return (
@@ -1026,51 +1056,55 @@ export class PurchaseBill extends React.Component {
               value={this.state.selectedInvoice}
               style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%', height: 40 }}
               onChangeText={(value) => {
-                this.setState({ selectedInvoice: value })
+                this.setState({ selectedInvoice: value });
               }}
             />
           </View>
         </View>
       </View>
-    )
+    );
   }
 
   billingFromAddressArray() {
-    const addressArray = this.state.BillFromAddress
+    const addressArray = this.state.BillFromAddress;
     if (this.state.BillFromAddress.selectedCountry == null) {
-      addressArray.selectedCountry = this.state.countryDeatils
+      addressArray.selectedCountry = this.state.countryDeatils;
     }
-    return addressArray
-  };
+    return addressArray;
+  }
 
   selectBillingFromAddressFromEditAdress = async (address) => {
     console.log(JSON.stringify(address));
-    const countryCode = address.selectedCountry.currency ? address.selectedCountry.currency.code : address.selectedCountry.countryCode
+    const countryCode = address.selectedCountry.currency
+      ? address.selectedCountry.currency.code
+      : address.selectedCountry.countryCode;
     await this.setState({
       BillFromAddress: address,
       countryDeatils: { countryName: address.selectedCountry.countryName, code: countryCode },
-      currency: countryCode
+      currency: countryCode,
     });
     if (this.state.billFromSameAsShipFrom) {
-      this.setState({ shipFromAddress: address })
+      this.setState({ shipFromAddress: address });
     }
   };
 
   shippingFromAddressArray() {
-    const addressArray = this.state.shipFromAddress
+    const addressArray = this.state.shipFromAddress;
     if (this.state.shipFromAddress.selectedCountry == null) {
-      addressArray.selectedCountry = this.state.countryDeatils
+      addressArray.selectedCountry = this.state.countryDeatils;
     }
-    return addressArray
-  };
+    return addressArray;
+  }
 
   selectShippingFromAddressFromEditAdress = (address) => {
     console.log(address);
-    const countryCode = address.selectedCountry.currency ? address.selectedCountry.currency.code : address.selectedCountry.countryCode
+    const countryCode = address.selectedCountry.currency
+      ? address.selectedCountry.currency.code
+      : address.selectedCountry.countryCode;
     this.setState({
       shipFromAddress: address,
       countryDeatils: { countryName: address.selectedCountry.countryName, code: countryCode },
-      currency: countryCode
+      currency: countryCode,
     });
   };
 
@@ -1081,10 +1115,10 @@ export class PurchaseBill extends React.Component {
           <Icon name={'8'} color={'#FC8345'} size={16} />
           <Text style={style.addressHeaderText}>{'Address'}</Text>
         </View>
-        <View
-          style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
+        <View style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity style={{ width: '90%' }}
+            <TouchableOpacity
+              style={{ width: '90%' }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1094,7 +1128,7 @@ export class PurchaseBill extends React.Component {
                     type: 'address',
                     selectAddress: this.selectBillFromAddress.bind(this),
                     color: '#FC8345',
-                    statusBarColor: '#ef6c00'
+                    statusBarColor: '#ef6c00',
                   });
                 }
               }}>
@@ -1102,20 +1136,22 @@ export class PurchaseBill extends React.Component {
                 {'Billing From'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ height: '250%', width: '10%' }} onPress={() => {
-              if (!this.state.partyName) {
-                alert('Please select a party.');
-              } else {
-                this.props.navigation.navigate('EditAddress', {
-                  dontChangeCountry: true,
-                  address: this.billingFromAddressArray(),
-                  selectAddress: this.selectBillingFromAddressFromEditAdress.bind(this),
-                  color: '#FC8345',
-                  statusBarColor: '#ef6c00',
-                  headerColor: '#FC8345'
-                })
-              }
-            }}>
+            <TouchableOpacity
+              style={{ height: '250%', width: '10%' }}
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else {
+                  this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.billingFromAddressArray(),
+                    selectAddress: this.selectBillingFromAddressFromEditAdress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: '#ef6c00',
+                    headerColor: '#FC8345',
+                  });
+                }
+              }}>
               <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
             </TouchableOpacity>
           </View>
@@ -1131,7 +1167,7 @@ export class PurchaseBill extends React.Component {
                   type: 'address',
                   selectAddress: this.selectBillFromAddress.bind(this),
                   color: '#FC8345',
-                  statusBarColor: '#ef6c00'
+                  statusBarColor: '#ef6c00',
                 });
               }
             }}>
@@ -1153,8 +1189,8 @@ export class PurchaseBill extends React.Component {
               onClick={() => {
                 this.setState({
                   billFromSameAsShipFrom: !this.state.billFromSameAsShipFrom,
-                  shipFromAddress: this.state.BillFromAddress
-                })
+                  shipFromAddress: this.state.BillFromAddress,
+                });
               }}
               isChecked={this.state.billFromSameAsShipFrom}
             />
@@ -1164,10 +1200,10 @@ export class PurchaseBill extends React.Component {
           </View>
           {/* Sender Address View */}
         </View>
-        <View
-          style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
+        <View style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity style={{ width: '90%' }}
+            <TouchableOpacity
+              style={{ width: '90%' }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1177,7 +1213,7 @@ export class PurchaseBill extends React.Component {
                     type: 'address',
                     selectAddress: this.selectShipFromAddress.bind(this),
                     color: '#FC8345',
-                    statusBarColor: '#ef6c00'
+                    statusBarColor: '#ef6c00',
                   });
                 }
               }}>
@@ -1185,20 +1221,22 @@ export class PurchaseBill extends React.Component {
                 {'Shipping From'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ height: '250%', width: '10%' }} onPress={() => {
-              if (!this.state.partyName) {
-                alert('Please select a party.');
-              } else if (!this.state.billFromSameAsShipFrom) {
-                this.props.navigation.navigate('EditAddress', {
-                  dontChangeCountry: true,
-                  address: this.shippingFromAddressArray(),
-                  selectAddress: this.selectShippingFromAddressFromEditAdress.bind(this),
-                  color: '#FC8345',
-                  statusBarColor: '#ef6c00',
-                  headerColor: '#FC8345'
-                })
-              }
-            }}>
+            <TouchableOpacity
+              style={{ height: '250%', width: '10%' }}
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else if (!this.state.billFromSameAsShipFrom) {
+                  this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.shippingFromAddressArray(),
+                    selectAddress: this.selectShippingFromAddressFromEditAdress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: '#ef6c00',
+                    headerColor: '#FC8345',
+                  });
+                }
+              }}>
               <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
             </TouchableOpacity>
           </View>
@@ -1213,11 +1251,10 @@ export class PurchaseBill extends React.Component {
                   type: 'address',
                   selectAddress: this.selectShipFromAddress.bind(this),
                   color: '#FC8345',
-                  statusBarColor: '#ef6c00'
+                  statusBarColor: '#ef6c00',
                 });
               }
-            }}
-          >
+            }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
               {this.state.shipFromAddress.address
                 ? this.state.shipFromAddress.address
@@ -1230,10 +1267,10 @@ export class PurchaseBill extends React.Component {
           </TouchableOpacity>
           {/* Shipping Address View */}
         </View>
-        <View
-          style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
+        <View style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity style={{ width: '90%' }}
+            <TouchableOpacity
+              style={{ width: '90%' }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1243,7 +1280,7 @@ export class PurchaseBill extends React.Component {
                     type: 'address',
                     selectAddress: this.selectBillToAddress.bind(this),
                     color: '#FC8345',
-                    statusBarColor: '#ef6c00'
+                    statusBarColor: '#ef6c00',
                   });
                 }
               }}>
@@ -1251,20 +1288,22 @@ export class PurchaseBill extends React.Component {
                 {'Billing To'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ height: '250%', width: '10%' }} onPress={() => {
-              if (!this.state.partyName) {
-                alert('Please select a party.');
-              } else {
-                this.props.navigation.navigate('EditAddress', {
-                  dontChangeCountry: true,
-                  address: this.state.BillToAddress,
-                  selectAddress: this.selectBillToAddress.bind(this),
-                  color: '#FC8345',
-                  statusBarColor: '#ef6c00',
-                  headerColor: '#FC8345'
-                })
-              }
-            }}>
+            <TouchableOpacity
+              style={{ height: '250%', width: '10%' }}
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else {
+                  this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.state.BillToAddress,
+                    selectAddress: this.selectBillToAddress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: '#ef6c00',
+                    headerColor: '#FC8345',
+                  });
+                }
+              }}>
               <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
             </TouchableOpacity>
           </View>
@@ -1279,7 +1318,7 @@ export class PurchaseBill extends React.Component {
                   type: 'address',
                   selectAddress: this.selectBillToAddress.bind(this),
                   color: '#FC8345',
-                  statusBarColor: '#ef6c00'
+                  statusBarColor: '#ef6c00',
                 });
               }
             }}>
@@ -1302,8 +1341,8 @@ export class PurchaseBill extends React.Component {
               onClick={() => {
                 this.setState({
                   billToSameAsShipTo: !this.state.billToSameAsShipTo,
-                  shipToAddress: this.state.BillToAddress
-                })
+                  shipToAddress: this.state.BillToAddress,
+                });
               }}
               isChecked={this.state.billToSameAsShipTo}
             />
@@ -1311,40 +1350,43 @@ export class PurchaseBill extends React.Component {
             {/* <Text style={{ color: "#E04646", marginTop: 4 }}>*</Text> */}
           </View>
         </View>
-        <View
-          style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
+        <View style={{ paddingVertical: 6, marginTop: 0, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity onPress={() => {
-              if (!this.state.partyName) {
-                alert('Please select a party.');
-              } else {
-                this.props.navigation.navigate('SelectAddress', {
-                  warehouseArray: this.state.warehouseArray,
-                  type: 'warehouse',
-                  selectAddress: this.selectShipToAddress.bind(this),
-                  color: '#FC8345',
-                  statusBarColor: '#ef6c00'
-                });
-              }
-            }} style={{ width: '90%' }}>
+            <TouchableOpacity
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else {
+                  this.props.navigation.navigate('SelectAddress', {
+                    warehouseArray: this.state.warehouseArray,
+                    type: 'warehouse',
+                    selectAddress: this.selectShipToAddress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: '#ef6c00',
+                  });
+                }
+              }}
+              style={{ width: '90%' }}>
               <Text numberOfLines={2} style={style.senderAddressText}>
                 {'Shipping To'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ height: '200%', width: '10%' }} onPress={() => {
-              if (!this.state.partyName) {
-                alert('Please select a party.');
-              } else if (!this.state.billToSameAsShipTo) {
-                this.props.navigation.navigate('EditAddress', {
-                  dontChangeCountry: true,
-                  address: this.state.shipToAddress,
-                  selectAddress: this.selectShipToAddressFromEditAddressScreen.bind(this),
-                  color: '#FC8345',
-                  statusBarColor: '#ef6c00',
-                  headerColor: '#FC8345'
-                })
-              }
-            }}>
+            <TouchableOpacity
+              style={{ height: '200%', width: '10%' }}
+              onPress={() => {
+                if (!this.state.partyName) {
+                  alert('Please select a party.');
+                } else if (!this.state.billToSameAsShipTo) {
+                  this.props.navigation.navigate('EditAddress', {
+                    dontChangeCountry: true,
+                    address: this.state.shipToAddress,
+                    selectAddress: this.selectShipToAddressFromEditAddressScreen.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: '#ef6c00',
+                    headerColor: '#FC8345',
+                  });
+                }
+              }}>
               <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
             </TouchableOpacity>
           </View>
@@ -1359,10 +1401,10 @@ export class PurchaseBill extends React.Component {
                   type: 'warehouse',
                   selectAddress: this.selectShipToAddress.bind(this),
                   color: '#FC8345',
-                  statusBarColor: '#ef6c00'
+                  statusBarColor: '#ef6c00',
                 });
               }
-            }} >
+            }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
               {this.state.shipToAddress.address
                 ? this.state.shipToAddress.address
@@ -1392,21 +1434,28 @@ export class PurchaseBill extends React.Component {
   onDateChange = (dates) => {
     this.setState({
       ...dates,
-      showDatePicker: false
+      showDatePicker: false,
     });
   };
 
   updateAddedItems = async (addedItems) => {
-    const updateAmountToCurrentCurrency = addedItems
-    if ((this.state.currency).toString() != (this.state.companyCountryDetails.currency.code).toString()) {
+    const updateAmountToCurrentCurrency = addedItems;
+    if (this.state.currency.toString() != this.state.companyCountryDetails.currency.code.toString()) {
       try {
-        const results = await InvoiceService.getExchangeRate(moment().format('DD-MM-YYYY'), this.state.currency, this.state.companyCountryDetails.currency.code);
+        const results = await InvoiceService.getExchangeRate(
+          moment().format('DD-MM-YYYY'),
+          this.state.currency,
+          this.state.companyCountryDetails.currency.code,
+        );
         if (results.body && results.status == 'success') {
           for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
             const item = updateAmountToCurrentCurrency[i];
-            if ((updateAmountToCurrentCurrency[i].currency.code).toString() != (this.state.currency).toString()) {
-              updateAmountToCurrentCurrency[i].currency = await { code: this.state.currency, symbol: this.state.currencySymbol }
-              updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body)
+            if (updateAmountToCurrentCurrency[i].currency.code.toString() != this.state.currency.toString()) {
+              updateAmountToCurrentCurrency[i].currency = await {
+                code: this.state.currency,
+                symbol: this.state.currencySymbol,
+              };
+              updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body);
             }
           }
         }
@@ -1414,8 +1463,7 @@ export class PurchaseBill extends React.Component {
     }
     await this.setState({ addedItems: updateAmountToCurrentCurrency });
     await this.setState({
-      totalAmountInINR:
-        (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2)
+      totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2),
     });
   };
 
@@ -1427,7 +1475,7 @@ export class PurchaseBill extends React.Component {
             this.props.navigation.navigate('PurchaseAddItem', {
               updateAddedItems: (this.updateAddedItems).bind(this),
               addedItems: this.state.addedItems,
-              currencySymbol:this.state.currencySymbol
+              currencySymbol: this.state.currencySymbol
             });
           } else {
             alert('Please select a party.');
@@ -1442,7 +1490,7 @@ export class PurchaseBill extends React.Component {
           borderWidth: 2,
           alignSelf: 'center',
           justifyContent: 'center',
-          width: '90%'
+          width: '90%',
         }}>
         <AntDesign name={'plus'} color={'#FC8345'} size={18} style={{ marginHorizontal: 8 }} />
         <Text style={style.addItemMain}> Add Item</Text>
@@ -1463,7 +1511,7 @@ export class PurchaseBill extends React.Component {
               this.props.navigation.navigate('PurchaseAddItem', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
                 addedItems: this.state.addedItems,
-                currencySymbol:this.state.currencySymbol
+                currencySymbol: this.state.currencySymbol
               });
             }}>
             <Icon name={'path-15'} color="#808080" size={18} />
@@ -1485,13 +1533,12 @@ export class PurchaseBill extends React.Component {
     this.setState({ addedItems: newItems });
     this.updateTCSAndTDSTaxAmount(newItems)
     if (item.rate) {
-      const totalAmount = this.getTotalAmount()
+      const totalAmount = this.getTotalAmount();
       this.setState({
-        totalAmountInINR:
-          (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)
+        totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2),
       });
     }
-  }
+  };
 
   deleteItem = (item) => {
     const addedArray = this.state.addedItems;
@@ -1502,16 +1549,15 @@ export class PurchaseBill extends React.Component {
         const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
         return ouniqueName == itemUniqueName;
       },
-      0
+      0,
     );
     addedArray.splice(index, 1);
     this.setState({ addedItems: addedArray, showItemDetails: false }, () => { });
     this.updateTCSAndTDSTaxAmount(addedArray)
     if (item.rate) {
-      const totalAmount = this.getTotalAmount()
+      const totalAmount = this.getTotalAmount();
       this.setState({
-        totalAmountInINR:
-          (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)
+        totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2),
       });
     }
   };
@@ -1551,8 +1597,8 @@ export class PurchaseBill extends React.Component {
                 taxType: '',
                 taxText: '',
                 warehouse: '',
-                total: 0
-              }
+                total: 0,
+              },
             });
           }}>
           <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between' }}>
@@ -1564,9 +1610,7 @@ export class PurchaseBill extends React.Component {
                 </Text>
               )}
             </View>
-            <TouchableOpacity
-              onPress={() => this.addItem(item)}
-              style={{ flexDirection: 'row', alignItems: 'center' }} >
+            <TouchableOpacity onPress={() => this.addItem(item)} style={{ flexDirection: 'row', alignItems: 'center' }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>
@@ -1803,7 +1847,6 @@ export class PurchaseBill extends React.Component {
     return total.toFixed(2);
   }
 
-
   _renderOtherDetails() {
     return (
       <TouchableOpacity
@@ -1812,13 +1855,13 @@ export class PurchaseBill extends React.Component {
           justifyContent: 'space-between',
           paddingVertical: 8,
           paddingHorizontal: 16,
-          marginTop: 8
+          marginTop: 8,
         }}
         onPress={() => {
           this.props.navigation.navigate('PurchaseBillOtherDetails', {
             warehouseArray: this.state.warehouseArray,
             setOtherDetails: this.setOtherDetails,
-            otherDetails: this.state.otherDetails
+            otherDetails: this.state.otherDetails,
           });
         }}>
         <View style={{ flexDirection: 'row' }}>
@@ -1839,7 +1882,7 @@ export class PurchaseBill extends React.Component {
             flexDirection: 'row',
             paddingVertical: 9,
             paddingHorizontal: 16,
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
           }}>
           <View style={{ flexDirection: 'row' }}>
             <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color="#FC8345" />
@@ -1862,19 +1905,29 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
             </View>
-            { this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash
-              ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>{'Total Amount ' + this.state.companyCountryDetails.currency.symbol}</Text>
+            {this.state.currency != this.state.companyCountryDetails.currency.code &&
+              this.state.invoiceType != INVOICE_TYPE.cash ? (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
+                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
+                </Text>
                 <TextInput
-                  style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: 'center', marginRight: -10 }}
+                  style={{
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#808080',
+                    color: '#1C1C1C',
+                    textAlign: 'center',
+                    marginRight: -10,
+                  }}
                   placeholder={'Amount'}
                   returnKeyType={'done'}
                   keyboardType="number-pad"
                   onChangeText={async (text) => {
                     await this.setState({ totalAmountInINR: Number(text) });
-                  }}
-                >{this.state.totalAmountInINR}</TextInput>
-              </View>
+                  }}>
+                  {this.state.totalAmountInINR}
+                </TextInput>
+              </View>)
               : null}
             {
               this.state.tdsOrTcsArray.length != 0 ?
@@ -1900,26 +1953,37 @@ export class PurchaseBill extends React.Component {
           </View>
         )}
 
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, margin: 16, alignItems: 'center' }}>
+        <View
+          style={{
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            marginTop: 20,
+            margin: 16,
+            alignItems: 'center',
+          }}>
           <View>
-            <TouchableOpacity style={{
-              // backgroundColor: '#5773FF',
-              // paddingVertical: 8,
-              // paddingHorizontal: 7,
-              // justifyContent: 'center',
-              // alignItems: 'center',
-              // borderRadius: 10,
-              // marginBottom: 3
-            }}
+            <TouchableOpacity
+              style={
+                {
+                  // backgroundColor: '#5773FF',
+                  // paddingVertical: 8,
+                  // paddingHorizontal: 7,
+                  // justifyContent: 'center',
+                  // alignItems: 'center',
+                  // borderRadius: 10,
+                  // marginBottom: 3
+                }
+              }
               onPress={() => {
                 this.genrateInvoice('new');
               }}>
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and New</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{
-              marginTop: 10
-              // backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10
-            }}
+            <TouchableOpacity
+              style={{
+                marginTop: 10,
+                // backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10
+              }}
               onPress={() => {
                 this.genrateInvoice('share');
               }}>
@@ -1942,12 +2006,32 @@ export class PurchaseBill extends React.Component {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
       alert('Please select entries to proceed.');
-    } else if (this.state.currency != this.state.companyCountryDetails.currency.code && this.state.totalAmountInINR <= 0 && this.getTotalAmount() > 0) {
-      Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
-    } else if (this.state.currency == this.state.companyCountryDetails.currency.code && (!this.state.BillFromAddress.stateName || !this.state.BillFromAddress.stateCode || !this.state.BillFromAddress.state)) {
-      Alert.alert('Empty state details', 'Please add state details for Billing From', [{ style: 'destructive', text: 'Okay' }]);
-    } else if (this.state.currency == this.state.companyCountryDetails.currency.code && (!this.state.shipFromAddress.stateName || !this.state.shipFromAddress.stateCode || !this.state.shipFromAddress.state)) {
-      Alert.alert('Empty state details', 'Please add state details for Shipping From', [{ style: 'destructive', text: 'Okay' }]);
+    } else if (
+      this.state.currency != this.state.companyCountryDetails.currency.code &&
+      this.state.totalAmountInINR <= 0 &&
+      this.getTotalAmount() > 0
+    ) {
+      Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
+        { style: 'destructive', onPress: () => console.log('alert destroyed') },
+      ]);
+    } else if (
+      this.state.currency == this.state.companyCountryDetails.currency.code &&
+      (!this.state.BillFromAddress.stateName ||
+        !this.state.BillFromAddress.stateCode ||
+        !this.state.BillFromAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Billing From', [
+        { style: 'destructive', text: 'Okay' },
+      ]);
+    } else if (
+      this.state.currency == this.state.companyCountryDetails.currency.code &&
+      (!this.state.shipFromAddress.stateName ||
+        !this.state.shipFromAddress.stateCode ||
+        !this.state.shipFromAddress.state)
+    ) {
+      Alert.alert('Empty state details', 'Please add state details for Shipping From', [
+        { style: 'destructive', text: 'Okay' },
+      ]);
     } else {
       this.createPurchaseBill(type);
     }
@@ -1963,7 +2047,7 @@ export class PurchaseBill extends React.Component {
         const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
         return ouniqueName == itemUniqueName;
       },
-      0
+      0,
     );
     const item = this.state.addedItems[index];
     item.quantity = Number(details.quantityText);
@@ -2049,7 +2133,7 @@ export class PurchaseBill extends React.Component {
             />
             {/* <TouchableOpacity
               style={{height: 60, width: 60, backgroundColor: 'pink'}}
-              onPress={() => console.log(this.state.addressArray)}></TouchableOpacity> */}
+              onPress={() => console.log(this.state.BillFromAddress)}></TouchableOpacity> */}
             {/* <View style={{flexDirection: 'row'}}>
 
             <TouchableOpacity
@@ -2075,7 +2159,7 @@ export class PurchaseBill extends React.Component {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                top: 0
+                top: 0,
               }}>
               <Bars size={15} color={color.PRIMARY_NORMAL} />
             </View>
@@ -2104,14 +2188,14 @@ export class PurchaseBill extends React.Component {
 function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
-    ...commonReducer
+    ...commonReducer,
   };
 }
 function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
-    }
+    },
   };
 }
 

@@ -1,38 +1,47 @@
-import { call, put, takeLatest, select, takeEvery } from 'redux-saga/effects';
+import {call, put, takeLatest, select, takeEvery} from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as CommonActions from './CommonAction';
 import * as CommonService from './CommonService';
+import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import { DeviceEventEmitter } from 'react-native';
-import { appleAuth } from '@invertase/react-native-apple-authentication';
+import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
+import {DeviceEventEmitter} from 'react-native';
+import {appleAuth} from '@invertase/react-native-apple-authentication';
 
-export default function * watcherFCMTokenSaga () {
+export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
 }
 
-export function * getCompanyAndBranches () {
+export function* getCompanyAndBranches() {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    // console.log('list response is' + listResponse.body);
-    // console.log('list response is' + JSON.stringify(listResponse));
+    console.log('list response is' + listResponse.body);
+    console.log('list response is' + JSON.stringify(listResponse));
     const companyData = {};
     companyData.success = false;
+    const activeCompany = yield AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     if (listResponse && listResponse.status == 'success') {
       companyData.success = true;
       companyData.companyList = listResponse.body;
-      const activeCompany = yield AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      // const activeCompany = yield AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       if (!activeCompany) {
         console.log('this always runs for company');
         if (listResponse.body && listResponse.body.length > 0) {
           yield put(CommonActions.isAuth());
           const defaultComp = listResponse.body[0];
-          if (defaultComp.subscription && defaultComp.subscription.country && defaultComp.subscription.country.countryCode) {
+          if (
+            defaultComp.subscription &&
+            defaultComp.subscription.country &&
+            defaultComp.subscription.country.countryCode
+          ) {
             console.log('country code is ' + defaultComp.subscription.country.countryCode);
-            yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, defaultComp.subscription.country.countryCode);
+            yield AsyncStorage.setItem(
+              STORAGE_KEYS.activeCompanyCountryCode,
+              defaultComp.subscription.country.countryCode,
+            );
           }
           if (defaultComp.uniqueName) {
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
@@ -40,10 +49,19 @@ export function * getCompanyAndBranches () {
         } else {
           yield put(CommonActions.isUnauth());
         }
+      } else {
+        const companyResults = _.find(listResponse.body, function (item) {
+          return item.uniqueName == activeCompany;
+        });
+        if (!companyResults) {
+          console.log('different id login worked');
+          const defaultComp = listResponse.body[0];
+          yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
+        }
       }
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
-    console.log('googleRat3', branchesResponse);
+    console.log('branches are', branchesResponse);
     if (branchesResponse && branchesResponse.status == 'success') {
       companyData.branchList = branchesResponse.body;
       const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
@@ -63,6 +81,17 @@ export function * getCompanyAndBranches () {
         // else if (response.status == true){
         //     yield put(CommonActions.loginUserSuccess(action.payload.username, action.payload.password, response));
         // }
+      } else {
+        const branchResults = _.find(branchesResponse.body, function (item) {
+          return item.uniqueName == activeBranch;
+        });
+        if (!branchResults) {
+          console.log('different id login worked branch');
+          const defaultBranch = branchesResponse.body[0];
+          if (defaultBranch.alias) {
+            yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, defaultBranch.uniqueName);
+          }
+        }
       }
     }
     if (companyData.success == true) {
@@ -76,8 +105,8 @@ export function * getCompanyAndBranches () {
   }
 }
 
-export function * logoutUser () {
-  console.log('here')
+export function* logoutUser() {
+  console.log('here');
   try {
     appleAuth.Operation.LOGOUT;
     yield AsyncStorage.removeItem(STORAGE_KEYS.token);
