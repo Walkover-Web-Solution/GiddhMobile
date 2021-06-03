@@ -153,7 +153,8 @@ export class SalesInvoice extends React.Component<Props> {
       totalAmountInINR: 0.0,
       companyCountryDetails: '',
       billSameAsShip: true,
-      tdsOrTcsArray: []
+      tdsOrTcsArray: [],
+      showExtraDetails: false
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -677,7 +678,8 @@ export class SalesInvoice extends React.Component<Props> {
       },
       companyCountryDetails: '',
       billSameAsShip: true,
-      tdsOrTcsArray: []
+      tdsOrTcsArray: [],
+      showExtraDetails: false
     });
   };
 
@@ -1127,10 +1129,10 @@ export class SalesInvoice extends React.Component<Props> {
               }}>
               {this.state.invoiceType == INVOICE_TYPE.cash
                 ? (
-                <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
+                  <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
                   )
                 : (
-                <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
+                  <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
                   )}
             </TouchableOpacity>
           </View>
@@ -1227,10 +1229,10 @@ export class SalesInvoice extends React.Component<Props> {
               }}>
               {this.state.invoiceType == INVOICE_TYPE.cash
                 ? (
-                <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
+                  <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
                   )
                 : (
-                <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
+                  <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
                   )}
             </TouchableOpacity>
           </View>
@@ -1938,27 +1940,27 @@ export class SalesInvoice extends React.Component<Props> {
             {this.state.currency != this.state.companyCountryDetails.currency.code &&
               this.state.invoiceType != INVOICE_TYPE.cash
               ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
-                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
-                </Text>
-                <TextInput
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#808080',
-                    color: '#1C1C1C',
-                    textAlign: 'center',
-                    marginRight: -10
-                  }}
-                  placeholder={'Amount'}
-                  returnKeyType={'done'}
-                  keyboardType="number-pad"
-                  onChangeText={async (text) => {
-                    await this.setState({ totalAmountInINR: Number(text) });
-                  }}>
-                  {this.state.totalAmountInINR}
-                </TextInput>
-              </View>)
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+                  <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
+                    {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
+                  </Text>
+                  <TextInput
+                    style={{
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#808080',
+                      color: '#1C1C1C',
+                      textAlign: 'center',
+                      marginRight: -10
+                    }}
+                    placeholder={'Amount'}
+                    returnKeyType={'done'}
+                    keyboardType="number-pad"
+                    onChangeText={async (text) => {
+                      await this.setState({ totalAmountInINR: Number(text) });
+                    }}>
+                    {this.state.totalAmountInINR}
+                  </TextInput>
+                </View>)
               : null}
             {
               this.state.tdsOrTcsArray.length != 0
@@ -1999,14 +2001,14 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
               ) : (
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({ showPaymentModePopup: true });
-                  }}>
-                  <Text style={{ color: '#1C1C1C' }}>
-                    {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
-                  </Text>
-                  {/* <TextInput
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({ showPaymentModePopup: true });
+                    }}>
+                    <Text style={{ color: '#1C1C1C' }}>
+                      {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
+                    </Text>
+                    {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
                     placeholder={`${this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}0.00`}
                     returnKeyType={'done'}
@@ -2017,7 +2019,7 @@ export class SalesInvoice extends React.Component<Props> {
                       this.setState({amountPaidNowText: text});
                     }}
                   /> */}
-                </TouchableOpacity>
+                  </TouchableOpacity>
               )}
             </View>
 
