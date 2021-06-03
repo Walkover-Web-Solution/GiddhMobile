@@ -1948,7 +1948,7 @@ export class SalesInvoice extends React.Component<Props> {
                     borderBottomColor: '#808080',
                     color: '#1C1C1C',
                     textAlign: 'center',
-                    marginRight: -10
+                    marginRight: 10
                   }}
                   placeholder={'Amount'}
                   returnKeyType={'done'}
