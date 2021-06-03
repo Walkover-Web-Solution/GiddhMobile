@@ -182,9 +182,13 @@ class EditItemDetails extends Component {
                     // disabled={true}
                     // style={{backgroundColor: 'pink'}}
                     onPress={async () => {
-                      if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) || (selectedTaxTypeArr.includes("tdspay") && item.taxType == "tcspay") ||
-                        (selectedTaxTypeArr.includes("tcspay") && item.taxType == "tdspay")
-                      ) {
+                      if (
+                        (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                        ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tcspay')||
+                        ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tcspay')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdsrc')||
+                        ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcspay'))&& item.taxType == 'tcsrc')||
+                        ((selectedTaxTypeArr.includes('tcspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdspay')
+                      ){
                         console.log('did not select');
                       } else {
                         const itemDetails = this.state.editItemDetails;
@@ -378,7 +382,7 @@ class EditItemDetails extends Component {
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
         // totalTax = totalTax + taxAmount;
-        totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+        totalTax = (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc')? totalTax: totalTax + taxAmount;
       }
     }
     return Number(totalTax);

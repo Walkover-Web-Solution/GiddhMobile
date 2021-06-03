@@ -1380,7 +1380,7 @@ export class CreditNote extends React.Component<Props> {
     );
     addedArray.splice(index, 1);
     this.setState({ addedItems: addedArray, showItemDetails: false }, () => { });
-    this.updateTCSAndTDSTaxAmount(newItems)
+    this.updateTCSAndTDSTaxAmount(addedArray)
     if (item.rate) {
       const totalAmount = this.getTotalAmount();
       this.setState({
@@ -1449,7 +1449,7 @@ export class CreditNote extends React.Component<Props> {
 
           <Text style={{ marginTop: 5, color: '#808080' }}>
             Tax : {this.state.currencySymbol}
-            {this.calculatedTaxAmount(item, "taxAmount")}
+            {this.calculatedTaxAmount(item)}
           </Text>
           <Text style={{ marginTop: 5, color: '#808080' }}>
             Discount : {this.state.currencySymbol}
@@ -1513,7 +1513,7 @@ export class CreditNote extends React.Component<Props> {
     return 0;
   }
 
-  calculatedTaxAmount(itemDetails, calculateFor) {
+  calculatedTaxAmount(itemDetails) {
     let totalTax = 0;
     console.log('rate', itemDetails.rate);
     const taxArr = this.state.taxArray;
@@ -1524,13 +1524,7 @@ export class CreditNote extends React.Component<Props> {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        // For tax and invoice due we calculate all taxes( including tds/tcs),
-        // But when we calculating total amount we did not include tcs/tds tax.
-        if (calculateFor == "taxAmount") {
-          totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
-        } else {
-          totalTax = item.taxType == "tdspay" || item.taxType == "tcspay" ? totalTax : totalTax + taxAmount;
-        }
+        totalTax = (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc')? totalTax : totalTax + taxAmount;
       }
     }
     if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
@@ -1541,11 +1535,7 @@ export class CreditNote extends React.Component<Props> {
             // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
-            if (calculateFor == "taxAmount") {
-              totalTax = taxArr[j].taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
-            } else {
-              totalTax = taxArr[j].taxType == "tdspay" || taxArr[j].taxType  == "tcspay" ? totalTax : totalTax + taxAmount;
-            }
+            totalTax = (taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc')? totalTax : totalTax + taxAmount;
             break;
           }
         }
@@ -1567,7 +1557,7 @@ export class CreditNote extends React.Component<Props> {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        if (item.taxType == "tdspay" || item.taxType == "tcspay") {
+        if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc')  {
           totalTcsorTdsTax = taxAmount;
           totalTcsorTdsTaxName = item.taxType
           break
@@ -1581,7 +1571,7 @@ export class CreditNote extends React.Component<Props> {
           if (item == taxArr[j].uniqueName) {
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
-            if (item.taxType == "tdspay" || item.taxType == "tcspay") {
+            if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc')) {
               totalTcsorTdsTaxName = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType
             }
@@ -1626,7 +1616,7 @@ export class CreditNote extends React.Component<Props> {
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
       const discount = item.discountValue ? item.discountValue : 0;
-      const tax = this.calculatedTaxAmount(item, "totalAmount");
+      const tax = this.calculatedTaxAmount(item);
       const amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
@@ -1754,10 +1744,10 @@ export class CreditNote extends React.Component<Props> {
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
             </View>
             { this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash
-              ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              ? <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                 <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>{'Total Amount ' + this.state.companyCountryDetails.currency.symbol}</Text>
                 <TextInput
-                  style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: 'center', marginRight: 10 }}
+                  style={{ borderBottomWidth: 1, borderBottomColor: '#808080', color: '#1C1C1C', textAlign: 'center', marginRight: 0 }}
                   placeholder={'Amount'}
                   returnKeyType={'done'}
                   keyboardType="number-pad"
@@ -1882,8 +1872,8 @@ export class CreditNote extends React.Component<Props> {
     for (let i = 0; i < addedArray.length; i++) {
       let tdsOrTcsTaxObj = this.calculatedTdsOrTcsTaxAmount(addedArray[i]);
       if (tdsOrTcsTaxObj != null) {
-        tdsTaxObj.amount = tdsOrTcsTaxObj.name == "tdspay" ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
-        tcsTaxObj.amount = tdsOrTcsTaxObj.name == "tcspay" ? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
+        tdsTaxObj.amount = tdsOrTcsTaxObj.name == 'tdspay' || tdsOrTcsTaxObj.name == 'tdsrc' ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
+        tcsTaxObj.amount = tdsOrTcsTaxObj.name == 'tcspay' || tdsOrTcsTaxObj.name == 'tcsrc'? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
       }
     }
     tcsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tcsTaxObj) : null

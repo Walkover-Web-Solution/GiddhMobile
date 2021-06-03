@@ -187,9 +187,12 @@ class PurchaseItemEdit extends Component {
                     // disabled={true}
                     // style={{backgroundColor: 'pink'}}
                     onPress={async () => {
-                      if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) || (selectedTaxTypeArr.includes("tdspay") && item.taxType == "tcspay") ||
-                        (selectedTaxTypeArr.includes("tcspay") && item.taxType == "tdspay")
-                      ) {
+                      if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                      ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tcspay')||
+                      ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tcspay')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdsrc')||
+                      ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcspay'))&& item.taxType == 'tcsrc')||
+                      ((selectedTaxTypeArr.includes('tcspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdspay')
+                    ){
                         console.log('did not select');
                       } else {
                         const itemDetails = this.state.editItemDetails;
@@ -386,7 +389,7 @@ class PurchaseItemEdit extends Component {
         const taxPercent = Number(TaxItem.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
         // totalTax = totalTax + taxAmount;
-        totalTax = TaxItem.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+        totalTax = TaxItem.taxType == 'tdspay' || TaxItem.taxType == 'tcspay' || TaxItem.taxType == 'tcsrc' || TaxItem.taxType == 'tdsrc'? totalTax: totalTax + taxAmount;
       }
     }
     return Number(totalTax);
@@ -408,6 +411,60 @@ class PurchaseItemEdit extends Component {
     }
     return finalAmt;
   }
+
+  calculateDiscountedAmountToDisplayTotalAmount(itemDetails) {
+    let totalDiscount = 0;
+    let percentDiscount = 0;
+    if (itemDetails.fixedDiscount.discountValue > 0) {
+      totalDiscount = totalDiscount + Number(itemDetails.fixedDiscount.discountValue);
+    }
+    if (itemDetails.percentDiscountArray.length > 0) {
+      for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
+        percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
+        console.log(percentDiscount, '%');
+      }
+      const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+      // console.log('amt is ', amt);
+      totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
+    }
+    console.log(totalDiscount, 'is the discount');
+    return totalDiscount;
+  }
+
+  calculatedTaxAmountToDisplayTotalAmount(itemDetails) {
+    let totalTax = 0;
+    const totalDiscount = this.calculateDiscountedAmountToDisplayTotalAmount(itemDetails);
+    const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
+    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
+      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
+        const item = itemDetails.taxDetailsArray[i];
+        const taxPercent = Number(item.taxDetail[0].taxValue);
+        const taxAmount = (taxPercent * Number(amt)) / 100;
+        // totalTax = totalTax + taxAmount;
+        totalTax = item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc'? totalTax: totalTax + taxAmount;
+      }
+    }
+    return Number(totalTax);
+  }
+
+  calculateFinalAmountToDisplay(editItemDetails) {
+    // console.log('this did not run');
+    const discountAmount = this.calculateDiscountedAmountToDisplayTotalAmount(editItemDetails);
+    let totalTax=0
+    if(this.props.notIncludeTax){
+     totalTax = this.calculatedTaxAmountToDisplayTotalAmount(editItemDetails);
+    }
+    const amt = Number(this.state.editItemDetails.rateText) * Number(editItemDetails.quantityText);
+    let finalAmt = amt;
+    if (discountAmount) {
+      finalAmt = finalAmt - discountAmount;
+    }
+    if (totalTax) {
+      finalAmt = finalAmt + totalTax;
+    }
+    return finalAmt;
+  }
+
 
   _renderDiscounts() {
     return (
@@ -658,7 +715,9 @@ class PurchaseItemEdit extends Component {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 16 }}>
         <Text>Total Amount</Text>
-        <Text style={style.finalItemAmount}>{`${(this.props.currencySymbol ? this.props.currencySymbol : '') + '' + this.state.editItemDetails.total.toFixed(2)}`}</Text>
+        <Text style={style.finalItemAmount}>
+          {`${(this.props.currencySymbol ? this.props.currencySymbol : '') + '' +this.calculateFinalAmountToDisplay(this.state.editItemDetails).toFixed(2)}`}
+        </Text>
       </View>
     );
   }

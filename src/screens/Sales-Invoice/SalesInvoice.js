@@ -153,7 +153,8 @@ export class SalesInvoice extends React.Component<Props> {
       totalAmountInINR: 0.0,
       companyCountryDetails: '',
       billSameAsShip: true,
-      tdsOrTcsArray: []
+      tdsOrTcsArray: [],
+      partyType:undefined,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -549,6 +550,7 @@ export class SalesInvoice extends React.Component<Props> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
+          partyType: results.body.addresses.length < 1 ? undefined : results.body.addresses[0].partyType,
           addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
           partyBillingAddress:
             results.body.addresses.length < 1
@@ -677,7 +679,8 @@ export class SalesInvoice extends React.Component<Props> {
       },
       companyCountryDetails: '',
       billSameAsShip: true,
-      tdsOrTcsArray: []
+      tdsOrTcsArray: [],
+      partyType:undefined,
     });
   };
 
@@ -1575,12 +1578,9 @@ export class SalesInvoice extends React.Component<Props> {
     console.log('rate', itemDetails.rate);
     const taxArr = this.state.taxArray;
     if (
-      this.state.invoiceType == INVOICE_TYPE.credit &&
-      calculateFor != 'taxAmount' &&
-      calculateFor != 'InvoiceDue' &&
+      (this.state.invoiceType == INVOICE_TYPE.credit && calculateFor == 'totalAmount' &&
       this.state.currency != this.state.companyCountryDetails.currency.code &&
-      this.state.companyCountryDetails.currency.code == 'INR'
-    ) {
+      this.state.companyCountryDetails.currency.code == 'INR') || (this.state.partyType == "SEZ" && calculateFor == 'totalAmount')){
       return 0;
     }
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
@@ -1589,23 +1589,26 @@ export class SalesInvoice extends React.Component<Props> {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
         // console.log("Item Details taxDetailsArray " + JSON.stringify(item))
-        if (this.state.companyCountryDetails.currency.code == 'INR' && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash) {
+        if (this.state.partyType == "SEZ" || (this.state.companyCountryDetails.currency.code == 'INR' && this.state.currency != this.state.companyCountryDetails.currency.code 
+        && this.state.invoiceType != INVOICE_TYPE.cash)) {
           // In case of company country india, if any foriegn country customer exist then invoice due only contains tcs/tds tax
-          // And in case of tax calculation we add all taxes awith tcs/tds.
-          if ((item.taxType == 'tdspay' || item.taxType == 'tcspay' || calculateFor == 'taxAmount')) {
-            const taxPercent = Number(item.taxDetail[0].taxValue);
-            const taxAmount = (taxPercent * Number(amt)) / 100;
-            totalTax = item.taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
+          // And in case of tax calculation we only add taxes (tds/tcs excluded).
+          const taxPercent = Number(item.taxDetail[0].taxValue);
+          const taxAmount = (taxPercent * Number(amt)) / 100;
+          if ((item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') && calculateFor != 'taxAmount' ) {
+            totalTax = item.taxType == 'tdspay' || item.taxType == 'tdsrc' ? totalTax - taxAmount : totalTax + taxAmount;
+          }else if (calculateFor == 'taxAmount'){
+            totalTax = (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') ? totalTax : totalTax + taxAmount;
           }
         } else {
           const taxPercent = Number(item.taxDetail[0].taxValue);
           const taxAmount = (taxPercent * Number(amt)) / 100;
           // In normal case, for tax and invoice due we calculate all taxes( including tds/tcs),
           // But when we calculating total amount we did not include tcs/tds tax.
-          if (calculateFor == 'taxAmount' || calculateFor == 'InvoiceDue') {
-            totalTax = item.taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
+          if (calculateFor == 'InvoiceDue') {
+            totalTax = item.taxType == 'tdspay' || item.taxType == 'tdsrc'? totalTax - taxAmount : totalTax + taxAmount;
           } else {
-            totalTax = item.taxType == 'tdspay' || item.taxType == 'tcspay' ? totalTax : totalTax + taxAmount;
+            totalTax = (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') ? totalTax : totalTax + taxAmount;
           }
         }
       }
@@ -1616,20 +1619,23 @@ export class SalesInvoice extends React.Component<Props> {
         for (let j = 0; j < taxArr.length; j++) {
           if (item == taxArr[j].uniqueName) {
             // console.log("Item Deatils stocks " + JSON.stringify(taxArr[j]))
-            if (this.state.companyCountryDetails.currency.code == 'INR' && this.state.currency != this.state.companyCountryDetails.currency.code && this.state.invoiceType != INVOICE_TYPE.cash) {
-              if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || calculateFor == 'taxAmount')) {
-                const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-                const taxAmount = (taxPercent * Number(amt)) / 100;
-                totalTax = taxArr[j].taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
-                break;
+            if (this.state.partyType == "SEZ" || (this.state.companyCountryDetails.currency.code == 'INR' && this.state.currency != this.state.companyCountryDetails.currency.code 
+            && this.state.invoiceType != INVOICE_TYPE.cash)) {    
+              const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
+              const taxAmount = (taxPercent * Number(amt)) / 100;          
+              if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc' ) && calculateFor != 'taxAmount' ) {
+                totalTax = taxArr[j].taxType == 'tdspay'  || taxArr[j].taxType == 'tdsrc' ? totalTax - taxAmount : totalTax + taxAmount;
+              }else if (calculateFor == 'taxAmount'){
+                totalTax = (taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc') ? totalTax : totalTax + taxAmount;
               }
+              break;
             } else {
               const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
               const taxAmount = (taxPercent * Number(amt)) / 100;
-              if (calculateFor == 'taxAmount' || calculateFor == 'InvoiceDue') {
-                totalTax = taxArr[j].taxType == 'tdspay' ? totalTax - taxAmount : totalTax + taxAmount;
+              if (calculateFor == 'InvoiceDue') {
+                totalTax = (taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tdsrc') ? totalTax - taxAmount : totalTax + taxAmount;
               } else {
-                totalTax = taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' ? totalTax : totalTax + taxAmount;
+                totalTax = (taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc') ? totalTax : totalTax + taxAmount;
               }
               break;
             }
@@ -1654,7 +1660,7 @@ export class SalesInvoice extends React.Component<Props> {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        if (item.taxType == 'tdspay' || item.taxType == 'tcspay') {
+        if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc')  {
           totalTcsorTdsTax = taxAmount;
           totalTcsorTdsTaxName = item.taxType;
           break;
@@ -1668,7 +1674,7 @@ export class SalesInvoice extends React.Component<Props> {
           if (item == taxArr[j].uniqueName) {
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
-            if (item.taxType == 'tdspay' || item.taxType == 'tcspay') {
+            if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc')) {
               totalTcsorTdsTaxName = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType;
             }
@@ -1938,7 +1944,7 @@ export class SalesInvoice extends React.Component<Props> {
             {this.state.currency != this.state.companyCountryDetails.currency.code &&
               this.state.invoiceType != INVOICE_TYPE.cash
               ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                 <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
                   {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
                 </Text>
@@ -1948,7 +1954,7 @@ export class SalesInvoice extends React.Component<Props> {
                     borderBottomColor: '#808080',
                     color: '#1C1C1C',
                     textAlign: 'center',
-                    marginRight: 10
+                    marginRight: 0
                   }}
                   placeholder={'Amount'}
                   returnKeyType={'done'}
@@ -2175,8 +2181,8 @@ export class SalesInvoice extends React.Component<Props> {
     for (let i = 0; i < addedArray.length; i++) {
       const tdsOrTcsTaxObj = this.calculatedTdsOrTcsTaxAmount(addedArray[i]);
       if (tdsOrTcsTaxObj != null) {
-        tdsTaxObj.amount = tdsOrTcsTaxObj.name == 'tdspay' ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
-        tcsTaxObj.amount = tdsOrTcsTaxObj.name == 'tcspay' ? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
+        tdsTaxObj.amount = tdsOrTcsTaxObj.name == 'tdspay' || tdsOrTcsTaxObj.name == 'tdsrc' ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
+        tcsTaxObj.amount = tdsOrTcsTaxObj.name == 'tcspay' || tdsOrTcsTaxObj.name == 'tcsrc'? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
       }
     }
     tcsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tcsTaxObj) : null;
@@ -2247,6 +2253,9 @@ export class SalesInvoice extends React.Component<Props> {
         {this.state.showItemDetails && (
           <EditItemDetail
             currencySymbol={this.state.currencySymbol}
+            notIncludeTax={((this.state.invoiceType == INVOICE_TYPE.credit &&
+            this.state.currency != this.state.companyCountryDetails.currency.code &&
+            this.state.companyCountryDetails.currency.code == 'INR') || (this.state.partyType == "SEZ"))?false:true}
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {
