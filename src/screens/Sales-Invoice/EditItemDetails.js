@@ -162,7 +162,7 @@ class EditItemDetails extends Component {
               backgroundColor: 'white',
               borderRadius: 10,
               padding: 10,
-              height: height * 0.5,
+              height: Dimensions.get('window').height * 0.5,
               alignSelf: 'center',
             }}>
             <FlatList
@@ -484,7 +484,7 @@ class EditItemDetails extends Component {
               borderRadius: 10,
               padding: 10,
               alignSelf: 'center',
-              height: height * 0.5,
+              height: Dimensions.get('window').height * 0.5
             }}>
             <FlatList
               data={this.props.discountArray}
@@ -968,6 +968,7 @@ class EditItemDetails extends Component {
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 15,
+            marginBottom:20
           }}>
           <Text style={{alignSelf: 'center', color: 'white', fontSize: 20}}>Done</Text>
         </TouchableOpacity>

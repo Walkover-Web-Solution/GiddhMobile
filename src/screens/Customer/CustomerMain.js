@@ -37,7 +37,7 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_HIDE: 'keyboardDidHide'
 };
 export class Customer extends React.Component<Props> {
-  constructor (props) {
+  constructor(props) {
     super(props);
     console.log('main constructor called');
     this.inputRef = React.createRef();
@@ -46,11 +46,17 @@ export class Customer extends React.Component<Props> {
       currentPage: 0,
       index: 0,
       customerReset: () => { },
-      vendorReset: () => { }
+      vendorReset: () => { },
+      screenWidth: Dimensions.get('window').width
     }
+    Dimensions.addEventListener('change', () => {
+      this.setState({
+        screenWidth: Dimensions.get('window').width,
+      });
+    });
   }
 
-  static getDerivedStateFromProps (nextProps, prevState) {
+  static getDerivedStateFromProps(nextProps, prevState) {
     let index = 0;
     index = nextProps.route.params.index;
     console.log('getDerivedStateFromProps Index Value  ' + JSON.stringify(index))
@@ -63,7 +69,7 @@ export class Customer extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
   };
 
-  renderHeader () {
+  renderHeader() {
     return (
       <View style={[style.header, { paddingTop: 10, height: Dimensions.get('window').height * 0.08 }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -106,7 +112,7 @@ export class Customer extends React.Component<Props> {
   setSliderPage = (event: any) => {
     const { currentPage } = this.state;
     const { x } = event.nativeEvent.contentOffset;
-    const indexOfNextScreen = Math.round(x / width);
+    const indexOfNextScreen = Math.round(x / this.state.screenWidth);
 
     if (indexOfNextScreen !== currentPage) {
       this.setState({
@@ -198,7 +204,7 @@ export class Customer extends React.Component<Props> {
                   this.scrollRef.current.scrollTo({
                     animated: true,
                     y: 0,
-                    x: width * -1
+                    x: this.state.screenWidth * -1
                   })
                 }>
                 <Text
@@ -228,7 +234,7 @@ export class Customer extends React.Component<Props> {
                   this.scrollRef.current.scrollTo({
                     animated: true,
                     y: 0,
-                    x: width * 2
+                    x: this.state.screenWidth * 2
                   })
                 }>
                 <Text
@@ -253,7 +259,7 @@ export class Customer extends React.Component<Props> {
               onScroll={(event) => {
                 this.setSliderPage(event);
               }}>
-              <View style={{ height: '100%', width: width }}>
+              <View style={{ height: '100%', width: this.state.screenWidth }}>
                 {this.state.showLoader
                   ? (
                     <View style={{ flex: 1 }}>
@@ -261,15 +267,15 @@ export class Customer extends React.Component<Props> {
                         <Bars size={15} color={color.PRIMARY_NORMAL} />
                       </View>
                     </View>
-                    )
+                  )
                   : (
                     <Customers
                       resetFun={this.setCustomerFun}
                       navigation={this.props.navigation}
                     />
-                    )}
+                  )}
               </View>
-              <View style={{ height: '100%', width: width }}>
+              <View style={{ height: '100%', width: this.state.screenWidth }}>
                 {this.state.showLoader
                   ? (
                     <View style={{ flex: 1 }}>
@@ -277,13 +283,13 @@ export class Customer extends React.Component<Props> {
                         <Bars size={15} color={color.PRIMARY_NORMAL} />
                       </View>
                     </View>
-                    )
+                  )
                   : (
                     <Vendors
                       resetFun={this.setVendorFun}
                       navigation={this.props.navigation}
                     />
-                    )}
+                  )}
               </View>
             </ScrollView>
 
@@ -294,13 +300,13 @@ export class Customer extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
@@ -308,7 +314,7 @@ function mapDispatchToProps (dispatch) {
   };
 }
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <Customer {...props} isFocused={isFocused} />;

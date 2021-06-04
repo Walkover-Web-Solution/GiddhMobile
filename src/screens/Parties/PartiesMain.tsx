@@ -34,7 +34,7 @@ const { width } = Dimensions.get('window');
 
 export class PartiesMainScreen extends React.Component {
   private scrollRef;
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollRef = React.createRef();
@@ -55,8 +55,16 @@ export class PartiesMainScreen extends React.Component {
       customerLoadingMore: false,
       vendorLoadingMore: false,
       activeFilter: 'AZ',
-      currentPage: 0
+      currentPage: 0,
+      screenWidth: Dimensions.get('window').width,
+      screenHeight: Dimensions.get('window').height,
     };
+    Dimensions.addEventListener('change', () => {
+      this.setState({
+        screenWidth: Dimensions.get('window').width,
+        screenHeight: Dimensions.get('window').height,
+      });
+    });
   }
 
   FocusAwareStatusBar = (isFocused: any) => {
@@ -66,7 +74,7 @@ export class PartiesMainScreen extends React.Component {
   setSliderPage = (event: any) => {
     const { currentPage } = this.state;
     const { x } = event.nativeEvent.contentOffset;
-    const indexOfNextScreen = Math.round(x / width);
+    const indexOfNextScreen = Math.round(x / this.state.screenWidth);
 
     if (indexOfNextScreen !== currentPage) {
       this.setState({
@@ -259,7 +267,7 @@ export class PartiesMainScreen extends React.Component {
     }
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {
@@ -287,7 +295,7 @@ export class PartiesMainScreen extends React.Component {
     this.apiCalls();
   }
 
-  render () {
+  render() {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
         {this.FocusAwareStatusBar(this.props.isFocused)}
@@ -308,7 +316,7 @@ export class PartiesMainScreen extends React.Component {
                   placeholder={'Search name'}
                   ref={this.inputRef}
                   placeholderTextColor={'white'}
-                  style={{ fontSize: 18, width: Dimensions.get('window').width * 0.6, marginLeft: 10, color: '#fff' }}
+                  style={{ fontSize: 18, width: this.state.screenWidth * 0.6, marginLeft: 10, color: '#fff' }}
                   onChangeText={this.handleSearch}
                   value={this.state.searchQuery}
                 />
@@ -325,7 +333,7 @@ export class PartiesMainScreen extends React.Component {
                   <AntDesign name={'close'} size={25} color={'#FFFFFF'} />
                 </TouchableOpacity>
               </>
-              )
+            )
             : (
               <>
                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Parties</Text>
@@ -346,7 +354,7 @@ export class PartiesMainScreen extends React.Component {
                   </TouchableOpacity>
                 </View>
               </>
-              )}
+            )}
 
           {/* <TouchableOpacity
               style={{position: 'absolute', right: 20}}
@@ -369,7 +377,7 @@ export class PartiesMainScreen extends React.Component {
               borderTopLeftRadius: 17,
               borderBottomLeftRadius: 17,
               borderColor: this.state.currentPage == 0 ? '#5773FF' : '#D9D9D9',
-              width: Dimensions.get('window').width * 0.4,
+              width: this.state.screenWidth * 0.4,
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 7,
@@ -379,7 +387,7 @@ export class PartiesMainScreen extends React.Component {
               this.scrollRef.current.scrollTo({
                 animated: true,
                 y: 0,
-                x: width * -1
+                x: this.state.screenWidth * -1
               })
             }>
             <Text
@@ -398,7 +406,7 @@ export class PartiesMainScreen extends React.Component {
               borderTopLeftRadius: 17,
               borderBottomLeftRadius: 17,
               borderColor: this.state.currentPage == 1 ? '#5773FF' : '#D9D9D9',
-              width: Dimensions.get('window').width * 0.4,
+              width: this.state.screenWidth * 0.4,
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 2,
@@ -408,7 +416,7 @@ export class PartiesMainScreen extends React.Component {
               this.scrollRef.current.scrollTo({
                 animated: true,
                 y: 0,
-                x: width * 2
+                x: this.state.screenWidth * 2
               })
             }>
             <Text
@@ -436,7 +444,7 @@ export class PartiesMainScreen extends React.Component {
           onScroll={(event) => {
             this.setSliderPage(event);
           }}>
-          <View style={{ height: '100%', width: width }}>
+          <View style={{ height: '100%', width: this.state.screenWidth }}>
             {this.state.showLoader
               ? (
                 <View style={{ flex: 1 }}>
@@ -444,7 +452,7 @@ export class PartiesMainScreen extends React.Component {
                     <Bars size={15} color={color.PRIMARY_NORMAL} />
                   </View>
                 </View>
-                )
+              )
               : (
                 <Customers
                   navigation={this.props.navigation}
@@ -453,9 +461,9 @@ export class PartiesMainScreen extends React.Component {
                   handleRefresh={this.handleCustomerRefresh}
                   loadMore={this.state.customerLoadingMore}
                 />
-                )}
+              )}
           </View>
-          <View style={{ height: '100%', width: width }}>
+          <View style={{ height: '100%', width: this.state.screenWidth }}>
             {this.state.showLoader
               ? (
                 <View style={{ flex: 1 }}>
@@ -463,7 +471,7 @@ export class PartiesMainScreen extends React.Component {
                     <Bars size={15} color={color.PRIMARY_NORMAL} />
                   </View>
                 </View>
-                )
+              )
               : (
                 <Vendors
                   navigation={this.props.navigation}
@@ -472,7 +480,7 @@ export class PartiesMainScreen extends React.Component {
                   handleRefresh={this.handleVendorRefresh}
                   loadMore={this.state.vendorLoadingMore}
                 />
-                )}
+              )}
           </View>
         </ScrollView>
         {/* <View style={style.paginationWrapper}>
@@ -494,7 +502,7 @@ export class PartiesMainScreen extends React.Component {
     );
   }
 
-  private async getPartiesMainSundryDebtors (query: any, sortBy: any, order: any, count: any, page: any) {
+  private async getPartiesMainSundryDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
       // console.log('data is', ...debtors.body.results, ...creditors.body.results);
@@ -511,7 +519,7 @@ export class PartiesMainScreen extends React.Component {
     }
   }
 
-  private async getPartiesMainSundryCreditors (query: any, sortBy: any, order: any, count: any, page: any) {
+  private async getPartiesMainSundryCreditors(query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
       this.setState({
@@ -524,7 +532,7 @@ export class PartiesMainScreen extends React.Component {
     }
   }
 
-  private async loadDebtors (query: any, sortBy: any, order: any, count: any, page: any) {
+  private async loadDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
       this.setState({
@@ -537,7 +545,7 @@ export class PartiesMainScreen extends React.Component {
     }
   }
 
-  private async loadCreditors (query: any, sortBy: any, order: any, count: any, page: any) {
+  private async loadCreditors(query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
 
@@ -557,7 +565,7 @@ const mapStateToProps = () => {
   };
 };
 
-function Screen (props: JSX.IntrinsicAttributes & JSX.IntrinsicClassAttributes<PartiesMainScreen> & Readonly<{}> & Readonly<{ children?: React.ReactNode; }>) {
+function Screen(props: JSX.IntrinsicAttributes & JSX.IntrinsicClassAttributes<PartiesMainScreen> & Readonly<{}> & Readonly<{ children?: React.ReactNode; }>) {
   const isFocused = useIsFocused();
 
   return <PartiesMainScreen {...props} isFocused={isFocused} />;

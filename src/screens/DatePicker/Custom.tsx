@@ -4,7 +4,7 @@ import { View, Dimensions, Text, TouchableOpacity } from 'react-native';
 import styles from './style';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -65,6 +65,7 @@ export class Custom extends React.Component {
     const sDate = moment(this.state.startDate, 'DD-MM-YYYY');
     const eDate = moment(this.state.endDate, 'DD-MM-YYYY');
     return (
+      <ScrollView contentContainerStyle={{flexGrow:1,backgroundColor: '#fff',}}>
       <View style={styles.customContainer}>
         <View style={{ height: '5%' }} />
 
@@ -74,16 +75,18 @@ export class Custom extends React.Component {
         </TouchableWithoutFeedback>
         <View style={{ height: '2%' }} />
         <Text style={styles.customHeading}>End Date :</Text>
-        <TouchableWithoutFeedback style={styles.customDatePicker} onPress={() => this.showEndDatePicker()}>
+        <TouchableWithoutFeedback style={[styles.customDatePicker,{marginBottom:90}]} onPress={() => this.showEndDatePicker()}>
           <Text style={styles.customDateStyle}>{this.state.endDate}</Text>
         </TouchableWithoutFeedback>
         <TouchableOpacity
           style={{
-            height: height * 0.05,
-            width: width * 0.2,
+            // height: height * 0.05,
+            // width: width * 0.2,
+            height:35,
+            width:70,
             backgroundColor: '#5773FF',
             position: 'absolute',
-            bottom: 20,
+            bottom: 5,
             right: 15,
             borderRadius: 10,
             justifyContent: 'center',
@@ -119,6 +122,7 @@ export class Custom extends React.Component {
           // onPress={() => console.log(moment(this.state.startDate, 'DD-MM-YYYY'))}
           onPress={() => console.log(this.state.startDate)}></TouchableOpacity> */}
       </View>
+      </ScrollView>
     );
   }
 }

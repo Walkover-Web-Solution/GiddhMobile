@@ -3,12 +3,12 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'pink'
+    //backgroundColor: 'pink'
   },
   customContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    marginBottom:20
   },
   periodContainer: {
     flex: 1,
@@ -19,7 +19,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     // backgroundColor: 'pink',
-    paddingVertical: 10,
+    paddingVertical: 15,
     paddingHorizontal: 20,
     marginTop: '10%'
   },

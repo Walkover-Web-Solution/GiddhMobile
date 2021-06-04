@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused } from '@react-navigation/native';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -920,13 +920,13 @@ class PartiesTransactionScreen extends React.Component {
           ) : (
               <>
                 {this.state.transactionsData.length == 0 ? (
-                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
+                  <ScrollView contentContainerStyle={{flexGrow: 1, justifyContent: 'center',alignItems:"center",}}>
                     <Image
                       source={require('@/assets/images/noTransactions.png')}
                       style={{ resizeMode: 'contain', height: 250, width: 300 }}
                     />
-                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
-                  </View>
+                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10,marginBottom:20 }}>No Transactions</Text>
+                  </ScrollView>
                 ) : (
                     <FlatList
                       style={{ marginTop: 20 }}
