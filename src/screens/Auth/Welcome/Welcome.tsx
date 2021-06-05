@@ -157,10 +157,6 @@ class Welcome extends React.Component<any, any> {
             {this.Slide2()}
             {this.Slide3()}
             {this.Slide4()}
-            {/* <Slide1 />
-            <Slide2 />
-            <Slide3 />
-            <Slide4 /> */}
           </ScrollView>
           <View style={[style.paginationWrapper, { top: this.state.screenHeight * 0.6, }]}>
             {Array.from(Array(4).keys()).map((key, index) => (
@@ -175,7 +171,7 @@ class Welcome extends React.Component<any, any> {
             <Text style={style.createAccount}>Create Account</Text>
           </TouchableOpacity> */}
           <TouchableOpacity
-            style={style.loginButton}
+            style={[style.loginButton, { width: this.state.screenWidth * 0.9, }]}
             delayPressIn={0}
             onPress={() => this.props.navigation.navigate(routes.Login)}>
             <Text style={style.login}>Login</Text>

@@ -28,7 +28,6 @@ export default StyleSheet.create({
   },
   loginButton: {
     height: 50,
-    width: width * 0.9,
     marginTop: 10,
     borderRadius: 25,
     alignItems: 'center',
