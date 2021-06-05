@@ -59,6 +59,8 @@ export class Customers extends React.Component<Props> {
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      console.log('raat', activeCompanyCountryCode);
+      console.log('results', results);
       if (results.body && results.status == 'success') {
         await this.setState({
           activeCompanyCountryCode: activeCompanyCountryCode,

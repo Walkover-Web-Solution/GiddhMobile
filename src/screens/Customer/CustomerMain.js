@@ -142,21 +142,23 @@ export class Customer extends React.Component<Props> {
           x: width * -1
         })
       }
-    })
-    InteractionManager.runAfterInteractions(() => {
-      if (this.state.index == 1 && this.state.currentPage == 0) {
-        this.scrollRef.current.scrollTo({
-          animated: true,
-          y: 0,
-          x: width * 2
-        })
-      } else if (this.state.index == 0 && this.state.currentPage == 1) {
-        this.scrollRef.current.scrollTo({
-          animated: true,
-          y: 0,
-          x: width * -1
-        })
-      }
+      this.setState({ showLoader: false });
+      InteractionManager.runAfterInteractions(() => {
+        if (this.state.index == 1 && this.state.currentPage == 0) {
+          this.scrollRef.current.scrollTo({
+            animated: true,
+            y: 0,
+            x: width * 2
+          })
+        } else if (this.state.index == 0 && this.state.currentPage == 1) {
+          this.scrollRef.current.scrollTo({
+            animated: true,
+            y: 0,
+            x: width * -1
+          })
+        }
+        this.setState({ showLoader: false });
+      })
     })
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
