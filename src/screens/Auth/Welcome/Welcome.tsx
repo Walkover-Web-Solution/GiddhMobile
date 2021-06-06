@@ -8,7 +8,6 @@ import routes from '@/navigation/routes';
 import AsyncStorage from '@react-native-community/async-storage';
 import { STORAGE_KEYS } from '@/utils/constants';
 
-
 const { width, height } = Dimensions.get('window');
 class Welcome extends React.Component<any, any> {
   private scrollRef;
@@ -18,25 +17,25 @@ class Welcome extends React.Component<any, any> {
     console.log(activeCompany);
   };
 
-  constructor(props: any) {
+  constructor (props: any) {
     super(props);
     this.scrollRef = React.createRef();
     this.state = {
       currentPage: 0,
       screenWidth: Dimensions.get('window').width,
-      screenHeight: Dimensions.get('window').height,
+      screenHeight: Dimensions.get('window').height
     };
     Dimensions.addEventListener('change', () => {
       this.setState({
         screenWidth: Dimensions.get('window').width,
-        screenHeight: Dimensions.get('window').height,
+        screenHeight: Dimensions.get('window').height
       });
     });
   }
 
   Slide1 = () => {
     return (
-      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center' }}>
+      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center', flex: 1 }}>
         <Image
           source={require('@/assets/images/slider1.png')}
           style={{ resizeMode: 'contain', height: '50%', width: '60%' }}
@@ -48,9 +47,10 @@ class Welcome extends React.Component<any, any> {
       </View>
     );
   };
+
   Slide2 = () => {
     return (
-      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center' }}>
+      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center', flex: 1 }}>
         <Image
           source={require('@/assets/images/slider2.png')}
           style={{ resizeMode: 'contain', height: '50%', width: '60%' }}
@@ -62,9 +62,10 @@ class Welcome extends React.Component<any, any> {
       </View>
     );
   };
+
   Slide3 = () => {
     return (
-      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center' }}>
+      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center', flex: 1 }}>
         <Image
           source={require('@/assets/images/slider3.png')}
           style={{ resizeMode: 'contain', height: '50%', width: '60%' }}
@@ -76,9 +77,10 @@ class Welcome extends React.Component<any, any> {
       </View>
     );
   };
+
   Slide4 = () => {
     return (
-      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center' }}>
+      <View style={{ width: this.state.screenWidth, height: '100%', alignItems: 'center', flex: 1 }}>
         <Image
           source={require('@/assets/images/slider4.png')}
           style={{ resizeMode: 'contain', height: '50%', width: '60%' }}
@@ -97,7 +99,7 @@ class Welcome extends React.Component<any, any> {
   //         currentPage: indexOfNextScreen
   //       })
   // }
-  componentDidMount() {
+  componentDidMount () {
     this.timer = setInterval(() => {
       this.setState(
         (prev) => ({ currentPage: prev.currentPage == 3 ? 0 : prev.currentPage + 1 }),
@@ -111,9 +113,26 @@ class Welcome extends React.Component<any, any> {
         }
       );
     }, 2000);
+    Dimensions.addEventListener('change', ({ window: { width, height } }) => {
+      if (width > height) {
+        console.log('cha ', this.state.currentPage);
+        this.scrollRef.current.scrollTo({
+          animated: true,
+          x: width * this.state.currentPage,
+          y: 0
+        });
+      } else {
+        console.log('cha ', this.state.currentPage);
+        this.scrollRef.current.scrollTo({
+          animated: true,
+          x: width * this.state.currentPage,
+          y: 0
+        });
+      }
+    })
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     if (this.timer) clearInterval(this.timer);
   }
 
@@ -132,7 +151,7 @@ class Welcome extends React.Component<any, any> {
     }
   };
 
-  render() {
+  render () {
     const { currentPage: pageIndex } = this.state;
     return (
       <View style={style.container}>
@@ -142,6 +161,16 @@ class Welcome extends React.Component<any, any> {
             style={{ flex: 1 }}
             horizontal={true}
             scrollEventThrottle={16}
+            onScroll={(prop) => {
+              console.log(prop.target);
+              if (this.state.currentPage == 3) {
+                prop.target.scrollTo({
+                  animated: true,
+                  x: width * this.state.currentPage,
+                  y: 0
+                });
+              }
+            }}
             pagingEnabled={true}
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={(event) => {
@@ -157,8 +186,11 @@ class Welcome extends React.Component<any, any> {
             {this.Slide2()}
             {this.Slide3()}
             {this.Slide4()}
+            {this.Slide1()}
+            {this.Slide2()}
+            {this.Slide3()}
           </ScrollView>
-          <View style={[style.paginationWrapper, { top: this.state.screenHeight * 0.6, }]}>
+          <View style={[style.paginationWrapper, { top: this.state.screenHeight * 0.6 }]}>
             {Array.from(Array(4).keys()).map((key, index) => (
               <View style={[style.paginationDots, { opacity: pageIndex === index ? 1 : 0.2 }]} key={index} />
             ))}
@@ -171,7 +203,7 @@ class Welcome extends React.Component<any, any> {
             <Text style={style.createAccount}>Create Account</Text>
           </TouchableOpacity> */}
           <TouchableOpacity
-            style={[style.loginButton, { width: this.state.screenWidth * 0.9, }]}
+            style={[style.loginButton, { width: this.state.screenWidth * 0.9 }]}
             delayPressIn={0}
             onPress={() => this.props.navigation.navigate(routes.Login)}>
             <Text style={style.login}>Login</Text>

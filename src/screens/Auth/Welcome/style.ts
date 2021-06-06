@@ -41,7 +41,8 @@ export default StyleSheet.create({
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    flex: 1
   },
   paginationDots: {
     height: 8,
