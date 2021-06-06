@@ -162,11 +162,10 @@ class Welcome extends React.Component<any, any> {
             horizontal={true}
             scrollEventThrottle={16}
             onScroll={(prop) => {
-              console.log(prop.target);
-              if (this.state.currentPage == 3) {
-                prop.target.scrollTo({
+              if (this.state.currentPage == 3 && Math.floor(prop.nativeEvent.contentOffset.x) > Math.floor(this.state.screenWidth * this.state.currentPage)) {
+                this.scrollRef.current.scrollTo({
                   animated: true,
-                  x: width * this.state.currentPage,
+                  x: width * 3,
                   y: 0
                 });
               }
