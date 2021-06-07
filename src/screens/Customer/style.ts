@@ -168,7 +168,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Platform.OS=="ios"? 15:0,
-    paddingHorizontal:Platform.OS=="ios"? 0:20
+    paddingHorizontal:20
   },
   input: {
     flex: 1,
