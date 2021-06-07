@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet,Platform } from 'react-native';
 import { FONT_FAMILY } from '../../utils/constants';
 export default StyleSheet.create({
   container: {
@@ -167,7 +167,8 @@ export default StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15
+    padding: Platform.OS=="ios"? 15:0,
+    paddingHorizontal:Platform.OS=="ios"? 0:20
   },
   input: {
     flex: 1,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard, Platform } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -653,7 +653,7 @@ export class Customers extends React.Component<Props> {
               style={styles.input} />
           </View>
           {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
-          <View style={{ ...styles.rowContainer}}>
+          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:15}}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
               ref={(ref) => this.state.groupDropDown = ref}
@@ -683,7 +683,7 @@ export class Customers extends React.Component<Props> {
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer, paddingVertical:20, justifyContent: 'space-between' }}>
+          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:10 ,paddingVertical:20, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
             <TouchableOpacity
               onPress={() => {
