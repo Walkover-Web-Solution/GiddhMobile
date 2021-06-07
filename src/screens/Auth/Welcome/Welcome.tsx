@@ -10,7 +10,6 @@ import { STORAGE_KEYS } from '@/utils/constants';
 
 const { width, height } = Dimensions.get('window');
 class Welcome extends React.Component<any, any> {
-  private scrollRef;
   func1 = async () => {
     // AsyncStorage.clear();
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
@@ -19,11 +18,11 @@ class Welcome extends React.Component<any, any> {
 
   constructor (props: any) {
     super(props);
-    this.scrollRef = React.createRef();
     this.state = {
       currentPage: 0,
       screenWidth: Dimensions.get('window').width,
-      screenHeight: Dimensions.get('window').height
+      screenHeight: Dimensions.get('window').height,
+      scrollRef: React.createRef()
     };
     Dimensions.addEventListener('change', () => {
       this.setState({
@@ -104,7 +103,7 @@ class Welcome extends React.Component<any, any> {
       this.setState(
         (prev) => ({ currentPage: prev.currentPage == 3 ? 0 : prev.currentPage + 1 }),
         () => {
-          this.scrollRef.current.scrollTo({
+          this.state.scrollRef.scrollTo({
             animated: true,
             y: 0,
             x: this.state.screenWidth * this.state.currentPage
@@ -113,26 +112,19 @@ class Welcome extends React.Component<any, any> {
         }
       );
     }, 2000);
-    Dimensions.addEventListener('change', ({ window: { width, height } }) => {
-      if (width > height) {
-        console.log('cha ', this.state.currentPage);
-        this.scrollRef.current.scrollTo({
-          animated: true,
-          x: width * this.state.currentPage,
-          y: 0
-        });
-      } else {
-        console.log('cha ', this.state.currentPage);
-        this.scrollRef.current.scrollTo({
-          animated: true,
-          x: width * this.state.currentPage,
-          y: 0
-        });
-      }
-    })
+    Dimensions.addEventListener('change', this.changeHandler);
+  }
+
+  changeHandler = ({ window: { width, height } }) => {
+    this.state.scrollRef.scrollTo({
+      animated: true,
+      x: width * this.state.currentPage,
+      y: 0
+    });
   }
 
   componentWillUnmount () {
+    Dimensions.removeEventListener('change', this.changeHandler);
     if (this.timer) clearInterval(this.timer);
   }
 
@@ -157,13 +149,13 @@ class Welcome extends React.Component<any, any> {
       <View style={style.container}>
         <View style={{ height: this.state.screenHeight * 0.7, width: this.state.screenWidth, marginTop: this.state.screenHeight * 0.05 }}>
           <ScrollView
-            ref={this.scrollRef}
+            ref={(ref) => this.state.scrollRef = ref}
             style={{ flex: 1 }}
             horizontal={true}
             scrollEventThrottle={16}
             onScroll={(prop) => {
               if (this.state.currentPage == 3 && Math.floor(prop.nativeEvent.contentOffset.x) > Math.floor(this.state.screenWidth * this.state.currentPage)) {
-                this.scrollRef.current.scrollTo({
+                this.state.scrollRef.scrollTo({
                   animated: true,
                   x: width * 3,
                   y: 0
