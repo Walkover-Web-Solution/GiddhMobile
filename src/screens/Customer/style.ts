@@ -6,7 +6,6 @@ export default StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center'
   },
   headerConatiner: {
@@ -22,14 +21,14 @@ export default StyleSheet.create({
     justifyContent: 'center',
     color: 'white',
     fontFamily: FONT_FAMILY.bold,
-    fontSize: 16
+    fontSize: 16,
+    marginLeft: 20,
   },
   invoiceTypeButton: {
     flex: 1,
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 20
   },
   searchResultContainer: {
     maxHeight: 300,
@@ -168,7 +167,7 @@ export default StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20
+    padding: 15
   },
   input: {
     flex: 1,

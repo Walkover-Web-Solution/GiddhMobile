@@ -71,24 +71,21 @@ export class Customer extends React.Component<Props> {
 
   renderHeader() {
     return (
-      <View style={[style.header, { paddingTop: 10, height: Dimensions.get('window').height * 0.08 }]}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+      <View style={[style.header, { paddingHorizontal: 20, height: Dimensions.get('window').height * 0.08 }]}>
           <TouchableOpacity
-            style={{ padding: 10 }}
             onPress={() => {
               this.props.navigation.goBack();
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <TouchableOpacity style={style.invoiceTypeButton}>
+          <View style={style.invoiceTypeButton}>
             <Text style={style.invoiceType}>
               Create New Party
             </Text>
             <TouchableOpacity onPress={this.resetFun}>
               <Text style={{ color: 'white' }}>Clear All</Text>
             </TouchableOpacity>
-          </TouchableOpacity>
-        </View>
+          </View >
       </View>
     );
   }
@@ -133,13 +130,13 @@ export class Customer extends React.Component<Props> {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
-          x: width * 2
+          x: this.state.screenWidth * 2
         })
       } else if (this.state.index == 0 && this.state.currentPage == 1) {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
-          x: width * -1
+          x: this.state.screenWidth  * -1
         })
       }
       this.setState({ showLoader: false });
