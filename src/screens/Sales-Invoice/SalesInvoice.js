@@ -1764,6 +1764,9 @@ export class SalesInvoice extends React.Component<Props> {
 
   downloadFile = async (voucherName, voucherNo, partyUniqueName) => {
     try {
+      if(Platform.OS=="ios"){
+        await this.onShare(voucherName, voucherNo, partyUniqueName);
+      }else{
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('yes its granted');
@@ -1771,6 +1774,7 @@ export class SalesInvoice extends React.Component<Props> {
       } else {
         Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
       }
+    }
     } catch (err) {
       console.warn(err);
     }
@@ -1801,7 +1805,7 @@ export class SalesInvoice extends React.Component<Props> {
         .then(() => {
           Share.open({
             title: 'This is the report',
-            message: 'Message:',
+            //message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
             subject: 'Transaction report'
           })

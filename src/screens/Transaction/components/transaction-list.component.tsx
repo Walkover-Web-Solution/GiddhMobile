@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking } from 'react-native';
+import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking, Platform } from 'react-native';
 import styles from '@/screens/Transaction/components/styles';
 import colors from '@/utils/colors';
 import { GdSVGIcons } from '@/utils/icons-pack';
@@ -56,14 +56,20 @@ class TransactionList extends React.Component {
 
   downloadFile = async () => {
     try {
+      if(Platform.OS=="ios"){
+        await this.onShare();
+      }else{
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('yes its granted');
         await this.onShare();
       } else {
+        this.props.downloadModal(false);
         Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
       }
+    }
     } catch (err) {
+      this.props.downloadModal(false);
       console.warn(err);
     }
   };
@@ -88,39 +94,45 @@ class TransactionList extends React.Component {
           const base64Str = res.base64();
           const pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
           RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
-          this.props.downloadModal(false);
         })
         .then(() => {
-          Share.open({
+           Share.open({
             title: 'This is the report',
-            message: 'Message:',
+            //message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`,
             subject: 'Transaction report'
           })
             .then((res) => {
+              this.props.downloadModal(false);
               console.log(res);
             })
             .catch(() => {
+              this.props.downloadModal(false);
               // err && console.log(err);
             });
         });
     } catch (e) {
       this.props.downloadModal(false);
       console.log(e);
-      console.log(e);
     }
   };
 
   permissonWhatsapp = async () => {
     try {
+      if(Platform.OS=="ios"){
+        await this.onWhatsApp();
+      }else{
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('yes its granted');
         await this.onWhatsApp();
       } else {
+        this.props.downloadModal(false);
         Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
       }
+    }
     } catch (err) {
+      this.props.downloadModal(false);
       console.warn(err);
     }
   };
@@ -160,14 +172,15 @@ class TransactionList extends React.Component {
                 const base64Str = res.base64();
                 const pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
                 RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
-                this.props.downloadModal(false);
               })
               .then(() => {
                 Share.shareSingle(shareOptions)
                   .then((res) => {
+                    this.props.downloadModal(false);
                     console.log('whatsapp res is', res);
                   })
                   .catch((err) => {
+                    this.props.downloadModal(false);
                     err && console.log('whatsapp error is', err);
                   });
               });
