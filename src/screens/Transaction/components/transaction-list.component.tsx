@@ -48,26 +48,26 @@ class TransactionList extends React.Component {
     }
   ];
 
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
   }
 
-  componentDidMount () {}
+  componentDidMount() { }
 
   downloadFile = async () => {
     try {
-      if(Platform.OS=="ios"){
-        await this.onShare();
-      }else{
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
+      if (Platform.OS == "ios") {
         await this.onShare();
       } else {
-        this.props.downloadModal(false);
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onShare();
+        } else {
+          this.props.downloadModal(false);
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
-    }
     } catch (err) {
       this.props.downloadModal(false);
       console.warn(err);
@@ -96,7 +96,7 @@ class TransactionList extends React.Component {
           RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
         })
         .then(() => {
-           Share.open({
+          Share.open({
             title: 'This is the report',
             //message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`,
@@ -119,18 +119,18 @@ class TransactionList extends React.Component {
 
   permissonWhatsapp = async () => {
     try {
-      if(Platform.OS=="ios"){
-        await this.onWhatsApp();
-      }else{
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
+      if (Platform.OS == "ios") {
         await this.onWhatsApp();
       } else {
-        this.props.downloadModal(false);
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onWhatsApp();
+        } else {
+          this.props.downloadModal(false);
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
-    }
     } catch (err) {
       this.props.downloadModal(false);
       console.warn(err);
@@ -205,7 +205,7 @@ class TransactionList extends React.Component {
     return prev.amount > current.amount ? prev : current;
   });
 
-  render () {
+  render() {
     return (
       <View style={styles.flatList}>
         <Text style={styles.listHeading}>
@@ -276,7 +276,7 @@ class TransactionList extends React.Component {
     );
   }
 
-  private bannerColorStyle (type: string) {
+  private bannerColorStyle(type: string) {
     let bgColor = colors.TRANSACTION_PURCHASE;
     if (type === 'sales') {
       bgColor = colors.TRANSACTION_RECEIPT;

@@ -15,6 +15,8 @@ import {
   StatusBar,
   Modal,
   ToastAndroid,
+  PlatformColor,
+  Platform,
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -50,7 +52,7 @@ import { catch } from 'metro.config';
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 class PartiesTransactionScreen extends React.Component {
   constructor(props: Props) {
@@ -581,12 +583,16 @@ class PartiesTransactionScreen extends React.Component {
   };
   permissonDownload = async () => {
     try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
+      if (Platform.OS == "ios") {
         await this.exportFile();
       } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.exportFile();
+        } else {
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
     } catch (err) {
       console.warn(err);
@@ -594,12 +600,16 @@ class PartiesTransactionScreen extends React.Component {
   };
   permissonShare = async () => {
     try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
+      if (Platform.OS == "ios") {
         await this.onShare();
       } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onShare();
+        } else {
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
     } catch (err) {
       console.warn(err);
@@ -607,12 +617,16 @@ class PartiesTransactionScreen extends React.Component {
   };
   permissonWhatsapp = async () => {
     try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
-        await this.onWhatsAppShare();
+      if (Platform.OS == "ios") {
+        await this.onWhatsAppShare()
       } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onWhatsAppShare();
+        } else {
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
     } catch (err) {
       console.warn(err);
@@ -918,35 +932,35 @@ class PartiesTransactionScreen extends React.Component {
               <Bars size={15} color={colors.PRIMARY_NORMAL} />
             </View>
           ) : (
-              <>
-                {this.state.transactionsData.length == 0 ? (
-                  <ScrollView contentContainerStyle={{flexGrow: 1, justifyContent: 'center',alignItems:"center",}}>
-                    <Image
-                      source={require('@/assets/images/noTransactions.png')}
-                      style={{ resizeMode: 'contain', height: 250, width: 300 }}
-                    />
-                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10,marginBottom:20 }}>No Transactions</Text>
-                  </ScrollView>
-                ) : (
-                    <FlatList
-                      style={{ marginTop: 20 }}
-                      data={this.state.transactionsData}
-                      renderItem={({ item }) => (
-                        <TransactionList
-                          item={item}
-                          downloadModal={this.shareModalVisible}
-                          transactionType={'partyTransaction'}
-                          phoneNo={this.props.route.params.item.mobileNo}
-                        />
-                      )}
-                      keyExtractor={(item) => item.uniqueName}
-                      onEndReachedThreshold={0.2}
-                      onEndReached={() => this.handleRefresh()}
-                      ListFooterComponent={this._renderFooter}
+            <>
+              {this.state.transactionsData.length == 0 ? (
+                <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: "center", }}>
+                  <Image
+                    source={require('@/assets/images/noTransactions.png')}
+                    style={{ resizeMode: 'contain', height: 250, width: 300 }}
+                  />
+                  <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>No Transactions</Text>
+                </ScrollView>
+              ) : (
+                <FlatList
+                  style={{ marginTop: 20 }}
+                  data={this.state.transactionsData}
+                  renderItem={({ item }) => (
+                    <TransactionList
+                      item={item}
+                      downloadModal={this.shareModalVisible}
+                      transactionType={'partyTransaction'}
+                      phoneNo={this.props.route.params.item.mobileNo}
                     />
                   )}
-              </>
-            )}
+                  keyExtractor={(item) => item.uniqueName}
+                  onEndReachedThreshold={0.2}
+                  onEndReached={() => this.handleRefresh()}
+                  ListFooterComponent={this._renderFooter}
+                />
+              )}
+            </>
+          )}
 
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.ShareModal} />
@@ -994,10 +1008,12 @@ class PartiesTransactionScreen extends React.Component {
                   <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => this.scheduleNotification()}
-                style={{ height: height * 0.06,
-                width: width * 0.8, justifyContent: 'center', alignItems: 'center', paddingVertical: 5, backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50 }}>
+                style={{
+                  height: height * 0.06,
+                  width: width * 0.8, justifyContent: 'center', alignItems: 'center', paddingVertical: 5, backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
+                }}>
                 <Text style={{ color: 'white' }}>Done</Text>
               </TouchableOpacity>
               <DateTimePickerModal
