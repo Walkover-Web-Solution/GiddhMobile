@@ -903,7 +903,7 @@ export class SalesInvoice extends React.Component<Props> {
             });
           }
         }
-        if (type == 'share') {
+        else if (type == 'share') {
           console.log('sharing');
           this.downloadFile(
             results.body.entries[0].voucherType,

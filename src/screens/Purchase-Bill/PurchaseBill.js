@@ -38,6 +38,7 @@ import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
+import routes from '@/navigation/routes';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -212,7 +213,6 @@ export class PurchaseBill extends React.Component {
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-    this.setActiveCompanyCountry();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
@@ -907,7 +907,6 @@ export class PurchaseBill extends React.Component {
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
-        this.props.navigation.goBack();
         DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
         if (type == 'navigate') {
           this.props.navigation.navigate(routes.Parties, {
@@ -924,7 +923,7 @@ export class PurchaseBill extends React.Component {
             },
           });
         }
-        if (type == 'share') {
+        else if (type == 'share') {
           console.log('sharing');
           this.downloadFile(
             results.body.entries[0].voucherType,
@@ -2001,7 +2000,7 @@ export class PurchaseBill extends React.Component {
               }}>
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and New</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{
                 marginTop: 10,
                 // backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10
@@ -2010,7 +2009,7 @@ export class PurchaseBill extends React.Component {
                 this.genrateInvoice('share');
               }}>
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and Share</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <TouchableOpacity
             onPress={() => {
@@ -2036,20 +2035,16 @@ export class PurchaseBill extends React.Component {
       Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
         { style: 'destructive', onPress: () => console.log('alert destroyed') },
       ]);
-    } else if (
-      this.state.currency == this.state.companyCountryDetails.currency.code &&
-      (!this.state.BillFromAddress.stateName ||
+    } else if (!this.state.BillFromAddress.stateName ||
         !this.state.BillFromAddress.stateCode ||
-        !this.state.BillFromAddress.state)
+        !this.state.BillFromAddress.state
     ) {
       Alert.alert('Empty state details', 'Please add state details for Billing From', [
         { style: 'destructive', text: 'Okay' },
       ]);
-    } else if (
-      this.state.currency == this.state.companyCountryDetails.currency.code &&
-      (!this.state.shipFromAddress.stateName ||
+    } else if (!this.state.shipFromAddress.stateName ||
         !this.state.shipFromAddress.stateCode ||
-        !this.state.shipFromAddress.state)
+        !this.state.shipFromAddress.state
     ) {
       Alert.alert('Empty state details', 'Please add state details for Shipping From', [
         { style: 'destructive', text: 'Okay' },
