@@ -740,21 +740,21 @@ export class PurchaseBill extends React.Component {
     try {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-      console.log(`https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`);
+      console.log("hereeee");
+      console.log(token);
+      console.log(`https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=base64`);
       RNFetchBlob.fetch(
-        'POST',
-        `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`,
+        'GET',
+        `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=pdf`,
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json',
-        },
-        JSON.stringify({
-          voucherNumber: [`${voucherNo}`],
-          voucherType: `${voucherName}`,
-        }),
+        }
       )
         .then((res) => {
+          console.log(res);
           const base64Str = res.base64();
+          console.log(base64Str);
           const pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
           RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
           this.setState({ loading: false });
@@ -929,7 +929,7 @@ export class PurchaseBill extends React.Component {
           console.log('sharing', results.body.entries[0].uniqueName);
           console.log(results.body);
           this.downloadFile(
-            results.body.entries[0].voucherType,
+            results.body.uniqueName,
             isInteger(results.body.entries[0].voucherNumber)?results.body.entries[0].voucherNumber:results.body.entries[0].uniqueName,
             partyUniqueName,
           );
