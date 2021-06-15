@@ -26,7 +26,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
-import _ from 'lodash';
+import _, { isInteger } from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -736,6 +736,7 @@ export class PurchaseBill extends React.Component {
     try {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      console.log(`https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`);
       RNFetchBlob.fetch(
         'POST',
         `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`,
@@ -921,10 +922,11 @@ export class PurchaseBill extends React.Component {
           });
         }
         if (type == 'share') {
-          console.log('sharing');
+          console.log('sharing', results.body.entries[0].uniqueName);
+          console.log(results.body);
           this.downloadFile(
             results.body.entries[0].voucherType,
-            results.body.entries[0].voucherNumber,
+            isInteger(results.body.entries[0].voucherNumber)?results.body.entries[0].voucherNumber:results.body.entries[0].uniqueName,
             partyUniqueName,
           );
         }
