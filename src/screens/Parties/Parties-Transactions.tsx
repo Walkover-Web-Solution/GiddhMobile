@@ -1010,7 +1010,7 @@ class PartiesTransactionScreen extends React.Component {
             onBackdropPress={() => this.setState({ remainderModal: false })}>
 
             <Text style={{ textAlign: 'center', fontSize: 18, marginBottom: 10, fontFamily: FONT_FAMILY.bold }}>Set Reminder</Text>
-            <View style={{paddingHorizontal:15}}>
+            <View style={{ paddingHorizontal: 15 }}>
               <Text>Date</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ datePicker: true })}
@@ -1030,11 +1030,11 @@ class PartiesTransactionScreen extends React.Component {
               <TouchableOpacity
                 onPress={() => this.scheduleNotification()}
                 style={{
-                  marginBottom:10,
+                  marginBottom: 10,
                   height: height * 0.05,
-                  width: width * 0.6, justifyContent: 'center',alignItems: 'center', backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
+                  width: width * 0.6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
                 }}>
-                <Text style={{ color: 'white',}}>Done</Text>
+                <Text style={{ color: 'white', }}>Done</Text>
               </TouchableOpacity>
               <DateTimePickerModal
                 isVisible={this.state.datePicker}
@@ -1102,14 +1102,28 @@ class PartiesTransactionScreen extends React.Component {
                 justifyContent: 'center',
                 alignItems: 'center',
                 position: 'absolute',
-                backgroundColor: 'rgba(0,0,0,0)',
+                backgroundColor: 'rgba(0,0,0,0.4)',
                 left: 0,
                 right: 0,
                 bottom: 0,
                 top: 0,
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
-              <Text style={{ marginTop: 20, padding: 10, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
+              <View style={{
+                width: width * 0.7,
+                paddingVertical: 20,
+                backgroundColor: '#fff',
+                borderRadius: 15,
+                elevation: 3,
+                shadowOpacity: 0.22,
+                shadowRadius: 2.22,
+                alignSelf: 'center',
+                padding: 15,
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <Bars size={15} color={color.PRIMARY_NORMAL} />
+                <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
+              </View>
             </View>
           )}
         </View>

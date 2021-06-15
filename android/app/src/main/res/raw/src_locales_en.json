@@ -1,0 +1,11 @@
+{
+  "DEMO": {
+    "TOTAL_COUNTRIES": "Total Countries",
+    "SALES": "Sales"
+  },
+  "BUTTONS": {
+    "PARTIES": "Parties",
+    "TRANSACTION": "Transactions",
+    "INVENTORY": "Inventory"
+  }
+}
