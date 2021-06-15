@@ -43,6 +43,7 @@ export class Customer extends React.Component<Props> {
     this.inputRef = React.createRef();
     this.scrollRef = React.createRef();
     this.state = {
+      showLoader: false,
       currentPage: 0,
       index: 0,
       customerReset: () => { },
@@ -71,24 +72,21 @@ export class Customer extends React.Component<Props> {
 
   renderHeader() {
     return (
-      <View style={[style.header, { paddingTop: 10, height: Dimensions.get('window').height * 0.08 }]}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <TouchableOpacity
-            style={{ padding: 10 }}
-            onPress={() => {
-              this.props.navigation.goBack();
-            }}>
-            <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
-          </TouchableOpacity>
-          <TouchableOpacity style={style.invoiceTypeButton}>
-            <Text style={style.invoiceType}>
-              Create New Party
+      <View style={[style.header, { paddingHorizontal: 20, height: Dimensions.get('window').height * 0.08 }]}>
+        <TouchableOpacity
+          onPress={() => {
+            this.props.navigation.goBack();
+          }}>
+          <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
+        </TouchableOpacity>
+        <View style={style.invoiceTypeButton}>
+          <Text style={style.invoiceType}>
+            Create New Party
             </Text>
-            <TouchableOpacity onPress={this.resetFun}>
-              <Text style={{ color: 'white' }}>Clear All</Text>
-            </TouchableOpacity>
+          <TouchableOpacity onPress={this.resetFun}>
+            <Text style={{ color: 'white' }}>Clear All</Text>
           </TouchableOpacity>
-        </View>
+        </View >
       </View>
     );
   }
@@ -121,9 +119,10 @@ export class Customer extends React.Component<Props> {
     }
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       console.log('refresh captured');
+      this.setState({ showLoader: true });
       let index = 0;
       console.log(this.props.route.params.index);
       index = this.props.route.params.index;
@@ -133,16 +132,15 @@ export class Customer extends React.Component<Props> {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
-          x: width * 2
+          x: this.state.screenWidth * 2
         })
       } else if (this.state.index == 0 && this.state.currentPage == 1) {
         await this.scrollRef.current.scrollTo({
           animated: true,
           y: 0,
-          x: width * -1
+          x: this.state.screenWidth * -1
         })
       }
-      this.setState({ showLoader: false });
       InteractionManager.runAfterInteractions(() => {
         if (this.state.index == 1 && this.state.currentPage == 0) {
           this.scrollRef.current.scrollTo({
@@ -157,19 +155,19 @@ export class Customer extends React.Component<Props> {
             x: width * -1
           })
         }
-        this.setState({ showLoader: false });
       })
+      this.setState({ showLoader: false });
     })
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
 
-  render () {
+  render() {
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
@@ -265,7 +263,16 @@ export class Customer extends React.Component<Props> {
                 {this.state.showLoader
                   ? (
                     <View style={{ flex: 1 }}>
-                      <View style={style.alignLoader}>
+                      <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position:"absolute",
+                        backgroundColor: 'rgba(0,0,0,0)',
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        top: 0
+                      }}>
                         <Bars size={15} color={color.PRIMARY_NORMAL} />
                       </View>
                     </View>
@@ -281,7 +288,16 @@ export class Customer extends React.Component<Props> {
                 {this.state.showLoader
                   ? (
                     <View style={{ flex: 1 }}>
-                      <View style={style.alignLoader}>
+                      <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position:"absolute",
+                        backgroundColor: 'rgba(0,0,0,0)',
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        top: 0
+                      }}>
                         <Bars size={15} color={color.PRIMARY_NORMAL} />
                       </View>
                     </View>

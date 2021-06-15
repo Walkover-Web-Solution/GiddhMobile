@@ -14,7 +14,7 @@ import {
   Linking,
   StatusBar,
   Modal,
-  ToastAndroid,
+  Platform,
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -46,11 +46,13 @@ import base64 from 'react-native-base64';
 import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
 import { catch } from 'metro.config';
+import color from '@/utils/colors';
+
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 class PartiesTransactionScreen extends React.Component {
   constructor(props: Props) {
@@ -79,6 +81,7 @@ class PartiesTransactionScreen extends React.Component {
       datePicker: false,
       timePicker: false,
       dateTime: new Date(Date.now()),
+      iosLoaderToExport: false
     };
 
   }
@@ -106,7 +109,7 @@ class PartiesTransactionScreen extends React.Component {
 
   sendNotification = async (companyName) => {
     try {
-      this.createChannel();
+      await this.createChannel();
       PushNotification.localNotificationSchedule({
         date: this.state.dateTime,
         message: 'Payment to ' + companyName + " is due",
@@ -116,7 +119,7 @@ class PartiesTransactionScreen extends React.Component {
         title: 'Reminder'
       });
       this.setState({ remainderModal: false });
-      Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]);
+      await Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]);
     } catch (error) {
       console.log("failed to push notification" + error);
       Alert.alert("Fail", "Failed to activat reminder", [{ style: 'destructive', text: 'Okay' }])
@@ -559,6 +562,7 @@ class PartiesTransactionScreen extends React.Component {
 
   exportFile = async () => {
     try {
+      await Platform.OS == "ios" ? this.setState({ iosLoaderToExport: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
@@ -572,49 +576,73 @@ class PartiesTransactionScreen extends React.Component {
         let base69 = base64.decode(base64Str);
         let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
         RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-        this.setState({ DownloadModal: false });
-      });
+        if (Platform.OS === "ios") {
+          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          RNFetchBlob.ios.openDocument(pdfLocation)
+          this.setState({ iosLoaderToExport: false })
+        } else {
+          this.downloadModalVisible(false)
+        }
+      })
     } catch (e) {
-      console.log(e);
+      Platform.OS == "ios" ? this.setState({ iosLoaderToExport: false }) : this.downloadModalVisible(false)
       console.log(e);
     }
   };
   permissonDownload = async () => {
     try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
+      if (Platform.OS == "ios") {
         await this.exportFile();
       } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.exportFile();
+        } else {
+          this.downloadModalVisible(false)
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
     } catch (err) {
+      this.downloadModalVisible(false)
       console.warn(err);
     }
   };
   permissonShare = async () => {
     try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
+      if (Platform.OS == "ios") {
         await this.onShare();
       } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onShare();
+        } else {
+          this.setState({ ShareModal: false });
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
     } catch (err) {
+      this.setState({ ShareModal: false });
       console.warn(err);
     }
   };
   permissonWhatsapp = async () => {
     try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
-        await this.onWhatsAppShare();
+      if (Platform.OS == "ios") {
+        await this.onWhatsAppShare()
       } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onWhatsAppShare();
+        } else {
+          this.setState({ ShareModal: false });
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
     } catch (err) {
+      this.setState({ ShareModal: false });
       console.warn(err);
     }
   };
@@ -635,24 +663,25 @@ class PartiesTransactionScreen extends React.Component {
           let base69 = base64.decode(base64Str);
           let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
           RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-          this.setState({ ShareModal: false });
         })
         .then(() => {
           Share.open({
             title: 'This is the report',
-            message: 'Message:',
+            //message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
             subject: 'Report',
           })
             .then((res) => {
+              this.setState({ ShareModal: false });
               console.log(res);
             })
             .catch((err) => {
+              this.setState({ ShareModal: false });
               // err && console.log(err);
             });
         });
     } catch (e) {
-      console.log(e);
+      this.setState({ ShareModal: false });
       console.log(e);
     }
   };
@@ -687,25 +716,29 @@ class PartiesTransactionScreen extends React.Component {
                 let base69 = base64.decode(base64Str);
                 let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
                 RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-                this.setState({ ShareModal: false });
               })
               .then(() => {
                 Share.shareSingle(shareOptions)
                   .then((res) => {
+                    this.setState({ ShareModal: false });
                     console.log(res);
                   })
                   .catch((err) => {
+                    this.setState({ ShareModal: false });
                     err && console.log(err);
                   });
               });
           } catch (e) {
-            this.props.downloadModal(false);
-            console.log(e);
+            this.setState({ ShareModal: false });
             console.log(e);
           }
         }
       })
-      .catch((err) => console.error('An error occurred', err));
+      .catch((err) => {
+        this.setState({ ShareModal: false });
+        console.error('An error occurred', err)
+      }
+      );
   };
 
   filterCall = _.debounce(this.getTransactions, 2000);
@@ -918,35 +951,35 @@ class PartiesTransactionScreen extends React.Component {
               <Bars size={15} color={colors.PRIMARY_NORMAL} />
             </View>
           ) : (
-              <>
-                {this.state.transactionsData.length == 0 ? (
-                  <ScrollView contentContainerStyle={{flexGrow: 1, justifyContent: 'center',alignItems:"center",}}>
-                    <Image
-                      source={require('@/assets/images/noTransactions.png')}
-                      style={{ resizeMode: 'contain', height: 250, width: 300 }}
-                    />
-                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10,marginBottom:20 }}>No Transactions</Text>
-                  </ScrollView>
-                ) : (
-                    <FlatList
-                      style={{ marginTop: 20 }}
-                      data={this.state.transactionsData}
-                      renderItem={({ item }) => (
-                        <TransactionList
-                          item={item}
-                          downloadModal={this.shareModalVisible}
-                          transactionType={'partyTransaction'}
-                          phoneNo={this.props.route.params.item.mobileNo}
-                        />
-                      )}
-                      keyExtractor={(item) => item.uniqueName}
-                      onEndReachedThreshold={0.2}
-                      onEndReached={() => this.handleRefresh()}
-                      ListFooterComponent={this._renderFooter}
+            <>
+              {this.state.transactionsData.length == 0 ? (
+                <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: "center", }}>
+                  <Image
+                    source={require('@/assets/images/noTransactions.png')}
+                    style={{ resizeMode: 'contain', height: 250, width: 300 }}
+                  />
+                  <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>No Transactions</Text>
+                </ScrollView>
+              ) : (
+                <FlatList
+                  style={{ marginTop: 20 }}
+                  data={this.state.transactionsData}
+                  renderItem={({ item }) => (
+                    <TransactionList
+                      item={item}
+                      downloadModal={this.shareModalVisible}
+                      transactionType={'partyTransaction'}
+                      phoneNo={this.props.route.params.item.mobileNo}
                     />
                   )}
-              </>
-            )}
+                  keyExtractor={(item) => item.uniqueName}
+                  onEndReachedThreshold={0.2}
+                  onEndReached={() => this.handleRefresh()}
+                  ListFooterComponent={this._renderFooter}
+                />
+              )}
+            </>
+          )}
 
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.ShareModal} />
@@ -977,13 +1010,13 @@ class PartiesTransactionScreen extends React.Component {
             onBackdropPress={() => this.setState({ remainderModal: false })}>
 
             <Text style={{ textAlign: 'center', fontSize: 18, marginBottom: 10, fontFamily: FONT_FAMILY.bold }}>Set Reminder</Text>
-            <View>
+            <View style={{paddingHorizontal:15}}>
               <Text>Date</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ datePicker: true })}
                 style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
                 <View style={{ flexDirection: "row", alignItems: 'center' }}>
-                  <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
+                  <Text style={{ color: '#808080', paddingVertical: 10 }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
                 </View>
               </TouchableOpacity>
               <Text style={{ marginTop: 20 }}>Time</Text>
@@ -991,14 +1024,17 @@ class PartiesTransactionScreen extends React.Component {
                 onPress={() => this.setState({ timePicker: true })}
                 style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
                 <View style={{ flexDirection: "row", alignItems: 'center' }}>
-                  <Text style={{ color: '#808080', padding: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
+                  <Text style={{ color: '#808080', paddingVertical: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => this.scheduleNotification()}
-                style={{ height: height * 0.06,
-                width: width * 0.8, justifyContent: 'center', alignItems: 'center', paddingVertical: 5, backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50 }}>
-                <Text style={{ color: 'white' }}>Done</Text>
+                style={{
+                  marginBottom:10,
+                  height: height * 0.05,
+                  width: width * 0.6, justifyContent: 'center',alignItems: 'center', backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
+                }}>
+                <Text style={{ color: 'white',}}>Done</Text>
               </TouchableOpacity>
               <DateTimePickerModal
                 isVisible={this.state.datePicker}
@@ -1060,6 +1096,22 @@ class PartiesTransactionScreen extends React.Component {
               </View>
             </View>
           </Modal>
+          {this.state.iosLoaderToExport && (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                backgroundColor: 'rgba(0,0,0,0)',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: 0,
+              }}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <Text style={{ marginTop: 20, padding: 10, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
+            </View>
+          )}
         </View>
       );
     }

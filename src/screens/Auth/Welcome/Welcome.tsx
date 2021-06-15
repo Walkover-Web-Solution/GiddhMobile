@@ -16,7 +16,7 @@ class Welcome extends React.Component<any, any> {
     console.log(activeCompany);
   };
 
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
     this.state = {
       currentPage: 0,
@@ -24,12 +24,6 @@ class Welcome extends React.Component<any, any> {
       screenHeight: Dimensions.get('window').height,
       scrollRef: React.createRef()
     };
-    Dimensions.addEventListener('change', () => {
-      this.setState({
-        screenWidth: Dimensions.get('window').width,
-        screenHeight: Dimensions.get('window').height
-      });
-    });
   }
 
   Slide1 = () => {
@@ -98,7 +92,7 @@ class Welcome extends React.Component<any, any> {
   //         currentPage: indexOfNextScreen
   //       })
   // }
-  componentDidMount () {
+  componentDidMount() {
     this.timer = setInterval(() => {
       this.setState(
         (prev) => ({ currentPage: prev.currentPage == 3 ? 0 : prev.currentPage + 1 }),
@@ -116,6 +110,10 @@ class Welcome extends React.Component<any, any> {
   }
 
   changeHandler = ({ window: { width, height } }) => {
+    this.setState({
+      screenWidth: width,
+      screenHeight: height
+    });
     this.state.scrollRef.scrollTo({
       animated: true,
       x: width * this.state.currentPage,
@@ -123,7 +121,7 @@ class Welcome extends React.Component<any, any> {
     });
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     Dimensions.removeEventListener('change', this.changeHandler);
     if (this.timer) clearInterval(this.timer);
   }
@@ -143,7 +141,7 @@ class Welcome extends React.Component<any, any> {
     }
   };
 
-  render () {
+  render() {
     const { currentPage: pageIndex } = this.state;
     return (
       <View style={style.container}>
