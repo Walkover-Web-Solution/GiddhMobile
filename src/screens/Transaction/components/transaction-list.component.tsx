@@ -93,7 +93,7 @@ class TransactionList extends React.Component {
         .then(async(res) => {
           const base64Str = await res.base64();
           const pdfLocation = await `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
-          await this.props.downloadModal(false)
+          //await this.props.downloadModal(false)
           await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
         })
         .then(() => {
@@ -104,9 +104,11 @@ class TransactionList extends React.Component {
             subject: 'Transaction report'
           })
             .then((res) => {
+              this.props.downloadModal(false)
               console.log(res);
             })
             .catch(() => {
+              this.props.downloadModal(false)
               // err && console.log(err);
             });
         });
@@ -170,15 +172,17 @@ class TransactionList extends React.Component {
                 // console.log(res.base64());
                 const base64Str = await res.base64();
                 const pdfLocation = await `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
-                await this.props.downloadModal(false);
+                //await this.props.downloadModal(false);
                 await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
               })
               .then(() => {
                 Share.shareSingle(shareOptions)
                   .then((res) => {
+                    this.props.downloadModal(false)
                     console.log('whatsapp res is', res);
                   })
                   .catch((err) => {
+                    this.props.downloadModal(false)
                     err && console.log('whatsapp error is', err);
                   });
               });
