@@ -45,6 +45,7 @@ class EditItemDetails extends Component {
       showDiscountPopup: false,
       showTaxPopup: false,
       showUnitPopup: false,
+
       selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
       fixedDiscountSelected: false,
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],

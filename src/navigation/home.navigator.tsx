@@ -161,7 +161,9 @@ export const HomeNavigator = () => {
   };
 
   return (
-    <Navigator tabBar={(props) => <MyTabBar {...props} />}>
+    <Navigator tabBar={(props) => <MyTabBar {...props} />} tabBarOptions={{
+      keyboardHidesTabBar: true 
+    }}>
       <Screen
         name={Routes.Transaction}
         component={HomeScreen}
