@@ -118,7 +118,7 @@ class AddButton extends Component<Props> {
                 numColumns={4} // set number of columns
                 data={arrButtons}
                 showsVerticalScrollIndicator={false}
-                style={{ flex: 1, alignSelf: 'center', marginBottom: SIZE }}
+                style={{ flex: 1, alignSelf: 'center', marginBottom:0,}}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={{

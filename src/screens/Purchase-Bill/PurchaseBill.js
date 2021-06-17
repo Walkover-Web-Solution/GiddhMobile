@@ -38,6 +38,7 @@ import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
+import routes from '@/navigation/routes';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -136,6 +137,7 @@ export class PurchaseBill extends React.Component {
       billFromSameAsShipFrom: true,
       billToSameAsShipTo: false,
       tdsOrTcsArray: [],
+      partyType: undefined,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -211,7 +213,6 @@ export class PurchaseBill extends React.Component {
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-    this.setActiveCompanyCountry();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
@@ -527,6 +528,7 @@ export class PurchaseBill extends React.Component {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
+          partyType: results.body.addresses.length < 1 ? undefined : results.body.addresses[0].partyType,
           addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
           BillFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           // BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
@@ -615,6 +617,7 @@ export class PurchaseBill extends React.Component {
       billFromSameAsShipFrom: true,
       billToSameAsShipTo: false,
       tdsOrTcsArray: [],
+      partyType: undefined,
     });
   };
 
@@ -717,12 +720,16 @@ export class PurchaseBill extends React.Component {
 
   downloadFile = async (voucherName, voucherNo, partyUniqueName) => {
     try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('yes its granted');
+      if (Platform.OS == "ios") {
         await this.onShare(voucherName, voucherNo, partyUniqueName);
       } else {
-        Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onShare(voucherName, voucherNo, partyUniqueName);
+        } else {
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
       }
     } catch (err) {
       console.warn(err);
@@ -754,7 +761,7 @@ export class PurchaseBill extends React.Component {
         .then(() => {
           Share.open({
             title: 'This is the report',
-            message: 'Message:',
+            //message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
             subject: 'Transaction report',
           })
@@ -900,7 +907,6 @@ export class PurchaseBill extends React.Component {
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
-        this.props.navigation.goBack();
         DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
         if (type == 'navigate') {
           this.props.navigation.navigate(routes.Parties, {
@@ -917,7 +923,7 @@ export class PurchaseBill extends React.Component {
             },
           });
         }
-        if (type == 'share') {
+        else if (type == 'share') {
           console.log('sharing');
           this.downloadFile(
             results.body.entries[0].voucherType,
@@ -1692,6 +1698,9 @@ export class PurchaseBill extends React.Component {
 
   calculatedTaxAmount(itemDetails, calculateFor) {
     let totalTax = 0;
+    if (this.state.partyType == "SEZ" && calculateFor == 'totalAmount') {
+      return 0;
+    }
     const taxArr = this.state.taxArray;
     console.log('rate', itemDetails.rate);
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
@@ -1701,10 +1710,16 @@ export class PurchaseBill extends React.Component {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        if (calculateFor == "taxAmount" || calculateFor == "InvoiceDue") {
-          totalTax = item.taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+        if (calculateFor == "InvoiceDue") {
+          if (this.state.partyType == "SEZ") {
+            totalTax = item.taxType == 'tdspay' || item.taxType == 'tdsrc' ? totalTax - taxAmount :
+              (item.taxType == 'tcspay' || item.taxType == 'tcsrc' ? totalTax + taxAmount : totalTax);
+          } else {
+            totalTax = item.taxType == 'tdspay' || item.taxType == 'tdsrc' ? totalTax - taxAmount : totalTax + taxAmount;
+          }
         } else {
-          totalTax = item.taxType == "tdspay" || item.taxType == "tcspay" ? totalTax : totalTax + taxAmount;
+          totalTax = (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') ?
+            totalTax : totalTax + taxAmount;
         }
 
       }
@@ -1717,10 +1732,16 @@ export class PurchaseBill extends React.Component {
             // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
-            if (calculateFor == "taxAmount" || calculateFor == "InvoiceDue") {
-              totalTax = taxArr[j].taxType == "tdspay" ? totalTax - taxAmount : totalTax + taxAmount;
+            if (calculateFor == "InvoiceDue") {
+              if (this.state.partyType == "SEZ") {
+                totalTax = taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tdsrc' ? totalTax - taxAmount :
+                  (taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' ? totalTax + taxAmount : totalTax);
+              } else {
+                totalTax = (taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tdsrc') ? totalTax - taxAmount : totalTax + taxAmount;
+              }
             } else {
-              totalTax = taxArr[j].taxType == "tdspay" || taxArr[j].taxType == "tcspay" ? totalTax : totalTax + taxAmount;
+              totalTax = (taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc') ?
+                totalTax : totalTax + taxAmount;
             }
             break;
           }
@@ -1743,7 +1764,7 @@ export class PurchaseBill extends React.Component {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        if (item.taxType == "tdspay" || item.taxType == "tcspay") {
+        if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
           totalTcsorTdsTax = taxAmount;
           totalTcsorTdsTaxName = item.taxType
           break
@@ -1757,7 +1778,7 @@ export class PurchaseBill extends React.Component {
           if (item == taxArr[j].uniqueName) {
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
-            if (item.taxType == "tdspay" || item.taxType == "tcspay") {
+            if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc')) {
               totalTcsorTdsTaxName = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType
             }
@@ -1907,7 +1928,7 @@ export class PurchaseBill extends React.Component {
             </View>
             {this.state.currency != this.state.companyCountryDetails.currency.code &&
               this.state.invoiceType != INVOICE_TYPE.cash ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                 <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
                   {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
                 </Text>
@@ -1917,7 +1938,7 @@ export class PurchaseBill extends React.Component {
                     borderBottomColor: '#808080',
                     color: '#1C1C1C',
                     textAlign: 'center',
-                    marginRight: -10,
+                    marginRight: 0,
                   }}
                   placeholder={'Amount'}
                   returnKeyType={'done'}
@@ -1979,7 +2000,7 @@ export class PurchaseBill extends React.Component {
               }}>
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and New</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{
                 marginTop: 10,
                 // backgroundColor: '#5773FF', paddingVertical: 8, paddingHorizontal: 7, justifyContent: 'center', alignItems: 'center', borderRadius: 10
@@ -1988,7 +2009,7 @@ export class PurchaseBill extends React.Component {
                 this.genrateInvoice('share');
               }}>
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and Share</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           <TouchableOpacity
             onPress={() => {
@@ -2014,20 +2035,16 @@ export class PurchaseBill extends React.Component {
       Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
         { style: 'destructive', onPress: () => console.log('alert destroyed') },
       ]);
-    } else if (
-      this.state.currency == this.state.companyCountryDetails.currency.code &&
-      (!this.state.BillFromAddress.stateName ||
+    } else if (!this.state.BillFromAddress.stateName ||
         !this.state.BillFromAddress.stateCode ||
-        !this.state.BillFromAddress.state)
+        !this.state.BillFromAddress.state
     ) {
       Alert.alert('Empty state details', 'Please add state details for Billing From', [
         { style: 'destructive', text: 'Okay' },
       ]);
-    } else if (
-      this.state.currency == this.state.companyCountryDetails.currency.code &&
-      (!this.state.shipFromAddress.stateName ||
+    } else if (!this.state.shipFromAddress.stateName ||
         !this.state.shipFromAddress.stateCode ||
-        !this.state.shipFromAddress.state)
+        !this.state.shipFromAddress.state
     ) {
       Alert.alert('Empty state details', 'Please add state details for Shipping From', [
         { style: 'destructive', text: 'Okay' },
@@ -2087,8 +2104,8 @@ export class PurchaseBill extends React.Component {
     for (let i = 0; i < addedArray.length; i++) {
       let tdsOrTcsTaxObj = this.calculatedTdsOrTcsTaxAmount(addedArray[i]);
       if (tdsOrTcsTaxObj != null) {
-        tdsTaxObj.amount = tdsOrTcsTaxObj.name == "tdspay" ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
-        tcsTaxObj.amount = tdsOrTcsTaxObj.name == "tcspay" ? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
+        tdsTaxObj.amount = tdsOrTcsTaxObj.name == 'tdspay' || tdsOrTcsTaxObj.name == 'tdsrc' ? (Number(tdsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tdsTaxObj.amount
+        tcsTaxObj.amount = tdsOrTcsTaxObj.name == 'tcspay' || tdsOrTcsTaxObj.name == 'tcsrc' ? (Number(tcsTaxObj.amount) + Number(tdsOrTcsTaxObj.amount)).toFixed(2) : tcsTaxObj.amount
       }
     }
     tcsTaxObj.amount != 0 ? alltdsOrTcsTaxArr.push(tcsTaxObj) : null
@@ -2168,6 +2185,7 @@ export class PurchaseBill extends React.Component {
         {this.state.showItemDetails && (
           <PurchaseItemEdit
             currencySymbol={this.state.currencySymbol}
+            notIncludeTax={this.state.partyType == "SEZ" ? false : true}
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
             goBack={() => {

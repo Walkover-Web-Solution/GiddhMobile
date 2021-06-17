@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 import styles from './style';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export class Period extends React.Component {
   constructor (props) {
@@ -14,7 +15,7 @@ export class Period extends React.Component {
 
   render () {
     return (
-      <View style={styles.periodContainer}>
+      <ScrollView style={styles.periodContainer}>
         <TouchableOpacity
           style={styles.periodButton}
           onPress={() => {
@@ -74,7 +75,7 @@ export class Period extends React.Component {
           <Text style={styles.periodText}>All Time</Text>
           <View style={styles.periodDot} />
         </TouchableOpacity> */}
-      </View>
+      </ScrollView>
     );
   }
 }

@@ -1,20 +1,20 @@
-import {call, put, takeLatest, select, takeEvery} from 'redux-saga/effects';
+import { call, put, takeLatest, select, takeEvery } from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as CommonActions from './CommonAction';
 import * as CommonService from './CommonService';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {DeviceEventEmitter} from 'react-native';
-import {appleAuth} from '@invertase/react-native-apple-authentication';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { DeviceEventEmitter } from 'react-native';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
 
-export default function* watcherFCMTokenSaga() {
+export default function * watcherFCMTokenSaga () {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
 }
 
-export function* getCompanyAndBranches() {
+export function * getCompanyAndBranches () {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
@@ -40,7 +40,7 @@ export function* getCompanyAndBranches() {
             console.log('country code is ' + defaultComp.subscription.country.countryCode);
             yield AsyncStorage.setItem(
               STORAGE_KEYS.activeCompanyCountryCode,
-              defaultComp.subscription.country.countryCode,
+              defaultComp.subscription.country.countryCode
             );
           }
           if (defaultComp.uniqueName) {
@@ -57,6 +57,17 @@ export function* getCompanyAndBranches() {
           console.log('different id login worked');
           const defaultComp = listResponse.body[0];
           yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
+          if (
+            defaultComp.subscription &&
+            defaultComp.subscription.country &&
+            defaultComp.subscription.country.countryCode
+          ) {
+            console.log('country code is ' + defaultComp.subscription.country.countryCode);
+            yield AsyncStorage.setItem(
+              STORAGE_KEYS.activeCompanyCountryCode,
+              defaultComp.subscription.country.countryCode
+            );
+          }
         }
       }
     }
@@ -105,7 +116,7 @@ export function* getCompanyAndBranches() {
   }
 }
 
-export function* logoutUser() {
+export function * logoutUser () {
   console.log('here');
   try {
     appleAuth.Operation.LOGOUT;

@@ -5,7 +5,8 @@ import {
   Text,
   Dimensions,
   View,
-  TouchableOpacity
+  TouchableOpacity,
+  Platform
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -33,8 +34,8 @@ function PDFModal ({
             <TouchableOpacity
               style={{ flex: 1, flexDirection: 'row' }}
               onPress={() => {
+                Platform.OS!="ios"?downloadModal(true):null;
                 onExport();
-                downloadModal(true);
                 setModalVisible();
               }}>
               <AntDesign name="download" size={22} color={'black'} />

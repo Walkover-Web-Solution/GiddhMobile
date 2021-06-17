@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 
@@ -27,6 +28,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
     <Modal animationType="none" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible()}>
       <TouchableOpacity style={styles.container} onPress={() => setModalVisible()}>
         <View style={styles.centeredView}>
+        <ScrollView>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
             onPress={() => {
@@ -261,6 +263,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
             }}>
             <Text style={styles.textStyle}>Done</Text>
           </TouchableHighlight> */}
+        </ScrollView>
         </View>
       </TouchableOpacity>
     </Modal>
@@ -274,9 +277,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)'
-    // justifyContent: 'center',
-    // alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom:20,
+    paddingTop:20
   },
   centeredView: {
     flexDirection: 'column',
@@ -294,7 +299,7 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     alignSelf: 'center',
     borderRadius: 15,
-    marginTop: Screen_height * 0.15,
+    //marginTop: Screen_height * 0.125,
     paddingHorizontal: 10,
     paddingVertical: 10
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard,Platform } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -312,8 +312,8 @@ export class Vendors extends React.Component<Props> {
   renderBankDetails = () => {
     return (
       <View style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}>
-        {this.state.selectedCountry.alpha2CountryCode == "AE" ?
-          <View>
+        {this.state.selectedCountry.alpha2CountryCode == 'AE'
+          ? <View>
             <Text style={{ width: '100%', color: '#808080', marginTop: 10, fontSize: 13 }}>Beneficiary Name</Text>
             <TextInput
               style={{
@@ -321,11 +321,12 @@ export class Vendors extends React.Component<Props> {
                 borderBottomWidth: 0.55,
                 paddingBottom: -5
               }}
-              placeholder={"Enter Beneficiary Name "}
+              placeholder={'Enter Beneficiary Name '}
               value={this.state.beneficiaryName != '' ? this.state.beneficiaryName : ''}
               multiline={true}
               onChangeText={(text) => this.setState({ beneficiaryName: text })} />
-          </View> : null
+          </View>
+          : null
         }
         <Text style={{ width: '100%', color: '#808080', marginTop: 10, fontSize: 13 }}>Bank Name</Text>
         <TextInput
@@ -334,12 +335,12 @@ export class Vendors extends React.Component<Props> {
             borderBottomWidth: 0.55,
             paddingBottom: -5
           }}
-          placeholder={"Enter Bank Name "}
+          placeholder={'Enter Bank Name '}
           value={this.state.bankName != '' ? this.state.bankName : ''}
           multiline={true}
           onChangeText={(text) => this.setState({ bankName: text })} />
-        {this.state.selectedCountry.alpha2CountryCode == "AE" ?
-          <View>
+        {this.state.selectedCountry.alpha2CountryCode == 'AE'
+          ? <View>
             <Text style={{ width: '100%', color: '#808080', marginTop: 10, fontSize: 13 }}>Branch Name</Text>
             <TextInput
               style={{
@@ -347,26 +348,27 @@ export class Vendors extends React.Component<Props> {
                 borderBottomWidth: 0.55,
                 paddingBottom: -5
               }}
-              placeholder={"Enter Branch Name"}
+              placeholder={'Enter Branch Name'}
               value={this.state.bankBranchName != '' ? this.state.bankBranchName : ''}
               multiline={true}
               onChangeText={(text) => this.setState({ bankBranchName: text })} />
-          </View> : null
+          </View>
+          : null
         }
-        <Text style={{ color: '#808080', marginTop: 10, fontSize: 13 }}>{this.state.selectedCountry.alpha2CountryCode == "IN" ? "Account Number" : "IBAN"}</Text>
+        <Text style={{ color: '#808080', marginTop: 10, fontSize: 13 }}>{this.state.selectedCountry.alpha2CountryCode == 'IN' ? 'Account Number' : 'IBAN'}</Text>
         <TextInput
           style={{
             borderBottomColor: '#808080',
             borderBottomWidth: 0.55,
             paddingBottom: -5
           }}
-          placeholder={"Enter Account No. "}
+          placeholder={'Enter Account No. '}
           value={this.state.bankAccountNumber != '' ? this.state.showBankDetails : ''}
           multiline={true}
           onChangeText={(text) => this.setState({ bankAccountNumber: text, isAccountNoValid: !this.validateBankAccountNumberFromTextInput(text) })} />
-        {this.state.isAccountNoValid && <Text style={{ fontSize: 10, color: 'red', marginTop: 0 }}>{this.state.selectedCountry.alpha2CountryCode == "IN" ? "Account number must contains 9 to 18 characters" : "IBAN number must contains 23 to 34 characters"}</Text>}
-        {this.state.selectedCountry.alpha2CountryCode == "AE" ?
-          <View>
+        {this.state.isAccountNoValid && <Text style={{ fontSize: 10, color: 'red', marginTop: 0 }}>{this.state.selectedCountry.alpha2CountryCode == 'IN' ? 'Account number must contains 9 to 18 characters' : 'IBAN number must contains 23 to 34 characters'}</Text>}
+        {this.state.selectedCountry.alpha2CountryCode == 'AE'
+          ? <View>
             <Text style={{ width: '100%', color: '#808080', marginTop: 10, fontSize: 13 }}>SWIFT Code/BIC</Text>
             <TextInput
               style={{
@@ -374,13 +376,13 @@ export class Vendors extends React.Component<Props> {
                 borderBottomWidth: 0.55,
                 paddingBottom: -5
               }}
-              placeholder={"Enter SWIFT/BIC Code"}
+              placeholder={'Enter SWIFT/BIC Code'}
               value={this.state.bankAccountSwiftCode != '' ? this.state.bankAccountSwiftCode : ''}
               multiline={true}
               onChangeText={(text) => this.setState({ bankAccountSwiftCode: text, isSwiftCodeValid: !this.validateBankSwiftCodeFromTextInput(text) })} />
             {this.state.isSwiftCodeValid && <Text style={{ fontSize: 10, color: 'red', marginTop: 0 }}>SWIFT Code/BIC must conatins 8 to 11 characters.</Text>}
-          </View> :
-          <View>
+          </View>
+          : <View>
             <Text style={{ color: '#808080', marginTop: 10, fontSize: 13 }}>IFSC Code</Text>
             <TextInput
               style={{
@@ -388,7 +390,7 @@ export class Vendors extends React.Component<Props> {
                 borderBottomWidth: 0.55,
                 paddingBottom: -5
               }}
-              placeholder={"Enter IFSC Code"}
+              placeholder={'Enter IFSC Code'}
               value={this.state.IFSC_Code != '' ? this.state.IFSC_Code : ''}
               multiline={true}
               onChangeText={(text) => this.setState({ IFSC_Code: text })} />
@@ -461,21 +463,21 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
-  validateBankAccountNumber() {
+  validateBankAccountNumber () {
     if (this.state.bankAccountNumber == '') {
       return true
     }
-    if (this.state.selectedCountry.alpha2CountryCode == "IN" && (this.state.bankAccountNumber.length < 9 || this.state.bankAccountNumber.length > 18)) {
+    if (this.state.selectedCountry.alpha2CountryCode == 'IN' && (this.state.bankAccountNumber.length < 9 || this.state.bankAccountNumber.length > 18)) {
       Alert.alert('Error', 'Account Number must conatins 9 to 18 characters.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
       return false;
-    } else if (this.state.selectedCountry.alpha2CountryCode != "IN" && (this.state.bankAccountNumber.length < 23 || this.state.bankAccountNumber.length > 34)){
+    } else if (this.state.selectedCountry.alpha2CountryCode != 'IN' && (this.state.bankAccountNumber.length < 23 || this.state.bankAccountNumber.length > 34)) {
       Alert.alert('Error', 'IBAN Number must conatins 23 to 34 characters.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
       return false;
     }
     return true
   }
 
-  validateBankSwiftCode() {
+  validateBankSwiftCode () {
     if (this.state.bankAccountSwiftCode == '') {
       return true
     }
@@ -486,20 +488,20 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
-  validateBankAccountNumberFromTextInput(accountNumber: any) {
+  validateBankAccountNumberFromTextInput (accountNumber: any) {
     console.log(this.state.selectedCountry.alpha2CountryCode)
     if (accountNumber == '') {
       return true
     }
-    if (this.state.selectedCountry.alpha2CountryCode == "IN" && (accountNumber.length < 9 || accountNumber.length > 18)) {
+    if (this.state.selectedCountry.alpha2CountryCode == 'IN' && (accountNumber.length < 9 || accountNumber.length > 18)) {
       return false;
-    } else if (this.state.selectedCountry.alpha2CountryCode !="IN" && (accountNumber.length < 23 || accountNumber.length > 34)){
+    } else if (this.state.selectedCountry.alpha2CountryCode != 'IN' && (accountNumber.length < 23 || accountNumber.length > 34)) {
       return false;
     }
     return true
   }
 
-  validateBankSwiftCodeFromTextInput(swiftCode: any) {
+  validateBankSwiftCodeFromTextInput (swiftCode: any) {
     if (swiftCode == '') {
       return true
     }
@@ -813,7 +815,7 @@ export class Vendors extends React.Component<Props> {
               style={styles.input} />
           </View>
           {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
-          <View style={{ ...styles.rowContainer, marginTop: 5 }}>
+          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:15 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
               ref={(ref) => this.state.groupDropDown = ref}
@@ -845,7 +847,7 @@ export class Vendors extends React.Component<Props> {
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5, justifyContent: 'space-between' }}>
+          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:10,paddingVertical: 20, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
             <TouchableOpacity
               onPress={() => {
@@ -902,7 +904,7 @@ export class Vendors extends React.Component<Props> {
                 statusBarColor: '#520EAD'
               })
             }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', marginVertical: 10, paddingVertical: 10, backgroundColor: this.state.openAddress ? 'rgba(80,80,80,0.05)' : 'white' }}>
+            style={{ ...styles.rowContainer, justifyContent: 'space-between', paddingVertical: 20, backgroundColor: this.state.openAddress ? 'rgba(80,80,80,0.05)' : 'white' }}>
             <AntDesign
               name="pluscircle"
               size={16}
@@ -941,7 +943,7 @@ export class Vendors extends React.Component<Props> {
           {this.state.openAddress && this.renderSavedAddress()}
           <TouchableOpacity
             onPress={() => { this.setState({ showBalanceDetails: !this.state.showBalanceDetails }) }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 10 }}>
+            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
             <AntDesign
               name="pluscircle"
               size={16}
@@ -960,7 +962,7 @@ export class Vendors extends React.Component<Props> {
           {this.state.showBalanceDetails && this.renderBalanceDetails()}
           <TouchableOpacity
             onPress={() => { this.setState({ showBankDetails: !this.state.showBankDetails }) }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBankDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 18 }}>
+            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBankDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
             <AntDesign
               name="pluscircle"
               size={16}

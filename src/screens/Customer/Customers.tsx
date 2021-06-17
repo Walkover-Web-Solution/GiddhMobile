@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard, Platform } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -59,6 +59,8 @@ export class Customers extends React.Component<Props> {
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      console.log('raat', activeCompanyCountryCode);
+      console.log('results', results);
       if (results.body && results.status == 'success') {
         await this.setState({
           activeCompanyCountryCode: activeCompanyCountryCode,
@@ -651,7 +653,7 @@ export class Customers extends React.Component<Props> {
               style={styles.input} />
           </View>
           {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
-          <View style={{ ...styles.rowContainer, marginTop: 5 }}>
+          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:15}}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
               ref={(ref) => this.state.groupDropDown = ref}
@@ -681,7 +683,7 @@ export class Customers extends React.Component<Props> {
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 25, marginBottom: 5, justifyContent: 'space-between' }}>
+          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:10 ,paddingVertical:20, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
             <TouchableOpacity
               onPress={() => {
@@ -738,7 +740,7 @@ export class Customers extends React.Component<Props> {
                 statusBarColor: '#520EAD'
               })
             }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', marginVertical: 10, paddingVertical: 10, backgroundColor: this.state.openAddress ? 'rgba(80,80,80,0.05)' : 'white' }}>
+            style={{ ...styles.rowContainer, justifyContent: 'space-between', paddingVertical: 20, backgroundColor: this.state.openAddress ? 'rgba(80,80,80,0.05)' : 'white' }}>
             <AntDesign
               name="pluscircle"
               size={16}
@@ -777,7 +779,7 @@ export class Customers extends React.Component<Props> {
           {this.state.openAddress && this.renderSavedAddress()}
           <TouchableOpacity
             onPress={() => { this.setState({ showBalanceDetails: !this.state.showBalanceDetails }) }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 10 }}>
+            style={{ ...styles.rowContainer,justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
             <AntDesign
               name="pluscircle"
               size={16}

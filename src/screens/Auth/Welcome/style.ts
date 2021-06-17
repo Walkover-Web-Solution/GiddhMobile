@@ -28,7 +28,6 @@ export default StyleSheet.create({
   },
   loginButton: {
     height: 50,
-    width: width * 0.9,
     marginTop: 10,
     borderRadius: 25,
     alignItems: 'center',
@@ -38,12 +37,12 @@ export default StyleSheet.create({
   },
   paginationWrapper: {
     position: 'absolute',
-    top: height * 0.6,
     left: 0,
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    flex: 1
   },
   paginationDots: {
     height: 8,
