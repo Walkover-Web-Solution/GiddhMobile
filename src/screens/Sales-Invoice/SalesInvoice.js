@@ -1203,12 +1203,13 @@ export class SalesInvoice extends React.Component<Props> {
                     : null
                   : !this.state.partyName
                     ? alert('Please select a party.')
-                    : this.props.navigation.navigate('SelectAddress', {
-                      addressArray: this.state.addressArray,
-                      type: 'address',
-                      selectAddress: this.selectShippingAddress,
-                      statusBarColor: '#0E7942'
-                    });
+                    : (!this.state.billSameAsShip
+                      ? this.props.navigation.navigate('SelectAddress', {
+                        addressArray: this.state.addressArray,
+                        type: 'address',
+                        selectAddress: this.selectShippingAddress,
+                        statusBarColor: '#0E7942'
+                      }) : null)
               }}>
               <Text numberOfLines={2} style={style.senderAddressText}>
                 {'Shipping Address'}
@@ -1253,12 +1254,13 @@ export class SalesInvoice extends React.Component<Props> {
                   : null
                 : !this.state.partyName
                   ? alert('Please select a party.')
-                  : this.props.navigation.navigate('SelectAddress', {
-                    addressArray: this.state.addressArray,
-                    type: 'address',
-                    selectAddress: this.selectShippingAddress,
-                    statusBarColor: '#0E7942'
-                  });
+                  : (!this.state.billSameAsShip
+                    ? this.props.navigation.navigate('SelectAddress', {
+                      addressArray: this.state.addressArray,
+                      type: 'address',
+                      selectAddress: this.selectShippingAddress,
+                      statusBarColor: '#0E7942'
+                    }) : null)
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
               {this.state.partyShippingAddress.address
@@ -1396,12 +1398,12 @@ export class SalesInvoice extends React.Component<Props> {
   addItem = (item) => {
     let newItems = this.state.addedItems
 
-    let uniqueName = item.stock ? item.stock.uniqueName :item.uniqueName
-    var uniqueNumber = uniqueName.match(/\d+$/)!=null? Number(uniqueName.match(/\d+$/)[0])+1:1
-    uniqueName = uniqueName.replace(/\d+$/, "")+uniqueNumber.toString();
+    let uniqueName = item.stock ? item.stock.uniqueName : item.uniqueName
+    var uniqueNumber = uniqueName.match(/\d+$/) != null ? Number(uniqueName.match(/\d+$/)[0]) + 1 : 1
+    uniqueName = uniqueName.replace(/\d+$/, "") + uniqueNumber.toString();
 
-    console.log("UniqueName "+uniqueName)
-    
+    console.log("UniqueName " + uniqueName)
+
     item["newUniqueName"] = uniqueName
     newItems.push(item);
     this.setState({ addedItems: newItems });
@@ -1417,11 +1419,11 @@ export class SalesInvoice extends React.Component<Props> {
 
   deleteItem = (item) => {
     const addedArray = this.state.addedItems;
-    const itemUniqueName = item.newUniqueName?item.newUniqueName : (item.stock ? item.stock.uniqueName : item.uniqueName);
+    const itemUniqueName = item.newUniqueName ? item.newUniqueName : (item.stock ? item.stock.uniqueName : item.uniqueName);
     const index = _.findIndex(
       addedArray,
       (e) => {
-        const ouniqueName = e.newUniqueName? e.newUniqueName:(e.stock ? e.stock.uniqueName : e.uniqueName);
+        const ouniqueName = e.newUniqueName ? e.newUniqueName : (e.stock ? e.stock.uniqueName : e.uniqueName);
         return ouniqueName == itemUniqueName;
       },
       0
@@ -1486,7 +1488,7 @@ export class SalesInvoice extends React.Component<Props> {
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem({...item})} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center' }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>
@@ -2146,13 +2148,13 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   updateEditedItem(details, selectedArrayType, selectedCode) {
-    const itemUniqueName = details.item.newUniqueName?details.item.newUniqueName : (details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName);
-    
+    const itemUniqueName = details.item.newUniqueName ? details.item.newUniqueName : (details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName);
+
     const addedArray = this.state.addedItems;
     const index = _.findIndex(
       addedArray,
       (e) => {
-        const ouniqueName = e.newUniqueName? e.newUniqueName:(e.stock ? e.stock.uniqueName : e.uniqueName);
+        const ouniqueName = e.newUniqueName ? e.newUniqueName : (e.stock ? e.stock.uniqueName : e.uniqueName);
         return ouniqueName == itemUniqueName;
       },
       0

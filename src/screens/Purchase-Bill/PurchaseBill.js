@@ -1214,13 +1214,14 @@ export class PurchaseBill extends React.Component {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
                 } else {
-                  this.props.navigation.navigate('SelectAddress', {
-                    addressArray: this.state.addressArray,
-                    type: 'address',
-                    selectAddress: this.selectShipFromAddress.bind(this),
-                    color: '#FC8345',
-                    statusBarColor: '#ef6c00',
-                  });
+                  !this.state.billFromSameAsShipFrom ?
+                    this.props.navigation.navigate('SelectAddress', {
+                      addressArray: this.state.addressArray,
+                      type: 'address',
+                      selectAddress: this.selectShipFromAddress.bind(this),
+                      color: '#FC8345',
+                      statusBarColor: '#ef6c00',
+                    }) : null
                 }
               }}>
               <Text numberOfLines={2} style={style.senderAddressText}>
@@ -1252,13 +1253,14 @@ export class PurchaseBill extends React.Component {
               if (!this.state.partyName) {
                 alert('Please select a party.');
               } else {
-                this.props.navigation.navigate('SelectAddress', {
-                  addressArray: this.state.addressArray,
-                  type: 'address',
-                  selectAddress: this.selectShipFromAddress.bind(this),
-                  color: '#FC8345',
-                  statusBarColor: '#ef6c00',
-                });
+                !this.state.billFromSameAsShipFrom ?
+                  this.props.navigation.navigate('SelectAddress', {
+                    addressArray: this.state.addressArray,
+                    type: 'address',
+                    selectAddress: this.selectShipFromAddress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: '#ef6c00',
+                  }) : null
               }
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
@@ -1536,12 +1538,12 @@ export class PurchaseBill extends React.Component {
   addItem = (item) => {
     let newItems = this.state.addedItems
 
-    let uniqueName = item.stock ? item.stock.uniqueName :item.uniqueName
-    var uniqueNumber = uniqueName.match(/\d+$/)!=null? Number(uniqueName.match(/\d+$/)[0])+1:1
-    uniqueName = uniqueName.replace(/\d+$/, "")+uniqueNumber.toString();
+    let uniqueName = item.stock ? item.stock.uniqueName : item.uniqueName
+    var uniqueNumber = uniqueName.match(/\d+$/) != null ? Number(uniqueName.match(/\d+$/)[0]) + 1 : 1
+    uniqueName = uniqueName.replace(/\d+$/, "") + uniqueNumber.toString();
 
-    console.log("UniqueName "+uniqueName)
-    
+    console.log("UniqueName " + uniqueName)
+
     item["newUniqueName"] = uniqueName
     newItems.push(item);
     this.setState({ addedItems: newItems });
@@ -1557,11 +1559,11 @@ export class PurchaseBill extends React.Component {
 
   deleteItem = (item) => {
     const addedArray = this.state.addedItems;
-    const itemUniqueName = item.newUniqueName?item.newUniqueName : (item.stock ? item.stock.uniqueName : item.uniqueName);
+    const itemUniqueName = item.newUniqueName ? item.newUniqueName : (item.stock ? item.stock.uniqueName : item.uniqueName);
     const index = _.findIndex(
       addedArray,
       (e) => {
-        const ouniqueName = e.newUniqueName? e.newUniqueName:(e.stock ? e.stock.uniqueName : e.uniqueName);
+        const ouniqueName = e.newUniqueName ? e.newUniqueName : (e.stock ? e.stock.uniqueName : e.uniqueName);
         return ouniqueName == itemUniqueName;
       },
       0,
@@ -1625,7 +1627,7 @@ export class PurchaseBill extends React.Component {
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem({...item})} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center' }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>
@@ -2045,15 +2047,15 @@ export class PurchaseBill extends React.Component {
         { style: 'destructive', onPress: () => console.log('alert destroyed') },
       ]);
     } else if (!this.state.BillFromAddress.stateName ||
-        !this.state.BillFromAddress.stateCode ||
-        !this.state.BillFromAddress.state
+      !this.state.BillFromAddress.stateCode ||
+      !this.state.BillFromAddress.state
     ) {
       Alert.alert('Empty state details', 'Please add state details for Billing From', [
         { style: 'destructive', text: 'Okay' },
       ]);
     } else if (!this.state.shipFromAddress.stateName ||
-        !this.state.shipFromAddress.stateCode ||
-        !this.state.shipFromAddress.state
+      !this.state.shipFromAddress.stateCode ||
+      !this.state.shipFromAddress.state
     ) {
       Alert.alert('Empty state details', 'Please add state details for Shipping From', [
         { style: 'destructive', text: 'Okay' },
@@ -2064,13 +2066,13 @@ export class PurchaseBill extends React.Component {
   }
 
   updateEditedItem(details, selectedArrayType, selectedCode) {
-    const itemUniqueName = details.item.newUniqueName?details.item.newUniqueName : (details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName);
+    const itemUniqueName = details.item.newUniqueName ? details.item.newUniqueName : (details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName);
 
     const addedArray = this.state.addedItems;
     const index = _.findIndex(
       addedArray,
       (e) => {
-        const ouniqueName = e.newUniqueName? e.newUniqueName:(e.stock ? e.stock.uniqueName : e.uniqueName);
+        const ouniqueName = e.newUniqueName ? e.newUniqueName : (e.stock ? e.stock.uniqueName : e.uniqueName);
         return ouniqueName == itemUniqueName;
       },
       0,
