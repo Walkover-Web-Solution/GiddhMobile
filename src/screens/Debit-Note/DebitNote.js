@@ -135,6 +135,8 @@ export class DebiteNote extends React.Component<Props> {
       companyCountryDetails: '',
       billSameAsShip: true,
       tdsOrTcsArray: [],
+      defaultAccountTax: [],
+      defaultAccountDiscount: [],
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -548,6 +550,28 @@ export class DebiteNote extends React.Component<Props> {
     }
   }
 
+  setDefaultAccountTax(tax) {
+    var allDefaultTax = []
+    if (tax) {
+      for (let j = 0; j < tax.length; j++) {
+        allDefaultTax.push(tax[j].uniqueName)
+      }
+    }
+    this.setState({ defaultAccountTax: allDefaultTax })
+    console.log("ALL TAX " + JSON.stringify(allDefaultTax))
+  }
+
+  setDefaultDiscount(discount) {
+    var allDefaultDiscount = []
+    if (discount) {
+      for (let j = 0; j < discount.length; j++) {
+        allDefaultDiscount.push(discount[j].uniqueName)
+      }
+    }
+    this.setState({ defaultAccountDiscount: allDefaultDiscount })
+    console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
+  }
+
   async searchAccount() {
     this.setState({ isSearchingParty: true });
     try {
@@ -557,6 +581,8 @@ export class DebiteNote extends React.Component<Props> {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
+        this.setDefaultAccountTax(results.body.applicableTaxes)
+        this.setDefaultDiscount(results.body.applicableDiscounts)
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -651,6 +677,8 @@ export class DebiteNote extends React.Component<Props> {
       selectedInvoice: '',
       billSameAsShip: true,
       tdsOrTcsArray: [],
+      defaultAccountTax: [],
+      defaultAccountDiscount: [],
     });
   };
 
@@ -1314,6 +1342,7 @@ export class DebiteNote extends React.Component<Props> {
     await this.setState({
       totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2),
     });
+    await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
 
   renderAddItemButton() {
@@ -1548,7 +1577,7 @@ export class DebiteNote extends React.Component<Props> {
     console.log('rate', itemDetails.rate);
     const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    amt = amt - Number(itemDetails.discountValue);
+    amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
@@ -1590,7 +1619,7 @@ export class DebiteNote extends React.Component<Props> {
 
     const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    amt = amt - Number(itemDetails.discountValue);
+    amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
@@ -1621,7 +1650,7 @@ export class DebiteNote extends React.Component<Props> {
               taxArr[j].taxType == 'tcsrc' ||
               taxArr[j].taxType == 'tdsrc'
             ) {
-              totalTcsorTdsTaxName = taxAmount;
+              totalTcsorTdsTax = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType;
             }
             break;
@@ -2015,13 +2044,14 @@ export class DebiteNote extends React.Component<Props> {
             notIncludeTax={
               (this.state.invoiceType == INVOICE_TYPE.credit &&
                 this.state.currency != this.state.companyCountryDetails.currency.code &&
-                this.state.companyCountryDetails.currency.code == 'INR') ||
-                this.state.partyType == 'SEZ'
+                this.state.companyCountryDetails.currency.code == 'INR')
                 ? false
                 : true
             }
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
+            defaultAccountTax={this.state.defaultAccountTax}
+            defaultAccountDiscount={this.state.defaultAccountDiscount}
             goBack={() => {
               this.setState({ showItemDetails: false });
             }}

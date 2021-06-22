@@ -138,6 +138,8 @@ export class PurchaseBill extends React.Component {
       billToSameAsShipTo: false,
       tdsOrTcsArray: [],
       partyType: undefined,
+      defaultAccountTax: [],
+      defaultAccountDiscount: [],
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -510,6 +512,45 @@ export class PurchaseBill extends React.Component {
     }
   }
 
+  setDefaultAccountTax(tax) {
+    var allDefaultTax = []
+    if (tax) {
+      for (let j = 0; j < tax.length; j++) {
+        allDefaultTax.push(tax[j].uniqueName)
+      }
+    }
+    this.setState({ defaultAccountTax: allDefaultTax })
+    console.log("ALL TAX " + JSON.stringify(allDefaultTax))
+  }
+
+  setDefaultDiscount(discount) {
+    var allDefaultDiscount = []
+    if (discount) {
+      for (let j = 0; j < discount.length; j++) {
+        allDefaultDiscount.push(discount[j].uniqueName)
+      }
+    }
+    this.setState({ defaultAccountDiscount: allDefaultDiscount })
+    console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
+  }
+
+  async getPartyTypeFromAddress(addressArr){
+    if(addressArr.length>0){
+      for (let i =0;i<addressArr.length;i++){
+        if(addressArr[i].partyType=="SEZ"){
+          this.setState({partyType:addressArr[i].partyType})
+          break
+        }
+        if(i+1==addressArr.length){
+          this.setState({partyType:addressArr[i].partyType})
+        }
+      }
+    }else{
+      this.setState({partyType:undefined})
+    }
+  }
+
+
   async searchAccount() {
     this.setState({ isSearchingParty: true });
     try {
@@ -519,6 +560,9 @@ export class PurchaseBill extends React.Component {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
+        this.setDefaultAccountTax(results.body.applicableTaxes)
+        this.setDefaultDiscount(results.body.applicableDiscounts)
+        this.getPartyTypeFromAddress(results.body.addresses)
         // console.log('address body', results.body);
         await this.setState({
           addedItems: [],
@@ -528,7 +572,6 @@ export class PurchaseBill extends React.Component {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          partyType: results.body.addresses.length < 1 ? undefined : results.body.addresses[0].partyType,
           addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
           BillFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           // BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
@@ -618,6 +661,10 @@ export class PurchaseBill extends React.Component {
       billToSameAsShipTo: false,
       tdsOrTcsArray: [],
       partyType: undefined,
+      defaultAccountTax: [],
+      defaultAccountDiscount: [],
+      defaultAccountTax: [],
+      defaultAccountDiscount: [],
     });
   };
 
@@ -1473,6 +1520,7 @@ export class PurchaseBill extends React.Component {
     await this.setState({
       totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2),
     });
+    await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
 
   renderAddItemButton() {
@@ -1715,7 +1763,7 @@ export class PurchaseBill extends React.Component {
     const taxArr = this.state.taxArray;
     console.log('rate', itemDetails.rate);
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    amt = amt - Number(itemDetails.discountValue);
+    amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
@@ -1769,7 +1817,7 @@ export class PurchaseBill extends React.Component {
 
     const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    amt = amt - Number(itemDetails.discountValue);
+    amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
@@ -1790,7 +1838,7 @@ export class PurchaseBill extends React.Component {
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
             if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc')) {
-              totalTcsorTdsTaxName = taxAmount;
+              totalTcsorTdsTax = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType
             }
             break;
@@ -2204,6 +2252,8 @@ export class PurchaseBill extends React.Component {
             }}
             // selectedArrayType={this.state.selectedArrayType}
             itemDetails={this.state.itemDetails}
+            defaultAccountTax={this.state.defaultAccountTax}
+            defaultAccountDiscount={this.state.defaultAccountDiscount}
             updateItems={(details, selectedArr, selectedCode) => {
               this.updateEditedItem(details, selectedArr, selectedCode);
             }}
