@@ -1151,6 +1151,7 @@ export class SalesInvoice extends React.Component<Props> {
                     ? alert('Please select a party.')
                     : this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
+                      activeAddress :this.state.partyBillingAddress,
                       type: 'address',
                       selectAddress: this.selectBillingAddress,
                       statusBarColor: '#0E7942'
@@ -1198,6 +1199,7 @@ export class SalesInvoice extends React.Component<Props> {
                   ? alert('Please select a party.')
                   : this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
+                    activeAddress :this.state.partyBillingAddress,
                     type: 'address',
                     selectAddress: this.selectBillingAddress,
                     statusBarColor: '#0E7942'
@@ -1250,6 +1252,7 @@ export class SalesInvoice extends React.Component<Props> {
                     : (!this.state.billSameAsShip
                       ? this.props.navigation.navigate('SelectAddress', {
                         addressArray: this.state.addressArray,
+                        activeAddress :this.state.partyShippingAddress,
                         type: 'address',
                         selectAddress: this.selectShippingAddress,
                         statusBarColor: '#0E7942'
@@ -1301,6 +1304,7 @@ export class SalesInvoice extends React.Component<Props> {
                   : (!this.state.billSameAsShip
                     ? this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
+                      activeAddress :this.state.partyShippingAddress,
                       type: 'address',
                       selectAddress: this.selectShippingAddress,
                       statusBarColor: '#0E7942'

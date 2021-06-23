@@ -1178,6 +1178,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
+                    activeAddress:this.state.BillFromAddress,
                     type: 'address',
                     selectAddress: this.selectBillFromAddress.bind(this),
                     color: '#FC8345',
@@ -1217,6 +1218,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.addressArray,
+                  activeAddress:this.state.BillFromAddress,
                   type: 'address',
                   selectAddress: this.selectBillFromAddress.bind(this),
                   color: '#FC8345',
@@ -1264,6 +1266,7 @@ export class PurchaseBill extends React.Component {
                   !this.state.billFromSameAsShipFrom ?
                     this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
+                      activeAddress:this.state.shipFromAddress,
                       type: 'address',
                       selectAddress: this.selectShipFromAddress.bind(this),
                       color: '#FC8345',
@@ -1303,6 +1306,7 @@ export class PurchaseBill extends React.Component {
                 !this.state.billFromSameAsShipFrom ?
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
+                    activeAddress:this.state.shipFromAddress,
                     type: 'address',
                     selectAddress: this.selectShipFromAddress.bind(this),
                     color: '#FC8345',
@@ -1332,6 +1336,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.allBillingToAddresses,
+                    activeWareHouse:this.state.BillToAddress,
                     type: 'address',
                     selectAddress: this.selectBillToAddress.bind(this),
                     color: '#FC8345',
@@ -1370,6 +1375,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.allBillingToAddresses,
+                  activeWareHouse:this.state.BillToAddress,
                   type: 'address',
                   selectAddress: this.selectBillToAddress.bind(this),
                   color: '#FC8345',
@@ -1414,6 +1420,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     warehouseArray: this.state.warehouseArray,
+                    activeWareHouse:this.state.shipToAddress,
                     type: 'warehouse',
                     selectAddress: this.selectShipToAddress.bind(this),
                     color: '#FC8345',
@@ -1453,6 +1460,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   warehouseArray: this.state.warehouseArray,
+                  activeWareHouse:this.state.shipToAddress,
                   type: 'warehouse',
                   selectAddress: this.selectShipToAddress.bind(this),
                   color: '#FC8345',

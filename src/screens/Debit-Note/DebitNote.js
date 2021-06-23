@@ -1154,6 +1154,7 @@ export class DebiteNote extends React.Component<Props> {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
+                    activeAddress :this.state.partyBillingAddress,
                     type: 'address',
                     selectAddress: this.selectBillingAddress.bind(this),
                     color: '#ff6961',
@@ -1192,6 +1193,7 @@ export class DebiteNote extends React.Component<Props> {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.addressArray,
+                  activeAddress :this.state.partyBillingAddress,
                   type: 'address',
                   selectAddress: this.selectBillingAddress.bind(this),
                   color: '#ff6961',
@@ -1238,6 +1240,7 @@ export class DebiteNote extends React.Component<Props> {
                   (!this.state.billSameAsShip
                     ? this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
+                      activeAddress :this.state.partyShippingAddress,
                       type: 'address',
                       selectAddress: this.selectShippingAddress.bind(this),
                       color: '#ff6961',
@@ -1276,6 +1279,7 @@ export class DebiteNote extends React.Component<Props> {
                 (!this.state.billSameAsShip
                   ? this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
+                    activeAddress :this.state.partyShippingAddress,
                     type: 'address',
                     selectAddress: this.selectShippingAddress.bind(this),
                     color: '#ff6961',
