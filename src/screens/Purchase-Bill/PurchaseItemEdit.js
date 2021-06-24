@@ -624,20 +624,36 @@ class PurchaseItemEdit extends Component {
     return undefined;
   }
 
-  DefaultStockAndAccountTax() {
+  async DefaultStockAndAccountTax() {
     let isStockContainsDefaultTaxes = false
-    if (this.props.itemDetails.stock && this.state.editItemDetails.taxDetailsArray.length == 0) {
+    if (this.props.itemDetails.stock) {
       if (this.props.itemDetails.stock.taxes) {
         isStockContainsDefaultTaxes = true
         let editItemDetails = { ...this.state.editItemDetails }
         let taxDetailsArray = editItemDetails.taxDetailsArray
-
+        let selectedTaxArray = this.state.selectedArrayType
         for (var i = 0; i < this.props.itemDetails.stock.taxes.length; i++) {
-          var discountDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.stock.taxes[i])
-          discountDetails ? taxDetailsArray.push(discountDetails) : null
+          var taxDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.stock.taxes[i])
+          if (taxDetails) {
+            taxDetailsArray.push(taxDetails)
+            selectedTaxArray.push(taxDetails.taxType)
+          }
         }
-        this.setState({ editItemDetails })
+        this.setState({ editItemDetails, selectedArrayType: selectedTaxArray })
       }
+    } else if (this.props.itemDetails.taxes) {
+      isStockContainsDefaultTaxes = true
+      let editItemDetails = { ...this.state.editItemDetails }
+      let taxDetailsArray = editItemDetails.taxDetailsArray
+      let selectedTaxArray = this.state.selectedArrayType
+      for (var i = 0; i < this.props.itemDetails.taxes.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.taxes[i])
+        if (taxDetails) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+      this.setState({ editItemDetails, selectedArrayType: selectedTaxArray })
     }
     if (this.props.itemDetails.stock && this.state.editItemDetails.hsnNumber == null) {
       if (this.props.itemDetails.stock.hsnNumber) {
@@ -654,28 +670,36 @@ class PurchaseItemEdit extends Component {
       }
     }
 
-    if(!isStockContainsDefaultTaxes){
-      if (this.props.defaultAccountTax && this.state.editItemDetails.taxDetailsArray.length == 0) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        let taxDetailsArray = editItemDetails.taxDetailsArray
-
-        for (var i = 0; i < this.props.defaultAccountTax.length; i++) {
-          var taxDetails = this.getTaxDeatilsForUniqueName(this.props.defaultAccountTax[i])
-          taxDetails ? taxDetailsArray.push(taxDetails) : null
+    if (this.props.itemDetails.defaultAccountTax) {
+      let editItemDetails = { ...this.state.editItemDetails }
+      let taxDetailsArray = editItemDetails.taxDetailsArray
+      let selectedTaxArray = this.state.selectedArrayType
+      for (var i = 0; i < this.props.itemDetails.defaultAccountTax.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.defaultAccountTax[i])
+        if (taxDetails && !selectedTaxArray.includes(taxDetails.taxType)) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
         }
-        this.setState({ editItemDetails })
       }
-      if (this.props.defaultAccountDiscount && this.state.editItemDetails.percentDiscountArray.length == 0) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        let discountDetailsArray = editItemDetails.percentDiscountArray
-
-        for (var i = 0; i < this.props.defaultAccountDiscount.length; i++) {
-          var discountDetails = this.getDiscountDeatilsForUniqueName(this.props.defaultAccountDiscount[i])
-          discountDetails ? discountDetailsArray.push(discountDetails) : null
-        }
-        this.setState({ editItemDetails })
-      }
+      this.setState({ editItemDetails, selectedArrayType: selectedTaxArray })
     }
+
+    if (this.props.itemDetails.defaultAccountDiscount) {
+      let editItemDetails = { ...this.state.editItemDetails }
+      let discountDetailsArray = editItemDetails.percentDiscountArray
+
+      for (var i = 0; i < this.props.itemDetails.defaultAccountDiscount.length; i++) {
+        var discountDetails = this.getDiscountDeatilsForUniqueName(this.props.itemDetails.defaultAccountDiscount[i])
+        discountDetails ? discountDetailsArray.push(discountDetails) : null
+      }
+      this.setState({ editItemDetails })
+    }
+
+    let editItemDetails = this.state.editItemDetails
+    editItemDetails.total = this.calculateFinalAmount(this.state.editItemDetails);
+    editItemDetails.taxText = this.calculatedTaxAmount(this.state.editItemDetails);
+    editItemDetails.discountValueText = this.calculateDiscountedAmount(this.state.editItemDetails)
+    this.setState({ editItemDetails })
   }
 
 
@@ -1041,6 +1065,9 @@ class PurchaseItemEdit extends Component {
             // this._renderTaxName();
             const editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
+            if (editItemDetails.item.stock) { editItemDetails.item.stock.taxes = this.state.selectedArrayType } else { editItemDetails.item.taxes = this.state.selectedArrayType }
+            editItemDetails.item.defaultAccountTax = []
+            editItemDetails.item.defaultAccountDiscount = []
             this.props.updateItems(editItemDetails, this.state.selectedArrayType, this.state.selectedCode);
           }}
           style={{

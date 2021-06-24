@@ -534,19 +534,19 @@ export class PurchaseBill extends React.Component {
     console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
   }
 
-  async getPartyTypeFromAddress(addressArr){
-    if(addressArr.length>0){
-      for (let i =0;i<addressArr.length;i++){
-        if(addressArr[i].partyType=="SEZ"){
-          this.setState({partyType:addressArr[i].partyType})
+  async getPartyTypeFromAddress(addressArr) {
+    if (addressArr.length > 0) {
+      for (let i = 0; i < addressArr.length; i++) {
+        if (addressArr[i].partyType == "SEZ") {
+          this.setState({ partyType: addressArr[i].partyType })
           break
         }
-        if(i+1==addressArr.length){
-          this.setState({partyType:addressArr[i].partyType})
+        if (i + 1 == addressArr.length) {
+          this.setState({ partyType: addressArr[i].partyType })
         }
       }
-    }else{
-      this.setState({partyType:undefined})
+    } else {
+      this.setState({ partyType: undefined })
     }
   }
 
@@ -1178,7 +1178,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
-                    activeAddress:this.state.BillFromAddress,
+                    activeAddress: this.state.BillFromAddress,
                     type: 'address',
                     selectAddress: this.selectBillFromAddress.bind(this),
                     color: '#FC8345',
@@ -1218,7 +1218,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.addressArray,
-                  activeAddress:this.state.BillFromAddress,
+                  activeAddress: this.state.BillFromAddress,
                   type: 'address',
                   selectAddress: this.selectBillFromAddress.bind(this),
                   color: '#FC8345',
@@ -1266,7 +1266,7 @@ export class PurchaseBill extends React.Component {
                   !this.state.billFromSameAsShipFrom ?
                     this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
-                      activeAddress:this.state.shipFromAddress,
+                      activeAddress: this.state.shipFromAddress,
                       type: 'address',
                       selectAddress: this.selectShipFromAddress.bind(this),
                       color: '#FC8345',
@@ -1306,7 +1306,7 @@ export class PurchaseBill extends React.Component {
                 !this.state.billFromSameAsShipFrom ?
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
-                    activeAddress:this.state.shipFromAddress,
+                    activeAddress: this.state.shipFromAddress,
                     type: 'address',
                     selectAddress: this.selectShipFromAddress.bind(this),
                     color: '#FC8345',
@@ -1336,7 +1336,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.allBillingToAddresses,
-                    activeWareHouse:this.state.BillToAddress,
+                    activeWareHouse: this.state.BillToAddress,
                     type: 'address',
                     selectAddress: this.selectBillToAddress.bind(this),
                     color: '#FC8345',
@@ -1375,7 +1375,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.allBillingToAddresses,
-                  activeWareHouse:this.state.BillToAddress,
+                  activeWareHouse: this.state.BillToAddress,
                   type: 'address',
                   selectAddress: this.selectBillToAddress.bind(this),
                   color: '#FC8345',
@@ -1420,7 +1420,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     warehouseArray: this.state.warehouseArray,
-                    activeWareHouse:this.state.shipToAddress,
+                    activeWareHouse: this.state.shipToAddress,
                     type: 'warehouse',
                     selectAddress: this.selectShipToAddress.bind(this),
                     color: '#FC8345',
@@ -1460,7 +1460,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   warehouseArray: this.state.warehouseArray,
-                  activeWareHouse:this.state.shipToAddress,
+                  activeWareHouse: this.state.shipToAddress,
                   type: 'warehouse',
                   selectAddress: this.selectShipToAddress.bind(this),
                   color: '#FC8345',
@@ -1520,9 +1520,16 @@ export class PurchaseBill extends React.Component {
               };
               updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body);
             }
+            updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
+            updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
           }
         }
       } catch (e) { }
+    } else {
+      for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
+        updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
+        updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
+      }
     }
     await this.setState({ addedItems: updateAmountToCurrentCurrency });
     await this.setState({
@@ -2260,8 +2267,6 @@ export class PurchaseBill extends React.Component {
             }}
             // selectedArrayType={this.state.selectedArrayType}
             itemDetails={this.state.itemDetails}
-            defaultAccountTax={this.state.defaultAccountTax}
-            defaultAccountDiscount={this.state.defaultAccountDiscount}
             updateItems={(details, selectedArr, selectedCode) => {
               this.updateEditedItem(details, selectedArr, selectedCode);
             }}

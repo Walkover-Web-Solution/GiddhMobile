@@ -557,19 +557,19 @@ export class SalesInvoice extends React.Component<Props> {
     console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
   }
 
-  async getPartyTypeFromAddress(addressArr){
-    if(addressArr.length>0){
-      for (let i =0;i<addressArr.length;i++){
-        if(addressArr[i].partyType=="SEZ"){
-          this.setState({partyType:addressArr[i].partyType})
+  async getPartyTypeFromAddress(addressArr) {
+    if (addressArr.length > 0) {
+      for (let i = 0; i < addressArr.length; i++) {
+        if (addressArr[i].partyType == "SEZ") {
+          this.setState({ partyType: addressArr[i].partyType })
           break
         }
-        if(i+1==addressArr.length){
-          this.setState({partyType:addressArr[i].partyType})
+        if (i + 1 == addressArr.length) {
+          this.setState({ partyType: addressArr[i].partyType })
         }
       }
-    }else{
-      this.setState({partyType:undefined})
+    } else {
+      this.setState({ partyType: undefined })
     }
     console.log(JSON.stringify(this.state.partyType))
   }
@@ -621,7 +621,7 @@ export class SalesInvoice extends React.Component<Props> {
                 stateName: ''
               }
               : results.body.addresses[0],
-            });
+        });
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
@@ -1151,7 +1151,7 @@ export class SalesInvoice extends React.Component<Props> {
                     ? alert('Please select a party.')
                     : this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
-                      activeAddress :this.state.partyBillingAddress,
+                      activeAddress: this.state.partyBillingAddress,
                       type: 'address',
                       selectAddress: this.selectBillingAddress,
                       statusBarColor: '#0E7942'
@@ -1199,7 +1199,7 @@ export class SalesInvoice extends React.Component<Props> {
                   ? alert('Please select a party.')
                   : this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
-                    activeAddress :this.state.partyBillingAddress,
+                    activeAddress: this.state.partyBillingAddress,
                     type: 'address',
                     selectAddress: this.selectBillingAddress,
                     statusBarColor: '#0E7942'
@@ -1252,7 +1252,7 @@ export class SalesInvoice extends React.Component<Props> {
                     : (!this.state.billSameAsShip
                       ? this.props.navigation.navigate('SelectAddress', {
                         addressArray: this.state.addressArray,
-                        activeAddress :this.state.partyShippingAddress,
+                        activeAddress: this.state.partyShippingAddress,
                         type: 'address',
                         selectAddress: this.selectShippingAddress,
                         statusBarColor: '#0E7942'
@@ -1304,7 +1304,7 @@ export class SalesInvoice extends React.Component<Props> {
                   : (!this.state.billSameAsShip
                     ? this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
-                      activeAddress :this.state.partyShippingAddress,
+                      activeAddress: this.state.partyShippingAddress,
                       type: 'address',
                       selectAddress: this.selectShippingAddress,
                       statusBarColor: '#0E7942'
@@ -1373,9 +1373,16 @@ export class SalesInvoice extends React.Component<Props> {
               };
               updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body);
             }
+            updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
+            updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
           }
         }
       } catch (e) { }
+    } else {
+      for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
+        updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
+        updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
+      }
     }
     await this.setState({ addedItems: updateAmountToCurrentCurrency });
     await this.setState({
@@ -2329,8 +2336,6 @@ export class SalesInvoice extends React.Component<Props> {
             }}
             // selectedArrayType={this.state.itemDetails.selectedArrayType}
             itemDetails={this.state.itemDetails}
-            defaultAccountTax={this.state.defaultAccountTax}
-            defaultAccountDiscount={this.state.defaultAccountDiscount}
             updateItems={(details, selectedArr, selectedCode) => {
               this.updateEditedItem(details, selectedArr, selectedCode);
             }}
