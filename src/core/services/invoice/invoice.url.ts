@@ -45,9 +45,21 @@ export const invoiceUrls = {
   getCountryDetails: createEndpoint(
     'country/:countryCode'
   ),
-  getCompanyBranchAddresses: createEndpoint('company/:companyUniqueName/branch?branchUniqueName=:branchUniqueName'),
-  getWareHouse: createEndpoint('company/:companyUniqueName/warehouse?page=1&refresh=true&count=0&branchUniqueName=:branchUniqueName'),
-  companyBranchDeatils: createEndpoint('company/:companyUniqueName?branchUniqueName=:branchUniqueName')
+  getCompanyBranchAddresses: createEndpoint(
+    'company/:companyUniqueName/branch?branchUniqueName=:branchUniqueName'
+  ),
+  getWareHouse: createEndpoint(
+    'company/:companyUniqueName/warehouse?page=1&refresh=true&count=0&branchUniqueName=:branchUniqueName'
+  ),
+  companyBranchDeatils: createEndpoint(
+    'company/:companyUniqueName?branchUniqueName=:branchUniqueName'
+  ),
+  getCompanyInvoiceTemplate: createEndpoint(
+    'v2/company/:companyUniqueName/templates?type=invoice&branchUniqueName=:branchUniqueName'
+  ),
+  getCompanyVoucherTemplate: createEndpoint(
+    'v2/company/:companyUniqueName/templates?type=voucher&branchUniqueName=:branchUniqueName'
+  )
 };
 /*
 https://api.giddh.com/company/mobileindore15161037983790ggm19/brief-accounts?group=cash,%20bankaccounts&count=0&currency=INR,%20INR&branchUniqueName=allmobileshop

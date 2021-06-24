@@ -79,10 +79,86 @@ class EditItemDetails extends Component {
     this.keyboardMargin = new Animated.Value(0);
   }
 
+  getTaxDeatilsForUniqueName(uniqueName) {
+    const filtered = _.filter(this.props.taxArray, function (o) {
+      if (o.uniqueName == uniqueName) return o;
+    });
+    if (filtered.length > 0) {
+      return filtered[0];
+    }
+    return undefined;
+  }
+
+  getDiscountDeatilsForUniqueName(uniqueName) {
+    const filtered = _.filter(this.props.discountArray, function (o) {
+      if (o.uniqueName == uniqueName) return o;
+    });
+    if (filtered.length > 0) {
+      return filtered[0];
+    }
+    return undefined;
+  }
+
+  DefaultStockAndAccountTax() {
+    let isStockContainsDefaultTaxes = false
+    if (this.props.itemDetails.stock && this.state.editItemDetails.taxDetailsArray.length == 0) {
+      if (this.props.itemDetails.stock.taxes) {
+        isStockContainsDefaultTaxes = true
+        let editItemDetails = { ...this.state.editItemDetails }
+        let taxDetailsArray = editItemDetails.taxDetailsArray
+
+        for (var i = 0; i < this.props.itemDetails.stock.taxes.length; i++) {
+          var discountDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.stock.taxes[i])
+          discountDetails ? taxDetailsArray.push(discountDetails) : null
+        }
+        this.setState({ editItemDetails })
+      }
+    }
+    if (this.props.itemDetails.stock && this.state.editItemDetails.hsnNumber == null) {
+      if (this.props.itemDetails.stock.hsnNumber) {
+        let editItemDetails = { ...this.state.editItemDetails }
+        editItemDetails.hsnNumber = this.props.itemDetails.stock.hsnNumber
+        this.setState({ editItemDetails: editItemDetails, selectedCode: 'hsn' })
+      }
+    }
+    if (this.props.itemDetails.stock && this.state.editItemDetails.sacNumber == null) {
+      if (this.props.itemDetails.stock.sacNumber) {
+        let editItemDetails = { ...this.state.editItemDetails }
+        editItemDetails.sacNumber = this.props.itemDetails.stock.sacNumber
+        this.setState({ editItemDetails: editItemDetails, selectedCode: 'sac' })
+      }
+    }
+
+    if(!isStockContainsDefaultTaxes){
+      if (this.props.defaultAccountTax && this.state.editItemDetails.taxDetailsArray.length == 0) {
+        let editItemDetails = { ...this.state.editItemDetails }
+        let taxDetailsArray = editItemDetails.taxDetailsArray
+
+        for (var i = 0; i < this.props.defaultAccountTax.length; i++) {
+          var taxDetails = this.getTaxDeatilsForUniqueName(this.props.defaultAccountTax[i])
+          taxDetails ? taxDetailsArray.push(taxDetails) : null
+        }
+        this.setState({ editItemDetails })
+      }
+      if (this.props.defaultAccountDiscount && this.state.editItemDetails.percentDiscountArray.length == 0) {
+        let editItemDetails = { ...this.state.editItemDetails }
+        let discountDetailsArray = editItemDetails.percentDiscountArray
+
+        for (var i = 0; i < this.props.defaultAccountDiscount.length; i++) {
+          var discountDetails = this.getDiscountDeatilsForUniqueName(this.props.defaultAccountDiscount[i])
+          discountDetails ? discountDetailsArray.push(discountDetails) : null
+        }
+        this.setState({ editItemDetails })
+      }
+    }
+  }
+
+
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.caluclateTotalAmount();
+    this.DefaultStockAndAccountTax();
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {

@@ -30,6 +30,41 @@ export class SelectAddress extends React.Component<any, any> {
     };
   }
 
+  componentDidMount (){
+    const billing = this.props.route.params.partyBillingAddress;
+    const shipping = this.props.route.params.partyShippingAddress;
+    const billingTo = this.props.route.params.billingTo;
+    const shippingTo = this.props.route.params.shippingTo;
+    if(billing){
+      this.state.addressList.map((item, index) => {
+        if(item.state.code == billing.state.code){
+          this.changeactiveIndex(index);
+        }
+      });
+    }
+    if(shipping){
+      this.state.addressList.map((item, index) => {
+        if(item.state.code == shipping.state.code){
+          this.changeactiveIndex(index);
+        }
+      });
+    }
+    if(billingTo){
+      this.state.addressList.map((item, index) => {
+        if(item.address == billingTo.address){
+          this.changeactiveIndex(index);
+        }
+      });
+    }
+    if(shippingTo){
+      this.state.addressList.map((item, index) => {
+        if(item.address == shippingTo.address){
+          this.changeactiveIndex(index);
+        }
+      });
+    }
+  }
+
   changeactiveIndex = (value: number) => {
     this.setState({ activeIndex: value });
   };

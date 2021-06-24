@@ -149,6 +149,30 @@ export class InvoiceService {
         return null;
       });
   }
+  
+  static getInvoiceTemplate () {
+    return httpInstance
+      .get(invoiceUrls.getCompanyInvoiceTemplate, {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((_err) => {
+        console.log('error getting Invoice template ', _err);
+        return null;
+      });
+  }
+  
+  static getVoucherTemplate () {
+    return httpInstance
+      .get(invoiceUrls.getCompanyVoucherTemplate, {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((_err) => {
+        console.log('error getting Voucher template ', _err);
+        return null;
+      });
+  }
 
   static createInvoice (payload: { account: { attentionTo: string; billingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string; mobileNumber: string; name: any; shippingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; uniqueName: any; customerName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; passportNumber: string; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; touristSchemeApplicable: boolean; type: string; updateAccountDetails: boolean; voucherAdjustments: { adjustments: never[]; }; }, accountUniqueName: any, invoiceType: string) {
     console.log(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`));

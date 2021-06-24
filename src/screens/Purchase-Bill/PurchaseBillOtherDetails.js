@@ -20,6 +20,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';
+import { InvoiceService } from '@/core/services/invoice/invoice.service';
+
 const { SafeAreaOffsetHelper } = NativeModules;
 
 const { height, width } = Dimensions.get('window');
@@ -37,10 +39,18 @@ interface Props {
   navigation: any;
 }
 class PurchaseBillOtherDetails extends React.Component<Props> {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       loading: false,
+      OtherDetailsHeadingNames: {
+        shipDateName: 'Ship Date',
+        shippedViaName: 'Shipped Via',
+        trackingNumberName: 'Tracking no',
+        customField1Name: 'Custom Field 1',
+        customField2Name: 'Custom Field 2',
+        customField3Name: 'Custom Field 3'
+      },
       otherDetail: {
         shipDate: this.props.route.params.otherDetails.shipDate,
         shippedVia: this.props.route.params.otherDetails.shippedVia,
@@ -49,6 +59,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
         customField2: this.props.route.params.otherDetails.customField2,
         customField3: this.props.route.params.otherDetails.customField3
       },
+
       isDatePickerVisible: false,
       bottomOffset: 0,
       keyboard: false
@@ -56,11 +67,30 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     this.keyboardMargin = new Animated.Value(0);
   }
 
-  FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle="light-content" /> : null;
-  };
+  async setHeadingName() {
+    try {
+      const results = await InvoiceService.getInvoiceTemplate();
+      if (results.body && results.status == 'success') {
+        const headerdata = results.body[0].sections.header.data
+        console.log(JSON.stringify(headerdata.shippingDate.label))
+        await this.setState({
+          OtherDetailsHeadingNames: {
+            shipDateName: headerdata.shippingDate.label,
+            shippedViaName: headerdata.shippedVia.label,
+            trackingNumberName: headerdata.trackingNumber.label,
+            customField1Name: headerdata.customField1.label,
+            customField2Name: headerdata.customField2.label,
+            customField3Name: headerdata.customField3.label
+          }
+        });
+      }
+    } catch (e) { }
+  }
 
-  componentDidMount () {
+
+  componentDidMount() {
+
+    this.setHeadingName()
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
@@ -97,7 +127,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     this.setState({ keyboard: false });
   };
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
     this.keyboardDidShowListener.remove();
@@ -124,7 +154,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     }));
   };
 
-  renderHeader () {
+  renderHeader() {
     return (
       <View style={[style.header, { backgroundColor: '#FC8345' }]}>
         <View style={{ flexDirection: 'row', paddingVertical: 10, alignItems: 'center' }}>
@@ -141,7 +171,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     );
   }
 
-  _renderSelectWareHouse () {
+  _renderSelectWareHouse() {
     return (
       // this.props.route.params.warehouseArray
       <TouchableOpacity
@@ -168,7 +198,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     );
   }
 
-  _renderBottomSeprator (margin = 0) {
+  _renderBottomSeprator(margin = 0) {
     return (
       <View
         style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
@@ -176,60 +206,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     );
   }
 
-  textFieldState = (name, text) => {
-    if (name == 'Shipped Via') {
-      this.setState((prevState) => ({
-        otherDetail: {
-          ...prevState.otherDetail,
-          shippedVia: text
-        }
-      }));
-    } else if (name == 'Tracking no') {
-      this.setState((prevState) => ({
-        otherDetail: {
-          ...prevState.otherDetail,
-          trackingNumber: text
-        }
-      }));
-    } else if (name == 'Custom Field 1') {
-      this.setState((prevState) => ({
-        otherDetail: {
-          ...prevState.otherDetail,
-          customField1: text
-        }
-      }));
-    } else if (name == 'Custom Field 3') {
-      this.setState((prevState) => ({
-        otherDetail: {
-          ...prevState.otherDetail,
-          customField3: text
-        }
-      }));
-    } else {
-      this.setState((prevState) => ({
-        otherDetail: {
-          ...prevState.otherDetail,
-          customField2: text
-        }
-      }));
-    }
-  };
-
-  getStateName = (name) => {
-    if (name == 'Shipped Via') {
-      return this.state.otherDetail.shippedVia;
-    } else if (name == 'Tracking no') {
-      return this.state.otherDetail.trackingNumber;
-    } else if (name == 'Custom Field 1') {
-      return this.state.otherDetail.customField1;
-    } else if (name == 'Custom Field 3') {
-      return this.state.otherDetail.customField3;
-    } else {
-      return this.state.otherDetail.customField2;
-    }
-  };
-
-  _renderTextField (name, icon) {
+  _renderShippedViaTextField(name, icon) {
     return (
       <>
         <View
@@ -250,16 +227,176 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
             borderBottomColor: '#D9D9D9',
             padding: 0,
             marginHorizontal: 16,
+            marginTop: 5,
             height: 20
             // backgroundColor: 'pink',
           }}
-          value={this.getStateName(name)}
-          onChangeText={(text) => this.textFieldState(name, text)}></TextInput>
+          value={this.state.otherDetail.shippedVia}
+          onChangeText={(text) => {
+            this.setState((prevState) => ({
+              otherDetail: {
+                ...prevState.otherDetail,
+                shippedVia: text
+              }
+            }));
+          }}></TextInput>
       </>
     );
   }
 
-  _renderShipDate () {
+  _renderTrackingNoTextField(name, icon) {
+    return (
+      <>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingTop: 10,
+            paddingBottom: 4,
+            paddingHorizontal: 16,
+            // backgroundColor: 'pink',
+            marginTop: 10
+          }}>
+          {icon}
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{name}</Text>
+        </View>
+        <TextInput
+          style={{
+            borderBottomWidth: 1,
+            marginTop: 5,
+            borderBottomColor: '#D9D9D9',
+            padding: 0,
+            marginHorizontal: 16,
+            height: 20
+            // backgroundColor: 'pink',
+          }}
+          value={this.state.otherDetail.trackingNumber}
+          onChangeText={(text) => {
+            this.setState((prevState) => ({
+              otherDetail: {
+                ...prevState.otherDetail,
+                trackingNumber: text
+              }
+            }));
+          }}></TextInput>
+      </>
+    );
+  }
+
+  _renderCustomTextField1(name, icon) {
+    return (
+      <>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingTop: 10,
+            paddingBottom: 4,
+            paddingHorizontal: 16,
+            // backgroundColor: 'pink',
+            marginTop: 10
+          }}>
+          {icon}
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{name}</Text>
+        </View>
+        <TextInput
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: '#D9D9D9',
+            padding: 0,
+            marginTop: 5,
+            marginHorizontal: 16,
+            height: 20
+            // backgroundColor: 'pink',
+          }}
+          value={this.state.otherDetail.customField1}
+          onChangeText={(text) => {
+            this.setState((prevState) => ({
+              otherDetail: {
+                ...prevState.otherDetail,
+                customField1: text
+              }
+            }));
+          }}></TextInput>
+      </>
+    );
+  }
+
+  _renderCustomTextField2(name, icon) {
+    return (
+      <>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingTop: 10,
+            paddingBottom: 4,
+            paddingHorizontal: 16,
+            // backgroundColor: 'pink',
+            marginTop: 10
+          }}>
+          {icon}
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{name}</Text>
+        </View>
+        <TextInput
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: '#D9D9D9',
+            padding: 0,
+            marginTop: 5,
+            marginHorizontal: 16,
+            height: 20
+            // backgroundColor: 'pink',
+          }}
+          value={this.state.otherDetail.customField2}
+          onChangeText={(text) => {
+            this.setState((prevState) => ({
+              otherDetail: {
+                ...prevState.otherDetail,
+                customField2: text
+              }
+            }));
+          }}></TextInput>
+      </>
+    );
+  }
+
+  _renderCustomTextField3(name, icon) {
+    return (
+      <>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingTop: 10,
+            paddingBottom: 4,
+            paddingHorizontal: 16,
+            // backgroundColor: 'pink',
+            marginTop: 10
+          }}>
+          {icon}
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{name}</Text>
+        </View>
+        <TextInput
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: '#D9D9D9',
+            padding: 0,
+            marginTop: 5,
+            marginHorizontal: 16,
+            height: 20
+            // backgroundColor: 'pink',
+          }}
+          value={this.state.otherDetail.customField3}
+          onChangeText={(text) => {
+            this.setState((prevState) => ({
+              otherDetail: {
+                ...prevState.otherDetail,
+                customField3: text
+              }
+            }));
+          }}></TextInput>
+      </>
+    );
+  }
+
+  _renderShipDate() {
     return (
       <TouchableOpacity
         style={{
@@ -273,14 +410,18 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
         onPress={this.showDatePicker}>
         <Icon name={'Calendar'} size={16} color={'#808080'} />
         <Text style={{ color: '#808080', marginLeft: 10 }}>
-          {this.state.otherDetail.shipDate ? this.state.otherDetail.shipDate : 'Ship Date'}
+          {this.state.otherDetail.shipDate ? this.state.otherDetail.shipDate : this.state.OtherDetailsHeadingNames.shipDateName}
         </Text>
         {this._renderBottomSeprator(16)}
       </TouchableOpacity>
     );
   }
 
-  render () {
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle="light-content" /> : null;
+  };
+
+  render() {
     const sDate = moment(this.state.otherDetail.shipDate, 'DD-MM-YYYY');
     return (
       // <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -290,12 +431,12 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
           {this._renderShipDate()}
-          {this._renderTextField('Shipped Via', <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />)}
-          {this._renderTextField('Tracking no', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-          {this._renderTextField('Custom Field 1', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-          {this._renderTextField('Custom Field 2', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-          {/* {this._renderTextField('Custom Field 2', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)} */}
-          {this._renderTextField('Custom Field 3', <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {this._renderShippedViaTextField(this.state.OtherDetailsHeadingNames.shippedViaName, <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />)}
+          {this._renderTrackingNoTextField(this.state.OtherDetailsHeadingNames.trackingNumberName, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {this._renderCustomTextField1(this.state.OtherDetailsHeadingNames.customField1Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {this._renderCustomTextField2(this.state.OtherDetailsHeadingNames.customField2Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {this._renderCustomTextField3(this.state.OtherDetailsHeadingNames.customField3Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+
 
           <DateTimePickerModal
             isVisible={this.state.isDatePickerVisible}
@@ -341,13 +482,13 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
@@ -355,7 +496,7 @@ function mapDispatchToProps (dispatch) {
   };
 }
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <PurchaseBillOtherDetails {...props} isFocused={isFocused} />;

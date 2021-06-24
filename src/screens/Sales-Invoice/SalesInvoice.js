@@ -155,7 +155,9 @@ export class SalesInvoice extends React.Component<Props> {
       billSameAsShip: true,
       tdsOrTcsArray: [],
       partyType: undefined,
-      showExtraDetails: false
+      showExtraDetails: false,
+      defaultAccountTax: [],
+      defaultAccountDiscount: [],
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -533,6 +535,44 @@ export class SalesInvoice extends React.Component<Props> {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
     }
   }
+  setDefaultAccountTax(tax) {
+    var allDefaultTax = []
+    if (tax) {
+      for (let j = 0; j < tax.length; j++) {
+        allDefaultTax.push(tax[j].uniqueName)
+      }
+    }
+    this.setState({ defaultAccountTax: allDefaultTax })
+    console.log("ALL TAX " + JSON.stringify(allDefaultTax))
+  }
+
+  setDefaultDiscount(discount) {
+    var allDefaultDiscount = []
+    if (discount) {
+      for (let j = 0; j < discount.length; j++) {
+        allDefaultDiscount.push(discount[j].uniqueName)
+      }
+    }
+    this.setState({ defaultAccountDiscount: allDefaultDiscount })
+    console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
+  }
+
+  async getPartyTypeFromAddress(addressArr){
+    if(addressArr.length>0){
+      for (let i =0;i<addressArr.length;i++){
+        if(addressArr[i].partyType=="SEZ"){
+          this.setState({partyType:addressArr[i].partyType})
+          break
+        }
+        if(i+1==addressArr.length){
+          this.setState({partyType:addressArr[i].partyType})
+        }
+      }
+    }else{
+      this.setState({partyType:undefined})
+    }
+    console.log(JSON.stringify(this.state.partyType))
+  }
 
   async searchAccount() {
     this.setState({ isSearchingParty: true });
@@ -543,6 +583,9 @@ export class SalesInvoice extends React.Component<Props> {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
+        this.setDefaultAccountTax(results.body.applicableTaxes)
+        this.setDefaultDiscount(results.body.applicableDiscounts)
+        this.getPartyTypeFromAddress(results.body.addresses)
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -551,7 +594,6 @@ export class SalesInvoice extends React.Component<Props> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          partyType: results.body.addresses.length < 1 ? undefined : results.body.addresses[0].partyType,
           addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
           partyBillingAddress:
             results.body.addresses.length < 1
@@ -578,8 +620,8 @@ export class SalesInvoice extends React.Component<Props> {
                 stateCode: '',
                 stateName: ''
               }
-              : results.body.addresses[0]
-        });
+              : results.body.addresses[0],
+            });
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
@@ -682,7 +724,9 @@ export class SalesInvoice extends React.Component<Props> {
       billSameAsShip: true,
       tdsOrTcsArray: [],
       partyType: undefined,
-      showExtraDetails: false
+      showExtraDetails: false,
+      defaultAccountTax: [],
+      defaultAccountDiscount: [],
     });
   };
 
@@ -903,7 +947,7 @@ export class SalesInvoice extends React.Component<Props> {
             });
           }
         }
-        if (type == 'share') {
+        else if (type == 'share') {
           console.log('sharing');
           this.downloadFile(
             results.body.entries[0].voucherType,
@@ -1109,7 +1153,8 @@ export class SalesInvoice extends React.Component<Props> {
                       addressArray: this.state.addressArray,
                       type: 'address',
                       selectAddress: this.selectBillingAddress,
-                      statusBarColor: '#0E7942'
+                      statusBarColor: '#0E7942',
+                      partyBillingAddress: this.state.partyBillingAddress
                     });
               }}>
               <Text numberOfLines={2} style={style.senderAddressText}>
@@ -1156,7 +1201,8 @@ export class SalesInvoice extends React.Component<Props> {
                     addressArray: this.state.addressArray,
                     type: 'address',
                     selectAddress: this.selectBillingAddress,
-                    statusBarColor: '#0E7942'
+                    statusBarColor: '#0E7942',
+                    partyBillingAddress: this.state.partyBillingAddress
                   });
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
@@ -1203,12 +1249,14 @@ export class SalesInvoice extends React.Component<Props> {
                     : null
                   : !this.state.partyName
                     ? alert('Please select a party.')
-                    : this.props.navigation.navigate('SelectAddress', {
-                      addressArray: this.state.addressArray,
-                      type: 'address',
-                      selectAddress: this.selectShippingAddress,
-                      statusBarColor: '#0E7942'
-                    });
+                    : (!this.state.billSameAsShip
+                      ? this.props.navigation.navigate('SelectAddress', {
+                        addressArray: this.state.addressArray,
+                        type: 'address',
+                        selectAddress: this.selectShippingAddress,
+                        statusBarColor: '#0E7942',
+                        partyShippingAddress: this.state.partyShippingAddress
+                      }) : null)
               }}>
               <Text numberOfLines={2} style={style.senderAddressText}>
                 {'Shipping Address'}
@@ -1253,12 +1301,14 @@ export class SalesInvoice extends React.Component<Props> {
                   : null
                 : !this.state.partyName
                   ? alert('Please select a party.')
-                  : this.props.navigation.navigate('SelectAddress', {
-                    addressArray: this.state.addressArray,
-                    type: 'address',
-                    selectAddress: this.selectShippingAddress,
-                    statusBarColor: '#0E7942'
-                  });
+                  : (!this.state.billSameAsShip
+                    ? this.props.navigation.navigate('SelectAddress', {
+                      addressArray: this.state.addressArray,
+                      type: 'address',
+                      selectAddress: this.selectShippingAddress,
+                      statusBarColor: '#0E7942',
+                      partyShippingAddress: this.state.partyShippingAddress
+                    }) : null)
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
               {this.state.partyShippingAddress.address
@@ -1331,6 +1381,7 @@ export class SalesInvoice extends React.Component<Props> {
     await this.setState({
       totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2)
     });
+    await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
 
   renderAddItemButton() {
@@ -1394,9 +1445,18 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   addItem = (item) => {
-    const newItems = this.state.addedItems;
+    let newItems = this.state.addedItems
+
+    let uniqueName = item.stock ? item.stock.uniqueName : item.uniqueName
+    var uniqueNumber = uniqueName.match(/\d+$/) != null ? Number(uniqueName.match(/\d+$/)[0]) + 1 : 1
+    uniqueName = uniqueName.replace(/\d+$/, "") + uniqueNumber.toString();
+
+    console.log("UniqueName " + uniqueName)
+
+    item["newUniqueName"] = uniqueName
     newItems.push(item);
     this.setState({ addedItems: newItems });
+
     this.updateTCSAndTDSTaxAmount(newItems);
     if (item.rate) {
       const totalAmount = this.getTotalAmount();
@@ -1408,11 +1468,11 @@ export class SalesInvoice extends React.Component<Props> {
 
   deleteItem = (item) => {
     const addedArray = this.state.addedItems;
-    const itemUniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
+    const itemUniqueName = item.newUniqueName ? item.newUniqueName : (item.stock ? item.stock.uniqueName : item.uniqueName);
     const index = _.findIndex(
       addedArray,
       (e) => {
-        const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
+        const ouniqueName = e.newUniqueName ? e.newUniqueName : (e.stock ? e.stock.uniqueName : e.uniqueName);
         return ouniqueName == itemUniqueName;
       },
       0
@@ -1477,7 +1537,7 @@ export class SalesInvoice extends React.Component<Props> {
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem(item)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center' }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>
@@ -1586,7 +1646,7 @@ export class SalesInvoice extends React.Component<Props> {
       return 0;
     }
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    amt = amt - Number(itemDetails.discountValue);
+    amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
@@ -1656,7 +1716,7 @@ export class SalesInvoice extends React.Component<Props> {
 
     const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    amt = amt - Number(itemDetails.discountValue);
+    amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
@@ -1677,7 +1737,7 @@ export class SalesInvoice extends React.Component<Props> {
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
             const taxAmount = (taxPercent * Number(amt)) / 100;
             if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc')) {
-              totalTcsorTdsTaxName = taxAmount;
+              totalTcsorTdsTax = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType;
             }
             break;
@@ -2137,13 +2197,13 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   updateEditedItem(details, selectedArrayType, selectedCode) {
-    const itemUniqueName = details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName;
+    const itemUniqueName = details.item.newUniqueName ? details.item.newUniqueName : (details.item.stock ? details.item.stock.uniqueName : details.item.uniqueName);
 
     const addedArray = this.state.addedItems;
     const index = _.findIndex(
       addedArray,
       (e) => {
-        const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
+        const ouniqueName = e.newUniqueName ? e.newUniqueName : (e.stock ? e.stock.uniqueName : e.uniqueName);
         return ouniqueName == itemUniqueName;
       },
       0
@@ -2269,6 +2329,8 @@ export class SalesInvoice extends React.Component<Props> {
             }}
             // selectedArrayType={this.state.itemDetails.selectedArrayType}
             itemDetails={this.state.itemDetails}
+            defaultAccountTax={this.state.defaultAccountTax}
+            defaultAccountDiscount={this.state.defaultAccountDiscount}
             updateItems={(details, selectedArr, selectedCode) => {
               this.updateEditedItem(details, selectedArr, selectedCode);
             }}
