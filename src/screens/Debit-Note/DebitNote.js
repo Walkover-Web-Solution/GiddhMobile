@@ -716,7 +716,6 @@ export class DebiteNote extends React.Component<Props> {
     } else {
       return [
         { calculationMethod: 'FIX_AMOUNT', amount: { type: 'DEBIT', amountForAccount: 0 }, name: '', particular: '' },
-        ,
       ];
     }
   }
