@@ -454,7 +454,7 @@ export class DebiteNote extends React.Component<Props> {
       }
     });
     if (filtered.length > 0) {
-      return filtered[0].taxDetail;
+      return filtered[0];
     }
     return undefined;
   }
@@ -1337,15 +1337,14 @@ export class DebiteNote extends React.Component<Props> {
               };
               updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body);
             }
-            updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
-            updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
           }
         }
       } catch (e) { }
-    } else {
-      for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
-        updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
-        updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
+    }
+    
+    for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
+      if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) {
+        this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
       }
     }
     await this.setState({ addedItems: updateAmountToCurrentCurrency });
@@ -1354,6 +1353,73 @@ export class DebiteNote extends React.Component<Props> {
     });
     await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
+
+  async DefaultStockAndAccountTax(editItemDetails) {
+    const itemDetails = editItemDetails
+    let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
+    let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
+    let discountDetailsArray = editItemDetails.percentDiscountArray ? editItemDetails.percentDiscountArray : []
+    if (itemDetails.stock) {
+      if (itemDetails.stock.taxes) {
+        for (var i = 0; i < itemDetails.stock.taxes.length; i++) {
+          var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.taxes[i])
+          if (taxDetails) {
+            taxDetailsArray.push(taxDetails)
+            selectedTaxArray.push(taxDetails.taxType)
+          }
+        }
+      }
+    } else if (itemDetails.taxes) {
+      for (var i = 0; i < itemDetails.taxes.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.taxes[i])
+        if (taxDetails) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+    if (itemDetails.stock && editItemDetails.hsnNumber == null) {
+      if (itemDetails.stock.hsnNumber) {
+        editItemDetails.hsnNumber = itemDetails.stock.hsnNumber
+      }
+    }
+    if (itemDetails.stock && editItemDetails.sacNumber == null) {
+      if (itemDetails.stock.sacNumber) {
+        editItemDetails.sacNumber = itemDetails.stock.sacNumber
+      }
+    }
+
+    if (this.state.defaultAccountTax) {
+      for (var i = 0; i < this.state.defaultAccountTax.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(this.state.defaultAccountTax[i])
+        if (taxDetails && !selectedTaxArray.includes(taxDetails.taxType)) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+
+    if (this.state.defaultAccountDiscount) {
+      for (var i = 0; i < this.state.defaultAccountDiscount.length; i++) {
+        var discountDetails = this.getDiscountDeatilsForUniqueName(this.state.defaultAccountDiscount[i])
+        console.log(JSON.stringify(discountDetails.uniqueName))
+        discountDetails ? discountDetailsArray.push(discountDetails) : null
+      }
+    }
+
+    editItemDetails.taxDetailsArray = taxDetailsArray
+    editItemDetails.selectedArrayType = selectedTaxArray
+    editItemDetails.quantityText = editItemDetails.quantity
+    editItemDetails.rateText = editItemDetails.rate
+    editItemDetails.percentDiscountArray = discountDetailsArray
+    editItemDetails.unitText = editItemDetails.stock ? editItemDetails.stock.unitRates.stockUnitCode : ""
+    editItemDetails.amountText = editItemDetails.rate
+    editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
+    editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
+    editItemDetails.isNew = false
+
+    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
+  }
 
   renderAddItemButton() {
     return (
@@ -1568,18 +1634,19 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   calculateDiscountedAmount(itemDetails) {
-    if (itemDetails.discountDetails) {
-      const discountType = itemDetails.discountDetails.discountType;
-      if (discountType == 'FIX_AMOUNT') {
-        const discountAmount = Number(itemDetails.discountValue);
-        return discountAmount;
-      } else {
-        const amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-        const discountAmount = (Number(itemDetails.discountValue) * amt) / 100;
-        return Number(discountAmount);
+    let totalDiscount = 0;
+    let percentDiscount = 0;
+    if (itemDetails.percentDiscountArray && itemDetails.percentDiscountArray.length > 0) {
+      for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
+        percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
       }
+      // console.log(percentDiscount, 'total % discount');
+      const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+      // console.log('amt is ', amt);
+      totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
     }
-    return 0;
+    console.log(totalDiscount, 'is the discount');
+    return totalDiscount;
   }
 
   calculatedTaxAmount(itemDetails) {

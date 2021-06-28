@@ -174,10 +174,12 @@ class PurchaseItemEdit extends Component {
               data={this.props.taxArray}
               style={{ paddingHorizontal: 20, paddingVertical: 10 }}
               renderItem={({ item }) => {
-                const selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
-                const selectedTaxTypeArr = this.state.selectedArrayType;
+                const selectedTaxArray = [...this.state.editItemDetails.taxDetailsArray];
+                const selectedTaxTypeArr = [...this.state.selectedArrayType];
                 const filtered = _.filter(selectedTaxArray, function (o) {
-                  if (o.uniqueName == item.uniqueName) return o;
+                  if (o.uniqueName == item.uniqueName) {
+                    return o;
+                  }
                 });
                 // let disable = this._checkTax(item);
                 return (
@@ -624,92 +626,12 @@ class PurchaseItemEdit extends Component {
     return undefined;
   }
 
-  async DefaultStockAndAccountTax() {
-    let isStockContainsDefaultTaxes = false
-    if (this.props.itemDetails.stock) {
-      if (this.props.itemDetails.stock.taxes) {
-        isStockContainsDefaultTaxes = true
-        let editItemDetails = { ...this.state.editItemDetails }
-        let taxDetailsArray = editItemDetails.taxDetailsArray
-        let selectedTaxArray = this.state.selectedArrayType
-        for (var i = 0; i < this.props.itemDetails.stock.taxes.length; i++) {
-          var taxDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.stock.taxes[i])
-          if (taxDetails) {
-            taxDetailsArray.push(taxDetails)
-            selectedTaxArray.push(taxDetails.taxType)
-          }
-        }
-        this.setState({ editItemDetails, selectedArrayType: selectedTaxArray })
-      }
-    } else if (this.props.itemDetails.taxes) {
-      isStockContainsDefaultTaxes = true
-      let editItemDetails = { ...this.state.editItemDetails }
-      let taxDetailsArray = editItemDetails.taxDetailsArray
-      let selectedTaxArray = this.state.selectedArrayType
-      for (var i = 0; i < this.props.itemDetails.taxes.length; i++) {
-        var taxDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.taxes[i])
-        if (taxDetails) {
-          taxDetailsArray.push(taxDetails)
-          selectedTaxArray.push(taxDetails.taxType)
-        }
-      }
-      this.setState({ editItemDetails, selectedArrayType: selectedTaxArray })
-    }
-    if (this.props.itemDetails.stock && this.state.editItemDetails.hsnNumber == null) {
-      if (this.props.itemDetails.stock.hsnNumber) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        editItemDetails.hsnNumber = this.props.itemDetails.stock.hsnNumber
-        this.setState({ editItemDetails: editItemDetails, selectedCode: 'hsn' })
-      }
-    }
-    if (this.props.itemDetails.stock && this.state.editItemDetails.sacNumber == null) {
-      if (this.props.itemDetails.stock.sacNumber) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        editItemDetails.sacNumber = this.props.itemDetails.stock.sacNumber
-        this.setState({ editItemDetails: editItemDetails, selectedCode: 'sac' })
-      }
-    }
-
-    if (this.props.itemDetails.defaultAccountTax) {
-      let editItemDetails = { ...this.state.editItemDetails }
-      let taxDetailsArray = editItemDetails.taxDetailsArray
-      let selectedTaxArray = this.state.selectedArrayType
-      for (var i = 0; i < this.props.itemDetails.defaultAccountTax.length; i++) {
-        var taxDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.defaultAccountTax[i])
-        if (taxDetails && !selectedTaxArray.includes(taxDetails.taxType)) {
-          taxDetailsArray.push(taxDetails)
-          selectedTaxArray.push(taxDetails.taxType)
-        }
-      }
-      this.setState({ editItemDetails, selectedArrayType: selectedTaxArray })
-    }
-
-    if (this.props.itemDetails.defaultAccountDiscount) {
-      let editItemDetails = { ...this.state.editItemDetails }
-      let discountDetailsArray = editItemDetails.percentDiscountArray
-
-      for (var i = 0; i < this.props.itemDetails.defaultAccountDiscount.length; i++) {
-        var discountDetails = this.getDiscountDeatilsForUniqueName(this.props.itemDetails.defaultAccountDiscount[i])
-        discountDetails ? discountDetailsArray.push(discountDetails) : null
-      }
-      this.setState({ editItemDetails })
-    }
-
-    let editItemDetails = this.state.editItemDetails
-    editItemDetails.total = this.calculateFinalAmount(this.state.editItemDetails);
-    editItemDetails.taxText = this.calculatedTaxAmount(this.state.editItemDetails);
-    editItemDetails.discountValueText = this.calculateDiscountedAmount(this.state.editItemDetails)
-    this.setState({ editItemDetails })
-  }
-
-
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     const editDetails = this.state.editItemDetails;
     editDetails.total = this.calculateFinalAmount(editDetails);
     this.setState({ editItemDetails: editDetails });
-    this.DefaultStockAndAccountTax();
     // if (Platform.OS == 'ios') {
     //     //Native Bridge for giving the bottom offset //Our own created
     //     SafeAreaOffsetHelper.getBottomOffset().then(offset => {
@@ -1066,8 +988,6 @@ class PurchaseItemEdit extends Component {
             const editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
             if (editItemDetails.item.stock) { editItemDetails.item.stock.taxes = this.state.selectedArrayType } else { editItemDetails.item.taxes = this.state.selectedArrayType }
-            editItemDetails.item.defaultAccountTax = []
-            editItemDetails.item.defaultAccountDiscount = []
             this.props.updateItems(editItemDetails, this.state.selectedArrayType, this.state.selectedCode);
           }}
           style={{

@@ -437,7 +437,7 @@ export class SalesInvoice extends React.Component<Props> {
       if (o.uniqueName == uniqueName) return o;
     });
     if (filtered.length > 0) {
-      return filtered[0].taxDetail;
+      return filtered[0];
     }
     return undefined;
   }
@@ -1373,23 +1373,88 @@ export class SalesInvoice extends React.Component<Props> {
               };
               updateAmountToCurrentCurrency[i].rate = await (Number(item.rate) * results.body);
             }
-            updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
-            updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
           }
         }
       } catch (e) { }
-    } else {
-      for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
-        updateAmountToCurrentCurrency[i].defaultAccountTax = this.state.defaultAccountTax
-        updateAmountToCurrentCurrency[i].defaultAccountDiscount = this.state.defaultAccountDiscount
-      }
     }
+
+    for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
+      if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) { this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i]) }
+    }
+
     await this.setState({ addedItems: updateAmountToCurrentCurrency });
     await this.setState({
       totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2)
     });
     await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
+
+  async DefaultStockAndAccountTax(itemDetails) {
+    let editItemDetails = itemDetails
+    let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
+    let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
+    let discountDetailsArray = editItemDetails.percentDiscountArray ? editItemDetails.percentDiscountArray : []
+    if (itemDetails.stock) {
+      if (itemDetails.stock.taxes) {
+        for (var i = 0; i < itemDetails.stock.taxes.length; i++) {
+          var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.taxes[i])
+          if (taxDetails) {
+            taxDetailsArray.push(taxDetails)
+            selectedTaxArray.push(taxDetails.taxType)
+          }
+        }
+      }
+    } else if (itemDetails.taxes) {
+      for (var i = 0; i < itemDetails.taxes.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.taxes[i])
+        if (taxDetails) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+    if (itemDetails.stock && editItemDetails.hsnNumber == null) {
+      if (itemDetails.stock.hsnNumber) {
+        editItemDetails.hsnNumber = itemDetails.stock.hsnNumber
+      }
+    }
+    if (itemDetails.stock && editItemDetails.sacNumber == null) {
+      if (itemDetails.stock.sacNumber) {
+        editItemDetails.sacNumber = itemDetails.stock.sacNumber
+      }
+    }
+
+    if (this.state.defaultAccountTax) {
+      for (var i = 0; i < this.state.defaultAccountTax.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(this.state.defaultAccountTax[i])
+        if (taxDetails && !selectedTaxArray.includes(taxDetails.taxType)) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+
+    if (this.state.defaultAccountDiscount) {
+      for (var i = 0; i < this.state.defaultAccountDiscount.length; i++) {
+        var discountDetails = this.getDiscountDeatilsForUniqueName(this.state.defaultAccountDiscount[i])
+        discountDetails ? discountDetailsArray.push(discountDetails) : null
+      }
+    }
+
+    editItemDetails.taxDetailsArray = taxDetailsArray
+    editItemDetails.selectedArrayType = selectedTaxArray
+    editItemDetails.quantityText = editItemDetails.quantity
+    editItemDetails.rateText = editItemDetails.rate
+    editItemDetails.percentDiscountArray = discountDetailsArray
+    editItemDetails.unitText = editItemDetails.stock ? editItemDetails.stock.unitRates.stockUnitCode : ""
+    editItemDetails.amountText = editItemDetails.rate
+    editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
+    editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
+    editItemDetails.isNew = false
+
+    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
+  }
+
 
   renderAddItemButton() {
     return (
