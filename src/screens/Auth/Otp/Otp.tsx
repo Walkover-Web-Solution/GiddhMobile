@@ -7,7 +7,7 @@ import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { GdImages } from '@/utils/icons-pack';
 
 import colors from '@/utils/colors';
-import { verifyOTP, clearOTPError } from '../Login/LoginAction';
+import { verifyOTP, clearOTPError, OTPScreenUnmounting } from '../Login/LoginAction';
 import { Bars } from 'react-native-loader';
 import { baseColor } from '../../../utils/colors';
 
@@ -19,6 +19,10 @@ class Login extends React.Component<any, any> {
       showLoader: false,
       code: ''
     };
+  }
+
+  componentWillUnmount(){
+    this.props.unmounting();
   }
 
   render () {
@@ -98,6 +102,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
     clearOTPError: () => {
       dispatch(clearOTPError());
+    },
+    unmounting : () => {
+      dispatch(OTPScreenUnmounting());
     }
   };
 };

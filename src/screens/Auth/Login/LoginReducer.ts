@@ -137,6 +137,12 @@ export default (state = initialState, action: Action) => {
       return {
         ...initialState
       };
+      case ActionConstants.OTP_SCREEN_UNMOUNTING:
+        return {
+          ...state,
+          isAuthenticatingUser: false,
+          startTFA: false
+        }
     default:
       return state;
   }

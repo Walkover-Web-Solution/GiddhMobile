@@ -41,6 +41,7 @@ class Login extends React.Component<any, any> {
   componentDidUpdate (prevProps) {
     if (!prevProps.startTFA && this.props.startTFA) {
       this.setState({ showLoader: false });
+      console.log('going to otp');
       this.props.navigation.navigate('Otp');
     }
   }

@@ -115,3 +115,9 @@ export function loginUserFailure (error) {
     payload: error
   }
 }
+
+export function OTPScreenUnmounting (){
+  return {
+    type: Actions.OTP_SCREEN_UNMOUNTING
+  }
+}
