@@ -1538,12 +1538,15 @@ export class PurchaseBill extends React.Component {
     await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
 
-  async DefaultStockAndAccountTax(editItemDetails) {
-    const itemDetails = editItemDetails
+  async DefaultStockAndAccountTax(itemDetails) {
+    let editItemDetails = itemDetails
     let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
     let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
     let discountDetailsArray = editItemDetails.percentDiscountArray ? editItemDetails.percentDiscountArray : []
+
+    // Stock taxes 
     if (itemDetails.stock) {
+      // Stock taxes
       if (itemDetails.stock.taxes) {
         for (var i = 0; i < itemDetails.stock.taxes.length; i++) {
           var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.taxes[i])
@@ -1553,7 +1556,23 @@ export class PurchaseBill extends React.Component {
           }
         }
       }
+      // Stock group taxes
+      if (itemDetails.stock.groupTaxes) {
+        for (var i = 0; i < itemDetails.stock.groupTaxes.length; i++) {
+          var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.groupTaxes[i])
+          if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
+            ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+              taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
+                taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
+                  taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+                    taxDetails.taxType == 'tdspay'))) {
+            taxDetailsArray.push(taxDetails)
+            selectedTaxArray.push(taxDetails.taxType)
+          }
+        }
+      }
     } else if (itemDetails.taxes) {
+      // sales taxes
       for (var i = 0; i < itemDetails.taxes.length; i++) {
         var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.taxes[i])
         if (taxDetails) {
@@ -1562,31 +1581,56 @@ export class PurchaseBill extends React.Component {
         }
       }
     }
+
+    // hsnNumber
     if (itemDetails.stock && editItemDetails.hsnNumber == null) {
       if (itemDetails.stock.hsnNumber) {
         editItemDetails.hsnNumber = itemDetails.stock.hsnNumber
       }
     }
+    // SacNumber
     if (itemDetails.stock && editItemDetails.sacNumber == null) {
       if (itemDetails.stock.sacNumber) {
         editItemDetails.sacNumber = itemDetails.stock.sacNumber
       }
     }
 
+    // Account tax
     if (this.state.defaultAccountTax) {
       for (var i = 0; i < this.state.defaultAccountTax.length; i++) {
         var taxDetails = this.getTaxDeatilsForUniqueName(this.state.defaultAccountTax[i])
-        if (taxDetails && !selectedTaxArray.includes(taxDetails.taxType)) {
+        if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
+          ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+            taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
+              taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
+                taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+                  taxDetails.taxType == 'tdspay'))) {
           taxDetailsArray.push(taxDetails)
           selectedTaxArray.push(taxDetails.taxType)
         }
       }
     }
 
+    // Account group taxes 
+    if (itemDetails.groupTaxes) {
+      for (var i = 0; i < itemDetails.groupTaxes.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.groupTaxes[i])
+        if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
+          ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+            taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
+              taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
+                taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+                  taxDetails.taxType == 'tdspay'))) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+
+    // Account default discount
     if (this.state.defaultAccountDiscount) {
       for (var i = 0; i < this.state.defaultAccountDiscount.length; i++) {
         var discountDetails = this.getDiscountDeatilsForUniqueName(this.state.defaultAccountDiscount[i])
-        console.log(JSON.stringify(discountDetails.uniqueName))
         discountDetails ? discountDetailsArray.push(discountDetails) : null
       }
     }
