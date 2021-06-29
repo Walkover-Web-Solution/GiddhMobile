@@ -174,10 +174,12 @@ class PurchaseItemEdit extends Component {
               data={this.props.taxArray}
               style={{ paddingHorizontal: 20, paddingVertical: 10 }}
               renderItem={({ item }) => {
-                const selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
-                const selectedTaxTypeArr = this.state.selectedArrayType;
+                const selectedTaxArray = [...this.state.editItemDetails.taxDetailsArray];
+                const selectedTaxTypeArr = [...this.state.selectedArrayType];
                 const filtered = _.filter(selectedTaxArray, function (o) {
-                  if (o.uniqueName == item.uniqueName) return o;
+                  if (o.uniqueName == item.uniqueName) {
+                    return o;
+                  }
                 });
                 // let disable = this._checkTax(item);
                 return (
@@ -624,68 +626,12 @@ class PurchaseItemEdit extends Component {
     return undefined;
   }
 
-  DefaultStockAndAccountTax() {
-    let isStockContainsDefaultTaxes = false
-    if (this.props.itemDetails.stock && this.state.editItemDetails.taxDetailsArray.length == 0) {
-      if (this.props.itemDetails.stock.taxes) {
-        isStockContainsDefaultTaxes = true
-        let editItemDetails = { ...this.state.editItemDetails }
-        let taxDetailsArray = editItemDetails.taxDetailsArray
-
-        for (var i = 0; i < this.props.itemDetails.stock.taxes.length; i++) {
-          var discountDetails = this.getTaxDeatilsForUniqueName(this.props.itemDetails.stock.taxes[i])
-          discountDetails ? taxDetailsArray.push(discountDetails) : null
-        }
-        this.setState({ editItemDetails })
-      }
-    }
-    if (this.props.itemDetails.stock && this.state.editItemDetails.hsnNumber == null) {
-      if (this.props.itemDetails.stock.hsnNumber) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        editItemDetails.hsnNumber = this.props.itemDetails.stock.hsnNumber
-        this.setState({ editItemDetails: editItemDetails, selectedCode: 'hsn' })
-      }
-    }
-    if (this.props.itemDetails.stock && this.state.editItemDetails.sacNumber == null) {
-      if (this.props.itemDetails.stock.sacNumber) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        editItemDetails.sacNumber = this.props.itemDetails.stock.sacNumber
-        this.setState({ editItemDetails: editItemDetails, selectedCode: 'sac' })
-      }
-    }
-
-    if(!isStockContainsDefaultTaxes){
-      if (this.props.defaultAccountTax && this.state.editItemDetails.taxDetailsArray.length == 0) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        let taxDetailsArray = editItemDetails.taxDetailsArray
-
-        for (var i = 0; i < this.props.defaultAccountTax.length; i++) {
-          var taxDetails = this.getTaxDeatilsForUniqueName(this.props.defaultAccountTax[i])
-          taxDetails ? taxDetailsArray.push(taxDetails) : null
-        }
-        this.setState({ editItemDetails })
-      }
-      if (this.props.defaultAccountDiscount && this.state.editItemDetails.percentDiscountArray.length == 0) {
-        let editItemDetails = { ...this.state.editItemDetails }
-        let discountDetailsArray = editItemDetails.percentDiscountArray
-
-        for (var i = 0; i < this.props.defaultAccountDiscount.length; i++) {
-          var discountDetails = this.getDiscountDeatilsForUniqueName(this.props.defaultAccountDiscount[i])
-          discountDetails ? discountDetailsArray.push(discountDetails) : null
-        }
-        this.setState({ editItemDetails })
-      }
-    }
-  }
-
-
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     const editDetails = this.state.editItemDetails;
     editDetails.total = this.calculateFinalAmount(editDetails);
     this.setState({ editItemDetails: editDetails });
-    this.DefaultStockAndAccountTax();
     // if (Platform.OS == 'ios') {
     //     //Native Bridge for giving the bottom offset //Our own created
     //     SafeAreaOffsetHelper.getBottomOffset().then(offset => {
@@ -1041,6 +987,7 @@ class PurchaseItemEdit extends Component {
             // this._renderTaxName();
             const editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
+            if (editItemDetails.item.stock) { editItemDetails.item.stock.taxes = this.state.selectedArrayType } else { editItemDetails.item.taxes = this.state.selectedArrayType }
             this.props.updateItems(editItemDetails, this.state.selectedArrayType, this.state.selectedCode);
           }}
           style={{

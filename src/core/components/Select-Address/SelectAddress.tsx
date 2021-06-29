@@ -14,7 +14,7 @@ import AddressItem from './AddressItem';
 const { height } = Dimensions.get('window');
 
 export class SelectAddress extends React.Component<any, any> {
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
     this.state = {
       activeIndex: 0,
@@ -77,7 +77,37 @@ export class SelectAddress extends React.Component<any, any> {
     // console.log(address);
   };
 
-  render () {
+  componentDidMount() {
+    this.findActiveIndex();
+  }
+
+  findActiveIndex() {
+    if (this.props.route.params.activeAddress) {
+      const activeAddress = this.props.route.params.activeAddress.address
+      const activeState = this.props.route.params.activeAddress.stateName
+      console.log(JSON.stringify(activeAddress))
+      for (let i = 0; i < this.state.addressList.length; i++) {
+        if (activeAddress == this.state.addressList[i].address && activeState == this.state.addressList[i].stateName) {
+          this.setState({ activeIndex: i })
+          break
+        }
+      }
+    }
+    if (this.props.route.params.activeWareHouse) {
+      const activeAddress = this.props.route.params.activeWareHouse.address
+      const activeItem = this.props.route.params.activeWareHouse.name
+      console.log(JSON.stringify(activeAddress))
+      for (let i = 0; i < this.state.addressList.length; i++) {
+        if (activeAddress == this.state.addressList[i].address && activeItem == this.state.addressList[i].name) {
+          this.setState({ activeIndex: i })
+          break
+        }
+      }
+    }
+
+  }
+
+  render() {
     return (
       <View style={style.container}>
         {this.props.route.params.statusBarColor && (

@@ -70,19 +70,22 @@ class OtherDetails extends React.Component<Props> {
     try {
       const results = await InvoiceService.getInvoiceTemplate();
       if (results.body && results.status == 'success') {
-      const headerdata = results.body[0].sections.header.data
-      console.log(JSON.stringify(headerdata.shippingDate.label))
-        await this.setState({
-          OtherDetailsHeadingNames: {
-              shipDateName: headerdata.shippingDate.label,
-              shippedViaName: headerdata.shippedVia.label,
-              trackingNumberName: headerdata.trackingNumber.label,
-              customField1Name: headerdata.customField1.label,
-              customField2Name: headerdata.customField2.label,
-              customField3Name: headerdata.customField3.label
-            }
-          });
-      }
+        const data = results.body
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].isDefault) {
+            let headerdata = data[i].sections.header.data
+            await this.setState({
+              OtherDetailsHeadingNames: {
+                shipDateName: headerdata.shippingDate.label,
+                shippedViaName: headerdata.shippedVia.label,
+                trackingNumberName: headerdata.trackingNumber.label,
+                customField1Name: headerdata.customField1.label,
+                customField2Name: headerdata.customField2.label,
+                customField3Name: headerdata.customField3.label
+              }
+            });
+          }
+        }      }
     } catch (e) { }
   }
 

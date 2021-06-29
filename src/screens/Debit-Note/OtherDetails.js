@@ -38,11 +38,11 @@ interface Props {
   navigation: any;
 }
 class OtherDetails extends React.Component<Props> {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       loading: false,
-      OtherDetailsHeadingNames :{
+      OtherDetailsHeadingNames: {
         shipDateName: 'Ship Date',
         shippedViaName: 'Shipped Via',
         trackingNumberName: 'Tracking no',
@@ -69,23 +69,28 @@ class OtherDetails extends React.Component<Props> {
     try {
       const results = await InvoiceService.getVoucherTemplate();
       if (results.body && results.status == 'success') {
-      const headerdata = results.body[0].sections.header.data
-        await this.setState({
-          OtherDetailsHeadingNames: {
-              shipDateName: headerdata.shippingDate.label,
-              shippedViaName: headerdata.shippedVia.label,
-              trackingNumberName: headerdata.trackingNumber.label,
-              customField1Name: headerdata.customField1.label,
-              customField2Name: headerdata.customField2.label,
-              customField3Name: headerdata.customField3.label
-            }
-          });
+        const data = results.body
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].isDefaultForVoucher) {
+            let headerdata = data[i].sections.header.data
+            await this.setState({
+              OtherDetailsHeadingNames: {
+                shipDateName: headerdata.shippingDate.label,
+                shippedViaName: headerdata.shippedVia.label,
+                trackingNumberName: headerdata.trackingNumber.label,
+                customField1Name: headerdata.customField1.label,
+                customField2Name: headerdata.customField2.label,
+                customField3Name: headerdata.customField3.label
+              }
+            });
+          }
+        }
       }
     } catch (e) { }
   }
 
 
-  componentDidMount () {
+  componentDidMount() {
 
     this.setHeadingName()
 
@@ -127,7 +132,7 @@ class OtherDetails extends React.Component<Props> {
     this.setState({ keyboard: false });
   };
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
     this.keyboardDidShowListener.remove();
@@ -154,7 +159,7 @@ class OtherDetails extends React.Component<Props> {
     this.hideDatePicker();
   };
 
-  renderHeader () {
+  renderHeader() {
     return (
       <View style={[style.header, { backgroundColor: '#ff6961' }]}>
         <View style={{ flexDirection: 'row', paddingVertical: 10, alignItems: 'center' }}>
@@ -171,7 +176,7 @@ class OtherDetails extends React.Component<Props> {
     );
   }
 
-  _renderSelectWareHouse () {
+  _renderSelectWareHouse() {
     return (
       // this.props.route.params.warehouseArray
       <TouchableOpacity
@@ -198,7 +203,7 @@ class OtherDetails extends React.Component<Props> {
     );
   }
 
-  _renderBottomSeprator (margin = 0) {
+  _renderBottomSeprator(margin = 0) {
     return (
       <View
         style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
@@ -227,7 +232,7 @@ class OtherDetails extends React.Component<Props> {
             borderBottomColor: '#D9D9D9',
             padding: 0,
             marginHorizontal: 16,
-            marginTop:5,
+            marginTop: 5,
             height: 20
             // backgroundColor: 'pink',
           }}
@@ -262,7 +267,7 @@ class OtherDetails extends React.Component<Props> {
         <TextInput
           style={{
             borderBottomWidth: 1,
-            marginTop:5,
+            marginTop: 5,
             borderBottomColor: '#D9D9D9',
             padding: 0,
             marginHorizontal: 16,
@@ -302,7 +307,7 @@ class OtherDetails extends React.Component<Props> {
             borderBottomWidth: 1,
             borderBottomColor: '#D9D9D9',
             padding: 0,
-            marginTop:5,
+            marginTop: 5,
             marginHorizontal: 16,
             height: 20
             // backgroundColor: 'pink',
@@ -339,7 +344,7 @@ class OtherDetails extends React.Component<Props> {
             borderBottomWidth: 1,
             borderBottomColor: '#D9D9D9',
             padding: 0,
-            marginTop:5,
+            marginTop: 5,
             marginHorizontal: 16,
             height: 20
             // backgroundColor: 'pink',
@@ -377,7 +382,7 @@ class OtherDetails extends React.Component<Props> {
             borderBottomWidth: 1,
             borderBottomColor: '#D9D9D9',
             padding: 0,
-            marginTop:5,
+            marginTop: 5,
             marginHorizontal: 16,
             height: 20
             // backgroundColor: 'pink',
@@ -395,7 +400,7 @@ class OtherDetails extends React.Component<Props> {
     );
   }
 
-  _renderShipDate () {
+  _renderShipDate() {
     return (
       <TouchableOpacity
         style={{
@@ -416,7 +421,7 @@ class OtherDetails extends React.Component<Props> {
     );
   }
 
-  render () {
+  render() {
     return (
       <View style={{ flex: 1 }}>
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -425,7 +430,7 @@ class OtherDetails extends React.Component<Props> {
           {/* {this._renderSelectWareHouse()} */}
           {this._renderShipDate()}
           {this._renderShippedViaTextField(this.state.OtherDetailsHeadingNames.shippedViaName, <MaterialCommunityIcons name={'truck'} size={20} color={'#808080'} />)}
-          {this._renderTrackingNoTextField( this.state.OtherDetailsHeadingNames.trackingNumberName,<Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
+          {this._renderTrackingNoTextField(this.state.OtherDetailsHeadingNames.trackingNumberName, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
           {this._renderCustomTextField1(this.state.OtherDetailsHeadingNames.customField1Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
           {this._renderCustomTextField2(this.state.OtherDetailsHeadingNames.customField2Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
           {this._renderCustomTextField3(this.state.OtherDetailsHeadingNames.customField3Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
@@ -471,13 +476,13 @@ class OtherDetails extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());

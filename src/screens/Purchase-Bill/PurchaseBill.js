@@ -419,7 +419,7 @@ export class PurchaseBill extends React.Component {
       if (o.uniqueName == uniqueName) return o;
     });
     if (filtered.length > 0) {
-      return filtered[0].taxDetail;
+      return filtered[0];
     }
     return undefined;
   }
@@ -534,19 +534,19 @@ export class PurchaseBill extends React.Component {
     console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
   }
 
-  async getPartyTypeFromAddress(addressArr){
-    if(addressArr.length>0){
-      for (let i =0;i<addressArr.length;i++){
-        if(addressArr[i].partyType=="SEZ"){
-          this.setState({partyType:addressArr[i].partyType})
+  async getPartyTypeFromAddress(addressArr) {
+    if (addressArr.length > 0) {
+      for (let i = 0; i < addressArr.length; i++) {
+        if (addressArr[i].partyType == "SEZ") {
+          this.setState({ partyType: addressArr[i].partyType })
           break
         }
-        if(i+1==addressArr.length){
-          this.setState({partyType:addressArr[i].partyType})
+        if (i + 1 == addressArr.length) {
+          this.setState({ partyType: addressArr[i].partyType })
         }
       }
-    }else{
-      this.setState({partyType:undefined})
+    } else {
+      this.setState({ partyType: undefined })
     }
   }
 
@@ -1179,6 +1179,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
+                    activeAddress: this.state.BillFromAddress,
                     type: 'address',
                     selectAddress: this.selectBillFromAddress.bind(this),
                     color: '#FC8345',
@@ -1219,6 +1220,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.addressArray,
+                  activeAddress: this.state.BillFromAddress,
                   type: 'address',
                   selectAddress: this.selectBillFromAddress.bind(this),
                   color: '#FC8345',
@@ -1267,6 +1269,7 @@ export class PurchaseBill extends React.Component {
                   !this.state.billFromSameAsShipFrom ?
                     this.props.navigation.navigate('SelectAddress', {
                       addressArray: this.state.addressArray,
+                      activeAddress: this.state.shipFromAddress,
                       type: 'address',
                       selectAddress: this.selectShipFromAddress.bind(this),
                       color: '#FC8345',
@@ -1307,6 +1310,7 @@ export class PurchaseBill extends React.Component {
                 !this.state.billFromSameAsShipFrom ?
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
+                    activeAddress: this.state.shipFromAddress,
                     type: 'address',
                     selectAddress: this.selectShipFromAddress.bind(this),
                     color: '#FC8345',
@@ -1337,6 +1341,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.allBillingToAddresses,
+                    activeWareHouse: this.state.BillToAddress,
                     type: 'address',
                     selectAddress: this.selectBillToAddress.bind(this),
                     color: '#FC8345',
@@ -1376,6 +1381,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.allBillingToAddresses,
+                  activeWareHouse: this.state.BillToAddress,
                   type: 'address',
                   selectAddress: this.selectBillToAddress.bind(this),
                   color: '#FC8345',
@@ -1421,6 +1427,7 @@ export class PurchaseBill extends React.Component {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     warehouseArray: this.state.warehouseArray,
+                    activeWareHouse: this.state.shipToAddress,
                     type: 'warehouse',
                     selectAddress: this.selectShipToAddress.bind(this),
                     color: '#FC8345',
@@ -1461,6 +1468,7 @@ export class PurchaseBill extends React.Component {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   warehouseArray: this.state.warehouseArray,
+                  activeWareHouse: this.state.shipToAddress,
                   type: 'warehouse',
                   selectAddress: this.selectShipToAddress.bind(this),
                   color: '#FC8345',
@@ -1525,12 +1533,130 @@ export class PurchaseBill extends React.Component {
         }
       } catch (e) { }
     }
+
+    for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
+      if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) {
+        this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
+      }
+    }
+
     await this.setState({ addedItems: updateAmountToCurrentCurrency });
     await this.setState({
       totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2),
     });
     await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
+
+  async DefaultStockAndAccountTax(itemDetails) {
+    let editItemDetails = itemDetails
+    let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
+    let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
+    let discountDetailsArray = editItemDetails.percentDiscountArray ? editItemDetails.percentDiscountArray : []
+
+    // Stock taxes 
+    if (itemDetails.stock) {
+      // Stock taxes
+      if (itemDetails.stock.taxes) {
+        for (var i = 0; i < itemDetails.stock.taxes.length; i++) {
+          var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.taxes[i])
+          if (taxDetails) {
+            taxDetailsArray.push(taxDetails)
+            selectedTaxArray.push(taxDetails.taxType)
+          }
+        }
+      }
+      // Stock group taxes
+      if (itemDetails.stock.groupTaxes) {
+        for (var i = 0; i < itemDetails.stock.groupTaxes.length; i++) {
+          var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.groupTaxes[i])
+          if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
+            ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+              taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
+                taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
+                  taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+                    taxDetails.taxType == 'tdspay'))) {
+            taxDetailsArray.push(taxDetails)
+            selectedTaxArray.push(taxDetails.taxType)
+          }
+        }
+      }
+    } else if (itemDetails.taxes) {
+      // sales taxes
+      for (var i = 0; i < itemDetails.taxes.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.taxes[i])
+        if (taxDetails) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+
+    // hsnNumber
+    if (itemDetails.stock && editItemDetails.hsnNumber == null) {
+      if (itemDetails.stock.hsnNumber) {
+        editItemDetails.hsnNumber = itemDetails.stock.hsnNumber
+      }
+    }
+    // SacNumber
+    if (itemDetails.stock && editItemDetails.sacNumber == null) {
+      if (itemDetails.stock.sacNumber) {
+        editItemDetails.sacNumber = itemDetails.stock.sacNumber
+      }
+    }
+
+    // Account tax
+    if (this.state.defaultAccountTax) {
+      for (var i = 0; i < this.state.defaultAccountTax.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(this.state.defaultAccountTax[i])
+        if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
+          ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+            taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
+              taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
+                taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+                  taxDetails.taxType == 'tdspay'))) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+
+    // Account group taxes 
+    if (itemDetails.groupTaxes) {
+      for (var i = 0; i < itemDetails.groupTaxes.length; i++) {
+        var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.groupTaxes[i])
+        if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
+          ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+            taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
+              taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
+                taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+                  taxDetails.taxType == 'tdspay'))) {
+          taxDetailsArray.push(taxDetails)
+          selectedTaxArray.push(taxDetails.taxType)
+        }
+      }
+    }
+
+    // Account default discount
+    if (this.state.defaultAccountDiscount) {
+      for (var i = 0; i < this.state.defaultAccountDiscount.length; i++) {
+        var discountDetails = this.getDiscountDeatilsForUniqueName(this.state.defaultAccountDiscount[i])
+        discountDetails ? discountDetailsArray.push(discountDetails) : null
+      }
+    }
+
+    editItemDetails.taxDetailsArray = taxDetailsArray
+    editItemDetails.selectedArrayType = selectedTaxArray
+    editItemDetails.quantityText = editItemDetails.quantity
+    editItemDetails.rateText = editItemDetails.rate
+    editItemDetails.percentDiscountArray = discountDetailsArray
+    editItemDetails.unitText = editItemDetails.stock ? editItemDetails.stock.unitRates.stockUnitCode : ""
+    editItemDetails.amountText = editItemDetails.rate
+    editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
+    editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
+    editItemDetails.isNew = false
+
+    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
+  }
 
   renderAddItemButton() {
     return (
@@ -1750,18 +1876,19 @@ export class PurchaseBill extends React.Component {
   }
 
   calculateDiscountedAmount(itemDetails) {
-    if (itemDetails.discountDetails) {
-      const discountType = itemDetails.discountDetails.discountType;
-      if (discountType == 'FIX_AMOUNT') {
-        const discountAmount = Number(itemDetails.discountValue);
-        return discountAmount;
-      } else {
-        const amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-        const discountAmount = (Number(itemDetails.discountValue) * amt) / 100;
-        return Number(discountAmount);
+    let totalDiscount = 0;
+    let percentDiscount = 0;
+    if (itemDetails.percentDiscountArray && itemDetails.percentDiscountArray.length > 0) {
+      for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
+        percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
       }
+      // console.log(percentDiscount, 'total % discount');
+      const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
+      // console.log('amt is ', amt);
+      totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
     }
-    return 0;
+    console.log(totalDiscount, 'is the discount');
+    return totalDiscount;
   }
 
   calculatedTaxAmount(itemDetails, calculateFor) {
@@ -2261,8 +2388,6 @@ export class PurchaseBill extends React.Component {
             }}
             // selectedArrayType={this.state.selectedArrayType}
             itemDetails={this.state.itemDetails}
-            defaultAccountTax={this.state.defaultAccountTax}
-            defaultAccountDiscount={this.state.defaultAccountDiscount}
             updateItems={(details, selectedArr, selectedCode) => {
               this.updateEditedItem(details, selectedArr, selectedCode);
             }}
