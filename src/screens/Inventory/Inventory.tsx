@@ -11,6 +11,7 @@ import moment from 'moment';
 import { InventoryService } from '@/core/services/inventory/inventory.service';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { catch } from 'metro.config';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -51,7 +52,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
     }
   ];
 
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       showLoader: false,
@@ -64,7 +65,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
@@ -82,7 +83,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
     this.getInventories();
   }
 
-  async getInventories () {
+  async getInventories() {
     this.setState({
       showLoader: true
     })
@@ -101,25 +102,31 @@ export class InventoryScreen extends React.Component<Props, {}> {
         if (totalPages > 3) {
           check = 1;
         }
+        console.log("Pages to load " + totalPages);
         for (let i = 1; i <= totalPages; i++) {
-          console.log('value of page', i);
-          const InventoryPageData = await InventoryService.getInventories(
-            companyName,
-            this.state.startDate,
-            this.state.endDate,
-            i);
-          result = [...result, ...InventoryPageData.body.stockReport];
-          if (check && i > 3) {
-            this.setState({
-              inventoryData: result,
-              showLoader: false
-            });
-            check = 0;
-          }
-          if (i % 5 === 0) {
-            this.setState({
-              inventoryData: result
-            });
+          try {
+            console.log(i);
+            const InventoryPageData = await InventoryService.getInventories(
+              companyName,
+              this.state.startDate,
+              this.state.endDate,
+              i);
+              console.log(InventoryPageData.status);
+            result = [...result, ...InventoryPageData.body.stockReport];
+            if (check && i > 3) {
+              this.setState({
+                inventoryData: result,
+                showLoader: false
+              });
+              check = 0;
+            }
+            if (i % 5 === 0) {
+              this.setState({
+                inventoryData: result
+              });
+            }
+          } catch (_err) {
+            //console.log('catched');
           }
         }
         this.setState({
@@ -128,7 +135,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
         });
       }
     } catch (e) {
-      console.log('Something went wrong while fetching inventories');
+      console.log('Something went wrong while fetching inventories', e);
       this.setState({ showLoader: false });
     }
   }
@@ -202,7 +209,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
     }
   };
 
-  render () {
+  render() {
     return (
       <View style={style.container}>
         <View
@@ -213,38 +220,38 @@ export class InventoryScreen extends React.Component<Props, {}> {
             paddingHorizontal: 10,
             marginTop: 15
           }}>
-            <View style={{
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: '#D9D9D9',
-              height: 40,
-              width: Dimensions.get('window').width * 0.75,
-              justifyContent: 'center'
-            }}>
-          <TouchableWithoutFeedback
-            style={{
-              alignItems: 'center',
-              flexDirection: 'row'
-            }}
-            onPress={() =>
-              this.props.navigation.navigate('AppDatePicker', {
-                selectDate: this.changeDate,
-                startDate: this.state.startDate,
-                endDate: this.state.endDate,
-                activeDateFilter: this.state.activeDateFilter,
-                setActiveDateFilter: this.setActiveDateFilter,
-                DateRangeOnly: true
-              })
-            }>
-            <View style={{ marginLeft: 10, flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
-              <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
-                {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +
-                  ' - ' +
-                  moment(this.state.endDate, 'DD-MM-YYYY').format('DD MMM YY')}
-              </Text>
-            </View>
-          </TouchableWithoutFeedback>
+          <View style={{
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: '#D9D9D9',
+            height: 40,
+            width: Dimensions.get('window').width * 0.75,
+            justifyContent: 'center'
+          }}>
+            <TouchableWithoutFeedback
+              style={{
+                alignItems: 'center',
+                flexDirection: 'row'
+              }}
+              onPress={() =>
+                this.props.navigation.navigate('AppDatePicker', {
+                  selectDate: this.changeDate,
+                  startDate: this.state.startDate,
+                  endDate: this.state.endDate,
+                  activeDateFilter: this.state.activeDateFilter,
+                  setActiveDateFilter: this.setActiveDateFilter,
+                  DateRangeOnly: true
+                })
+              }>
+              <View style={{ marginLeft: 10, flexDirection: 'row', alignItems: 'center' }}>
+                <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
+                  {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +
+                    ' - ' +
+                    moment(this.state.endDate, 'DD-MM-YYYY').format('DD MMM YY')}
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
           <View style={{ flexDirection: 'row' }}>
             <TouchableOpacity style={{ padding: 5 }}
@@ -274,14 +281,14 @@ export class InventoryScreen extends React.Component<Props, {}> {
                   />
                   <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Inventory</Text>
                 </View>
-                )
+              )
               : (
                 <FlatList
                   data={this.state.inventoryData}
                   renderItem={({ item }) => <InventoryList item={item} />}
                   keyExtractor={(item) => item.stockUniqueName}
                 />
-                )}
+              )}
           </View>
         }
       </View>
