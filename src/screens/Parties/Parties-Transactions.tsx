@@ -658,25 +658,26 @@ class PartiesTransactionScreen extends React.Component {
           'session-id': `${token}`,
         },
       )
-        .then((res) => {
-          let base64Str = res.base64();
-          let base69 = base64.decode(base64Str);
-          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
-          RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+        .then(async (res) => {
+          let base64Str = await res.base64();
+          let base69 = await base64.decode(base64Str);
+          let pdfLocation = await `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          await this.setState({ ShareModal: false });
+          await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
         })
-        .then(() => {
-          Share.open({
+        .then(async () => {
+          await Share.open({
             title: 'This is the report',
             //message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
             subject: 'Report',
           })
             .then((res) => {
-              this.setState({ ShareModal: false });
+              // this.setState({ ShareModal: false });
               console.log(res);
             })
             .catch((err) => {
-              this.setState({ ShareModal: false });
+              // this.setState({ ShareModal: false });
               // err && console.log(err);
             });
         });
@@ -711,20 +712,21 @@ class PartiesTransactionScreen extends React.Component {
                 'session-id': `${token}`,
               },
             )
-              .then((res) => {
-                let base64Str = res.base64();
-                let base69 = base64.decode(base64Str);
-                let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
-                RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+              .then(async (res) => {
+                let base64Str = await res.base64();
+                let base69 = await base64.decode(base64Str);
+                let pdfLocation = await `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+                await this.setState({ ShareModal: false });
+                await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
               })
-              .then(() => {
-                Share.shareSingle(shareOptions)
+              .then(async () => {
+                await Share.shareSingle(shareOptions)
                   .then((res) => {
-                    this.setState({ ShareModal: false });
+                    // this.setState({ ShareModal: false });
                     console.log(res);
                   })
                   .catch((err) => {
-                    this.setState({ ShareModal: false });
+                    // this.setState({ ShareModal: false });
                     err && console.log(err);
                   });
               });

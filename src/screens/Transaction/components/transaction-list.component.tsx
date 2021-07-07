@@ -90,25 +90,24 @@ class TransactionList extends React.Component {
           voucherType: `${this.props.item.voucherName}`
         })
       )
-        .then(async(res) => {
+        .then(async (res) => {
           const base64Str = await res.base64();
           const pdfLocation = await `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
-          //await this.props.downloadModal(false)
+          await this.props.downloadModal(false)
           await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
-        })
-        .then(() => {
-          Share.open({
+        }).then(async () => {
+          await Share.open({
             title: 'This is the report',
             //message: 'Message:',
             url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`,
             subject: 'Transaction report'
           })
             .then((res) => {
-              this.props.downloadModal(false)
+              // this.props.downloadModal(false)
               console.log(res);
             })
             .catch(() => {
-              this.props.downloadModal(false)
+              // this.props.downloadModal(false)
               // err && console.log(err);
             });
         });
@@ -168,21 +167,21 @@ class TransactionList extends React.Component {
                 voucherType: `${this.props.item.voucherName}`
               })
             )
-              .then(async(res) => {
+              .then(async (res) => {
                 // console.log(res.base64());
                 const base64Str = await res.base64();
                 const pdfLocation = await `${RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
-                //await this.props.downloadModal(false);
+                await this.props.downloadModal(false);
                 await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
               })
-              .then(() => {
-                Share.shareSingle(shareOptions)
+              .then(async () => {
+                await Share.shareSingle(shareOptions)
                   .then((res) => {
-                    this.props.downloadModal(false)
+                    //this.props.downloadModal(false)
                     console.log('whatsapp res is', res);
                   })
                   .catch((err) => {
-                    this.props.downloadModal(false)
+                    //this.props.downloadModal(false)
                     err && console.log('whatsapp error is', err);
                   });
               });
