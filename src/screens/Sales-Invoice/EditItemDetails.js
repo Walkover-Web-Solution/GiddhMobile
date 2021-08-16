@@ -50,6 +50,7 @@ class EditItemDetails extends Component {
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
       selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
       editItemDetails: {
+        description: this.props.itemDetails.description,
         quantityText: this.props.itemDetails.quantity,
         hsnNumber: this.props.itemDetails.hsnNumber,
         sacNumber: this.props.itemDetails.sacNumber,
@@ -636,8 +637,8 @@ class EditItemDetails extends Component {
                       )} */}
                         {filtered.length > 0 ||
                           this.state.editItemDetails.fixedDiscountUniqueName == item.uniqueName ? (
-                          <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
-                        ) : null}
+                            <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
+                          ) : null}
                       </View>
                       <View style={{ marginLeft: 10 }}>
                         <Text style={{ color: '#1C1C1C', paddingTop: 10 }}>{item.name}</Text>
@@ -916,26 +917,52 @@ class EditItemDetails extends Component {
             />
           </View>
         ) : (
-          <View style={{ marginHorizontal: 16, paddingVertical: 10, flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon name={icon2} size={12} color="#808080" />
-              <Text style={{ marginLeft: 10 }}>{field2}</Text>
+            <View style={{ marginHorizontal: 16, paddingVertical: 10, flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Icon name={icon2} size={12} color="#808080" />
+                <Text style={{ marginLeft: 10 }}>{field2}</Text>
+              </View>
+              <TextInput
+                placeholder={field2}
+                placeholderTextColor={'#808080'}
+                value={field2Value}
+                keyboardType={keyboardType2}
+                style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+                editable={editable2}
+                onChangeText={(text) => {
+                  this.onChangeTextBottomItemSheet(text, field2);
+                }}
+              />
+              {/* {this._renderBottomSeprator()} */}
             </View>
-            <TextInput
-              placeholder={field2}
-              placeholderTextColor={'#808080'}
-              value={field2Value}
-              keyboardType={keyboardType2}
-              style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
-              editable={editable2}
-              onChangeText={(text) => {
-                this.onChangeTextBottomItemSheet(text, field2);
-              }}
-            />
-            {/* {this._renderBottomSeprator()} */}
-          </View>
-        )}
+          )}
       </View>
+    );
+  }
+
+  _renderDescriptionField() {
+    return (
+      <TextInput
+        placeholder='Add Description'
+        numberOfLines={10}
+        value={this.state.editItemDetails.description}
+        onChangeText={(text) => {
+          this.setState({
+            editItemDetails: {
+              ...this.state.editItemDetails,
+              description:text
+            }
+          })
+        }}
+        style={{
+          marginHorizontal: 16,
+          borderWidth: 1,
+          borderRadius: 10,
+          borderColor: '#5773FF',
+          textAlignVertical: 'top',
+          padding: 8
+        }}
+      />
     );
   }
 
@@ -996,7 +1023,7 @@ class EditItemDetails extends Component {
         {this._renderBottomSheetTax()}
         {this._renderHsn()}
         {this._renderFinalTotal()}
-
+        {this._renderDescriptionField()}
         {/* <TouchableOpacity
           style={{height: 50, width: 50, backgroundColor: 'pink'}}
           onPress={() => console.log(this.props.itemDetails)}
@@ -1007,7 +1034,12 @@ class EditItemDetails extends Component {
           onPress={() => {
             const editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
-            if (editItemDetails.item.stock) { editItemDetails.item.stock.taxes = this.state.selectedArrayType } else { editItemDetails.item.taxes = this.state.selectedArrayType }
+            if (editItemDetails.item.stock) {
+              editItemDetails.item.stock.taxes = this.state.selectedArrayType
+            }
+            else {
+              editItemDetails.item.taxes = this.state.selectedArrayType
+            }
             this.props.updateItems(editItemDetails, this.state.selectedArrayType, this.state.selectedCode);
           }}
           style={{
@@ -1045,8 +1077,8 @@ class EditItemDetails extends Component {
               {this.state.editItemDetails.percentDiscountArray.map((item) => `${item.discountValue}%  `)}
             </Text>
           ) : (
-            <Text style={style.bottomSheetSelectTaxText}>Select Discount</Text>
-          )}
+              <Text style={style.bottomSheetSelectTaxText}>Select Discount</Text>
+            )}
           {/* <Text style={style.bottomSheetSelectTaxText}>
             {this.state.editItemDetails.discountType ? this.state.editItemDetails.discountType : 'Select Discount'}
           </Text> */}
@@ -1108,8 +1140,8 @@ class EditItemDetails extends Component {
                 {this.state.editItemDetails.taxDetailsArray.map((item) => `${item.name}  `)}
               </Text>
             ) : (
-              <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text>
-            )}
+                <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text>
+              )}
             {/* <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text> */}
           </TouchableOpacity>
           {this._renderBottomSeprator()}

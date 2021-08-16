@@ -37,6 +37,7 @@ import routes from '@/navigation/routes';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
+import Dropdown from 'react-native-modal-dropdown';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -61,6 +62,8 @@ export class SalesInvoice extends React.Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
+      searchNamesOnly: [],
+      test: Dropdown,
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
       bottomOffset: 0,
@@ -349,6 +352,7 @@ export class SalesInvoice extends React.Component<Props> {
     );
   }
 
+
   renderSelectPartyName() {
     return (
       <View
@@ -358,6 +362,46 @@ export class SalesInvoice extends React.Component<Props> {
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
           <Icon name={'Profile'} color={'#A6D8BF'} style={{ margin: 16 }} size={16} />
+          <Dropdown
+            ref={(ref) => this.state.test = ref}
+            defaultValue={''}
+            renderSeparator={() => {
+              return (<View />);
+            }}
+            renderButtonText={() => {
+              return (<View />);
+            }}
+            onSelect={(index, option) => {
+              const item = this.state.searchResults[index];
+              this.setState(
+                {
+                  partyName: item,
+                  searchResults: [],
+                  searchPartyName: item.name,
+                  searchError: '',
+                  isSearchingParty: false
+                },
+                () => {
+                  this.searchAccount();
+                  this.getAllAccountsModes();
+                  Keyboard.dismiss();
+                }
+              );
+            }}
+            renderRow={(option) => {
+              return (
+                <Text
+                  style={{
+                    color: '#1C1C1C',
+                    paddingVertical: 10,
+                    paddingHorizontal: 15,
+                    alignItems: 'center'
+                  }}>
+                  {option}</Text>
+              );
+            }}
+            dropdownStyle={{ width: width * 0.75, marginTop: 10, borderRadius: 10 }}
+            options={this.state.searchNamesOnly} />
           <TextInput
             placeholderTextColor={'#A6D8BF'}
             placeholder={this.state.invoiceType == 'cash' ? 'Enter Party Name' : 'Search Party Name'}
@@ -529,7 +573,17 @@ export class SalesInvoice extends React.Component<Props> {
       const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrydebtors', false);
 
       if (results.body && results.body.results) {
+        let namesOnly = [];
+        results.body.results.forEach((element, index) => {
+          namesOnly.push(element.name);
+          if (index >= results.body.results.length - 1) {
+            this.setState({
+              searchNamesOnly: namesOnly
+            })
+          }
+        });
         this.setState({ searchResults: results.body.results, isSearchingParty: false, searchError: '' });
+        this.state.test.show();
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
@@ -790,6 +844,7 @@ export class SalesInvoice extends React.Component<Props> {
       console.log('item is', item);
       const entry = {
         date: moment(this.state.date).format('DD-MM-YYYY'),
+        description: item.description,
         discounts: this.getDiscountForEntry(item),
         // discounts: [
         //   {calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''},
@@ -1282,13 +1337,14 @@ export class SalesInvoice extends React.Component<Props> {
                     : null;
                 }
               }}>
-              {this.state.invoiceType == INVOICE_TYPE.cash
-                ? (
-                  <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
-                )
-                : (
-                  <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
-                )}
+              {!this.state.billSameAsShip ?
+                this.state.invoiceType == INVOICE_TYPE.cash
+                  ? (
+                    <AntDesign name={'right'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
+                  )
+                  : (
+                    <AntDesign name={'plus'} size={18} color={'#808080'} style={{ paddingLeft: '50%' }} />
+                  ) : <View />}
             </TouchableOpacity>
           </View>
           <TouchableOpacity
@@ -2193,14 +2249,14 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
               ) : (
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({ showPaymentModePopup: true });
-                  }}>
-                  <Text style={{ color: '#1C1C1C' }}>
-                    {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
-                  </Text>
-                  {/* <TextInput
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({ showPaymentModePopup: true });
+                    }}>
+                    <Text style={{ color: '#1C1C1C' }}>
+                      {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
+                    </Text>
+                    {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
                     placeholder={`${this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}0.00`}
                     returnKeyType={'done'}
@@ -2211,8 +2267,8 @@ export class SalesInvoice extends React.Component<Props> {
                       this.setState({amountPaidNowText: text});
                     }}
                   /> */}
-                </TouchableOpacity>
-              )}
+                  </TouchableOpacity>
+                )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
@@ -2332,6 +2388,8 @@ export class SalesInvoice extends React.Component<Props> {
     );
     const item = this.state.addedItems[index];
     item.quantity = Number(details.quantityText);
+    item.description = details.description;
+    console.log(item.description);
     item.rate = Number(details.rateText);
     item.unit = Number(details.unitText);
     item.total = Number(details.total);
@@ -2421,7 +2479,7 @@ export class SalesInvoice extends React.Component<Props> {
               onPress={() => console.log(this.state.partyBillingAddress)}></TouchableOpacity> */}
           </View>
 
-          {this.state.searchResults.length > 0 && this._renderSearchList()}
+          {/* {this.state.searchResults.length > 0 && this._renderSearchList()} */}
           {this.state.loading && (
             <View
               style={{

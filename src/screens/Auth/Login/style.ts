@@ -13,7 +13,6 @@ export default StyleSheet.create({
   },
   loginContainer: {
     flex: 1,
-    justifyContent: 'center',
     paddingHorizontal: 30,
     backgroundColor: '#fff',
     paddingBottom: 50
@@ -134,5 +133,9 @@ export default StyleSheet.create({
     fontSize: 16,
     textDecorationLine: 'underline',
     fontFamily: 'AvenirLTStd-Book'
+  },
+  verticalCenter: {
+    flexGrow: 1,
+    justifyContent: 'center'
   }
 });
