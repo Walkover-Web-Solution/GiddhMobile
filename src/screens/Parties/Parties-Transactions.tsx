@@ -574,10 +574,10 @@ class PartiesTransactionScreen extends React.Component {
       ).then((res) => {
         let base64Str = res.base64();
         let base69 = base64.decode(base64Str);
-        let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+        let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
         RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
         if (Platform.OS === "ios") {
-          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
           RNFetchBlob.ios.openDocument(pdfLocation)
           this.setState({ iosLoaderToExport: false })
         } else {
@@ -589,7 +589,7 @@ class PartiesTransactionScreen extends React.Component {
       console.log(e);
     }
   };
-  permissonDownload = async () => {
+permissonDownload = async () => {
     try {
       if (Platform.OS == "ios") {
         await this.exportFile();
@@ -649,6 +649,7 @@ class PartiesTransactionScreen extends React.Component {
 
   onShare = async () => {
     try {
+      await Platform.OS == "ios" ? this.setState({ ShareModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
@@ -658,25 +659,30 @@ class PartiesTransactionScreen extends React.Component {
           'session-id': `${token}`,
         },
       )
-        .then((res) => {
-          let base64Str = res.base64();
-          let base69 = base64.decode(base64Str);
-          let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
-          RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+        .then(async (res) => {
+          let base64Str = await res.base64();
+          let base69 = await base64.decode(base64Str);
+          let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          await this.setState({ ShareModal: false });
+          await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+          if (Platform.OS === "ios") {
+            RNFetchBlob.ios.previewDocument(pdfLocation)
+          }
+          await this.setState({ ShareModal: false });
         })
-        .then(() => {
-          Share.open({
+        .then(async () => {
+          await Share.open({
             title: 'This is the report',
             //message: 'Message:',
-            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
+            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
             subject: 'Report',
           })
             .then((res) => {
-              this.setState({ ShareModal: false });
+              // this.setState({ ShareModal: false });
               console.log(res);
             })
             .catch((err) => {
-              this.setState({ ShareModal: false });
+              // this.setState({ ShareModal: false });
               // err && console.log(err);
             });
         });
@@ -699,7 +705,7 @@ class PartiesTransactionScreen extends React.Component {
             const shareOptions = {
               title: 'Share via',
               message: 'Transactions report',
-              url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
+              url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
               social: Share.Social.WHATSAPP,
               whatsAppNumber: this.props.route.params.item.mobileNo.replace(/\D/g, ''),
               filename: 'Transactions report',
@@ -711,20 +717,24 @@ class PartiesTransactionScreen extends React.Component {
                 'session-id': `${token}`,
               },
             )
-              .then((res) => {
-                let base64Str = res.base64();
-                let base69 = base64.decode(base64Str);
-                let pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
-                RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+              .then(async (res) => {
+                let base64Str = await res.base64();
+                let base69 = await base64.decode(base64Str);
+                let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+                await this.setState({ ShareModal: false });
+                await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+                if (Platform.OS === "ios") {
+                  await RNFetchBlob.ios.previewDocument(pdfLocation)
+                }
               })
-              .then(() => {
-                Share.shareSingle(shareOptions)
+              .then(async () => {
+                await Share.shareSingle(shareOptions)
                   .then((res) => {
-                    this.setState({ ShareModal: false });
+                    // this.setState({ ShareModal: false });
                     console.log(res);
                   })
                   .catch((err) => {
-                    this.setState({ ShareModal: false });
+                    // this.setState({ ShareModal: false });
                     err && console.log(err);
                   });
               });

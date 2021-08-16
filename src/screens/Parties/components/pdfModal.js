@@ -50,7 +50,7 @@ function PDFModal ({
               style={{ flex: 1, flexDirection: 'row' }}
               onPress={() => {
                 onShare();
-                shareModal(true);
+                Platform.OS!="ios"?shareModal(true):null;
                 setModalVisible();
               }}>
               <Entypo name="share" size={22} color={'black'} />

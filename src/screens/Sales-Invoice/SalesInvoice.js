@@ -2036,15 +2036,18 @@ export class SalesInvoice extends React.Component<Props> {
       )
         .then((res) => {
           const base64Str = res.base64();
-          const pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
+          const pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
           RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          if (Platform.OS === "ios") {
+            RNFetchBlob.ios.previewDocument(pdfLocation)
+          }
           this.setState({ loading: false });
         })
         .then(() => {
           Share.open({
             title: 'This is the report',
             //message: 'Message:',
-            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
+            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
             subject: 'Transaction report'
           })
             .then((res) => {

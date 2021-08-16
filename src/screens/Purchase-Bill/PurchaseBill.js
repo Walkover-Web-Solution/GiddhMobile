@@ -802,15 +802,18 @@ export class PurchaseBill extends React.Component {
           console.log(res);
           const base64Str = res.base64();
           console.log(base64Str);
-          const pdfLocation = `${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
+          const pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
           RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          if (Platform.OS === "ios") {
+            RNFetchBlob.ios.previewDocument(pdfLocation)
+          }
           this.setState({ loading: false });
         })
         .then(() => {
           Share.open({
             title: 'This is the report',
             //message: 'Message:',
-            url: `file://${RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
+            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
             subject: 'Transaction report',
           })
             .then((res) => {
@@ -975,7 +978,7 @@ export class PurchaseBill extends React.Component {
           console.log('sharing');
           this.downloadFile(
             results.body.uniqueName,
-            isInteger(results.body.entries[0].voucherNumber)?results.body.entries[0].voucherNumber:results.body.entries[0].uniqueName,
+            isInteger(results.body.entries[0].voucherNumber) ? results.body.entries[0].voucherNumber : results.body.entries[0].uniqueName,
             partyUniqueName,
           );
         }
