@@ -2,19 +2,20 @@
 // eslint-disable-next-line no-use-before-define
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, DeviceEventEmitter } from 'react-native';
+import { View, DeviceEventEmitter, Alert } from 'react-native';
 import style from '@/screens/Parties/style';
 import color from '@/utils/colors';
 import { PartiesList } from '@/screens/Parties/components/parties-list.component';
 import { CommonService } from '@/core/services/common/common.service';
-
+import * as CommonActions from '@/redux/CommonAction';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
 import { APP_EVENTS } from '@/utils/constants';
 
-type connectedProps = ReturnType<typeof mapStateToProps>;
-type PartiesScreenProp = connectedProps;
+type PartiesScreenProp = {
+  logout: Function;
+};
 
 type PartiesScreenState = {
   showLoader: boolean;
@@ -25,7 +26,7 @@ type PartiesScreenState = {
 };
 
 export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScreenState> {
-  constructor (props: PartiesScreenProp) {
+  constructor(props: PartiesScreenProp) {
     super(props);
     this.state = {
       showLoader: true,
@@ -62,7 +63,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     // });
   };
 
-  componentDidMount () {
+  componentDidMount() {
     // get parties data
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
@@ -85,7 +86,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     this.apiCalls();
   }
 
-  render () {
+  render() {
     const { activeCompany } = this.props;
 
     if (this.state.showLoader) {
@@ -127,7 +128,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     }
   }
 
-  private async getPartiesSundryDebtors () {
+  private async getPartiesSundryDebtors() {
     try {
       // console.log('debtors called');
       const debtors = await CommonService.getPartiesSundryDebtors();
@@ -137,11 +138,14 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       });
     } catch (e) {
       this.setState({ debtData: new PartiesPaginatedResponse() });
+      if (e.data.code != 'UNAUTHORISED') {
+        this.props.logout();
+      }
       console.log(e);
     }
   }
 
-  private async getPartiesSundryCreditors () {
+  private async getPartiesSundryCreditors() {
     try {
       // console.log('Creditors called');
       const creditors = await CommonService.getPartiesSundryCreditors();
@@ -152,7 +156,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       });
     } catch (e) {
       this.setState({ partiesCredData: new PartiesPaginatedResponse() });
-
+      if (e.data.code != 'UNAUTHORISED') {
+        this.props.logout();
+      }
       this.setState({ showLoader: false });
     }
   }
@@ -163,4 +169,11 @@ const mapStateToProps = () => {
     // activeCompany: state.company.activeCompany,
   };
 };
-export default connect(mapStateToProps)(PartiesScreen);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    logout: () => {
+      dispatch(CommonActions.logout());
+    }
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(PartiesScreen);

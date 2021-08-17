@@ -9,12 +9,12 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { DeviceEventEmitter } from 'react-native';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 
-export default function * watcherFCMTokenSaga () {
+export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
 }
 
-export function * getCompanyAndBranches () {
+export function* getCompanyAndBranches() {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
@@ -50,23 +50,29 @@ export function * getCompanyAndBranches () {
           yield put(CommonActions.isUnauth());
         }
       } else {
+        console.log('active company', activeCompany);
         const companyResults = _.find(listResponse.body, function (item) {
           return item.uniqueName == activeCompany;
         });
+        yield put(CommonActions.isAuth());
         if (!companyResults) {
           console.log('different id login worked');
-          const defaultComp = listResponse.body[0];
-          yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
-          if (
-            defaultComp.subscription &&
-            defaultComp.subscription.country &&
-            defaultComp.subscription.country.countryCode
-          ) {
-            console.log('country code is ' + defaultComp.subscription.country.countryCode);
-            yield AsyncStorage.setItem(
-              STORAGE_KEYS.activeCompanyCountryCode,
+          if (listResponse.body && listResponse.body.length > 0) {
+            const defaultComp = listResponse.body[0]; //unregistered email would give 0 length listResponse.body
+            yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
+            if (
+              defaultComp.subscription &&
+              defaultComp.subscription.country &&
               defaultComp.subscription.country.countryCode
-            );
+            ) {
+              console.log('country code is ' + defaultComp.subscription.country.countryCode);
+              yield AsyncStorage.setItem(
+                STORAGE_KEYS.activeCompanyCountryCode,
+                defaultComp.subscription.country.countryCode
+              );
+            }
+          }else{
+            yield put(CommonActions.isUnauth());
           }
         }
       }
@@ -113,10 +119,11 @@ export function * getCompanyAndBranches () {
     }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());
+    yield put(CommonActions.logout());
   }
 }
 
-export function * logoutUser () {
+export function* logoutUser() {
   console.log('here');
   try {
     appleAuth.Operation.LOGOUT;

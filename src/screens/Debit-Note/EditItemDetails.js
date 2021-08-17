@@ -50,6 +50,7 @@ class EditItemDetails extends Component {
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
       selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
       editItemDetails: {
+        description: this.props.itemDetails.description,
         quantityText: this.props.itemDetails.quantity,
         hsnNumber: this.props.itemDetails.hsnNumber,
         sacNumber: this.props.itemDetails.sacNumber,
@@ -766,6 +767,32 @@ class EditItemDetails extends Component {
     );
   }
 
+  _renderDescriptionField() {
+    return (
+      <TextInput
+        placeholder='Add Description'
+        numberOfLines={10}
+        value={this.state.editItemDetails.description}
+        onChangeText={(text) => {
+          this.setState({
+            editItemDetails: {
+              ...this.state.editItemDetails,
+              description:text
+            }
+          })
+        }}
+        style={{
+          marginHorizontal: 16,
+          borderWidth: 1,
+          borderRadius: 10,
+          borderColor: '#5773FF',
+          textAlignVertical: 'top',
+          padding: 8
+        }}
+      />
+    );
+  }
+
   render() {
     return (
       <View
@@ -996,7 +1023,7 @@ class EditItemDetails extends Component {
         {this._renderBottomSheetTax()}
         {this._renderHsn()}
         {this._renderFinalTotal()}
-
+        {this._renderDescriptionField()}
         {/* <TouchableOpacity
           style={{height: 50, width: 50, backgroundColor: 'pink'}}
           onPress={() => console.log(this.props.itemDetails)}

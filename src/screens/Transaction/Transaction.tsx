@@ -15,6 +15,7 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
 import moment from 'moment';
+import * as CommonActions from '@/redux/CommonAction';
 import DownloadModal from '@/screens/Parties/components/downloadingModal';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
@@ -108,6 +109,9 @@ export class TransactionScreen extends React.Component {
     } catch (e) {
       console.log(e);
       this.setState({ showLoader: false });
+      if(e.data.code != 'UNAUTHORISED'){
+        this.props.logout();
+      }
     }
   }
 
@@ -242,10 +246,13 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = () => {
+const mapDispatchToProps = (dispatch) => {
   return {
     // getCountriesAction: dispatch.common.getCountriesAction,
     // logoutAction: dispatch.auth.logoutAction,
+    logout: () => {
+      dispatch(CommonActions.logout());
+    }
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionScreen);
