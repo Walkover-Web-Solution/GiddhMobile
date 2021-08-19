@@ -12,7 +12,11 @@ export class InventoryService {
         .replace(':page', page),
       {}
     ).then((resp) => {
-      return resp.data;
+      if(resp && resp.data){
+        return resp.data;
+      }else{
+        return null;
+      }
     }).catch((_err) => {
       Alert.alert('Inventory service', _err, [{ style: 'destructive', text: 'okay' }])
     })

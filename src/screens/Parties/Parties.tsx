@@ -9,9 +9,12 @@ import { PartiesList } from '@/screens/Parties/components/parties-list.component
 import { CommonService } from '@/core/services/common/common.service';
 import * as CommonActions from '@/redux/CommonAction';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
+import Realm from 'realm';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
 import { APP_EVENTS } from '@/utils/constants';
+import { PartiesDBOptions } from '@/Database';
+import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
 
 type PartiesScreenProp = {
   logout: Function;
@@ -23,6 +26,7 @@ type PartiesScreenState = {
   partiesCredData: any;
   debtData: any;
   creditors: boolean;
+  Realm: Realm;
 };
 
 export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScreenState> {
@@ -33,7 +37,8 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       partiesDebtData: [],
       partiesCredData: [],
       debtData: [],
-      creditors: false
+      creditors: false,
+      Realm: Realm
     };
   }
 
@@ -43,8 +48,39 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
       ),
       showLoader: false
-    });
+    }, () => this.updateDB());
   };
+
+  updateDB = () => {
+    try {
+      const objects: any[] = [];
+      this.state.debtData.forEach(element => {
+        objects.push({
+          uniqueName: element.uniqueName,
+          name: element.name,
+          closingBalance: element.closingBalance,
+          category: element.category,
+          country: {
+            code: element.country.code
+          }
+        });
+      });
+      const existingData = this.state.Realm.objects(PARTIES_SCHEMA);
+      this.state.Realm.write(() =>{
+        if (existingData.length > 0) {
+          existingData[0].timeStamp = new Date().toString();
+          existingData[0].objects = objects;
+        } else {
+          this.state.Realm.create(PARTIES_SCHEMA, {
+            timeStamp: new Date().toString(),
+            objects: objects
+          });
+        }
+      });
+    } catch (error) {
+      console.log("error updating db ", error);
+    }
+  }
 
   apiCalls = async () => {
     await this.getPartiesSundryDebtors();
@@ -55,7 +91,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       },
       () => {
         this.arrangeAZ();
-        console.log(this.state.debtData);
       }
     );
     // this.setState({
@@ -68,6 +103,20 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   componentDidMount() {
     // get parties data
+    Realm.open(PartiesDBOptions)
+      .then((Realm) => {
+        this.setState({
+          Realm: Realm
+        })
+        const partiesData: any = Realm.objects(PARTIES_SCHEMA);
+        if (partiesData[0]?.objects?.length > 0) {
+          console.log("rendered last fetched data");
+          this.setState({
+            debtData: partiesData[0].objects.toJSON(),
+            showLoader: false
+          });
+        }
+      });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {
@@ -144,7 +193,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       if (e.data.code != 'UNAUTHORISED') {
         this.props.logout();
       }
-      console.log(e);
+      console.log("crashlog", e);
     }
   }
 
@@ -162,6 +211,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       if (e.data.code != 'UNAUTHORISED') {
         this.props.logout();
       }
+      console.log("crashlog", e);
       this.setState({ showLoader: false });
     }
   }

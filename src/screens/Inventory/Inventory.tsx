@@ -12,11 +12,17 @@ import { InventoryService } from '@/core/services/inventory/inventory.service';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { catch } from 'metro.config';
+import Realm from 'realm';
+import { InventoryDBOptions } from '@/Database/index';
+import { INVENTORY_OBJECT, INVENTORY_SCHEMA } from '@/Database/AllSchemas/inventory-schema';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
-export class InventoryScreen extends React.Component<Props, {}> {
+export class InventoryScreen extends React.Component<Props, {
+  Realm: Realm,
+  inventoryData: any[]
+}> {
   listData = [
     {
       product_name: 'Product Name',
@@ -51,6 +57,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
       email: 'ebsonyfa@appdividend.com'
     }
   ];
+  listener: any;
 
   constructor(props: Props) {
     super(props);
@@ -61,11 +68,26 @@ export class InventoryScreen extends React.Component<Props, {}> {
       endDate: moment().format('DD-MM-YYYY'),
       page: 1,
       loadingMore: false,
-      activeDateFilter: ''
+      activeDateFilter: '',
+      Realm: Realm
     };
   }
 
   componentDidMount() {
+    Realm.open(InventoryDBOptions)
+      .then((Realm) => {
+        this.setState({
+          Realm: Realm
+        })
+        const inventory = Realm.objects(INVENTORY_SCHEMA);
+        if (inventory[0]?.objects?.length > 0) {
+          console.log("rendered last fetched data");
+          this.setState({
+            inventoryData: inventory[0].objects.toJSON(),
+            showLoader: false
+          });
+        }
+      });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
@@ -83,10 +105,47 @@ export class InventoryScreen extends React.Component<Props, {}> {
     this.getInventories();
   }
 
+  updateDB = () => {
+    try {
+      const objects: any[] = [];
+      this.state.inventoryData.forEach(element => {
+        const object = {
+          stockName: element.stockName,
+          inwards: {
+            quantity: element.inwards.quantity,
+            stockUnit: element.inwards.stockUnit
+          },
+          outwards: {
+            quantity: element.outwards.quantity,
+            stockUnit: element.outwards.stockUnit
+          }
+        };
+        objects.push(object);
+      });
+      const realm = this.state.Realm;
+      const existingData = realm.objects(INVENTORY_SCHEMA);
+      realm.write(() => {
+        if (existingData.length > 0) {
+          existingData[0].timeStamp = new Date().toString();
+          existingData[0].objects = objects;
+        } else {
+          realm.create(INVENTORY_SCHEMA, {
+            timeStamp: new Date().toString(),
+            objects: objects
+          });
+        }
+      });
+    } catch (_err) {
+      console.log("something went wrong", _err);
+    }
+  }
+
   async getInventories() {
-    this.setState({
-      showLoader: true
-    })
+    if (this.state.inventoryData.length == 0) {
+      this.setState({
+        showLoader: true
+      });
+    }
     try {
       let totalPages = 0;
       let result = [];
@@ -105,14 +164,20 @@ export class InventoryScreen extends React.Component<Props, {}> {
         console.log("Pages to load " + totalPages);
         for (let i = 1; i <= totalPages; i++) {
           try {
+            let InventoryPageData = null;
             console.log(i);
-            const InventoryPageData = await InventoryService.getInventories(
-              companyName,
-              this.state.startDate,
-              this.state.endDate,
-              i);
-              console.log(InventoryPageData.status);
-            result = [...result, ...InventoryPageData.body.stockReport];
+            try {
+              InventoryPageData = await InventoryService.getInventories(
+                companyName,
+                this.state.startDate,
+                this.state.endDate,
+                i);
+            } catch (e) {
+              console.log('error in fetching');
+            }
+            if (InventoryPageData && InventoryPageData?.status == 'success') {
+              result = [...result, ...InventoryPageData?.body?.stockReport];
+            }
             if (check && i > 3) {
               this.setState({
                 inventoryData: result,
@@ -133,6 +198,8 @@ export class InventoryScreen extends React.Component<Props, {}> {
           inventoryData: result,
           showLoader: false
         });
+        console.log('updating db');
+        this.updateDB();
       }
     } catch (e) {
       console.log('Something went wrong while fetching inventories', e);
