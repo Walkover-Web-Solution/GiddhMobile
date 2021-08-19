@@ -53,7 +53,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       {
         debtData: [...this.state.partiesDebtData, ...this.state.partiesCredData]
       },
-      () => this.arrangeAZ()
+      () => {
+        this.arrangeAZ();
+        console.log(this.state.debtData);
+      }
     );
     // this.setState({
     //   debtData: this.state.debtData.sort((a, b) =>
