@@ -33,7 +33,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   constructor(props: PartiesScreenProp) {
     super(props);
     this.state = {
-      showLoader: true,
+      showLoader: false,
       partiesDebtData: [],
       partiesCredData: [],
       debtData: [],
@@ -66,7 +66,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         });
       });
       const existingData = this.state.Realm.objects(PARTIES_SCHEMA);
-      this.state.Realm.write(() =>{
+      this.state.Realm.write(() => {
         if (existingData.length > 0) {
           existingData[0].timeStamp = new Date().toString();
           existingData[0].objects = objects;
@@ -83,6 +83,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   }
 
   apiCalls = async () => {
+    this.setState({
+      showLoader: true
+    })
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
     this.setState(
@@ -113,7 +116,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
           console.log("rendered last fetched data");
           this.setState({
             debtData: partiesData[0].objects.toJSON(),
-            showLoader: false
+            showLoader: false,
           });
         }
       });
