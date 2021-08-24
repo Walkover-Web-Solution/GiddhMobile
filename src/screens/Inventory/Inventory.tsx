@@ -181,15 +181,16 @@ export class InventoryScreen extends React.Component<Props, State> {
                 this.state.endDate,
                 i);
             } catch (e) {
-              console.log('error in fetching');
+              // console.log('error in fetching', e?.message);
+              continue;
             }
             if (InventoryPageData && InventoryPageData?.status == 'success') {
               result = [...result, ...InventoryPageData?.body?.stockReport];
             } else {
-              console.log('error');
+              console.log('error', InventoryPageData);
               if (!this.state.invalidAlertShown && InventoryPageData && InventoryPageData?.message) {
                 console.log("shown");
-                Alert.alert("Alert", InventoryPageData?.message, [{ text: 'Okay', style: 'destructive' }]);
+                Alert.alert('Alert', InventoryPageData?.message);
                 this.setState({
                   invalidAlertShown: true
                 });
@@ -208,7 +209,7 @@ export class InventoryScreen extends React.Component<Props, State> {
               });
             }
           } catch (_err) {
-            //console.log('catched');
+            console.log('catched', _err);
           }
         }
         this.setState({
