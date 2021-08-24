@@ -29,6 +29,11 @@ import { Customers } from './components/Customers';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AsyncStorage from '@react-native-community/async-storage';
+import Realm from 'realm';
+import { CustomerVendorDBOptions, PartiesDBOptions } from '@/Database';
+import { calculateDataLoadedTime } from '@/utils/helper';
+import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
+import { CUSTOMER_VENDOR_SCHEMA } from '@/Database/AllSchemas/customer-vendor-schema';
 
 const { width } = Dimensions.get('window');
 
@@ -39,7 +44,7 @@ export class PartiesMainScreen extends React.Component {
     this.inputRef = React.createRef();
     this.scrollRef = React.createRef();
     this.state = {
-      showLoader: true,
+      showLoader: false,
       searchQuery: '',
       vendorData: [],
       customerData: [],
@@ -58,6 +63,8 @@ export class PartiesMainScreen extends React.Component {
       currentPage: 0,
       screenWidth: Dimensions.get('window').width,
       screenHeight: Dimensions.get('window').height,
+      dataLoadedTime: 'Date and Time',
+      Realm: Realm
     };
     Dimensions.addEventListener('change', () => {
       this.setState({
@@ -152,8 +159,59 @@ export class PartiesMainScreen extends React.Component {
     this.setState({ sortModal: false });
   };
 
+  updateDB = () => {
+    console.log('updating db');
+    try {
+      const customerObjects: any[] = [];
+      const vendorObjects: any[] = [];
+      this.state.customerData.forEach(element => {
+        customerObjects.push({
+          uniqueName: element.uniqueName,
+          name: element.name,
+          closingBalance: element.closingBalance,
+          category: element.category,
+          country: {
+            code: element.country.code
+          }
+        });
+      });
+      this.state.vendorData.forEach(element => {
+        vendorObjects.push({
+          uniqueName: element.uniqueName,
+          name: element.name,
+          closingBalance: element.closingBalance,
+          category: element.category,
+          country: {
+            code: element.country.code
+          }
+        });
+      });
+      const existingData = this.state.Realm.objects(CUSTOMER_VENDOR_SCHEMA);
+      this.state.Realm.write(() => {
+        if (existingData.length > 0) {
+          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
+          existingData[0].customerObjects = customerObjects;
+          existingData[0].vendorObjects = vendorObjects;
+        } else {
+          this.state.Realm.create(CUSTOMER_VENDOR_SCHEMA, {
+            timeStamp: calculateDataLoadedTime(new Date()),
+            customerObjects: customerObjects,
+            vendorObjects: vendorObjects
+          });
+        }
+      });
+    } catch (error) {
+      console.log("error updating db ", error);
+    }
+  }
+
   apiCalls = async () => {
     await this.defaultFilters();
+    if (this.state.customerData.length == 0 || this.state.vendorData.length == 0) {
+      this.setState({
+        showLoader: true
+      });
+    }
     await this.getPartiesMainSundryDebtors(
       this.state.searchQuery,
       this.state.sortBy,
@@ -168,6 +226,18 @@ export class PartiesMainScreen extends React.Component {
       this.state.count,
       this.state.VendorPage
     );
+    if (this.state.customerPage == 1 && this.state.VendorPage == 1) {
+      this.updateDB();
+      this.setState({
+        dataLoadedTime: 'Updated!'
+      }, () => {
+        setInterval(() => {
+          this.setState({
+            dataLoadedTime: ''
+          });
+        }, 3 * 1000);
+      });
+    }
   };
 
   filterCalls = async () => {
@@ -268,10 +338,26 @@ export class PartiesMainScreen extends React.Component {
   };
 
   componentDidMount() {
+    Realm.open(CustomerVendorDBOptions)
+      .then((Realm) => {
+        this.setState({
+          Realm: Realm
+        })
+        const partiesData: any = Realm.objects(CUSTOMER_VENDOR_SCHEMA);
+        if (partiesData[0]?.customerObjects?.length > 0 && partiesData[0]?.vendorObjects?.length) {
+          this.setState({
+            customerData: partiesData[0]?.customerObjects,
+            vendorData: partiesData[0]?.vendorObjects,
+            dataLoadedTime: partiesData[0]?.timeStamp,
+            showLoader: false
+          }, () => {
+            console.log("rendered last fetched data");
+          });
+        }
+      });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {
-          showLoader: true,
           customerPage: 1,
           VendorPage: 1
         },
@@ -283,7 +369,6 @@ export class PartiesMainScreen extends React.Component {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
-          showLoader: true,
           customerPage: 1,
           VendorPage: 1
         },
@@ -348,20 +433,12 @@ export class PartiesMainScreen extends React.Component {
                     style={{ padding: 8, marginLeft: 15 }}
                     delayPressIn={0}
                     onPress={() => this.setState({ textInputOpen: true }, () => this.inputRef.current.focus())}
-                  // onPress={() => console.log(this.state.vendorData)}
                   >
                     <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
                   </TouchableOpacity>
                 </View>
               </>
             )}
-
-          {/* <TouchableOpacity
-              style={{position: 'absolute', right: 20}}
-              delayPressIn={0}
-              onPress={() => this.setState({sortModal: true})}>
-              <Icon name={'sort'} size={20} color={'#FFFFFF'} />
-            </TouchableOpacity> */}
         </View>
         <View
           style={{
@@ -394,7 +471,6 @@ export class PartiesMainScreen extends React.Component {
               numberOfLines={1}
               style={{
                 color: this.state.currentPage == 0 ? '#5773FF' : '#808080',
-                // fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
                 fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal'
               }}>
               Customers
@@ -423,17 +499,12 @@ export class PartiesMainScreen extends React.Component {
               numberOfLines={1}
               style={{
                 color: this.state.currentPage == 1 ? '#5773FF' : '#808080',
-                // fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
                 fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal'
               }}>
               Vendors
             </Text>
           </TouchableOpacity>
         </View>
-        {/* <TouchableOpacity
-          style={{height: 50, width: 100, backgroundColor: 'pink'}}
-          onPress={() => console.log(this.state.customerData)}></TouchableOpacity> */}
-        {/* <View style={{height: height * 0.75, width: width}}> */}
         <ScrollView
           ref={this.scrollRef}
           style={{ flex: 1 }}
@@ -460,6 +531,7 @@ export class PartiesMainScreen extends React.Component {
                   activeCompany={this.props.activeCompany}
                   handleRefresh={this.handleCustomerRefresh}
                   loadMore={this.state.customerLoadingMore}
+                  dataLoadedTime={this.state.dataLoadedTime}
                 />
               )}
           </View>
@@ -479,25 +551,17 @@ export class PartiesMainScreen extends React.Component {
                   activeCompany={this.props.activeCompany}
                   handleRefresh={this.handleVendorRefresh}
                   loadMore={this.state.vendorLoadingMore}
+                  dataLoadedTime={this.state.dataLoadedTime}
                 />
               )}
           </View>
         </ScrollView>
-        {/* <View style={style.paginationWrapper}>
-            {Array.from(Array(4).keys()).map((key, index) => (
-              <View style={[style.paginationDots, {opacity: pageIndex === index ? 1 : 0.2}]} key={index} />
-            ))}
-          </View> */}
-        {/* </View> */}
         <SortModal
           modalVisible={this.state.sortModal}
           setModalVisible={this.modalVisible}
           filter={this.filter}
           activeFilter={this.activeFilter()}
         />
-        {/* <TouchableOpacity style={{height: 50, width: 140, backgroundColor: 'pink'}} onPress={this.func1}>
-            <Text>Hello</Text>
-          </TouchableOpacity> */}
       </View>
     );
   }
@@ -505,13 +569,11 @@ export class PartiesMainScreen extends React.Component {
   private async getPartiesMainSundryDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
     try {
       const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
-      // console.log('data is', ...debtors.body.results, ...creditors.body.results);
       this.setState(
         {
           customerData: debtors.body.results,
           totalCustomerPages: debtors.body.totalPages
         }
-        // () => console.log(this.state.customerData),
       );
     } catch (e) {
       this.setState({ customerData: new PartiesPaginatedResponse() });

@@ -52,7 +52,8 @@ export default StyleSheet.create({
     flex: 0.9
   },
   stockDataWrap: {
-    marginTop: 5
+    marginTop: 5,
+    flexDirection:'row'
   },
   stockTitle: {
     color: baseColor.GRAY_LIGHT,
@@ -61,7 +62,8 @@ export default StyleSheet.create({
   stockSubTitle: {
     color: colors.TEXT_NORMAL,
     fontFamily: 'AvenirLTStd-Book',
-    fontSize: constants.GD_FONT_SIZE.medium
+    fontSize: constants.GD_FONT_SIZE.medium,
+    marginLeft:8
   },
   seperator: {
     marginTop: 7,

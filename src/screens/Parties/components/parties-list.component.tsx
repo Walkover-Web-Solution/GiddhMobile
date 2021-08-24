@@ -148,9 +148,6 @@ export const PartiesList = (props: PartiesListProp) => {
             </View>
             {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
             {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
-            {/* <TouchableOpacity
-              style={{height: 30, width: 40, backgroundColor: 'pink'}}
-              onPress={() => console.log(item)}></TouchableOpacity> */}
             <View style={styles.seperator} />
           </View>
         </View>

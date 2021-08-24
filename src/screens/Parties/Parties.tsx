@@ -2,7 +2,7 @@
 // eslint-disable-next-line no-use-before-define
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, DeviceEventEmitter, Alert } from 'react-native';
+import { View, DeviceEventEmitter, Text } from 'react-native';
 import style from '@/screens/Parties/style';
 import color from '@/utils/colors';
 import { PartiesList } from '@/screens/Parties/components/parties-list.component';
@@ -15,6 +15,8 @@ import { Bars } from 'react-native-loader';
 import { APP_EVENTS } from '@/utils/constants';
 import { PartiesDBOptions } from '@/Database';
 import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
+import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
+import { calculateDataLoadedTime } from '@/utils/helper';
 
 type PartiesScreenProp = {
   logout: Function;
@@ -27,6 +29,7 @@ type PartiesScreenState = {
   debtData: any;
   creditors: boolean;
   Realm: Realm;
+  dataLoadedTime: string
 };
 
 export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScreenState> {
@@ -38,7 +41,8 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       partiesCredData: [],
       debtData: [],
       creditors: false,
-      Realm: Realm
+      Realm: Realm,
+      dataLoadedTime: ''
     };
   }
 
@@ -48,10 +52,22 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
       ),
       showLoader: false
-    }, () => this.updateDB());
+    }, () => {
+      this.updateDB();
+      this.setState({
+        dataLoadedTime: 'Updated!'
+      }, () => {
+        setInterval(() => {
+          this.setState({
+            dataLoadedTime: ''
+          })
+        }, 3 * 1000);
+      })
+    });
   };
 
   updateDB = () => {
+    console.log('updating db');
     try {
       const objects: any[] = [];
       this.state.debtData.forEach(element => {
@@ -68,11 +84,11 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       const existingData = this.state.Realm.objects(PARTIES_SCHEMA);
       this.state.Realm.write(() => {
         if (existingData.length > 0) {
-          existingData[0].timeStamp = new Date().toString();
+          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
           existingData[0].objects = objects;
         } else {
           this.state.Realm.create(PARTIES_SCHEMA, {
-            timeStamp: new Date().toString(),
+            timeStamp: calculateDataLoadedTime(new Date()),
             objects: objects
           });
         }
@@ -83,9 +99,11 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   }
 
   apiCalls = async () => {
-    this.setState({
-      showLoader: true
-    })
+    if (this.state.debtData.length == 0) {
+      this.setState({
+        showLoader: true
+      });
+    }
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
     this.setState(
@@ -96,13 +114,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         this.arrangeAZ();
       }
     );
-    // this.setState({
-    //   debtData: this.state.debtData.sort((a, b) =>
-    //     a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0]),
-    //   ),
-    //   showLoader: false,
-    // });
   };
+
+
 
   componentDidMount() {
     // get parties data
@@ -115,28 +129,17 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         if (partiesData[0]?.objects?.length > 0) {
           console.log("rendered last fetched data");
           this.setState({
-            debtData: partiesData[0].objects.toJSON(),
+            debtData: partiesData[0].objects,
+            dataLoadedTime: partiesData[0]?.timeStamp,
             showLoader: false,
           });
         }
       });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
-      this.setState(
-        {
-          showLoader: true
-        },
-        () => {
-          this.apiCalls();
-        }
-      );
+      this.apiCalls();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.setState(
-        {
-          showLoader: true
-        },
-        () => this.apiCalls()
-      );
+      this.apiCalls()
     });
     this.apiCalls();
   }
@@ -153,31 +156,11 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } else {
       return (
         <View style={style.container}>
-          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
-          {/* <View style={style.filterStyle}> */}
-          {/* <View style={style.dateRangePickerStyle}> */}
-          {/*  <GDRoundedInput */}
-          {/*    svg={GdSVGIcons.search} */}
-          {/*    label="Search Name or Phone No." */}
-          {/*    svgWidth={14} */}
-          {/*    svgHeight={14} */}
-          {/*    value="" */}
-          {/*    placeholder="Search Name or Phone No." */}
-          {/*  /> */}
-          {/* </View> */}
-          {/* <View style={styles.iconPlacingStyle}> */}
-          {/*  <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} /> */}
-          {/* </View> */}
-          {/* </View> */}
-          {/* <TouchableOpacity
-            style={{height: 50, width: 140, backgroundColor: 'pink'}}
-            onPress={() => console.log(this.state.debtData)}>
-            <Text>Hello</Text>
-          </TouchableOpacity> */}
-
+          {this.state.dataLoadedTime.length > 0 ?
+            <LastDataLoadedTime
+              paddingHorizontal={10}
+              text={this.state.dataLoadedTime} /> : null}
           <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
-
-          {/* <View style={{backgroundColor: 'pink', height: 50, width: 150}}></View> */}
         </View>
       );
     }

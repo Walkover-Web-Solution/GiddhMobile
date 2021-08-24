@@ -12,8 +12,8 @@ export class InventoryService {
         .replace(':page', page),
       {}
     ).then((resp) => {
-      if(resp && resp.data){
-        return resp.data;
+      if(resp && resp?.data){
+        return resp?.data;
       }else{
         return null;
       }

@@ -1,7 +1,7 @@
 import { ObjectSchema } from "realm";
 
-export const PARTIES_SCHEMA = 'PARTIES_SCHEMA';
-export const PARTIES_OBJECT = 'PARTIES_OBJECT';
+export const CUSTOMER_VENDOR_SCHEMA = 'CUSTOMER_VENDOR_SCHEMA';
+export const CUSTOMER_VENDOR_OBJECT = 'CUSTOMER_VENDOR_OBJECT';
 export const CLOSING_BALANCE_OBJECT = 'CLOSING_BALANCE_OBJECT';
 export const COUNTRY_DETAILS = 'COUNTRY_DETAILS';
 
@@ -22,8 +22,8 @@ export const CountryDetails: ObjectSchema = {
     }
 }
 
-export const PartiesObject: ObjectSchema = {
-    name: PARTIES_OBJECT,
+export const CustomerVendorObject: ObjectSchema = {
+    name: CUSTOMER_VENDOR_OBJECT,
     embedded: true,
     properties: {
         uniqueName: 'string',
@@ -34,12 +34,13 @@ export const PartiesObject: ObjectSchema = {
     }
 };
 
-export const PartiesSchema: ObjectSchema = {
-    name: PARTIES_SCHEMA,
+export const CustomerVendorSchema: ObjectSchema = {
+    name: CUSTOMER_VENDOR_SCHEMA,
     properties: {
         timeStamp: 'string',
-        objects: { type: 'list', objectType: PARTIES_OBJECT }
+        customerObjects: { type: 'list', objectType: CUSTOMER_VENDOR_OBJECT },
+        vendorObjects: { type: 'list', objectType: CUSTOMER_VENDOR_OBJECT }
     }
 }
 
-export default [PartiesObject, PartiesSchema, ClosingBalanceObject, CountryDetails];
+export default [CustomerVendorObject, CustomerVendorSchema, ClosingBalanceObject, CountryDetails];
