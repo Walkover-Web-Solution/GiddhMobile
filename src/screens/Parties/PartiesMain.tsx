@@ -226,18 +226,16 @@ export class PartiesMainScreen extends React.Component {
       this.state.count,
       this.state.VendorPage
     );
-    if (this.state.customerPage == 1 && this.state.VendorPage == 1) {
-      this.updateDB();
-      this.setState({
-        dataLoadedTime: 'Updated!'
-      }, () => {
-        setInterval(() => {
-          this.setState({
-            dataLoadedTime: ''
-          });
-        }, 3 * 1000);
-      });
-    }
+    this.updateDB();
+    this.setState({
+      dataLoadedTime: 'Updated!'
+    }, () => {
+      setInterval(() => {
+        this.setState({
+          dataLoadedTime: ''
+        });
+      }, 3 * 1000);
+    });
   };
 
   filterCalls = async () => {
