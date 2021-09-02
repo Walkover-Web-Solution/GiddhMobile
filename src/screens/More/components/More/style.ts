@@ -1,0 +1,84 @@
+import { StyleSheet } from 'react-native';
+import colors from '../../../../utils/colors';
+import { GD_ICON_SIZE } from '@/utils/constants';
+
+export default StyleSheet.create({
+  countriesContainer: {
+    paddingHorizontal: 20,
+    flexDirection: 'row'
+  },
+  exampleContainer: {
+    backgroundColor: '#fff',
+    padding: 20,
+    paddingTop: 40,
+    paddingBottom: 80
+  },
+  commonStyle: {
+    marginBottom: 15
+  },
+  translationButton: {
+    marginBottom: 15,
+    width: '50%'
+  },
+  cardContainer: {
+    flexDirection: 'row'
+  },
+  topScroll: {
+    paddingHorizontal: 15
+  },
+  companyNameText: {
+    color: colors.INPUT_COLOR,
+    // textAlign: '',
+    fontSize: 14,
+    fontFamily: 'AvenirLTStd-Black',
+    width: '75%',
+    marginLeft: 10
+  },
+  companyShortText: {
+    color: colors.WHITE,
+    textAlign: 'center',
+    fontSize: 11,
+    fontFamily: 'AvenirLTStd-Book',
+    textTransform: 'uppercase'
+  },
+  companyShortView: {
+    backgroundColor: colors.SECONDARY,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 15,
+    alignSelf: 'center'
+  },
+  leftView: {
+    width: 26,
+    height: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 20,
+    alignSelf: 'center'
+  },
+  companyView: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    backgroundColor: colors.BACKGROUND,
+    width: '100%',
+    alignItems: 'center',
+    height: 78
+  },
+  branchView: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    width: '100%',
+    alignItems: 'center',
+    height: 78
+  },
+  iconStyle: {
+    height: GD_ICON_SIZE.input_icon,
+    width: GD_ICON_SIZE.input_icon
+  }
+});
