@@ -168,7 +168,10 @@ export class PartiesMainScreen extends React.Component {
         customerObjects.push({
           uniqueName: element.uniqueName,
           name: element.name,
-          closingBalance: element.closingBalance,
+          closingBalance: {
+            amount: element.closingBalance.amount,
+            type: element.closingBalance.type
+          },
           category: element.category,
           country: {
             code: element.country.code
@@ -179,7 +182,10 @@ export class PartiesMainScreen extends React.Component {
         vendorObjects.push({
           uniqueName: element.uniqueName,
           name: element.name,
-          closingBalance: element.closingBalance,
+          closingBalance: {
+            amount: element.closingBalance.amount,
+            type: element.closingBalance.type
+          },
           category: element.category,
           country: {
             code: element.country.code
@@ -226,6 +232,7 @@ export class PartiesMainScreen extends React.Component {
       this.state.count,
       this.state.VendorPage
     );
+    console.log("done fetchoing", this.state.customerData);
     this.updateDB();
     this.setState({
       dataLoadedTime: 'Updated!'
@@ -574,7 +581,6 @@ export class PartiesMainScreen extends React.Component {
         }
       );
     } catch (e) {
-      this.setState({ customerData: new PartiesPaginatedResponse() });
       console.log(e);
     }
   }
@@ -588,7 +594,6 @@ export class PartiesMainScreen extends React.Component {
         showLoader: false
       });
     } catch (e) {
-      this.setState({ vendorData: new PartiesPaginatedResponse() });
     }
   }
 
@@ -600,7 +605,6 @@ export class PartiesMainScreen extends React.Component {
         customerLoadingMore: false
       });
     } catch (e) {
-      this.setState({ customerData: new PartiesPaginatedResponse() });
       console.log(e);
     }
   }

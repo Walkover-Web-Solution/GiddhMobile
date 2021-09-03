@@ -106,14 +106,16 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     }
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
-    this.setState(
-      {
-        debtData: [...this.state.partiesDebtData, ...this.state.partiesCredData]
-      },
-      () => {
-        this.arrangeAZ();
-      }
-    );
+    if (this.state.partiesCredData || this.state.partiesDebtData) {
+      this.setState(
+        {
+          debtData: [...this.state.partiesDebtData, ...this.state.partiesCredData]
+        },
+        () => {
+          this.arrangeAZ();
+        }
+      );
+    }
   };
 
 
@@ -175,8 +177,8 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         partiesDebtData: debtors.body.results
       });
     } catch (e) {
-      this.setState({ debtData: new PartiesPaginatedResponse() });
-      if (e.data.code != 'UNAUTHORISED') {
+      this.setState({ partiesDebtData: null });
+      if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
         this.props.logout();
       }
       console.log("crashlog", e);
@@ -193,8 +195,8 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         partiesCredData: creditors.body.results
       });
     } catch (e) {
-      this.setState({ partiesCredData: new PartiesPaginatedResponse() });
-      if (e.data.code != 'UNAUTHORISED') {
+      this.setState({ partiesCredData: null });
+      if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
         this.props.logout();
       }
       console.log("crashlog", e);

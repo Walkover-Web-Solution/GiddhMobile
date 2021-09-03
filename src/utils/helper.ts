@@ -1,7 +1,7 @@
-import { Dimensions } from 'react-native';
+import {Dimensions} from 'react-native';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
-import { API_URL } from '@/env.json';
+import {API_URL} from '@/env.json';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -56,15 +56,14 @@ export const parseStringToMomentDate = (dateString: string, format?: string) => 
  * Noop
  * @constructor
  */
-export const Noop = () => { };
+export const Noop = () => {};
 
 /**
  * is network connected
  * check whether internet is connected or not
  */
 // eslint-disable-next-line react-hooks/rules-of-hooks
-export const isNetworkConnected = (): boolean => NetInfo.useNetInfo().isConnected;
-
+export const isNetworkConnected = (): any => NetInfo.fetch().then((info) => info.isInternetReachable);
 
 const getMonthString = (number: any) => {
   if (number == 0) {
@@ -92,7 +91,7 @@ const getMonthString = (number: any) => {
   } else if (number == 11) {
     return 'Dec';
   }
-}
+};
 
 export const calculateDataLoadedTime = (storedDateData: any) => {
   const storedDate: Date = new Date(storedDateData);
@@ -103,9 +102,9 @@ export const calculateDataLoadedTime = (storedDateData: any) => {
   minutes = minutes.length == 1 ? '0' + minutes : minutes;
   const currentDate: Date = new Date();
   if (storedDate.getDate() == currentDate.getDate()) {
-    return time + "today, " + hour + ":" + minutes + " " + period;
+    return time + 'today, ' + hour + ':' + minutes + ' ' + period;
   } else {
     const month = getMonthString(storedDate.getMonth());
-    return time + month + ' ' + storedDate.getDate() + ', ' + hour + ":" + minutes + " " + period;
+    return time + month + ' ' + storedDate.getDate() + ', ' + hour + ':' + minutes + ' ' + period;
   }
-}
+};

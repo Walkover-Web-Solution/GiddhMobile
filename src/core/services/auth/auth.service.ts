@@ -14,7 +14,9 @@ export class AuthService {
         headers: { 'access-token': token }
       })
       .then((res) => {
-        return res.data;
+        return res?.data;
+      }).catch((error) =>{
+        return error;
       });
   }
 

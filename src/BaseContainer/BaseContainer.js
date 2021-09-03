@@ -1,38 +1,23 @@
-import React, { Component } from 'react';
-import {
-  Platform,
-  DeviceEventEmitter,
-  NativeEventEmitter,
-  NativeModules
-} from 'react-native';
+import React, {Component} from 'react';
+import {Platform, DeviceEventEmitter, NativeEventEmitter, NativeModules} from 'react-native';
 import AppNavigator from '@/navigation/app.navigator';
+import NetInfo from '@react-native-community/netinfo';
 
-import { connect } from 'react-redux';
-import { getCompanyAndBranches, renewAccessToken } from '../redux/CommonAction';
+import {connect} from 'react-redux';
+import {getCompanyAndBranches, renewAccessToken, InternetStatus} from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import AppMainNav from '@/navigation/app.main.navigator';
-
 
 class BaseContainer extends Component {
   componentDidMount() {
     SplashScreen.hide();
-    // const { RNAlarmNotification } = NativeModules;
-    // const RNAlarmEmitter = new NativeEventEmitter(RNAlarmNotification);
-    // const openedSubscription = RNAlarmEmitter.addListener(
-    //   'OnNotificationOpened', (data) => { console.log(JSON.parse(data)); }
-    // );
-    
+    NetInfo.addEventListener((info) => this.props.dispatchInternetStatus(info.isInternetReachable));
     if (this.props.isUserAuthenticated) {
       this.props.getCompanyAndBranches();
     }
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken, () => {
-    //   // fire logout action
-    //   this.props.renewAccessToken();
-    //   store.dispatch.auth.logout();
-    // });
   }
 
-  componentWillUnmount() { }
+  componentWillUnmount() {}
 
   componentDidUpdate(prevProps) {
     if (this.props.isUserAuthenticated && !prevProps.isUserAuthenticated) {
@@ -44,13 +29,15 @@ class BaseContainer extends Component {
     return <AppNavigator />;
   }
   componentWillUnmount() {
+    const unsubscribe = NetInfo.addEventListener((info) => console.log(info));
+    unsubscribe();
     if (this.listener) {
       this.listener.remove();
     }
   }
 }
 function mapStateToProps(state) {
-  const { commonReducer, LoginReducer } = state;
+  const {commonReducer, LoginReducer} = state;
   return {
     ...commonReducer,
     ...LoginReducer,
@@ -63,6 +50,9 @@ function mapDispatchToProps(dispatch) {
     },
     renewAccessToken: () => {
       dispatch(renewAccessToken());
+    },
+    dispatchInternetStatus: (status) => {
+      dispatch(InternetStatus(status));
     },
   };
 }

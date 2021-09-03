@@ -18,7 +18,7 @@ export class InventoryService {
         return null;
       }
     }).catch((_err) => {
-      Alert.alert('Inventory service', _err, [{ style: 'destructive', text: 'okay' }])
+      console.log('error inventory services');
     })
   }
 }

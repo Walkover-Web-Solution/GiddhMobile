@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { DeviceEventEmitter, Platform } from 'react-native';
 import { commonUrls } from '@/core/services/common/common.url';
 import moment from 'moment';
+import store from '@/redux/store';
 
 const httpInstance = axios.create({
   timeout: HTTP_REQUEST_TIME_OUT,
@@ -18,7 +19,8 @@ const httpInstance = axios.create({
 // intercept request
 httpInstance.interceptors.request.use(async (reqConfig) => {
   // check if internet is connected
-  if (!isNetworkConnected) {
+  const isInternetReachable = store().store.getState().commonReducer.isInternetReachable;
+  if (!isInternetReachable) {
     return Promise.reject(new Error(Messages.internetNotAvailable));
   }
 
@@ -81,7 +83,7 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
 httpInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
     }
     return Promise.reject(error.response);

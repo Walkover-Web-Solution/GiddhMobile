@@ -32,6 +32,10 @@ const arrButtons = [
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},
 ];
+const arrButtonsNoBranch = [
+  { name: 'Customer', navigateTo: 'CustomerVendorScreens', icon: 'Group-6187', color: '#864DD3' },
+  { name: 'Vendor', navigateTo: 'CustomerVendorScreens', icon: 'Group-6188', color: '#FF72BE' }
+];
 const SIZE = 48;
 const padding = 10;
 const itemWidth = (Dimensions.get('window').width - (SIZE + padding * 8)) / 4;
@@ -40,6 +44,7 @@ const { height, width } = Dimensions.get('window');
 type Props = {
   navigation: any;
   isDisabled: any;
+  branchSelected: any;
 }
 
 class AddButton extends Component<Props> {
@@ -116,7 +121,7 @@ class AddButton extends Component<Props> {
               onPress={() => console.log(this.state.buttonsDisabled)}></TouchableOpacity> */}
               <FlatList
                 numColumns={4} // set number of columns
-                data={arrButtons}
+                data={this.props.branchSelected?arrButtons:arrButtonsNoBranch}
                 showsVerticalScrollIndicator={false}
                 style={{ flex: 1, alignSelf: 'center', marginBottom:0,}}
                 renderItem={({ item }) => (

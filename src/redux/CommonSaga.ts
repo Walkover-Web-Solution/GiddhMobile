@@ -71,7 +71,7 @@ export function* getCompanyAndBranches() {
                 defaultComp.subscription.country.countryCode
               );
             }
-          }else{
+          } else {
             yield put(CommonActions.isUnauth());
           }
         }
@@ -119,7 +119,10 @@ export function* getCompanyAndBranches() {
     }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());
-    yield put(CommonActions.logout());
+    if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
+      console.log('logging out common saga');
+      yield put(CommonActions.logout());
+    }
   }
 }
 

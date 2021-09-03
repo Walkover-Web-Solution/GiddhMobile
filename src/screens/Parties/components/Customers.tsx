@@ -107,7 +107,7 @@ export const Customers = (props) => {
               <Text style={styles.partiesName} numberOfLines={1}>
                 {item.name}
               </Text>
-              {item.closingBalance.amount !== 0 && (
+              {item.closingBalance?.amount !== 0 && (
                 <View style={styles.amountWrap}>
                   {item.country.code === 'IN' && (
                     <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>

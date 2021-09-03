@@ -38,6 +38,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -210,7 +211,7 @@ export class SalesInvoice extends React.Component<Props> {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
-
+    this.initialPartyFiller();
     // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
     // console.log('resetDog');
     // await this.resetState();
@@ -235,6 +236,7 @@ export class SalesInvoice extends React.Component<Props> {
       this.getAllDiscounts();
       this.getAllWarehouse();
       this.getAllAccountsModes();
+      this.initialPartyFiller();
     });
 
     if (Platform.OS == 'ios') {
@@ -246,13 +248,19 @@ export class SalesInvoice extends React.Component<Props> {
     }
   }
 
+  initialPartyFiller = async () => {
+    await this.searchCalls();
+  }
+
   clearAll = () => {
+    Keyboard.dismiss();
     this.resetState();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+    this.initialPartyFiller();
   };
 
   /*
@@ -406,6 +414,9 @@ export class SalesInvoice extends React.Component<Props> {
             placeholderTextColor={'#A6D8BF'}
             placeholder={this.state.invoiceType == 'cash' ? 'Enter Party Name' : 'Search Party Name'}
             returnKeyType={'done'}
+            onFocus={() => {
+              this.setState({ toDiplayList: true });
+            }}
             value={this.state.searchPartyName}
             onChangeText={(text) => {
               this.state.invoiceType == INVOICE_TYPE.credit
@@ -897,7 +908,7 @@ export class SalesInvoice extends React.Component<Props> {
       console.log('Response' + JSON.stringify(this.state.partyShippingAddress.state));
       const postBody = {
         account: {
-          attentionTo: '',
+          attentionTo: this.state.attentionTo,
           // billingDetails: this.state.partyBillingAddress,
           billingDetails: {
             address: [this.state.partyBillingAddress.address],
@@ -912,7 +923,7 @@ export class SalesInvoice extends React.Component<Props> {
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : ''
           },
-          contactNumber: '',
+          contactNumber: this.state.mobileNo,
           country: this.state.countryDeatils,
           currency: { code: this.state.currency },
           currencySymbol: this.state.currencySymbol,
@@ -2000,6 +2011,30 @@ export class SalesInvoice extends React.Component<Props> {
     return total.toFixed(2);
   }
 
+
+  generatePdf = async () => {
+    try {
+      const html = '<h1>PDF TEST PDF TEST PDF TEST PDF TESTPDF TEST PDF TEST PDF TEST PDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TEST</h1>';
+      const file = await RNHTMLtoPDF.convert({
+        html,
+        fileName: 'test',
+        directory: Platform.OS == 'ios' ? 'Documents' : 'Download'
+      });
+      console.log(file);
+      Share.open({
+        title: 'This is the report',
+        //message: 'Message:',
+        url: `file://${file.filePath}`,
+        subject: 'Transaction report'
+      }).then((val) => {
+        console.log(val);
+      });
+    } catch (_err) {
+      console.log(_err);
+    }
+  }
+
+
   downloadFile = async (voucherName, voucherNo, partyUniqueName) => {
     try {
       if (Platform.OS == "ios") {
@@ -2008,7 +2043,8 @@ export class SalesInvoice extends React.Component<Props> {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           console.log('yes its granted');
-          await this.onShare(voucherName, voucherNo, partyUniqueName);
+          // await this.onShare(voucherName, voucherNo, partyUniqueName);
+          this.generatePdf();
         } else {
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
@@ -2063,6 +2099,61 @@ export class SalesInvoice extends React.Component<Props> {
       console.log(e);
     }
   };
+
+  _renderDetails() {
+    return (<View style={{ paddingHorizontal: 16, marginBottom: 4 }}>
+      <TouchableOpacity
+        onPress={() => { this.setState({ showDetails: !this.state.showDetails }) }}
+        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: this.state.showBankDetails ? 'rgba(80,80,80,0.05)' : 'white' }}>
+        <AntDesign
+          name="pluscircle"
+          size={16}
+          color="#229F5F"
+          style={{ transform: [{ rotate: this.state.showDetails ? '45deg' : '0deg' }] }} />
+        <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 16 }}>
+          <Text style={{ color: '#1C1C1C' }}>Details</Text>
+        </View>
+        <Icon
+          style={{ transform: [{ rotate: this.state.showDetails ? '180deg' : '0deg' }] }}
+          name={'9'}
+          size={12}
+          color="#808080"
+        />
+      </TouchableOpacity>
+      {this.state.showDetails
+        ? <View style={{ paddingHorizontal: 35 }}>
+          <Text style={{ width: '100%', color: '#1c1c1c', marginTop: 10 }}>Attention to</Text>
+          <TextInput
+            style={{
+              borderBottomColor: '#808080',
+              borderBottomWidth: 0.55
+            }}
+            placeholder={'Type Here'}
+            multiline={true}
+            onChangeText={(text) => this.setState({ attentionTo: text })} />
+          <Text style={{ width: '100%', color: '#1c1c1c', marginTop: 10 }}>Mobile Number</Text>
+          <TextInput
+            style={{
+              borderBottomColor: '#808080',
+              borderBottomWidth: 0.55
+            }}
+            placeholder={'0 6263474042'}
+            multiline={true}
+            onChangeText={(text) => this.setState({ mobileNo: text })} />
+          <Text style={{ width: '100%', color: '#1c1c1c', marginTop: 10 }}>Email ID</Text>
+          <TextInput
+            style={{
+              borderBottomColor: '#808080',
+              borderBottomWidth: 0.55
+            }}
+            placeholder={'someone@gmail.com'}
+            multiline={true}
+            onChangeText={(text) => this.setState({ email: text })} />
+        </View>
+        : <View></View>
+      }
+    </View>);
+  }
 
   _renderOtherDetails() {
     return (
@@ -2315,15 +2406,10 @@ export class SalesInvoice extends React.Component<Props> {
             <TouchableOpacity
               style={{
                 marginTop: 10
-                // backgroundColor: '#5773FF',
-                // paddingVertical: 8,
-                // paddingHorizontal: 7,
-                // justifyContent: 'center',
-                // alignItems: 'center',
-                // borderRadius: 10,
               }}
               onPress={() => {
-                this.genrateInvoice('share');
+                this.downloadFile();
+                // this.genrateInvoice('share');
               }}>
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and Share</Text>
             </TouchableOpacity>
@@ -2460,6 +2546,7 @@ export class SalesInvoice extends React.Component<Props> {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {this._renderDetails()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
             {this.state.addedItems.length > 0 && this._renderTotalAmount()}

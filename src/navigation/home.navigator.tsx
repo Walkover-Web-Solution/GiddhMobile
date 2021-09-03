@@ -113,8 +113,8 @@ export const HomeNavigator = () => {
             }
           };
 
-          return route.name == 'add' ? (
-            branchSelected && <AddButton isDisabled={disableTabs} navigation={navigation} />
+          return route.name == 'add' ? ( 
+            <AddButton branchSelected={branchSelected} isDisabled={disableTabs} navigation={navigation} />
           )
             : (
               <TouchableOpacity

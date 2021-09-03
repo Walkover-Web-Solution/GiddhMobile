@@ -848,7 +848,10 @@ permissonDownload = async () => {
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {this.state.transactionsData.length == 0 ? null : (
-                <TouchableOpacity delayPressIn={0} style={{ padding: 5 }} onPress={() => this.setState({ pdfModal: true })}>
+                <TouchableOpacity delayPressIn={0} style={{ padding: 5 }} onPress={() => {
+
+                  //this.setState({ pdfModal: true })
+                }}>
                   <AntDesign name="pdffile1" size={22} color={'#FF7C7C'} />
                 </TouchableOpacity>
               )}

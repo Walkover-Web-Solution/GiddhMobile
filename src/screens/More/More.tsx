@@ -1,17 +1,17 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
-import { connect } from 'react-redux';
-import { GDContainer } from '@/core/components/container/container.component';
-import { CommonService } from '@/core/services/common/common.service';
+import {StatusBar} from 'react-native';
+import {connect} from 'react-redux';
+import {GDContainer} from '@/core/components/container/container.component';
+import {CommonService} from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
 import * as CommonActions from '@/redux/CommonAction';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps & {navigation: any};
 
 export class MoreScreen extends React.Component<Props, {}> {
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
   }
 
@@ -23,7 +23,7 @@ export class MoreScreen extends React.Component<Props, {}> {
     await CommonService.getCurrencies();
   };
 
-  render () {
+  render() {
     return (
       <GDContainer>
         {this.FocusAwareStatusBar(this.props.isFocused)}
@@ -35,6 +35,7 @@ export class MoreScreen extends React.Component<Props, {}> {
           logout={this.props.logout}
           companyList={this.props.comapnyList}
           branchList={this.props.branchList}
+          isInternetReachable={this.props.isInternetReachable}
           isFetchingCompanyList={this.props.isFetchingCompanyList}
         />
       </GDContainer>
@@ -43,11 +44,11 @@ export class MoreScreen extends React.Component<Props, {}> {
 }
 
 const mapStateToProps = (state) => {
-  const { commonReducer } = state;
+  const {commonReducer} = state;
 
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
-    ...commonReducer
+    ...commonReducer,
     // countries: state.common.countries,
     // isCountriesLoading: state.common.isCountriesLoading,
   };
@@ -57,13 +58,13 @@ const mapDispatchToProps = (dispatch) => {
   return {
     logout: () => {
       dispatch(CommonActions.logout());
-    }
+    },
     // getCountriesAction: dispatch.common.getCountriesAction,
     // logoutAction: dispatch.auth.logoutAction,
   };
 };
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <MoreScreen {...props} isFocused={isFocused} />;
