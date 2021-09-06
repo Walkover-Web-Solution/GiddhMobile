@@ -2,6 +2,7 @@ import {Dimensions} from 'react-native';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import {API_URL} from '@/env.json';
+import store from '@/redux/store';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -57,13 +58,6 @@ export const parseStringToMomentDate = (dateString: string, format?: string) => 
  * @constructor
  */
 export const Noop = () => {};
-
-/**
- * is network connected
- * check whether internet is connected or not
- */
-// eslint-disable-next-line react-hooks/rules-of-hooks
-export const isNetworkConnected = (): any => NetInfo.fetch().then((info) => info.isInternetReachable);
 
 const getMonthString = (number: any) => {
   if (number == 0) {

@@ -45,35 +45,47 @@ export class TransactionScreen extends React.Component {
     };
   }
 
+  get_DB_Data = () => {
+    const TransactionData: any = this.state.Realm.objects(TRANSACTION_SCHEMA);
+    if (TransactionData[0]?.objects?.length > 0) {
+      console.log('rendered last fetch data');
+      this.setState({
+        transactionsData: TransactionData[0].objects.toJSON(),
+        dataLoadedTime: TransactionData[0].timeStamp,
+        showLoader: false
+      });
+      console.log('dog');
+      console.log(JSON.stringify(TransactionData[0].objects));
+    }
+  }
+
   componentDidMount() {
     Realm.open(TransactionDBOptions)
       .then((Realm) => {
         this.setState({
           Realm: Realm
+        }, () => {
+          this.get_DB_Data();
         });
-        const TransactionData: any = Realm.objects(TRANSACTION_SCHEMA);
-        if (TransactionData[0]?.objects?.length > 0) {
-          console.log('rendered last fetch data');
-          this.setState({
-            transactionsData: TransactionData[0].objects.toJSON(),
-            dataLoadedTime: TransactionData[0].timeStamp,
-            showLoader: false
-          });
-        }
       });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
+      // this.get_DB_Data();
       this.getTransactions()
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      // this.get_DB_Data();
       this.getTransactions();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, () => {
-      this.getTransactions();
+      this.get_DB_Data();
+      // this.getTransactions();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
+      // this.get_DB_Data();
       this.getTransactions();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.DebitNoteCreated, () => {
+      // this.get_DB_Data();
       this.getTransactions();
     });
     this.getTransactions();

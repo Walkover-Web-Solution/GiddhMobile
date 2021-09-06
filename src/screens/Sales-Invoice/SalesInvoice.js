@@ -39,6 +39,8 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import { TransactionDBOptions } from '@/Database';
+import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -894,6 +896,15 @@ export class SalesInvoice extends React.Component<Props> {
     return entriesArray;
   }
 
+  refreshEverything = async () => {
+    this.resetState();
+    await this.setActiveCompanyCountry();
+    await this.getAllTaxes();
+    await this.getAllDiscounts();
+    await this.getAllWarehouse();
+    await this.getAllAccountsModes();
+  }
+
   async createInvoice(type) {
     this.setState({ loading: true });
     try {
@@ -973,6 +984,11 @@ export class SalesInvoice extends React.Component<Props> {
         voucherAdjustments: { adjustments: [] }
       };
       console.log('postBody is', JSON.stringify(postBody));
+      if (!this.props.isInternetReachable) {
+        this.storeOffline(postBody, type);
+        this.setState({ loading: false });
+        return;
+      }
       const results = await InvoiceService.createInvoice(
         postBody,
         this.state.partyName.uniqueName,
@@ -988,12 +1004,7 @@ export class SalesInvoice extends React.Component<Props> {
         const invoiceType = this.state.invoiceType;
         const partyUniqueName = this.state.partyDetails.uniqueName;
         // Here for cash invoice party detail is empty {}
-        this.resetState();
-        await this.setActiveCompanyCountry();
-        await this.getAllTaxes();
-        await this.getAllDiscounts();
-        await this.getAllWarehouse();
-        await this.getAllAccountsModes();
+        await this.refreshEverything();
         DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
         if (type == 'navigate') {
           if (invoiceType == INVOICE_TYPE.cash) {
@@ -1027,6 +1038,74 @@ export class SalesInvoice extends React.Component<Props> {
       console.log('problem occured', e);
       this.setState({ isSearchingParty: false, loading: false });
     }
+  }
+
+  storeOffline = (postbody, type) => {
+    const objects = [];
+    for (let i = 0; i < this.state.addedItems.length; i++) {
+      const item = this.state.addedItems[i];
+      const discount = item.discountValue ? item.discountValue : 0;
+      const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
+      const amount = Number(item.rate) * Number(item.quantity);
+      const total = amount - discount + tax;
+      objects.push({
+        particular: {
+          name: postbody.account.customerName
+        },
+        voucherName: 'sales',
+        entryDate: postbody.date,
+        voucherNo: '0',
+        otherTransactions: [{
+          amount: total,
+          inventory: null,
+          particular: {
+            currency: {
+              code: postbody.account.currency.code
+            }
+          }
+        }],
+        creditAmount: null,
+        debitAmount: total
+      });
+    }
+    console.log(objects);
+    Realm.open(TransactionDBOptions)
+      .then((realm) => {
+        const TransactionData = realm.objects(TRANSACTION_SCHEMA);
+        realm.write(async () => {
+          if (TransactionData[0]?.objects?.length > 0) {
+            TransactionData[0].objects = [...objects, ...TransactionData[0].objects.toJSON()];
+          } else {
+            this.state.Realm.create(TRANSACTION_SCHEMA, {
+              timeStamp: calculateDataLoadedTime(new Date()),
+              objects: objects,
+            });
+          }
+          DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+          const invoiceType = this.state.invoiceType;
+          if (type == 'navigate') {
+            if (invoiceType == INVOICE_TYPE.cash) {
+              this.props.navigation.goBack();
+            } else {
+              const partyDetails = this.state.partyDetails;
+              this.props.navigation.navigate(routes.Parties, {
+                screen: 'PartiesTransactions',
+                initial: false,
+                params: {
+                  item: {
+                    name: partyDetails.name,
+                    uniqueName: partyDetails.uniqueName,
+                    country: { code: partyDetails.country.countryCode },
+                    mobileNo: partyDetails.mobileNo
+                  },
+                  type: 'Creditors'
+                }
+              });
+            }
+            await this.refreshEverything();
+          }
+        });
+      });
   }
 
   renderAmount() {
@@ -1791,20 +1870,6 @@ export class SalesInvoice extends React.Component<Props> {
     );
   }
 
-  // calculateDiscountedAmount(itemDetails) {
-  //   if (itemDetails.discountDetails) {
-  //     let discountType = itemDetails.discountDetails.discountType;
-  //     if (discountType == 'FIX_AMOUNT') {
-  //       let discountAmount = Number(itemDetails.discountValue);
-  //       return discountAmount;
-  //     } else {
-  //       let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-  //       let discountAmount = (Number(itemDetails.discountValue) * amt) / 100;
-  //       return Number(discountAmount);
-  //     }
-  //   }
-  //   return 0;
-  // }
   calculateDiscountedAmount(itemDetails) {
     let totalDiscount = 0;
     let percentDiscount = 0;
@@ -1942,50 +2007,6 @@ export class SalesInvoice extends React.Component<Props> {
       return null;
     }
   }
-
-  // calculatedTaxAmount(itemDetails) {
-  //   let totalTax = 0;
-  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-  //   let taxArr = this.state.taxArray;
-  //   if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
-  //     for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
-  //       let item = itemDetails.stock.taxes[i];
-  //       for (let j = 0; j < taxArr.length; j++) {
-  //         if (item == taxArr[j].uniqueName) {
-  //           // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
-  //           let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-  //           let taxAmount = (taxPercent * Number(amt)) / 100;
-  //           totalTax = totalTax + taxAmount;
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   // console.log('calculated tax is ', totalTax);
-  //   return Number(totalTax);
-  // }
-
-  // calculatedTaxAmount(itemDetails) {
-  //   let totalTax = 0;
-  //   let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-  //   let taxArr = this.state.taxArray;
-  //   if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
-  //     for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
-  //       let item = itemDetails.stock.taxes[i];
-  //       for (let j = 0; j < taxArr.length; j++) {
-  //         if (item == taxArr[j].uniqueName) {
-  //           // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
-  //           let taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-  //           let taxAmount = (taxPercent * Number(amt)) / 100;
-  //           totalTax = totalTax + taxAmount;
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   // console.log('calculated tax is ', totalTax);
-  //   return Number(totalTax);
-  // }
 
   getTotalAmount() {
     let total = 0;

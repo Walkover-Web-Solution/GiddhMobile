@@ -48,11 +48,11 @@ class TransactionList extends React.Component {
     }
   ];
 
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
   }
 
-  componentDidMount () {}
+  componentDidMount() { }
 
   downloadFile = async () => {
     try {
@@ -191,9 +191,9 @@ class TransactionList extends React.Component {
 
   max = this.props.item.otherTransactions.reduce(function (prev, current) {
     return prev.amount > current.amount ? prev : current;
-  });
+  }, 0);
 
-  render () {
+  render() {
     return (
       <View style={styles.flatList}>
         <Text style={styles.listHeading}>
@@ -264,7 +264,7 @@ class TransactionList extends React.Component {
     );
   }
 
-  private bannerColorStyle (type: string) {
+  private bannerColorStyle(type: string) {
     let bgColor = colors.TRANSACTION_PURCHASE;
     if (type === 'sales') {
       bgColor = colors.TRANSACTION_RECEIPT;

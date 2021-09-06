@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { APP_EVENTS, HTTP_REQUEST_TIME_OUT, STORAGE_KEYS } from '@/utils/constants';
-import { isNetworkConnected } from '@/utils/helper';
+// import { isNetworkConnected } from '@/utils/helper';
 import Messages from '@/utils/messages';
 import AsyncStorage from '@react-native-community/async-storage';
 import { DeviceEventEmitter, Platform } from 'react-native';
