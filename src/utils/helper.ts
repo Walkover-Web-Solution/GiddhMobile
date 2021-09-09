@@ -1,8 +1,11 @@
-import {Dimensions} from 'react-native';
+import { DeviceEventEmitter, Dimensions } from 'react-native';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
-import {API_URL} from '@/env.json';
+import { API_URL } from '@/env.json';
 import store from '@/redux/store';
+import { TransactionDBOptions } from '@/Database';
+import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
+import { APP_EVENTS } from './constants';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -57,7 +60,7 @@ export const parseStringToMomentDate = (dateString: string, format?: string) => 
  * Noop
  * @constructor
  */
-export const Noop = () => {};
+export const Noop = () => { };
 
 const getMonthString = (number: any) => {
   if (number == 0) {
@@ -102,3 +105,71 @@ export const calculateDataLoadedTime = (storedDateData: any) => {
     return time + month + ' ' + storedDate.getDate() + ', ' + hour + ':' + minutes + ' ' + period;
   }
 };
+
+// export const storeOffline = (postbody, type, AddedItems, calculatedTaxAmount) => {
+//   const objects = [];
+//   for (let i = 0; i < AddedItems.length; i++) {
+//     const item = AddedItems[i];
+//     const discount = item.discountValue ? item.discountValue : 0;
+//     const tax = calculatedTaxAmount(item, 'InvoiceDue');
+//     const amount = Number(item.rate) * Number(item.quantity);
+//     const total = amount - discount + tax;
+//     objects.push({
+//       particular: {
+//         name: postbody.account.customerName
+//       },
+//       voucherName: postbody.type,
+//       entryDate: postbody.date,
+//       voucherNo: '0',
+//       otherTransactions: [{
+//         amount: total,
+//         inventory: null,
+//         particular: {
+//           currency: {
+//             code: postbody.account.currency.code
+//           }
+//         }
+//       }],
+//       creditAmount: null,
+//       debitAmount: total
+//     });
+//   }
+//   console.log(objects);
+//   Realm.open(TransactionDBOptions)
+//     .then((realm) => {
+//       const TransactionData = realm.objects(TRANSACTION_SCHEMA);
+//       realm.write(async () => {
+//         if (TransactionData[0]?.objects?.length > 0) {
+//           TransactionData[0].objects = [...objects, ...TransactionData[0].objects.toJSON()];
+//         } else {
+//           realm.create(TRANSACTION_SCHEMA, {
+//             timeStamp: calculateDataLoadedTime(new Date()),
+//             objects: objects,
+//           });
+//         }
+//         DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+//         const invoiceType = postbody.type;
+//         if (type == 'navigate') {
+//           if (invoiceType == INVOICE_TYPE.cash) {
+//             this.props.navigation.goBack();
+//           } else {
+//             const partyDetails = this.state.partyDetails;
+//             this.props.navigation.navigate(routes.Parties, {
+//               screen: 'PartiesTransactions',
+//               initial: false,
+//               params: {
+//                 item: {
+//                   name: partyDetails.name,
+//                   uniqueName: partyDetails.uniqueName,
+//                   country: { code: partyDetails.country.countryCode },
+//                   mobileNo: partyDetails.mobileNo
+//                 },
+//                 type: 'Creditors'
+//               }
+//             });
+//           }
+//           await this.refreshEverything();
+//         }
+//       });
+//     });
+// }

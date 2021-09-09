@@ -984,6 +984,7 @@ export class SalesInvoice extends React.Component<Props> {
         voucherAdjustments: { adjustments: [] }
       };
       console.log('postBody is', JSON.stringify(postBody));
+      this.setState({ loading: false });
       if (!this.props.isInternetReachable) {
         this.storeOffline(postBody, type);
         this.setState({ loading: false });
@@ -1052,7 +1053,7 @@ export class SalesInvoice extends React.Component<Props> {
         particular: {
           name: postbody.account.customerName
         },
-        voucherName: 'sales',
+        voucherName: postbody.type,
         entryDate: postbody.date,
         voucherNo: '0',
         otherTransactions: [{
@@ -1082,28 +1083,10 @@ export class SalesInvoice extends React.Component<Props> {
             });
           }
           DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
-          const invoiceType = this.state.invoiceType;
           if (type == 'navigate') {
-            if (invoiceType == INVOICE_TYPE.cash) {
-              this.props.navigation.goBack();
-            } else {
-              const partyDetails = this.state.partyDetails;
-              this.props.navigation.navigate(routes.Parties, {
-                screen: 'PartiesTransactions',
-                initial: false,
-                params: {
-                  item: {
-                    name: partyDetails.name,
-                    uniqueName: partyDetails.uniqueName,
-                    country: { code: partyDetails.country.countryCode },
-                    mobileNo: partyDetails.mobileNo
-                  },
-                  type: 'Creditors'
-                }
-              });
-            }
-            await this.refreshEverything();
+            this.props.navigation.goBack();
           }
+          await this.refreshEverything();
         });
       });
   }
