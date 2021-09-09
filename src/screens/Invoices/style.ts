@@ -1,7 +1,7 @@
-import { StyleSheet } from 'react-native';
+import {StyleSheet} from 'react-native';
 
 export default StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'white' },
+  container: {flex: 1, backgroundColor: 'pink', justifyContent: 'center', alignItems: 'center'},
   overlay: {
     position: 'absolute',
     width: '50%',
@@ -12,6 +12,6 @@ export default StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#007aff',
-    zIndex: 1
-  }
+    zIndex: 1,
+  },
 });

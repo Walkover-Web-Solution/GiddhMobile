@@ -184,9 +184,9 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-          {/* <TouchableOpacity
+          <TouchableOpacity
             style={{height: 50, width: 150, backgroundColor: 'pink'}}
-            onPress={() => alert(this.props.isInternetReachable)}></TouchableOpacity> */}
+            onPress={() => alert(this.props.isInternetReachable)}></TouchableOpacity>
 
           <TouchableOpacity
             style={{
