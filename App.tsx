@@ -18,6 +18,7 @@ import configureStore from './src/redux/store';
 const {store, persistor} = configureStore();
 import SplashScreen from 'react-native-splash-screen';
 import {LogBox} from 'react-native';
+import Invoice from '@/screens/Invoices/Invoice';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
@@ -74,6 +75,7 @@ export default class App extends React.Component<any> {
             <AppearanceProvider>
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
+                  {/* <Invoice /> */}
                   <BaseContainer />
                 </SafeAreaProvider>
               </ApplicationProvider>
