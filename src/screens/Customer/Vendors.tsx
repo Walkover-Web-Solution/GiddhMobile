@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard,Platform } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -9,7 +9,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { FONT_FAMILY, APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { FONT_FAMILY, APP_EVENTS, STORAGE_KEYS, API_TYPE, API_CALLS } from '@/utils/constants';
 import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
@@ -22,6 +22,7 @@ import Award from '../../assets/images/icons/customer_success.svg';// customer_f
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import queueFactory from 'react-native-queue';
 
 interface Props {
   resetFun: any;
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export class Vendors extends React.Component<Props> {
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
   }
 
@@ -43,7 +44,7 @@ export class Vendors extends React.Component<Props> {
     await this.state.partyDropDown.select(-1);
   }
 
-  async getAllDeatils () {
+  async getAllDeatils() {
     await this.setState({ loading: true });
     const allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
@@ -55,7 +56,7 @@ export class Vendors extends React.Component<Props> {
     await this.setState({ loading: false });
   }
 
-  async setActiveCompanyCountry () {
+  async setActiveCompanyCountry() {
     await this.setState({ loading: true });
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
@@ -463,7 +464,7 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
-  validateBankAccountNumber () {
+  validateBankAccountNumber() {
     if (this.state.bankAccountNumber == '') {
       return true
     }
@@ -477,7 +478,7 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
-  validateBankSwiftCode () {
+  validateBankSwiftCode() {
     if (this.state.bankAccountSwiftCode == '') {
       return true
     }
@@ -488,7 +489,7 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
-  validateBankAccountNumberFromTextInput (accountNumber: any) {
+  validateBankAccountNumberFromTextInput(accountNumber: any) {
     console.log(this.state.selectedCountry.alpha2CountryCode)
     if (accountNumber == '') {
       return true
@@ -501,7 +502,7 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
-  validateBankSwiftCodeFromTextInput (swiftCode: any) {
+  validateBankSwiftCodeFromTextInput(swiftCode: any) {
     if (swiftCode == '') {
       return true
     }
@@ -570,6 +571,14 @@ export class Vendors extends React.Component<Props> {
         sacNumber: ''
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
+      if (!this.props.isInternetReachable) {
+        this.makeJob(API_CALLS, {
+          postbody: postBody,
+          type: API_TYPE.VENDOR
+        });
+        this.setState({ loading: false });
+        return;
+      }
       const results = await CustomerVendorService.createVendor(postBody);
       if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
@@ -590,6 +599,11 @@ export class Vendors extends React.Component<Props> {
       this.setState({ loading: false });
     }
     this.setState({ loading: false });
+  }
+
+  async makeJob(jobName: any, payload = {}) {
+    const queue = await queueFactory();
+    queue.createJob(jobName, payload, {}, false);
   }
 
   resetState = () => {
@@ -657,7 +671,7 @@ export class Vendors extends React.Component<Props> {
     })
   }
 
-  componentDidMount () {
+  componentDidMount() {
     console.log('mounting Vendor');
     this.setActiveCompanyCountry()
     this.getAllDeatils();
@@ -674,7 +688,7 @@ export class Vendors extends React.Component<Props> {
     }
   }
 
-  render () {
+  render() {
     return (
       <View style={styles.customerMainContainer}>
         <Dialog.Container
@@ -815,7 +829,7 @@ export class Vendors extends React.Component<Props> {
               style={styles.input} />
           </View>
           {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
-          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:15 }}>
+          <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 15 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
               ref={(ref) => this.state.groupDropDown = ref}
@@ -847,7 +861,7 @@ export class Vendors extends React.Component<Props> {
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:10,paddingVertical: 20, justifyContent: 'space-between' }}>
+          <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 10, paddingVertical: 20, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
             <TouchableOpacity
               onPress={() => {
@@ -1017,12 +1031,13 @@ export class Vendors extends React.Component<Props> {
 };
 
 const mapStateToProps = (state: RootState) => {
+  const { commonReducer } = state;
   return {
-    // activeCompany: state.company.activeCompany,
+    ...commonReducer,
   };
 };
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <Vendors {...props} isFocused={isFocused} />;

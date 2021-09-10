@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import Dropdown from 'react-native-modal-dropdown';
-import { FONT_FAMILY } from '../../utils/constants';
+import { API_CALLS, API_TYPE, FONT_FAMILY } from '../../utils/constants';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -37,6 +37,7 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { ScrollView } from 'react-native-gesture-handler';
 import EditItemDetail from './EditItemDetails';
 import CheckBox from 'react-native-check-box';
+import queueFactory from 'react-native-queue';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -861,6 +862,17 @@ export class DebiteNote extends React.Component<Props> {
       }
 
       console.log('postBody is', JSON.stringify(postBody));
+      if (!this.props.isInternetReachable) {
+        this.makeJob(API_CALLS, {
+          postbody: postbody,
+          uniqueName: this.state.partyName.uniqueName,
+          invoiceType: this.state.invoiceType,
+          type: API_TYPE.DEBIT_NOTE
+        });
+        storeOffline(postBody, this.state.addedItems, this.calculatedTaxAmount, this.props.navigation);
+        this.setState({ loading: false });
+        return;
+      }
       const results = await InvoiceService.createDebitNote(
         postBody,
         this.state.partyName.uniqueName,
@@ -883,6 +895,11 @@ export class DebiteNote extends React.Component<Props> {
       console.log('problem occured', e);
       this.setState({ isSearchingParty: false, loading: false });
     }
+  }
+
+  async makeJob(jobName, payload = {}) {
+    const queue = await queueFactory();
+    queue.createJob(jobName, payload, {}, false);
   }
 
   renderAmount() {

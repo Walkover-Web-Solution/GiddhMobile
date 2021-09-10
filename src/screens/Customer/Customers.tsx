@@ -9,7 +9,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { FONT_FAMILY, APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { FONT_FAMILY, APP_EVENTS, STORAGE_KEYS, API_TYPE, API_CALLS } from '@/utils/constants';
 import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
@@ -22,6 +22,7 @@ import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import queueFactory from 'react-native-queue';
 
 interface Props {
   navigation: any;
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export class Customers extends React.Component<Props> {
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
   }
 
@@ -43,7 +44,7 @@ export class Customers extends React.Component<Props> {
     await this.state.partyDropDown.select(-1);
   }
 
-  async getAllDeatils () {
+  async getAllDeatils() {
     await this.setState({ loading: true });
     const allPartyTypes = await CustomerVendorService.getAllPartyType()
     // let allStateName = await CustomerVendorService.getAllStateName("IN")
@@ -55,7 +56,7 @@ export class Customers extends React.Component<Props> {
     await this.setState({ loading: false });
   }
 
-  async setActiveCompanyCountry () {
+  async setActiveCompanyCountry() {
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
@@ -393,6 +394,14 @@ export class Customers extends React.Component<Props> {
         sacNumber: ''
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
+      if (!this.props.isInternetReachable) {
+        this.makeJob(API_CALLS, {
+          postbody: postBody,
+          type: API_TYPE.CUSTOMER
+        });
+        this.setState({ loading: false });
+        return;
+      }
       const results = await CustomerVendorService.createCustomer(postBody);
       console.log('rabbit' + JSON.stringify(results));
       if (results.status == 'success') {
@@ -413,6 +422,11 @@ export class Customers extends React.Component<Props> {
       this.setState({ loading: false });
     }
     this.setState({ loading: false });
+  }
+
+  async makeJob(jobName: any, payload = {}) {
+    const queue = await queueFactory();
+    queue.createJob(jobName, payload, {}, false);
   }
 
   resetState = () => {
@@ -496,7 +510,7 @@ export class Customers extends React.Component<Props> {
     });
   };
 
-  componentDidMount () {
+  componentDidMount() {
     console.log('mounting Customer');
     this.setActiveCompanyCountry()
     this.getAllDeatils();
@@ -513,7 +527,7 @@ export class Customers extends React.Component<Props> {
     }
   }
 
-  render () {
+  render() {
     return (
       <View style={styles.customerMainContainer}>
         <Dialog.Container
@@ -653,7 +667,7 @@ export class Customers extends React.Component<Props> {
               style={styles.input} />
           </View>
           {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
-          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:15}}>
+          <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 15 }}>
             <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
             <Dropdown
               ref={(ref) => this.state.groupDropDown = ref}
@@ -683,7 +697,7 @@ export class Customers extends React.Component<Props> {
               }}
             />
           </View>
-          <View style={{ ...styles.rowContainer,marginTop:Platform.OS=="ios"?0:10 ,paddingVertical:20, justifyContent: 'space-between' }}>
+          <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 10, paddingVertical: 20, justifyContent: 'space-between' }}>
             <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
             <TouchableOpacity
               onPress={() => {
@@ -779,7 +793,7 @@ export class Customers extends React.Component<Props> {
           {this.state.openAddress && this.renderSavedAddress()}
           <TouchableOpacity
             onPress={() => { this.setState({ showBalanceDetails: !this.state.showBalanceDetails }) }}
-            style={{ ...styles.rowContainer,justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
+            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
             <AntDesign
               name="pluscircle"
               size={16}
@@ -824,13 +838,14 @@ export class Customers extends React.Component<Props> {
   }
 };
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state: any) => {
+  const { commonReducer } = state;
   return {
-    // activeCompany: state.company.activeCompany,
+    ...commonReducer,
   };
 };
 
-function Screen (props) {
+function Screen(props: any) {
   const isFocused = useIsFocused();
 
   return <Customers {...props} isFocused={isFocused} />;

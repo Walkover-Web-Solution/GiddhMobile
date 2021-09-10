@@ -42,7 +42,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import { TransactionDBOptions } from '@/Database';
 import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
 import queueFactory from 'react-native-queue';
-import { calculateDataLoadedTime } from '@/utils/helper';
+import { calculateDataLoadedTime, storeOffline } from '@/utils/helper';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -971,8 +971,14 @@ export class SalesInvoice extends React.Component<Props> {
         voucherAdjustments: { adjustments: [] }
       };
       console.log('postBody is', JSON.stringify(postBody));
-      if (this.props.isInternetReachable) {
-        this.storeOffline(postBody, type);
+      if (!this.props.isInternetReachable) {
+        this.makeJob(API_CALLS, {
+          postbody: postbody,
+          uniqueName: this.state.partyName.uniqueName,
+          invoiceType: this.state.invoiceType,
+          type: API_TYPE.SALES
+        });
+        storeOffline(postBody, this.state.addedItems, this.calculatedTaxAmount, this.props.navigation);
         this.setState({ loading: false });
         return;
       }
@@ -1031,64 +1037,6 @@ export class SalesInvoice extends React.Component<Props> {
   async makeJob(jobName, payload = {}) {
     const queue = await queueFactory();
     queue.createJob(jobName, payload, {}, false);
-  }
-
-  storeOffline = (postbody, type) => {
-    this.makeJob(API_CALLS, {
-      postbody: postbody,
-      uniqueName: this.state.partyName.uniqueName,
-      invoiceType: this.state.invoiceType,
-      type: API_TYPE.SALES
-    });
-    const objects = [];
-    for (let i = 0; i < this.state.addedItems.length; i++) {
-      const item = this.state.addedItems[i];
-      const discount = item.discountValue ? item.discountValue : 0;
-      const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
-      const amount = Number(item.rate) * Number(item.quantity);
-      const total = amount - discount + tax;
-      objects.push({
-        particular: {
-          name: postbody.account.customerName
-        },
-        voucherName: postbody.type,
-        entryDate: postbody.date,
-        voucherNo: '0',
-        otherTransactions: [{
-          amount: total,
-          inventory: null,
-          particular: {
-            currency: {
-              code: postbody.account.currency.code
-            }
-          }
-        }],
-        creditAmount: null,
-        debitAmount: total
-      });
-    }
-    console.log(objects);
-    Realm.open(TransactionDBOptions)
-      .then((realm) => {
-        const TransactionData = realm.objects(TRANSACTION_SCHEMA);
-        realm.write(async () => {
-          if (TransactionData[0]?.timeStamp) {
-            TransactionData[0].objects = [...objects, ...TransactionData[0].objects.toJSON()];
-          } else {
-            realm.create(TRANSACTION_SCHEMA, {
-              timeStamp: calculateDataLoadedTime(new Date()),
-              objects: objects,
-            }, Realm.UpdateMode.Modified);
-          }
-          DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {
-            isOffline: true
-          });
-          if (type == 'navigate') {
-            this.props.navigation.goBack();
-          }
-          await this.refreshEverything();
-        });
-      });
   }
 
   renderAmount() {

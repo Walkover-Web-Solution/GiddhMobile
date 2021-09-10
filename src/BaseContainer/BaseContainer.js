@@ -11,6 +11,8 @@ import AppMainNav from '@/navigation/app.main.navigator';
 import Invoice from '@/screens/Invoices/Invoice';
 import { API_CALLS, API_TYPE } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
+import { fi } from 'date-fns/locale';
 
 class BaseContainer extends Component {
   constructor(props) {
@@ -24,11 +26,30 @@ class BaseContainer extends Component {
     const queue = await queueFactory();
     queue.addWorker(API_CALLS, async (id, payload) => {
       if (payload.type == API_TYPE.SALES) {
-        console.log('sales api calling');
         await InvoiceService.createInvoice(
           payload.postbody,
           payload.uniqueName,
           payload.invoiceType);
+      }
+      else if (payload.type == API_TYPE.PURCHASE) {
+        await InvoiceService.createPurchaseBill(
+          payload.postbody,
+          payload.uniqueName);
+      } else if (payload.type == API_TYPE.DEBIT_NOTE) {
+        await InvoiceService.createDebitNote(
+          payload.postbody,
+          payload.uniqueName,
+          payload.invoiceType);
+      } else if(payload.type == API_TYPE.CREDIT_NOTE){
+        await InvoiceService.createCreditNote(
+          payload.payload,
+          payload.uniqueName,
+          payload.invoiceType
+        );
+      }else if(payload.type == API_TYPE.CUSTOMER){
+        await CustomerVendorService.createCustomer(payload.postbody);
+      }else if(payload.type == API_TYPE.VENDOR){
+        await CustomerVendorService.createVendor(payload.postbody); 
       }
     });
     NetInfo.addEventListener((info) => {

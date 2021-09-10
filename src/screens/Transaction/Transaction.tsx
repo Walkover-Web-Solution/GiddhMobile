@@ -47,17 +47,13 @@ export class TransactionScreen extends React.Component {
 
   get_DB_Data = () => {
     const TransactionData: any = this.state.Realm.objects(TRANSACTION_SCHEMA);
-    console.log(JSON.stringify(TransactionData));
-    if (TransactionData[0]?.timeStamp > 0) {
+    if (TransactionData[0]?.timeStamp) {
       console.log('rendered last fetch data');
       this.setState({
         transactionsData: TransactionData[0].objects.toJSON(),
         dataLoadedTime: TransactionData[0].timeStamp,
         showLoader: false
       });
-      console.log('dog');
-      console.log(JSON.stringify(TransactionData[0].objects));
-      console.log(TransactionData[0]?.objects?.length);
     }
   }
 

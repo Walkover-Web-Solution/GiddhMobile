@@ -27,7 +27,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _, { isInteger } from 'lodash';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { API_CALLS, API_TYPE, APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
@@ -39,6 +39,8 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
+import { storeOffline } from '@/utils/helper';
+import queueFactory from 'react-native-queue';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -60,7 +62,7 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_HIDE: 'keyboardDidHide'
 };
 export class PurchaseBill extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       loading: false,
@@ -183,7 +185,7 @@ export class PurchaseBill extends React.Component {
     this.setState({ shipFromAddress: address });
   };
 
-  async getExchangeRateToINR (currency) {
+  async getExchangeRateToINR(currency) {
     try {
       const results = await InvoiceService.getExchangeRate(
         moment().format('DD-MM-YYYY'),
@@ -200,7 +202,7 @@ export class PurchaseBill extends React.Component {
     return 1;
   }
 
-  async setActiveCompanyCountry () {
+  async setActiveCompanyCountry() {
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
@@ -212,7 +214,7 @@ export class PurchaseBill extends React.Component {
     } catch (e) { }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.setActiveCompanyCountry();
@@ -278,7 +280,7 @@ export class PurchaseBill extends React.Component {
     }).start();
   };
 
-  renderHeader () {
+  renderHeader() {
     return (
       <View style={[style.header, { paddingTop: 10 }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -298,7 +300,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  renderSelectPartyName () {
+  renderSelectPartyName() {
     return (
       <View
         onLayout={this.onLayout}
@@ -340,7 +342,7 @@ export class PurchaseBill extends React.Component {
 
   searchCalls = _.debounce(this.searchUser, 2000);
 
-  async getAllDiscounts () {
+  async getAllDiscounts() {
     this.setState({ fetechingDiscountList: true });
     try {
       const results = await InvoiceService.getDiscounts();
@@ -352,7 +354,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  async getAllWarehouse () {
+  async getAllWarehouse() {
     this.setState({ fetechingWarehouseList: true });
     try {
       const results = await InvoiceService.getWareHouse();
@@ -364,7 +366,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  async getAllAccountsModes () {
+  async getAllAccountsModes() {
     try {
       const results = await InvoiceService.getBriefAccount();
       if (results.body && results.status == 'success') {
@@ -373,7 +375,7 @@ export class PurchaseBill extends React.Component {
     } catch (e) { }
   }
 
-  async getAllTaxes () {
+  async getAllTaxes() {
     this.setState({ fetechingTaxList: true });
     try {
       const results = await InvoiceService.getTaxes();
@@ -385,7 +387,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  async getCompanyAddress () {
+  async getCompanyAddress() {
     const result = await InvoiceService.getCompanyBranchesDetails();
     if (result.body && result.status == 'success') {
       await this.setState({ allBillingToAddresses: result.body.addresses });
@@ -406,7 +408,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  async getBillToAndShipToAddress () {
+  async getBillToAndShipToAddress() {
     await this.getCompanyAddress();
     if (!this.state.billToSameAsShipTo) {
       const wareHouse = await this.state.warehouseArray;
@@ -423,7 +425,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  getTaxDeatilsForUniqueName (uniqueName) {
+  getTaxDeatilsForUniqueName(uniqueName) {
     const filtered = _.filter(this.state.taxArray, function (o) {
       if (o.uniqueName == uniqueName) return o;
     });
@@ -433,7 +435,7 @@ export class PurchaseBill extends React.Component {
     return undefined;
   }
 
-  getDiscountDeatilsForUniqueName (uniqueName) {
+  getDiscountDeatilsForUniqueName(uniqueName) {
     const filtered = _.filter(this.state.discountArray, function (o) {
       if (o.uniqueName == uniqueName) return o;
     });
@@ -443,14 +445,14 @@ export class PurchaseBill extends React.Component {
     return undefined;
   }
 
-  _renderSearchList () {
+  _renderSearchList() {
     return (
-    // <Modal animationType="none" transparent={true} visible={true}>
-    //   <TouchableOpacity
-    //     style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.5)'}}
-    //     onPress={() =>
-    //       this.setState({
-    //         searchResults: [],
+      // <Modal animationType="none" transparent={true} visible={true}>
+      //   <TouchableOpacity
+      //     style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.5)'}}
+      //     onPress={() =>
+      //       this.setState({
+      //         searchResults: [],
 
       //         searchError: '',
       //         isSearchingParty: false,
@@ -507,7 +509,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  async searchUser () {
+  async searchUser() {
     this.setState({ isSearchingParty: true });
     try {
       // console.log('Creditors called');
@@ -681,7 +683,7 @@ export class PurchaseBill extends React.Component {
     });
   };
 
-  getDiscountForEntry (item) {
+  getDiscountForEntry(item) {
     // console.log('item is', item);
     const discountArr = [];
     if (item.fixedDiscount) {
@@ -719,7 +721,7 @@ export class PurchaseBill extends React.Component {
     }
   }
 
-  getTaxesForEntry (item) {
+  getTaxesForEntry(item) {
     const taxArr = [];
     // console.log(' tax item is', item);
     if (item.taxDetailsArray) {
@@ -733,7 +735,7 @@ export class PurchaseBill extends React.Component {
     return [];
   }
 
-  getEntries () {
+  getEntries() {
     const entriesArray = [];
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
@@ -756,18 +758,18 @@ export class PurchaseBill extends React.Component {
             amount: { type: 'DEBIT', amountForAccount: Number(item.rate) * Number(item.quantity) },
             stock: item.stock
               ? {
-                  quantity: item.quantity,
-                  sku: item.stock.skuCode,
-                  name: item.stock.name,
+                quantity: item.quantity,
+                sku: item.stock.skuCode,
+                name: item.stock.name,
 
-                  uniqueName: item.stock.uniqueName,
-                  rate: {
-                    amountForAccount: Number(item.rate)
-                  },
-                  stockUnit: {
-                    code: item.stock.stockUnitCode
-                  }
+                uniqueName: item.stock.uniqueName,
+                rate: {
+                  amountForAccount: Number(item.rate)
+                },
+                stockUnit: {
+                  code: item.stock.stockUnitCode
                 }
+              }
               : undefined
           }
         ],
@@ -844,7 +846,7 @@ export class PurchaseBill extends React.Component {
     }
   };
 
-  async createPurchaseBill (type) {
+  async createPurchaseBill(type) {
     this.setState({ loading: true });
     try {
       console.log('came to this');
@@ -957,6 +959,16 @@ export class PurchaseBill extends React.Component {
       }
 
       console.log('purchase bill postBody is', JSON.stringify(postBody));
+      if (!this.props.isInternetReachable) {
+        this.makeJob(API_CALLS, {
+          postbody: postbody,
+          uniqueName: this.state.partyName.uniqueName,
+          type: API_TYPE.PURCHASE
+        });
+        storeOffline(postBody, this.state.addedItems, this.calculatedTaxAmount, this.props.navigation);
+        this.setState({ loading: false });
+        return;
+      }
       const results = await InvoiceService.createPurchaseBill(postBody, this.state.partyName.uniqueName);
       if (type != 'share') {
         this.setState({ loading: false });
@@ -1003,6 +1015,11 @@ export class PurchaseBill extends React.Component {
     }
   }
 
+  async makeJob(jobName, payload = {}) {
+    const queue = await queueFactory();
+    queue.createJob(jobName, payload, {}, false);
+  }
+
   clearAll = () => {
     Keyboard.dismiss();
     this.resetState();
@@ -1014,7 +1031,7 @@ export class PurchaseBill extends React.Component {
     this.initialPartyFiller();
   };
 
-  renderAmount () {
+  renderAmount() {
     return (
       <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
         <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
@@ -1022,16 +1039,16 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  getSelectedDateDisplay () { }
-  getYesterdayDate () {
+  getSelectedDateDisplay() { }
+  getYesterdayDate() {
     this.setState({ date: moment().subtract(1, 'days') });
   }
 
-  getTodayDate () {
+  getTodayDate() {
     this.setState({ date: moment() });
   }
 
-  formatDate () {
+  formatDate() {
     const fulldays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -1069,34 +1086,34 @@ export class PurchaseBill extends React.Component {
     this.hideDatePicker();
   };
 
-  _renderDateView () {
+  _renderDateView() {
     const { date, displayedDate } = this.state;
 
     return (
-    // <DateRangePicker
-    // onChange={this.onDateChange}
-    //   date={date}
-    //   open={this.state.showDatePicker}
-    //   displayedDate={displayedDate}
-    //   buttonStyle={style.dateView}>
-    //   <View style={style.dateView}>
-    //     <View style={{flexDirection: 'row'}}>
-    //       <Icon name={'Calendar'} color={'#229F5F'} size={16} />
-    //       <Text style={style.selectedDateText}>{this.formatDate()}</Text>
-    //     </View>
-    //     <TouchableOpacity
-    //       style={{borderColor: '#D9D9D9', borderWidth: 1, backgroundColor: 'pink'}}
-    //       onPress={() =>
-    //         this.state.date.startOf('day').isSame(moment().startOf('day'))
-    //           ? this.getYesterdayDate()
-    //           : this.getTodayDate()
-    //       }>
-    //       <Text style={{color: '#808080'}}>
-    //         {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
-    //       </Text>
-    //     </TouchableOpacity>
-    //   </View>
-    // </DateRangePicker>
+      // <DateRangePicker
+      // onChange={this.onDateChange}
+      //   date={date}
+      //   open={this.state.showDatePicker}
+      //   displayedDate={displayedDate}
+      //   buttonStyle={style.dateView}>
+      //   <View style={style.dateView}>
+      //     <View style={{flexDirection: 'row'}}>
+      //       <Icon name={'Calendar'} color={'#229F5F'} size={16} />
+      //       <Text style={style.selectedDateText}>{this.formatDate()}</Text>
+      //     </View>
+      //     <TouchableOpacity
+      //       style={{borderColor: '#D9D9D9', borderWidth: 1, backgroundColor: 'pink'}}
+      //       onPress={() =>
+      //         this.state.date.startOf('day').isSame(moment().startOf('day'))
+      //           ? this.getYesterdayDate()
+      //           : this.getTodayDate()
+      //       }>
+      //       <Text style={{color: '#808080'}}>
+      //         {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+      //       </Text>
+      //     </TouchableOpacity>
+      //   </View>
+      // </DateRangePicker>
 
       <View style={style.dateView}>
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
@@ -1118,7 +1135,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  _renderSelectInvoice () {
+  _renderSelectInvoice() {
     return (
       <View style={style.dateView}>
         <View style={{ flexDirection: 'row' }}>
@@ -1138,7 +1155,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  billingFromAddressArray () {
+  billingFromAddressArray() {
     const addressArray = this.state.BillFromAddress;
     if (this.state.BillFromAddress.selectedCountry == null) {
       addressArray.selectedCountry = this.state.countryDeatils;
@@ -1161,7 +1178,7 @@ export class PurchaseBill extends React.Component {
     }
   };
 
-  shippingFromAddressArray () {
+  shippingFromAddressArray() {
     const addressArray = this.state.shipFromAddress;
     if (this.state.shipFromAddress.selectedCountry == null) {
       addressArray.selectedCountry = this.state.countryDeatils;
@@ -1181,7 +1198,7 @@ export class PurchaseBill extends React.Component {
     });
   };
 
-  _renderAddress () {
+  _renderAddress() {
     return (
       <View style={style.senderAddress}>
         <View style={{ flexDirection: 'row' }}>
@@ -1514,11 +1531,11 @@ export class PurchaseBill extends React.Component {
   }
 
   // https://api.giddh.com/company/mobileindore15161037983790ggm19/account-search?q=c&page=1&group=sundrydebtors&branchUniqueName=allmobileshop
-  setCashTypeInvoice () {
+  setCashTypeInvoice() {
     this.setState({ invoiceType: INVOICE_TYPE.cash, showInvoiceModal: false });
   }
 
-  setCreditTypeInvoice () {
+  setCreditTypeInvoice() {
     this.setState({ invoiceType: INVOICE_TYPE.credit, showInvoiceModal: false });
   }
 
@@ -1708,7 +1725,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  _renderSelectedStock () {
+  _renderSelectedStock() {
     return (
       <View>
         <View style={{ flexDirection: 'row', marginHorizontal: 16, marginVertical: 10, justifyContent: 'space-between' }}>
@@ -1781,7 +1798,7 @@ export class PurchaseBill extends React.Component {
     }
   };
 
-  renderRightAction (item) {
+  renderRightAction(item) {
     return (
       <TouchableOpacity
         onPress={() => {
@@ -1794,7 +1811,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  renderStockItem (item) {
+  renderStockItem(item) {
     return (
       <Swipeable
         onSwipeableRightOpen={() => console.log('Swiped right')}
@@ -1856,7 +1873,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  onChangeTextBottomItemSheet (text, field) {
+  onChangeTextBottomItemSheet(text, field) {
     const editItemDetails = this.state.editItemDetails;
     switch (field) {
       case 'Quantity':
@@ -1886,7 +1903,7 @@ export class PurchaseBill extends React.Component {
     this.setState({ editItemDetails });
   }
 
-  _renderBottomSeprator (margin = 0) {
+  _renderBottomSeprator(margin = 0) {
     return (
       <View
         style={{ height: 1, bottom: 0, backgroundColor: '#D9D9D9', position: 'absolute', left: margin, right: margin }}
@@ -1910,7 +1927,7 @@ export class PurchaseBill extends React.Component {
     return totalDiscount;
   }
 
-  calculatedTaxAmount (itemDetails, calculateFor) {
+  calculatedTaxAmount(itemDetails, calculateFor) {
     let totalTax = 0;
     if (this.state.partyType == "SEZ" && calculateFor == 'totalAmount') {
       return 0;
@@ -1965,7 +1982,7 @@ export class PurchaseBill extends React.Component {
     return Number(totalTax.toFixed(2));
   }
 
-  calculatedTdsOrTcsTaxAmount (itemDetails) {
+  calculatedTdsOrTcsTaxAmount(itemDetails) {
     let totalTcsorTdsTax = 0;
     let totalTcsorTdsTaxName = '';
 
@@ -2053,7 +2070,7 @@ export class PurchaseBill extends React.Component {
   //   return Number(totalTax);
   // }
 
-  getTotalAmount () {
+  getTotalAmount() {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
@@ -2068,7 +2085,7 @@ export class PurchaseBill extends React.Component {
     return total.toFixed(2);
   }
 
-  getInvoiceDueTotalAmount () {
+  getInvoiceDueTotalAmount() {
     let total = 0;
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
@@ -2080,7 +2097,7 @@ export class PurchaseBill extends React.Component {
     return total.toFixed(2);
   }
 
-  _renderOtherDetails () {
+  _renderOtherDetails() {
     return (
       <TouchableOpacity
         style={{
@@ -2106,7 +2123,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  _renderTotalAmount () {
+  _renderTotalAmount() {
     return (
       <View>
         <View
@@ -2140,27 +2157,27 @@ export class PurchaseBill extends React.Component {
             </View>
             {this.state.currency != this.state.companyCountryDetails.currency.code &&
               this.state.invoiceType != INVOICE_TYPE.cash ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
-                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
-                </Text>
-                <TextInput
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#808080',
-                    color: '#1C1C1C',
-                    textAlign: 'center',
-                    marginRight: 0,
-                  }}
-                  placeholder={'Amount'}
-                  returnKeyType={'done'}
-                  keyboardType="number-pad"
-                  onChangeText={async (text) => {
-                    await this.setState({ totalAmountInINR: Number(text) });
-                  }}>
-                  {this.state.totalAmountInINR}
-                </TextInput>
-              </View>)
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                  <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
+                    {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
+                  </Text>
+                  <TextInput
+                    style={{
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#808080',
+                      color: '#1C1C1C',
+                      textAlign: 'center',
+                      marginRight: 0,
+                    }}
+                    placeholder={'Amount'}
+                    returnKeyType={'done'}
+                    keyboardType="number-pad"
+                    onChangeText={async (text) => {
+                      await this.setState({ totalAmountInINR: Number(text) });
+                    }}>
+                    {this.state.totalAmountInINR}
+                  </TextInput>
+                </View>)
               : null}
             {
               this.state.tdsOrTcsArray.length != 0
@@ -2234,7 +2251,7 @@ export class PurchaseBill extends React.Component {
     );
   }
 
-  genrateInvoice (type) {
+  genrateInvoice(type) {
     if (!this.state.partyName) {
       alert('Please select a party.');
     } else if (this.state.addedItems.length == 0) {
@@ -2310,7 +2327,7 @@ export class PurchaseBill extends React.Component {
     // this.setState({showItemDetails:false})
   }
 
-  updateTCSAndTDSTaxAmount (addedArray) {
+  updateTCSAndTDSTaxAmount(addedArray) {
     const alltdsOrTcsTaxArr = []
     const tcsTaxObj = { name: 'TCS', amount: 0 }
     const tdsTaxObj = { name: 'TDS', amount: 0 }
@@ -2326,12 +2343,12 @@ export class PurchaseBill extends React.Component {
     this.setState({ tdsOrTcsArray: alltdsOrTcsTaxArr })
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardWillShowSub = undefined;
     this.keyboardWillHideSub = undefined;
   }
 
-  render () {
+  render() {
     return (
       //   <View style={{flex: 1, backgroundColor: 'lightBlue', justifyContent: 'center', alignItems: 'center'}}>
       //     <Text>Hello</Text>
@@ -2416,13 +2433,13 @@ export class PurchaseBill extends React.Component {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
@@ -2430,7 +2447,7 @@ function mapDispatchToProps (dispatch) {
   };
 }
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <PurchaseBill {...props} isFocused={isFocused} />;
