@@ -27,7 +27,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { API_CALLS, API_TYPE, APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
@@ -38,9 +38,11 @@ import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
+// import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { TransactionDBOptions } from '@/Database';
 import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
+import queueFactory from 'react-native-queue';
+import { calculateDataLoadedTime } from '@/utils/helper';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -185,10 +187,6 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({ partyShippingAddress: address });
   };
 
-  // func1 = async () => {
-  //   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.token);
-  //   console.log(activeCompany);
-  // };
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle="light-content" /> : null;
   };
@@ -214,21 +212,10 @@ export class SalesInvoice extends React.Component<Props> {
     this.getAllWarehouse();
     this.getAllAccountsModes();
     this.initialPartyFiller();
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-    // console.log('resetDog');
-    // await this.resetState();
-    // this.setActiveCompanyCountry()
-    // this.getAllTaxes();
-    // this.getAllDiscounts();
-    // this.getAllWarehouse();
-    // this.getAllAccountsModes();
-    // });
 
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
       this.updateAddedItems(data);
-      // fire logout action
-      // store.dispatch.auth.logout();
     });
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
@@ -984,8 +971,7 @@ export class SalesInvoice extends React.Component<Props> {
         voucherAdjustments: { adjustments: [] }
       };
       console.log('postBody is', JSON.stringify(postBody));
-      this.setState({ loading: false });
-      if (!this.props.isInternetReachable) {
+      if (this.props.isInternetReachable) {
         this.storeOffline(postBody, type);
         this.setState({ loading: false });
         return;
@@ -995,6 +981,7 @@ export class SalesInvoice extends React.Component<Props> {
         this.state.partyName.uniqueName,
         this.state.invoiceType
       );
+      this.setState({ loading: false });
       if (type != 'share') {
         this.setState({ loading: false });
       }
@@ -1041,7 +1028,18 @@ export class SalesInvoice extends React.Component<Props> {
     }
   }
 
+  async makeJob(jobName, payload = {}) {
+    const queue = await queueFactory();
+    queue.createJob(jobName, payload, {}, false);
+  }
+
   storeOffline = (postbody, type) => {
+    this.makeJob(API_CALLS, {
+      postbody: postbody,
+      uniqueName: this.state.partyName.uniqueName,
+      invoiceType: this.state.invoiceType,
+      type: API_TYPE.SALES
+    });
     const objects = [];
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
@@ -1074,15 +1072,17 @@ export class SalesInvoice extends React.Component<Props> {
       .then((realm) => {
         const TransactionData = realm.objects(TRANSACTION_SCHEMA);
         realm.write(async () => {
-          if (TransactionData[0]?.objects?.length > 0) {
+          if (TransactionData[0]?.timeStamp) {
             TransactionData[0].objects = [...objects, ...TransactionData[0].objects.toJSON()];
           } else {
-            this.state.Realm.create(TRANSACTION_SCHEMA, {
+            realm.create(TRANSACTION_SCHEMA, {
               timeStamp: calculateDataLoadedTime(new Date()),
               objects: objects,
-            });
+            }, Realm.UpdateMode.Modified);
           }
-          DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+          DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {
+            isOffline: true
+          });
           if (type == 'navigate') {
             this.props.navigation.goBack();
           }
@@ -2016,27 +2016,27 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
 
-  generatePdf = async () => {
-    try {
-      const html = '<h1>PDF TEST PDF TEST PDF TEST PDF TESTPDF TEST PDF TEST PDF TEST PDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TEST</h1>';
-      const file = await RNHTMLtoPDF.convert({
-        html,
-        fileName: 'test',
-        directory: Platform.OS == 'ios' ? 'Documents' : 'Download'
-      });
-      console.log(file);
-      Share.open({
-        title: 'This is the report',
-        //message: 'Message:',
-        url: `file://${file.filePath}`,
-        subject: 'Transaction report'
-      }).then((val) => {
-        console.log(val);
-      });
-    } catch (_err) {
-      console.log(_err);
-    }
-  }
+  // generatePdf = async () => {
+  //   try {
+  //     const html = '<h1>PDF TEST PDF TEST PDF TEST PDF TESTPDF TEST PDF TEST PDF TEST PDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TESTPDF TEST</h1>';
+  //     const file = await RNHTMLtoPDF.convert({
+  //       html,
+  //       fileName: 'test',
+  //       directory: Platform.OS == 'ios' ? 'Documents' : 'Download'
+  //     });
+  //     console.log(file);
+  //     Share.open({
+  //       title: 'This is the report',
+  //       //message: 'Message:',
+  //       url: `file://${file.filePath}`,
+  //       subject: 'Transaction report'
+  //     }).then((val) => {
+  //       console.log(val);
+  //     });
+  //   } catch (_err) {
+  //     console.log(_err);
+  //   }
+  // }
 
 
   downloadFile = async (voucherName, voucherNo, partyUniqueName) => {

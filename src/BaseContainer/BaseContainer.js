@@ -1,14 +1,16 @@
-import React, {Component} from 'react';
-import {Platform, DeviceEventEmitter, NativeEventEmitter, NativeModules} from 'react-native';
+import React, { Component } from 'react';
+import { Platform, DeviceEventEmitter, NativeEventEmitter, NativeModules } from 'react-native';
 import AppNavigator from '@/navigation/app.navigator';
 import NetInfo from '@react-native-community/netinfo';
 import queueFactory from 'react-native-queue';
 
-import {connect} from 'react-redux';
-import {getCompanyAndBranches, renewAccessToken, InternetStatus} from '../redux/CommonAction';
+import { connect } from 'react-redux';
+import { getCompanyAndBranches, renewAccessToken, InternetStatus } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import AppMainNav from '@/navigation/app.main.navigator';
 import Invoice from '@/screens/Invoices/Invoice';
+import { API_CALLS, API_TYPE } from '@/utils/constants';
+import { InvoiceService } from '@/core/services/invoice/invoice.service';
 
 class BaseContainer extends Component {
   constructor(props) {
@@ -20,29 +22,23 @@ class BaseContainer extends Component {
   }
   async init() {
     const queue = await queueFactory();
-    queue.addWorker('example-job', async (id, payload) => {
-      fetch('https://jsonplaceholder.typicode.com/posts', {
-        method: 'POST',
-        body: JSON.stringify({
-          title: 'foo',
-          body: 'bar',
-          userId: 1,
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-      })
-        .then((response) => response.json())
-        .then((json) => alert(json.title));
+    queue.addWorker(API_CALLS, async (id, payload) => {
+      if (payload.type == API_TYPE.SALES) {
+        console.log('sales api calling');
+        await InvoiceService.createInvoice(
+          payload.postbody,
+          payload.uniqueName,
+          payload.invoiceType);
+      }
     });
     NetInfo.addEventListener((info) => {
       this.props.dispatchInternetStatus(info.isInternetReachable);
       if (info.isInternetReachable == true) {
-        alert('queue started');
+        console.log('queue started');
         queue.start();
       }
       if (info.isInternetReachable == false) {
-        alert('queue paused');
+        console.log('queue paused');
         queue.stop();
       }
     });
@@ -70,12 +66,12 @@ class BaseContainer extends Component {
     }
   }
   render() {
-    // return <AppNavigator />;
-    return <Invoice />;
+    return <AppNavigator />;
+    // return <Invoice />;
   }
 }
 function mapStateToProps(state) {
-  const {commonReducer, LoginReducer} = state;
+  const { commonReducer, LoginReducer } = state;
   return {
     ...commonReducer,
     ...LoginReducer,

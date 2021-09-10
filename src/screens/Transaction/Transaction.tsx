@@ -47,7 +47,8 @@ export class TransactionScreen extends React.Component {
 
   get_DB_Data = () => {
     const TransactionData: any = this.state.Realm.objects(TRANSACTION_SCHEMA);
-    if (TransactionData[0]?.objects?.length > 0) {
+    console.log(JSON.stringify(TransactionData));
+    if (TransactionData[0]?.timeStamp > 0) {
       console.log('rendered last fetch data');
       this.setState({
         transactionsData: TransactionData[0].objects.toJSON(),
@@ -56,6 +57,7 @@ export class TransactionScreen extends React.Component {
       });
       console.log('dog');
       console.log(JSON.stringify(TransactionData[0].objects));
+      console.log(TransactionData[0]?.objects?.length);
     }
   }
 
@@ -76,9 +78,12 @@ export class TransactionScreen extends React.Component {
       // this.get_DB_Data();
       this.getTransactions();
     });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, () => {
-      this.get_DB_Data();
-      // this.getTransactions();
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, (data) => {
+      if (data.isOffline) {
+        this.get_DB_Data();
+      } else {
+        this.getTransactions();
+      }
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
       // this.get_DB_Data();

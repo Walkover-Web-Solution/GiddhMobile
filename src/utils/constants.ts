@@ -1,6 +1,7 @@
 // Common date format for app
 export const GD_DATE_FORMAT = 'DD-MM-YYYY';
 export const GD_DATE_RANGE_FORMAT = 'DD MMM YY';
+export const API_CALLS = 'API_CALLS';
 
 // Font size to be used in across the app
 export const GD_FONT_WEIGHT = {
@@ -98,3 +99,7 @@ export const FONT_FAMILY = {
   bold: 'AvenirLTStd-Black',
   semibold: 'AvenirLTStd-Roman'
 };
+
+export const API_TYPE = {
+  SALES: 'SALES',
+}

@@ -1,8 +1,8 @@
 import React from 'react';
 
-import {View, Text, TouchableOpacity, Animated, Alert} from 'react-native';
+import { View, Text, TouchableOpacity, Animated, Alert } from 'react-native';
 import queueFactory from 'react-native-queue';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 
 import style from './style';
@@ -36,19 +36,22 @@ export class Invoice extends React.Component<any, any> {
   async makeJob(jobName, payload = {}) {
     const queue = await queueFactory();
     queue.createJob(jobName, payload, {}, false);
+    if (this.props.isInternetReachable) {
+      queue.start();
+    }
   }
 
   render() {
     return (
       <View style={style.container}>
         <TouchableOpacity
-          style={{height: 50, width: 50, backgroundColor: 'blue'}}
+          style={{ height: 50, width: 50, backgroundColor: 'blue' }}
           onPress={() => {
-            this.makeJob('example-job', {'1': 'test payload'});
+            this.makeJob('example-job', { '1': 'test payload' });
           }}
-          // onPress={() => {
-          //   alert(this.props.isInternetReachable);
-          // }}
+        // onPress={() => {
+        //   alert(this.props.isInternetReachable);
+        // }}
         />
       </View>
     );
@@ -57,7 +60,7 @@ export class Invoice extends React.Component<any, any> {
 
 // export default Invoice;
 const mapStateToProps = (state) => {
-  const {commonReducer} = state;
+  const { commonReducer } = state;
 
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
