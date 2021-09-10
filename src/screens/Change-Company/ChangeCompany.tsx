@@ -1,6 +1,6 @@
 import React from 'react';
 import { GDContainer } from '@/core/components/container/container.component';
-import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar, Alert } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -12,6 +12,7 @@ import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import LogRocket from '@logrocket/react-native';
 
 interface Props {
   navigation: any;
@@ -28,6 +29,28 @@ export class ChangeCompany extends React.Component<Props> {
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
   };
+
+  /**
+   * Add user deatils and current company to log Rocket
+   * @param companyName 
+   * @param BranchName 
+   */
+   addUserDeatilsToLogRocket = async (companyName: string, BranchName: string) => {
+    var userName  = await AsyncStorage.getItem(STORAGE_KEYS.userName)
+    var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
+    if(userName==null){
+      userName = "";
+    }
+    if(userEmail==null){
+      userEmail = "";
+    }
+    LogRocket.identify(userEmail, {
+      name: userName,
+      email: userEmail,
+      CompanyName:companyName,
+      BranchName:BranchName
+    });
+  }
 
   render () {
     const activeCompany = this.props.route.params.activeCompany;
@@ -69,6 +92,7 @@ export class ChangeCompany extends React.Component<Props> {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
+                      await this.addUserDeatilsToLogRocket(item.name," ")
                     }
                     this.props.getCompanyAndBranches();
                     DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});

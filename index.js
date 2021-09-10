@@ -7,6 +7,8 @@ import App from './App';
 import {name as appName} from './app.json';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
+import LogRocket from '@logrocket/react-native';
+LogRocket.init("sd2s3m/giddh-books-mobile")
 
 AppRegistry.registerComponent(appName, () => App);
 

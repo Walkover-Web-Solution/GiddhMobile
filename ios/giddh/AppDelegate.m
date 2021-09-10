@@ -27,6 +27,7 @@ static void InitializeFlipper(UIApplication *application) {
 }
 #endif
 
+@import Firebase;
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -40,7 +41,7 @@ static void InitializeFlipper(UIApplication *application) {
     RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                     moduleName:@"giddh"
                                               initialProperties:nil];
-    
+    [FIRApp configure];
     // Define UNUserNotificationCenter
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     center.delegate = self;

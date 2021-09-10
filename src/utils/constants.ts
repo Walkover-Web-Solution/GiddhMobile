@@ -72,6 +72,7 @@ export const STORAGE_KEYS = {
   activeCompanyUniqueName: 'ACTIVE_COMPANY_UNIQUE_NAME',
   activeBranchUniqueName: 'ACTIVE_BRANCH_UNIQUE_NAME',
   googleEmail: 'GOOGLE_USER_EMAIL',
+  userName: 'USER_NAME',
   sessionStart: 'SESSION_START',
   sessionEnd: 'SESSION_END',
   sortBy: 'SORT_BY',

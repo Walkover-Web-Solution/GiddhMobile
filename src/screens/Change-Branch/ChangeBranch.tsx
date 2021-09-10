@@ -1,6 +1,6 @@
 import React from 'react';
 import { GDContainer } from '@/core/components/container/container.component';
-import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar,Alert } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -10,6 +10,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { getCompanyAndBranches } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import color from '@/utils/colors';
+import LogRocket from '@logrocket/react-native';
 
 interface Props {
   navigation: any;
@@ -19,6 +20,28 @@ export class ChangeBranch extends React.Component<Props> {
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
   };
+
+  /**
+   * Add user deatils and current company to log Rocket
+   * @param companyName 
+   * @param BranchName 
+   */
+   addUserDeatilsToLogRocket = async (companyName: string, BranchName: string) => {
+    var userName  = await AsyncStorage.getItem(STORAGE_KEYS.userName)
+    var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
+    if(userName==null){
+      userName = "";
+    }
+    if(userEmail==null){
+      userEmail = "";
+    }
+    LogRocket.identify(userEmail, {
+      name: userName,
+      email: userEmail,
+      CompanyName:companyName,
+      BranchName:BranchName
+    });
+  }
 
   render () {
     const branches = this.props.route.params.branches.sort((a, b) =>
@@ -64,6 +87,7 @@ export class ChangeBranch extends React.Component<Props> {
                   delayPressIn={0}
                   onPress={async () => {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
+                    await this.addUserDeatilsToLogRocket(item.name,item.alias)
                     this.props.getCompanyAndBranches();
                     DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                     this.props.navigation.goBack();
