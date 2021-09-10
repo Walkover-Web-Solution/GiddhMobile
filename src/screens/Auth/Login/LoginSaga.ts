@@ -6,6 +6,7 @@ import * as LoginService from './LoginService';
 import {getCompanyAndBranches} from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
 import {STORAGE_KEYS} from '@/utils/constants';
+import LogRocket from '@logrocket/react-native';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -13,6 +14,20 @@ export default function* watcherSaga() {
   yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);
   yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin);
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
+}
+
+/**
+ * Add user deatils to log Rocket
+ * @param userUniqueName 
+ * @param userName 
+ * @param userEmail 
+ */
+ const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, userEmail: string,) => {
+  console.log("LogRocket "+userUniqueName+"  "+userName+" "+userEmail);
+  LogRocket.identify(userUniqueName, {
+      name: userName,
+      email: userEmail
+  });
 }
 
 export function* resetPassword(action) {
@@ -40,12 +55,14 @@ export function* verifyUserEmailPasswordLogin(action) {
     const response = yield call(LoginService.userLogin, action.payload);
 
     if (response && response.body && response.body.session && response.body.session.id) {
+      yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
       yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
       yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
       yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
 
       // const response = await AuthService.submitGoogleAuthToken(payload.token);
       yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
       // get state details
       // TODO: await dispatch.common.getStateDetailsAction();
 
@@ -65,7 +82,9 @@ export function* verifyUserEmailPasswordLogin(action) {
       response.body &&
       response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
     ) {
+      yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
       yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
       yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
     } else {
       alert(response.data.message);
@@ -79,12 +98,14 @@ export function* googleLogin(action) {
   const response = yield call(LoginService.googleLogin, action.payload.token);
   console.log('response is ', response);
   if (response && response.body && response.body.session && response.body.session.id) {
+    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
     yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
 
     // const response = await AuthService.submitGoogleAuthToken(payload.token);
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();
 
@@ -104,7 +125,9 @@ export function* googleLogin(action) {
     response.body &&
     response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
   ) {
+    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
   } else {
     yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
@@ -147,12 +170,14 @@ export function* appleLogin(action) {
   const response = yield call(LoginService.appleLogin, action.payload);
 
   if (response && response.body && response.body.session && response.body.session.id) {
+    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
     yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
 
     // const response = await AuthService.submitGoogleAuthToken(payload.token);
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();
 
@@ -172,7 +197,9 @@ export function* appleLogin(action) {
     response.body &&
     response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
   ) {
+    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
   } else {
     alert(response.data.message);
