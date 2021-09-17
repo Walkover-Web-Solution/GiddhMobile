@@ -167,3 +167,18 @@ export const InvoiceBillsSchema: ObjectSchema = {
         items: { type: 'list', objectType: PARTY_SCHEMA }
     }
 };
+
+export default [
+    InvoiceBillsSchema,
+    PartySchema,
+    stock,
+    parentGroup,
+    discount,
+    linkAccount,
+    tax,
+    taxDetails,
+    account,
+    CurrencySCD,
+    warehouse,
+    mode
+];
