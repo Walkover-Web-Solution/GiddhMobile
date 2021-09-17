@@ -25,6 +25,7 @@ export const InventoryObject: ObjectSchema = {
 
 export const InventorySchema: ObjectSchema = {
     name: INVENTORY_SCHEMA,
+    embedded: true,
     properties: {
         timeStamp: 'string',
         objects: { type: 'list', objectType: INVENTORY_OBJECT }

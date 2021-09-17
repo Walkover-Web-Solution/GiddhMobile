@@ -291,7 +291,15 @@ export class PurchaseBill extends React.Component {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <TouchableOpacity style={style.invoiceTypeButton}>
+          <TouchableOpacity
+            onPress={() => {
+              // console.log(JSON.stringify(this.state.taxArray));
+              // console.log(JSON.stringify(this.state.warehouseArray));
+              // console.log(JSON.stringify(this.state.modesArray));
+              // console.log(JSON.stringify(this.state.discountArray));
+              console.log(JSON.stringify(this.state.searchResults));
+            }}
+            style={style.invoiceTypeButton}>
             <Text style={style.invoiceType}>Purchase Bill</Text>
             {/* <Icon style={{ marginLeft: 4 }} name={'9'} color={'white'} /> */}
           </TouchableOpacity>

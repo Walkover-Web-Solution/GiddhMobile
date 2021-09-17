@@ -19,7 +19,7 @@ import * as CommonActions from '@/redux/CommonAction';
 import DownloadModal from '@/screens/Parties/components/downloadingModal';
 import Realm from 'realm';
 import { TransactionDBOptions } from '@/Database';
-import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
+import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/transaction-schema';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import { calculateDataLoadedTime } from '@/utils/helper';
 
@@ -58,14 +58,14 @@ export class TransactionScreen extends React.Component {
   }
 
   componentDidMount() {
-    Realm.open(TransactionDBOptions)
-      .then((Realm) => {
-        this.setState({
-          Realm: Realm
-        }, () => {
-          this.get_DB_Data();
-        });
-      });
+    // Realm.open(TransactionDBOptions)
+    //   .then((Realm) => {
+    //     this.setState({
+    //       Realm: Realm
+    //     }, () => {
+    //       this.get_DB_Data();
+    //     });
+    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
       // this.get_DB_Data();
       this.getTransactions()
@@ -76,7 +76,7 @@ export class TransactionScreen extends React.Component {
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, (data) => {
       if (data.isOffline) {
-        this.get_DB_Data();
+        // this.get_DB_Data();
       } else {
         this.getTransactions();
       }

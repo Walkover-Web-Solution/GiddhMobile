@@ -40,7 +40,7 @@ import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 // import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { TransactionDBOptions } from '@/Database';
-import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
+import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/transaction-schema';
 import queueFactory from 'react-native-queue';
 import { calculateDataLoadedTime, storeOffline } from '@/utils/helper';
 
@@ -281,7 +281,14 @@ export class SalesInvoice extends React.Component<Props> {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <TouchableOpacity style={style.invoiceTypeButton}>
+          <TouchableOpacity style={style.invoiceTypeButton}
+            onPress={() => {
+              // console.log(JSON.stringify(this.state.taxArray));
+              // console.log(JSON.stringify(this.state.warehouseArray));
+              // console.log(JSON.stringify(this.state.modesArray));
+              // console.log(JSON.stringify(this.state.discountArray));
+              console.log(JSON.stringify(this.state.searchResults));
+            }}>
             <Text style={style.invoiceType}>
               {this.state.invoiceType == INVOICE_TYPE.credit ? 'Sales Invoice' : 'Cash Invoice'}
             </Text>

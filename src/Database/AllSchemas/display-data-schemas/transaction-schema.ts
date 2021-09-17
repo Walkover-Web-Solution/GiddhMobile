@@ -64,6 +64,7 @@ export const TransactionObject: ObjectSchema = {
 
 export const TransactionSchema: ObjectSchema = {
     name: TRANSACTION_SCHEMA,
+    embedded: true,
     properties: {
         timeStamp: 'string',
         objects: { type: 'list', objectType: TRANSACTION_OBJECT }

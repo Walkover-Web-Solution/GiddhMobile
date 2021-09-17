@@ -14,7 +14,7 @@ import Realm from 'realm';
 import { Bars } from 'react-native-loader';
 import { APP_EVENTS } from '@/utils/constants';
 import { PartiesDBOptions } from '@/Database';
-import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
+import { PARTIES_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/parties-schema';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import { calculateDataLoadedTime } from '@/utils/helper';
 
@@ -53,16 +53,16 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       ),
       showLoader: false
     }, () => {
-      this.updateDB();
-      this.setState({
-        dataLoadedTime: 'Updated!'
-      }, () => {
-        setInterval(() => {
-          this.setState({
-            dataLoadedTime: ''
-          })
-        }, 3 * 1000);
-      })
+      // this.updateDB();
+      // this.setState({
+      //   dataLoadedTime: 'Updated!'
+      // }, () => {
+      //   setInterval(() => {
+      //     this.setState({
+      //       dataLoadedTime: ''
+      //     })
+      //   }, 3 * 1000);
+      // })
     });
   };
 
@@ -122,21 +122,21 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   componentDidMount() {
     // get parties data
-    Realm.open(PartiesDBOptions)
-      .then((Realm) => {
-        this.setState({
-          Realm: Realm
-        })
-        const partiesData: any = Realm.objects(PARTIES_SCHEMA);
-        if (partiesData[0]?.objects?.length > 0) {
-          console.log("rendered last fetched data");
-          this.setState({
-            debtData: partiesData[0].objects,
-            dataLoadedTime: partiesData[0]?.timeStamp,
-            showLoader: false,
-          });
-        }
-      });
+    // Realm.open(PartiesDBOptions)
+    //   .then((Realm) => {
+    //     this.setState({
+    //       Realm: Realm
+    //     })
+    //     const partiesData: any = Realm.objects(PARTIES_SCHEMA);
+    //     if (partiesData[0]?.objects?.length > 0) {
+    //       console.log("rendered last fetched data");
+    //       this.setState({
+    //         debtData: partiesData[0].objects,
+    //         dataLoadedTime: partiesData[0]?.timeStamp,
+    //         showLoader: false,
+    //       });
+    //     }
+    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.apiCalls();
     });

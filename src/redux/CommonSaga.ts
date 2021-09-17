@@ -78,7 +78,7 @@ export function* getCompanyAndBranches() {
       }
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
-    console.log('branches are', branchesResponse);
+    console.log('branches are '+ JSON.stringify(branchesResponse));
     if (branchesResponse && branchesResponse.status == 'success') {
       companyData.branchList = branchesResponse.body;
       const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);

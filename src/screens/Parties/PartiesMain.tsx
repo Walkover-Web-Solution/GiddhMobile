@@ -32,8 +32,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Realm from 'realm';
 import { CustomerVendorDBOptions, PartiesDBOptions } from '@/Database';
 import { calculateDataLoadedTime } from '@/utils/helper';
-import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
-import { CUSTOMER_VENDOR_SCHEMA } from '@/Database/AllSchemas/customer-vendor-schema';
+import { PARTIES_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/parties-schema';
+import { CUSTOMER_VENDOR_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/customer-vendor-schema';
 
 const { width } = Dimensions.get('window');
 
@@ -233,16 +233,16 @@ export class PartiesMainScreen extends React.Component {
       this.state.VendorPage
     );
     console.log("done fetchoing", this.state.customerData);
-    this.updateDB();
-    this.setState({
-      dataLoadedTime: 'Updated!'
-    }, () => {
-      setInterval(() => {
-        this.setState({
-          dataLoadedTime: ''
-        });
-      }, 3 * 1000);
-    });
+    // this.updateDB();
+    // this.setState({
+    //   dataLoadedTime: 'Updated!'
+    // }, () => {
+    //   setInterval(() => {
+    //     this.setState({
+    //       dataLoadedTime: ''
+    //     });
+    //   }, 3 * 1000);
+    // });
   };
 
   filterCalls = async () => {
@@ -343,23 +343,23 @@ export class PartiesMainScreen extends React.Component {
   };
 
   componentDidMount() {
-    Realm.open(CustomerVendorDBOptions)
-      .then((Realm) => {
-        this.setState({
-          Realm: Realm
-        })
-        const partiesData: any = Realm.objects(CUSTOMER_VENDOR_SCHEMA);
-        if (partiesData[0]?.customerObjects?.length > 0 && partiesData[0]?.vendorObjects?.length) {
-          this.setState({
-            customerData: partiesData[0]?.customerObjects,
-            vendorData: partiesData[0]?.vendorObjects,
-            dataLoadedTime: partiesData[0]?.timeStamp,
-            showLoader: false
-          }, () => {
-            console.log("rendered last fetched data");
-          });
-        }
-      });
+    // Realm.open(CustomerVendorDBOptions)
+    //   .then((Realm) => {
+    //     this.setState({
+    //       Realm: Realm
+    //     })
+    //     const partiesData: any = Realm.objects(CUSTOMER_VENDOR_SCHEMA);
+    //     if (partiesData[0]?.customerObjects?.length > 0 && partiesData[0]?.vendorObjects?.length) {
+    //       this.setState({
+    //         customerData: partiesData[0]?.customerObjects,
+    //         vendorData: partiesData[0]?.vendorObjects,
+    //         dataLoadedTime: partiesData[0]?.timeStamp,
+    //         showLoader: false
+    //       }, () => {
+    //         console.log("rendered last fetched data");
+    //       });
+    //     }
+    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {

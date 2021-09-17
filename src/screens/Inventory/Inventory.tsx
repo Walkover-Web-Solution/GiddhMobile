@@ -14,7 +14,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { catch } from 'metro.config';
 import Realm from 'realm';
 import { InventoryDBOptions } from '@/Database/index';
-import { INVENTORY_SCHEMA } from '@/Database/AllSchemas/inventory-schema';
+import { INVENTORY_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/inventory-schema';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import { calculateDataLoadedTime } from '@/utils/helper';
 

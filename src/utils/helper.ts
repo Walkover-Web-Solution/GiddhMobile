@@ -4,7 +4,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { API_URL } from '@/env.json';
 import store from '@/redux/store';
 import { TransactionDBOptions } from '@/Database';
-import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
+import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/transaction-schema';
 import { APP_EVENTS } from './constants';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
