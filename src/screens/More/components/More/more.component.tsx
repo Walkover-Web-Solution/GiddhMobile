@@ -1,20 +1,19 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {View, Text, TouchableOpacity, DeviceEventEmitter, Alert} from 'react-native';
-import {Country} from '@/models/interfaces/country';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, ActivityIndicator } from 'react-native';
+import { Country } from '@/models/interfaces/country';
 
-import {BadgeTab} from '@/models/interfaces/badge-tabs';
+import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {Bars} from 'react-native-loader';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {isNetworkConnected} from '../../../../utils/helper';
-import NetInfo from '@react-native-community/netinfo';
+import { Switch } from 'react-native-paper';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -28,6 +27,10 @@ type MoreComponentProp = WithTranslation &
 
 type MoreComponentState = {
   badgeTabs: BadgeTab[];
+  offlineMode: boolean;
+  activeCompany: any;
+  activeBranch: any;
+  isOfflineLoading: boolean;
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
@@ -36,6 +39,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     this.state = {
       activeCompany: undefined,
       activeBranch: undefined,
+      offlineMode: false,
+      isOfflineLoading: false
     };
   }
 
@@ -61,7 +66,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     });
     tab.isActive = !tab.isActive;
     this.state.badgeTabs[index] = tab;
-    this.setState({badgeTabs: this.state.badgeTabs});
+    this.setState({ badgeTabs: this.state.badgeTabs });
   };
 
   async _getActiveCompany() {
@@ -72,17 +77,17 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       return item.uniqueName == activeCompany;
     });
     if (companyResults) {
-      this.setState({activeCompany: companyResults});
+      this.setState({ activeCompany: companyResults });
     } else {
-      this.setState({activeCompany: undefined});
+      this.setState({ activeCompany: undefined });
     }
     const branchResults = _.find(this.props.branchList, function (item) {
       return item.uniqueName == activeBranch;
     });
     if (branchResults) {
-      this.setState({activeBranch: branchResults});
+      this.setState({ activeBranch: branchResults });
     } else {
-      this.setState({activeBranch: undefined});
+      this.setState({ activeBranch: undefined });
     }
   }
 
@@ -112,7 +117,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   render() {
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
-    const {navigation} = this.props;
+    const { navigation } = this.props;
     if (this.props.isFetchingCompanyList) {
       return (
         <View
@@ -131,17 +136,17 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       );
     } else {
       return (
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
           {activeCompanyName && activeCompanyName.length > 1 ? (
             <TouchableOpacity
               style={style.companyView}
               onPress={() => {
-                navigation.navigate('ChangeCompany', {activeCompany: this.state.activeCompany});
+                navigation.navigate('ChangeCompany', { activeCompany: this.state.activeCompany });
               }}>
               <View style={style.companyShortView}>
                 <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
               </View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                 <Text numberOfLines={1} style={style.companyNameText}>
                   {activeCompanyName}
                 </Text>
@@ -151,15 +156,15 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           ) : (
-            <View style={style.companyView}>
-              <View style={style.companyShortView}>
-                <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+              <View style={style.companyView}>
+                <View style={style.companyShortView}>
+                  <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
+                  <Text style={style.companyNameText}>{activeCompanyName}</Text>
+                </View>
               </View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1}}>
-                <Text style={style.companyNameText}>{activeCompanyName}</Text>
-              </View>
-            </View>
-          )}
+            )}
           {
             // Switch Branch
           }
@@ -172,10 +177,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                   activeBranch: this.state.activeBranch,
                 });
               }}>
-              <View style={{marginLeft: 15}}>
+              <View style={{ marginLeft: 15 }}>
                 <MaterialIcons name="compare-arrows" size={26} color={'#1A237E'} />
               </View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                 <Text style={style.companyNameText}>
                   {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
                 </Text>
@@ -184,9 +189,29 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-          <TouchableOpacity
+          <View style={{ paddingHorizontal: 10, marginLeft: 15, flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}>
+            {this.state.isOfflineLoading ?
+              <ActivityIndicator animating={this.state.isOfflineLoading} size={28} color='black' />
+              : this.state.offlineMode ?
+                <Ionicons name='checkmark-circle' size={28} color='#00ff00' />
+                : <View style={{width:28}}/>
+            }
+            <Text style={style.companyNameText} >Offline Mode</Text>
+            {!this.state.offlineMode ?
+              <Switch
+                onValueChange={() => {
+                  this.setState({
+                    isOfflineLoading: true
+                  })
+                }}
+                value={this.state.isOfflineLoading}
+                disabled={this.state.isOfflineLoading} />
+              : null
+            }
+          </View>
+          {/* <TouchableOpacity
             style={{height: 50, width: 150, backgroundColor: 'pink'}}
-            onPress={() => alert(this.props.isInternetReachable)}></TouchableOpacity>
+            onPress={() => alert(this.props.isInternetReachable)}></TouchableOpacity> */}
 
           <TouchableOpacity
             style={{
@@ -208,10 +233,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               elevation: 3,
             }}
             onPress={this.props.logout}
-            // onPress={() => console.log('working ?')}
+          // onPress={() => console.log('working ?')}
           >
             <Ionicons name="ios-power" size={26} color={'#5773FF'} />
-            <Text style={{fontFamily: 'AvenirLTStd-Black', marginLeft: 20}}>Logout</Text>
+            <Text style={{ fontFamily: 'AvenirLTStd-Black', marginLeft: 20 }}>Logout</Text>
           </TouchableOpacity>
           {/* <MoreList />
           {
