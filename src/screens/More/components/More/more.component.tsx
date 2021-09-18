@@ -1,6 +1,6 @@
 import React from 'react';
 import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {View, Text, TouchableOpacity, DeviceEventEmitter, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, DeviceEventEmitter, Alert, Switch} from 'react-native';
 import {Country} from '@/models/interfaces/country';
 
 import {BadgeTab} from '@/models/interfaces/badge-tabs';
@@ -184,9 +184,16 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            style={{height: 50, width: 150, backgroundColor: 'pink'}}
-            onPress={() => alert(this.props.isInternetReachable)}></TouchableOpacity>
+          <Switch
+            // style={{position: 'absolute', left: 0, alignSelf: 'center'}}
+            trackColor={{false: '#c6c6c6', true: '#3cd968'}}
+            thumbColor={this.props.offlineModeOn ? '#fff' : '#fff'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={() =>
+              this.props.offlineModeOn ? this.props.turnOffOfflineMode() : this.props.turnOnOfflineMode()
+            }
+            value={this.props.offlineModeOn}
+          />
 
           <TouchableOpacity
             style={{
