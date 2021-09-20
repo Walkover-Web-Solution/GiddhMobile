@@ -2,8 +2,8 @@ import { ObjectSchema } from "realm";
 
 export const PARTIES_SCHEMA = 'PARTIES_SCHEMA';
 export const PARTIES_OBJECT = 'PARTIES_OBJECT';
-export const CLOSING_BALANCE_OBJECT = 'CLOSING_BALANCE_OBJECT';
-export const COUNTRY_DETAILS = 'COUNTRY_DETAILS';
+export const CLOSING_BALANCE_OBJECT = 'CLOSING';
+export const COUNTRY_DETAILS = 'COUNTRY_DETS_PARTIES';
 
 export const ClosingBalanceObject: ObjectSchema = {
     name: CLOSING_BALANCE_OBJECT,

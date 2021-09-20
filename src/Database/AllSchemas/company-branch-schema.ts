@@ -12,22 +12,28 @@ import CustomerVendor from './display-data-schemas/customer-vendor-schema';
 import InvoiceBills from './invoice_bills_schema';
 import companyCountryDetails from './companyCountryDetails';
 
-export const COMPANY_BRANCH_LIST = 'COMPANY_LIST';
+export const ROOT_DB_SCHEMA = 'ROOT_DB_SCHEMA';
 export const BRANCH = 'BRANCH';
 export const COMPANY = 'COMPANY';
 const TAX = 'TAX';
-const DISCOUNT = 'DISCOUNT';
+const DISCOUNT = 'DISCOUNT_ARRAY';
 const WAREHOUSE = 'WAREHOUSE';
 const MODE = 'MODE';
 const ACCOUNT = 'ACCOUNT';
 const CURRENCY_SCD = 'CURRENCY_SCD';
 const TAX_DETAIL = 'TAX_DETAIL';
 const LINK_ACCOUNT = 'LINK_ACCOUNT';
+const PARENT_GROUP = 'PARENT_GROUP';
+const APPLICABLE_TAXES = 'APPLICABLE_TAXES';
+const ADDRESS = 'ADDRESS';
+export const rootPrimaryKey = 'userUniqueIdentifier';
 
 export const CompanyBranchSchema: ObjectSchema = {
-    name: COMPANY_BRANCH_LIST,
+    name: ROOT_DB_SCHEMA,
+    primaryKey: rootPrimaryKey,
     properties: {
         timeStamp: 'string',
+        active: 'bool',
         userUniqueIdentifier: 'string',
         companies: { type: 'list', objectType: COMPANY }
     }
@@ -54,6 +60,14 @@ export const mode: ObjectSchema = {
     }
 }
 
+export const address: ObjectSchema = {
+    name: ADDRESS,
+    embedded: true,
+    properties: {
+
+    }
+}
+
 export const warehouse: ObjectSchema = {
     name: WAREHOUSE,
     embedded: true,
@@ -63,7 +77,7 @@ export const warehouse: ObjectSchema = {
         stateCode: 'string?',
         isDefault: 'bool?',
         callingCode: 'string?',
-        addresses: { type: 'list', objectType: 'mixed?' },
+        addresses: { type: 'list', objectType: ADDRESS },
         linkAddresses: 'mixed?',
         address: 'string?',
         uniqueName: 'string?',
@@ -117,6 +131,22 @@ export const tax: ObjectSchema = {
     }
 }
 
+export const parentGroup: ObjectSchema = {
+    name: PARENT_GROUP,
+    embedded: true,
+    properties: {
+
+    }
+}
+
+export const applicableTaxes: ObjectSchema = {
+    name: APPLICABLE_TAXES,
+    embedded: true,
+    properties: {
+
+    }
+}
+
 export const linkAccount: ObjectSchema = {
     name: LINK_ACCOUNT,
     embedded: true,
@@ -128,14 +158,14 @@ export const linkAccount: ObjectSchema = {
         uniqueName: 'string?',
         openingBalanceDate: 'string?',
         stocks: 'mixed?',
-        parentGroups: { type: 'list', objectType: 'mixed?' },
+        parentGroups: { type: 'list', objectType: PARENT_GROUP },
         mergedAccounts: 'string?',
         isFixed: 'bool?',
         openingBalance: 'float?',
         openingBalanceType: 'string?',
         mobileNo: 'mixed?',
         attentionTo: 'mixed?',
-        applicableTaxes: { type: 'list', objectType: 'mixed?' },
+        applicableTaxes: { type: 'list', objectType: APPLICABLE_TAXES },
         name: 'string?',
         address: 'string?'
     }
@@ -145,7 +175,7 @@ export const discount: ObjectSchema = {
     name: DISCOUNT,
     embedded: true,
     properties: {
-        uniqueName: 'string?',
+        uniqueName: 'string',
         linkAccount: LINK_ACCOUNT,
         discountValue: 'float?',
         discountType: 'string?',
@@ -168,7 +198,7 @@ export const Branch: ObjectSchema = {
         customerVendor: CUSTOMER_VENDOR_SCHEMA,
         tax: { type: 'list', objectType: TAX },
         discount: { type: 'list', objectType: DISCOUNT },
-        warehouse: { type: 'list', objectType: WAREHOUSE + '?' },
+        warehouse: { type: 'list', objectType: WAREHOUSE },
         modes: { type: 'list', objectType: MODE },
         purchaseBillData: INVOICE_BILLS_SCHEMA,
         salesCreditDebitData: INVOICE_BILLS_SCHEMA,
@@ -176,21 +206,24 @@ export const Branch: ObjectSchema = {
 }
 
 export default [
-    CompanyBranchSchema,
-    Company,
-    Branch,
-    discount,
-    linkAccount,
-    tax,
-    taxDetails,
-    account,
-    CurrencySCD,
-    warehouse,
-    mode,
     ...Parties,
     ...Transaction,
     ...CustomerVendor,
     ...Inventory,
     ...InvoiceBills,
-    ...companyCountryDetails
+    ...companyCountryDetails,
+    mode,
+    address,
+    warehouse,
+    parentGroup,
+    applicableTaxes,
+    linkAccount,
+    discount,
+    CurrencySCD,
+    account,
+    taxDetails,
+    tax,
+    Branch,
+    Company,
+    CompanyBranchSchema,
 ];

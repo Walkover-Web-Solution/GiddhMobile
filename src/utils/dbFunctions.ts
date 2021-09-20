@@ -3,6 +3,9 @@ import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import AsyncStorage from "@react-native-community/async-storage"
 import { STORAGE_KEYS } from "./constants"
 import { calculateDataLoadedTime } from "./helper";
+import { RootDBOptions } from '@/Database';
+import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
+import Realm from 'realm';
 
 const getCompanyCountryDetails = async (code: any) => {
     try {
@@ -144,9 +147,10 @@ const getBranches = async (uniqueName: any) => {
 }
 
 export const EnableOfflineMode = async (companies: any) => {
-    const userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+    const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
     let data: any = {
         timeStamp: calculateDataLoadedTime(new Date()),
+        active: true,
         userUniqueIdentifier: userEmail,
         companies: []
     };
@@ -173,4 +177,34 @@ export const EnableOfflineMode = async (companies: any) => {
     await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, currentBranch);
 
     console.log(JSON.stringify(data));
+
+    console.log('opening db');
+
+    const realm = await Realm.open(RootDBOptions);
+    if (realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail)) {
+        console.log('found, updating..');
+        realm.write(() => {
+            try {
+                const result = realm.create(ROOT_DB_SCHEMA, data, Realm.UpdateMode.Modified);
+                console.log(JSON.stringify(result));
+            } catch (e) {
+                console.log('error', e);
+            }
+        });
+    } else {
+        console.log("not found, creating..");
+        realm.write(() => {
+            try {
+                const result = realm.create(ROOT_DB_SCHEMA, data, Realm.UpdateMode.All);
+                console.log(JSON.stringify(result));
+            } catch (e) {
+                console.log('error', e);
+            }
+        });
+    }
+
+}
+
+export const DisableOfflineMode = async () => {
+
 }

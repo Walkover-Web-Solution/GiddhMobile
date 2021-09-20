@@ -1,8 +1,7 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, ActivityIndicator, Switch } from 'react-native';
 import { Country } from '@/models/interfaces/country';
-
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
 import _ from 'lodash';
@@ -13,8 +12,10 @@ import color from '@/utils/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Switch } from 'react-native-paper';
-import { EnableOfflineMode, offlineMode } from '@/utils/dbFunctions';
+import { EnableOfflineMode } from '@/utils/dbFunctions';
+import Realm from 'realm';
+import { RootDBOptions } from '@/Database';
+import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -46,14 +47,19 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   }
 
   componentDidMount() {
+    Realm.open(RootDBOptions).then(async (realm) => {
+      const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      const object: any = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      if (object) {
+        this.setState({
+          offlineMode: object.active
+        });
+      }
+    });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this._getActiveCompany();
     });
     this._getActiveCompany();
-  }
-
-  componentDidUpdate() {
-    // this._getActiveCompany();
   }
 
   changeLanguage = () => {
@@ -195,26 +201,45 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               <ActivityIndicator animating={this.state.isOfflineLoading} size={28} color='black' />
               : this.state.offlineMode ?
                 <Ionicons name='checkmark-circle' size={28} color='#00ff00' />
-                : <View style={{width:28}}/>
+                : <View style={{ width: 28 }} />
             }
             <Text style={style.companyNameText} >Offline Mode</Text>
             {!this.state.offlineMode ?
-              <Switch 
-                onValueChange={() => {
+              <Switch
+                trackColor={{ false: '#c6c6c6', true: '#3cd968' }}
+                thumbColor={this.state.offlineMode ? '#fff' : '#fff'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={async () => {
                   console.log('enabling offline');
-                  EnableOfflineMode(this.props.companyList);
                   this.setState({
                     isOfflineLoading: !this.state.isOfflineLoading
                   })
+                  await EnableOfflineMode(this.props.companyList);
+                  console.log('offline mode activated');
+                  this.setState({
+                    offlineMode: true,
+                    isOfflineLoading: false
+                  })
                 }}
                 value={this.state.isOfflineLoading}
-                />
+                disabled={this.state.isOfflineLoading}
+              />
               : null
             }
           </View>
           {/* <TouchableOpacity
             style={{height: 50, width: 150, backgroundColor: 'pink'}}
             onPress={() => alert(this.props.isInternetReachable)}></TouchableOpacity> */}
+          {/* <Switch
+            // style={{position: 'absolute', left: 0, alignSelf: 'center'}}
+            trackColor={{ false: '#c6c6c6', true: '#3cd968' }}
+            thumbColor={this.props.offlineModeOn ? '#fff' : '#fff'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={() =>
+              this.props.offlineModeOn ? this.props.turnOffOfflineMode() : this.props.turnOnOfflineMode()
+            }
+            value={this.props.offlineModeOn}
+          /> */}
 
           <TouchableOpacity
             style={{

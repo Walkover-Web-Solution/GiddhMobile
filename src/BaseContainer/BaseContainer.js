@@ -55,11 +55,11 @@ class BaseContainer extends Component {
     NetInfo.addEventListener((info) => {
       this.props.dispatchInternetStatus(info.isInternetReachable);
       if (info.isInternetReachable == true) {
-        console.log('queue started');
+        // alert('queue started');
         queue.start();
       }
       if (info.isInternetReachable == false) {
-        console.log('queue paused');
+        // alert('queue paused');
         queue.stop();
       }
     });

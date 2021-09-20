@@ -1,9 +1,8 @@
 import { ObjectSchema } from 'realm';
-import { CURRENCY } from './companyCountryDetails';
 
 export const INVOICE_BILLS_SCHEMA = 'INVOICE_BILLS_SCHEMA';
-const PARTY_SCHEMA = 'PARTY_SCHEMA';
-const PARENT_GROUP = 'PARENT_GROUP';
+const PARTY_SCHEMA = 'PARTY_SCHEMA_IB';
+const PARENT_GROUP = 'PARENT_GROUP_IB';
 const STOCK = 'STOCK';
 
 export const parentGroup: ObjectSchema = {
