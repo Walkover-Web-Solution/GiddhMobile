@@ -112,6 +112,7 @@ export function* getCompanyAndBranches() {
       }
     }
     if (companyData.success == true) {
+      console.log("ajshdak ", companyData);
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
     } else {

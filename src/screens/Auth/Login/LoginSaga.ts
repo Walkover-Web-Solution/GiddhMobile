@@ -53,7 +53,7 @@ export function* verifyUserEmailPasswordLogin(action) {
     yield put(LoginAction.loginUserFailure('Please enter valid email & Password'));
   } else {
     const response = yield call(LoginService.userLogin, action.payload);
-
+    console.log("email pass login ", response);
     if (response && response.body && response.body.session && response.body.session.id) {
       yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
       yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');

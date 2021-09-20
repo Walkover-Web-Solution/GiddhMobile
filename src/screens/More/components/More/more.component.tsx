@@ -14,6 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Switch } from 'react-native-paper';
+import { EnableOfflineMode, offlineMode } from '@/utils/dbFunctions';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -198,14 +199,16 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             }
             <Text style={style.companyNameText} >Offline Mode</Text>
             {!this.state.offlineMode ?
-              <Switch
+              <Switch 
                 onValueChange={() => {
+                  console.log('enabling offline');
+                  EnableOfflineMode(this.props.companyList);
                   this.setState({
-                    isOfflineLoading: true
+                    isOfflineLoading: !this.state.isOfflineLoading
                   })
                 }}
                 value={this.state.isOfflineLoading}
-                disabled={this.state.isOfflineLoading} />
+                />
               : null
             }
           </View>

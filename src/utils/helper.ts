@@ -1,9 +1,6 @@
 import { DeviceEventEmitter, Dimensions } from 'react-native';
 import moment from 'moment';
-import NetInfo from '@react-native-community/netinfo';
 import { API_URL } from '@/env.json';
-import store from '@/redux/store';
-import { TransactionDBOptions } from '@/Database';
 import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/transaction-schema';
 import { APP_EVENTS } from './constants';
 
@@ -106,57 +103,57 @@ export const calculateDataLoadedTime = (storedDateData: any) => {
   }
 };
 
-export const storeOffline = (postbody, AddedItems, calculatedTaxAmount, navigation) => {
-  const objects: any = [];
-  for (let i = 0; i < AddedItems.length; i++) {
-    const item = AddedItems[i];
-    const discount = item.discountValue ? item.discountValue : 0;
-    const tax = calculatedTaxAmount(item, 'InvoiceDue');
-    const amount = Number(item.rate) * Number(item.quantity);
-    const total = amount - discount + tax;
-    objects.push({
-      particular: {
-        name: postbody.account.customerName
-      },
-      voucherName: postbody.type,
-      entryDate: postbody.date,
-      voucherNo: '0',
-      otherTransactions: [{
-        amount: total,
-        inventory: null,
-        particular: {
-          currency: {
-            code: postbody.account.currency.code
-          }
-        }
-      }],
-      creditAmount: null,
-      debitAmount: total
-    });
-  }
-  console.log(objects);
-  Realm.open(TransactionDBOptions)
-    .then((realm) => {
-      const TransactionData: any = realm.objects(TRANSACTION_SCHEMA);
-      realm.write(async () => {
-        if (TransactionData[0]?.timeStamp) {
-          TransactionData[0].objects = [...objects, ...TransactionData[0].objects.toJSON()];
-        } else {
-          realm.create(TRANSACTION_SCHEMA, {
-            timeStamp: calculateDataLoadedTime(new Date()),
-            objects: objects,
-          });
-        }
-        if (postbody.type == 'sales' || postbody.type == 'cash') {
-          DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
-        } else if (postbody.type == 'purchase') {
-          DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
-        } else if (postbody.type == 'debit note') {
-          DeviceEventEmitter.emit(APP_EVENTS.DebitNoteCreated, {});
-        } else if (postbody.type == 'credit note') {
-          DeviceEventEmitter.emit(APP_EVENTS.CreditNoteCreated, {});
-        }
-        navigation.goBack();
-      });
-    });
-}
+// export const storeOffline = (postbody, AddedItems, calculatedTaxAmount, navigation) => {
+//   const objects: any = [];
+//   for (let i = 0; i < AddedItems.length; i++) {
+//     const item = AddedItems[i];
+//     const discount = item.discountValue ? item.discountValue : 0;
+//     const tax = calculatedTaxAmount(item, 'InvoiceDue');
+//     const amount = Number(item.rate) * Number(item.quantity);
+//     const total = amount - discount + tax;
+//     objects.push({
+//       particular: {
+//         name: postbody.account.customerName
+//       },
+//       voucherName: postbody.type,
+//       entryDate: postbody.date,
+//       voucherNo: '0',
+//       otherTransactions: [{
+//         amount: total,
+//         inventory: null,
+//         particular: {
+//           currency: {
+//             code: postbody.account.currency.code
+//           }
+//         }
+//       }],
+//       creditAmount: null,
+//       debitAmount: total
+//     });
+//   }
+//   console.log(objects);
+//   Realm.open(TransactionDBOptions)
+//     .then((realm) => {
+//       const TransactionData: any = realm.objects(TRANSACTION_SCHEMA);
+//       realm.write(async () => {
+//         if (TransactionData[0]?.timeStamp) {
+//           TransactionData[0].objects = [...objects, ...TransactionData[0].objects.toJSON()];
+//         } else {
+//           realm.create(TRANSACTION_SCHEMA, {
+//             timeStamp: calculateDataLoadedTime(new Date()),
+//             objects: objects,
+//           });
+//         }
+//         if (postbody.type == 'sales' || postbody.type == 'cash') {
+//           DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+//         } else if (postbody.type == 'purchase') {
+//           DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
+//         } else if (postbody.type == 'debit note') {
+//           DeviceEventEmitter.emit(APP_EVENTS.DebitNoteCreated, {});
+//         } else if (postbody.type == 'credit note') {
+//           DeviceEventEmitter.emit(APP_EVENTS.CreditNoteCreated, {});
+//         }
+//         navigation.goBack();
+//       });
+//     });
+// }

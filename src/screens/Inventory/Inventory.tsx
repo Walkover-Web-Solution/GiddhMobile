@@ -13,10 +13,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { catch } from 'metro.config';
 import Realm from 'realm';
-import { InventoryDBOptions } from '@/Database/index';
-import { INVENTORY_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/inventory-schema';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
-import { calculateDataLoadedTime } from '@/utils/helper';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -81,21 +78,21 @@ export class InventoryScreen extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    Realm.open(InventoryDBOptions)
-      .then((Realm) => {
-        this.setState({
-          Realm: Realm
-        })
-        const inventory: any = Realm.objects(INVENTORY_SCHEMA);
-        if (inventory[0]?.objects?.length > 0) {
-          console.log("rendered last fetched data");
-          this.setState({
-            inventoryData: inventory[0].objects.toJSON(),
-            dataLoadedTime: inventory[0]?.timeStamp,
-            showLoader: false
-          });
-        }
-      });
+    // Realm.open(InventoryDBOptions)
+    //   .then((Realm) => {
+    //     this.setState({
+    //       Realm: Realm
+    //     })
+    //     const inventory: any = Realm.objects(INVENTORY_SCHEMA);
+    //     if (inventory[0]?.objects?.length > 0) {
+    //       console.log("rendered last fetched data");
+    //       this.setState({
+    //         inventoryData: inventory[0].objects.toJSON(),
+    //         dataLoadedTime: inventory[0]?.timeStamp,
+    //         showLoader: false
+    //       });
+    //     }
+    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
@@ -113,40 +110,40 @@ export class InventoryScreen extends React.Component<Props, State> {
     this.getInventories();
   }
 
-  updateDB = () => {
-    try {
-      const objects: any[] = [];
-      this.state.inventoryData.forEach(element => {
-        const object = {
-          stockName: element.stockName,
-          inwards: {
-            quantity: element.inwards.quantity,
-            stockUnit: element.inwards.stockUnit
-          },
-          outwards: {
-            quantity: element.outwards.quantity,
-            stockUnit: element.outwards.stockUnit
-          }
-        };
-        objects.push(object);
-      });
-      const realm = this.state.Realm;
-      const existingData = realm.objects(INVENTORY_SCHEMA);
-      realm.write(() => {
-        if (existingData.length > 0) {
-          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
-          existingData[0].objects = objects;
-        } else {
-          realm.create(INVENTORY_SCHEMA, {
-            timeStamp: calculateDataLoadedTime(new Date()),
-            objects: objects
-          });
-        }
-      });
-    } catch (_err) {
-      console.log("something went wrong", _err);
-    }
-  }
+  // updateDB = () => {
+  //   try {
+  //     const objects: any[] = [];
+  //     this.state.inventoryData.forEach(element => {
+  //       const object = {
+  //         stockName: element.stockName,
+  //         inwards: {
+  //           quantity: element.inwards.quantity,
+  //           stockUnit: element.inwards.stockUnit
+  //         },
+  //         outwards: {
+  //           quantity: element.outwards.quantity,
+  //           stockUnit: element.outwards.stockUnit
+  //         }
+  //       };
+  //       objects.push(object);
+  //     });
+  //     const realm = this.state.Realm;
+  //     const existingData = realm.objects(INVENTORY_SCHEMA);
+  //     realm.write(() => {
+  //       if (existingData.length > 0) {
+  //         existingData[0].timeStamp = calculateDataLoadedTime(new Date());
+  //         existingData[0].objects = objects;
+  //       } else {
+  //         realm.create(INVENTORY_SCHEMA, {
+  //           timeStamp: calculateDataLoadedTime(new Date()),
+  //           objects: objects
+  //         });
+  //       }
+  //     });
+  //   } catch (_err) {
+  //     console.log("something went wrong", _err);
+  //   }
+  // }
 
   async getInventories() {
     if (this.state.inventoryData.length == 0) {
@@ -217,7 +214,7 @@ export class InventoryScreen extends React.Component<Props, State> {
           showLoader: false
         });
         console.log('updating db');
-        this.updateDB();
+        // this.updateDB();
         this.setState({
           dataLoadedTime: 'Updated!'
         });
