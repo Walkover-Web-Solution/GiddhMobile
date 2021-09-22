@@ -10,7 +10,7 @@ export class CommonService {
    * get currencies
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static getCurrencies (): Promise<BaseResponse<Country[]>> {
+  static getCurrencies(): Promise<BaseResponse<Country[]>> {
     return httpInstance.get(commonUrls.currency).then((res) => {
       return res.data;
     });
@@ -20,7 +20,7 @@ export class CommonService {
    * get state details
    * @returns {Promise<BaseResponse<UserStateDetails[]>>}
    */
-  static getStateDetails (): Promise<BaseResponse<UserStateDetails>> {
+  static getStateDetails(): Promise<BaseResponse<UserStateDetails>> {
     return httpInstance.get(commonUrls.stateDetails).then((res) => {
       return res.data;
     });
@@ -30,7 +30,7 @@ export class CommonService {
    * get sundry debtors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static async getTransactions (startDate: string, endDate: string, page: any): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static async getTransactions(startDate: string, endDate: string, page: any): Promise<BaseResponse<PartiesPaginatedResponse>> {
     // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     return httpInstance
       .post(
@@ -46,7 +46,25 @@ export class CommonService {
       });
   }
 
-  static getPartyTransactions (
+  static async getTransactionsSpecified(companyUniqueName: any, branchUniqueName: any, startDate: string, endDate: string, page: any): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    return httpInstance
+      .post(
+        commonUrls.customer_transactions
+          .replace(':companyUniqueName', companyUniqueName)
+          .replace(':branchUniqueName', branchUniqueName)
+          .replace(':startDate', startDate)
+          .replace(':endDate', endDate)
+          .replace('page=1', `page=${page}`),
+        // .replace(':branchUniqueName', `${branchName}`),
+        {}
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+  static getPartyTransactions(
     startDate: string,
     endDate: string,
     page: any,
@@ -71,23 +89,43 @@ export class CommonService {
       });
   }
 
-  static getPartiesSundryCreditors (): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static getPartiesSundryCreditors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
       return res.data;
     });
+  }
+
+  static getPartiesSundryCreditorsSpecified(companyUniqueName: any, branchUniqueName: any): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance.post(
+      commonUrls.customer_vendor_report_sundry_creditors
+        .replace(':companyUniqueName', companyUniqueName)
+        .replace(':branchUniqueName', branchUniqueName)
+      , {}).then((res) => {
+        return res.data;
+      });
   }
 
   /**
    * get sundry creditors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static getPartiesSundryDebtors (): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static getPartiesSundryDebtors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_debtors, {}).then((res) => {
       return res.data;
     });
   }
 
-  static getPartiesMainSundryDebtors (
+  static getPartiesSundryDebtorsSpecified(companyUniqueName: any, branchUniqueName: any): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance.post(
+      commonUrls.customer_vendor_report_sundry_debtors
+        .replace(':companyUniqueName', companyUniqueName)
+        .replace(':branchUniqueName', branchUniqueName)
+      , {}).then((res) => {
+        return res.data;
+      });
+  }
+
+  static getPartiesMainSundryDebtors(
     query: any,
     sortBy: any,
     order: any,
@@ -109,7 +147,33 @@ export class CommonService {
       });
   }
 
-  static getPartiesMainSundryCreditors (
+  static getPartiesMainSundryDebtorsSpecified(
+    companyUniqueName: any,
+    branchUniqueName: any,
+    query: any,
+    sortBy: any,
+    order: any,
+    count: any,
+    page: any
+  ): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance
+      .post(
+        commonUrls.customer_vendor_report_sundry_debtors
+          .replace(':companyUniqueName', companyUniqueName)
+          .replace(':branchUniqueName', branchUniqueName)
+          .replace('q=', `q=${query}`)
+          .replace('sort=desc', `sort=${order}`)
+          .replace('count=10', `count=${count}`)
+          .replace('page=1', `page=${page}`)
+          .replace('sortBy=closingBalance', `sortBy=${sortBy}`),
+        {}
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+  static getPartiesMainSundryCreditors(
     query: any,
     sortBy: any,
     order: any,
@@ -131,11 +195,37 @@ export class CommonService {
       });
   }
 
+  static getPartiesMainSundryCreditorsSpecified(
+    companyUniqueName: any,
+    branchUniqueName: any,
+    query: any,
+    sortBy: any,
+    order: any,
+    count: any,
+    page: any
+  ): Promise<BaseResponse<PartiesPaginatedResponse>> {
+    return httpInstance
+      .post(
+        commonUrls.customer_vendor_report_sundry_creditors
+          .replace(':companyUniqueName', companyUniqueName)
+          .replace(':branchUniqueName', branchUniqueName)
+          .replace('q=', `q=${query}`)
+          .replace('sort=desc', `sort=${order}`)
+          .replace('count=10', `count=${count}`)
+          .replace('page=1', `page=${page}`)
+          .replace('sortBy=closingBalance', `sortBy=${sortBy}`),
+        {}
+      )
+      .then((res) => {
+        return res.data;
+      });
+  }
+
   /**
    * get currencies
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static renewAccessToken () {
+  static renewAccessToken() {
     return httpInstance.put(commonUrls.refreshAccessToken).then((res) => {
       return res.data;
     });
