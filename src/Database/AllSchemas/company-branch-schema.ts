@@ -26,6 +26,8 @@ const LINK_ACCOUNT = 'LINK_ACCOUNT';
 const PARENT_GROUP = 'PARENT_GROUP';
 const APPLICABLE_TAXES = 'APPLICABLE_TAXES';
 const ADDRESS = 'ADDRESS';
+const COMPANY_SUBS = 'COMPANY_SUBS';
+const COUNTRY_CODE = 'COUNTRY_CODE';
 export const rootPrimaryKey = 'userUniqueIdentifier';
 
 export const CompanyBranchSchema: ObjectSchema = {
@@ -39,12 +41,29 @@ export const CompanyBranchSchema: ObjectSchema = {
     }
 }
 
+export const countryCode: ObjectSchema = {
+    name: COUNTRY_CODE,
+    embedded: true,
+    properties: {
+        countryCode: 'string?'
+    }
+}
+
+export const companySubs: ObjectSchema = {
+    name: COMPANY_SUBS,
+    embedded: true,
+    properties: {
+        country: COUNTRY_CODE
+    }
+}
+
 export const Company: ObjectSchema = {
     name: COMPANY,
     embedded: true,
     properties: {
         uniqueName: 'string',
         name: 'string',
+        subscription: COMPANY_SUBS,
         companyCountryDetails: COMPANY_COUNTRY_DETAILS,
         branches: { type: 'list', objectType: BRANCH }
     }
@@ -224,6 +243,8 @@ export default [
     taxDetails,
     tax,
     Branch,
+    countryCode,
+    companySubs,
     Company,
     CompanyBranchSchema,
 ];

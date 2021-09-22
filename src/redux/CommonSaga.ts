@@ -18,8 +18,8 @@ export function* getCompanyAndBranches() {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
     // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    console.log('list response is' + listResponse.body);
-    console.log('list response is' + JSON.stringify(listResponse));
+    // console.log('list response is' + listResponse.body);
+    // console.log('list response is' + JSON.stringify(listResponse));
     const companyData = {};
     companyData.success = false;
     const activeCompany = yield AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
@@ -37,7 +37,7 @@ export function* getCompanyAndBranches() {
             defaultComp.subscription.country &&
             defaultComp.subscription.country.countryCode
           ) {
-            console.log('country code is ' + defaultComp.subscription.country.countryCode);
+            // console.log('country code is ' + defaultComp.subscription.country.countryCode);
             yield AsyncStorage.setItem(
               STORAGE_KEYS.activeCompanyCountryCode,
               defaultComp.subscription.country.countryCode
@@ -78,7 +78,7 @@ export function* getCompanyAndBranches() {
       }
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
-    console.log('branches are '+ JSON.stringify(branchesResponse.body));
+    // console.log('branches are '+ JSON.stringify(branchesResponse.body));
     if (branchesResponse && branchesResponse.status == 'success') {
       companyData.branchList = branchesResponse.body;
       const activeBranch = yield AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
@@ -112,7 +112,7 @@ export function* getCompanyAndBranches() {
       }
     }
     if (companyData.success == true) {
-      console.log("ajshdak ", companyData);
+      // console.log("ajshdak ", companyData);
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
     } else {

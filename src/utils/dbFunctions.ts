@@ -274,10 +274,12 @@ export const EnableOfflineMode = async (companies: any) => {
     for (let i = 0; i < companies.length; i++) {
         //changing current company so that api's don't return same response of a particular company
         console.log('changing company to ', companies[i].uniqueName);
+        console.log(companies[i]);
         companyUniqueName = companies[i].uniqueName;
         data.companies.push({
             uniqueName: companies[i].uniqueName,
             name: companies[i].name,
+            subscription: companies[i].subscription,
             companyCountryDetails: await getCompanyCountryDetails(
                 companies[i].subscription.country.countryCode
             ),
@@ -295,7 +297,7 @@ export const EnableOfflineMode = async (companies: any) => {
         realm.write(() => {
             try {
                 const result = realm.create(ROOT_DB_SCHEMA, data, Realm.UpdateMode.Modified);
-                console.log(result);
+                console.log(JSON.stringify(result));
             } catch (e) {
                 console.log('error', e);
             }
@@ -305,7 +307,7 @@ export const EnableOfflineMode = async (companies: any) => {
         realm.write(() => {
             try {
                 const result = realm.create(ROOT_DB_SCHEMA, data, Realm.UpdateMode.All);
-                console.log(result);
+                console.log(JSON.stringify(result));
             } catch (e) {
                 console.log('error', e);
             }
