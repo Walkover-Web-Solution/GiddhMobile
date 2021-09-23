@@ -92,7 +92,9 @@ export const APP_EVENTS = {
   CreditNoteCreated: 'CREDITNOTECREATED',
   DebitNoteCreated: 'DEBITNOTECREATED',
   CustomerCreated: 'CUSTOMERCREATED',
-  REFRESHPAGE: 'REFRESHPAGE'
+  REFRESHPAGE: 'REFRESHPAGE',
+  InternetAvailable: 'InternetAvailable',
+  InternetLost: 'InternetLost'
 };
 
 export const FONT_FAMILY = {

@@ -39,10 +39,11 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 // import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import { TransactionDBOptions } from '@/Database';
+import { RootDBOptions, TransactionDBOptions } from '@/Database';
 import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/transaction-schema';
 import queueFactory from 'react-native-queue';
 import { calculateDataLoadedTime, storeOffline } from '@/utils/helper';
+import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -67,14 +68,15 @@ export class SalesInvoice extends React.Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
+      allSearchedParties: [],
       searchNamesOnly: [],
+      searchResults: [],
       test: Dropdown,
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
       bottomOffset: 0,
       showInvoiceModal: false,
       partyName: undefined,
-      searchResults: [],
       searchPartyName: '',
       searchTop: height * 0.15,
       isSearchingParty: false,
@@ -203,15 +205,75 @@ export class SalesInvoice extends React.Component<Props> {
     } catch (e) { }
   }
 
+  getDbData = async () => {
+    try {
+      const realm = await Realm.open(RootDBOptions);
+      const userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      const data = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      const currentCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const currentBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      for (let i = 0; i < data?.companies?.length; i++) {
+        if (data.companies[i].uniqueName == currentCompany) {
+          this.setState({
+            companyCountryDetails: data.companies[i].companyCountryDetails
+          });
+          for (let j = 0; j < data?.companies[i]?.branches?.length; j++) {
+            const elem = data.companies[i].branches[j];
+            if (currentBranch == elem.uniqueName) {
+              if (elem?.salesCreditDebitData?.timeStamp) {
+                this.storeNamesOnly(elem?.salesCreditDebitData?.searchedParty);
+                this.setState({
+                  taxArray: elem?.tax,
+                  discountArray: elem?.discount,
+                  warehouseArray: elem?.warehouse,
+                  modesArray: elem?.modes,
+                  allSearchedParties: elem?.salesCreditDebitData?.searchedParty
+                  // }, () => {
+                  //   setInterval(() => {
+                  //     this.setState({
+                  //       dataLoadedTime: ''
+                  //     });
+                  //   }, 3 * 1000);
+                })
+              }
+              break;
+            }
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      console.log('error fetching sales invoice data from db ', error);
+    }
+  }
+
+  manageApiCalls = async () => {
+    if (this.props.isInternetReachable) {
+      this.setActiveCompanyCountry();
+      this.getAllTaxes();
+      this.getAllDiscounts();
+      this.getAllWarehouse();
+      this.getAllAccountsModes();
+      this.initialPartyFiller();
+    } else {
+      this.setState({
+        fetechingTaxList: true,
+        fetechingDiscountList: true,
+        fetechingWarehouseList: true
+      });
+      await this.getDbData();
+      this.setState({
+        fetechingTaxList: false,
+        fetechingDiscountList: false,
+        fetechingWarehouseList: false
+      });
+    }
+  }
+
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-    this.setActiveCompanyCountry();
-    this.getAllTaxes();
-    this.getAllDiscounts();
-    this.getAllWarehouse();
-    this.getAllAccountsModes();
-    this.initialPartyFiller();
+    this.manageApiCalls();
 
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
@@ -219,13 +281,8 @@ export class SalesInvoice extends React.Component<Props> {
     });
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.setActiveCompanyCountry();
       this.resetState();
-      this.getAllTaxes();
-      this.getAllDiscounts();
-      this.getAllWarehouse();
-      this.getAllAccountsModes();
-      this.initialPartyFiller();
+      this.manageApiCalls();
     });
 
     if (Platform.OS == 'ios') {
@@ -356,6 +413,29 @@ export class SalesInvoice extends React.Component<Props> {
     );
   }
 
+  filterParties = () => {
+    this.setState({
+      isSearchingParty: true
+    });
+    let filteredParties = [];
+    let filteredPartiesNames = [];
+    for (let i = 0; i < this.state.allSearchedParties.length; i++) {
+      const elem = this.state.allSearchedParties[i];
+      if (elem.name.toLowerCase().includes(this.state.searchPartyName.toLowerCase())) {
+        filteredParties.push(elem);
+        filteredPartiesNames.push(elem.name);
+      }
+    }
+    this.setState({
+      searchResults: filteredParties,
+      searchNamesOnly: filteredPartiesNames
+    }, () => {
+      this.state.test.show();
+      this.setState({
+        isSearchingParty: false
+      });
+    });
+  }
 
   renderSelectPartyName() {
     return (
@@ -416,7 +496,13 @@ export class SalesInvoice extends React.Component<Props> {
             value={this.state.searchPartyName}
             onChangeText={(text) => {
               this.state.invoiceType == INVOICE_TYPE.credit
-                ? (this.setState({ searchPartyName: text }), this.searchCalls())
+                ? (this.setState({ searchPartyName: text }, () => {
+                  if (this.props.isInternetReachable) {
+                    this.searchCalls();
+                  } else {
+                    this.filterParties();
+                  }
+                }))
                 : this.setState({ searchPartyName: text, partyName: { name: text, uniqueName: 'cash' } });
             }}
             style={style.searchTextInputStyle}
@@ -573,6 +659,18 @@ export class SalesInvoice extends React.Component<Props> {
     );
   }
 
+  storeNamesOnly = (results) => {
+    let namesOnly = [];
+    results.forEach((element, index) => {
+      namesOnly.push(element.name);
+      if (index >= results.length - 1) {
+        this.setState({
+          searchNamesOnly: namesOnly
+        })
+      }
+    });
+  }
+
   async searchUser() {
     this.setState({ isSearchingParty: true });
     try {
@@ -580,15 +678,7 @@ export class SalesInvoice extends React.Component<Props> {
       const results = await InvoiceService.search(this.state.searchPartyName, 1, 'sundrydebtors', false);
 
       if (results.body && results.body.results) {
-        let namesOnly = [];
-        results.body.results.forEach((element, index) => {
-          namesOnly.push(element.name);
-          if (index >= results.body.results.length - 1) {
-            this.setState({
-              searchNamesOnly: namesOnly
-            })
-          }
-        });
+        this.storeNamesOnly(results.body.results);
         this.setState({ searchResults: results.body.results, isSearchingParty: false, searchError: '' });
         this.state.test.show();
       }

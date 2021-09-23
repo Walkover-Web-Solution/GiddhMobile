@@ -14,6 +14,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { catch } from 'metro.config';
 import Realm from 'realm';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
+import { RootDBOptions } from '@/Database';
+import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -77,22 +79,62 @@ export class InventoryScreen extends React.Component<Props, State> {
     };
   }
 
+  getDbData = async () => {
+    try {
+      const realm = await Realm.open(RootDBOptions);
+      const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      const data: any = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      const currentCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const currentBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      for (let i = 0; i < data?.companies?.length; i++) {
+        if (data.companies[i].uniqueName == currentCompany) {
+          for (let j = 0; j < data?.companies[i]?.branches?.length; j++) {
+            const elem = data.companies[i].branches[j];
+            if (currentBranch == elem.uniqueName) {
+              if (elem?.inventory?.timeStamp) {
+                this.setState({
+                  inventoryData: elem?.inventory?.objects,
+                  dataLoadedTime: elem?.inventory?.timeStamp
+                // }, () => {
+                //   setInterval(() => {
+                //     this.setState({
+                //       dataLoadedTime: ''
+                //     });
+                //   }, 3 * 1000);
+                });
+              }
+              break;
+            }
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      console.log('error fetching inventory data from db');
+    }
+  }
+
+  manageApiCalls = async () => {
+    this.setState({
+      showLoader: true
+    });
+    if (this.props.isInternetReachable) {
+      await this.getInventories();
+    } else {
+      await this.getDbData();
+    }
+    this.setState({
+      showLoader: false
+    })
+  }
+
   componentDidMount() {
-    // Realm.open(InventoryDBOptions)
-    //   .then((Realm) => {
-    //     this.setState({
-    //       Realm: Realm
-    //     })
-    //     const inventory: any = Realm.objects(INVENTORY_SCHEMA);
-    //     if (inventory[0]?.objects?.length > 0) {
-    //       console.log("rendered last fetched data");
-    //       this.setState({
-    //         inventoryData: inventory[0].objects.toJSON(),
-    //         dataLoadedTime: inventory[0]?.timeStamp,
-    //         showLoader: false
-    //       });
-    //     }
-    //   });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetAvailable, () => {
+      this.manageApiCalls();
+    });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetLost, () => {
+      this.manageApiCalls();
+    });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
@@ -104,10 +146,10 @@ export class InventoryScreen extends React.Component<Props, State> {
           loadingMore: false,
           activeDateFilter: ''
         },
-        () => this.getInventories()
+        () => this.manageApiCalls()
       );
     });
-    this.getInventories();
+    this.manageApiCalls();
   }
 
   // updateDB = () => {
@@ -392,8 +434,10 @@ export class InventoryScreen extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = () => {
+const mapStateToProps = (state: any) => {
   return {
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    isInternetReachable: state.commonReducer.isInternetReachable
   };
 };
 

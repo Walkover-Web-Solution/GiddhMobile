@@ -274,7 +274,6 @@ export const EnableOfflineMode = async (companies: any) => {
     for (let i = 0; i < companies.length; i++) {
         //changing current company so that api's don't return same response of a particular company
         console.log('changing company to ', companies[i].uniqueName);
-        console.log(companies[i]);
         companyUniqueName = companies[i].uniqueName;
         data.companies.push({
             uniqueName: companies[i].uniqueName,

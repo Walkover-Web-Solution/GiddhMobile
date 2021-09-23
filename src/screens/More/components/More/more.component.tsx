@@ -49,12 +49,12 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   componentDidMount() {
     Realm.open(RootDBOptions).then(async (realm) => {
       const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
-      // const object: any = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
-      // if (object) {
-      //   this.setState({
-      //     offlineMode: object.active
-      //   });
-      // }
+      const object: any = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      if (object) {
+        this.setState({
+          offlineMode: object.active
+        });
+      }
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this._getActiveCompany();

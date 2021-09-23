@@ -9,7 +9,7 @@ import { getCompanyAndBranches, renewAccessToken, InternetStatus } from '../redu
 import SplashScreen from 'react-native-splash-screen';
 import AppMainNav from '@/navigation/app.main.navigator';
 import Invoice from '@/screens/Invoices/Invoice';
-import { API_CALLS, API_TYPE, STORAGE_KEYS } from '@/utils/constants';
+import { API_CALLS, API_TYPE, APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { fi } from 'date-fns/locale';
@@ -62,10 +62,14 @@ class BaseContainer extends Component {
       this.props.dispatchInternetStatus(info.isInternetReachable);
       if (info.isInternetReachable == true) {
         // alert('queue started');
+        console.log('connected');
+        DeviceEventEmitter.emit(APP_EVENTS.InternetAvailable, {});
         queue.start();
       }
       if (info.isInternetReachable == false) {
         // alert('queue paused');
+        console.log('connection lost');
+        DeviceEventEmitter.emit(APP_EVENTS.InternetLost, {});
         queue.stop();
       }
     });
@@ -74,7 +78,7 @@ class BaseContainer extends Component {
     });
   }
 
-  getCompanyBranchList = async () => {
+  getDBCompanyBranchList = async () => {
     try {
       const userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
       const realm = await Realm.open(RootDBOptions);
@@ -85,14 +89,14 @@ class BaseContainer extends Component {
         companyList: [],
         branchList: []
       };
-      for (let i = 0; i < data.companies.length; i++) {
+      for (let i = 0; i < data?.companies?.length; i++) {
         companyData.companyList.push({
           uniqueName: data.companies[i].uniqueName,
           name: data.companies[i].name,
           subscription: data.companies[i].subscription
         });
         if (data.companies[i].uniqueName == currentCompany) {
-          for (let j = 0; j < data.companies[i].branches.length; j++) {
+          for (let j = 0; j < data?.companies[i]?.branches?.length; j++) {
             const elem = data.companies[i].branches[j];
             companyData.branchList.push({
               uniqueName: elem.uniqueName,
@@ -103,9 +107,9 @@ class BaseContainer extends Component {
         }
       }
       console.log('data', JSON.stringify(companyData));
-      put(CommonActions.getCompanyAndBranchesSuccess(companyData));
+      this.props.storeCompanyBranch(companyData);
     } catch (error) {
-      put(CommonActions.getCompanyAndBranchesFailure());
+      console.log('failed to get company and branch from db in base container');
     }
 
   }
@@ -116,14 +120,16 @@ class BaseContainer extends Component {
       if (this.props.isInternetReachable) {
         this.props.getCompanyAndBranches();
       } else {
-        this.getCompanyBranchList();
+        this.getDBCompanyBranchList();
       }
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.isUserAuthenticated && !prevProps.isUserAuthenticated) {
+    if (this.props.isUserAuthenticated && !prevProps.isUserAuthenticated && this.props.isInternetReachable) {
       this.props.getCompanyAndBranches();
+    } else {
+      // this.getDBCompanyBranchList();
     }
   }
   componentWillUnmount() {
@@ -156,6 +162,9 @@ function mapDispatchToProps(dispatch) {
     dispatchInternetStatus: (status) => {
       dispatch(InternetStatus(status));
     },
+    storeCompanyBranch: (payload) => {
+      dispatch(CommonActions.getCompanyAndBranchesSuccess(payload))
+    }
   };
 }
 

@@ -18,10 +18,11 @@ import moment from 'moment';
 import * as CommonActions from '@/redux/CommonAction';
 import DownloadModal from '@/screens/Parties/components/downloadingModal';
 import Realm from 'realm';
-import { TransactionDBOptions } from '@/Database';
+import { RootDBOptions, TransactionDBOptions } from '@/Database';
 import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/transaction-schema';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import { calculateDataLoadedTime } from '@/utils/helper';
+import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -45,51 +46,78 @@ export class TransactionScreen extends React.Component {
     };
   }
 
-  get_DB_Data = () => {
-    const TransactionData: any = this.state.Realm.objects(TRANSACTION_SCHEMA);
-    if (TransactionData[0]?.timeStamp) {
-      console.log('rendered last fetch data');
-      this.setState({
-        transactionsData: TransactionData[0].objects.toJSON(),
-        dataLoadedTime: TransactionData[0].timeStamp,
-        showLoader: false
-      });
+  getDbData = async () => {
+    try {
+      const realm = await Realm.open(RootDBOptions);
+      const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      const data: any = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      const currentCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const currentBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      for (let i = 0; i < data?.companies?.length; i++) {
+        if (data.companies[i].uniqueName == currentCompany) {
+          for (let j = 0; j < data?.companies[i]?.branches?.length; j++) {
+            const elem = data.companies[i].branches[j];
+            if (currentBranch == elem.uniqueName) {
+              if (elem?.transaction?.timeStamp) {
+                this.setState({
+                  transactionsData: elem?.transaction?.objects,
+                  dataLoadedTime: elem?.transaction?.timeStamp
+                // }, () => {
+                //   setInterval(() => {
+                //     this.setState({
+                //       dataLoadedTime: ''
+                //     });
+                //   }, 3 * 1000);
+                })
+              }
+              break;
+            }
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      console.log('error fetching transactions data from db');
     }
   }
 
+  manageApiCalls = async () => {
+    this.setState({
+      showLoader: true
+    });
+    if (this.props.isInternetReachable) {
+      await this.getTransactions();
+    } else {
+      await this.getDbData();
+    }
+    this.setState({
+      showLoader: false
+    })
+  }
+
   componentDidMount() {
-    // Realm.open(TransactionDBOptions)
-    //   .then((Realm) => {
-    //     this.setState({
-    //       Realm: Realm
-    //     }, () => {
-    //       this.get_DB_Data();
-    //     });
-    //   });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetAvailable, () => {
+      this.manageApiCalls();
+    });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetLost, () => {
+      this.manageApiCalls();
+    });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
-      // this.get_DB_Data();
-      this.getTransactions()
+      this.manageApiCalls()
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      // this.get_DB_Data();
-      this.getTransactions();
+      this.manageApiCalls();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, (data) => {
-      if (data.isOffline) {
-        // this.get_DB_Data();
-      } else {
-        this.getTransactions();
-      }
+      this.manageApiCalls();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
-      // this.get_DB_Data();
-      this.getTransactions();
+      this.manageApiCalls();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.DebitNoteCreated, () => {
-      // this.get_DB_Data();
-      this.getTransactions();
+      this.manageApiCalls();
     });
-    this.getTransactions();
+    this.manageApiCalls();
   }
 
   downloadModalVisible = (value) => {
@@ -145,11 +173,6 @@ export class TransactionScreen extends React.Component {
   // }
 
   async getTransactions() {
-    if (this.state.transactionsData.length == 0) {
-      this.setState({
-        showLoader: true
-      })
-    }
     try {
       const transactions = await CommonService.getTransactions(
         this.state.startDate,
@@ -160,7 +183,6 @@ export class TransactionScreen extends React.Component {
         {
           transactionsData: transactions.body.entries,
           totalPages: transactions.body.totalPages,
-          showLoader: false
         },
         () => {
           console.log('updating db');
@@ -177,7 +199,6 @@ export class TransactionScreen extends React.Component {
       );
     } catch (e) {
       console.log(e);
-      this.setState({ showLoader: false });
       if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
         this.props.logout();
       }
@@ -293,7 +314,8 @@ export class TransactionScreen extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    isLoginInProcess: state.LoginReducer.isAuthenticatingUser
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    isInternetReachable: state.commonReducer.isInternetReachable
   };
 };
 

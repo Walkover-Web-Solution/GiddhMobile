@@ -55,6 +55,54 @@ class AddItemScreen extends React.Component<Props> {
     this.keyboardMargin = new Animated.Value(0);
   }
 
+  getDbData = async () => {
+    try {
+      const realm = await Realm.open(RootDBOptions);
+      const userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      const data = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      const currentCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const currentBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      for (let i = 0; i < data?.companies?.length; i++) {
+        if (data.companies[i].uniqueName == currentCompany) {
+          for (let j = 0; j < data?.companies[i]?.branches?.length; j++) {
+            const elem = data.companies[i].branches[j];
+            if (currentBranch == elem.uniqueName) {
+              if (elem?.salesCreditDebitData?.timeStamp) {
+                this.setState({
+                  searchResults: elem?.salesCreditDebitData?.items
+                  // }, () => {
+                  //   setInterval(() => {
+                  //     this.setState({
+                  //       dataLoadedTime: ''
+                  //     });
+                  //   }, 3 * 1000);
+                })
+              }
+              break;
+            }
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      console.log('error fetching sales invoice items data from db');
+    }
+  }
+
+  manageApiCalls = async () => {
+    if (this.state.isInternetReachable) {
+      this.searchUser();
+    } else {
+      this.setState({
+        isSearchingParty: true
+      });
+      await this.getDbData();
+      this.setState({
+        isSearchingParty: false
+      });
+    }
+  }
+
   componentDidMount() {
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
@@ -63,7 +111,7 @@ class AddItemScreen extends React.Component<Props> {
         this.setState({ bottomOffset });
       });
     }
-    this.searchUser();
+    this.manageApiCalls();
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
   }

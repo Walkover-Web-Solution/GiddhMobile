@@ -12,11 +12,13 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 import Realm from 'realm';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
-import { APP_EVENTS } from '@/utils/constants';
-import { PartiesDBOptions } from '@/Database';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { PartiesDBOptions, RootDBOptions } from '@/Database';
 import { PARTIES_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/parties-schema';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import { calculateDataLoadedTime } from '@/utils/helper';
+import AsyncStorage from '@react-native-community/async-storage';
+import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
 
 type PartiesScreenProp = {
   logout: Function;
@@ -50,19 +52,11 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     this.setState({
       debtData: this.state.debtData.sort((a, b) =>
         a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
-      ),
-      showLoader: false
+      )
     }, () => {
-      // this.updateDB();
-      // this.setState({
-      //   dataLoadedTime: 'Updated!'
-      // }, () => {
-      //   setInterval(() => {
-      //     this.setState({
-      //       dataLoadedTime: ''
-      //     })
-      //   }, 3 * 1000);
-      // })
+      this.setState({
+        showLoader: false
+      });
     });
   };
 
@@ -99,11 +93,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   }
 
   apiCalls = async () => {
-    if (this.state.debtData.length == 0) {
-      this.setState({
-        showLoader: true
-      });
-    }
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
     if (this.state.partiesCredData || this.state.partiesDebtData) {
@@ -118,32 +107,69 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     }
   };
 
+  manageApiCalls = async () => {
+    this.setState({
+      showLoader: true
+    })
+    if (this.props.isInternetReachable) {
+      await this.apiCalls();
+    } else {
+      await this.getDbData();
+      this.setState({
+        showLoader: false
+      });
+    }
+  }
 
+  getDbData = async () => {
+    try {
+      const realm = await Realm.open(RootDBOptions);
+      const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      const data: any = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      const currentCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const currentBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      for (let i = 0; i < data?.companies?.length; i++) {
+        if (data.companies[i].uniqueName == currentCompany) {
+          for (let j = 0; j < data?.companies[i]?.branches?.length; j++) {
+            const elem = data.companies[i].branches[j];
+            if (currentBranch == elem.uniqueName) {
+              if (elem?.parties?.timeStamp) {
+                this.setState({
+                  debtData: elem?.parties?.objects,
+                  dataLoadedTime: elem?.parties?.timeStamp
+                  // }, () => {
+                  //   setInterval(() => {
+                  //     this.setState({
+                  //       dataLoadedTime: ''
+                  //     });
+                  //   }, 3 * 1000);
+                })
+              }
+              break;
+            }
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      console.log('error fetching parties data from db');
+    }
+  }
 
   componentDidMount() {
-    // get parties data
-    // Realm.open(PartiesDBOptions)
-    //   .then((Realm) => {
-    //     this.setState({
-    //       Realm: Realm
-    //     })
-    //     const partiesData: any = Realm.objects(PARTIES_SCHEMA);
-    //     if (partiesData[0]?.objects?.length > 0) {
-    //       console.log("rendered last fetched data");
-    //       this.setState({
-    //         debtData: partiesData[0].objects,
-    //         dataLoadedTime: partiesData[0]?.timeStamp,
-    //         showLoader: false,
-    //       });
-    //     }
-    //   });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetAvailable, () => {
+      this.manageApiCalls();
+    });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetLost, () => {
+      this.manageApiCalls();
+    });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
-      this.apiCalls();
+      this.manageApiCalls();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.apiCalls()
+      this.manageApiCalls();
     });
-    this.apiCalls();
+    this.manageApiCalls();
   }
 
   render() {
@@ -205,9 +231,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   }
 }
 
-const mapStateToProps = () => {
+const mapStateToProps = (state: any) => {
+  const { commonReducer } = state;
   return {
-    // activeCompany: state.company.activeCompany,
+    ...commonReducer,
   };
 };
 const mapDispatchToProps = (dispatch) => {

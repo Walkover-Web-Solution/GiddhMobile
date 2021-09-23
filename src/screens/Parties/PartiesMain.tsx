@@ -30,15 +30,17 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AsyncStorage from '@react-native-community/async-storage';
 import Realm from 'realm';
-import { CustomerVendorDBOptions, PartiesDBOptions } from '@/Database';
 import { calculateDataLoadedTime } from '@/utils/helper';
-import { PARTIES_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/parties-schema';
 import { CUSTOMER_VENDOR_SCHEMA } from '@/Database/AllSchemas/display-data-schemas/customer-vendor-schema';
+import { RootDBOptions } from '@/Database';
+import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
 
 const { width } = Dimensions.get('window');
 
-export class PartiesMainScreen extends React.Component {
-  private scrollRef;
+export class PartiesMainScreen extends React.Component<any, any> {
+  private scrollRef: any;
+  listener: any;
+  inputRef: any;
   constructor(props: any) {
     super(props);
     this.inputRef = React.createRef();
@@ -63,7 +65,7 @@ export class PartiesMainScreen extends React.Component {
       currentPage: 0,
       screenWidth: Dimensions.get('window').width,
       screenHeight: Dimensions.get('window').height,
-      dataLoadedTime: 'Date and Time',
+      dataLoadedTime: '',
       Realm: Realm
     };
     Dimensions.addEventListener('change', () => {
@@ -164,7 +166,7 @@ export class PartiesMainScreen extends React.Component {
     try {
       const customerObjects: any[] = [];
       const vendorObjects: any[] = [];
-      this.state.customerData.forEach(element => {
+      this.state.customerData.forEach((element: any) => {
         customerObjects.push({
           uniqueName: element.uniqueName,
           name: element.name,
@@ -213,11 +215,6 @@ export class PartiesMainScreen extends React.Component {
 
   apiCalls = async () => {
     await this.defaultFilters();
-    if (this.state.customerData.length == 0 || this.state.vendorData.length == 0) {
-      this.setState({
-        showLoader: true
-      });
-    }
     await this.getPartiesMainSundryDebtors(
       this.state.searchQuery,
       this.state.sortBy,
@@ -232,17 +229,6 @@ export class PartiesMainScreen extends React.Component {
       this.state.count,
       this.state.VendorPage
     );
-    console.log("done fetchoing", this.state.customerData);
-    // this.updateDB();
-    // this.setState({
-    //   dataLoadedTime: 'Updated!'
-    // }, () => {
-    //   setInterval(() => {
-    //     this.setState({
-    //       dataLoadedTime: ''
-    //     });
-    //   }, 3 * 1000);
-    // });
   };
 
   filterCalls = async () => {
@@ -342,24 +328,83 @@ export class PartiesMainScreen extends React.Component {
     }
   };
 
+
+  getDbData = async () => {
+    try {
+      const realm = await Realm.open(RootDBOptions);
+      const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+      const data: any = realm.objectForPrimaryKey(ROOT_DB_SCHEMA, userEmail);
+      const currentCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const currentBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+      for (let i = 0; i < data?.companies?.length; i++) {
+        if (data.companies[i].uniqueName == currentCompany) {
+          for (let j = 0; j < data?.companies[i]?.branches?.length; j++) {
+            const elem = data.companies[i].branches[j];
+            if (currentBranch == elem.uniqueName) {
+              if (elem?.customerVendor?.timeStamp) {
+                this.setState({
+                  customerData: elem?.customerVendor?.customerObjects,
+                  vendorData: elem?.customerVendor?.vendorObjects,
+                  dataLoadedTime: elem?.customerVendor?.timeStamp
+                  // }, () => {
+                  //   setInterval(() => {
+                  //     this.setState({
+                  //       dataLoadedTime: ''
+                  //     });
+                  //   }, 3 * 1000);
+                })
+              }
+              break;
+            }
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      console.log("error fetching customer vendor data from db");
+    }
+  }
+
+  manageApiCalls = async () => {
+    this.setState({
+      showLoader: true
+    })
+    if (this.props.isInternetReachable) {
+      await this.apiCalls();
+    } else {
+      await this.getDbData();
+    }
+    this.setState({
+      showLoader: false
+    })
+  }
+
   componentDidMount() {
-    // Realm.open(CustomerVendorDBOptions)
-    //   .then((Realm) => {
-    //     this.setState({
-    //       Realm: Realm
-    //     })
-    //     const partiesData: any = Realm.objects(CUSTOMER_VENDOR_SCHEMA);
-    //     if (partiesData[0]?.customerObjects?.length > 0 && partiesData[0]?.vendorObjects?.length) {
-    //       this.setState({
-    //         customerData: partiesData[0]?.customerObjects,
-    //         vendorData: partiesData[0]?.vendorObjects,
-    //         dataLoadedTime: partiesData[0]?.timeStamp,
-    //         showLoader: false
-    //       }, () => {
-    //         console.log("rendered last fetched data");
-    //       });
-    //     }
-    //   });
+
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetAvailable, () => {
+      this.setState(
+        {
+          customerPage: 1,
+          VendorPage: 1
+        },
+        () => {
+          this.manageApiCalls();
+        }
+      );
+    });
+
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InternetLost, () => {
+      this.setState(
+        {
+          customerPage: 1,
+          VendorPage: 1
+        },
+        () => {
+          this.manageApiCalls();
+        }
+      );
+    });
+
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {
@@ -367,7 +412,7 @@ export class PartiesMainScreen extends React.Component {
           VendorPage: 1
         },
         () => {
-          this.apiCalls();
+          this.manageApiCalls();
         }
       );
     });
@@ -378,11 +423,11 @@ export class PartiesMainScreen extends React.Component {
           VendorPage: 1
         },
         () => {
-          this.apiCalls();
+          this.manageApiCalls();
         }
       );
     });
-    this.apiCalls();
+    this.manageApiCalls();
   }
 
   render() {
@@ -591,7 +636,6 @@ export class PartiesMainScreen extends React.Component {
       this.setState({
         vendorData: creditors.body.results,
         totalVendorPages: creditors.body.totalPages,
-        showLoader: false
       });
     } catch (e) {
     }
@@ -623,9 +667,10 @@ export class PartiesMainScreen extends React.Component {
   }
 }
 
-const mapStateToProps = () => {
+const mapStateToProps = (state: any) => {
+  const { commonReducer } = state;
   return {
-    // activeCompany: state.company.activeCompany,
+    ...commonReducer,
   };
 };
 
