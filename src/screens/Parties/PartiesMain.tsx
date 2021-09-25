@@ -229,6 +229,14 @@ export class PartiesMainScreen extends React.Component<any, any> {
       this.state.count,
       this.state.VendorPage
     );
+    this.setState({
+      dataLoadedTime: 'Updated!'
+    });
+    setInterval(() => {
+      this.setState({
+        dataLoadedTime: ''
+      })
+    }, 3 * 1000);
   };
 
   filterCalls = async () => {

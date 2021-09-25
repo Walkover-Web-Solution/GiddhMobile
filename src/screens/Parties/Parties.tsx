@@ -57,6 +57,14 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       this.setState({
         showLoader: false
       });
+      this.setState({
+        dataLoadedTime: 'Updated!'
+      });
+      setInterval(() => {
+        this.setState({
+          dataLoadedTime: ''
+        })
+      }, 3 * 1000);
     });
   };
 
