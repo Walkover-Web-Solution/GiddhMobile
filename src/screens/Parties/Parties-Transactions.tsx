@@ -14,7 +14,7 @@ import {
   Linking,
   StatusBar,
   Modal,
-  Platform,
+  Platform, DeviceEventEmitter, TextInput
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -40,6 +40,7 @@ import { format } from 'date-fns';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PushNotification, { Importance } from 'react-native-push-notification';
 import Dialog from 'react-native-dialog';
+import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 import Share from 'react-native-share';
 import base64 from 'react-native-base64';
@@ -47,6 +48,9 @@ import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
 import { catch } from 'metro.config';
 import color from '@/utils/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Dropdown from 'react-native-modal-dropdown';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
@@ -81,7 +85,16 @@ class PartiesTransactionScreen extends React.Component {
       datePicker: false,
       timePicker: false,
       dateTime: new Date(Date.now()),
-      iosLoaderToExport: false
+      iosLoaderToExport: false,
+      payNowButtonPressed: false,
+      payButtonPressed: false,
+      payorDropDown: Dropdown,
+      isPayorDD: false,
+      selectedPayor: null,
+      totalAmount: '',
+      totalAmountPlaceHolder: '',
+      review: '',
+      reviewPlaceHolder: ''
     };
 
   }
@@ -589,7 +602,7 @@ class PartiesTransactionScreen extends React.Component {
       console.log(e);
     }
   };
-permissonDownload = async () => {
+  permissonDownload = async () => {
     try {
       if (Platform.OS == "ios") {
         await this.exportFile();
@@ -869,7 +882,7 @@ permissonDownload = async () => {
             </View>
           </View>
           <View style={{ marginTop: Dimensions.get('window').height * 0.02 }} />
-          <View
+          {this.state.payNowButtonPressed === false ? <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -935,7 +948,104 @@ permissonDownload = async () => {
             >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
-          </View>
+          </View> :
+            <ScrollView style={{ paddingHorizontal: 20, }}>
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+                <Ionicons name="person" size={25} color="#864DD3" style={{ marginTop: 7 }} />
+                <Dropdown
+                  ref={(ref) => this.state.payorDropDown = ref}
+                  style={{ flex: 1, paddingLeft: 10 }}
+                  textStyle={{ color: 'black', fontSize: 15 }}
+                  defaultValue={"Select Payor*"}
+                  defaultTextStyle={{ color: '#808080' }}
+                  options={["Sulbha", "Sulbha", "Sulbha", "Mishra"]}
+                  renderSeparator={() => {
+                    return (<View></View>);
+                  }}
+                  onDropdownWillShow={() => this.setState({ isPayorDD: true })}
+                  onDropdownWillHide={() => this.setState({ isPayorDD: false })}
+                  dropdownStyle={{ width: '80%', height: 150, marginTop: 5, borderRadius: 10 }}
+                  dropdownTextStyle={{ color: '#1C1C1C' }}
+                  renderRow={(options) => {
+                    return (<Text style={{ padding: 10, color: '#1C1C1C' }}>{options}</Text>);
+                  }}
+                  onSelect={(index, value) => { this.setState({ selectedPayor: value }) }} />
+                <Icon
+                  style={{ transform: [{ rotate: this.state.isPayorDD ? '180deg' : '0deg' }], padding: 5, marginLeft: 20 }}
+                  name={'9'}
+                  size={12}
+                  color="#808080"
+                  onPress={() => {
+                    this.setState({ isPayorDD: true });
+                    this.state.payorDropDown.show();
+                  }}
+                />
+              </View>
+              <View style={{ flexDirection: "row", marginTop: 15 }}>
+                <View style={{ backgroundColor: '#864DD3', width: 25, height: 25, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 10 }}>
+                  <FontAwesome name={'dollar'} color="white" size={18} />
+                </View>
+                <TextInput
+                  onBlur={() => {
+                    if (this.state.totalAmount == '') {
+                      this.setState({ totalAmountPlaceHolder: '' })
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  onFocus={() => {
+                    this.setState({ totalAmountPlaceHolder: 'a' })
+                  }}
+                  onChangeText={(text) => {
+                    console.log(text)
+                    this.setState({ totalAmount: text })
+                  }
+                  }
+                  style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%" }}>
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
+                    'Total Amount' : (this.props.route.params.item.country.code == 'IN'
+                      ? '₹' : getSymbolFromCurrency(this.props.route.params.item.country.code) + this.state.totalAmount)}</Text>
+                  <Text style={{ color: '#E04646' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
+                </TextInput>
+              </View>
+              <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20 }}>
+                <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
+                <TextInput
+                  placeholder={"Review"}
+                  onChangeText={(text) => {
+                    console.log(text)
+                    this.setState({ review: text })
+                  }
+                  }
+                  style={{ fontSize: 15, marginHorizontal: 10, textAlignVertical: "center", padding: 0, width: "90%" }}>
+                  {this.state.review}
+                </TextInput>
+              </View>
+              {this.state.payButtonPressed ?
+                <View style={{
+                  alignItems: 'center',
+                  paddingHorizontal: 20,
+                  flex: 1,
+                }}>
+                  <Text style={{ fontSize: 18, color: 'black', marginTop: 40 }} >Enter OTP</Text>
+                  <OTPInputView
+                    style={{ width: '85%', height: 100, }}
+                    pinCount={6}
+                    // code={this.state.code} //You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
+                    // onCodeChanged = {code => { this.setState({code})}}
+                    autoFocusOnLoad
+                    codeInputFieldStyle={style.underlineStyleBase}
+                    onCodeFilled={(code) => {
+                      console.log(`Code is ${code}, you are good to go!`)
+                    }}
+                  />
+                  <Text style={{ fontSize: 16, color: '#808080' }} >{"An OTP has been sent to User :" + " Kriti"}</Text>
+                  <Text style={{ fontSize: 16, color: '#5773FF', marginTop: 10, marginBottom: 20 }} >Resend</Text>
+                </View> : null}
+            </ScrollView>
+          }
 
           {/* <GDRoundedDateRangeInput
             label={`${this.state.startDate + ' - ' + this.state.endDate}`}
@@ -958,41 +1068,41 @@ permissonDownload = async () => {
           {/* <TouchableOpacity
             style={{height: 40, width: 120, backgroundColor: 'pink'}}
             onPress={() => console.log(this.state.transactionsData)}></TouchableOpacity> */}
-
-          {this.state.transactionsLoader ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-              <Bars size={15} color={colors.PRIMARY_NORMAL} />
-            </View>
-          ) : (
-            <>
-              {this.state.transactionsData.length == 0 ? (
-                <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: "center", }}>
-                  <Image
-                    source={require('@/assets/images/noTransactions.png')}
-                    style={{ resizeMode: 'contain', height: 250, width: 300 }}
-                  />
-                  <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>No Transactions</Text>
-                </ScrollView>
-              ) : (
-                <FlatList
-                  style={{ marginTop: 20 }}
-                  data={this.state.transactionsData}
-                  renderItem={({ item }) => (
-                    <TransactionList
-                      item={item}
-                      downloadModal={this.shareModalVisible}
-                      transactionType={'partyTransaction'}
-                      phoneNo={this.props.route.params.item.mobileNo}
+          {this.state.payNowButtonPressed === false ?
+            this.state.transactionsLoader ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+                <Bars size={15} color={colors.PRIMARY_NORMAL} />
+              </View>
+            ) : (
+              <>
+                {this.state.transactionsData.length == 0 ? (
+                  <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: "center", }}>
+                    <Image
+                      source={require('@/assets/images/noTransactions.png')}
+                      style={{ resizeMode: 'contain', height: 250, width: 300 }}
                     />
-                  )}
-                  keyExtractor={(item) => item.uniqueName}
-                  onEndReachedThreshold={0.2}
-                  onEndReached={() => this.handleRefresh()}
-                  ListFooterComponent={this._renderFooter}
-                />
-              )}
-            </>
-          )}
+                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>No Transactions</Text>
+                  </ScrollView>
+                ) : (
+                  <FlatList
+                    style={{ marginTop: 20, marginBottom: 60 }}
+                    data={this.state.transactionsData}
+                    renderItem={({ item }) => (
+                      <TransactionList
+                        item={item}
+                        downloadModal={this.shareModalVisible}
+                        transactionType={'partyTransaction'}
+                        phoneNo={this.props.route.params.item.mobileNo}
+                      />
+                    )}
+                    keyExtractor={(item) => item.uniqueName}
+                    onEndReachedThreshold={0.2}
+                    onEndReached={() => this.handleRefresh()}
+                    ListFooterComponent={this._renderFooter}
+                  />
+                )}
+              </>
+            ) : null}
 
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.ShareModal} />
@@ -1139,6 +1249,38 @@ permissonDownload = async () => {
               </View>
             </View>
           )}
+          {this.props.route.params.item.bankPaymentDetails === false ?
+            <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+              <TouchableOpacity onPress={async () => {
+                await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1,uniqueName:this.props.route.params.item.uniqueName } }),
+                  await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+              }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                <Text style={{ fontSize: 20, color: "black" }}>Add Bank Details</Text>
+              </TouchableOpacity>
+            </View> : (this.state.creditTotal > 0 ? (
+              this.state.payButtonPressed == false ?
+                <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                  <TouchableOpacity onPress={async () => {
+                    if (this.state.payNowButtonPressed) {
+                      if (this.state.selectedPayor && this.state.totalAmount) {
+                        await this.setState({ payButtonPressed: true })
+                      } else {
+                        Alert.alert("Missing Fields", "Enter all the mandatory fields",
+                          [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+                      }
+                    } else {
+                      await this.setState({ payNowButtonPressed: true })
+                    }
+                  }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                    <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
+                  </TouchableOpacity>
+                </View> :
+                <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                  <TouchableOpacity onPress={async () => { }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                    <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
+                  </TouchableOpacity>
+                </View>) : null)
+          }
         </View>
       );
     }

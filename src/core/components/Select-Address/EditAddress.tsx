@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
@@ -16,7 +16,9 @@ export class EditAddress extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      selectedState: '',
+      selectedState: this.props.route.params.address.stateName != null && this.props.route.params.address.stateName != ''
+        ? this.props.route.params.address.stateName
+        : '',
       filteredStates: [],
       stateDropDown: Dropdown,
       addresssDropDown: Dropdown,
@@ -45,7 +47,7 @@ export class EditAddress extends React.Component<any, any> {
       state_billing:
         this.props.route.params.address.stateName != null && this.props.route.params.address.stateName != ''
           ? this.props.route.params.address.stateName
-          : 'Select',
+          : '',
       stateCode: this.props.route.params.address.stateCode ? this.props.route.params.address.stateCode : '',
       gstNo: this.props.route.params.address.gstNumber != null ? this.props.route.params.address.gstNumber : '',
       pinCode: this.props.route.params.address.pincode != null ? this.props.route.params.address.pincode : '',
@@ -124,7 +126,7 @@ export class EditAddress extends React.Component<any, any> {
       alert('Please Enter Country Name');
     } else if (
       this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode &&
-      this.state.state_billing == 'Select'
+      this.state.state_billing == ''
     ) {
       alert('Please Enter State Name');
     } else if (this.state.gstNo && this.state.gstNo.length != 15) {
@@ -137,11 +139,11 @@ export class EditAddress extends React.Component<any, any> {
         gstNumber: this.state.gstNo,
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
-        state: this.state.state_billing != 'Select' ? this.state.state_billing : '',
+        state: this.state.state_billing != '' ? this.state.state_billing : '',
         stateCode: this.state.stateCode,
         stateName: this.state.state_billing.name
           ? this.state.state_billing.name
-          : this.state.state_billing != 'Select'
+          : this.state.state_billing != ''
             ? this.state.state_billing
             : '',
       };
@@ -153,7 +155,7 @@ export class EditAddress extends React.Component<any, any> {
   setCountrySelected = async (value: any) => {
     await this.setState({ loading: true });
     await this.setState({
-      state_billing: 'Select',
+      state_billing: '',
       gstNo: '',
       selectedCountry: value,
       countryName: value.countryNamem,
@@ -193,7 +195,7 @@ export class EditAddress extends React.Component<any, any> {
     }
   };
 
-  filterStates = (text:any) =>{
+  filterStates = (text: any) => {
     if (text == '') {
       this.setState({
         filteredStates: this.state.allStates,
@@ -233,6 +235,7 @@ export class EditAddress extends React.Component<any, any> {
         <ScrollView style={style.body}>
           <Text style={style.BMfieldTitle}>Address</Text>
           <TextInput
+            placeholder={"Enter Address"}
             style={{
               borderColor: '#D9D9D9',
               borderBottomWidth: 1,
@@ -303,14 +306,17 @@ export class EditAddress extends React.Component<any, any> {
                   );
                 }}
                 renderButtonText={(text) => ''}
-                onSelect={(idx, value) => this.setState({
-                  state_billing: value,
-                  stateCode: value.code,
-                  selectedState: value
-                })}
+                onSelect={(idx, value) => {
+                  this.setState({
+                    state_billing: value,
+                    stateCode: value.code,
+                    selectedState: value
+                  })
+                }}
               />
             </View>
             <TextInput
+            placeholder={"Enter State name"}
               style={{
                 flex: 1,
                 color: '#1c1c1c',
@@ -330,12 +336,13 @@ export class EditAddress extends React.Component<any, any> {
                 })
                 setTimeout(() => {
                   this.filterStates(text);
-                }, 2000);
+                }, 1000);
               }}
             />
           </View>
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
+            placeholder={"Enter GST Number"}
             style={{
               borderColor: '#D9D9D9',
               borderBottomWidth: 1,
@@ -355,6 +362,7 @@ export class EditAddress extends React.Component<any, any> {
 
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
+            placeholder={"Enter PinCode"}
             keyboardType="number-pad"
             style={{
               borderColor: '#D9D9D9',

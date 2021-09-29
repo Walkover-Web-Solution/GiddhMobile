@@ -34,6 +34,42 @@ export class Vendors extends React.Component<Props> {
     super(props);
   }
 
+  getProps = async (uniqueName: any) => {
+    const vendorEntry = await CustomerVendorService.getVendorEntry(uniqueName)
+    if (vendorEntry.body && vendorEntry.status == "success") {
+      const vendorEntryResponse = vendorEntry.body
+      console.log("RESULT " + JSON.stringify(vendorEntry))
+      await this.setState({
+        partyName: vendorEntryResponse.name,
+        partyPlaceHolder: 'a',
+        contactNumber: vendorEntryResponse.mobileNo ? vendorEntryResponse.mobileNo : '',
+        emailId: vendorEntryResponse.emails.length > 0 ? vendorEntryResponse.emails[0] : '',
+        partyType: vendorEntryResponse.addresses[0].partyType,
+        savedAddress: {
+          street_billing: vendorEntryResponse.addresses[0].address,
+          gstin_billing: vendorEntryResponse.addresses[0].gstNumber,
+          state_billing: vendorEntryResponse.addresses[0].state,
+          pincode: vendorEntryResponse.addresses[0].pincode ? vendorEntryResponse.addresses[0].pincode : '',
+          isDefault: vendorEntryResponse.addresses[0].isDefault ? vendorEntryResponse.addresses[0].isDefault : false
+        },
+        street_billing: vendorEntryResponse.addresses[0].address,
+        gstin_billing: vendorEntryResponse.addresses[0].gstNumber,
+        state_billing: vendorEntryResponse.addresses[0].state,
+        radioBtn: vendorEntryResponse.openingBalanceType == 'DEBIT' ? 0 : 1,
+        foreignOpeningBalance: vendorEntryResponse.foreignOpeningBalance,
+        openingBalance: vendorEntryResponse.openingBalance,
+        selectedCurrency: vendorEntryResponse.currency,
+        selectedCallingCode: vendorEntryResponse.mobileCode ? vendorEntryResponse.mobileCode : '91',
+        bankName: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].bankName : '',
+        beneficiaryName: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].beneficiaryName : '',
+        bankBranchName: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].branchName : '',
+        bankAccountSwiftCode: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].swiftCode : '',
+        bankAccountNumber: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].bankAccountNo : '',
+        IFSC_Code: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].ifsc : '',
+      })
+    }
+  }
+
   clearAll = async () => {
     console.log('CLEAR ALLL Vendor')
     await this.resetState();
@@ -87,7 +123,8 @@ export class Vendors extends React.Component<Props> {
       street_billing: '',
       gstin_billing: '',
       state_billing: '',
-      pincode: ''
+      pincode: '',
+      isDefault:false
     },
     street_billing: '',
     gstin_billing: '',
@@ -302,8 +339,8 @@ export class Vendors extends React.Component<Props> {
             onChangeText={(val) => {
               this.setState({ openingBalance: val });
             }}
-            value={this.state.openingBalance}
-            placeholder="Amount"
+            value={this.state.openingBalance.toString()}
+            placeholder={"Amount"}
             style={{ borderWidth: 1, width: '30%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5 }} />
         </View>
       </View>
@@ -364,7 +401,7 @@ export class Vendors extends React.Component<Props> {
             paddingBottom: -5
           }}
           placeholder={'Enter Account No. '}
-          value={this.state.bankAccountNumber != '' ? this.state.showBankDetails : ''}
+          value={this.state.bankAccountNumber != '' ? this.state.bankAccountNumber : ''}
           multiline={true}
           onChangeText={(text) => this.setState({ bankAccountNumber: text, isAccountNoValid: !this.validateBankAccountNumberFromTextInput(text) })} />
         {this.state.isAccountNoValid && <Text style={{ fontSize: 10, color: 'red', marginTop: 0 }}>{this.state.selectedCountry.alpha2CountryCode == 'IN' ? 'Account number must contains 9 to 18 characters' : 'IBAN number must contains 23 to 34 characters'}</Text>}
@@ -512,11 +549,31 @@ export class Vendors extends React.Component<Props> {
     return true
   }
 
+  bankDetailsCheck() {
+    if (this.state.selectedCountry.alpha2CountryCode != 'AE') {
+      if (this.state.bankName == '' && this.state.IFSC_Code == '' && this.state.bankAccountNumber == '') {
+        return true
+      } else if (this.state.bankName == '' || this.state.IFSC_Code == '' || this.state.bankAccountNumber == '') {
+        Alert.alert('Error', 'All the bank fields are mandatory if you provide data for any of them', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        return false
+      }
+      return true
+    } else {
+      if (this.state.bankName == '' && this.state.beneficiaryName == '' && this.state.bankBranchName == '' && this.state.bankAccountSwiftCode != '' && this.state.bankAccountNumber != '') {
+        return true
+      } else if (this.state.bankName == '' || this.state.beneficiaryName == '' || this.state.bankBranchName == '' || this.state.bankAccountSwiftCode != '' || this.state.bankAccountNumber != '') {
+        Alert.alert('Error', 'All the bank fields are mandatory if you provide data for any of them', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        return false
+      }
+      return true
+    }
+  }
+
   genrateCustomer = () => {
     if (!this.state.partyName) {
       Alert.alert('Error', 'Please select a party.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
     } else {
-      if (this.validateMobileNumber() && this.validateEmail() && this.validateBankAccountNumber() && this.validateBankSwiftCode()) {
+      if (this.validateMobileNumber() && this.validateEmail() && this.validateBankAccountNumber() && this.validateBankSwiftCode() && this.bankDetailsCheck()) {
         this.createCustomerRequest();
       }
     }
@@ -528,12 +585,12 @@ export class Vendors extends React.Component<Props> {
       const postBody = {
         activeGroupUniqueName: 'sundrycreditors',
         name: this.state.partyName,
-        uniqueName: '',
+        uniqueName: this.props.uniqueName ? this.props.uniqueName : '',
         openingBalanceType: this.state.radioBtn == 0 ? 'DEBIT' : 'CREDIT',
         foreignOpeningBalance: this.state.foreignOpeningBalance,
         openingBalance: this.state.openingBalance,
         mobileNo: this.state.contactNumber,
-        mobileCode: '',
+        mobileCode: this.state.selectedCallingCode,
         email: this.state.emailId,
         companyName: '',
         attentionTo: '',
@@ -544,7 +601,7 @@ export class Vendors extends React.Component<Props> {
             address: this.state.savedAddress.street_billing,
             state: this.state.savedAddress.state_billing != '' ? this.state.savedAddress.state_billing : { code: null, name: '', stateGstCode: '' },
             stateCode: this.state.savedAddress.state_billing.stateGstCode ? this.state.savedAddress.state_billing.stateGstCode : null,
-            isDefault: false,
+            isDefault: this.state.savedAddress.isDefault ? this.state.savedAddress.isDefault : false,
             isComposite: false,
             partyType: this.state.partyType,
             pincode: this.state.savedAddress.pincode
@@ -564,7 +621,7 @@ export class Vendors extends React.Component<Props> {
           swiftCode: this.state.bankAccountSwiftCode
         }],
         closingBalanceTriggerAmount: '',
-        closingBalanceTriggerAmountType: 'CREDIT',
+        closingBalanceTriggerAmountType: '',
         customFields: [
         ],
         hsnNumber: '',
@@ -579,7 +636,12 @@ export class Vendors extends React.Component<Props> {
         this.setState({ loading: false });
         return;
       }
-      const results = await CustomerVendorService.createVendor(postBody);
+      let results;
+      if (this.props.uniqueName != null) {
+        results = await CustomerVendorService.updateVendor(postBody, this.props.uniqueName);
+      } else {
+        results = await CustomerVendorService.createVendor(postBody);
+      }
       if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
@@ -676,6 +738,7 @@ export class Vendors extends React.Component<Props> {
     this.setActiveCompanyCountry()
     this.getAllDeatils();
     this.checkStoredCountryCode();
+    this.props.uniqueName && this.getProps(this.props.uniqueName)
     this.props.resetFun(this.clearAll);
   }
 
@@ -720,7 +783,7 @@ export class Vendors extends React.Component<Props> {
           ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Award />
             <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
-            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>The Vendor is created successfully.</Text>
+            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{`The Vendor is ${this.props.uniqueName != null?'updated':'created'} successfully.`}</Text>
             <TouchableOpacity
               style={{
                 alignItems: 'center',
@@ -733,7 +796,7 @@ export class Vendors extends React.Component<Props> {
               }}
               onPress={() => {
                 this.setState({ successDialog: false });
-                this.props.navigation.goBack();
+                this.props.navigation.navigate("Parties");
               }}
             >
               <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Done</Text>
