@@ -168,9 +168,9 @@ export const Vendors = (props) => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[styles.rowFront, { backgroundColor: selectedItem.indexOf(item.uniqueName) != -1 ? "#ebebfa" : '#F5F5F5' }]}
-            onLongPress={async () => {
-              await addItem(item)
-            }}
+            // onLongPress={async () => {
+            //   await addItem(item)
+            // }}
             onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Vendors' })}>
             <View style={styles.viewWrap}>
               {/* {item.category === 'liabilities' && console.log("Item vendorrrrrr " + JSON.stringify(item))} */}
