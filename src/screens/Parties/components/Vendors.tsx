@@ -137,7 +137,7 @@ export const Vendors = (props) => {
 
   const navigateToBulkPaymentScreen = async () => {
     let count = 0
-    let finalSelectedItems = []
+    let finalSelectedItems :any = []
     await selectedItemDeatils.forEach((item) => {
       if (item.bankPaymentDetails) {
         finalSelectedItems.push(item)
@@ -224,7 +224,7 @@ export const Vendors = (props) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      { selectedItem.length != 0 ?
+      { selectedItem.length>0 ?
         <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 95 + "%" }}>
           <TouchableOpacity onPress={() => { navigateToBulkPaymentScreen() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
             <Text style={{ fontSize: 20, color: "white" }}>Bulk Payment</Text>

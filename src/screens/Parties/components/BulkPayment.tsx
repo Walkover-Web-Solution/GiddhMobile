@@ -21,7 +21,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import colors, { baseColor } from '@/utils/colors';
 import { TextInput } from 'react-native-gesture-handler';
 import getSymbolFromCurrency from 'currency-symbol-map';
-import { strict } from 'yargs';
 
 class BulkPayment extends React.Component {
     constructor(props: Props) {
@@ -126,6 +125,10 @@ class BulkPayment extends React.Component {
                 Alert.alert("Missing Fields", "Enter all the mandatory fields",
                     [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
                 return
+            } else if (Number(amount) <= 0) {
+                Alert.alert("Invalid", "Total Amount should be greater than zero",
+                    [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+                return
             }
         }
         this.props.navigation.navigate('BulkPaymentOTP', {
@@ -137,6 +140,8 @@ class BulkPayment extends React.Component {
     }
 
     renderItem = (item: any) => {
+        let currencySymbol = (item.country.code === 'IN' ?
+            getSymbolFromCurrency("INR") : getSymbolFromCurrency(item.country.code))
         return (
             <View style={{ marginHorizontal: 20, marginVertical: 5 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -195,8 +200,14 @@ class BulkPayment extends React.Component {
                             this.setState({ selectedItemTextinputAndReview: selectedItemTextinputAndReview })
                         }
                         }
-                        style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, width: "90%" }}>
-                        <Text style={{ color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'Total Amount' : (item.country.code === 'IN' ? getSymbolFromCurrency("INR") : getSymbolFromCurrency(item.country.code) + this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount)}</Text>
+                        style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, width: "90%", padding: 0, paddingTop: 8 }}>
+                        <Text style={{ color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                            {this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'Total Amount' :
+                                (this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount.length > 1 ||
+                                    this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount == currencySymbol ? (currencySymbol).substring(1)
+                                    : (currencySymbol))}</Text>
+                        <Text style={{ color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
+                            '' : (this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount)}</Text>
                         <Text style={{ color: '#E04646' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? '*' : ''}</Text>
                     </TextInput>
                 </View>
@@ -231,7 +242,7 @@ class BulkPayment extends React.Component {
                             this.setState({ selectedItemTextinputAndReview: selectedItemTextinputAndReview })
                         }
                         }
-                        style={{ fontSize: 15, marginHorizontal: 12, textAlignVertical: "center", padding: 0, width: "90%" }}>
+                        style={{ fontSize: 15, marginHorizontal: 10, textAlignVertical: "center", padding: 0, width: "90%", }}>
                         <Text style={{ color: this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'Remark' : this.state.selectedItemTextinputAndReview[item.uniqueName].remark}</Text>
                         <Text style={{ color: '#E04646' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? '*' : ''}</Text>
                     </TextInput>
@@ -272,8 +283,6 @@ class BulkPayment extends React.Component {
                         ref={(ref) => this.state.payorDropDown = ref}
                         style={{ flex: 1, paddingLeft: 10 }}
                         textStyle={{ color: 'black', fontSize: 15 }}
-                        defaultValue={"Select Payor*"}
-                        defaultTextStyle={{ color: '#808080', }}
                         options={["Sulbha", "Sulbha", "Sulbha", "Mishra"]}
                         renderSeparator={() => {
                             return (<View></View>);
@@ -285,7 +294,13 @@ class BulkPayment extends React.Component {
                         renderRow={(options) => {
                             return (<Text style={{ padding: 10, color: '#1C1C1C' }}>{options}</Text>);
                         }}
-                        onSelect={(index, value) => { this.setState({ selectedPayor: value }) }} />
+                        onSelect={(index, value) => { this.setState({ selectedPayor: value }) }} >
+                        <View style={{ flexDirection: "row" }}>
+                            <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                                {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor}</Text>
+                            <Text style={{ color: '#E04646' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
+                        </View>
+                    </Dropdown>
                     <Icon
                         style={{ transform: [{ rotate: this.state.isPayorDD ? '180deg' : '0deg' }], padding: 5, marginLeft: 20 }}
                         name={'9'}

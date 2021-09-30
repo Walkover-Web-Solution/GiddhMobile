@@ -19,6 +19,7 @@ class BulkPaymentOTP extends React.Component {
     }
 
     totalAmount = () => {
+        // for now using indian currency but change it in next update. 
         let totalAmount = 0
         for (var key in this.props.route.params.totalAmountAndReviews) {
             let amount = Number(this.props.route.params.totalAmountAndReviews[key].totalAmount.replace(/₹/g, ''))

@@ -328,7 +328,7 @@ export class EditAddress extends React.Component<any, any> {
                 backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null,
               }}
               enabled={this.state.allStates.length == 0 ? false : !this.state.selectStateDisable}
-              defaultValue={this.state.allStates.length == 0 ? 'No states for this country' : this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing}
+              defaultValue={this.state.allStates.length == 0 ? 'State not available' : this.state.state_billing.name != null ? this.state.state_billing.name : this.state.state_billing}
               value={this.state.selectedState}
               onChangeText={(text) => {
                 this.setState({

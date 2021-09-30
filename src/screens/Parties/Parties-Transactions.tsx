@@ -14,7 +14,7 @@ import {
   Linking,
   StatusBar,
   Modal,
-  Platform, DeviceEventEmitter, TextInput
+  Platform, DeviceEventEmitter, TextInput, ToastAndroid
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -94,7 +94,10 @@ class PartiesTransactionScreen extends React.Component {
       totalAmount: '',
       totalAmountPlaceHolder: '',
       review: '',
-      reviewPlaceHolder: ''
+      reviewPlaceHolder: '',
+      code: '',
+      currencySymbol: this.props.route.params.item.country.code == 'IN'
+        ? '₹' : getSymbolFromCurrency(this.props.route.params.item.country.code)
     };
 
   }
@@ -766,11 +769,11 @@ class PartiesTransactionScreen extends React.Component {
 
   filterCall = _.debounce(this.getTransactions, 2000);
 
-  numberWithCommas = (x) => {
+  numberWithCommas = (x: any) => {
     if (x == null) {
       return "0";
     }
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   scheduleNotification = () => {
@@ -801,6 +804,42 @@ class PartiesTransactionScreen extends React.Component {
       </View>
     );
   };
+
+  resendOTP = async () => {
+    // Resend OTP
+    await this.setState({ code: '' })
+    ToastAndroid.show("OTP resend successfully to kriti", ToastAndroid.SHORT)
+  }
+
+  confirmPayment = async () => {
+    if (this.state.code != 6) {
+      Alert.alert("Missing Fields", "Enter complete OTP",
+        [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+      return
+    }
+    // Confirm Payment
+  }
+
+  PayButtonPressed = async () => {
+    if (this.state.payNowButtonPressed) {
+      if (this.state.selectedPayor && this.state.totalAmount) {
+        if (Number(this.state.totalAmount) > 0) {
+          await this.setState({ payButtonPressed: true })
+          // Sent OTP API call
+
+        } else {
+          Alert.alert("Invalid", "Total Amount should be greater than zero",
+            [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+        }
+      } else {
+        Alert.alert("Missing Fields", "Enter all the mandatory fields",
+          [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+      }
+    } else {
+      await this.setState({ payNowButtonPressed: true })
+    }
+  }
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -959,8 +998,6 @@ class PartiesTransactionScreen extends React.Component {
                   ref={(ref) => this.state.payorDropDown = ref}
                   style={{ flex: 1, paddingLeft: 10 }}
                   textStyle={{ color: 'black', fontSize: 15 }}
-                  defaultValue={"Select Payor*"}
-                  defaultTextStyle={{ color: '#808080' }}
                   options={["Sulbha", "Sulbha", "Sulbha", "Mishra"]}
                   renderSeparator={() => {
                     return (<View></View>);
@@ -972,7 +1009,13 @@ class PartiesTransactionScreen extends React.Component {
                   renderRow={(options) => {
                     return (<Text style={{ padding: 10, color: '#1C1C1C' }}>{options}</Text>);
                   }}
-                  onSelect={(index, value) => { this.setState({ selectedPayor: value }) }} />
+                  onSelect={(index, value) => { this.setState({ selectedPayor: value }) }}>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                      {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor}</Text>
+                    <Text style={{ color: '#E04646' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
+                  </View>
+                </Dropdown>
                 <Icon
                   style={{ transform: [{ rotate: this.state.isPayorDD ? '180deg' : '0deg' }], padding: 5, marginLeft: 20 }}
                   name={'9'}
@@ -984,8 +1027,10 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                 />
               </View>
+              {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 15, color: '#808080', fontSize: 12, marginBottom: 10 }}>
+                {`Bank Bal 102233434.0 dr`}</Text> : <View style={{ marginBottom: 0 }}></View>}
               <View style={{ flexDirection: "row", marginTop: 15 }}>
-                <View style={{ backgroundColor: '#864DD3', width: 25, height: 25, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 10 }}>
+                <View style={{ backgroundColor: '#864DD3', width: 25, height: 25, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
                   <FontAwesome name={'dollar'} color="white" size={18} />
                 </View>
                 <TextInput
@@ -1000,13 +1045,14 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                   onChangeText={(text) => {
                     console.log(text)
-                    this.setState({ totalAmount: text })
-                  }
-                  }
-                  style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%" }}>
+                    this.setState({ totalAmount: (text) })
+                  }}
+                  style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
                   <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
-                    'Total Amount' : (this.props.route.params.item.country.code == 'IN'
-                      ? '₹' : getSymbolFromCurrency(this.props.route.params.item.country.code) + this.state.totalAmount)}</Text>
+                    'Total Amount' : (this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol ? (this.state.currencySymbol).substring(1)
+                      : (this.state.currencySymbol))}</Text>
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
+                    '' : (this.state.totalAmount)}</Text>
                   <Text style={{ color: '#E04646' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
@@ -1019,7 +1065,7 @@ class PartiesTransactionScreen extends React.Component {
                     this.setState({ review: text })
                   }
                   }
-                  style={{ fontSize: 15, marginHorizontal: 10, textAlignVertical: "center", padding: 0, width: "90%" }}>
+                  style={{ fontSize: 15, marginHorizontal: 8, textAlignVertical: "center", padding: 0, width: "90%", }}>
                   {this.state.review}
                 </TextInput>
               </View>
@@ -1033,8 +1079,8 @@ class PartiesTransactionScreen extends React.Component {
                   <OTPInputView
                     style={{ width: '85%', height: 100, }}
                     pinCount={6}
-                    // code={this.state.code} //You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
-                    // onCodeChanged = {code => { this.setState({code})}}
+                    code={this.state.code}
+                    onCodeChanged={code => { this.setState({ code }) }}
                     autoFocusOnLoad
                     codeInputFieldStyle={style.underlineStyleBase}
                     onCodeFilled={(code) => {
@@ -1042,7 +1088,9 @@ class PartiesTransactionScreen extends React.Component {
                     }}
                   />
                   <Text style={{ fontSize: 16, color: '#808080' }} >{"An OTP has been sent to User :" + " Kriti"}</Text>
-                  <Text style={{ fontSize: 16, color: '#5773FF', marginTop: 10, marginBottom: 20 }} >Resend</Text>
+                  <TouchableOpacity onPress={() => this.resendOTP()}>
+                    <Text style={{ fontSize: 16, color: '#5773FF', marginTop: 10, marginBottom: 20 }} >Resend</Text>
+                  </TouchableOpacity>
                 </View> : null}
             </ScrollView>
           }
@@ -1252,7 +1300,7 @@ class PartiesTransactionScreen extends React.Component {
           {this.props.route.params.item.bankPaymentDetails === false ?
             <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
               <TouchableOpacity onPress={async () => {
-                await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1,uniqueName:this.props.route.params.item.uniqueName } }),
+                await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
                   await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
               }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                 <Text style={{ fontSize: 20, color: "black" }}>Add Bank Details</Text>
@@ -1261,22 +1309,13 @@ class PartiesTransactionScreen extends React.Component {
               this.state.payButtonPressed == false ?
                 <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
                   <TouchableOpacity onPress={async () => {
-                    if (this.state.payNowButtonPressed) {
-                      if (this.state.selectedPayor && this.state.totalAmount) {
-                        await this.setState({ payButtonPressed: true })
-                      } else {
-                        Alert.alert("Missing Fields", "Enter all the mandatory fields",
-                          [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
-                      }
-                    } else {
-                      await this.setState({ payNowButtonPressed: true })
-                    }
+                    this.PayButtonPressed()
                   }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
                   </TouchableOpacity>
                 </View> :
                 <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
-                  <TouchableOpacity onPress={async () => { }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                  <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
                   </TouchableOpacity>
                 </View>) : null)
