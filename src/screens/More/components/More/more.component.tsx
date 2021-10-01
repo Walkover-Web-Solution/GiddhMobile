@@ -198,7 +198,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-          <View style={style.offlineMode}>
+          {/* <View style={style.offlineMode}>
             {this.state.isOfflineLoading ?
               <Progress.Circle
                 size={30}
@@ -236,7 +236,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               />
               : null
             }
-          </View>
+          </View> */}
           {/* <TouchableOpacity
             style={{height: 50, width: 150, backgroundColor: 'pink'}}
             onPress={() => alert(this.props.isInternetReachable)}></TouchableOpacity> */}

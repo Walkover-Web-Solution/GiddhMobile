@@ -15,7 +15,7 @@ export class PaymentServices {
       })
       .catch((_err) => {
         // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-        return null;
+        return _err;
       });
   }
   
@@ -24,14 +24,15 @@ export class PaymentServices {
    * @returns
    */
   static getAllPayor(uniqueName:any,amount:any) {
+    console.log("Get All payor API URL "+PaymentUrls.getAllPayor.replace(':uniqueName', `${uniqueName}`).replace(':amount',`${amount}`))
     return httpInstance
-      .get(PaymentUrls.getAccounts.replace(':uniqueName', `${uniqueName}`).replace(':amount',`${amount}`),{})
+      .get(PaymentUrls.getAllPayor.replace(':uniqueName', `${uniqueName}`).replace(':amount',`${amount}`),{})
       .then((res) => {
         return res.data;
       })
       .catch((_err) => {
-        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-        return null;
+        console.log(JSON.stringify(_err));
+        return _err;
       });
   }
 

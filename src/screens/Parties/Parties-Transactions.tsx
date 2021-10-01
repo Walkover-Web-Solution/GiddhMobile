@@ -95,6 +95,7 @@ class PartiesTransactionScreen extends React.Component {
       totalAmount: '',
       totalAmountPlaceHolder: '',
       review: '',
+      reviewPlaceHolder: '',
       code: '',
       currencySymbol: this.props.route.params.item.country.code == 'IN'
         ? '₹' : getSymbolFromCurrency(this.props.route.params.item.country.code),
@@ -106,23 +107,26 @@ class PartiesTransactionScreen extends React.Component {
 
   }
   componentDidMount() {
+    if (this.props.route.params.item.bankPaymentDetails && this.props.route.params.type=='Vendors') {
+      this.getBankAccountsData()
+    }
     this.getTransactions();
     PushNotification.popInitialNotification((notification) => {
       console.log('Initial Notification', notification);
     });
-    if (this.props.route.params.item.bankPaymentDetails) {
-      this.getBankAccountsData()
-    }
+    
   }
 
   async getBankAccountsData() {
-    const allAccounts = await PaymentServices.getAccounts()
+    let allAccounts = await PaymentServices.getAccounts()
+    let allPayor = await PaymentServices.getAllPayor(allAccounts.body[0].uniqueName, 1);
     if (allAccounts.status == "success") {
       await this.setState({ bankAccounts: allAccounts.body })
+      console.log(JSON.stringify(this.state.bankAccounts))
     }
-    const allPayor = await PaymentServices.getAllPayor(this.state.bankAccounts[0].uniqueName, this.state.totalAmount);
     if (allPayor.status == "success") {
       await this.setState({ selectPayorData: allPayor.body })
+      console.log(JSON.stringify(this.state.selectPayorData))
     }
   }
 
@@ -864,7 +868,7 @@ class PartiesTransactionScreen extends React.Component {
 
   PayButtonPressed = async () => {
     if (this.state.payNowButtonPressed) {
-      if (this.state.selectedPayor != null && this.state.totalAmount != null && this.state.totalAmount != '') {
+      if (this.state.selectedPayor != null && this.state.totalAmount != null && this.state.totalAmount != '' && this.state.review!='') {
         console.log("Total Amount   " + (this.state.totalAmount).substring(1))
         if (Number((this.state.totalAmount).substring(1)) > 0) {
           // Sent OTP API call
@@ -1106,14 +1110,22 @@ class PartiesTransactionScreen extends React.Component {
               <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20 }}>
                 <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
                 <TextInput
-                  placeholder={"Review"}
+                  onBlur={() => {
+                    if (this.state.review == '') {
+                      this.setState({ reviewPlaceHolder: '' })
+                    }
+                  }}
+                  onFocus={() => {
+                    this.setState({ reviewPlaceHolder: 'a' })
+                  }}
                   onChangeText={(text) => {
                     console.log(text)
                     this.setState({ review: text })
                   }
                   }
                   style={{ fontSize: 15, marginHorizontal: 8, textAlignVertical: "center", padding: 0, width: "90%", }}>
-                  {this.state.review}
+                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.reviewPlaceHolder == '' ? 'Review' : this.state.review}</Text>
+                  <Text style={{ color: '#E04646' }}>{this.state.reviewPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
               {this.state.payButtonPressed ?
@@ -1344,7 +1356,8 @@ class PartiesTransactionScreen extends React.Component {
               </View>
             </View>
           )}
-          {this.props.route.params.item.bankPaymentDetails === false ?
+          {this.props.route.params.type=='Vendors'?(
+          this.props.route.params.item.bankPaymentDetails === false?
             <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
               <TouchableOpacity onPress={async () => {
                 await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
@@ -1365,8 +1378,8 @@ class PartiesTransactionScreen extends React.Component {
                 <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                   <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
                 </TouchableOpacity>
-              </View>
-          }
+              </View>)
+          :null}
         </View>
       );
     }
