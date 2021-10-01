@@ -42,7 +42,7 @@ export class Vendors extends React.Component<Props> {
       await this.setState({
         partyName: vendorEntryResponse.name,
         partyPlaceHolder: 'a',
-        contactNumber: vendorEntryResponse.mobileNo ? vendorEntryResponse.mobileNo : '',
+        contactNumber: vendorEntryResponse.mobileNo ? (vendorEntryResponse.mobileNo).split("-").pop() : '',
         emailId: vendorEntryResponse.emails.length > 0 ? vendorEntryResponse.emails[0] : '',
         partyType: vendorEntryResponse.addresses[0].partyType,
         savedAddress: {
@@ -124,7 +124,7 @@ export class Vendors extends React.Component<Props> {
       gstin_billing: '',
       state_billing: '',
       pincode: '',
-      isDefault:false
+      isDefault: false
     },
     street_billing: '',
     gstin_billing: '',
@@ -628,14 +628,14 @@ export class Vendors extends React.Component<Props> {
         sacNumber: ''
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
-      if (!this.props.isInternetReachable) {
-        this.makeJob(API_CALLS, {
-          postbody: postBody,
-          type: API_TYPE.VENDOR
-        });
-        this.setState({ loading: false });
-        return;
-      }
+      // if (!this.props.isInternetReachable) {
+      //   this.makeJob(API_CALLS, {
+      //     postbody: postBody,
+      //     type: API_TYPE.VENDOR
+      //   });
+      //   this.setState({ loading: false });
+      //   return;
+      // }
       let results;
       if (this.props.uniqueName != null) {
         results = await CustomerVendorService.updateVendor(postBody, this.props.uniqueName);
@@ -783,7 +783,7 @@ export class Vendors extends React.Component<Props> {
           ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Award />
             <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
-            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{`The Vendor is ${this.props.uniqueName != null?'updated':'created'} successfully.`}</Text>
+            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{`The Vendor is ${this.props.uniqueName != null ? 'updated' : 'created'} successfully.`}</Text>
             <TouchableOpacity
               style={{
                 alignItems: 'center',

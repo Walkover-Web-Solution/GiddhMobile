@@ -394,14 +394,14 @@ export class Customers extends React.Component<Props> {
         sacNumber: ''
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
-      if (!this.props.isInternetReachable) {
-        this.makeJob(API_CALLS, {
-          postbody: postBody,
-          type: API_TYPE.CUSTOMER
-        });
-        this.setState({ loading: false });
-        return;
-      }
+      // if (!this.props.isInternetReachable) {
+      //   this.makeJob(API_CALLS, {
+      //     postbody: postBody,
+      //     type: API_TYPE.CUSTOMER
+      //   });
+      //   this.setState({ loading: false });
+      //   return;
+      // }
       const results = await CustomerVendorService.createCustomer(postBody);
       console.log('rabbit' + JSON.stringify(results));
       if (results.status == 'success') {

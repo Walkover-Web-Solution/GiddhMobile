@@ -137,7 +137,7 @@ export const Vendors = (props) => {
 
   const navigateToBulkPaymentScreen = async () => {
     let count = 0
-    let finalSelectedItems :any = []
+    let finalSelectedItems: any = []
     await selectedItemDeatils.forEach((item) => {
       if (item.bankPaymentDetails) {
         finalSelectedItems.push(item)
@@ -217,6 +217,10 @@ export const Vendors = (props) => {
               {item.closingBalance.amount === 0 && (
                 <View style={[styles.amountWrap, { alignItems: "flex-end" }]}>
                   <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
+                  {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
+                    await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
+                      await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                  }} ><Text style={{ color: "orange", fontSize: 13, }}>Add Bank Details</Text></TouchableOpacity>}
                 </View>
               )}
             </View>
@@ -224,7 +228,7 @@ export const Vendors = (props) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      { selectedItem.length>0 ?
+      { selectedItem.length > 0 ?
         <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 95 + "%" }}>
           <TouchableOpacity onPress={() => { navigateToBulkPaymentScreen() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
             <Text style={{ fontSize: 20, color: "white" }}>Bulk Payment</Text>
