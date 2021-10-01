@@ -71,7 +71,7 @@ export class PaymentServices {
       .catch((err) => {
         console.log(JSON.stringify(err));
         // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-        return null;
+        return err;
       });
   }
   
