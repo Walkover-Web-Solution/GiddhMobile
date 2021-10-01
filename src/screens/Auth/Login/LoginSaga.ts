@@ -1,16 +1,16 @@
-import {call, put, takeLatest, select} from 'redux-saga/effects';
+import { call, put, takeLatest, select, ForkEffect, cancel, take } from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
-import {getCompanyAndBranches} from '../../../redux/CommonAction';
+import { getCompanyAndBranches } from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
+import { STORAGE_KEYS } from '@/utils/constants';
 import LogRocket from '@logrocket/react-native';
 
 export default function* watcherSaga() {
-  yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
   yield takeLatest(ActionConstants.GOOGLE_USER_LOGIN, googleLogin);
+  yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
   yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);
   yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin);
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
@@ -22,11 +22,11 @@ export default function* watcherSaga() {
  * @param userName 
  * @param userEmail 
  */
- const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, userEmail: string,) => {
-  console.log("LogRocket "+userUniqueName+"  "+userName+" "+userEmail);
+const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, userEmail: string,) => {
+  console.log("LogRocket " + userUniqueName + "  " + userName + " " + userEmail);
   LogRocket.identify(userUniqueName, {
-      name: userName,
-      email: userEmail
+    name: userName,
+    email: userEmail
   });
 }
 
@@ -55,7 +55,7 @@ export function* verifyUserEmailPasswordLogin(action) {
     const response = yield call(LoginService.userLogin, action.payload);
     console.log("email pass login ", response);
     if (response && response.body && response.body.session && response.body.session.id) {
-      yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+      // yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
       yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
       yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
       yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
@@ -94,43 +94,47 @@ export function* verifyUserEmailPasswordLogin(action) {
 }
 
 export function* googleLogin(action) {
-  console.log('googleLogin  -----');
-  const response = yield call(LoginService.googleLogin, action.payload.token);
-  console.log('response is ', response);
-  if (response && response.body && response.body.session && response.body.session.id) {
-    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
-    yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
-    yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
-    yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
+  try {
+    console.log('googleLogin  -----');
+    const response = yield call(LoginService.googleLogin, action.payload.token);
+    console.log('response is ', response);
+    if (response && response.body && response.body.session && response.body.session.id) {
+      yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+      yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
 
-    // const response = await AuthService.submitGoogleAuthToken(payload.token);
-    yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
-    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
-    // get state details
-    // TODO: await dispatch.common.getStateDetailsAction();
+      // const response = await AuthService.submitGoogleAuthToken(payload.token);
+      yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+      // get state details
+      // TODO: await dispatch.common.getStateDetailsAction();
 
-    // get company details
-    // TODO:  await dispatch.company.getCompanyDetailsAction();
-    yield put(getCompanyAndBranches());
-    yield put(
-      LoginAction.googleLoginUserSuccess({
-        token: response.body.session.id,
-        createdAt: response.body.session.createdAt,
-        expiresAt: response.body.session.expiresAt,
-      }),
-    );
-  } else if (
-    response &&
-    response.status == 'success' &&
-    response.body &&
-    response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
-  ) {
-    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
-    yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
-    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
-    yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
-  } else {
-    yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
+      // get company details
+      // TODO:  await dispatch.company.getCompanyDetailsAction();
+      yield put(getCompanyAndBranches());
+      yield put(
+        LoginAction.googleLoginUserSuccess({
+          token: response.body.session.id,
+          createdAt: response.body.session.createdAt,
+          expiresAt: response.body.session.expiresAt,
+        }),
+      );
+    } else if (
+      response &&
+      response.status == 'success' &&
+      response.body &&
+      response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
+    ) {
+      yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+      yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+      yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
+    } else {
+      yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
+    }
+  } catch (e) {
+    console.log('error in google login ', e);
   }
 }
 export function* verifyOTP(action) {
@@ -209,7 +213,7 @@ export function* appleLogin(action) {
 
 export function* logoutUser() {
   const state = yield select();
-  const {commonReducer} = state;
+  const { commonReducer } = state;
   const id = commonReducer.userData.data.data[0].id;
 
   try {

@@ -16,6 +16,7 @@ import { EnableOfflineMode } from '@/utils/dbFunctions';
 import Realm from 'realm';
 import { RootDBOptions } from '@/Database';
 import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
+import * as Progress from 'react-native-progress';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -25,6 +26,7 @@ type MoreComponentProp = WithTranslation &
     logoutAction: Function;
     navigation: any;
     companyList: any;
+    updateProgress: any;
   };
 
 type MoreComponentState = {
@@ -54,7 +56,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         this.setState({
           offlineMode: object.active
         });
-      }
+      } 
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this._getActiveCompany();
@@ -196,14 +198,22 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-          <View style={{ paddingHorizontal: 10, marginLeft: 15, flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}>
+          <View style={style.offlineMode}>
             {this.state.isOfflineLoading ?
-              <ActivityIndicator animating={this.state.isOfflineLoading} size={28} color='black' />
+              <Progress.Circle
+                size={30}
+                progress={this.props.offlineProgress}
+                showsText={true}
+                formatText={() => {
+                  return this.props.offlineProgress * 100 + '%';
+                }}
+                key={1222}
+                />
               : this.state.offlineMode ?
                 <Ionicons name='checkmark-circle' size={28} color='#00ff00' />
                 : <View style={{ width: 28 }} />
             }
-            <Text style={style.companyNameText} >Offline Mode</Text>
+            <Text style={{ ...style.companyNameText, width: '77%' }} >Offline Mode</Text>
             {!this.state.offlineMode ?
               <Switch
                 trackColor={{ false: '#c6c6c6', true: '#3cd968' }}
@@ -214,7 +224,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                   this.setState({
                     isOfflineLoading: !this.state.isOfflineLoading
                   })
-                  await EnableOfflineMode(this.props.companyList);
+                  await EnableOfflineMode(this.props.companyList, this.props.updateProgress);
                   console.log('offline mode activated');
                   this.setState({
                     offlineMode: true,
@@ -260,7 +270,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               shadowRadius: 2.22,
               elevation: 3,
             }}
-            onPress={this.props.logout}
+            onPress={() => {
+              console.log('calling logout');
+              this.props.logout()
+            }}
           // onPress={() => console.log('working ?')}
           >
             <Ionicons name="ios-power" size={26} color={'#5773FF'} />

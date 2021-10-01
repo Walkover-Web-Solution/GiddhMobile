@@ -80,5 +80,11 @@ export default StyleSheet.create({
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon
+  },
+  offlineMode: {
+    paddingLeft: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10
   }
 });

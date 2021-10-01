@@ -248,6 +248,7 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   manageApiCalls = async () => {
+    console.log('internet ', this.props.isInternetReachable);
     if (this.props.isInternetReachable) {
       this.setActiveCompanyCountry();
       this.getAllTaxes();
@@ -729,7 +730,6 @@ export class SalesInvoice extends React.Component<Props> {
     this.setState({ isSearchingParty: true });
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
-
       if (results.body) {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);

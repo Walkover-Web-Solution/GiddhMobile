@@ -57,6 +57,14 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       this.setState({
         showLoader: false
       });
+      this.setState({
+        dataLoadedTime: 'Updated!'
+      });
+      setInterval(() => {
+        this.setState({
+          dataLoadedTime: ''
+        })
+      }, 3 * 1000);
     });
   };
 
@@ -205,7 +213,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } catch (e) {
       this.setState({ partiesDebtData: null });
       if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
-        this.props.logout();
+        //this.props.logout();
       }
       console.log("crashlog", e);
     }
@@ -223,7 +231,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } catch (e) {
       this.setState({ partiesCredData: null });
       if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
-        this.props.logout();
+        //this.props.logout();
       }
       console.log("crashlog", e);
       this.setState({ showLoader: false });

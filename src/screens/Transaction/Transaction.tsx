@@ -185,7 +185,7 @@ export class TransactionScreen extends React.Component {
           totalPages: transactions.body.totalPages,
         },
         () => {
-          console.log('updating db');
+          console.log('completed fetching transactions');
           // this.updateDB();
           this.setState({
             dataLoadedTime: 'Updated!'
@@ -200,7 +200,7 @@ export class TransactionScreen extends React.Component {
     } catch (e) {
       console.log(e);
       if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
-        this.props.logout();
+        // this.props.logout();
       }
     }
   }

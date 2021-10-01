@@ -9,9 +9,13 @@ import { ROOT_DB_SCHEMA } from '@/Database/AllSchemas/company-branch-schema';
 import Realm from 'realm';
 import { CommonService } from '@/core/services/common/common.service';
 import { InventoryService } from '@/core/services/inventory/inventory.service';
+import { put } from 'redux-saga/effects';
+import { updateOfflineProgress } from '../redux/CommonAction';
+import { round } from 'lodash';
 
 let companyUniqueName = '';
 let branchUniqueName = '';
+let progress: number = 0;
 
 const getCompanyCountryDetails = async (code: any) => {
     try {
@@ -229,7 +233,7 @@ const getInventory = async () => {
     }
 }
 
-const getBranches = async (uniqueName: any) => {
+const getBranches = async (uniqueName: any, companiesLength: any, updateProgress: any) => {
     try {
         let branchList: any[] = [];
         const branchesResponse = await CommonServiceRedux.getCompanyBranches(uniqueName);
@@ -254,6 +258,10 @@ const getBranches = async (uniqueName: any) => {
                     salesCreditDebitData: await getSalesCreditDebitData(),
                     purchaseBillData: await getPurchaseBillData()
                 });
+                progress += (1 / (companiesLength * branchesResponse.body.length));
+                progress = Math.round(progress * 100) / 100;
+                console.log(progress);
+                updateProgress(progress);
             }
         }
         return branchList;
@@ -262,7 +270,7 @@ const getBranches = async (uniqueName: any) => {
     }
 }
 
-export const EnableOfflineMode = async (companies: any) => {
+export const EnableOfflineMode = async (companies: any[], updateProgress: any) => {
     const userEmail: any = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
     let data: any = {
         timeStamp: calculateDataLoadedTime(new Date()),
@@ -272,7 +280,7 @@ export const EnableOfflineMode = async (companies: any) => {
     };
 
     for (let i = 0; i < companies.length; i++) {
-        //changing current company so that api's don't return same response of a particular company
+        // changing current company so that api's don't return same response of a particular company
         console.log('changing company to ', companies[i].uniqueName);
         companyUniqueName = companies[i].uniqueName;
         data.companies.push({
@@ -282,11 +290,12 @@ export const EnableOfflineMode = async (companies: any) => {
             companyCountryDetails: await getCompanyCountryDetails(
                 companies[i].subscription.country.countryCode
             ),
-            branches: await getBranches(companies[i].uniqueName),
+            branches: await getBranches(companies[i].uniqueName, companies.length, updateProgress),
         });
     }
 
-    console.log(JSON.stringify(data));
+    // console.log(JSON.stringify(data));
+    updateProgress(0);
 
     console.log('opening db');
 
@@ -296,7 +305,7 @@ export const EnableOfflineMode = async (companies: any) => {
         realm.write(() => {
             try {
                 const result = realm.create(ROOT_DB_SCHEMA, data, Realm.UpdateMode.Modified);
-                console.log(JSON.stringify(result));
+                // console.log(JSON.stringify(result));
             } catch (e) {
                 console.log('error', e);
             }
@@ -306,7 +315,7 @@ export const EnableOfflineMode = async (companies: any) => {
         realm.write(() => {
             try {
                 const result = realm.create(ROOT_DB_SCHEMA, data, Realm.UpdateMode.All);
-                console.log(JSON.stringify(result));
+                // console.log(JSON.stringify(result));
             } catch (e) {
                 console.log('error', e);
             }

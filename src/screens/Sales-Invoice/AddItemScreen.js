@@ -89,18 +89,19 @@ class AddItemScreen extends React.Component<Props> {
     }
   }
 
-  manageApiCalls = async () => {
-    if (this.state.isInternetReachable) {
-      this.searchUser();
-    } else {
-      this.setState({
-        isSearchingParty: true
-      });
-      await this.getDbData();
-      this.setState({
-        isSearchingParty: false
-      });
-    }
+  manageApiCall = async () => {
+    this.searchCalls();
+    // if (this.state.isInternetReachable) {
+    //   console.log('calling');
+    // } else {
+    //   this.setState({
+    //     isSearchingParty: true
+    //   });
+    //   await this.getDbData();
+    //   this.setState({
+    //     isSearchingParty: false
+    //   });
+    // }
   }
 
   componentDidMount() {
@@ -111,7 +112,8 @@ class AddItemScreen extends React.Component<Props> {
         this.setState({ bottomOffset });
       });
     }
-    this.manageApiCalls();
+    console.log('asdbajsdkh');
+    this.manageApiCall();
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
   }
