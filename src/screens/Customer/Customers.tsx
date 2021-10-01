@@ -394,7 +394,7 @@ export class Customers extends React.Component<Props> {
         sacNumber: ''
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
-      if (!this.props.isInternetReachable) {
+      if (this.props.isInternetReachable) {
         this.makeJob(API_CALLS, {
           postbody: postBody,
           type: API_TYPE.CUSTOMER
