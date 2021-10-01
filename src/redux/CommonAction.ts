@@ -53,3 +53,10 @@ export function InternetStatus(payload) {
     payload: payload,
   };
 }
+
+export function updateOfflineProgress(payload){
+  return {
+    type: Actions.UPDATE_OFFLINE,
+    payload: payload
+  }
+}

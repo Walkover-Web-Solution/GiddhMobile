@@ -1,15 +1,15 @@
 import React from 'react';
-import {StatusBar} from 'react-native';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
-import {CommonService} from '@/core/services/common/common.service';
+import { StatusBar } from 'react-native';
+import { connect } from 'react-redux';
+import { GDContainer } from '@/core/components/container/container.component';
+import { CommonService } from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
 import * as CommonActions from '@/redux/CommonAction';
 // import * as MoreActions from '@/screens/More/Redux/MoreAction';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
-type Props = connectedProps & {navigation: any};
+type Props = connectedProps & { navigation: any };
 
 export class MoreScreen extends React.Component<Props, {}> {
   constructor(props: Props) {
@@ -40,7 +40,9 @@ export class MoreScreen extends React.Component<Props, {}> {
           isFetchingCompanyList={this.props.isFetchingCompanyList}
           turnOnOfflineMode={this.props.turnOnOfflineMode}
           turnOffOfflineMode={this.props.turnOffOfflineMode}
-          offlineModeOn={this.props.offlineModeOn}
+          offlineProgress={this.props.offlineProgress}
+          updateProgress={this.props.updateProgress}
+        // offlineModeOn={this.props.offlineModeOn}
         />
       </GDContainer>
     );
@@ -48,7 +50,7 @@ export class MoreScreen extends React.Component<Props, {}> {
 }
 
 const mapStateToProps = (state) => {
-  const {commonReducer} = state;
+  const { commonReducer } = state;
 
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
@@ -59,11 +61,14 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: any) => {
   return {
     logout: () => {
       dispatch(CommonActions.logout());
     },
+    updateProgress: (payload: any) => {
+      dispatch(CommonActions.updateOfflineProgress(payload))
+    }
     // turnOnOfflineMode: () => {
     //   dispatch(MoreActions.turnOnOfflineMode());
     // },

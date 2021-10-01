@@ -1,4 +1,4 @@
-import { call, put, takeLatest, select, takeEvery } from 'redux-saga/effects';
+import { call, put, takeLatest, select, takeEvery, take } from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as CommonActions from './CommonAction';
@@ -10,8 +10,8 @@ import { DeviceEventEmitter } from 'react-native';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 export default function* watcherFCMTokenSaga() {
-  yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
+  yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
 }
 
 export function* getCompanyAndBranches() {
@@ -122,20 +122,23 @@ export function* getCompanyAndBranches() {
     yield put(CommonActions.getCompanyAndBranchesFailure());
     if (e && e.data && e.data.code && e?.data?.code != 'UNAUTHORISED') {
       console.log('logging out common saga');
-      yield put(CommonActions.logout());
+      // yield put(CommonActions.logout());
     }
   }
 }
 
 export function* logoutUser() {
-  console.log('here');
   try {
+    console.log('here');
     appleAuth.Operation.LOGOUT;
+    console.log('working');
     yield AsyncStorage.removeItem(STORAGE_KEYS.token);
+    console.log('token');
     yield AsyncStorage.removeItem(STORAGE_KEYS.googleEmail);
+    console.log('email');
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionStart);
+    console.log('start');
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionEnd);
-    // yield AsyncStorage.removeItem(STORAGE_KEYS.activeCompanyUniqueName);
     console.log('login worked');
   } catch (e) {
     console.log(e);

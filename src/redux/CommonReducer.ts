@@ -1,6 +1,6 @@
-import {Action} from '../util/types';
+import { Action } from '../util/types';
 import * as ActionConstants from './ActionConstants';
-import {REHYDRATE} from 'redux-persist';
+import { REHYDRATE } from 'redux-persist';
 
 const initialState = {
   isInternetReachable: true,
@@ -9,6 +9,7 @@ const initialState = {
   branchList: undefined,
   isFetchingCompanyList: false,
   isUnauth: false,
+  offlineProgress: 0
 };
 
 export default (state = initialState, action: Action) => {
@@ -59,6 +60,11 @@ export default (state = initialState, action: Action) => {
       return {
         ...state,
         isInternetReachable: action.payload,
+      };
+    case ActionConstants.UPDATE_OFFLINE:
+      return {
+        ...state,
+        offlineProgress: action.payload
       };
     default:
       return state;

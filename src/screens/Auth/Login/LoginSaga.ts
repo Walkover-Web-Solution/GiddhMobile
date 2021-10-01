@@ -1,4 +1,4 @@
-import { call, put, takeLatest, select } from 'redux-saga/effects';
+import { call, put, takeLatest, select, ForkEffect, cancel, take } from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
@@ -9,8 +9,8 @@ import { STORAGE_KEYS } from '@/utils/constants';
 import LogRocket from '@logrocket/react-native';
 
 export default function* watcherSaga() {
-  yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
   yield takeLatest(ActionConstants.GOOGLE_USER_LOGIN, googleLogin);
+  yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
   yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);
   yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin);
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
