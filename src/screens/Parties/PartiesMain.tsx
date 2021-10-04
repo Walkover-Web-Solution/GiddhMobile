@@ -29,7 +29,7 @@ import { Customers } from './components/Customers';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AsyncStorage from '@react-native-community/async-storage';
-import Realm from 'realm';
+// import Realm from 'realm';
 import { CustomerVendorDBOptions, PartiesDBOptions } from '@/Database';
 import { calculateDataLoadedTime } from '@/utils/helper';
 import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
@@ -63,8 +63,8 @@ export class PartiesMainScreen extends React.Component {
       currentPage: 0,
       screenWidth: Dimensions.get('window').width,
       screenHeight: Dimensions.get('window').height,
-      dataLoadedTime: 'Date and Time',
-      Realm: Realm
+      dataLoadedTime: '',
+      // Realm: Realm
     };
     Dimensions.addEventListener('change', () => {
       this.setState({
@@ -226,18 +226,16 @@ export class PartiesMainScreen extends React.Component {
       this.state.count,
       this.state.VendorPage
     );
-    if (this.state.customerPage == 1 && this.state.VendorPage == 1) {
-      this.updateDB();
-      this.setState({
-        dataLoadedTime: 'Updated!'
-      }, () => {
-        setInterval(() => {
-          this.setState({
-            dataLoadedTime: ''
-          });
-        }, 3 * 1000);
-      });
-    }
+    // this.updateDB();
+    // this.setState({
+    //   dataLoadedTime: 'Updated!'
+    // }, () => {
+    //   setInterval(() => {
+    //     this.setState({
+    //       dataLoadedTime: ''
+    //     });
+    //   }, 3 * 1000);
+    // });
   };
 
   filterCalls = async () => {
@@ -338,23 +336,23 @@ export class PartiesMainScreen extends React.Component {
   };
 
   componentDidMount() {
-    Realm.open(CustomerVendorDBOptions)
-      .then((Realm) => {
-        this.setState({
-          Realm: Realm
-        })
-        const partiesData: any = Realm.objects(CUSTOMER_VENDOR_SCHEMA);
-        if (partiesData[0]?.customerObjects?.length > 0 && partiesData[0]?.vendorObjects?.length) {
-          this.setState({
-            customerData: partiesData[0]?.customerObjects,
-            vendorData: partiesData[0]?.vendorObjects,
-            dataLoadedTime: partiesData[0]?.timeStamp,
-            showLoader: false
-          }, () => {
-            console.log("rendered last fetched data");
-          });
-        }
-      });
+    // Realm.open(CustomerVendorDBOptions)
+    //   .then((Realm) => {
+    //     this.setState({
+    //       Realm: Realm
+    //     })
+    //     const partiesData: any = Realm.objects(CUSTOMER_VENDOR_SCHEMA);
+    //     if (partiesData[0]?.customerObjects?.length > 0 && partiesData[0]?.vendorObjects?.length) {
+    //       this.setState({
+    //         customerData: partiesData[0]?.customerObjects,
+    //         vendorData: partiesData[0]?.vendorObjects,
+    //         dataLoadedTime: partiesData[0]?.timeStamp,
+    //         showLoader: false
+    //       }, () => {
+    //         console.log("rendered last fetched data");
+    //       });
+    //     }
+    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.setState(
         {
