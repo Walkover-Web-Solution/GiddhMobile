@@ -44,5 +44,9 @@ export default StyleSheet.create({
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon
+  },
+  dataLoadedTime:{
+    paddingHorizontal:10,
+    fontSize:12
   }
 });

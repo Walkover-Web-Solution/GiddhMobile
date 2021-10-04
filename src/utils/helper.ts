@@ -56,7 +56,7 @@ export const parseStringToMomentDate = (dateString: string, format?: string) => 
  * Noop
  * @constructor
  */
-export const Noop = () => {};
+export const Noop = () => { };
 
 /**
  * is network connected
@@ -64,3 +64,48 @@ export const Noop = () => {};
  */
 // eslint-disable-next-line react-hooks/rules-of-hooks
 export const isNetworkConnected = (): boolean => NetInfo.useNetInfo().isConnected;
+
+
+const getMonthString = (number: any) => {
+  if (number == 0) {
+    return 'Jan';
+  } else if (number == 1) {
+    return 'Feb';
+  } else if (number == 2) {
+    return 'Mar';
+  } else if (number == 3) {
+    return 'Apr';
+  } else if (number == 4) {
+    return 'May';
+  } else if (number == 5) {
+    return 'Jun';
+  } else if (number == 6) {
+    return 'Jul';
+  } else if (number == 7) {
+    return 'Aug';
+  } else if (number == 8) {
+    return 'Sep';
+  } else if (number == 9) {
+    return 'Oct';
+  } else if (number == 10) {
+    return 'Nov';
+  } else if (number == 11) {
+    return 'Dec';
+  }
+}
+
+export const calculateDataLoadedTime = (storedDateData: any) => {
+  const storedDate: Date = new Date(storedDateData);
+  const time = 'Last updated ';
+  const period = storedDate.getHours() > 12 ? 'PM' : 'AM';
+  const hour = storedDate.getHours() > 12 ? storedDate.getHours() - 12 : storedDate.getHours();
+  let minutes = storedDate.getMinutes().toString();
+  minutes = minutes.length == 1 ? '0' + minutes : minutes;
+  const currentDate: Date = new Date();
+  if (storedDate.getDate() == currentDate.getDate()) {
+    return time + "today, " + hour + ":" + minutes + " " + period;
+  } else {
+    const month = getMonthString(storedDate.getMonth());
+    return time + month + ' ' + storedDate.getDate() + ', ' + hour + ":" + minutes + " " + period;
+  }
+}

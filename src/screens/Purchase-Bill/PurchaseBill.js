@@ -727,6 +727,7 @@ export class PurchaseBill extends React.Component {
       // console.log('item is', item);
       const entry = {
         date: moment(this.state.date).format('DD-MM-YYYY'),
+        description: item.description,
         discounts: this.getDiscountForEntry(item),
         // discounts: [
         //   {calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''},
@@ -2266,6 +2267,7 @@ export class PurchaseBill extends React.Component {
     );
     const item = this.state.addedItems[index];
     item.quantity = Number(details.quantityText);
+    item.description = details.description;
     item.rate = Number(details.rateText);
     item.unit = Number(details.unitText);
     item.total = Number(details.total);

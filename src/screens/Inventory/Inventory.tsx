@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, FlatList, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableWithoutFeedback, Alert } from 'react-native';
 import style from '@/screens/Inventory/style';
 import InventoryList from '@/screens/Inventory/components/inventory-list.component';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -12,11 +12,22 @@ import { InventoryService } from '@/core/services/inventory/inventory.service';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { catch } from 'metro.config';
+import Realm from 'realm';
+import { InventoryDBOptions } from '@/Database/index';
+import { INVENTORY_SCHEMA } from '@/Database/AllSchemas/inventory-schema';
+import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
+import { calculateDataLoadedTime } from '@/utils/helper';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
-
-export class InventoryScreen extends React.Component<Props, {}> {
+type State = {
+  Realm: Realm,
+  inventoryData: any[],
+  invalidAlertShown: Boolean,
+  showLoader: Boolean,
+  dataLoadedTime: string
+};
+export class InventoryScreen extends React.Component<Props, State> {
   listData = [
     {
       product_name: 'Product Name',
@@ -51,6 +62,7 @@ export class InventoryScreen extends React.Component<Props, {}> {
       email: 'ebsonyfa@appdividend.com'
     }
   ];
+  listener: any;
 
   constructor(props: Props) {
     super(props);
@@ -61,11 +73,29 @@ export class InventoryScreen extends React.Component<Props, {}> {
       endDate: moment().format('DD-MM-YYYY'),
       page: 1,
       loadingMore: false,
-      activeDateFilter: ''
+      activeDateFilter: '',
+      Realm: Realm,
+      invalidAlertShown: false,
+      dataLoadedTime: ''
     };
   }
 
   componentDidMount() {
+    Realm.open(InventoryDBOptions)
+      .then((Realm) => {
+        this.setState({
+          Realm: Realm
+        })
+        const inventory: any = Realm.objects(INVENTORY_SCHEMA);
+        if (inventory[0]?.objects?.length > 0) {
+          console.log("rendered last fetched data");
+          this.setState({
+            inventoryData: inventory[0].objects.toJSON(),
+            dataLoadedTime: inventory[0]?.timeStamp,
+            showLoader: false
+          });
+        }
+      });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.setState(
         {
@@ -83,10 +113,47 @@ export class InventoryScreen extends React.Component<Props, {}> {
     this.getInventories();
   }
 
+  updateDB = () => {
+    try {
+      const objects: any[] = [];
+      this.state.inventoryData.forEach(element => {
+        const object = {
+          stockName: element.stockName,
+          inwards: {
+            quantity: element.inwards.quantity,
+            stockUnit: element.inwards.stockUnit
+          },
+          outwards: {
+            quantity: element.outwards.quantity,
+            stockUnit: element.outwards.stockUnit
+          }
+        };
+        objects.push(object);
+      });
+      const realm = this.state.Realm;
+      const existingData = realm.objects(INVENTORY_SCHEMA);
+      realm.write(() => {
+        if (existingData.length > 0) {
+          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
+          existingData[0].objects = objects;
+        } else {
+          realm.create(INVENTORY_SCHEMA, {
+            timeStamp: calculateDataLoadedTime(new Date()),
+            objects: objects
+          });
+        }
+      });
+    } catch (_err) {
+      console.log("something went wrong", _err);
+    }
+  }
+
   async getInventories() {
-    this.setState({
-      showLoader: true
-    })
+    if (this.state.inventoryData.length == 0) {
+      this.setState({
+        showLoader: true
+      });
+    }
     try {
       let totalPages = 0;
       let result = [];
@@ -105,14 +172,30 @@ export class InventoryScreen extends React.Component<Props, {}> {
         console.log("Pages to load " + totalPages);
         for (let i = 1; i <= totalPages; i++) {
           try {
+            let InventoryPageData = null;
             console.log(i);
-            const InventoryPageData = await InventoryService.getInventories(
-              companyName,
-              this.state.startDate,
-              this.state.endDate,
-              i);
-              console.log(InventoryPageData.status);
-            result = [...result, ...InventoryPageData.body.stockReport];
+            try {
+              InventoryPageData = await InventoryService?.getInventories(
+                companyName,
+                this.state.startDate,
+                this.state.endDate,
+                i);
+            } catch (e) {
+              // console.log('error in fetching', e?.message);
+              continue;
+            }
+            if (InventoryPageData && InventoryPageData?.status == 'success') {
+              result = [...result, ...InventoryPageData?.body?.stockReport];
+            } else {
+              console.log('error', InventoryPageData);
+              if (!this.state.invalidAlertShown && InventoryPageData && InventoryPageData?.message) {
+                console.log("shown");
+                Alert.alert('Alert', InventoryPageData?.message);
+                this.setState({
+                  invalidAlertShown: true
+                });
+              }
+            }
             if (check && i > 3) {
               this.setState({
                 inventoryData: result,
@@ -126,13 +209,23 @@ export class InventoryScreen extends React.Component<Props, {}> {
               });
             }
           } catch (_err) {
-            //console.log('catched');
+            console.log('catched', _err);
           }
         }
         this.setState({
           inventoryData: result,
           showLoader: false
         });
+        console.log('updating db');
+        this.updateDB();
+        this.setState({
+          dataLoadedTime: 'Updated!'
+        });
+        setInterval(() => {
+          this.setState({
+            dataLoadedTime: ''
+          })
+        }, 3 * 1000);
       }
     } catch (e) {
       console.log('Something went wrong while fetching inventories', e);
@@ -283,11 +376,17 @@ export class InventoryScreen extends React.Component<Props, {}> {
                 </View>
               )
               : (
-                <FlatList
-                  data={this.state.inventoryData}
-                  renderItem={({ item }) => <InventoryList item={item} />}
-                  keyExtractor={(item) => item.stockUniqueName}
-                />
+                <View>
+                  {this.state.dataLoadedTime.length > 0 ?
+                    <LastDataLoadedTime
+                      paddingHorizontal={10}
+                      text={this.state.dataLoadedTime} /> : null}
+                  <FlatList
+                    data={this.state.inventoryData}
+                    renderItem={({ item }) => <InventoryList item={item} />}
+                    keyExtractor={(item) => item.stockUniqueName}
+                  />
+                </View>
               )}
           </View>
         }

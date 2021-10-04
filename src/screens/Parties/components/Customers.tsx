@@ -8,6 +8,7 @@ import * as constants from '@/utils/constants';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Bars } from 'react-native-loader';
+import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 
 const amountColorStyle = (type: string) => {
   let bgColor = colors.TEXT_NORMAL;
@@ -26,9 +27,9 @@ const amountColorStyle = (type: string) => {
 };
 
 export const Customers = (props) => {
-  const { partiesData, activeCompany, handleRefresh, loadMore, navigation } = props;
+  const { partiesData, activeCompany, handleRefresh, loadMore, navigation, dataLoadedTime } = props;
 
-  function _renderFooter () {
+  function _renderFooter() {
     if (!loadMore) return null;
 
     return (
@@ -46,7 +47,7 @@ export const Customers = (props) => {
       </View>
     );
   }
-  function currencyFormat (amount: number, currencyType: string | undefined) {
+  function currencyFormat(amount: number, currencyType: string | undefined) {
     switch (currencyType) {
       case 'IND_COMMA_SEPARATED':
         // eslint-disable-next-line no-lone-blocks
@@ -88,62 +89,59 @@ export const Customers = (props) => {
   }
 
   return (
-  // <View style={{flex: 1, backgroundColor: 'pink', justifyContent: 'center', alignItems: 'center'}}>
-  //   <Text>Hello Customers</Text>
-  // </View>
-
-    <SwipeListView
-      data={partiesData}
-      // showsVerticalScrollIndicator={false}
-      // leftOpenValue={100}
-      // rightOpenValue={-100}
-      // renderHiddenItem={renderHiddenItem}
-
-      onEndReachedThreshold={0.2}
-      onEndReached={handleRefresh}
-      ListFooterComponent={_renderFooter}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.rowFront}
-          onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Creditors' })}>
-          <View style={styles.viewWrap}>
-            <Text style={styles.partiesName} numberOfLines={1}>
-              {item.name}
-            </Text>
-            {item.closingBalance.amount !== 0 && (
-              <View style={styles.amountWrap}>
-                {item.country.code === 'IN' && (
-                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
-                    {getSymbolFromCurrency('INR')}
-                    {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
-                  </Text>
-                )}
-                {item.country.code !== 'IN' && (
-                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
-                    {getSymbolFromCurrency(item.country.code)}
-                    {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
-                  </Text>
-                )}
-                <View style={{ width: 2 }} />
-                {item.closingBalance.type == 'CREDIT' && (
-                  <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
-                )}
-                {item.closingBalance.type == 'DEBIT' && (
-                  <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
-                )}
-              </View>
-            )}
-            {item.closingBalance.amount === 0 && (
-              <View style={styles.amountWrap}>
-                <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
-              </View>
-            )}
-          </View>
-          {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
-          {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
-        </TouchableOpacity>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-    />
+    <View>
+      {dataLoadedTime.length > 0 ?
+        <LastDataLoadedTime
+          paddingHorizontal={10}
+          text={dataLoadedTime} /> : null}
+      <SwipeListView
+        data={partiesData}
+        onEndReachedThreshold={0.2}
+        onEndReached={handleRefresh}
+        ListFooterComponent={_renderFooter}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.rowFront}
+            onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Creditors' })}>
+            <View style={styles.viewWrap}>
+              <Text style={styles.partiesName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              {item.closingBalance.amount !== 0 && (
+                <View style={styles.amountWrap}>
+                  {item.country.code === 'IN' && (
+                    <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
+                      {getSymbolFromCurrency('INR')}
+                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                    </Text>
+                  )}
+                  {item.country.code !== 'IN' && (
+                    <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
+                      {getSymbolFromCurrency(item.country.code)}
+                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                    </Text>
+                  )}
+                  <View style={{ width: 2 }} />
+                  {item.closingBalance.type == 'CREDIT' && (
+                    <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
+                  )}
+                  {item.closingBalance.type == 'DEBIT' && (
+                    <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
+                  )}
+                </View>
+              )}
+              {item.closingBalance.amount === 0 && (
+                <View style={styles.amountWrap}>
+                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
+                </View>
+              )}
+            </View>
+            {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
+            {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    </View>
   );
 };

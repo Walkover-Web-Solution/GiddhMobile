@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
 
-import { Image, View, Keyboard, Platform } from 'react-native';
+import { Image, View, Keyboard, Platform, ScrollView } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
@@ -134,7 +134,7 @@ class Login extends React.Component<any, any> {
     //   );
     // } else {
     return (
-      <View style={style.loginContainer}>
+      <ScrollView style={style.loginContainer} contentContainerStyle={style.verticalCenter}>
         <View style={[style.socialLoginContainer, { marginTop: this.state.keyboard ? 10 : 50 }]}>
           <View style={style.titleContainer}>
             <Text style={style.loginTextStyle}>Login to </Text>
@@ -230,7 +230,7 @@ class Login extends React.Component<any, any> {
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
         )}
-      </View>
+      </ScrollView>
     );
     // }
   }

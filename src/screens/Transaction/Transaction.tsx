@@ -15,17 +15,23 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
 import moment from 'moment';
+import * as CommonActions from '@/redux/CommonAction';
 import DownloadModal from '@/screens/Parties/components/downloadingModal';
+import Realm from 'realm';
+import { TransactionDBOptions } from '@/Database';
+import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
+import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
+import { calculateDataLoadedTime } from '@/utils/helper';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
 export class TransactionScreen extends React.Component {
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      showLoader: true,
+      showLoader: false,
       transactionsData: [],
       startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
       endDate: moment().format('DD-MM-YYYY'),
@@ -33,50 +39,42 @@ export class TransactionScreen extends React.Component {
       totalPages: 0,
       onEndReachedCalledDuringMomentum: true,
       loadingMore: false,
-      DownloadModal: false
+      DownloadModal: false,
+      dataLoadedTime: 'Time and Date',
+      Realm: Realm
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
+    Realm.open(TransactionDBOptions)
+      .then((Realm) => {
+        this.setState({
+          Realm: Realm
+        });
+        const TransactionData: any = Realm.objects(TRANSACTION_SCHEMA);
+        if (TransactionData[0]?.objects?.length > 0) {
+          console.log('rendered last fetch data');
+          this.setState({
+            transactionsData: TransactionData[0].objects.toJSON(),
+            dataLoadedTime: TransactionData[0].timeStamp,
+            showLoader: false
+          });
+        }
+      });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
-      this.setState(
-        {
-          showLoader: true
-        },
-        () => this.getTransactions()
-      );
+      this.getTransactions()
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.setState(
-        {
-          showLoader: true
-        },
-        () => this.getTransactions()
-      );
+      this.getTransactions();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, () => {
-      this.setState(
-        {
-          showLoader: true
-        },
-        () => this.getTransactions()
-      );
+      this.getTransactions();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
-      this.setState(
-        {
-          showLoader: true
-        },
-        () => this.getTransactions()
-      );
+      this.getTransactions();
     });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.DebitNoteCreated, () => {
-      this.setState(
-        {
-          showLoader: true
-        },
-        () => this.getTransactions()
-      );
+      this.getTransactions();
     });
     this.getTransactions();
   }
@@ -90,7 +88,55 @@ export class TransactionScreen extends React.Component {
     console.log(v1);
   };
 
-  async getTransactions () {
+  updateDB = () => {
+    try {
+      const objects: any[] = [];
+      this.state.transactionsData.forEach(element => {
+        objects.push({
+          particular: {
+            name: element.particular.name
+          },
+          voucherName: element.voucherName,
+          entryDate: element.entryDate,
+          voucherNo: element.voucherNo,
+          otherTransactions: [{
+            amount: element.otherTransactions[0]?.amount,
+            inventory: element.otherTransactions[0]?.inventory ? {
+              quantity: element.otherTransactions[0]?.inventory?.quantity
+            } : null,
+            particular: {
+              currency: {
+                code: element.otherTransactions[0]?.particular.currency?.code
+              }
+            }
+          }],
+          creditAmount: element.creditAmount,
+          debitAmount: element.debitAmount
+        });
+      });
+      const existingData = this.state.Realm.objects(TRANSACTION_SCHEMA);
+      this.state.Realm.write(() => {
+        if (existingData.length > 0) {
+          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
+          existingData[0].objects = objects;
+        } else {
+          this.state.Realm.create(TRANSACTION_SCHEMA, {
+            timeStamp: calculateDataLoadedTime(new Date()),
+            objects: objects,
+          });
+        }
+      });
+    } catch (error) {
+      console.log("error updating db ", error);
+    }
+  }
+
+  async getTransactions() {
+    if (this.state.transactionsData.length == 0) {
+      this.setState({
+        showLoader: true
+      })
+    }
     try {
       const transactions = await CommonService.getTransactions(
         this.state.startDate,
@@ -102,16 +148,30 @@ export class TransactionScreen extends React.Component {
           transactionsData: transactions.body.entries,
           totalPages: transactions.body.totalPages,
           showLoader: false
+        },
+        () => {
+          console.log('updating db');
+          this.updateDB();
+          this.setState({
+            dataLoadedTime: 'Updated!'
+          });
+          setInterval(() => {
+            this.setState({
+              dataLoadedTime: '',
+            })
+          }, 3 * 1000);
         }
-        // () => console.log(JSON.stringify(transactions)),
       );
     } catch (e) {
       console.log(e);
       this.setState({ showLoader: false });
+      if (e.data.code != 'UNAUTHORISED') {
+        this.props.logout();
+      }
     }
   }
 
-  async handleLoadMore () {
+  async handleLoadMore() {
     try {
       const transactions = await CommonService.getTransactions(
         this.state.startDate,
@@ -167,7 +227,6 @@ export class TransactionScreen extends React.Component {
           width: '100%',
           height: 100,
           bottom: 10,
-          // backgroundColor: 'pink',
           justifyContent: 'center',
           alignItems: 'center'
         }}>
@@ -176,7 +235,7 @@ export class TransactionScreen extends React.Component {
     );
   };
 
-  render () {
+  render() {
     if (this.state.showLoader) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -186,49 +245,32 @@ export class TransactionScreen extends React.Component {
     } else {
       return (
         <View style={style.container}>
-          {/* <GDRoundedDateRangeInput
-            label="Select Date"
-            startDate={this.state.startDate}
-            endDate={this.state.endDate}
-            onChangeDate={this.changeDate}
-          /> */}
-          {/* <View style={style.filterStyle}>
-            <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={() => console.log(this.state.endDate)}>
-              <GdSVGIcons.download style={styles.iconStyle} width={18} height={18} />
-            </TouchableOpacity>
-            <View style={{width: 15}} />
-            <TouchableOpacity style={style.iconCard} delayPressIn={0} onPress={this.func1}>
-              <GdSVGIcons.sort style={styles.iconStyle} width={18} height={18} />
-            </TouchableOpacity>
-          </View> */}
-          {/* <TouchableOpacity
-            style={{height: 50, width: 100, backgroundColor: 'pink'}}
-            onPress={async () =>
-              await analytics().logEvent('transactions', {
-                item: 'transactions button pressed',
-              })
-            }></TouchableOpacity> */}
-
           {this.state.transactionsData.length == 0
             ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
-              <Image
-                source={require('@/assets/images/noTransactions.png')}
-                style={{ resizeMode: 'contain', height: 250, width: 300 }}
-              />
-              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
-            </View>
-              )
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
+                <Image
+                  source={require('@/assets/images/noTransactions.png')}
+                  style={{ resizeMode: 'contain', height: 250, width: 300 }}
+                />
+                <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
+              </View>
+            )
             : (
-            <FlatList
-              data={this.state.transactionsData}
-              renderItem={({ item }) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}
-              keyExtractor={(item) => item.createdAt}
-              onEndReachedThreshold={0.2}
-              onEndReached={() => this.handleRefresh()}
-              ListFooterComponent={this._renderFooter}
-            />
-              )}
+              <View>
+                {this.state.dataLoadedTime.length > 0 ?
+                  <LastDataLoadedTime
+                    paddingHorizontal={10}
+                    text={this.state.dataLoadedTime} /> : null}
+                <FlatList
+                  data={this.state.transactionsData}
+                  renderItem={({ item }) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}
+                  keyExtractor={(item) => item.createdAt}
+                  onEndReachedThreshold={0.2}
+                  onEndReached={() => this.handleRefresh()}
+                  ListFooterComponent={this._renderFooter}
+                />
+              </View>
+            )}
           <DownloadModal modalVisible={this.state.DownloadModal} />
         </View>
       );
@@ -242,10 +284,13 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = () => {
+const mapDispatchToProps = (dispatch) => {
   return {
     // getCountriesAction: dispatch.common.getCountriesAction,
     // logoutAction: dispatch.auth.logoutAction,
+    logout: () => {
+      dispatch(CommonActions.logout());
+    }
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionScreen);

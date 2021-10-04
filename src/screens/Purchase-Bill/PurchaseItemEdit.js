@@ -52,6 +52,7 @@ class PurchaseItemEdit extends Component {
       selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
       editItemDetails: {
         quantityText: this.props.itemDetails.quantity,
+        description: this.props.itemDetails.description,
         hsnNumber: this.props.itemDetails.hsnNumber,
         sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
@@ -261,6 +262,32 @@ class PurchaseItemEdit extends Component {
           </View>
         </TouchableOpacity>
       </Modal>
+    );
+  }
+
+  _renderDescriptionField() {
+    return (
+      <TextInput
+        placeholder='Add Description'
+        numberOfLines={10}
+        value={this.state.editItemDetails.description}
+        onChangeText={(text) => {
+          this.setState({
+            editItemDetails: {
+              ...this.state.editItemDetails,
+              description:text
+            }
+          })
+        }}
+        style={{
+          marginHorizontal: 16,
+          borderWidth: 1,
+          borderRadius: 10,
+          borderColor: '#5773FF',
+          textAlignVertical: 'top',
+          padding: 8
+        }}
+      />
     );
   }
 
@@ -976,7 +1003,7 @@ class PurchaseItemEdit extends Component {
         {this._renderBottomSheetTax()}
         {this._renderHsn()}
         {this._renderFinalTotal()}
-
+        {this._renderDescriptionField()}
         {/* <TouchableOpacity
           style={{height: 50, width: 50, backgroundColor: 'pink'}}
           onPress={() => console.log(this.props.discountArray)}></TouchableOpacity> */}

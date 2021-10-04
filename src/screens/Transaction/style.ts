@@ -7,7 +7,7 @@ export default StyleSheet.create({
     flex: 1,
 
     backgroundColor: colors.BACKGROUND,
-    paddingTop: 10
+    // paddingTop: 10
   },
   filterStyle: {
     flexDirection: 'row',
@@ -48,5 +48,10 @@ export default StyleSheet.create({
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon
+  },
+  dataLoadedTime:{
+    fontSize:12,
+    paddingHorizontal:10,
+    marginBottom:5
   }
 });

@@ -10,6 +10,7 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Company } from '@/models/interfaces/company';
 import { Bars } from 'react-native-loader';
+import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -48,7 +49,7 @@ const amountColorStyle = (type: string) => {
 };
 
 export const Vendors = (props) => {
-  const { partiesData, activeCompany, handleRefresh, loadMore, navigation } = props;
+  const { partiesData, activeCompany, handleRefresh, loadMore, navigation, dataLoadedTime } = props;
 
   function _renderFooter () {
     if (!loadMore) return null;
@@ -111,15 +112,13 @@ export const Vendors = (props) => {
   }
 
   return (
-    // <View style={{flex: 1, backgroundColor: 'pink', justifyContent: 'center', alignItems: 'center'}}>
-    //   <Text>Hello Vendors</Text>
-    // </View>
+    <View>
+      {dataLoadedTime.length > 0 ?
+        <LastDataLoadedTime
+          paddingHorizontal={10}
+          text={dataLoadedTime} /> : null}
     <SwipeListView
       data={partiesData}
-      // showsVerticalScrollIndicator={false}
-      // leftOpenValue={100}
-      // rightOpenValue={-100}
-      // renderHiddenItem={renderHiddenItem}
       onEndReachedThreshold={0.2}
       onEndReached={handleRefresh}
       ListFooterComponent={_renderFooter}
@@ -166,5 +165,6 @@ export const Vendors = (props) => {
       )}
       keyExtractor={(item, index) => index.toString()}
     />
+    </View>
   );
 };
