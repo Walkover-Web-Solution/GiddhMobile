@@ -9,7 +9,7 @@ import { PartiesList } from '@/screens/Parties/components/parties-list.component
 import { CommonService } from '@/core/services/common/common.service';
 import * as CommonActions from '@/redux/CommonAction';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
-import Realm from 'realm';
+// import Realm from 'realm';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
 import { APP_EVENTS } from '@/utils/constants';
@@ -28,7 +28,7 @@ type PartiesScreenState = {
   partiesCredData: any;
   debtData: any;
   creditors: boolean;
-  Realm: Realm;
+  // Realm: Realm;
   dataLoadedTime: string
 };
 
@@ -41,7 +41,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       partiesCredData: [],
       debtData: [],
       creditors: false,
-      Realm: Realm,
+      // Realm: Realm,
       dataLoadedTime: ''
     };
   }
@@ -53,16 +53,16 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       ),
       showLoader: false
     }, () => {
-      this.updateDB();
-      this.setState({
-        dataLoadedTime: 'Updated!'
-      }, () => {
-        setInterval(() => {
-          this.setState({
-            dataLoadedTime: ''
-          })
-        }, 3 * 1000);
-      })
+      // this.updateDB();
+      // this.setState({
+      //   dataLoadedTime: 'Updated!'
+      // }, () => {
+      //   setInterval(() => {
+      //     this.setState({
+      //       dataLoadedTime: ''
+      //     })
+      //   }, 3 * 1000);
+      // })
     });
   };
 
@@ -120,21 +120,21 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   componentDidMount() {
     // get parties data
-    Realm.open(PartiesDBOptions)
-      .then((Realm) => {
-        this.setState({
-          Realm: Realm
-        })
-        const partiesData: any = Realm.objects(PARTIES_SCHEMA);
-        if (partiesData[0]?.objects?.length > 0) {
-          console.log("rendered last fetched data");
-          this.setState({
-            debtData: partiesData[0].objects,
-            dataLoadedTime: partiesData[0]?.timeStamp,
-            showLoader: false,
-          });
-        }
-      });
+    // Realm.open(PartiesDBOptions)
+    //   .then((Realm) => {
+    //     this.setState({
+    //       Realm: Realm
+    //     })
+    //     const partiesData: any = Realm.objects(PARTIES_SCHEMA);
+    //     if (partiesData[0]?.objects?.length > 0) {
+    //       console.log("rendered last fetched data");
+    //       this.setState({
+    //         debtData: partiesData[0].objects,
+    //         dataLoadedTime: partiesData[0]?.timeStamp,
+    //         showLoader: false,
+    //       });
+    //     }
+    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.apiCalls();
     });
@@ -177,7 +177,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } catch (e) {
       this.setState({ debtData: new PartiesPaginatedResponse() });
       if (e.data.code != 'UNAUTHORISED') {
-        this.props.logout();
+        // this.props.logout();
       }
       console.log("crashlog", e);
     }
@@ -195,7 +195,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } catch (e) {
       this.setState({ partiesCredData: new PartiesPaginatedResponse() });
       if (e.data.code != 'UNAUTHORISED') {
-        this.props.logout();
+        // this.props.logout();
       }
       console.log("crashlog", e);
       this.setState({ showLoader: false });

@@ -119,7 +119,7 @@ export function* getCompanyAndBranches() {
     }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());
-    yield put(CommonActions.logout());
+    // yield put(CommonActions.logout());
   }
 }
 
