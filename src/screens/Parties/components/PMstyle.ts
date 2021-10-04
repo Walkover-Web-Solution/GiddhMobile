@@ -44,6 +44,9 @@ export default StyleSheet.create({
     paddingBottom: 10
   },
   amountWrap: {
+    flex:1,
+  },
+  customerAmountWrap: {
     justifyContent: 'flex-end',
     flexDirection: 'row',
     width: '35%'
@@ -54,6 +57,12 @@ export default StyleSheet.create({
     fontSize: constants.GD_FONT_SIZE.medium
   },
   iconStyle: {
+    height: GD_ICON_SIZE.input_icon,
+    width: GD_ICON_SIZE.input_icon,
+    alignSelf: 'flex-start',
+    marginTop:4
+  },
+  customerIconStyle: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
     alignSelf: 'center'

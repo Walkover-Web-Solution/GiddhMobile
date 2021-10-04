@@ -107,8 +107,8 @@ export const Customers = (props) => {
               <Text style={styles.partiesName} numberOfLines={1}>
                 {item.name}
               </Text>
-              {item.closingBalance.amount !== 0 && (
-                <View style={styles.amountWrap}>
+              {item.closingBalance?.amount !== 0 && (
+                <View style={styles.customerAmountWrap}>
                   {item.country.code === 'IN' && (
                     <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                       {getSymbolFromCurrency('INR')}
@@ -123,15 +123,15 @@ export const Customers = (props) => {
                   )}
                   <View style={{ width: 2 }} />
                   {item.closingBalance.type == 'CREDIT' && (
-                    <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
+                    <GdSVGIcons.outgoing style={styles.customerIconStyle} width={10} height={10} />
                   )}
                   {item.closingBalance.type == 'DEBIT' && (
-                    <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
+                    <GdSVGIcons.incoming style={styles.customerIconStyle} width={10} height={10} />
                   )}
                 </View>
               )}
               {item.closingBalance.amount === 0 && (
-                <View style={styles.amountWrap}>
+                <View style={styles.customerAmountWrap}>
                   <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
                 </View>
               )}

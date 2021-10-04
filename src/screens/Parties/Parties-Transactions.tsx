@@ -14,7 +14,7 @@ import {
   Linking,
   StatusBar,
   Modal,
-  Platform,
+  Platform, DeviceEventEmitter, TextInput, ToastAndroid
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -40,6 +40,7 @@ import { format } from 'date-fns';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PushNotification, { Importance } from 'react-native-push-notification';
 import Dialog from 'react-native-dialog';
+import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 import Share from 'react-native-share';
 import base64 from 'react-native-base64';
@@ -47,6 +48,10 @@ import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
 import { catch } from 'metro.config';
 import color from '@/utils/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Dropdown from 'react-native-modal-dropdown';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { PaymentServices } from '@/core/services/payment/payment';
 
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
@@ -81,15 +86,48 @@ class PartiesTransactionScreen extends React.Component {
       datePicker: false,
       timePicker: false,
       dateTime: new Date(Date.now()),
-      iosLoaderToExport: false
+      iosLoaderToExport: false,
+      payNowButtonPressed: false,
+      payButtonPressed: false,
+      payorDropDown: Dropdown,
+      isPayorDD: false,
+      selectedPayor: null,
+      totalAmount: '',
+      totalAmountPlaceHolder: '',
+      review: '',
+      reviewPlaceHolder: '',
+      code: '',
+      currencySymbol: this.props.route.params.item.country.code == 'IN'
+        ? '₹' : getSymbolFromCurrency(this.props.route.params.item.country.code),
+      selectPayorData: [],
+      bankAccounts: [],
+      OTPMessage: "",
+      requestIdOTP: ''
     };
 
   }
   componentDidMount() {
+    if (this.props.route.params.item.bankPaymentDetails && this.props.route.params.type=='Vendors') {
+      this.getBankAccountsData()
+    }
     this.getTransactions();
     PushNotification.popInitialNotification((notification) => {
       console.log('Initial Notification', notification);
     });
+    
+  }
+
+  async getBankAccountsData() {
+    let allAccounts = await PaymentServices.getAccounts()
+    let allPayor = await PaymentServices.getAllPayor(allAccounts.body[0].uniqueName, 1);
+    if (allAccounts.status == "success") {
+      await this.setState({ bankAccounts: allAccounts.body })
+      console.log(JSON.stringify(this.state.bankAccounts))
+    }
+    if (allPayor.status == "success") {
+      await this.setState({ selectPayorData: allPayor.body })
+      console.log(JSON.stringify(this.state.selectPayorData))
+    }
   }
 
   createChannel = () => {
@@ -589,7 +627,7 @@ class PartiesTransactionScreen extends React.Component {
       console.log(e);
     }
   };
-permissonDownload = async () => {
+  permissonDownload = async () => {
     try {
       if (Platform.OS == "ios") {
         await this.exportFile();
@@ -662,6 +700,7 @@ permissonDownload = async () => {
         .then(async (res) => {
           let base64Str = await res.base64();
           let base69 = await base64.decode(base64Str);
+          console.log("gfdhsgdhsdg hh "+JSON.stringify(base69))
           let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
           await this.setState({ ShareModal: false });
           await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
@@ -753,11 +792,11 @@ permissonDownload = async () => {
 
   filterCall = _.debounce(this.getTransactions, 2000);
 
-  numberWithCommas = (x) => {
+  numberWithCommas = (x: any) => {
     if (x == null) {
       return "0";
     }
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   scheduleNotification = () => {
@@ -788,6 +827,66 @@ permissonDownload = async () => {
       </View>
     );
   };
+
+  resendOTP = async () => {
+    // Resend OTP
+    await this.setState({ code: '' })
+    const payload = {
+      bankName: this.state.bankAccounts[0].bankName,
+      urn: this.state.selectedPayor.urn,
+      uniqueName: this.state.bankAccounts[0].uniqueName,
+      totalAmount: (this.state.totalAmount).substring(1),
+      bankPaymentTransactions: [{ amount: Number((this.state.totalAmount).substring(1)), remarks: this.state.review, vendorUniqueName: this.props.route.params.item.uniqueName }]
+    }
+    console.log("Send OTP request " + JSON.stringify(payload))
+    const response = await PaymentServices.sendOTP(payload)
+    console.log("OTP response" + JSON.stringify(response))
+    if (response.status == "success") {
+      ToastAndroid.show(response.body.message, ToastAndroid.LONG)
+      await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId })
+    } else {
+      ToastAndroid.show(response.data.code, ToastAndroid.LONG)
+    }
+  }
+
+  confirmPayment = async () => {
+    if (this.state.code.length != 6) {
+      Alert.alert("Missing Fields", "Enter complete OTP",
+        [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+      return
+    }
+    // Confirm Payment
+    const payload = { requestId: this.state.requestIdOTP, otp: this.state.code }
+    console.log("Payment payload " + JSON.stringify(payload))
+    const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor.urn, this.state.bankAccounts[0].uniqueName)
+    if (response.status == "success") {
+      ToastAndroid.show(response.body.Message, ToastAndroid.LONG)
+      this.props.navigation.navigate("Parties")
+    } else {
+      ToastAndroid.show(response.data.code, ToastAndroid.LONG)
+    }
+  }
+
+  PayButtonPressed = async () => {
+    if (this.state.payNowButtonPressed) {
+      if (this.state.selectedPayor != null && this.state.totalAmount != null && this.state.totalAmount != '' && this.state.review!='') {
+        console.log("Total Amount   " + (this.state.totalAmount).substring(1))
+        if (Number((this.state.totalAmount).substring(1)) > 0) {
+          // Sent OTP API call
+          this.resendOTP();
+        } else {
+          Alert.alert("Invalid", "Total Amount should be greater than zero",
+            [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+        }
+      } else {
+        Alert.alert("Missing Fields", "Enter all the mandatory fields",
+          [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+      }
+    } else {
+      await this.setState({ payNowButtonPressed: true })
+    }
+  }
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -866,7 +965,7 @@ permissonDownload = async () => {
             </View>
           </View>
           <View style={{ marginTop: Dimensions.get('window').height * 0.02 }} />
-          <View
+          {this.state.payNowButtonPressed === false ? <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -932,7 +1031,127 @@ permissonDownload = async () => {
             >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
-          </View>
+          </View> :
+            <ScrollView style={{ paddingHorizontal: 20,}}>
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+                <Ionicons name="person" size={25} color="#864DD3" style={{ marginTop: 7 }} />
+                <Dropdown
+                  ref={(ref) => this.state.payorDropDown = ref}
+                  style={{ flex: 1, paddingLeft: 10 }}
+                  textStyle={{ color: 'black', fontSize: 15 }}
+                  options={this.state.selectPayorData.length > 0 ? this.state.selectPayorData : ["No results found"]}
+                  renderSeparator={() => {
+                    return (<View></View>);
+                  }}
+                  onDropdownWillShow={() => this.setState({ isPayorDD: true })}
+                  onDropdownWillHide={() => this.setState({ isPayorDD: false })}
+                  dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 0 ? 150 : 50, marginTop: 5, borderRadius: 5 }}
+                  dropdownTextStyle={{ color: '#1C1C1C' }}
+                  renderRow={(options) => {
+                    return (
+                      <Text style={{ padding: 10, color: '#1C1C1C' }}>{options == "No results found" ? options : options.user.name}</Text>)
+                  }}
+                  onSelect={(index, value) => {
+                    if (value != "No results found") {
+                      this.setState({ selectedPayor: value })
+                    }
+                  }}>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                      {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor.user.name}</Text>
+                    <Text style={{ color: '#E04646' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
+                  </View>
+                </Dropdown>
+                <Icon
+                  style={{ transform: [{ rotate: this.state.isPayorDD ? '180deg' : '0deg' }], padding: 5, marginLeft: 20 }}
+                  name={'9'}
+                  size={12}
+                  color="#808080"
+                  onPress={() => {
+                    this.setState({ isPayorDD: true });
+                    this.state.payorDropDown.show();
+                  }}
+                />
+              </View>
+              {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 15, color: '#808080', fontSize: 12, marginBottom: 10 }}>
+                {`Bank Bal ${this.state.bankAccounts.length > 0 ? this.state.bankAccounts[0].effectiveBal : 0} dr`}</Text> : <View style={{ marginBottom: 0 }}></View>}
+              <View style={{ flexDirection: "row", marginTop: 15 }}>
+                <View style={{ backgroundColor: '#864DD3', width: 25, height: 25, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
+                  <FontAwesome name={'dollar'} color="white" size={18} />
+                </View>
+                <TextInput
+                  onBlur={() => {
+                    if (this.state.totalAmount == '') {
+                      this.setState({ totalAmountPlaceHolder: '' })
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  onFocus={() => {
+                    this.setState({ totalAmountPlaceHolder: 'a' })
+                  }}
+                  onChangeText={(text) => {
+                    console.log(text)
+                    this.setState({ totalAmount: (text) })
+                  }}
+                  style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
+                    'Total Amount' : (this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol ? (this.state.currencySymbol).substring(1)
+                      : (this.state.currencySymbol))}</Text>
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
+                    '' : (this.state.totalAmount)}</Text>
+                  <Text style={{ color: '#E04646' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
+                </TextInput>
+              </View>
+              <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20 }}>
+                <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
+                <TextInput
+                  onBlur={() => {
+                    if (this.state.review == '') {
+                      this.setState({ reviewPlaceHolder: '' })
+                    }
+                  }}
+                  onFocus={() => {
+                    this.setState({ reviewPlaceHolder: 'a' })
+                  }}
+                  onChangeText={(text) => {
+                    console.log(text)
+                    this.setState({ review: text })
+                  }
+                  }
+                  style={{ fontSize: 15, marginHorizontal: 8, textAlignVertical: "center", padding: 0, width: "90%", }}>
+                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.reviewPlaceHolder == '' ? 'Review' : this.state.review}</Text>
+                  <Text style={{ color: '#E04646' }}>{this.state.reviewPlaceHolder == '' ? '*' : ''}</Text>
+                </TextInput>
+              </View>
+              {this.state.payButtonPressed ?
+                <View style={{
+                  alignItems: 'center',
+                  paddingHorizontal: 20,
+                  flex: 1,
+                  marginBottom:30
+                }}>
+                  <Text style={{ fontSize: 18, color: 'black', marginTop: 40 }} >Enter OTP</Text>
+                  <OTPInputView
+                    style={{ width: '85%', height: 100, }}
+                    pinCount={6}
+                    code={this.state.code}
+                    onCodeChanged={code => { this.setState({ code }) }}
+                    autoFocusOnLoad
+                    codeInputFieldStyle={style.underlineStyleBase}
+                    onCodeFilled={(code) => {
+                      console.log(`Code is ${code}, you are good to go!`)
+                    }}
+                  />
+                  <Text style={{ fontSize: 16, color: '#808080' }} >{this.state.OTPMessage}</Text>
+                  <TouchableOpacity onPress={() => this.resendOTP()}>
+                    <Text style={{ fontSize: 16, color: '#5773FF', marginTop: 10, marginBottom: 20 }} >Resend</Text>
+                  </TouchableOpacity>
+                </View> : null}
+            </ScrollView>
+          }
 
           {/* <GDRoundedDateRangeInput
             label={`${this.state.startDate + ' - ' + this.state.endDate}`}
@@ -955,41 +1174,41 @@ permissonDownload = async () => {
           {/* <TouchableOpacity
             style={{height: 40, width: 120, backgroundColor: 'pink'}}
             onPress={() => console.log(this.state.transactionsData)}></TouchableOpacity> */}
-
-          {this.state.transactionsLoader ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-              <Bars size={15} color={colors.PRIMARY_NORMAL} />
-            </View>
-          ) : (
-            <>
-              {this.state.transactionsData.length == 0 ? (
-                <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: "center", }}>
-                  <Image
-                    source={require('@/assets/images/noTransactions.png')}
-                    style={{ resizeMode: 'contain', height: 250, width: 300 }}
-                  />
-                  <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>No Transactions</Text>
-                </ScrollView>
-              ) : (
-                <FlatList
-                  style={{ marginTop: 20 }}
-                  data={this.state.transactionsData}
-                  renderItem={({ item }) => (
-                    <TransactionList
-                      item={item}
-                      downloadModal={this.shareModalVisible}
-                      transactionType={'partyTransaction'}
-                      phoneNo={this.props.route.params.item.mobileNo}
+          {this.state.payNowButtonPressed === false ?
+            this.state.transactionsLoader ? (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+                <Bars size={15} color={colors.PRIMARY_NORMAL} />
+              </View>
+            ) : (
+              <>
+                {this.state.transactionsData.length == 0 ? (
+                  <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: "center", }}>
+                    <Image
+                      source={require('@/assets/images/noTransactions.png')}
+                      style={{ resizeMode: 'contain', height: 250, width: 300 }}
                     />
-                  )}
-                  keyExtractor={(item) => item.uniqueName}
-                  onEndReachedThreshold={0.2}
-                  onEndReached={() => this.handleRefresh()}
-                  ListFooterComponent={this._renderFooter}
-                />
-              )}
-            </>
-          )}
+                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>No Transactions</Text>
+                  </ScrollView>
+                ) : (
+                  <FlatList
+                    style={{ marginTop: 20, marginBottom: 60 }}
+                    data={this.state.transactionsData}
+                    renderItem={({ item }) => (
+                      <TransactionList
+                        item={item}
+                        downloadModal={this.shareModalVisible}
+                        transactionType={'partyTransaction'}
+                        phoneNo={this.props.route.params.item.mobileNo}
+                      />
+                    )}
+                    keyExtractor={(item) => item.uniqueName}
+                    onEndReachedThreshold={0.2}
+                    onEndReached={() => this.handleRefresh()}
+                    ListFooterComponent={this._renderFooter}
+                  />
+                )}
+              </>
+            ) : null}
 
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.ShareModal} />
@@ -1136,6 +1355,30 @@ permissonDownload = async () => {
               </View>
             </View>
           )}
+          {this.props.route.params.type=='Vendors'?(
+          this.props.route.params.item.bankPaymentDetails === false?
+            <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+              <TouchableOpacity onPress={async () => {
+                await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
+                  await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+              }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                <Text style={{ fontSize: 20, color: "black" }}>Add Bank Details</Text>
+              </TouchableOpacity>
+            </View> :
+            this.state.payButtonPressed == false ?
+              <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                <TouchableOpacity onPress={async () => {
+                  this.PayButtonPressed()
+                }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                  <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
+                </TouchableOpacity>
+              </View> :
+              <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                  <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
+                </TouchableOpacity>
+              </View>)
+          :null}
         </View>
       );
     }

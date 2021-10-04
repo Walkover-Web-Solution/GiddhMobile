@@ -21,6 +21,12 @@ export const CustomerVendorUrls = {
   ),
   generateCreateVendor: createEndpoint(
     'v2/company/:companyUniqueName/groups/sundrycreditors/accounts?branchUniqueName=:branchUniqueName'
+  ),
+  generateUpdateVendor: createEndpoint(
+    'v2/company/:companyUniqueName/groups/sundrycreditors/accounts/:uniqueName?branchUniqueName=:branchUniqueName'
+  ),
+  getVendorEntry: createEndpoint(
+    'v2/company/:companyUniqueName/accounts/:uniqueName?branchUniqueName=:branchUniqueName'
   )
-
+  
 };

@@ -306,6 +306,7 @@ export class Customer extends React.Component<Props> {
                     <Vendors
                       resetFun={this.setVendorFun}
                       navigation={this.props.navigation}
+                      uniqueName={this.props.route.params.uniqueName}
                     />
                   )}
               </View>

@@ -53,5 +53,14 @@ export default StyleSheet.create({
     fontSize:12,
     paddingHorizontal:10,
     marginBottom:5
-  }
+  },
+  underlineStyleBase: {
+    width: 35,
+    height: 45,
+    borderWidth: 1,
+    borderColor:'#F5F5F5',
+    backgroundColor:'#F5F5F5',
+    borderRadius:5,
+    color:"black"
+  },
 });

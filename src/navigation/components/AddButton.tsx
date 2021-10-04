@@ -135,7 +135,7 @@ class AddButton extends Component<Props> {
                         await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 0 } });
                         await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                       } else if (item.name == 'Vendor') {
-                        await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 1 } });
+                        await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 1 ,uniqueName:null} });
                         await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                       } else {
                         await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
