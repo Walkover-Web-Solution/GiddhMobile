@@ -107,14 +107,14 @@ class PartiesTransactionScreen extends React.Component {
 
   }
   componentDidMount() {
-    if (this.props.route.params.item.bankPaymentDetails && this.props.route.params.type=='Vendors') {
+    if (this.props.route.params.item.bankPaymentDetails && this.props.route.params.type == 'Vendors') {
       this.getBankAccountsData()
     }
     this.getTransactions();
     PushNotification.popInitialNotification((notification) => {
       console.log('Initial Notification', notification);
     });
-    
+
   }
 
   async getBankAccountsData() {
@@ -700,7 +700,6 @@ class PartiesTransactionScreen extends React.Component {
         .then(async (res) => {
           let base64Str = await res.base64();
           let base69 = await base64.decode(base64Str);
-          console.log("gfdhsgdhsdg hh "+JSON.stringify(base69))
           let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
           await this.setState({ ShareModal: false });
           await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
@@ -869,7 +868,7 @@ class PartiesTransactionScreen extends React.Component {
 
   PayButtonPressed = async () => {
     if (this.state.payNowButtonPressed) {
-      if (this.state.selectedPayor != null && this.state.totalAmount != null && this.state.totalAmount != '' && this.state.review!='') {
+      if (this.state.selectedPayor != null && this.state.totalAmount != null && this.state.totalAmount != '' && this.state.review != '') {
         console.log("Total Amount   " + (this.state.totalAmount).substring(1))
         if (Number((this.state.totalAmount).substring(1)) > 0) {
           // Sent OTP API call
@@ -1032,7 +1031,7 @@ class PartiesTransactionScreen extends React.Component {
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
           </View> :
-            <ScrollView style={{ paddingHorizontal: 20,}}>
+            <ScrollView style={{ paddingHorizontal: 20, }}>
               <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -1131,7 +1130,7 @@ class PartiesTransactionScreen extends React.Component {
                   alignItems: 'center',
                   paddingHorizontal: 20,
                   flex: 1,
-                  marginBottom:30
+                  marginBottom: 30
                 }}>
                   <Text style={{ fontSize: 18, color: 'black', marginTop: 40 }} >Enter OTP</Text>
                   <OTPInputView
@@ -1256,15 +1255,17 @@ class PartiesTransactionScreen extends React.Component {
                   <Text style={{ color: '#808080', paddingVertical: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => this.scheduleNotification()}
-                style={{
-                  marginBottom: 10,
-                  height: height * 0.05,
-                  width: width * 0.6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
-                }}>
-                <Text style={{ color: 'white', }}>Done</Text>
-              </TouchableOpacity>
+              <View style={{justifyContent:"center",alignItems:"center"}}>
+                <TouchableOpacity
+                  onPress={() => this.scheduleNotification()}
+                  style={{
+                    marginBottom: 10,
+                    height: height * 0.05,
+                    width: width * 0.6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
+                  }}>
+                  <Text style={{ color: 'white', }}>Done</Text>
+                </TouchableOpacity>
+              </View>
               <DateTimePickerModal
                 isVisible={this.state.datePicker}
                 mode="date"
@@ -1355,30 +1356,30 @@ class PartiesTransactionScreen extends React.Component {
               </View>
             </View>
           )}
-          {this.props.route.params.type=='Vendors'?(
-          this.props.route.params.item.bankPaymentDetails === false?
-            <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
-              <TouchableOpacity onPress={async () => {
-                await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
-                  await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-              }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                <Text style={{ fontSize: 20, color: "black" }}>Add Bank Details</Text>
-              </TouchableOpacity>
-            </View> :
-            this.state.payButtonPressed == false ?
+          {this.props.route.params.type == 'Vendors' ? (
+            this.props.route.params.item.bankPaymentDetails === false ?
               <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
                 <TouchableOpacity onPress={async () => {
-                  this.PayButtonPressed()
-                }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                  <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
+                  await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
+                    await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                  <Text style={{ fontSize: 20, color: "black" }}>Add Bank Details</Text>
                 </TouchableOpacity>
               </View> :
-              <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
-                <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                  <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
-                </TouchableOpacity>
-              </View>)
-          :null}
+              this.state.payButtonPressed == false ?
+                <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                  <TouchableOpacity onPress={async () => {
+                    this.PayButtonPressed()
+                  }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                    <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
+                  </TouchableOpacity>
+                </View> :
+                <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                  <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                    <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
+                  </TouchableOpacity>
+                </View>)
+            : null}
         </View>
       );
     }

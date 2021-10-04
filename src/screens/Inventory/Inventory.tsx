@@ -377,10 +377,10 @@ export class InventoryScreen extends React.Component<Props, State> {
               )
               : (
                 <View>
-                  {this.state.dataLoadedTime.length > 0 ?
+                  {/* {this.state.dataLoadedTime.length > 0 ?
                     <LastDataLoadedTime
                       paddingHorizontal={10}
-                      text={this.state.dataLoadedTime} /> : null}
+                      text={this.state.dataLoadedTime} /> : null} */}
                   <FlatList
                     data={this.state.inventoryData}
                     renderItem={({ item }) => <InventoryList item={item} />}

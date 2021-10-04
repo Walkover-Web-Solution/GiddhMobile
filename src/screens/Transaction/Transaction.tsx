@@ -257,10 +257,10 @@ export class TransactionScreen extends React.Component {
             )
             : (
               <View>
-                {this.state.dataLoadedTime.length > 0 ?
+                {/* {this.state.dataLoadedTime.length > 0 ?
                   <LastDataLoadedTime
                     paddingHorizontal={10}
-                    text={this.state.dataLoadedTime} /> : null}
+                    text={this.state.dataLoadedTime} /> : null} */}
                 <FlatList
                   data={this.state.transactionsData}
                   renderItem={({ item }) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}

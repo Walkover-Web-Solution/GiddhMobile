@@ -156,10 +156,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } else {
       return (
         <View style={style.container}>
-          {this.state.dataLoadedTime.length > 0 ?
+          {/* {this.state.dataLoadedTime.length > 0 ?
             <LastDataLoadedTime
               paddingHorizontal={10}
-              text={this.state.dataLoadedTime} /> : null}
+              text={this.state.dataLoadedTime} /> : null} */}
           <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
         </View>
       );
