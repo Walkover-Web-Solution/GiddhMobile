@@ -137,7 +137,7 @@ export class CustomerVendorService {
       .catch((err) => {
         console.log(JSON.stringify(err));
         // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-        return null;
+        return err.data;
       });
   }
 
@@ -158,7 +158,7 @@ export class CustomerVendorService {
       .catch((err) => {
         console.log(JSON.stringify(err));
         // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
-        return null;
+        return err.data;
       });
   }
 }

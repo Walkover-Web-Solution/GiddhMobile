@@ -37,7 +37,7 @@ export class Vendors extends React.Component<Props> {
     const vendorEntry = await CustomerVendorService.getVendorEntry(uniqueName)
     if (vendorEntry.body && vendorEntry.status == "success") {
       const vendorEntryResponse = vendorEntry.body
-      console.log("RESULT " + JSON.stringify(vendorEntry))
+      console.log("RESULT " + JSON.stringify(vendorEntryResponse))
       await this.setState({
         partyName: vendorEntryResponse.name,
         partyPlaceHolder: 'a',
@@ -59,13 +59,15 @@ export class Vendors extends React.Component<Props> {
         openingBalance: vendorEntryResponse.openingBalance,
         selectedCurrency: vendorEntryResponse.currency,
         selectedCallingCode: vendorEntryResponse.mobileCode ? vendorEntryResponse.mobileCode : '91',
-        bankName: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].bankName : '',
-        beneficiaryName: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].beneficiaryName : '',
-        bankBranchName: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].branchName : '',
-        bankAccountSwiftCode: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].swiftCode : '',
-        bankAccountNumber: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].bankAccountNo : '',
-        IFSC_Code: vendorEntryResponse.accountBankDetails.length > 0 ? vendorEntryResponse.accountBankDetails[0].ifsc : '',
+        countryFromProps: vendorEntryResponse.country,
+        bankName: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].bankName == null ? '' : vendorEntryResponse.accountBankDetails[0].bankName) : '',
+        beneficiaryName: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].beneficiaryName != null ? vendorEntryResponse.accountBankDetails[0].beneficiaryName : '') : '',
+        bankBranchName: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].branchName != null ? vendorEntryResponse.accountBankDetails[0].branchName : '') : '',
+        bankAccountSwiftCode: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].swiftCode != null ? vendorEntryResponse.accountBankDetails[0].swiftCode : '') : '',
+        bankAccountNumber: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].bankAccountNo != null ? vendorEntryResponse.accountBankDetails[0].bankAccountNo : '') : '',
+        IFSC_Code: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].ifsc != null ? vendorEntryResponse.accountBankDetails[0].ifsc : '') : '',
       })
+      await this.setActiveCompanyCountry();
     }
   }
 
@@ -95,14 +97,15 @@ export class Vendors extends React.Component<Props> {
     await this.setState({ loading: true });
     try {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
-      const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
+      const results = await InvoiceService.getCountryDetails(this.state.countryFromProps != '' ? this.state.countryFromProps.countryCode : activeCompanyCountryCode);
       if (results.body && results.status == 'success') {
         await this.setState({
           activeCompanyCountryCode: activeCompanyCountryCode,
           selectedCountry: results.body.country,
           selectedCallingCode: results.body.country.callingCode,
-          selectedCurrency: results.body.country.currency.code
         })
+        if (this.state.countryFromProps == '') { this.setState({ selectedCurrency: results.body.country.currency.code }) }
+
       }
     } catch (e) { }
     await this.setState({ loading: false });
@@ -171,7 +174,9 @@ export class Vendors extends React.Component<Props> {
     showForgeinBalance: true,
     activeCompanyCountryCode: '',
     isAccountNoValid: false,
-    isSwiftCodeValid: false
+    isSwiftCodeValid: false,
+    countryFromProps: '',
+    faliureMessage: ''
   }
 
   radio_props = [
@@ -599,7 +604,7 @@ export class Vendors extends React.Component<Props> {
             gstNumber: this.state.savedAddress.gstin_billing,
             address: this.state.savedAddress.street_billing,
             state: this.state.savedAddress.state_billing != '' ? this.state.savedAddress.state_billing : { code: null, name: '', stateGstCode: '' },
-            stateCode: this.state.savedAddress.state_billing.stateGstCode ? this.state.savedAddress.state_billing.stateGstCode : null,
+            stateCode: this.state.savedAddress.state_billing ? this.state.savedAddress.state_billing.stateGstCode : null,
             isDefault: this.state.savedAddress.isDefault ? this.state.savedAddress.isDefault : false,
             isComposite: false,
             partyType: this.state.partyType,
@@ -643,12 +648,12 @@ export class Vendors extends React.Component<Props> {
         this.checkStoredCountryCode();
         await this.setState({ loading: false });
       } else {
-        this.setState({ faliureDialog: true });
+        this.setState({ faliureDialog: true ,faliureMessage:results.message});
         this.setState({ loading: false });
       }
     } catch (e) {
       console.log('problem occured', e);
-      this.setState({ faliureDialog: true });
+      this.setState({ faliureDialog: true,faliureMessage:""});
       this.setState({ loading: false });
     }
     this.setState({ loading: false });
@@ -715,7 +720,11 @@ export class Vendors extends React.Component<Props> {
       isGroupDD: false,
       isPartyDD: false,
       partyDialog: false,
-      activeCompanyCountryCode: ''
+      activeCompanyCountryCode: '',
+      isAccountNoValid: false,
+      isSwiftCodeValid: false,
+      countryFromProps: '',
+      faliureMessage: ''
     })
   }
 
@@ -793,7 +802,7 @@ export class Vendors extends React.Component<Props> {
           ? <Dialog.Container visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Faliure />
             <Text style={{ color: '#F2596F', fontSize: 16 }}>Error!</Text>
-            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>Sorry, Failed to import the entries.</Text>
+            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{this.state.faliureMessage!=''?this.state.faliureMessage:"Sorry, Failed to import the entries."}</Text>
             <TouchableOpacity
               style={{
                 alignItems: 'center',
