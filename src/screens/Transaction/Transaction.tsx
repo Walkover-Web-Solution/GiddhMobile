@@ -149,8 +149,8 @@ export class TransactionScreen extends React.Component {
           totalPages: transactions.body.totalPages,
           showLoader: false
         },
-        () => {
-          console.log('updating db');
+        // () => {
+        //   console.log('updating db');
           // this.updateDB();
           // this.setState({
           //   dataLoadedTime: 'Updated!'
@@ -160,7 +160,7 @@ export class TransactionScreen extends React.Component {
           //     dataLoadedTime: '',
           //   })
           // }, 3 * 1000);
-        }
+        //}
       );
     } catch (e) {
       console.log(e);

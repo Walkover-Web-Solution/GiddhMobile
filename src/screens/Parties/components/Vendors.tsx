@@ -155,10 +155,10 @@ export const Vendors = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {dataLoadedTime.length > 0 ?
+      {/* {dataLoadedTime.length > 0 ?
         <LastDataLoadedTime
           paddingHorizontal={10}
-          text={dataLoadedTime} /> : null}
+          text={dataLoadedTime} /> : null} */}
       <SwipeListView
         extraData={refreshData}
         data={partiesData}

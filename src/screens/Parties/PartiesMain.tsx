@@ -588,7 +588,7 @@ export class PartiesMainScreen extends React.Component {
         showLoader: false
       });
     } catch (e) {
-      this.setState({ vendorData: new PartiesPaginatedResponse() });
+      this.setState({ vendorData: new PartiesPaginatedResponse(),showLoader: false });
     }
   }
 
@@ -600,7 +600,7 @@ export class PartiesMainScreen extends React.Component {
         customerLoadingMore: false
       });
     } catch (e) {
-      this.setState({ customerData: new PartiesPaginatedResponse() });
+      this.setState({ customerData: new PartiesPaginatedResponse(),customerLoadingMore: false });
       console.log(e);
     }
   }
@@ -614,7 +614,7 @@ export class PartiesMainScreen extends React.Component {
         vendorLoadingMore: false
       });
     } catch (e) {
-      this.setState({ vendorData: new PartiesPaginatedResponse() });
+      this.setState({ vendorData: new PartiesPaginatedResponse(),vendorLoadingMore: false });
     }
   }
 }

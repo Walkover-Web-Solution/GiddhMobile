@@ -90,10 +90,10 @@ export const Customers = (props) => {
 
   return (
     <View>
-      {dataLoadedTime.length > 0 ?
+      {/* {dataLoadedTime.length > 0 ?
         <LastDataLoadedTime
           paddingHorizontal={10}
-          text={dataLoadedTime} /> : null}
+          text={dataLoadedTime} /> : null} */}
       <SwipeListView
         data={partiesData}
         onEndReachedThreshold={0.2}
