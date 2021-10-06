@@ -1,19 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
-import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Alert } from 'react-native';
 import style from '@/screens/Auth/Otp/style';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { GdImages } from '@/utils/icons-pack';
 
 import colors from '@/utils/colors';
 import { verifyOTP, clearOTPError, OTPScreenUnmounting } from '../Login/LoginAction';
+import { sendOTP } from '../Login/LoginService';
 import { Bars } from 'react-native-loader';
 import { baseColor } from '../../../utils/colors';
 
 const { width, height } = Dimensions.get('window');
 class Login extends React.Component<any, any> {
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
     this.state = {
       showLoader: false,
@@ -21,11 +22,18 @@ class Login extends React.Component<any, any> {
     };
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     this.props.unmounting();
   }
 
-  render () {
+  sendOTP = async () => {
+    let payload = await { mobileNumber: this.props.tfaDetails.contactNumber, countryCode: this.props.tfaDetails.countryCode }
+    const response = await sendOTP(payload);
+    if (response.status == "success") {
+      await ToastAndroid.show(response.body, ToastAndroid.LONG)
+    }
+  }
+  render() {
     return (
       <GDContainer>
         <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white' }}>
@@ -44,10 +52,10 @@ class Login extends React.Component<any, any> {
             pinCount={4}
             color={'red'}
             placeholderCharacter={'*'}
-            codeInputFieldStyle ={'red'}
+            codeInputFieldStyle={'red'}
             placeholderTextColor={colors.PRIMARY_NORMAL}
             code={this.state.code} // You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
-            onCodeChanged = {code => {
+            onCodeChanged={code => {
               this.setState({ code })
               this.props.clearOTPError()
             }}
@@ -62,6 +70,7 @@ class Login extends React.Component<any, any> {
           {/* <TouchableOpacity delayPressIn={0}>
             <Text style={{color: colors.PRIMARY_NORMAL, fontSize: 18}}>Resend Code</Text>
           </TouchableOpacity> */}
+          <TouchableOpacity onPress={() => { this.sendOTP() }} style={{ paddingHorizontal: 10, paddingVertical: 5 }}><Text style={{ color: "#4285F4", fontFamily: 'AvenirLTStd-Book' }}>Resend Code</Text></TouchableOpacity>
           <TouchableOpacity style={[style.submitButton, { backgroundColor: this.state.code.length == 4 ? colors.PRIMARY_BASIC : colors.PRIMARY_DISABLED }]} delayPressIn={0} onPress={() => {
             if (this.state.code.length == 4 && !this.props.isVerifyingOTP) {
               this.props.verifyOTP(this.state.code, this.props.tfaDetails.countryCode, this.props.tfaDetails.contactNumber)
@@ -75,9 +84,9 @@ class Login extends React.Component<any, any> {
               <Text style={{fontSize: 18, color: colors.PRIMARY_NORMAL, marginLeft: 5}}>Click here</Text>
             </TouchableOpacity>
           </View> */}
-           {this.props.isVerifyingOTP && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
-          <Bars size={15} color={colors.PRIMARY_NORMAL} />
-        </View>}
+          {this.props.isVerifyingOTP && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
+            <Bars size={15} color={colors.PRIMARY_NORMAL} />
+          </View>}
         </View>
 
       </GDContainer>
@@ -103,7 +112,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     clearOTPError: () => {
       dispatch(clearOTPError());
     },
-    unmounting : () => {
+    unmounting: () => {
       dispatch(OTPScreenUnmounting());
     }
   };

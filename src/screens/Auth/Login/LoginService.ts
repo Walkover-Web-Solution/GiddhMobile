@@ -73,3 +73,18 @@ export async function verifyOTP (otp, mobileNumber, countryCode) {
     return error;
   }
 }
+
+/**
+ * send OTP
+ * @returns {Promise<void>}
+ */
+
+ export async function sendOTP (payload:any) {
+  try {
+    const response = await AuthService.sendOTP(payload);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}

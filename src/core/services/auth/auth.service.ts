@@ -77,4 +77,12 @@ export class AuthService {
         return res.data;
       });
   }
+  
+  static sendOTP (payload:any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.sendOTP,payload)
+      .then((res) => {
+        return res.data;
+      });
+  }
 }

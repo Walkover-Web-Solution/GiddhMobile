@@ -8,5 +8,6 @@ export const AccountUrls = {
   userLogin: createEndpoint('v2/login-with-password'),
   // resetPassword: createEndpoint('users/:userEmail/forgot-password'),
   resetPassword: createEndpoint('signup-with-email'),
-  verifyEmail: createEndpoint('v2/verify-email')
+  verifyEmail: createEndpoint('v2/verify-email'),
+  sendOTP: createEndpoint('generate-otp')
 };

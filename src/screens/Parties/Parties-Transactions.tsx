@@ -67,8 +67,8 @@ class PartiesTransactionScreen extends React.Component {
       showLoader: true,
       transactionsLoader: true,
       transactionsData: [],
-      startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
-      endDate: moment().format('DD-MM-YYYY'),
+      startDate: null,
+      endDate: null,
       page: 1,
       totalPages: 0,
       loadingMore: false,
@@ -119,15 +119,21 @@ class PartiesTransactionScreen extends React.Component {
 
   async getBankAccountsData() {
     let allAccounts = await PaymentServices.getAccounts()
-    let allPayor = await PaymentServices.getAllPayor(allAccounts.body[0].uniqueName, 1);
-    if (allAccounts.status == "success") {
-      await this.setState({ bankAccounts: allAccounts.body })
-      console.log(JSON.stringify(this.state.bankAccounts))
+    if (allAccounts.body.length > 0) {
+      let allPayor = await PaymentServices.getAllPayor(allAccounts.body[0].uniqueName, 1);
+      if (allAccounts.status == "success") {
+        await this.setState({ bankAccounts: allAccounts.body })
+        console.log(JSON.stringify("All bank Account " + JSON.stringify(this.state.bankAccounts)))
+      }
+      if (allPayor.status == "success") {
+        await this.setState({ selectPayorData: allPayor.body })
+        if (allPayor.body.length > 0) {
+          await this.setState({ selectedPayor: allPayor.body[0] })
+        }
+        console.log(JSON.stringify("All Payor " + JSON.stringify(this.state.selectPayorData)))
+      }
     }
-    if (allPayor.status == "success") {
-      await this.setState({ selectPayorData: allPayor.body })
-      console.log(JSON.stringify(this.state.selectPayorData))
-    }
+
   }
 
   createChannel = () => {
@@ -520,6 +526,12 @@ class PartiesTransactionScreen extends React.Component {
       );
 
       console.log('transactions are', JSON.stringify(transactions));
+      if (this.state.startDate == null || this.state.endDate == null) {
+        this.setState({
+          startDate: transactions.body.fromDate,
+          endDate: transactions.body.toDate
+        })
+      }
       this.setState({
         transactionsData: transactions.body.entries,
         showLoader: false,
@@ -530,7 +542,10 @@ class PartiesTransactionScreen extends React.Component {
       });
     } catch (e) {
       console.log(e);
-      this.setState({ showLoader: false });
+      this.setState({
+        showLoader: false, startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
+        endDate: moment().format('DD-MM-YYYY'),
+      });
     }
   }
   async handleLoadMore() {
@@ -834,8 +849,8 @@ class PartiesTransactionScreen extends React.Component {
       bankName: this.state.bankAccounts[0].bankName,
       urn: this.state.selectedPayor.urn,
       uniqueName: this.state.bankAccounts[0].uniqueName,
-      totalAmount: (this.state.totalAmount).substring(1),
-      bankPaymentTransactions: [{ amount: Number((this.state.totalAmount).substring(1)), remarks: this.state.review, vendorUniqueName: this.props.route.params.item.uniqueName }]
+      totalAmount: ((this.state.totalAmount).substring(1)).replace(/,/g, ''),
+      bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route.params.item.uniqueName }]
     }
     console.log("Send OTP request " + JSON.stringify(payload))
     const response = await PaymentServices.sendOTP(payload)
@@ -869,8 +884,8 @@ class PartiesTransactionScreen extends React.Component {
   PayButtonPressed = async () => {
     if (this.state.payNowButtonPressed) {
       if (this.state.selectedPayor != null && this.state.totalAmount != null && this.state.totalAmount != '' && this.state.review != '') {
-        console.log("Total Amount   " + (this.state.totalAmount).substring(1))
-        if (Number((this.state.totalAmount).substring(1)) > 0) {
+        console.log("Total Amount" + ((this.state.totalAmount).substring(1)).replace(/,/g, '') + " first Number "+(this.state.totalAmount).substr(1,1))
+        if (Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')) > 0 && (this.state.totalAmount).substr(1,1) != 0) {
           // Sent OTP API call
           this.resendOTP();
         } else {
@@ -1085,6 +1100,10 @@ class PartiesTransactionScreen extends React.Component {
                   onBlur={() => {
                     if (this.state.totalAmount == '') {
                       this.setState({ totalAmountPlaceHolder: '' })
+                    } else {
+                      let amount = this.numberWithCommas((this.state.totalAmount).substring(1))
+                      console.log("Total Number with commas " + this.numberWithCommas(amount))
+                      this.setState({ totalAmount: this.state.currencySymbol + amount })
                     }
                   }}
                   keyboardType="number-pad"
@@ -1255,7 +1274,7 @@ class PartiesTransactionScreen extends React.Component {
                   <Text style={{ color: '#808080', paddingVertical: 10 }}>{format(this.state.dateTime, "HH:mm")}</Text>
                 </View>
               </TouchableOpacity>
-              <View style={{justifyContent:"center",alignItems:"center"}}>
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <TouchableOpacity
                   onPress={() => this.scheduleNotification()}
                   style={{
