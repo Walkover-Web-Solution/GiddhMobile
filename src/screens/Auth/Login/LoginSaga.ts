@@ -1,11 +1,13 @@
-import {call, put, takeLatest, select} from 'redux-saga/effects';
+import { call, put, takeLatest, select } from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
-import {getCompanyAndBranches} from '../../../redux/CommonAction';
+import { getCompanyAndBranches } from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
+import { STORAGE_KEYS } from '@/utils/constants';
+import { getExpireInTime } from '@/utils/helper';
+import { setLogoutTimer } from '@/BaseContainer/BaseContainer';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -48,7 +50,10 @@ export function* verifyUserEmailPasswordLogin(action) {
       yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
       // get state details
       // TODO: await dispatch.common.getStateDetailsAction();
-
+      const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
+      var expireInTime = expirationDate.getTime() - new Date().getTime();
+      console.log("ExpireInTimeLocalTime " + expireInTime);
+      yield setLogoutTimer(expireInTime);
       // get company details
       // TODO:  await dispatch.company.getCompanyDetailsAction();
       yield put(getCompanyAndBranches());
@@ -87,7 +92,10 @@ export function* googleLogin(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();
-
+    const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
+    var expireInTime = expirationDate.getTime() - new Date().getTime();
+    console.log("ExpireInTimeLocalTime " + expireInTime);
+    yield setLogoutTimer(expireInTime);
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());
@@ -127,7 +135,10 @@ export function* verifyOTP(action) {
     // yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();
-
+    const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
+    var expireInTime = expirationDate.getTime() - new Date().getTime();
+    console.log("ExpireInTimeLocalTime " + expireInTime);
+    yield setLogoutTimer(expireInTime);
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(
@@ -155,7 +166,10 @@ export function* appleLogin(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();
-
+    const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
+    var expireInTime = expirationDate.getTime() - new Date().getTime();
+    console.log("ExpireInTimeLocalTime " + expireInTime);
+    yield setLogoutTimer(expireInTime);
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());
@@ -182,7 +196,7 @@ export function* appleLogin(action) {
 
 export function* logoutUser() {
   const state = yield select();
-  const {commonReducer} = state;
+  const { commonReducer } = state;
   const id = commonReducer.userData.data.data[0].id;
 
   try {

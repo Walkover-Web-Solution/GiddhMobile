@@ -109,3 +109,10 @@ export const calculateDataLoadedTime = (storedDateData: any) => {
     return time + month + ' ' + storedDate.getDate() + ', ' + hour + ":" + minutes + " " + period;
   }
 }
+
+export const getExpireInTime = (expiresAt: string) => {
+  var expireDate = new Date((moment(expiresAt, "DD-MM-YYYY hh:mm:ss").toString()));
+  console.log("Expiration Date from response " + expiresAt) 
+  console.log("Expiration Date "+expireDate.getTime());
+  return expireDate
+}

@@ -6,12 +6,31 @@ import {
   NativeModules
 } from 'react-native';
 import AppNavigator from '@/navigation/app.navigator';
-
+import AsyncStorage from '@react-native-community/async-storage';
 import { connect } from 'react-redux';
-import { getCompanyAndBranches, renewAccessToken } from '../redux/CommonAction';
+import { getCompanyAndBranches, logout, renewAccessToken } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import AppMainNav from '@/navigation/app.main.navigator';
+import { getExpireInTime } from '@/utils/helper';
+import { STORAGE_KEYS } from '@/utils/constants';
 
+
+var timer;
+
+export const setLogoutTimer = (expirationTime) => {
+  const logoutTimer = (dispatch) => {
+    timer = setTimeout(() => {
+      dispatch(logOut());
+    }, expirationTime);
+  };
+  return logoutTimer;
+};
+
+export const clearLogoutTimer = async () => {
+  if (timer) {
+    await clearTimeout(timer);
+  }
+};
 
 class BaseContainer extends Component {
   componentDidMount() {
@@ -21,15 +40,35 @@ class BaseContainer extends Component {
     // const openedSubscription = RNAlarmEmitter.addListener(
     //   'OnNotificationOpened', (data) => { console.log(JSON.parse(data)); }
     // );
-    
+
     if (this.props.isUserAuthenticated) {
-      this.props.getCompanyAndBranches();
+      this.checkSessionExpiry();
+      // this.props.getCompanyAndBranches();
     }
     // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken, () => {
     //   // fire logout action
     //   this.props.renewAccessToken();
     //   store.dispatch.auth.logout();
     // });
+  }
+
+  checkSessionExpiry = async () => {
+    const expireAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionEnd);
+    if (expireAt) {
+      console.log('session end is present');
+      await clearLogoutTimer();
+      let expirationTime = await getExpireInTime(expireAt);
+      if (await expirationTime <= new Date()) {
+        //session expired.
+        console.log('logging out session expired');
+        this.props.logout();
+        return;
+      }
+      console.log('setting timer session is valid');
+      let expirationTimeInMiliSecond = (expirationTime.getTime()) - new Date().getTime();
+      await setLogoutTimer(expirationTimeInMiliSecond);
+      this.props.getCompanyAndBranches();
+    }
   }
 
   componentWillUnmount() { }
@@ -64,6 +103,9 @@ function mapDispatchToProps(dispatch) {
     renewAccessToken: () => {
       dispatch(renewAccessToken());
     },
+    logout: () => {
+      dispatch(logout());
+    }
   };
 }
 
