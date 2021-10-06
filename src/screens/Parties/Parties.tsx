@@ -176,9 +176,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       });
     } catch (e) {
       this.setState({ debtData: new PartiesPaginatedResponse() });
-      if (e.data.code != 'UNAUTHORISED') {
-        this.props.logout();
-      }
       console.log("crashlog", e);
     }
   }
@@ -194,9 +191,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       });
     } catch (e) {
       this.setState({ partiesCredData: new PartiesPaginatedResponse() });
-      if (e.data.code != 'UNAUTHORISED') {
-        this.props.logout();
-      }
       console.log("crashlog", e);
       this.setState({ showLoader: false });
     }

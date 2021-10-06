@@ -74,8 +74,8 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
   // if (!reqConfig.url.includes('verify-number')){
   headers['User-Agent'] = Platform.OS;
   // }
-  console.log('intercepted url ------------');
-  console.log(reqConfig.url);
+  // console.log('intercepted url ------------');
+  // console.log(reqConfig.url);
   return { ...reqConfig, headers };
 });
 

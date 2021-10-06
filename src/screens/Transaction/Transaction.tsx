@@ -165,9 +165,6 @@ export class TransactionScreen extends React.Component {
     } catch (e) {
       console.log(e);
       this.setState({ showLoader: false });
-      if (e.data.code != 'UNAUTHORISED') {
-        // this.props.logout();
-      }
     }
   }
 

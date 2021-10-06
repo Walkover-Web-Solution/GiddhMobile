@@ -7,30 +7,18 @@ import {
 } from 'react-native';
 import AppNavigator from '@/navigation/app.navigator';
 import AsyncStorage from '@react-native-community/async-storage';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { getCompanyAndBranches, logout, renewAccessToken } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import AppMainNav from '@/navigation/app.main.navigator';
 import { getExpireInTime } from '@/utils/helper';
 import { STORAGE_KEYS } from '@/utils/constants';
+import { put } from 'redux-saga/effects';
+import { logoutUser } from '@/redux/CommonSaga';
+import * as CommonActions from '../redux/CommonAction';
+import { LOGOUT } from '@/redux/ActionConstants';
 
 
-var timer;
-
-export const setLogoutTimer = (expirationTime) => {
-  const logoutTimer = (dispatch) => {
-    timer = setTimeout(() => {
-      dispatch(logout());
-    }, expirationTime);
-  };
-  return logoutTimer;
-};
-
-export const clearLogoutTimer = async () => {
-  if (timer) {
-    await clearTimeout(timer);
-  }
-};
 
 class BaseContainer extends Component {
   componentDidMount() {
@@ -56,7 +44,7 @@ class BaseContainer extends Component {
     const expireAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionEnd);
     if (expireAt) {
       console.log('session end is present');
-      await clearLogoutTimer();
+      this.props.clearLogoutTimer();
       let expirationTime = await getExpireInTime(expireAt);
       if (await expirationTime <= new Date()) {
         //session expired.
@@ -66,7 +54,7 @@ class BaseContainer extends Component {
       }
       console.log('setting timer session is valid');
       let expirationTimeInMiliSecond = (expirationTime.getTime()) - new Date().getTime();
-      await setLogoutTimer(expirationTimeInMiliSecond);
+      this.props.setLogoutTimer(expirationTimeInMiliSecond);
       this.props.getCompanyAndBranches();
     }
   }
@@ -105,6 +93,12 @@ function mapDispatchToProps(dispatch) {
     },
     logout: () => {
       dispatch(logout());
+    },
+    setLogoutTimer: () => {
+      dispatch(CommonActions.SetLogoutTimer())
+    },
+    clearLogoutTimer: () => {
+      dispatch(CommonActions.ClearLogoutTimer())
     }
   };
 }

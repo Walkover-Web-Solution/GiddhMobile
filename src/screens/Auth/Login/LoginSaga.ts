@@ -3,11 +3,12 @@ import { call, put, takeLatest, select } from 'redux-saga/effects';
 import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
-import { getCompanyAndBranches } from '../../../redux/CommonAction';
+import * as CommonActions from '../../../redux/CommonAction';
+import { getCompanyAndBranches, logout } from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
 import { STORAGE_KEYS } from '@/utils/constants';
 import { getExpireInTime } from '@/utils/helper';
-import { setLogoutTimer } from '@/BaseContainer/BaseContainer';
+import store from '../../../redux/store';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -15,7 +16,33 @@ export default function* watcherSaga() {
   yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);
   yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin);
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
+  yield takeLatest(ActionConstants.SET_LOGOUT_TIMER, setLogoutTimer);
+  yield takeLatest(ActionConstants.CLEAR_LOGOUT_TIMER, clearLogoutTimer);
 }
+
+var timer: any;
+
+export function* setLogoutTimer(action: any) {
+  console.log("------------------------", action.payload);
+  timer = setTimeout(() => {
+    console.log("logging outt");
+    //change this approach of logging out.
+    store().store.dispatch(CommonActions.logout());
+    console.log('finished');
+  }, action.payload);
+  // const logoutTimer = (dispatch) => {
+  //   console.log("dispatched!!!!!!!!!!");
+  // };
+  // return logoutTimer;
+};
+
+
+export function* clearLogoutTimer() {
+  console.log('clearing timer');
+  if (timer) {
+    yield clearTimeout(timer);
+  }
+};
 
 export function* resetPassword(action) {
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -53,7 +80,7 @@ export function* verifyUserEmailPasswordLogin(action) {
       const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
       var expireInTime = expirationDate.getTime() - new Date().getTime();
       console.log("ExpireInTimeLocalTime " + expireInTime);
-      yield setLogoutTimer(expireInTime);
+      yield put(CommonActions.SetLogoutTimer(expireInTime));
       // get company details
       // TODO:  await dispatch.company.getCompanyDetailsAction();
       yield put(getCompanyAndBranches());
@@ -95,7 +122,7 @@ export function* googleLogin(action) {
     const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
     var expireInTime = expirationDate.getTime() - new Date().getTime();
     console.log("ExpireInTimeLocalTime " + expireInTime);
-    yield setLogoutTimer(expireInTime);
+    yield put(CommonActions.SetLogoutTimer(expireInTime));
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());
@@ -138,7 +165,7 @@ export function* verifyOTP(action) {
     const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
     var expireInTime = expirationDate.getTime() - new Date().getTime();
     console.log("ExpireInTimeLocalTime " + expireInTime);
-    yield setLogoutTimer(expireInTime);
+    yield put(CommonActions.SetLogoutTimer(expireInTime));
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(
@@ -169,7 +196,7 @@ export function* appleLogin(action) {
     const expirationDate: Date = getExpireInTime(response.body.session.expiresAt);
     var expireInTime = expirationDate.getTime() - new Date().getTime();
     console.log("ExpireInTimeLocalTime " + expireInTime);
-    yield setLogoutTimer(expireInTime);
+    yield put(CommonActions.SetLogoutTimer(expireInTime));
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());

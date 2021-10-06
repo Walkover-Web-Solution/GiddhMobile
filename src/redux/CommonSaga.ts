@@ -119,9 +119,6 @@ export function* getCompanyAndBranches() {
     }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());
-    if (e?.data?.code != 'UNAUTHORISED') {
-      yield put(CommonActions.logout());
-    }
   }
 }
 
