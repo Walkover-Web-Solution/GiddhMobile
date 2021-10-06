@@ -20,7 +20,7 @@ var timer;
 export const setLogoutTimer = (expirationTime) => {
   const logoutTimer = (dispatch) => {
     timer = setTimeout(() => {
-      dispatch(logOut());
+      dispatch(logout());
     }, expirationTime);
   };
   return logoutTimer;
