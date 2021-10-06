@@ -71,7 +71,7 @@ export function* getCompanyAndBranches() {
                 defaultComp.subscription.country.countryCode
               );
             }
-          }else{
+          } else {
             yield put(CommonActions.isUnauth());
           }
         }
@@ -119,7 +119,6 @@ export function* getCompanyAndBranches() {
     }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());
-    // yield put(CommonActions.logout());
   }
 }
 
