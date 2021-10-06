@@ -98,7 +98,7 @@ class PartiesTransactionScreen extends React.Component {
       reviewPlaceHolder: '',
       code: '',
       currencySymbol: this.props.route.params.item.country.code == 'IN'
-        ? '₹' : getSymbolFromCurrency(this.props.route.params.item.country.code),
+        ? '₹' : (getSymbolFromCurrency(this.props.route.params.item.country.code) == undefined ? "" : getSymbolFromCurrency(this.props.route.params.item.country.code)),
       selectPayorData: [],
       bankAccounts: [],
       OTPMessage: "",
@@ -813,6 +813,48 @@ class PartiesTransactionScreen extends React.Component {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  currencyFormat(amount: number, currencyType: string | undefined) {
+    console.log("Currency type " + currencyType)
+    switch (currencyType) {
+      case 'IND_COMMA_SEPARATED':
+        // eslint-disable-next-line no-lone-blocks
+        {
+          if (amount.toString().length > 4) {
+            return amount
+              .toFixed(1)
+              .toString()
+              .replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+          } else if (amount.toString().length === 3) {
+            return amount.toFixed(1).toString();
+          } else if (amount.toString().length === 4) {
+            return amount
+              .toFixed(1)
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          }
+        }
+        break;
+      case 'INT_SPACE_SEPARATED': {
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      }
+      case 'INT_APOSTROPHE_SEPARATED': {
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+      }
+      default: {
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      }
+    }
+  }
+
   scheduleNotification = () => {
     const today = new Date(Date.now());
     const selected: Date = this.state.dateTime;
@@ -884,8 +926,8 @@ class PartiesTransactionScreen extends React.Component {
   PayButtonPressed = async () => {
     if (this.state.payNowButtonPressed) {
       if (this.state.selectedPayor != null && this.state.totalAmount != null && this.state.totalAmount != '' && this.state.review != '') {
-        console.log("Total Amount" + ((this.state.totalAmount).substring(1)).replace(/,/g, '') + " first Number "+(this.state.totalAmount).substr(1,1))
-        if (Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')) > 0 && (this.state.totalAmount).substr(1,1) != 0) {
+        console.log("Total Amount" + ((this.state.totalAmount).substring(1)).replace(/,/g, '') + " first Number " + (this.state.totalAmount).substr(1, 1))
+        if (Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')) > 0 && (this.state.totalAmount).substr(1, 1) != 0) {
           // Sent OTP API call
           this.resendOTP();
         } else {
@@ -1097,13 +1139,13 @@ class PartiesTransactionScreen extends React.Component {
                   <FontAwesome name={'dollar'} color="white" size={18} />
                 </View>
                 <TextInput
-                  onBlur={() => {
+                  onBlur={async () => {
                     if (this.state.totalAmount == '') {
-                      this.setState({ totalAmountPlaceHolder: '' })
+                      await this.setState({ totalAmountPlaceHolder: '' })
                     } else {
-                      let amount = this.numberWithCommas((this.state.totalAmount).substring(1))
-                      console.log("Total Number with commas " + this.numberWithCommas(amount))
-                      this.setState({ totalAmount: this.state.currencySymbol + amount })
+                      let amount = await (this.currencyFormat(Number((this.state.totalAmount).substring(1)), this.props.route.params.activeCompany?.balanceDisplayFormat))
+                      console.log("Total Number with commas " + amount)
+                      await this.setState({ totalAmount: this.state.currencySymbol + amount })
                     }
                   }}
                   keyboardType="number-pad"
@@ -1116,8 +1158,8 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                   style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
                   <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
-                    'Total Amount' : (this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol ? (this.state.currencySymbol).substring(1)
-                      : (this.state.currencySymbol))}</Text>
+                    'Total Amount' : (this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol) && this.state.currencySymbol != "" ? (this.state.currencySymbol).substring(1)
+                      : (this.state.currencySymbol)}</Text>
                   <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
                     '' : (this.state.totalAmount)}</Text>
                   <Text style={{ color: '#E04646' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
@@ -1375,7 +1417,7 @@ class PartiesTransactionScreen extends React.Component {
               </View>
             </View>
           )}
-          {this.props.route.params.type == 'Vendors' ? (
+          {this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN" ? (
             this.props.route.params.item.bankPaymentDetails === false ?
               <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
                 <TouchableOpacity onPress={async () => {

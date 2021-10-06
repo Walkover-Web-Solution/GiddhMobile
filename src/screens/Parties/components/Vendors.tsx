@@ -171,7 +171,7 @@ export const Vendors = (props) => {
             // onLongPress={async () => {
             //   await addItem(item)
             // }}
-            onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Vendors' })}>
+            onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Vendors',activeCompany:activeCompany })}>
             <View style={styles.viewWrap}>
               {/* {item.category === 'liabilities' && console.log("Item vendorrrrrr " + JSON.stringify(item))} */}
               <View style={{ flex: 1 }}>
