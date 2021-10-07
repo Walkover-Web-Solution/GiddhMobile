@@ -174,7 +174,7 @@ export class CreditNote extends React.Component<Props> {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
-
+    this.searchCalls();
     // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
     //   await this.state.accountDropDown.select(-1)
     //   await this.resetState();

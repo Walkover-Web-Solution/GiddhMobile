@@ -210,7 +210,7 @@ export class SalesInvoice extends React.Component<Props> {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
-
+    this.searchCalls();
     // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
     // console.log('resetDog');
     // await this.resetState();

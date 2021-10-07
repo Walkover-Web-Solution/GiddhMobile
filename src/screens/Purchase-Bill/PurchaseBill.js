@@ -220,6 +220,7 @@ export class PurchaseBill extends React.Component {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+    this.searchCalls();
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInPurchaseBill, (data) => {
       this.updateAddedItems(data);
