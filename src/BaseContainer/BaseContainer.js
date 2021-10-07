@@ -9,7 +9,7 @@ import { getExpireInTime } from '@/utils/helper';
 import { STORAGE_KEYS } from '@/utils/constants';
 
 
-
+export var timer;
 class BaseContainer extends Component {
   componentDidMount() {
     SplashScreen.hide();
@@ -18,7 +18,22 @@ class BaseContainer extends Component {
     }
   }
 
+  setLogoutTimer = async (expirationTime) => {
+    timer = await setTimeout(async() => {
+      console.log("Auto logout call----")
+     await this.props.logout()
+    }, expirationTime);
+  };
+
+  clearLogoutTimer = async () => {
+    if (timer) {
+      await clearTimeout(timer);
+    }
+  };
+
   checkSessionExpiry = async () => {
+    console.log("Check expire session-----")
+    timer ? this.clearLogoutTimer() : null;
     const expireAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionEnd);
     if (expireAt) {
       console.log('session end is present');
@@ -29,6 +44,9 @@ class BaseContainer extends Component {
         await this.props.logout();
         return;
       }
+      console.log("Alredy logged In --")
+      let expirationTimeInMiliSecond = (expirationTime.getTime()) - new Date().getTime();
+      await this.setLogoutTimer(expirationTimeInMiliSecond);
       await this.props.getCompanyAndBranches();
     } else {
       await this.props.logout();
