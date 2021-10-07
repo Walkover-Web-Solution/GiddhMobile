@@ -19,6 +19,7 @@ class BaseContainer extends Component {
   }
 
   setLogoutTimer = async (expirationTime) => {
+    console.log("Session expire in "+expirationTime)
     timer = await setTimeout(async() => {
       console.log("Auto logout call----")
      await this.props.logout()
@@ -32,7 +33,7 @@ class BaseContainer extends Component {
   };
 
   checkSessionExpiry = async () => {
-    console.log("Check expire session-----")
+    console.log("Checking session-----")
     timer ? this.clearLogoutTimer() : null;
     const expireAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionEnd);
     if (expireAt) {

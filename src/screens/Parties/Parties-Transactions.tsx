@@ -890,7 +890,7 @@ class PartiesTransactionScreen extends React.Component {
       bankName: this.state.bankAccounts[0].bankName,
       urn: this.state.selectedPayor.urn,
       uniqueName: this.state.bankAccounts[0].uniqueName,
-      totalAmount: ((this.state.totalAmount).substring(1)).replace(/,/g, ''),
+      totalAmount: (((this.state.totalAmount).substring(1)).replace(/,/g, '')).trim(),
       bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route.params.item.uniqueName }]
     }
     console.log("Send OTP request " + JSON.stringify(payload))
@@ -900,7 +900,7 @@ class PartiesTransactionScreen extends React.Component {
       ToastAndroid.show(response.body.message, ToastAndroid.LONG)
       await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId })
     } else {
-      ToastAndroid.show(response.data.code, ToastAndroid.LONG)
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
     }
   }
 
@@ -918,7 +918,7 @@ class PartiesTransactionScreen extends React.Component {
       ToastAndroid.show(response.body.Message, ToastAndroid.LONG)
       this.props.navigation.navigate("Parties")
     } else {
-      ToastAndroid.show(response.data.code, ToastAndroid.LONG)
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
     }
   }
 
@@ -930,8 +930,12 @@ class PartiesTransactionScreen extends React.Component {
           // Sent OTP API call
           this.resendOTP();
         } else {
-          Alert.alert("Invalid", "Total Amount should be greater than zero",
-            [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+          if ((this.state.totalAmount).substr(1, 1) == 0) {
+            Alert.alert("Invalid", "Total Amount should be greater than zero",
+              [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+          } else {
+            alert("Invalid amount entered")
+          }
         }
       } else {
         Alert.alert("Missing Fields", "Enter all the mandatory fields",
@@ -1158,7 +1162,7 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                   onChangeText={(text) => {
                     console.log(text)
-                    this.setState({ totalAmount: (text) })
+                    this.setState({ totalAmount: (text).replace(/[^0-9₹]/g, '') })
                   }}
                   style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
                   <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?

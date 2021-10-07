@@ -9048,11 +9048,6 @@
     "prop-types" "^15.6.2"
     "react-native-animatable" "1.3.3"
 
-"react-native-otp-input@^1.0.12":
-  "integrity" "sha512-QkWe1B+KFUA0/Hw47uzB0GNqffY5SyzJwliJB6yJyONPogi/j+bCyPdLoC9+tL4Jmc6gJGCP+5y3PwzMphsG5g=="
-  "resolved" "https://registry.npmjs.org/react-native-otp-input/-/react-native-otp-input-1.0.12.tgz"
-  "version" "1.0.12"
-
 "react-native-push-notification@^7.3.1":
   "integrity" "sha512-5kSKPvDU23uZRmzgKTsGhbwGNvB2tidu1VnInBHP53ZD0VEPSBl5fbpuTfHH98ED+Gp1SCcT2/e6bJWkIspKvg=="
   "resolved" "https://registry.npmjs.org/react-native-push-notification/-/react-native-push-notification-7.3.1.tgz"
