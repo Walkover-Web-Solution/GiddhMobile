@@ -34,7 +34,6 @@ import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { ScrollView } from 'react-native-gesture-handler';
 import EditItemDetail from './EditItemDetails';
 import CheckBox from 'react-native-check-box';
 

@@ -1,12 +1,13 @@
-import {call, put, takeLatest, select} from 'redux-saga/effects';
+import { call, put, takeLatest, select } from 'redux-saga/effects';
 
 import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
-import {getCompanyAndBranches} from '../../../redux/CommonAction';
+import * as CommonActions from '../../../redux/CommonAction';
+import { getCompanyAndBranches } from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
-import {STORAGE_KEYS} from '@/utils/constants';
 import LogRocket from '@logrocket/react-native';
+import { STORAGE_KEYS } from '@/utils/constants';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -22,11 +23,11 @@ export default function* watcherSaga() {
  * @param userName 
  * @param userEmail 
  */
- const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, userEmail: string,) => {
-  console.log("LogRocket Details "+userUniqueName+"  "+userName+" "+userEmail);
+const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, userEmail: string,) => {
+  console.log("LogRocket Details " + userUniqueName + "  " + userName + " " + userEmail);
   LogRocket.identify(userUniqueName, {
-      name: userName,
-      email: userEmail
+    name: userName,
+    email: userEmail
   });
 }
 
@@ -65,8 +66,6 @@ export function* verifyUserEmailPasswordLogin(action) {
       yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
       // get state details
       // TODO: await dispatch.common.getStateDetailsAction();
-
-      // get company details
       // TODO:  await dispatch.company.getCompanyDetailsAction();
       yield put(getCompanyAndBranches());
       yield put(
@@ -108,7 +107,6 @@ export function* googleLogin(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();
-
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());
@@ -146,13 +144,6 @@ export function* verifyOTP(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
 
-    // const response = await AuthService.submitGoogleAuthToken(payload.token);
-    // yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
-    // get state details
-    // TODO: await dispatch.common.getStateDetailsAction();
-
-    // get company details
-    // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
@@ -180,7 +171,6 @@ export function* appleLogin(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();
-
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
     yield put(getCompanyAndBranches());
@@ -209,7 +199,7 @@ export function* appleLogin(action) {
 
 export function* logoutUser() {
   const state = yield select();
-  const {commonReducer} = state;
+  const { commonReducer } = state;
   const id = commonReducer.userData.data.data[0].id;
 
   try {

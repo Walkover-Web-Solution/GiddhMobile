@@ -17,11 +17,6 @@ import colors from '@/utils/colors';
 import moment from 'moment';
 import * as CommonActions from '@/redux/CommonAction';
 import DownloadModal from '@/screens/Parties/components/downloadingModal';
-// import Realm from 'realm';
-import { TransactionDBOptions } from '@/Database';
-import { TRANSACTION_SCHEMA } from '@/Database/AllSchemas/transaction-schema';
-import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
-import { calculateDataLoadedTime } from '@/utils/helper';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -46,21 +41,6 @@ export class TransactionScreen extends React.Component {
   }
 
   componentDidMount() {
-    // Realm.open(TransactionDBOptions)
-    //   .then((Realm) => {
-    //     this.setState({
-    //       Realm: Realm
-    //     });
-    //     const TransactionData: any = Realm.objects(TRANSACTION_SCHEMA);
-    //     if (TransactionData[0]?.objects?.length > 0) {
-    //       console.log('rendered last fetch data');
-    //       this.setState({
-    //         transactionsData: TransactionData[0].objects.toJSON(),
-    //         dataLoadedTime: TransactionData[0].timeStamp,
-    //         showLoader: false
-    //       });
-    //     }
-    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
       this.getTransactions()
     });
@@ -88,49 +68,6 @@ export class TransactionScreen extends React.Component {
     console.log(v1);
   };
 
-  updateDB = () => {
-    try {
-      const objects: any[] = [];
-      this.state.transactionsData.forEach(element => {
-        objects.push({
-          particular: {
-            name: element.particular.name
-          },
-          voucherName: element.voucherName,
-          entryDate: element.entryDate,
-          voucherNo: element.voucherNo,
-          otherTransactions: [{
-            amount: element.otherTransactions[0]?.amount,
-            inventory: element.otherTransactions[0]?.inventory ? {
-              quantity: element.otherTransactions[0]?.inventory?.quantity
-            } : null,
-            particular: {
-              currency: {
-                code: element.otherTransactions[0]?.particular.currency?.code
-              }
-            }
-          }],
-          creditAmount: element.creditAmount,
-          debitAmount: element.debitAmount
-        });
-      });
-      const existingData = this.state.Realm.objects(TRANSACTION_SCHEMA);
-      this.state.Realm.write(() => {
-        if (existingData.length > 0) {
-          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
-          existingData[0].objects = objects;
-        } else {
-          this.state.Realm.create(TRANSACTION_SCHEMA, {
-            timeStamp: calculateDataLoadedTime(new Date()),
-            objects: objects,
-          });
-        }
-      });
-    } catch (error) {
-      console.log("error updating db ", error);
-    }
-  }
-
   async getTransactions() {
     if (this.state.transactionsData.length == 0) {
       this.setState({
@@ -149,18 +86,6 @@ export class TransactionScreen extends React.Component {
           totalPages: transactions.body.totalPages,
           showLoader: false
         },
-        // () => {
-        //   console.log('updating db');
-          // this.updateDB();
-          // this.setState({
-          //   dataLoadedTime: 'Updated!'
-          // });
-          // setInterval(() => {
-          //   this.setState({
-          //     dataLoadedTime: '',
-          //   })
-          // }, 3 * 1000);
-        //}
       );
     } catch (e) {
       console.log(e);
@@ -283,8 +208,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    // getCountriesAction: dispatch.common.getCountriesAction,
-    // logoutAction: dispatch.auth.logoutAction,
     logout: () => {
       dispatch(CommonActions.logout());
     }

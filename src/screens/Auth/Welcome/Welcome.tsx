@@ -1,5 +1,4 @@
 import React from 'react';
-// import {Text} from '@ui-kitten/components';
 import { connect } from 'react-redux';
 import { View, Text, Dimensions, ScrollView, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';

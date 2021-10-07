@@ -1,35 +1,38 @@
 import React, { Component } from 'react';
-import {
-  Platform,
-  DeviceEventEmitter,
-  NativeEventEmitter,
-  NativeModules
-} from 'react-native';
-import AppNavigator from '@/navigation/app.navigator';
 
+import AppNavigator from '@/navigation/app.navigator';
+import AsyncStorage from '@react-native-community/async-storage';
 import { connect } from 'react-redux';
-import { getCompanyAndBranches, renewAccessToken } from '../redux/CommonAction';
+import { getCompanyAndBranches, logout, renewAccessToken } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
-import AppMainNav from '@/navigation/app.main.navigator';
+import { getExpireInTime } from '@/utils/helper';
+import { STORAGE_KEYS } from '@/utils/constants';
+
 
 
 class BaseContainer extends Component {
   componentDidMount() {
     SplashScreen.hide();
-    // const { RNAlarmNotification } = NativeModules;
-    // const RNAlarmEmitter = new NativeEventEmitter(RNAlarmNotification);
-    // const openedSubscription = RNAlarmEmitter.addListener(
-    //   'OnNotificationOpened', (data) => { console.log(JSON.parse(data)); }
-    // );
-    
     if (this.props.isUserAuthenticated) {
-      this.props.getCompanyAndBranches();
+      this.checkSessionExpiry();
     }
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken, () => {
-    //   // fire logout action
-    //   this.props.renewAccessToken();
-    //   store.dispatch.auth.logout();
-    // });
+  }
+
+  checkSessionExpiry = async () => {
+    const expireAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionEnd);
+    if (expireAt) {
+      console.log('session end is present');
+      let expirationTime = await getExpireInTime(expireAt);
+      if (await expirationTime <= new Date()) {
+        //session expired.
+        console.log('logging out session expired');
+        await this.props.logout();
+        return;
+      }
+      await this.props.getCompanyAndBranches();
+    } else {
+      await this.props.logout();
+    }
   }
 
   componentWillUnmount() { }
@@ -63,6 +66,9 @@ function mapDispatchToProps(dispatch) {
     },
     renewAccessToken: () => {
       dispatch(renewAccessToken());
+    },
+    logout: () => {
+      dispatch(logout());
     },
   };
 }

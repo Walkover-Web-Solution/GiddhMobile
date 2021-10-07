@@ -1,5 +1,3 @@
-/* eslint-disable semi */
-// eslint-disable-next-line no-use-before-define
 import React from 'react';
 import { connect } from 'react-redux';
 import { View, DeviceEventEmitter, Text } from 'react-native';
@@ -9,14 +7,9 @@ import { PartiesList } from '@/screens/Parties/components/parties-list.component
 import { CommonService } from '@/core/services/common/common.service';
 import * as CommonActions from '@/redux/CommonAction';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
-// import Realm from 'realm';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
 import { APP_EVENTS } from '@/utils/constants';
-import { PartiesDBOptions } from '@/Database';
-import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
-import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
-import { calculateDataLoadedTime } from '@/utils/helper';
 
 type PartiesScreenProp = {
   logout: Function;
@@ -41,7 +34,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       partiesCredData: [],
       debtData: [],
       creditors: false,
-      // Realm: Realm,
       dataLoadedTime: ''
     };
   }
@@ -52,51 +44,8 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
       ),
       showLoader: false
-    }, () => {
-      // this.updateDB();
-      // this.setState({
-      //   dataLoadedTime: 'Updated!'
-      // }, () => {
-      //   setInterval(() => {
-      //     this.setState({
-      //       dataLoadedTime: ''
-      //     })
-      //   }, 3 * 1000);
-      // })
     });
   };
-
-  updateDB = () => {
-    console.log('updating db');
-    try {
-      const objects: any[] = [];
-      this.state.debtData.forEach(element => {
-        objects.push({
-          uniqueName: element.uniqueName,
-          name: element.name,
-          closingBalance: element.closingBalance,
-          category: element.category,
-          country: {
-            code: element.country.code
-          }
-        });
-      });
-      const existingData = this.state.Realm.objects(PARTIES_SCHEMA);
-      this.state.Realm.write(() => {
-        if (existingData.length > 0) {
-          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
-          existingData[0].objects = objects;
-        } else {
-          this.state.Realm.create(PARTIES_SCHEMA, {
-            timeStamp: calculateDataLoadedTime(new Date()),
-            objects: objects
-          });
-        }
-      });
-    } catch (error) {
-      console.log("error updating db ", error);
-    }
-  }
 
   apiCalls = async () => {
     if (this.state.debtData.length == 0) {
@@ -119,22 +68,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
 
   componentDidMount() {
-    // get parties data
-    // Realm.open(PartiesDBOptions)
-    //   .then((Realm) => {
-    //     this.setState({
-    //       Realm: Realm
-    //     })
-    //     const partiesData: any = Realm.objects(PARTIES_SCHEMA);
-    //     if (partiesData[0]?.objects?.length > 0) {
-    //       console.log("rendered last fetched data");
-    //       this.setState({
-    //         debtData: partiesData[0].objects,
-    //         dataLoadedTime: partiesData[0]?.timeStamp,
-    //         showLoader: false,
-    //       });
-    //     }
-    //   });
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.apiCalls();
     });
@@ -156,10 +89,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } else {
       return (
         <View style={style.container}>
-          {/* {this.state.dataLoadedTime.length > 0 ?
-            <LastDataLoadedTime
-              paddingHorizontal={10}
-              text={this.state.dataLoadedTime} /> : null} */}
           <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
         </View>
       );

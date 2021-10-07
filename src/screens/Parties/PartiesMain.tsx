@@ -29,11 +29,6 @@ import { Customers } from './components/Customers';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AsyncStorage from '@react-native-community/async-storage';
-// import Realm from 'realm';
-import { CustomerVendorDBOptions, PartiesDBOptions } from '@/Database';
-import { calculateDataLoadedTime } from '@/utils/helper';
-import { PARTIES_SCHEMA } from '@/Database/AllSchemas/parties-schema';
-import { CUSTOMER_VENDOR_SCHEMA } from '@/Database/AllSchemas/customer-vendor-schema';
 
 const { width } = Dimensions.get('window');
 
@@ -158,52 +153,6 @@ export class PartiesMainScreen extends React.Component {
   modalVisible = () => {
     this.setState({ sortModal: false });
   };
-
-  updateDB = () => {
-    console.log('updating db');
-    try {
-      const customerObjects: any[] = [];
-      const vendorObjects: any[] = [];
-      this.state.customerData.forEach(element => {
-        customerObjects.push({
-          uniqueName: element.uniqueName,
-          name: element.name,
-          closingBalance: element.closingBalance,
-          category: element.category,
-          country: {
-            code: element.country.code
-          }
-        });
-      });
-      this.state.vendorData.forEach(element => {
-        vendorObjects.push({
-          uniqueName: element.uniqueName,
-          name: element.name,
-          closingBalance: element.closingBalance,
-          category: element.category,
-          country: {
-            code: element.country.code
-          }
-        });
-      });
-      const existingData = this.state.Realm.objects(CUSTOMER_VENDOR_SCHEMA);
-      this.state.Realm.write(() => {
-        if (existingData.length > 0) {
-          existingData[0].timeStamp = calculateDataLoadedTime(new Date());
-          existingData[0].customerObjects = customerObjects;
-          existingData[0].vendorObjects = vendorObjects;
-        } else {
-          this.state.Realm.create(CUSTOMER_VENDOR_SCHEMA, {
-            timeStamp: calculateDataLoadedTime(new Date()),
-            customerObjects: customerObjects,
-            vendorObjects: vendorObjects
-          });
-        }
-      });
-    } catch (error) {
-      console.log("error updating db ", error);
-    }
-  }
 
   apiCalls = async () => {
     await this.defaultFilters();
@@ -588,7 +537,7 @@ export class PartiesMainScreen extends React.Component {
         showLoader: false
       });
     } catch (e) {
-      this.setState({ vendorData: new PartiesPaginatedResponse(),showLoader: false });
+      this.setState({ vendorData: new PartiesPaginatedResponse(), showLoader: false });
     }
   }
 
@@ -600,7 +549,7 @@ export class PartiesMainScreen extends React.Component {
         customerLoadingMore: false
       });
     } catch (e) {
-      this.setState({ customerData: new PartiesPaginatedResponse(),customerLoadingMore: false });
+      this.setState({ customerData: new PartiesPaginatedResponse(), customerLoadingMore: false });
       console.log(e);
     }
   }
@@ -614,7 +563,7 @@ export class PartiesMainScreen extends React.Component {
         vendorLoadingMore: false
       });
     } catch (e) {
-      this.setState({ vendorData: new PartiesPaginatedResponse(),vendorLoadingMore: false });
+      this.setState({ vendorData: new PartiesPaginatedResponse(), vendorLoadingMore: false });
     }
   }
 }

@@ -37,7 +37,6 @@ import RNFetchBlob from 'rn-fetch-blob';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
-import Fontisto from 'react-native-vector-icons/Fontisto';
 import PushNotification, { Importance } from 'react-native-push-notification';
 import Dialog from 'react-native-dialog';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
@@ -814,7 +813,7 @@ class PartiesTransactionScreen extends React.Component {
   };
 
   currencyFormat(amount: number, currencyType: string | undefined) {
-    console.log("Currency type " + currencyType)
+    console.log("Currency type " + currencyType + " total Amount " + amount)
     switch (currencyType) {
       case 'IND_COMMA_SEPARATED':
         // eslint-disable-next-line no-lone-blocks
@@ -848,7 +847,7 @@ class PartiesTransactionScreen extends React.Component {
       }
       default: {
         return amount
-          .toFixed(1)
+          //.toFixed(1)
           .toString()
           .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       }
@@ -1143,8 +1142,13 @@ class PartiesTransactionScreen extends React.Component {
                     if (this.state.totalAmount == '') {
                       await this.setState({ totalAmountPlaceHolder: '' })
                     } else {
-                      let amount = await (this.currencyFormat(Number((this.state.totalAmount).substring(1)), this.props.route.params.activeCompany?.balanceDisplayFormat))
-                      console.log("Total Number with commas " + amount)
+                      let amount = await (this.currencyFormat(Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')), this.props.route.params.activeCompany?.balanceDisplayFormat))
+                      console.log("Total Amount with commas " + amount + " currency symbol " + this.state.currencySymbol)
+                      if (amount == "NaN") {
+                        ToastAndroid.show("Invalid Amount", ToastAndroid.SHORT)
+                        await this.setState({ totalAmount: '', totalAmountPlaceHolder: '' })
+                        return
+                      }
                       await this.setState({ totalAmount: this.state.currencySymbol + amount })
                     }
                   }}

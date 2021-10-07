@@ -131,7 +131,7 @@ export function* logoutUser() {
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionStart);
     yield AsyncStorage.removeItem(STORAGE_KEYS.sessionEnd);
     // yield AsyncStorage.removeItem(STORAGE_KEYS.activeCompanyUniqueName);
-    console.log('login worked');
+    console.log('logout worked');
   } catch (e) {
     console.log(e);
   }

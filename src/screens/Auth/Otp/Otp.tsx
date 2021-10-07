@@ -27,6 +27,7 @@ class Login extends React.Component<any, any> {
   }
 
   sendOTP = async () => {
+    await this.setState({code:''})
     let payload = await { mobileNumber: this.props.tfaDetails.contactNumber, countryCode: this.props.tfaDetails.countryCode }
     const response = await sendOTP(payload);
     if (response.status == "success") {
