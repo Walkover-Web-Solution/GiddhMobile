@@ -205,21 +205,17 @@ export class SalesInvoice extends React.Component<Props> {
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
-    this.searchCalls();
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-    // console.log('resetDog');
-    // await this.resetState();
-    // this.setActiveCompanyCountry()
-    // this.getAllTaxes();
-    // this.getAllDiscounts();
-    // this.getAllWarehouse();
-    // this.getAllAccountsModes();
-    // });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      if (this.state.searchPartyName == "") {
+        this.searchCalls();
+      }
+    });
 
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
@@ -229,8 +225,9 @@ export class SalesInvoice extends React.Component<Props> {
     });
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.setActiveCompanyCountry();
       this.resetState();
+      this.searchCalls();
+      this.setActiveCompanyCountry();
       this.getAllTaxes();
       this.getAllDiscounts();
       this.getAllWarehouse();
@@ -248,6 +245,7 @@ export class SalesInvoice extends React.Component<Props> {
 
   clearAll = () => {
     this.resetState();
+    this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
@@ -2252,14 +2250,14 @@ export class SalesInvoice extends React.Component<Props> {
               {this.state.invoiceType == 'cash' ? (
                 <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
               ) : (
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({ showPaymentModePopup: true });
-                    }}>
-                    <Text style={{ color: '#1C1C1C' }}>
-                      {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
-                    </Text>
-                    {/* <TextInput
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({ showPaymentModePopup: true });
+                  }}>
+                  <Text style={{ color: '#1C1C1C' }}>
+                    {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
+                  </Text>
+                  {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
                     placeholder={`${this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}0.00`}
                     returnKeyType={'done'}
@@ -2270,8 +2268,8 @@ export class SalesInvoice extends React.Component<Props> {
                       this.setState({amountPaidNowText: text});
                     }}
                   /> */}
-                  </TouchableOpacity>
-                )}
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>

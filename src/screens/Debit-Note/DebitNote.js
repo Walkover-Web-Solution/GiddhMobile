@@ -197,22 +197,18 @@ export class DebiteNote extends React.Component<Props> {
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
-    this.searchCalls();
 
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-    //   await this.state.accountDropDown.select(-1)
-    //   await this.resetState();
-    //   this.setActiveCompanyCountry()
-    //   this.getAllTaxes();
-    //   this.getAllDiscounts();
-    //   this.getAllWarehouse();
-    //   this.getAllAccountsModes();
-    // });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      if (this.state.searchPartyName == "") {
+        this.searchCalls();
+      }
+    });
 
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
@@ -223,6 +219,7 @@ export class DebiteNote extends React.Component<Props> {
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
+      this.searchCalls();
       this.setActiveCompanyCountry();
       this.getAllTaxes();
       this.getAllDiscounts();
@@ -371,6 +368,7 @@ export class DebiteNote extends React.Component<Props> {
   clearAll = async () => {
     await this.state.accountDropDown.select(-1);
     await this.resetState();
+    await this.searchCalls()
     await this.setActiveCompanyCountry();
     await this.getAllTaxes();
     await this.getAllDiscounts();

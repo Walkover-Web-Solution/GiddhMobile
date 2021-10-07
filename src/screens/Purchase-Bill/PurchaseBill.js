@@ -215,12 +215,12 @@ export class PurchaseBill extends React.Component {
   componentDidMount() {
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
-    this.searchCalls();
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInPurchaseBill, (data) => {
       this.updateAddedItems(data);
@@ -228,17 +228,15 @@ export class PurchaseBill extends React.Component {
       // store.dispatch.auth.logout();
     });
 
-    // this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
-    //   await this.resetState();
-    //   this.setActiveCompanyCountry()
-    //   this.getAllTaxes();
-    //   this.getAllDiscounts();
-    //   this.getAllWarehouse();
-    //   this.getAllAccountsModes();
-    // });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      if (this.state.searchPartyName == "") {
+        this.searchCalls();
+      }
+    });
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
+      this.searchCalls();
       this.setActiveCompanyCountry();
       this.getAllTaxes();
       this.getAllDiscounts();
@@ -993,6 +991,7 @@ export class PurchaseBill extends React.Component {
 
   clearAll = () => {
     this.resetState();
+    this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
