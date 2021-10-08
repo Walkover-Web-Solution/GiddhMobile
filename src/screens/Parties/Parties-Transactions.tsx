@@ -1190,7 +1190,7 @@ class PartiesTransactionScreen extends React.Component {
                   }
                   }
                   style={{ fontSize: 15, marginHorizontal: 8, textAlignVertical: "center", padding: 0, width: "90%", }}>
-                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.reviewPlaceHolder == '' ? 'Review' : this.state.review}</Text>
+                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.reviewPlaceHolder == '' ? 'Comments' : this.state.review}</Text>
                   <Text style={{ color: '#E04646' }}>{this.state.reviewPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>

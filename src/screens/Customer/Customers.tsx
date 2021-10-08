@@ -22,6 +22,7 @@ import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 interface Props {
   navigation: any;
@@ -506,7 +507,7 @@ export class Customers extends React.Component<Props> {
 
   render() {
     return (
-      <View style={styles.customerMainContainer}>
+      <KeyboardAwareScrollView style={styles.customerMainContainer}>
         <Dialog.Container
           visible={this.state.partyDialog}
           onBackdropPress={() => {
@@ -811,7 +812,7 @@ export class Customers extends React.Component<Props> {
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
         )}
-      </View>
+      </KeyboardAwareScrollView>
     )
   }
 };

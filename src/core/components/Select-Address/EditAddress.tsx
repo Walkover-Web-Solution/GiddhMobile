@@ -2664,8 +2664,7 @@ export class EditAddress extends React.Component<any, any> {
 
   gstValidator() {
     const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-    const vadidatorResult =
-      this.state.gstNo != undefined && this.state.gstNo != '' ? regex.test(this.state.gstNo) : true;
+    const vadidatorResult = this.state.gstNo != undefined && this.state.gstNo != '' ? regex.test((this.state.gstNo).toUpperCase()) : true;
     return vadidatorResult;
   }
 
@@ -2686,7 +2685,7 @@ export class EditAddress extends React.Component<any, any> {
     } else {
       const address = {
         address: this.state.address,
-        gstNumber: this.state.gstNo,
+        gstNumber: (this.state.gstNo).toUpperCase(),
         pincode: this.state.pinCode,
         selectedCountry: this.state.selectedCountry,
         state: this.state.state_billing != '' ? this.state.state_billing : '',
@@ -2697,6 +2696,7 @@ export class EditAddress extends React.Component<any, any> {
             ? this.state.state_billing
             : '',
       };
+      console.log("Final Address "+JSON.stringify(address))
       this.props.route.params.selectAddress(address);
       this.props.navigation.goBack();
     }
@@ -2866,6 +2866,7 @@ export class EditAddress extends React.Component<any, any> {
               />
             </View>
             <TextInput
+            editable={this.state.selectStateDisable ? false : true}
             placeholder={"Enter State name"}
               style={{
                 flex: 1,

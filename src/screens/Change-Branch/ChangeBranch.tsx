@@ -40,7 +40,8 @@ export class ChangeBranch extends React.Component<Props> {
       name: userName,
       email: userEmail,
       CompanyName:companyName,
-      BranchName:BranchName
+      BranchName:BranchName,
+      newUser:false
     });
   }
 

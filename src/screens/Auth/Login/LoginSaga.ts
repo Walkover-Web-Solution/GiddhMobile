@@ -27,7 +27,8 @@ const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, use
   console.log("LogRocket Details " + userUniqueName + "  " + userName + " " + userEmail);
   LogRocket.identify(userUniqueName, {
     name: userName,
-    email: userEmail
+    email: userEmail,
+    newUser:true
   });
 }
 
