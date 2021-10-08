@@ -8,7 +8,7 @@ import {
   StatusBar,
   Keyboard,
   NativeModules,
-  Dimensions
+  Dimensions,Platform
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -425,7 +425,7 @@ class OtherDetails extends React.Component<Props> {
     return (
       <View style={{ flex: 1 }}>
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-          <StatusBar backgroundColor="#ff5355" barStyle="light-content" />
+          <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
           {this._renderShipDate()}

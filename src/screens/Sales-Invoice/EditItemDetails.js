@@ -781,7 +781,7 @@ class EditItemDetails extends Component {
           backgroundColor: 'white',
           flex: 1,
         }}>
-        <StatusBar backgroundColor="#0E7942" barStyle="light-content" />
+        <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
         {this.renderHeader()}
 
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -944,6 +944,7 @@ class EditItemDetails extends Component {
     return (
       <TextInput
         placeholder='Add Description'
+        multiline={true}
         numberOfLines={10}
         value={this.state.editItemDetails.description}
         onChangeText={(text) => {

@@ -171,7 +171,7 @@ class PartiesTransactionScreen extends React.Component {
 
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
   };
 
   setActiveDateFilter = (activeDateFilter, dateMode) => {
@@ -969,10 +969,21 @@ class PartiesTransactionScreen extends React.Component {
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <Icon name={'Backward-arrow'} color="#fff" size={18} />
             </TouchableOpacity>
-
-            <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
-              {this.props.route.params.item.name}
-            </Text>
+            {this.state.payNowButtonPressed ?
+              <View style={{ justifyContent: "space-between", alignItems: "center", flexDirection: "row", flex: 1 }}>
+                <Text numberOfLines={1} style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF', width: "60%" }}>
+                  {this.props.route.params.item.name}
+                </Text>
+                <Text
+                  numberOfLines={1}
+                  style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, color: '#FFFFFF', width: "35%", textAlign: "right", paddingLeft: 2 }}>
+                  {this.state.currencySymbol + this.numberWithCommas(this.props.route.params.item.closingBalance.amount)}
+                </Text>
+              </View>
+              : <Text numberOfLines={1} style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
+                {this.props.route.params.item.name}
+              </Text>
+            }
           </View>
           <View
             style={{

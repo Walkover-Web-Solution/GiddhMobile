@@ -10,7 +10,7 @@ import {
   Keyboard,
   ActivityIndicator,
   NativeModules,
-  StatusBar
+  StatusBar,Platform
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -611,7 +611,7 @@ class AddItemScreen extends React.Component<Props> {
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <StatusBar backgroundColor="#2e80d1" barStyle="light-content" />
+        <StatusBar backgroundColor="#2e80d1" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} />
         <View style={style.headerConatiner}>{this.renderHeader()}</View>
 
         <View style={{ flex: 1 }}>

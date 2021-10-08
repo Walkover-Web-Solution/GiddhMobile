@@ -51,7 +51,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
     return (
       <View style={styles.flatList}>
         <View style={styles.balData}>
-          <Text style={styles.listHeading}>{this.props.item.stockName}</Text>
+          <Text numberOfLines={1} style={styles.listHeading}>{this.props.item.stockName}</Text>
           {/* <View style={styles.iconPlacingStyle}>
             <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
           </View> */}

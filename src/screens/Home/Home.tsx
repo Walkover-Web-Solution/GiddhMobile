@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
-import { StatusBar } from 'react-native';
+import { StatusBar,Platform } from 'react-native';
 import * as CommonActions from '../../redux/CommonAction';
 import { GDContainer } from '@/core/components/container/container.component';
 import HomeComponent from '@/screens/Home/components/Home/home.component';
@@ -16,7 +16,7 @@ export class HomeScreen extends React.Component<Props, {}> {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
   };
 
   getData = async () => {

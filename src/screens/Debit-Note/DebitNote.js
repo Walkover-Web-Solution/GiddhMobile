@@ -162,7 +162,7 @@ export class DebiteNote extends React.Component<Props> {
   //   console.log(activeCompany);
   // };
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#ff5355" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> : null;
   };
 
   async getExchangeRateToINR(currency) {
@@ -219,7 +219,6 @@ export class DebiteNote extends React.Component<Props> {
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
-      this.searchCalls();
       this.setActiveCompanyCountry();
       this.getAllTaxes();
       this.getAllDiscounts();
@@ -1344,7 +1343,7 @@ export class DebiteNote extends React.Component<Props> {
         }
       } catch (e) { }
     }
-    
+
     for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
       if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) {
         this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
@@ -1611,12 +1610,16 @@ export class DebiteNote extends React.Component<Props> {
               },
             });
           }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>
-              {item.name}
-              {item.stock ? '(' + item.stock.name + ')' : ''} :{' '}
-            </Text>
-            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',paddingVertical: 10 }}>
+            <View style={{ flexDirection: 'row', width: "75%", }}>
+              <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>{item.name}</Text>
+              {item.stock && (
+                <Text numberOfLines={1} style={{ color: '#1C1C1C', flex: 1 }}>
+                  ( {item.stock.name} ) :
+                </Text>
+              )}
+            </View>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center', width: "25%", alignItems: "flex-end" }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>

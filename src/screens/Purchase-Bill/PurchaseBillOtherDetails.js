@@ -8,7 +8,7 @@ import {
   StatusBar,
   Keyboard,
   NativeModules,
-  Dimensions
+  Dimensions,Platform
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -421,7 +421,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
   };
 
   render() {

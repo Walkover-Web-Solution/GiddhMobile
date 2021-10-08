@@ -82,7 +82,7 @@ class PurchaseItemEdit extends Component {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
   };
 
   componentDidMount() {
@@ -268,6 +268,7 @@ class PurchaseItemEdit extends Component {
   _renderDescriptionField() {
     return (
       <TextInput
+        multiline={true}
         placeholder='Add Description'
         numberOfLines={10}
         value={this.state.editItemDetails.description}

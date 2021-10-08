@@ -630,7 +630,7 @@ class AddItemScreen extends React.Component<Props> {
   render () {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <StatusBar backgroundColor="#ff5355" barStyle="light-content" />
+        <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
         <View style={style.headerConatiner}>{this.renderHeader()}</View>
 
         <View style={{ flex: 1 }}>

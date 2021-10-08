@@ -10,7 +10,7 @@ import {
   Keyboard,
   ActivityIndicator,
   NativeModules,
-  StatusBar
+  StatusBar,Platform
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -53,7 +53,7 @@ class PurchaseAddItem extends React.Component<Props> {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
   };
 
   componentDidMount () {

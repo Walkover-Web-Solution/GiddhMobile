@@ -105,7 +105,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       });
     } catch (e) {
       this.setState({ debtData: new PartiesPaginatedResponse() });
-      console.log("crashlog", e);
+      console.log("Error in getPartiesSundryDebtors ", e);
     }
   }
 
@@ -120,7 +120,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       });
     } catch (e) {
       this.setState({ partiesCredData: new PartiesPaginatedResponse() });
-      console.log("crashlog", e);
+      console.log("Error in getPartiesSundryCreditors ", e);
       this.setState({ showLoader: false });
     }
   }

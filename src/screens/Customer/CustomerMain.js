@@ -8,7 +8,7 @@ import {
   Dimensions,
   StatusBar,
   InteractionManager,
-  DeviceEventEmitter
+  DeviceEventEmitter,Platform
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -67,7 +67,7 @@ export class Customer extends React.Component<Props> {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
   };
 
   renderHeader() {

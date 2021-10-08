@@ -187,7 +187,7 @@ export class SalesInvoice extends React.Component<Props> {
   //   console.log(activeCompany);
   // };
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
 
   async setActiveCompanyCountry() {
@@ -226,7 +226,6 @@ export class SalesInvoice extends React.Component<Props> {
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this.resetState();
-      this.searchCalls();
       this.setActiveCompanyCountry();
       this.getAllTaxes();
       this.getAllDiscounts();
@@ -1705,15 +1704,15 @@ export class SalesInvoice extends React.Component<Props> {
             });
           }}>
           <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={{ color: '#1C1C1C' }}>{item.name} </Text>
+            <View style={{ flexDirection: 'row', width: "75%", }}>
+              <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>{item.name}</Text>
               {item.stock && (
-                <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>
+                <Text numberOfLines={1} style={{ color: '#1C1C1C', flex: 1 }}>
                   ( {item.stock.name} ) :
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center', width: "25%", alignItems: "flex-end" }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>

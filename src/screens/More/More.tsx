@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar,Platform } from 'react-native';
 import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
 import { CommonService } from '@/core/services/common/common.service';
@@ -16,7 +16,7 @@ export class MoreScreen extends React.Component<Props, {}> {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
   };
 
   getData = async () => {

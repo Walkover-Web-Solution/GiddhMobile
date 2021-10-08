@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, FlatList, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, Text, FlatList, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableWithoutFeedback, Alert,StatusBar,Platform } from 'react-native';
 import style from '@/screens/Inventory/style';
 import InventoryList from '@/screens/Inventory/components/inventory-list.component';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -113,11 +113,10 @@ export class InventoryScreen extends React.Component<Props, State> {
         if (totalPages > 3) {
           check = 1;
         }
-        console.log("Pages to load " + totalPages);
+        //console.log("Pages to load " + totalPages);
         for (let i = 1; i <= totalPages; i++) {
           try {
             let InventoryPageData = null;
-            console.log(i);
             try {
               InventoryPageData = await InventoryService?.getInventories(
                 companyName,
@@ -239,6 +238,7 @@ export class InventoryScreen extends React.Component<Props, State> {
   render() {
     return (
       <View style={style.container}>
+        <StatusBar backgroundColor='#000080' barStyle={Platform.OS=='ios'?"dark-content":"light-content"} />
         <View
           style={{
             flexDirection: 'row',

@@ -174,7 +174,7 @@ export class Customers extends React.Component<Props> {
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden' }}>
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, paddingVertical:0,height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden' }}>
             <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}

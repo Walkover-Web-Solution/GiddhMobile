@@ -14,7 +14,8 @@ export class CustomerVendorService {
         return res.data;
       })
       .catch((err) => {
-        Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        console.log(err)
+        //Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });
   }

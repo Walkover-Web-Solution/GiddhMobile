@@ -21,7 +21,8 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(err);
+        console.log(JSON.stringify(err))
+        //alert(err);
         return err;
       });
   }
@@ -40,7 +41,8 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(err);
+        console.log(JSON.stringify(err))
+        //alert(err);
         return err;
       });
   }
@@ -52,7 +54,8 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(err);
+        console.log(JSON.stringify(err))
+        //alert(err);
         return err;
       });
   }
@@ -64,7 +67,7 @@ export class InvoiceService {
     return httpInstance.get(invoiceUrls.companyBranchDeatils, {}).then((res) => {
       return res.data;
     }).catch((err) => {
-      console.log(err)
+      console.log(JSON.stringify(err))
       return null;
     });
   }
@@ -76,7 +79,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        console.log(err)
+        console.log(JSON.stringify(err))
         return null;
       });
   }
@@ -88,7 +91,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        console.log(err)
+        console.log(JSON.stringify(err))
         return null;
       });
   }
@@ -107,7 +110,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(JSON.stringify(err));
+        console.log(JSON.stringify(err))
         return null;
       });
   }
@@ -119,7 +122,7 @@ export class InvoiceService {
         return res.data;
       })
       .catch((err) => {
-        alert(JSON.stringify(err));
+        console.log(JSON.stringify(err));
         return null;
       });
   }
@@ -132,7 +135,7 @@ export class InvoiceService {
       })
       .catch((_err) => {
         // alert(JSON.stringify(err));
-        console.log('error getting discounts ', _err);
+        console.log('error getting discounts ', JSON.stringify(_err));
         return null;
       });
   }

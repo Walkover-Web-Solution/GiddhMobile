@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, Dimensions, ScrollView, Image } from 'react-native';
+import { View, Text, Dimensions, ScrollView, Image,StatusBar,Platform } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import style from './style';
 import routes from '@/navigation/routes';
@@ -144,6 +144,7 @@ class Welcome extends React.Component<any, any> {
     const { currentPage: pageIndex } = this.state;
     return (
       <View style={style.container}>
+        <StatusBar backgroundColor='#000080' barStyle={Platform.OS=='ios'?"dark-content":"light-content"} />
         <View style={{ height: this.state.screenHeight * 0.7, width: this.state.screenWidth, marginTop: this.state.screenHeight * 0.05 }}>
           <ScrollView
             ref={(ref) => this.state.scrollRef = ref}

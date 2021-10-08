@@ -1,6 +1,6 @@
 import React from 'react';
 import { GDContainer } from '@/core/components/container/container.component';
-import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar ,Platform} from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -18,7 +18,7 @@ interface Props {
 
 export class ChangeBranch extends React.Component<Props> {
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle="light-content" /> : null;
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
   };
 
   /**
