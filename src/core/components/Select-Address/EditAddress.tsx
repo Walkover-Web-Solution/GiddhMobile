@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Alert, Platform } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
@@ -2769,7 +2769,7 @@ export class EditAddress extends React.Component<any, any> {
     return (
       <View style={style.container}>
         {this.props.route.params.statusBarColor && (
-          <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle="light-content" />
+          <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
         )}
         <View
           style={{
