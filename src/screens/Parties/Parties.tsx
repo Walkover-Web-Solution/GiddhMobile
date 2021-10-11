@@ -21,7 +21,6 @@ type PartiesScreenState = {
   partiesCredData: any;
   debtData: any;
   creditors: boolean;
-  // Realm: Realm;
   dataLoadedTime: string
 };
 
@@ -89,6 +88,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } else {
       return (
         <View style={style.container}>
+         {this.state.debtData.length>9?<Text style={{textAlign:"center",fontSize:15,fontWeight:"bold"}}>TOP 10 Creditors and debtors</Text>:null}
           <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
         </View>
       );

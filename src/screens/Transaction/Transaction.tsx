@@ -20,6 +20,7 @@ import DownloadModal from '@/screens/Parties/components/downloadingModal';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
+export let previousItem = null
 
 export class TransactionScreen extends React.Component {
   constructor(props: Props) {
@@ -157,6 +158,16 @@ export class TransactionScreen extends React.Component {
     );
   };
 
+  renderItem=(item:any)=>{
+    let PreviousItem = previousItem
+    // console.log("Time "+Number(moment(item.entryDate,'DD-MM-YYYY')))
+    // console.log("Previos Item Time "+Number(moment(PreviousItem!=null?PreviousItem.entryDate:"",'DD-MM-YYYY')))
+    previousItem= item
+     return(
+        <TransactionList item={item} downloadModal={this.downloadModalVisible} 
+        showDate={Number(moment(item.entryDate,'DD-MM-YYYY'))==Number(moment(PreviousItem!=null?PreviousItem.entryDate:"",'DD-MM-YYYY'))?false:true}/> 
+  );}
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -185,7 +196,7 @@ export class TransactionScreen extends React.Component {
                     text={this.state.dataLoadedTime} /> : null} */}
                 <FlatList
                   data={this.state.transactionsData}
-                  renderItem={({ item }) => <TransactionList item={item} downloadModal={this.downloadModalVisible} />}
+                  renderItem={({ item }) =>this.renderItem(item)}
                   keyExtractor={(item) => item.createdAt}
                   onEndReachedThreshold={0.2}
                   onEndReached={() => this.handleRefresh()}

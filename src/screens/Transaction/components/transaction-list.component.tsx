@@ -13,6 +13,7 @@ import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import ShareModal from '../../Parties/components/sharingModal';
 import DownloadModal from '../../Parties/components/downloadingModal';
+import moment from 'moment';
 
 class TransactionList extends React.Component {
   listData = [
@@ -224,6 +225,13 @@ class TransactionList extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        {this.props.showDate==false ?<View style={[styles.seperator,{marginBottom:15,marginTop:-5}]} />:null }
+        {this.props.showDate &&
+        <View style={{flexDirection:"row",flex:1,alignItems:"center",marginBottom:5}}>
+        <View style={{borderBottomColor: '#8E8E8E',borderBottomWidth:0.6,opacity:0.5,width:"32.5%"}} />
+        <Text style={{textAlign:"center",borderRadius:15,borderWidth:0.3,paddingHorizontal:5,paddingVertical:3,borderColor:'#8E8E8E',width:"35%"}}>{moment(this.props.item.entryDate,'DD-MM-YYYY').format('DD MMM YYYY')}</Text>
+        <View style={{borderBottomColor: '#8E8E8E',borderBottomWidth:0.6,opacity:0.5,width:"32.5%"}} />
+       </View>}
         <View style={styles.flatList}>
           <Text style={styles.listHeading}>
             {this.props.transactionType == 'partyTransaction'
@@ -239,9 +247,10 @@ class TransactionList extends React.Component {
                 <Text style={styles.invoiceNumber}> #{this.props.item.voucherNo}</Text>
               </View>
               {/* right content */}
+              {this.props.showDate==null ||this.props.showDate==undefined?
               <View>
-                <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
-              </View>
+              <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
+            </View>:null }
             </View>
           </View>
           {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
@@ -288,7 +297,7 @@ class TransactionList extends React.Component {
             </View>
           </View>
 
-          <View style={styles.seperator} />
+          {this.props.showDate==null ||this.props.showDate==undefined?<View style={styles.seperator} />:null }
         </View>
         <DownloadModal modalVisible={this.state.DownloadModal} />
         <ShareModal modalVisible={this.state.iosShare} />

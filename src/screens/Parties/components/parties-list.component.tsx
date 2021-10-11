@@ -9,6 +9,8 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Company } from '@/models/interfaces/company';
+import { useNavigation } from '@react-navigation/native';
+import routes from '@/navigation/routes';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -48,6 +50,7 @@ const amountColorStyle = (type: string) => {
 
 export const PartiesList = (props: PartiesListProp) => {
   const { partiesData, activeCompany } = props;
+  const navigationRef = useNavigation()
 
   function currencyFormat (amount: number, currencyType: string | undefined) {
     switch (currencyType) {
@@ -98,7 +101,18 @@ export const PartiesList = (props: PartiesListProp) => {
       // rightOpenValue={-100}
       // renderHiddenItem={renderHiddenItem}
       renderItem={({ item }) => (
-        <View style={styles.rowFront}>
+        <TouchableOpacity 
+        onPress={() => {
+          navigationRef.navigate(routes.Parties, {
+            screen: 'PartiesTransactions',
+            initial: false,
+            params: {
+              item:item,
+              type: (item.category === 'liabilities'?'Vendors':'Creditors'),
+              activeCompany:activeCompany
+            },
+          });}}
+          style={styles.rowFront}>
           <View style={styles.flatList}>
             <View style={styles.viewWrap}>
               <Text style={styles.partiesName} numberOfLines={1}>
@@ -150,7 +164,7 @@ export const PartiesList = (props: PartiesListProp) => {
             {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
             <View style={styles.seperator} />
           </View>
-        </View>
+        </TouchableOpacity>
       )}
       keyExtractor={(item) => item.uniqueName}
     />
