@@ -14,6 +14,7 @@ import color from '@/utils/colors';
 import ShareModal from '../../Parties/components/sharingModal';
 import DownloadModal from '../../Parties/components/downloadingModal';
 import moment from 'moment';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 class TransactionList extends React.Component {
   listData = [
@@ -66,12 +67,12 @@ class TransactionList extends React.Component {
   downloadFile = async () => {
     try {
       if (Platform.OS == "ios") {
-        await this.onShare();
+        await this.exportFile();
       } else {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           console.log('yes its granted');
-          await this.onShare();
+          await this.exportFile();
         } else {
           this.props.downloadModal(false);
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
@@ -83,9 +84,63 @@ class TransactionList extends React.Component {
     }
   };
 
-  onShare = async () => {
+  shareFile = async () => {
+    try {
+      if (Platform.OS == "ios") {
+        await this.onShare();
+      } else {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('yes its granted');
+          await this.onShare();
+        } else {
+          this.setState({iosShare:false});
+          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+        }
+      }
+    } catch (err) {
+      this.setState({iosShare:false});
+      console.warn(err);
+    }
+  };
+
+  exportFile = async () => {
     try {
       await Platform.OS == "ios" ? this.setState({ DownloadModal: true }) : null
+      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      RNFetchBlob.fetch(
+        'POST',
+        `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`,
+        {
+          'session-id': `${token}`,
+          'Content-Type': 'application/json'
+        },
+        JSON.stringify({
+          voucherNumber: [`${this.props.item.voucherNo}`],
+          voucherType: `${this.props.item.voucherName}`
+        })
+      ).then(async(res) => {
+        let base64Str = await res.base64();
+        let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
+        await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+        if (Platform.OS === "ios") {
+          let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${this.props.item.voucherNo}.pdf`;
+          await this.setState({ DownloadModal: false })
+          await setTimeout(() => {RNFetchBlob.ios.openDocument(pdfLocation)}, 500)
+        } else {
+          this.props.downloadModal(false)       
+         }
+      })
+    } catch (e) {
+      Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
+      console.log(e);
+    }
+  };
+
+  onShare = async () => {
+    try {
+      // await Platform.OS == "ios" ? this.setState({ DownloadModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
@@ -102,19 +157,21 @@ class TransactionList extends React.Component {
       )
         .then(async (res) => {
           const base64Str = await res.base64();
-          const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
+          const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`;
           await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          await this.setState({iosShare:false});
           if (Platform.OS === "ios") {
-            await this.setState({ DownloadModal: false })
+            // await this.setState({ DownloadModal: false })
             await RNFetchBlob.ios.previewDocument(pdfLocation)
-          } else {
-            await this.props.downloadModal(false);
-          }
+          } 
+          // else {
+          //   await this.props.downloadModal(false);
+          // }
         }).then(async () => {
           await Share.open({
             title: 'This is the report',
             //message: 'Message:',
-            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`,
+            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`,
             subject: 'Transaction report'
           })
             .then((res) => {
@@ -125,8 +182,10 @@ class TransactionList extends React.Component {
             });
         });
     } catch (e) {
-      this.props.downloadModal(false);
-      this.setState({ DownloadModal: false })
+      this.setState({iosShare:false});
+      // this.props.downloadModal(false);
+      // this.setState({ DownloadModal: false })
+      this.setState({iosShare:false});
       console.log(e);
     }
   };
@@ -265,15 +324,27 @@ class TransactionList extends React.Component {
               </Text>
             </View>
             <View style={styles.iconPlacingStyle}>
-              {this.props.item.voucherNo && (
+            {this.props.item.voucherNo && (
                 <TouchableOpacity
                   delayPressIn={0}
                   style={{ padding: 5 }}
                   onPress={() => {
-                    Platform.OS != "ios" ? this.props.downloadModal(true) : null
-                    this.downloadFile();
+                    // Platform.OS != "ios" ? this.props.downloadModal(true) : null
+                    this.setState({iosShare:true})
+                    this.shareFile();
                   }}>
                   <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
+                </TouchableOpacity>
+              )}
+              {this.props.item.voucherNo && (
+                <TouchableOpacity
+                  delayPressIn={0}
+                  style={{ padding: 5 ,marginLeft:4,}}
+                  onPress={async() => {
+                    await Platform.OS != "ios" ? this.props.downloadModal(true) : null
+                    await this.downloadFile();
+                  }}>
+                  <AntDesign name="download" size={17} color={'#8E8E8E'} />
                 </TouchableOpacity>
               )}
 

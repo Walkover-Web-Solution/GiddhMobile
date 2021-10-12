@@ -4,7 +4,8 @@ import {
   Modal,
   StyleSheet,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
+  View,Text
 } from 'react-native';
 import { Bars } from 'react-native-loader';
 
@@ -15,10 +16,10 @@ function ShareModal ({ modalVisible }) {
   return (
     <Modal animationType="none" transparent={true} visible={modalVisible}>
       <TouchableOpacity style={styles.container}>
-        {/* <View style={styles.centeredView}> */}
+        <View style={styles.centeredView}>
         <Bars size={15} color={colors.PRIMARY_NORMAL} />
-        {/* <Text style={{marginTop: 20, fontFamily: 'AvenirLTStd-Black'}}>Downloading PDF</Text> */}
-        {/* </View> */}
+        <Text style={{marginTop: 20, fontFamily: 'AvenirLTStd-Black'}}>Preparing PDF</Text>
+        </View>
       </TouchableOpacity>
     </Modal>
   );
@@ -32,8 +33,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center'
+    // justifyContent: 'center',
+    // alignItems: 'center'
   },
   centeredView: {
     flexDirection: 'column',

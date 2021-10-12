@@ -714,7 +714,7 @@ class PartiesTransactionScreen extends React.Component {
         .then(async (res) => {
           let base64Str = await res.base64();
           let base69 = await base64.decode(base64Str);
-          let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
           await this.setState({ ShareModal: false });
           await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
           if (Platform.OS === "ios") {
@@ -726,7 +726,7 @@ class PartiesTransactionScreen extends React.Component {
           await Share.open({
             title: 'This is the report',
             //message: 'Message:',
-            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
+            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
             subject: 'Report',
           })
             .then((res) => {
@@ -1275,7 +1275,7 @@ class PartiesTransactionScreen extends React.Component {
                     renderItem={({ item }) => (
                       <TransactionList
                         item={item}
-                        downloadModal={this.shareModalVisible}
+                        downloadModal={this.downloadModalVisible}
                         transactionType={'partyTransaction'}
                         phoneNo={this.props.route.params.item.mobileNo}
                       />
