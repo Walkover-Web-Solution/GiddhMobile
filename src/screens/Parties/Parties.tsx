@@ -89,7 +89,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     } else {
       return (
         <ScrollView style={style.container}>
-         {this.state.debtData.length>9?<Text style={{textAlign:"center",fontSize:15,fontWeight:"bold"}}>TOP 10 Creditors and debtors</Text>:null}
+         {this.state.debtData.length>9?<Text style={{textAlign:"center",fontSize:15,fontWeight:"bold"}}>TOP 10 Creditors and Debtors</Text>:null}
           <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
         </ScrollView>
       );
