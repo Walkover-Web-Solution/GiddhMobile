@@ -206,7 +206,7 @@ export const Vendors = (props) => {
                       )}
                     </View>
                     <View style={{ flexDirection: 'column', alignItems: "flex-end" }}>
-                      {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
+                      {item.bankPaymentDetails === false && item.country.code == "IN" && <TouchableOpacity onPress={async () => {
                         await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
                           await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                       }} ><Text style={{ color: "orange", fontSize: 13, }}>Add Bank Details</Text></TouchableOpacity>}
