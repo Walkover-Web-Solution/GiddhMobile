@@ -171,7 +171,7 @@ class PartiesTransactionScreen extends React.Component {
 
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> : null;
   };
 
   setActiveDateFilter = (activeDateFilter, dateMode) => {
@@ -624,6 +624,11 @@ class PartiesTransactionScreen extends React.Component {
           'session-id': `${token}`,
         },
       ).then((res) => {
+        if(res.respInfo.status!=200){
+          Platform.OS == "ios" ? this.setState({ iosLoaderToExport: false }) : this.downloadModalVisible(false)
+          ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
+          return
+        }
         let base64Str = res.base64();
         let base69 = base64.decode(base64Str);
         let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;

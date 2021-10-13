@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking, Platform, Dimensions } from 'react-native';
+import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking, Platform, Dimensions, ToastAndroid } from 'react-native';
 import styles from '@/screens/Transaction/components/styles';
 import colors from '@/utils/colors';
 import { GdSVGIcons } from '@/utils/icons-pack';
@@ -94,12 +94,12 @@ class TransactionList extends React.Component {
           console.log('yes its granted');
           await this.onShare();
         } else {
-          this.setState({iosShare:false});
+          this.setState({ iosShare: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
       }
     } catch (err) {
-      this.setState({iosShare:false});
+      this.setState({ iosShare: false });
       console.warn(err);
     }
   };
@@ -120,17 +120,22 @@ class TransactionList extends React.Component {
           voucherNumber: [`${this.props.item.voucherNo}`],
           voucherType: `${this.props.item.voucherName}`
         })
-      ).then(async(res) => {
+      ).then(async (res) => {
+        if (res.respInfo.status != 200) {
+          Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
+          ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
+          return
+        }
         let base64Str = await res.base64();
-        let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
+        let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo + " " + new Date()}.pdf`;
         await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
         if (Platform.OS === "ios") {
-          let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${this.props.item.voucherNo}.pdf`;
+          let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${this.props.item.voucherNo + " " + new Date()}.pdf`;
           await this.setState({ DownloadModal: false })
-          await setTimeout(() => {RNFetchBlob.ios.openDocument(pdfLocation)}, 500)
+          await setTimeout(() => { RNFetchBlob.ios.openDocument(pdfLocation) }, 500)
         } else {
-          this.props.downloadModal(false)       
-         }
+          this.props.downloadModal(false)
+        }
       })
     } catch (e) {
       Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
@@ -159,11 +164,11 @@ class TransactionList extends React.Component {
           const base64Str = await res.base64();
           const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`;
           await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
-          await this.setState({iosShare:false});
+          await this.setState({ iosShare: false });
           if (Platform.OS === "ios") {
             // await this.setState({ DownloadModal: false })
             await RNFetchBlob.ios.previewDocument(pdfLocation)
-          } 
+          }
           // else {
           //   await this.props.downloadModal(false);
           // }
@@ -182,10 +187,9 @@ class TransactionList extends React.Component {
             });
         });
     } catch (e) {
-      this.setState({iosShare:false});
+      this.setState({ iosShare: false });
       // this.props.downloadModal(false);
       // this.setState({ DownloadModal: false })
-      this.setState({iosShare:false});
       console.log(e);
     }
   };
@@ -215,7 +219,7 @@ class TransactionList extends React.Component {
           Alert.alert('', 'Please install whats app to send direct message via whats app');
         } else {
           try {
-            await Platform.OS == "ios" ? this.setState({ iosShare: true }) : this.props.downloadModal(true)
+            this.setState({ iosShare: true })
             const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
             const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
             const shareOptions = {
@@ -243,11 +247,9 @@ class TransactionList extends React.Component {
                 const base64Str = await res.base64();
                 const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
                 await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+                await this.setState({ iosShare: false })
                 if (Platform.OS === "ios") {
-                  await this.setState({ iosShare: false })
                   await RNFetchBlob.ios.previewDocument(pdfLocation)
-                } else {
-                  await this.props.downloadModal(false);
                 }
               })
               .then(async () => {
@@ -260,8 +262,7 @@ class TransactionList extends React.Component {
                   });
               });
           } catch (e) {
-            this.props.downloadModal(false);
-            this.setState({ iosShare : false })
+            this.setState({ iosShare: false })
             console.log(e);
             console.log(e);
           }
@@ -284,37 +285,65 @@ class TransactionList extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {this.props.showDate==false ?<View style={[styles.seperator,{marginBottom:15,marginTop:-5}]} />:null }
+        {this.props.showDate == false ? <View style={[styles.seperator, { marginBottom: 15, marginTop: -5 }]} /> : null}
         {this.props.showDate &&
-        <View style={{flexDirection:"row",flex:1,alignItems:"center",marginBottom:5}}>
-        <View style={{borderBottomColor: '#8E8E8E',borderBottomWidth:0.6,opacity:0.5,width:"32.5%"}} />
-        <Text style={{textAlign:"center",borderRadius:15,borderWidth:0.3,paddingHorizontal:5,paddingVertical:3,borderColor:'#8E8E8E',width:"35%"}}>{moment(this.props.item.entryDate,'DD-MM-YYYY').format('DD MMM YYYY')}</Text>
-        <View style={{borderBottomColor: '#8E8E8E',borderBottomWidth:0.6,opacity:0.5,width:"32.5%"}} />
-       </View>}
+          <View style={{ flexDirection: "row", flex: 1, alignItems: "center", marginBottom: 5 }}>
+            <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
+            <Text style={{ textAlign: "center", borderRadius: 15, borderWidth: 0.3, paddingHorizontal: 5, paddingVertical: 3, borderColor: '#8E8E8E', width: "35%" }}>{moment(this.props.item.entryDate, 'DD-MM-YYYY').format('DD MMM YYYY')}</Text>
+            <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
+          </View>}
         <View style={styles.flatList}>
-          <Text style={styles.listHeading}>
-            {this.props.transactionType == 'partyTransaction'
-              ? this.max.particular.name
-              : this.props.item.particular.name}
-          </Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", flex: 1 }}>
+            <Text numberOfLines={1} style={[styles.listHeading, { width: this.props.transactionType != 'partyTransaction' ? "60%" : "100%" }]}>
+              {this.props.transactionType == 'partyTransaction'
+                ? this.max.particular.name
+                : this.props.item.particular.name}</Text>
+            {this.props.transactionType != 'partyTransaction' && <Text numberOfLines={1} style={[styles.balStyle, , { width: "40%", textAlign: "right" }]}>
+              {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
+              {this.props.item.creditAmount
+                ? this.numberWithCommas(this.props.item.creditAmount)
+                : this.numberWithCommas(this.props.item.debitAmount)}
+            </Text>}
+          </View>
           <View style={styles.receiptData}>
             <View style={styles.aboutSales}>
               <View style={styles.leftcontent}>
                 <View style={this.bannerColorStyle(this.props.item.voucherName)}>
                   <Text style={styles.bannerText}>{this.props.item.voucherName} </Text>
                 </View>
-                <Text style={styles.invoiceNumber}> #{this.props.item.voucherNo}</Text>
+                <Text style={styles.invoiceNumber}> {this.props.item.voucherNo == null ? "" : "#" + this.props.item.voucherNo}</Text>
               </View>
               {/* right content */}
-              {this.props.showDate==null ||this.props.showDate==undefined?
-              <View>
-              <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
-            </View>:null }
+              {this.props.showDate == null || this.props.showDate == undefined ?
+                <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
+                : <View style={[styles.iconPlacingStyle, { alignItems: "flex-end", }]}>
+                  {this.props.item.voucherNo && (
+                    <TouchableOpacity
+                      delayPressIn={0}
+                      style={{ padding: 5, paddingRight: 5, paddingVertical: 10, }}
+                      onPress={() => {
+                        this.setState({ iosShare: true })
+                        this.shareFile();
+                      }}>
+                      <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
+                    </TouchableOpacity>
+                  )}
+                  {this.props.item.voucherNo && (
+                    <TouchableOpacity
+                      delayPressIn={0}
+                      style={{ padding: 5, paddingRight: 0, paddingLeft: 10, paddingVertical: 10, }}
+                      onPress={async () => {
+                        await Platform.OS != "ios" ? this.props.downloadModal(true) : null
+                        await this.downloadFile();
+                      }}>
+                      <AntDesign name="download" size={17} color={'#8E8E8E'} />
+                    </TouchableOpacity>
+                  )}</View>}
             </View>
           </View>
           {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
-          <View style={styles.balData}>
-            <View style={styles.balanceText}>
+          <View style={[styles.balData, { marginTop: this.props.item.otherTransactions[0].inventory ? 0 : 5 }]}>
+            {this.props.transactionType == 'partyTransaction' && <View style={styles.balanceText}>
               <Text style={styles.balStyle}>Total: </Text>
               <Text style={styles.balStyle}>
                 {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
@@ -322,41 +351,43 @@ class TransactionList extends React.Component {
                   ? this.numberWithCommas(this.props.item.creditAmount)
                   : this.numberWithCommas(this.props.item.debitAmount)}
               </Text>
-            </View>
+            </View>}
             <View style={styles.iconPlacingStyle}>
-            {this.props.item.voucherNo && (
-                <TouchableOpacity
-                  delayPressIn={0}
-                  style={{ padding: 5 }}
-                  onPress={() => {
-                    // Platform.OS != "ios" ? this.props.downloadModal(true) : null
-                    this.setState({iosShare:true})
-                    this.shareFile();
-                  }}>
-                  <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
-                </TouchableOpacity>
-              )}
-              {this.props.item.voucherNo && (
-                <TouchableOpacity
-                  delayPressIn={0}
-                  style={{ padding: 5 ,marginLeft:4,}}
-                  onPress={async() => {
-                    await Platform.OS != "ios" ? this.props.downloadModal(true) : null
-                    await this.downloadFile();
-                  }}>
-                  <AntDesign name="download" size={17} color={'#8E8E8E'} />
-                </TouchableOpacity>
-              )}
+              {this.props.transactionType == 'partyTransaction' &&
+                this.props.item.voucherNo && (
+                  <TouchableOpacity
+                    delayPressIn={0}
+                    style={{ padding: 5, paddingVertical: 10, }}
+                    onPress={() => {
+                      this.setState({ iosShare: true })
+                      this.shareFile();
+                    }}>
+                    <GdSVGIcons.send style={styles.iconStyle} width={19} height={18} />
+                  </TouchableOpacity>
+                )}
+              {this.props.transactionType == 'partyTransaction' &&
+                this.props.item.voucherNo && (
+                  <TouchableOpacity
+                    delayPressIn={0}
+                    style={{ padding: 5, marginLeft: 4, paddingVertical: 10, }}
+                    onPress={async () => {
+                      await Platform.OS != "ios" ? this.props.downloadModal(true) : null
+                      await this.downloadFile();
+                    }}>
+                    <AntDesign name="download" size={17} color={'#8E8E8E'} />
+                  </TouchableOpacity>
+                )}
 
-              <View style={{ width: 10 }} />
+              <View style={{ width: 5 }} />
               {this.props.transactionType == 'partyTransaction' && this.props.item.voucherNo && this.props.phoneNo ? (
                 <TouchableOpacity
                   delayPressIn={0}
+                  style={{ padding: 3, marginLeft: 0, paddingVertical: 10, }}
                   // onPress={() => console.log(this.props.phoneNo ? this.props.phoneNo.replace(/\D/g, '') : 'no phono')}
                   onPress={() => {
                     this.permissonWhatsapp();
                   }}>
-                  <MaterialCommunityIcons name="whatsapp" size={22} color={'#075e54'} />
+                  <MaterialCommunityIcons name="whatsapp" size={20} color={'#075e54'} />
                 </TouchableOpacity>
               ) : null}
               {/* <TouchableOpacity delayPressIn={0} onPress={() => console.log(this.props.item.otherTransactions)}>
@@ -368,7 +399,7 @@ class TransactionList extends React.Component {
             </View>
           </View>
 
-          {this.props.showDate==null ||this.props.showDate==undefined?<View style={styles.seperator} />:null }
+          {this.props.transactionType == 'partyTransaction' && <View style={styles.seperator} />}
         </View>
         <DownloadModal modalVisible={this.state.DownloadModal} />
         <ShareModal modalVisible={this.state.iosShare} />

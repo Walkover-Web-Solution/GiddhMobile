@@ -7,7 +7,7 @@ export default StyleSheet.create({
     flex: 1,
 
     backgroundColor: colors.BACKGROUND,
-    justifyContent: 'flex-start'
+    //justifyContent: 'flex-start'
   },
   alignLoader: {
     alignItems: 'center',

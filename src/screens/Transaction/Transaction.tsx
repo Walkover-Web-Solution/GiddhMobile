@@ -37,6 +37,7 @@ export class TransactionScreen extends React.Component {
       loadingMore: false,
       DownloadModal: false,
       dataLoadedTime: 'Time and Date',
+      refreshlist: false
       // Realm: Realm
     };
   }
@@ -69,6 +70,18 @@ export class TransactionScreen extends React.Component {
     console.log(v1);
   };
 
+  async sort(array: any) {
+    await this.setState({ transactionsData: [], refreshlist: true })
+    const sortedArray = await array.sort((a: any, b: any) => { return Number(moment(a.entryDate, 'DD-MM-YYYY')) - Number(moment(b.entryDate, 'DD-MM-YYYY')) }).reverse()
+    await this.setState({
+      transactionsData: sortedArray,
+      refreshlist: !this.state.refreshlist,
+      showLoader: false,
+      loadingMore: false,
+    })
+    // console.log("Sorted Array " + JSON.stringify(sortedArray))
+  }
+
   async getTransactions() {
     if (this.state.transactionsData.length == 0) {
       this.setState({
@@ -81,11 +94,13 @@ export class TransactionScreen extends React.Component {
         this.state.endDate,
         this.state.page
       );
+      // console.log("ALL  Transaction " + JSON.stringify(transactions.body))
+      await this.sort(transactions.body.entries);
       this.setState(
         {
-          transactionsData: transactions.body.entries,
+          //transactionsData: transactions.body.entries,
           totalPages: transactions.body.totalPages,
-          showLoader: false
+          // showLoader: false
         },
       );
     } catch (e) {
@@ -101,11 +116,13 @@ export class TransactionScreen extends React.Component {
         this.state.endDate,
         this.state.page
       );
-      this.setState({
-        transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
-        showLoader: false,
-        loadingMore: false
-      });
+      // console.log("ALL  Transaction on load more " + JSON.stringify([...this.state.transactionsData, ...transactions.body.entries]))
+      await this.sort([...[...this.state.transactionsData, ...transactions.body.entries]]);
+      // this.setState({
+      //transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
+      // showLoader: false,
+      // loadingMore: false
+      // });
     } catch (e) {
       console.log(e);
       this.setState({ showLoader: false });
@@ -158,15 +175,19 @@ export class TransactionScreen extends React.Component {
     );
   };
 
-  renderItem=(item:any)=>{
+  renderItem = (item: any, index: any) => {
+    if (index == 0) {
+      previousItem = null
+    }
     let PreviousItem = previousItem
-    // console.log("Time "+Number(moment(item.entryDate,'DD-MM-YYYY')))
+    // console.log("Time "+item.entryDate+" "+Number(moment(item.entryDate,'DD-MM-YYYY')))
     // console.log("Previos Item Time "+Number(moment(PreviousItem!=null?PreviousItem.entryDate:"",'DD-MM-YYYY')))
-    previousItem= item
-     return(
-        <TransactionList item={item} downloadModal={this.downloadModalVisible} 
-        showDate={Number(moment(item.entryDate,'DD-MM-YYYY'))==Number(moment(PreviousItem!=null?PreviousItem.entryDate:"",'DD-MM-YYYY'))?false:true}/> 
-  );}
+    previousItem = item
+    return (
+      <TransactionList item={item} downloadModal={this.downloadModalVisible}
+        showDate={Number(moment(item.entryDate, 'DD-MM-YYYY')) == Number(moment(PreviousItem != null ? PreviousItem.entryDate : "", 'DD-MM-YYYY')) ? false : true} />
+    );
+  }
 
   render() {
     if (this.state.showLoader) {
@@ -195,12 +216,14 @@ export class TransactionScreen extends React.Component {
                     paddingHorizontal={10}
                     text={this.state.dataLoadedTime} /> : null} */}
                 <FlatList
+                  ref={this.state.flatListRef}
                   data={this.state.transactionsData}
-                  renderItem={({ item }) =>this.renderItem(item)}
+                  renderItem={({ item, index }) => this.renderItem(item, index)}
                   keyExtractor={(item) => item.createdAt}
                   onEndReachedThreshold={0.2}
                   onEndReached={() => this.handleRefresh()}
                   ListFooterComponent={this._renderFooter}
+                  extraData={this.state.refreshlist}
                 />
               </View>
             )}

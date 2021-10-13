@@ -72,7 +72,7 @@ export class ChangeBranch extends React.Component<Props> {
             <TouchableOpacity
               style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}
               onPress={async () => {
-                await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
+                await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
                 DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                 // this.props.getCompanyAndBranches();
                 this.props.navigation.goBack();

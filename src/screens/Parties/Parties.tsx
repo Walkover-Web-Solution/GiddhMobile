@@ -10,6 +10,7 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
 import { APP_EVENTS } from '@/utils/constants';
+import { ScrollView } from 'react-native-gesture-handler';
 
 type PartiesScreenProp = {
   logout: Function;
@@ -87,10 +88,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       );
     } else {
       return (
-        <View style={style.container}>
+        <ScrollView style={style.container}>
          {this.state.debtData.length>9?<Text style={{textAlign:"center",fontSize:15,fontWeight:"bold"}}>TOP 10 Creditors and debtors</Text>:null}
           <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
-        </View>
+        </ScrollView>
       );
     }
   }

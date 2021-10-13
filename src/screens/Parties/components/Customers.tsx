@@ -136,8 +136,8 @@ export const Customers = (props) => {
                 </View>
               )}
             </View>
-            {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
-            {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
+            {item.category === 'liabilities' && <Text style={styles.subheading}></Text>}
+            {item.category === 'assets' && <Text style={styles.subheading}></Text>}
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}

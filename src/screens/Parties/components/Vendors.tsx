@@ -178,8 +178,8 @@ export const Vendors = (props) => {
                 <Text style={[styles.partiesName, { width: "100%" }]} numberOfLines={1}>
                   {item.name}
                 </Text>
-                {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
-                {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
+                {item.category === 'liabilities' && <Text style={styles.subheading}></Text>}
+                {item.category === 'assets' && <Text style={styles.subheading}></Text>}
               </View>
               {item.closingBalance.amount !== 0 && (
                 <View style={{ width: '35%' }}>
