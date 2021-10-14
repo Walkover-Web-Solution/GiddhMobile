@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
-import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Alert } from 'react-native';
+import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Alert, Platform } from 'react-native';
 import style from '@/screens/Auth/Otp/style';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { GdImages } from '@/utils/icons-pack';
@@ -11,6 +11,7 @@ import { verifyOTP, clearOTPError, OTPScreenUnmounting } from '../Login/LoginAct
 import { sendOTP } from '../Login/LoginService';
 import { Bars } from 'react-native-loader';
 import { baseColor } from '../../../utils/colors';
+import TOAST from 'react-native-root-toast';
 
 const { width, height } = Dimensions.get('window');
 class Login extends React.Component<any, any> {
@@ -31,7 +32,21 @@ class Login extends React.Component<any, any> {
     let payload = await { mobileNumber: this.props.tfaDetails.contactNumber, countryCode: this.props.tfaDetails.countryCode }
     const response = await sendOTP(payload);
     if (response.status == "success") {
+      if(Platform.OS=="ios"){
+        TOAST.show(response.body, {
+          duration: TOAST.durations.LONG,
+          position: -140,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      }else{
       await ToastAndroid.show(response.body, ToastAndroid.LONG)
+      }
     }
   }
   render() {

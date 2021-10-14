@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
 
-import { Image, View, Keyboard, Platform, ScrollView } from 'react-native';
+import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
@@ -17,9 +17,10 @@ import { WEBCLIENT_ID } from '@/env.json';
 import { Bars } from 'react-native-loader';
 import { googleLogin, appleLogin, userEmailLogin } from './LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
+import Messages from '@/utils/messages';
 
 class Login extends React.Component<any, any> {
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
     this.state = {
       showLoader: false,
@@ -29,7 +30,7 @@ class Login extends React.Component<any, any> {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     // initial google sign in configuration
     GoogleSignin.configure({
       webClientId: `${WEBCLIENT_ID}`
@@ -38,7 +39,7 @@ class Login extends React.Component<any, any> {
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (!prevProps.startTFA && this.props.startTFA) {
       this.setState({ showLoader: false });
       console.log('going to otp');
@@ -46,12 +47,12 @@ class Login extends React.Component<any, any> {
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
   }
 
-  async onAppleButtonPress () {
+  async onAppleButtonPress() {
     // performs login request
     try {
       const appleAuthRequestResponse = await appleAuth.performRequest({
@@ -95,12 +96,17 @@ class Login extends React.Component<any, any> {
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         console.log('Play Services Not Available or Outdated');
       } else {
+        if (Platform.OS == "ios") {
+          alert(Messages.internetNotAvailable);
+        } else {
+          ToastAndroid.show(Messages.internetNotAvailable, ToastAndroid.LONG);
+        }
         console.log('Some Other Error Happened');
       }
     }
   };
 
-  signInWithUsernamePassword () {
+  signInWithUsernamePassword() {
     this.props.userLogin({ username: this.state.username, password: this.state.password });
   }
 
@@ -122,7 +128,7 @@ class Login extends React.Component<any, any> {
     this.setState({ keyboard: false });
   };
 
-  render () {
+  render() {
     // if (this.state.showLoader) {
     //   return (
     //     <GDContainer>
@@ -244,7 +250,7 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     googleLogin: (token, email) => {
       dispatch(googleLogin(token, email));

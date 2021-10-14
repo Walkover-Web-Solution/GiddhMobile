@@ -9065,6 +9065,19 @@
   dependencies:
     "fbjs" "^1.0.0"
 
+"react-native-root-siblings@^4.0.0":
+  "integrity" "sha512-sdmLElNs5PDWqmZmj4/aNH4anyxreaPm61c4ZkRiR8SO/GzLg6KjAbb0e17RmMdnBdD0AIQbS38h/l55YKN4ZA=="
+  "resolved" "https://registry.npmjs.org/react-native-root-siblings/-/react-native-root-siblings-4.1.1.tgz"
+  "version" "4.1.1"
+
+"react-native-root-toast@^3.2.1":
+  "integrity" "sha512-BNf6LKMqcIAonKgqCGQWk+1lduFqSjPYbEF0FygMZbXhODRTvrGUAvAgV6kfamVPOkKHUkPU7dnnvmgEQ8ZDzQ=="
+  "resolved" "https://registry.npmjs.org/react-native-root-toast/-/react-native-root-toast-3.2.1.tgz"
+  "version" "3.2.1"
+  dependencies:
+    "prop-types" "^15.5.10"
+    "react-native-root-siblings" "^4.0.0"
+
 "react-native-safe-area-context@*", "react-native-safe-area-context@>= 0.6.0", "react-native-safe-area-context@3.1.7":
   "integrity" "sha512-qSyg/pVMwVPgAy8yCvw349Q+uEUhtRBV33eVXHHkfoou1vCChJxI7SmNR47/6M3BLdjWcyc4lcd018Kx+jhQCw=="
   "resolved" "https://registry.npmjs.org/react-native-safe-area-context/-/react-native-safe-area-context-3.1.7.tgz"
@@ -9157,7 +9170,7 @@
     "prop-types" "^15.7.2"
     "yargs" "^15.0.2"
 
-"react-native@*", "react-native@^0.63.2", "react-native@>= 0.62", "react-native@>=0.20.0", "react-native@>=0.23.1", "react-native@>=0.33", "react-native@>=0.42.0", "react-native@>=0.45.0", "react-native@>=0.48.4", "react-native@>=0.50.0", "react-native@>=0.57", "react-native@>=0.57.0", "react-native@>=0.58.4", "react-native@>=0.59", "react-native@>=0.60", "react-native@>=0.60.0-rc.0 <1.0.x", "react-native@>=0.62.0-rc.0 <0.64.0", "react-native@>=0.63.0", "react-native@0.63.2":
+"react-native@*", "react-native@^0.63.2", "react-native@>= 0.62", "react-native@>=0.20.0", "react-native@>=0.23.1", "react-native@>=0.33", "react-native@>=0.42.0", "react-native@>=0.45.0", "react-native@>=0.47.0", "react-native@>=0.48.4", "react-native@>=0.50.0", "react-native@>=0.57", "react-native@>=0.57.0", "react-native@>=0.58.4", "react-native@>=0.59", "react-native@>=0.60", "react-native@>=0.60.0-rc.0 <1.0.x", "react-native@>=0.62.0-rc.0 <0.64.0", "react-native@>=0.63.0", "react-native@0.63.2":
   "integrity" "sha512-MkxHeJorUDzmQwKJrTfrFYMDRLyu9GSBpsFFMDX7X+HglVnaZi3CTzW2mRv1eIcazoseBOP2eJe+bnkyLl8Y2A=="
   "resolved" "https://registry.npmjs.org/react-native/-/react-native-0.63.2.tgz"
   "version" "0.63.2"

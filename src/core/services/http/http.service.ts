@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { APP_EVENTS, HTTP_REQUEST_TIME_OUT, STORAGE_KEYS } from '@/utils/constants';
-import { isNetworkConnected } from '@/utils/helper';
 import Messages from '@/utils/messages';
 import AsyncStorage from '@react-native-community/async-storage';
-import { DeviceEventEmitter, Platform } from 'react-native';
+import { DeviceEventEmitter, Platform, ToastAndroid } from 'react-native';
 import { commonUrls } from '@/core/services/common/common.url';
 import moment from 'moment';
+import NetInfo from '@react-native-community/netinfo';
+import TOAST from 'react-native-root-toast';
 
 const httpInstance = axios.create({
   timeout: HTTP_REQUEST_TIME_OUT,
@@ -14,13 +15,32 @@ const httpInstance = axios.create({
     Accept: 'application/json'
   }
 });
-
+export let count = 0
 // intercept request
 httpInstance.interceptors.request.use(async (reqConfig) => {
   // check if internet is connected
-  if (!isNetworkConnected) {
-    return Promise.reject(new Error(Messages.internetNotAvailable));
-  }
+  const CheckInternet = NetInfo.addEventListener(state => {
+    if (!state.isConnected && count == 0) {
+      count = count + 1
+      if (Platform.OS == "ios") {
+        TOAST.show(Messages.internetNotAvailable, {
+          duration: TOAST.durations.LONG,
+          position: -140,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      } else {
+        ToastAndroid.show(Messages.internetNotAvailable, ToastAndroid.LONG);
+      }
+    }
+  });
+  // Unsubscribe
+  CheckInternet();
 
   if (reqConfig.url.includes(':userEmail')) {
     const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
@@ -83,10 +103,12 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
 httpInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response.status === 401) {
-      DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
+    if (error.response) {
+      if (error.response.status === 401) {
+        DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
+      }
     }
-    return Promise.reject(error.response);
+    return Promise.reject(error.response)
   }
 );
 

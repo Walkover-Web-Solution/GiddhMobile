@@ -15,6 +15,7 @@ import ShareModal from '../../Parties/components/sharingModal';
 import DownloadModal from '../../Parties/components/downloadingModal';
 import moment from 'moment';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import TOAST from 'react-native-root-toast';
 
 class TransactionList extends React.Component {
   listData = [
@@ -123,7 +124,21 @@ class TransactionList extends React.Component {
       ).then(async (res) => {
         if (res.respInfo.status != 200) {
           Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
-          ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
+          if (Platform.OS == "ios") {
+            TOAST.show(JSON.parse(res.data).message, {
+              duration: TOAST.durations.LONG,
+              position: -200,
+              hideOnPress: true,
+              backgroundColor: "#1E90FF",
+              textColor: "white",
+              opacity: 1,
+              shadow: false,
+              animation: true,
+              containerStyle: { borderRadius: 10 }
+            });
+          } else {
+            ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
+          }
           return
         }
         let base64Str = await res.base64();

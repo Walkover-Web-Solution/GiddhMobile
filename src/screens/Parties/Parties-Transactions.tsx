@@ -51,6 +51,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Dropdown from 'react-native-modal-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PaymentServices } from '@/core/services/payment/payment';
+import TOAST from 'react-native-root-toast';
 
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
@@ -624,9 +625,23 @@ class PartiesTransactionScreen extends React.Component {
           'session-id': `${token}`,
         },
       ).then((res) => {
-        if(res.respInfo.status!=200){
+        if (res.respInfo.status != 200) {
           Platform.OS == "ios" ? this.setState({ iosLoaderToExport: false }) : this.downloadModalVisible(false)
-          ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
+          if (Platform.OS == "ios") {
+            TOAST.show(JSON.parse(res.data).message, {
+              duration: TOAST.durations.LONG,
+              position: -200,
+              hideOnPress: true,
+              backgroundColor: "#1E90FF",
+              textColor: "white",
+              opacity: 1,
+              shadow: false,
+              animation: true,
+              containerStyle: { borderRadius: 10 }
+            });
+          } else {
+            ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
+          }
           return
         }
         let base64Str = res.base64();
@@ -902,10 +917,38 @@ class PartiesTransactionScreen extends React.Component {
     const response = await PaymentServices.sendOTP(payload)
     console.log("OTP response" + JSON.stringify(response))
     if (response.status == "success") {
-      ToastAndroid.show(response.body.message, ToastAndroid.LONG)
+      if (Platform.OS == "ios") {
+        TOAST.show(response.body.message, {
+          duration: TOAST.durations.LONG,
+          position: -200,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      } else {
+        ToastAndroid.show(response.body.message, ToastAndroid.LONG)
+      }
       await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId })
     } else {
-      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+      if (Platform.OS == "ios") {
+        TOAST.show(response.data.message, {
+          duration: TOAST.durations.LONG,
+          position: -200,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      } else {
+        ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+      }
     }
   }
 
@@ -920,10 +963,38 @@ class PartiesTransactionScreen extends React.Component {
     console.log("Payment payload " + JSON.stringify(payload))
     const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor.urn, this.state.bankAccounts[0].uniqueName)
     if (response.status == "success") {
-      ToastAndroid.show(response.body.Message, ToastAndroid.LONG)
+      if (Platform.OS == "ios") {
+        TOAST.show(response.body.message, {
+          duration: TOAST.durations.LONG,
+          position: -150,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      } else {
+        ToastAndroid.show(response.body.Message, ToastAndroid.LONG)
+      }
       this.props.navigation.navigate("Parties")
     } else {
-      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+      if (Platform.OS == "ios") {
+        TOAST.show(response.data.message, {
+          duration: TOAST.durations.LONG,
+          position: -150,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      } else {
+        ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+      }
     }
   }
 
@@ -1165,7 +1236,21 @@ class PartiesTransactionScreen extends React.Component {
                       let amount = await (this.currencyFormat(Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')), this.props.route.params.activeCompany?.balanceDisplayFormat))
                       console.log("Total Amount with commas " + amount + " currency symbol " + this.state.currencySymbol)
                       if (amount == "NaN") {
-                        ToastAndroid.show("Invalid Amount", ToastAndroid.SHORT)
+                        if (Platform.OS == "ios") {
+                          TOAST.show("Invalid Amount", {
+                            duration: TOAST.durations.LONG,
+                            position: -200,
+                            hideOnPress: true,
+                            backgroundColor: "#1E90FF",
+                            textColor: "white",
+                            opacity: 1,
+                            shadow: false,
+                            animation: true,
+                            containerStyle: { borderRadius: 10 }
+                          });
+                        } else {
+                          ToastAndroid.show("Invalid Amount", ToastAndroid.SHORT)
+                        }
                         await this.setState({ totalAmount: '', totalAmountPlaceHolder: '' })
                         return
                       }
