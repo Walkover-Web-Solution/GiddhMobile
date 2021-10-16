@@ -1165,7 +1165,7 @@ export class DebiteNote extends React.Component<Props> {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ height: '250%', width: '10%' }}
+              style={{ height: '250%', width: '10%',alignItems:"flex-end" }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1253,7 +1253,7 @@ export class DebiteNote extends React.Component<Props> {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ height: '250%', width: '10%' }}
+              style={{ height: '250%', width: '10%',alignItems:"flex-end" }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1619,7 +1619,7 @@ export class DebiteNote extends React.Component<Props> {
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', alignItems: 'center', width: "25%", alignItems: "flex-end" }}>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', width: "25%", alignItems: "flex-end",justifyContent:"flex-end"}}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>
