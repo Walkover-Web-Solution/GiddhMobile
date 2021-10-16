@@ -181,7 +181,7 @@ class AddButton extends Component<Props> {
               </TouchableOpacity>
             </TouchableOpacity>
           </Modal>
-          
+
           <TouchableHighlight
             disabled={this.props.isDisabled}
             onPress={() => { this.setState({ modalVisible: !this.state.modalVisible }) }}
