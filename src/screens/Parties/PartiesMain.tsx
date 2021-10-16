@@ -11,7 +11,7 @@ import {
   Dimensions,
   ScrollView,
   TextInput,
-  StatusBar,Platform
+  StatusBar, Platform
 } from 'react-native';
 import style from '@/screens/Parties/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -70,7 +70,7 @@ export class PartiesMainScreen extends React.Component {
   }
 
   FocusAwareStatusBar = (isFocused: any) => {
-    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> : null;
   };
 
   setSliderPage = (event: any) => {
