@@ -1881,7 +1881,9 @@ export class DebiteNote extends React.Component<Props> {
               <TextInput
                 value={this.state.amountPaidNowText}
                 keyboardType="number-pad"
+                returnKeyType={'done'}
                 placeholder="Enter Amount"
+                placeholderTextColor="black"
                 onChangeText={(text) => {
                   this.setState({ amountPaidNowText: text });
                 }}

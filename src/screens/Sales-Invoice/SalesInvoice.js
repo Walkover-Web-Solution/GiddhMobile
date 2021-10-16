@@ -2114,7 +2114,9 @@ export class SalesInvoice extends React.Component<Props> {
               <TextInput
                 value={this.state.amountPaidNowText}
                 keyboardType="number-pad"
+                returnKeyType={'done'}
                 placeholder="Enter Amount"
+                placeholderTextColor="black"
                 onChangeText={(text) => {
                   if (Number(text) > Number(this.getTotalAmount())) {
                     Alert.alert('Alert', 'deposit amount should not be more than invoice amount');

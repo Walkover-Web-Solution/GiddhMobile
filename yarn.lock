@@ -9078,7 +9078,7 @@
     "prop-types" "^15.5.10"
     "react-native-root-siblings" "^4.0.0"
 
-"react-native-safe-area-context@*", "react-native-safe-area-context@>= 0.6.0", "react-native-safe-area-context@3.1.7":
+"react-native-safe-area-context@*", "react-native-safe-area-context@^3.1.7", "react-native-safe-area-context@>= 0.6.0":
   "integrity" "sha512-qSyg/pVMwVPgAy8yCvw349Q+uEUhtRBV33eVXHHkfoou1vCChJxI7SmNR47/6M3BLdjWcyc4lcd018Kx+jhQCw=="
   "resolved" "https://registry.npmjs.org/react-native-safe-area-context/-/react-native-safe-area-context-3.1.7.tgz"
   "version" "3.1.7"

@@ -2914,6 +2914,7 @@ export class EditAddress extends React.Component<any, any> {
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
             placeholder={"Enter PinCode"}
+            returnKeyType={'done'}
             keyboardType="number-pad"
             style={{
               borderColor: '#D9D9D9',

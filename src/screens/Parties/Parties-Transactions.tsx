@@ -1257,6 +1257,7 @@ class PartiesTransactionScreen extends React.Component {
                       await this.setState({ totalAmount: this.state.currencySymbol + amount })
                     }
                   }}
+                  returnKeyType={'done'}
                   keyboardType="number-pad"
                   onFocus={() => {
                     this.setState({ totalAmountPlaceHolder: 'a' })

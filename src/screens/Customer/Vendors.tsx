@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Dimensions } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -238,15 +238,15 @@ export class Vendors extends React.Component<Props> {
   renderBalanceDetails = () => {
     return (
       <View style={{ marginHorizontal: 15, marginVertical: 10, marginRight: 20, overflow: 'hidden' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20 }}>
-          <View style={{ width: '74%' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Set Currency (account)</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
-          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, paddingVertical:0,height: 40, width: '30%', borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between', overflow: 'hidden' }}>
+          <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between' }}>
             <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}
@@ -260,7 +260,8 @@ export class Vendors extends React.Component<Props> {
               }}
               onSelect={(idx, value) => this.setState({ selectedCurrency: value.code })}
 
-              dropdownStyle={{ width: '25%', marginTop: 11, marginRight: -60 }}
+              style={{ flex: 1 }}
+              dropdownStyle={{ marginTop: Platform.OS == "ios" ? 13 : 11, width: Dimensions.get('screen').width > 550 ? Dimensions.get('screen').width / 3.5 : Dimensions.get('screen').width / 3.68, marginRight: -43, borderRadius: 0 }}
               dropdownTextStyle={{ color: '#1C1C1C' }}
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.code}</Text>);
@@ -277,8 +278,8 @@ export class Vendors extends React.Component<Props> {
             />
           </View>
         </View>
-        {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 20, marginTop: 10 }}>
-          <View style={{ width: '74%' }}>
+        {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+          <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
               <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
@@ -286,11 +287,12 @@ export class Vendors extends React.Component<Props> {
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%' }}>Enter Amount</Text> */}
           </View>
           <TextInput
+            returnKeyType={'done'}
             keyboardType="number-pad"
             onChangeText={(val) => { this.setState({ foreignOpeningBalance: val }) }}
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
-            style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: '80%', paddingStart: 10 }} />
+            style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: 40, paddingStart: 10 }} />
         </View>}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
           <View style={{ width: '70%' }}>
@@ -338,6 +340,7 @@ export class Vendors extends React.Component<Props> {
             }}
             value={this.state.openingBalance.toString()}
             placeholder={"Amount"}
+            returnKeyType={'done'}
             style={{ borderWidth: 1, width: '30%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5 }} />
         </View>
       </View>
@@ -368,7 +371,7 @@ export class Vendors extends React.Component<Props> {
           style={{
             borderBottomColor: '#808080',
             borderBottomWidth: 0.55,
-            paddingBottom: -5
+            paddingBottom: -5,
           }}
           placeholder={'Enter Bank Name '}
           value={this.state.bankName != '' ? this.state.bankName : ''}
@@ -860,6 +863,7 @@ export class Vendors extends React.Component<Props> {
               }}
             />
             <TextInput
+              returnKeyType={'done'}
               keyboardType="number-pad"
               onChangeText={(text) => {
                 this.setState({
