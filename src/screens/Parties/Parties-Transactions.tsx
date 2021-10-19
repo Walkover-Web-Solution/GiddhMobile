@@ -543,8 +543,11 @@ class PartiesTransactionScreen extends React.Component {
     } catch (e) {
       console.log(e);
       this.setState({
-        showLoader: false, startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
+        startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
         endDate: moment().format('DD-MM-YYYY'),
+      })
+      this.setState({
+        showLoader: false,
       });
     }
   }

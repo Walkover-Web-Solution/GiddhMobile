@@ -46,7 +46,7 @@ export const HomeNavigator = () => {
   //   }
   // }
 
-  function MyTabBar ({ state, descriptors, navigation }) {
+  function MyTabBar({ state, descriptors, navigation }) {
     return (
       <View
         style={{
@@ -100,16 +100,27 @@ export const HomeNavigator = () => {
           const renderIcon = (label) => {
             if (label == 'Dashboard') {
               return (
-                <MaterialCommunityIcons name="view-dashboard" size={23} color={disableTabs ? '#808080' : isFocused ? '#5773FF' : '#808080'} />
+                <View style={{ backgroundColor: disableTabs ? '#eeeeee' : isFocused ? '#e3e8ff' : '#eeeeee', padding: 6, borderRadius: 20 }}>
+                  <MaterialCommunityIcons name="view-dashboard" size={23} color={disableTabs ? '#808080' : isFocused ? '#5773FF' : '#808080'} />
+                </View>
               );
             } else if (label == 'Parties') {
-              return <MaterialIcons name="person" size={23} color={isFocused ? '#5773FF' : '#808080'} />;
+              return (
+                <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 6, borderRadius: 20 }}>
+                  <MaterialIcons name="person" size={23} color={isFocused ? '#5773FF' : '#808080'} />
+                </View>
+              )
             } else if (label == 'More') {
               return (
-                <MaterialCommunityIcons name="dots-vertical" size={23} color={isFocused ? '#5773FF' : '#808080'} />
+                <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 6, borderRadius: 20 }}>
+                  <MaterialCommunityIcons name="dots-vertical" size={23} color={isFocused ? '#5773FF' : '#808080'} />
+                </View>
               );
             } else if (label == 'Inventory') {
-              return <Icon name="Path-13016" size={22} color={isFocused ? '#5773FF' : '#808080'} />;
+              return (
+                <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 8.5, borderRadius: 20 }}>
+                  <Icon name="Path-13016" size={19} color={isFocused ? '#5773FF' : '#808080'} />
+                </View>)
             }
           };
 
@@ -118,7 +129,7 @@ export const HomeNavigator = () => {
           )
             : (
               <TouchableOpacity
-              disabled={disableTabs}
+                disabled={disableTabs}
                 // accessibilityRole="button"
                 // accessibilityStates={isFocused ? ['selected'] : []}
                 accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -132,7 +143,7 @@ export const HomeNavigator = () => {
                   {label}
                 </Text>
               </TouchableOpacity>
-              );
+            );
         })}
       </View>
     );
@@ -169,7 +180,10 @@ export const HomeNavigator = () => {
           tabBarLabel: 'Dashboard',
           tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
+            <View style={{ backgroundColor: focused ? '#e3e8ff' : '#eeeeee', padding: 6, borderRadius: 20 }}>
+              <MaterialCommunityIcons name="view-dashboard" size={23} color={focused ? '#5773FF' : '#808080'} />
+            </View>
+            // <MaterialCommunityIcons name="view-dashboard" size={26} color={focused ? '#5773FF' : '#808080'} />
           )
         })
         }
@@ -191,7 +205,10 @@ export const HomeNavigator = () => {
         options={({ }) => ({
           tabBarLabel: 'Inventory',
 
-          tabBarIcon: ({ focused }) => <Icon name="inventory" size={22} color={focused ? '#5773FF' : '#808080'} />
+          tabBarIcon: ({ focused }) => (
+            <View style={{ backgroundColor: focused ? '#e3e8ff' : '#eeeeee', padding: 8.5, borderRadius: 20 }}>
+              <Icon name="inventory" size={19} color={focused ? '#5773FF' : '#808080'} />
+            </View>)
         })}
       />
 
@@ -211,7 +228,11 @@ export const HomeNavigator = () => {
         options={({ route }) => ({
           tabBarLabel: 'Parties',
           tabBarVisible: getTabBarVisibility(route),
-          tabBarIcon: ({ focused }) => <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />
+          tabBarIcon: ({ focused }) => (
+            <View style={{ backgroundColor: focused ? '#e3e8ff' : '#eeeeee', padding: 6, borderRadius: 20 }}>
+              <MaterialIcons name="person" size={26} color={focused ? '#5773FF' : '#808080'} />
+            </View>
+          )
         })}
       />
       <Screen
@@ -221,7 +242,9 @@ export const HomeNavigator = () => {
           tabBarLabel: 'More',
           tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons name="dots-vertical" size={26} color={focused ? '#5773FF' : '#808080'} />
+            <View style={{ backgroundColor: focused ? '#e3e8ff' : '#eeeeee', padding: 6, borderRadius: 20 }}>
+              <MaterialCommunityIcons name="dots-vertical" size={26} color={focused ? '#5773FF' : '#808080'} />
+            </View>
           )
         })}
       />
