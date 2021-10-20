@@ -34,7 +34,7 @@ export default StyleSheet.create({
   logoStyle: {
     resizeMode: 'contain',
     height: 30,
-    width: 100,
+    width: 120,
     alignSelf: 'center'
   },
   logoTwo: {

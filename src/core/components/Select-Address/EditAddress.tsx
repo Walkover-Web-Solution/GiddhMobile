@@ -2841,7 +2841,7 @@ export class EditAddress extends React.Component<any, any> {
               <Dropdown
                 ref={(ref) => (this.state.stateDropDown = ref)}
                 style={{
-                  width: 1,
+                  width: 0,height:0,
                   marginVertical: 10,
                 }}
                 options={this.state.filteredStates}

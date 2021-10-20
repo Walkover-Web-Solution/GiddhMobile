@@ -15,11 +15,11 @@ import { GdImages } from '@/utils/icons-pack';
 import { WEBCLIENT_ID } from '@/env.json';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
-import { googleLogin, appleLogin, userEmailLogin } from './LoginAction';
+import { googleLogin, appleLogin, userEmailLogin } from '../Login/LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
 
-class Login extends React.Component<any, any> {
+class Signup extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -107,7 +107,8 @@ class Login extends React.Component<any, any> {
   };
 
   signInWithUsernamePassword() {
-    this.props.userLogin({ username: this.state.username, password: this.state.password });
+    this.props.navigation.navigate("createCompany")
+    // this.props.userLogin({ username: this.state.username, password: this.state.password });
   }
 
   _googleSignOut = async () => {
@@ -143,14 +144,14 @@ class Login extends React.Component<any, any> {
       <ScrollView style={style.loginContainer} contentContainerStyle={style.verticalCenter}>
         <View style={[style.socialLoginContainer, { marginTop: this.state.keyboard ? 10 : 50 }]}>
           <View style={style.titleContainer}>
-            <Text style={style.loginTextStyle}>Login to </Text>
+            <Text style={style.loginTextStyle}>Signup to </Text>
             <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
             <Image style={style.logoTwo} source={require('@/assets/images/books.png')} />
           </View>
 
           <LoginButton
             size={ButtonSize.medium}
-            label={'Sign in with Google'}
+            label={'Sign up with Google'}
             style={[style.gmailButton, { marginTop: this.state.keyboard ? 15 : 30 }]}
             onPress={this._googleSignIn}
             icon="gmail"
@@ -159,7 +160,7 @@ class Login extends React.Component<any, any> {
           {Platform.OS == 'ios' && (
             <LoginButton
               size={ButtonSize.medium}
-              label={'Sign in with Apple'}
+              label={'Sign up with Apple'}
               style={style.appleButton}
               icon="apple"
               onPress={() => this.onAppleButtonPress()}
@@ -202,7 +203,7 @@ class Login extends React.Component<any, any> {
             <GDButton
               size={ButtonSize.medium}
               style={style.loginButtonStyle}
-              label={'Login'}
+              label={'Signup'}
               onPress={() => this.signInWithUsernamePassword()}
             />
             {/* <TouchableOpacity onPress={() =>
@@ -212,14 +213,6 @@ class Login extends React.Component<any, any> {
                 <Text style={style.forgotStyle}>Forgot password?</Text>
               </TouchableOpacity> */}
           </View>
-        </View>
-        <View style={style.troubleLoginContainer}>
-          {/* <View style={style.seperator}>
-              <Text style={style.bottomTextStyle}>Trouble logging in?</Text>
-              <Text style={style.bottomTextStyleLink}>Click here</Text>
-            </View> */}
-          {/* <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text> */}
-          <Text onPress={() => { this.props.navigation.navigate("Signup") }} style={[style.bottomTextStyleLink,{padding:5,width:170}]}>Create a new account</Text>
         </View>
         {this.props.isAuthenticatingUser && (
           <View
@@ -264,4 +257,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Signup);
