@@ -102,7 +102,8 @@ class PartiesTransactionScreen extends React.Component {
       selectPayorData: [],
       bankAccounts: [],
       OTPMessage: "",
-      requestIdOTP: ''
+      requestIdOTP: '',
+      paymentProcessing: false
     };
 
   }
@@ -962,10 +963,12 @@ class PartiesTransactionScreen extends React.Component {
       return
     }
     // Confirm Payment
+    await this.setState({ paymentProcessing: true })
     const payload = { requestId: this.state.requestIdOTP, otp: this.state.code }
     console.log("Payment payload " + JSON.stringify(payload))
     const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor.urn, this.state.bankAccounts[0].uniqueName)
     if (response.status == "success") {
+      await this.setState({ paymentProcessing: false })
       if (Platform.OS == "ios") {
         TOAST.show(response.body.message, {
           duration: TOAST.durations.LONG,
@@ -983,6 +986,7 @@ class PartiesTransactionScreen extends React.Component {
       }
       this.props.navigation.navigate("Parties")
     } else {
+      await this.setState({ paymentProcessing: false })
       if (Platform.OS == "ios") {
         TOAST.show(response.data.message, {
           duration: TOAST.durations.LONG,
@@ -1528,6 +1532,21 @@ class PartiesTransactionScreen extends React.Component {
                 <Bars size={15} color={color.PRIMARY_NORMAL} />
                 <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
               </View>
+            </View>
+          )}
+          {this.state.paymentProcessing && (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                backgroundColor: 'rgba(0,0,0,0.4)',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: 0,
+              }}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
             </View>
           )}
           {this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN" ? (
