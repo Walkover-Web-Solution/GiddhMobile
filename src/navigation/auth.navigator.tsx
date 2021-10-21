@@ -6,8 +6,6 @@ import Welcome from '@/screens/Auth/Welcome/Welcome';
 import Otp from '@/screens/Auth/Otp/Otp';
 import Password from '@/screens/Auth/Password/ForgotPassword';
 import Signup from '@/screens/Auth/Signup/Signup';
-import CreateCompany from '@/screens/Auth/Signup/CreateCompany/newCompany1';
-import CreateCompanyDetails from '@/screens/Auth/Signup/CreateCompany/newCompany2';
 import { createStackNavigator } from '@react-navigation/stack';
 const { Navigator, Screen } = createStackNavigator();
 
@@ -23,8 +21,6 @@ export const AuthStack = () => {
       <Screen name={routes.Password} component={Password} />
       <Screen name={routes.Otp} component={Otp} />
       <Screen name={routes.Signup} component={Signup} />
-      <Screen name={routes.createCompany} component={CreateCompany} />
-      <Screen name={routes.createCompanyDetails} component={CreateCompanyDetails} />
     </Navigator>
   );
 };

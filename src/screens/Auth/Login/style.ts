@@ -137,5 +137,17 @@ export default StyleSheet.create({
   verticalCenter: {
     flexGrow: 1,
     justifyContent: 'center'
-  }
+  },
+  underlineStyleBase: {
+    width: 30,
+    height: 45,
+    borderWidth: 0,
+    borderBottomWidth: 2,
+    borderColor: colors.PRIMARY_BASIC,
+    color: colors.PRIMARY_BASIC,
+    marginLeft:2
+  },
+  underlineStyleHighLighted: {
+    borderColor: colors.PRIMARY_BASIC
+  },
 });

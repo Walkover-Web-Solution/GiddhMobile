@@ -35,7 +35,7 @@ export async function resetPassword (payload) {
  * @returns {Promise<void>}
  */
 
-export async function userLogin (payload) {
+ export async function userLogin (payload) {
   try {
     const response = await AuthService.userLogin(payload);
     console.log('the login response is ', response);
@@ -45,6 +45,39 @@ export async function userLogin (payload) {
     return error;
   }
 }
+
+/**
+ * set sent OTP signup action
+ * @returns {Promise<void>}
+ */
+
+export async function sentOTPSignup (payload:any) {
+  try {
+    const response = await AuthService.sentOTPSignup(payload);
+    console.log('the signup OTP response is ', response);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
+/**
+ * set sent OTO signup action
+ * @returns {Promise<void>}
+ */
+
+ export async function verifySignupOTP (payload:any) {
+  try {
+    const response = await AuthService.verifySignupOTP(payload);
+    console.log('the signup OTP response is ', response);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
 /**
  * set apple login action
  * @returns {Promise<void>}

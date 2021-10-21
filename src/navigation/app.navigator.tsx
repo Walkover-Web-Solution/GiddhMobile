@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { AuthStack } from './auth.navigator';
 import analytics from '@react-native-firebase/analytics';
 import AppMainNav from './app.main.navigator';
+import {CompanyStack} from './company.navigator';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -27,7 +28,6 @@ const getActiveRouteName = (navigationState: any) => {
 };
 
 const AppNavigator = (props: any): React.ReactElement => {
-  const { isUserAuthenticated } = props;
   const routeNameRef = React.createRef();
   const navigationRef = React.createRef();
   return (
@@ -47,7 +47,7 @@ const AppNavigator = (props: any): React.ReactElement => {
               });
             }
           }}>
-          {!isUserAuthenticated ? <AuthStack /> : <AppMainNav />}
+          {!props.isUserAuthenticated ? <AuthStack/> : (!props.isUnauth?<AppMainNav />:<CompanyStack/>)}
         </NavigationContainer>
       }
     </SafeAreaView>
@@ -56,7 +56,8 @@ const AppNavigator = (props: any): React.ReactElement => {
 
 const mapStateToProps = (state) => {
   return {
-    isUserAuthenticated: state.LoginReducer.isUserAuthenticated
+    isUserAuthenticated: state.LoginReducer.isUserAuthenticated,
+    isUnauth:state.commonReducer.isUnauth
   };
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, Dimensions, Modal, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Modal, ScrollView, StatusBar, Platform } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,10 @@ import Dropdown from 'react-native-modal-dropdown';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
+import { STORAGE_KEYS } from '@/utils/constants';
+import AsyncStorage from '@react-native-community/async-storage';
+import { retry } from '@redux-saga/core/effects';
+
 class NewCompanyDetails extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -107,7 +111,7 @@ class NewCompanyDetails extends React.Component<any, any> {
     return vadidatorResult;
   }
 
-  submit = () => {
+  submit = async () => {
     if (this.state.bussinessType == "Registered") {
       if (this.state.gstNumber == null) {
         alert('Enter GST Number');
@@ -128,6 +132,7 @@ class NewCompanyDetails extends React.Component<any, any> {
         return
       }
     }
+    var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
     const payload = {
       name: this.props.route.params.companyName,
       country: this.props.route.params.country.alpha2CountryCode,
@@ -138,7 +143,7 @@ class NewCompanyDetails extends React.Component<any, any> {
       subscriptionRequest: {
         planUniqueName: "xoh1591185630174",
         subscriptionId: "",
-        userUniqueName: "sulbhamishra2000@outlook.com",
+        userUniqueName: userEmail,
         licenceKey: ""
       },
       addresses:
@@ -182,6 +187,7 @@ class NewCompanyDetails extends React.Component<any, any> {
   render() {
     return (
       <SafeAreaView style={style.container}>
+        <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
         <ScrollView style={{ flex: 1, marginBottom: 10, }}>
           <View style={{ borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
             <View style={{ flexDirection: "row", marginBottom: 4 }}>
@@ -489,9 +495,11 @@ class NewCompanyDetails extends React.Component<any, any> {
 }
 
 const mapStateToProps = (state: RootState) => {
+  return {}
 };
 
 function mapDispatchToProps(dispatch) {
+  return {}
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewCompanyDetails);

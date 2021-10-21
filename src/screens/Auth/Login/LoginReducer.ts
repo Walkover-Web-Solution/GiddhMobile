@@ -12,7 +12,8 @@ const initialState = {
   expiresAt: undefined,
   startTFA: undefined,
   isVerifyingOTP: false,
-  otpVerificationError: ''
+  otpVerificationError: '',
+  signUpOTPSent: false
 };
 
 export default (state = initialState, action: Action) => {
@@ -92,6 +93,12 @@ export default (state = initialState, action: Action) => {
         isAuthenticatingUser: true,
         error: ''
       };
+    case ActionConstants.USER_EMAIL_SIGNUP:
+      return {
+        ...state,
+        isAuthenticatingUser: true,
+        error: ''
+      };
     case ActionConstants.USER_EMAIL_LOGIN_SUCCESS:
       return {
         ...state,
@@ -106,6 +113,21 @@ export default (state = initialState, action: Action) => {
         isAuthenticatingUser: false,
         error: action.payload,
         isUserAuthenticated: false
+      };
+    case ActionConstants.USER_EMAIL_SIGN_UP_OTP_SUCCESS:
+      return {
+        ...state,
+        signUpOTPSent: true,
+        isAuthenticatingUser: false,
+        error: action.payload,
+      };
+    case ActionConstants.USER_EMAIL_SIGN_UP_OTP_FAILURE:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: action.payload,
+        isUserAuthenticated: false,
+        signUpOTPSent: false
       };
     case ActionConstants.APPLE_USER_LOGIN:
       return {
@@ -137,12 +159,12 @@ export default (state = initialState, action: Action) => {
       return {
         ...initialState
       };
-      case ActionConstants.OTP_SCREEN_UNMOUNTING:
-        return {
-          ...state,
-          isAuthenticatingUser: false,
-          startTFA: false
-        }
+    case ActionConstants.OTP_SCREEN_UNMOUNTING:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        startTFA: false
+      }
     default:
       return state;
   }

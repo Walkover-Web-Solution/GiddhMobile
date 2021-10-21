@@ -36,11 +36,42 @@ export class AuthService {
    * get response from server
    * @returns {Promise<BaseResponse<LoginResponse>>}
    */
-  static userLogin (payload: any): Promise<BaseResponse<LoginResponse>> {
+   static userLogin (payload: any): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
       .post(AccountUrls.userLogin, {
         uniqueKey: payload.username,
         password: payload.password
+      })
+      .then((res) => {
+        return res.data;
+      });
+    }
+
+  
+  /**
+  * get response from server
+  * @returns {Promise<BaseResponse<LoginResponse>>}
+  */
+   static sentOTPSignup (payload: any): Promise<BaseResponse<LoginResponse>> {
+   return httpInstance
+     .post(AccountUrls.userSignUpOTP, {
+       email: payload.email,
+       password: payload.password
+     })
+     .then((res) => {
+       return res.data;
+     });
+ }
+
+ /**
+  * get response from server
+  * @returns {Promise<BaseResponse<LoginResponse>>}
+  */
+  static verifySignupOTP (payload: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.verifySignupOTP, {
+        email: payload.email,
+        verificationCode: payload.verificationCode
       })
       .then((res) => {
         return res.data;

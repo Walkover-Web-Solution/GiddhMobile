@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
 
-import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid } from 'react-native';
+import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
@@ -15,9 +15,11 @@ import { GdImages } from '@/utils/icons-pack';
 import { WEBCLIENT_ID } from '@/env.json';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
-import { googleLogin, appleLogin, userEmailLogin } from '../Login/LoginAction';
+import { googleLogin, appleLogin, userEmailSignup, verifySignupOTP } from '../Login/LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
+import OTPInputView from '@twotalltotems/react-native-otp-input';
+import colors from '@/utils/colors';
 
 class Signup extends React.Component<any, any> {
   constructor(props: any) {
@@ -26,7 +28,9 @@ class Signup extends React.Component<any, any> {
       showLoader: false,
       keyboard: false,
       username: '',
-      password: ''
+      password: '',
+      otpSent: false,
+      code: ""
     };
   }
 
@@ -106,9 +110,22 @@ class Signup extends React.Component<any, any> {
     }
   };
 
-  signInWithUsernamePassword() {
-    this.props.navigation.navigate("createCompany")
-    // this.props.userLogin({ username: this.state.username, password: this.state.password });
+  async signUpWithUsernamePassword() {
+    await this.props.userSignupSentOTP({ email: this.state.username, password: this.state.password });
+    // Send otp
+    setTimeout(() => {
+      if (this.props.signUpOTPSent) {
+        this.setState({ otpSent: true });
+      }
+    }, 500)
+  }
+
+  async verifyOTP() {
+    if (this.state.code.length !== 8) {
+      alert("Please enter valid OTP");
+      return
+    }
+    await this.props.verifySignupOTP({ email: this.state.username, verificationCode: this.state.code })
   }
 
   _googleSignOut = async () => {
@@ -173,7 +190,7 @@ class Signup extends React.Component<any, any> {
           <View style={style.horizontalRule} />
         </View>
 
-        <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>
+        {!this.state.otpSent ? <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>
           <View>
             <Text style={style.registerStyle}>Registered Email ID</Text>
           </View>
@@ -199,20 +216,78 @@ class Signup extends React.Component<any, any> {
             />
           </View>
 
-          <View style={style.loginButtonContainer}>
+          <View style={[style.loginButtonContainer, { flexDirection: "row", justifyContent: "space-between" }]}>
             <GDButton
               size={ButtonSize.medium}
               style={style.loginButtonStyle}
               label={'Signup'}
-              onPress={() => this.signInWithUsernamePassword()}
+              onPress={() => this.signUpWithUsernamePassword()}
             />
-            {/* <TouchableOpacity onPress={() =>
-              {
-                this.props.navigation.navigate('Password')
-              }}>
-                <Text style={style.forgotStyle}>Forgot password?</Text>
-              </TouchableOpacity> */}
+            <TouchableOpacity style={{ justifyContent: "flex-start", alignItems: "flex-start", width: "40%" }} onPress={() => {
+              this.signUpWithUsernamePassword();
+            }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: 'AvenirLTStd-Book',
+                  color: colors.PRIMARY_NORMAL,
+                }}>Resend Code</Text>
+            </TouchableOpacity>
           </View>
+        </View> :
+          <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>
+            <Text style={style.registerStyle}>Verify Email ID</Text>
+            <OTPInputView
+              style={{ width: '100%', height: Dimensions.get('screen').height * 0.13 }}
+              pinCount={8}
+              color={'red'}
+              placeholderCharacter={'*'}
+              codeInputFieldStyle={'red'}
+              placeholderTextColor={colors.PRIMARY_NORMAL}
+              code={this.state.code} // You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
+              onCodeChanged={code => {
+                this.setState({ code })
+              }}
+              autoFocusOnLoad
+              codeInputFieldStyle={style.underlineStyleBase}
+              codeInputHighlightStyle={style.underlineStyleHighLighted}
+              onCodeFilled={(code) => {
+                this.setState({ code })
+                console.log(`Code is ${code}, you are good to go!`);
+              }}
+            />
+            <View style={[style.loginButtonContainer, { flexDirection: "row", justifyContent: "space-between" }]}>
+              <GDButton
+                size={ButtonSize.medium}
+                style={style.loginButtonStyle}
+                label={'Verify Email '}
+                onPress={() => this.verifyOTP()}
+              />
+              <TouchableOpacity style={{ justifyContent: "flex-start", alignItems: "flex-start", width: "40%" }} onPress={() => {
+                this.signUpWithUsernamePassword()
+              }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'AvenirLTStd-Book',
+                    color: colors.PRIMARY_NORMAL,
+                  }}>Resend Code</Text>
+              </TouchableOpacity>
+            </View>
+          </View>}
+        <View style={[style.loginButtonContainer, { flexDirection: "row", marginTop: 40, justifyContent: "flex-start" }]}>
+          <Text style={{ fontFamily: 'AvenirLTStd-Book' }}>Already have an account?  </Text>
+          <TouchableOpacity style={{}} onPress={() => {
+            this.props.navigation.goBack();
+          }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'AvenirLTStd-Book',
+                color: colors.PRIMARY_NORMAL,
+                textDecorationLine: 'underline',
+              }}>Login</Text>
+          </TouchableOpacity>
         </View>
         {this.props.isAuthenticatingUser && (
           <View
@@ -239,6 +314,7 @@ const mapStateToProps = (state: RootState) => {
   const { LoginReducer } = state;
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    signUpOTPSent: state.LoginReducer.signUpOTPSent,
     ...LoginReducer
   };
 };
@@ -251,8 +327,11 @@ function mapDispatchToProps(dispatch) {
     appleLogin: (payload) => {
       dispatch(appleLogin(payload));
     },
-    userLogin: (payload) => {
-      dispatch(userEmailLogin(payload));
+    userSignupSentOTP: (payload) => {
+      dispatch(userEmailSignup(payload));
+    },
+    verifySignupOTP: (payload) => {
+      dispatch(verifySignupOTP(payload));
     }
   };
 }

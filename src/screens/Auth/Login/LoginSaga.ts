@@ -8,6 +8,7 @@ import { getCompanyAndBranches } from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
 import LogRocket from '@logrocket/react-native';
 import { STORAGE_KEYS } from '@/utils/constants';
+import { ToastAndroid } from 'react-native';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -15,6 +16,8 @@ export default function* watcherSaga() {
   yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);
   yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin);
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
+  yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP, signupUsingEmailPassword);
+  yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP_VERIFY_OTP, verifySignupOTP);
 }
 
 /**
@@ -28,7 +31,7 @@ const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, use
   LogRocket.identify(userUniqueName, {
     name: userName,
     email: userEmail,
-    newUser:true
+    newUser: true
   });
 }
 
@@ -92,6 +95,77 @@ export function* verifyUserEmailPasswordLogin(action) {
     }
   }
 }
+
+export function* signupUsingEmailPassword(action) {
+  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if (reg.test(action.payload.email) === false || action.payload.password.length == 0) {
+    alert('Please enter valid email & Password');
+    yield put(LoginAction.signupOTPFailure('Please enter valid email & Password'));
+  } else {
+    const response = yield call(LoginService.sentOTPSignup, action.payload);
+    if (response.status == 'success' && response.body.isNewUser) {
+      ToastAndroid.show("OTP Sent Successfully", ToastAndroid.LONG)
+      yield put(LoginAction.signupOTPSuccess('success'));
+    } else {
+      if (response && response.body && response.body.session && response.body.session.id) {
+        yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+        yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
+        yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
+        yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
+
+        yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
+        yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+        yield put(getCompanyAndBranches());
+        yield put(
+          LoginAction.loginUserSuccess({
+            token: response.body.session.id,
+            createdAt: response.body.session.createdAt,
+            expiresAt: response.body.session.expiresAt,
+          }),
+        );
+      } else if (
+        response &&
+        response.status == 'success' &&
+        response.body &&
+        response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
+      ) {
+        yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+        yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
+        yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+        yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
+      } else {
+        yield put(LoginAction.signupOTPFailure(response.data.message));
+        yield alert(response.data.message);
+      }
+    }
+  }
+}
+
+export function* verifySignupOTP(action) {
+  const response = yield call(LoginService.verifySignupOTP, action.payload);
+  if (response && response.body && response.body.session && response.body.session.id) {
+    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+    yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
+
+    yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+    yield put(getCompanyAndBranches());
+    yield put(
+      LoginAction.loginUserSuccess({
+        token: response.body.session.id,
+        createdAt: response.body.session.createdAt,
+        expiresAt: response.body.session.expiresAt,
+      }),
+    );
+  } else {
+    alert(response.data.message);
+    yield put(LoginAction.loginUserFailure(response.data.message));
+  }
+}
+
+
 
 export function* googleLogin(action) {
   console.log('googleLogin  -----');

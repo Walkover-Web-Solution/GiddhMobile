@@ -102,6 +102,19 @@ export function userEmailLogin (payload) {
   }
 }
 
+export function userEmailSignup (payload) {
+  return {
+    type: Actions.USER_EMAIL_SIGNUP,
+    payload: payload
+  }
+}
+
+export function verifySignupOTP (payload) {
+  return {
+    type: Actions.USER_EMAIL_SIGNUP_VERIFY_OTP,
+    payload: payload
+  }
+}
 export function loginUserSuccess (payload) {
   return {
     type: Actions.USER_EMAIL_LOGIN_SUCCESS,
@@ -112,6 +125,20 @@ export function loginUserSuccess (payload) {
 export function loginUserFailure (error) {
   return {
     type: Actions.USER_EMAIL_LOGIN_FAILURE,
+    payload: error
+  }
+}
+
+export function signupOTPSuccess (payload) {
+  return {
+    type: Actions.USER_EMAIL_SIGN_UP_OTP_SUCCESS,
+    payload: payload
+  }
+}
+
+export function signupOTPFailure (error) {
+  return {
+    type: Actions.USER_EMAIL_SIGN_UP_OTP_FAILURE,
     payload: error
   }
 }

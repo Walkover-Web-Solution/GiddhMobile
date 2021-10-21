@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, ScrollView, ToastAndroid, Platform, Dimensions, Alert } from 'react-native';
+import { View, TouchableOpacity, StatusBar, ToastAndroid, Platform, Dimensions, Alert } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,10 +12,15 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { TextInput } from 'react-native-gesture-handler';
 import Dropdown from 'react-native-modal-dropdown';
 import colors from '@/utils/colors';
+import { STORAGE_KEYS } from '@/utils/constants';
+import AsyncStorage from '@react-native-community/async-storage';
+import * as CommonActions from '@/redux/CommonAction';
+
 class NewCompany extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
+            userName: "",
             companyName: '',
             companyNamePlaceholder: '',
             countryName: null,
@@ -165,7 +170,11 @@ class NewCompany extends React.Component<any, any> {
     }
 
     componentDidMount() {
-
+        const getuserName = async () => {
+            var userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
+            await this.setState({ userName })
+        }
+        getuserName();
     }
 
     componentDidUpdate(prevProps) {
@@ -195,7 +204,8 @@ class NewCompany extends React.Component<any, any> {
     render() {
         return (
             <SafeAreaView style={style.container}>
-                <Text style={style.Heading}>Welcome Shubhendra!</Text>
+                <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
+                <Text style={style.Heading}>{"Welcome " + this.state.userName + "!"}</Text>
                 <Text style={style.text}>Enter the following deatils to start hassel free accounting with Giddh </Text>
                 <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                     <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4 }} />
@@ -301,33 +311,46 @@ class NewCompany extends React.Component<any, any> {
                     </TextInput>
                 </View>
                 {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 35 }}>Sorry! Invalid Number</Text>}
-                <TouchableOpacity
-                    style={{
-                        height: Dimensions.get('screen').height * 0.06,
-                        width: Dimensions.get('screen').width * 0.9,
-                        borderRadius: 25,
-                        backgroundColor: this.validateDetails() ? '#5773FF' : colors.PRIMARY_DISABLED,
+                <View style={{ flexDirection: "row", justifyContent: "space-between", position: "absolute", bottom: 20, marginHorizontal: 15, width: "100%" }}>
+                    <TouchableOpacity
+                        style={{
+                            height: Dimensions.get('screen').height * 0.06,
+                            width: "60%",
+                            borderRadius: 25,
+                            backgroundColor: this.validateDetails() ? '#5773FF' : colors.PRIMARY_DISABLED,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            alignSelf: 'center',
+                        }}
+                        onPress={() => {
+                            if (this.validateDetails()) {
+                                this.props.navigation.navigate("createCompanyDetails", {
+                                    companyName: this.state.companyName,
+                                    country: this.state.countryName,
+                                    currency: this.state.currency,
+                                    mobileNumber: this.state.mobileNumber
+                                })
+                            } else {
+                                Alert.alert("Missing Fields", "Enter all the mandatory fields",
+                                    [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+                            }
+                        }}>
+                        <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Next</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{
                         justifyContent: 'center',
-                        alignItems: 'center',
-                        alignSelf: 'center',
-                        position: "absolute",
-                        bottom: 20
+                        alignItems: 'center', width: "40%",
                     }}
-                    onPress={() => {
-                        if (this.validateDetails()) {
-                            this.props.navigation.navigate("createCompanyDetails",{
-                                companyName:this.state.companyName,
-                                country :this.state.countryName,
-                                currency:this.state.currency,
-                                mobileNumber:this.state.mobileNumber
-                            })
-                        } else {
-                            Alert.alert("Missing Fields", "Enter all the mandatory fields",
-                                [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
-                        }
-                    }}>
-                    <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Next</Text>
-                </TouchableOpacity>
+                        onPress={() => {
+                            Alert.alert("Are you sure you want to cancel and logout?",
+                                "It will be deleted permanently and will no longer be accessible from any other module.",
+                                [{ text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                                { text: "OK", onPress: () => { this.props.logout() } }])
+                        }}
+                    >
+                        <Text style={{ color: '#5773FF', fontFamily: 'AvenirLTStd-Book', padding: 5, fontSize: 16 }}>Exit</Text>
+                    </TouchableOpacity>
+                </View>
             </SafeAreaView>
         );
         // }
@@ -335,9 +358,15 @@ class NewCompany extends React.Component<any, any> {
 }
 
 const mapStateToProps = (state: RootState) => {
+    return{}
 };
 
 function mapDispatchToProps(dispatch) {
+    return {
+        logout: () => {
+            dispatch(CommonActions.logout());
+        }
+    }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewCompany);
