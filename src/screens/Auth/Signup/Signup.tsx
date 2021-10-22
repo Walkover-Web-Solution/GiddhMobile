@@ -117,7 +117,7 @@ class Signup extends React.Component<any, any> {
       if (this.props.signUpOTPSent) {
         this.setState({ otpSent: true });
       }
-    }, 500)
+    }, 1000)
   }
 
   async verifyOTP() {
@@ -223,7 +223,7 @@ class Signup extends React.Component<any, any> {
               label={'Signup'}
               onPress={() => this.signUpWithUsernamePassword()}
             />
-            <TouchableOpacity style={{ justifyContent: "flex-start", alignItems: "flex-start", width: "40%" }} onPress={() => {
+            {/* <TouchableOpacity style={{ justifyContent: "flex-start", alignItems: "flex-start", width: "40%" }} onPress={() => {
               this.signUpWithUsernamePassword();
             }}>
               <Text
@@ -232,7 +232,7 @@ class Signup extends React.Component<any, any> {
                   fontFamily: 'AvenirLTStd-Book',
                   color: colors.PRIMARY_NORMAL,
                 }}>Resend Code</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View> :
           <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, Dimensions, Modal, ScrollView, StatusBar, Platform } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Modal, ScrollView, StatusBar, Platform, DeviceEventEmitter, ToastAndroid } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,9 +12,12 @@ import Dropdown from 'react-native-modal-dropdown';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
-import { STORAGE_KEYS } from '@/utils/constants';
+import { STORAGE_KEYS, APP_EVENTS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
-import { retry } from '@redux-saga/core/effects';
+import { CompanyService } from '@/core/services/company/company.service';
+import { getCompanyAndBranches } from '../../../../redux/CommonAction';
+import { Bars } from 'react-native-loader';
+import color from '@/utils/colors';
 
 class NewCompanyDetails extends React.Component<any, any> {
   constructor(props: any) {
@@ -34,7 +37,9 @@ class NewCompanyDetails extends React.Component<any, any> {
       gstNumberWrong: false,
       bussinessNature: null,
       pinCode: null,
-      modalVisible: false
+      modalVisible: false,
+      loader: false,
+      countryCode: this.props.route.params.country.alpha2CountryCode
     };
   }
 
@@ -80,7 +85,7 @@ class NewCompanyDetails extends React.Component<any, any> {
   }
 
   findState = (gstNo: any) => {
-    if (gstNo == '') {
+    if (gstNo == '' || this.state.countryCode != "IN") {
       this.setState({ selectStateDisable: false, gstNumberWrong: false, stateName: null, selectedState: null });
       return;
     }
@@ -105,40 +110,58 @@ class NewCompanyDetails extends React.Component<any, any> {
   };
 
   gstValidator() {
-    const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-    const vadidatorResult = this.state.gstNumber != null && this.state.gstNumber != '' ? regex.test((this.state.gstNumber).toUpperCase()) : true;
-    console.log(vadidatorResult)
-    return vadidatorResult;
+    if (this.state.countryCode == "IN") {
+      const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      const vadidatorResult = this.state.gstNumber != null && this.state.gstNumber != '' ? regex.test((this.state.gstNumber).toUpperCase()) : true;
+      console.log(vadidatorResult)
+      return vadidatorResult;
+    } else {
+      var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+      if (this.state.gstNumber != null && this.state.gstNumber != '') {
+        if (format.test(this.state.gstNumber) || this.state.gstNumber.length != 15) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        return true
+      }
+    }
   }
 
   submit = async () => {
     if (this.state.bussinessType == "Registered") {
       if (this.state.gstNumber == null) {
-        alert('Enter GST Number');
+        this.state.countryCode == "IN" ? alert('Enter GST Number') : alert('Enter TRN Number');
+        return
       } else if (this.state.gstNumber && this.state.gstNumber.length != 15) {
-        alert('Enter a valid gst number, should be 15 characters long');
+        this.state.countryCode == "IN" ? alert('Enter a valid gst number, should be 15 characters long')
+          : alert('Enter a valid TRN number, should be 15 characters long');
         return
       } else if (this.state.gstNumberWrong || !this.gstValidator()) {
-        alert('Enter a valid gst number');
+        this.state.countryCode == "IN" ? alert('Enter a valid gst number') : alert('Enter a valid TRN number');;
         return
       } else if (this.state.stateName == null) {
         alert('Enter State Name');
         return
-      } else if (this.state.applicableTax == null) {
-        alert('Select Applicable Tax');
-        return
-      } else if (this.state.address == null) {
+      } else if (this.state.Address == null) {
         alert('Enter Address');
         return
       }
     }
+    this.setState({ loader: true })
     var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
+    var companyNameWithoutAnySpecialChar = this.props.route.params.companyName.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '').replace(/ /g, '')
+    var randomString = '';
+    var chars = "0123456789abcdefghijklmnopqrstuvwxyz"
+    for (var i = 6; i > 0; --i) randomString += chars[Math.floor(Math.random() * chars.length)];
+    var compnayUniquename = companyNameWithoutAnySpecialChar.toLowerCase() + this.props.route.params.country.alpha2CountryCode.toLowerCase() + new Date().getTime() + randomString
     const payload = {
       name: this.props.route.params.companyName,
       country: this.props.route.params.country.alpha2CountryCode,
-      phoneCode: this.props.route.params.country.callingCode,
-      contactNo: this.props.route.params.mobileNumber,
-      uniqueName: "walkovin16345510716060fvpzr",
+      phoneCode: this.props.route.params.callingCode,
+      contactNo: this.props.route.params.mobileNumber.replace(/[^0-9]/g, ''),
+      uniqueName: compnayUniquename,
       isBranch: false,
       subscriptionRequest: {
         planUniqueName: "e6v1566224240273",// For Production, In testing we use xoh1591185630174 uniquename
@@ -150,7 +173,7 @@ class NewCompanyDetails extends React.Component<any, any> {
         this.state.stateName == null && this.state.applicableTax == null && this.state.address == null ? [] :
           [{
             stateCode: this.state.stateName != null ? this.state.stateName.code : "",
-            address: this.state.address != null ? this.state.address : "",
+            address: this.state.Address != null ? this.state.Address : "",
             isDefault: false,
             stateName: this.state.stateName != null ? this.state.stateName.name : "",
             taxNumber: this.state.gstNumber != null ? this.state.gstNumber : "",
@@ -158,15 +181,27 @@ class NewCompanyDetails extends React.Component<any, any> {
           }],
       businessNature: this.state.bussinessNature != null ? this.state.bussinessNature : "",
       businessType: this.state.bussinessType != null ? this.state.bussinessType : "",
-      address: this.state.address != null ? this.state.address : "",
+      address: this.state.Address != null ? this.state.Address : "",
       industry: "",
-      baseCurrency: this.props.route.params.currency,
+      baseCurrency: this.props.route.params.currency.code,
       isMultipleCurrency: this.props.route.params.currency == "INR" ? false : true,
       city: "",
       email: "",
       taxes: this.state.applicableTax,
       userBillingDetails: { name: "", email: "", contactNo: "", gstin: "", stateCode: "", address: "", autorenew: "" },
       nameAlias: "", paymentId: "", amountPaid: "", razorpaySignature: ""
+    }
+    console.log("Create Company " + JSON.stringify(payload))
+    const response = await CompanyService.createCompany(payload)
+    console.log("create Company Response " + JSON.stringify(response))
+    if (response.status == "success") {
+      ToastAndroid.show("Company created Successfully", ToastAndroid.LONG)
+      await this.props.getCompanyAndBranches();
+      this.setState({ loader: false })
+      await DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+    } else {
+      this.setState({ loader: false })
+      ToastAndroid.show(response.message, ToastAndroid.LONG)
     }
   }
 
@@ -200,7 +235,9 @@ class NewCompanyDetails extends React.Component<any, any> {
             <Dropdown
               style={{ flex: 1, marginLeft: 40 }}
               textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
-              options={["Registered", "Unregistered"]}
+              options={this.state.countryCode == "US" || this.state.countryCode == "GB" ||
+                this.state.countryCode == "AU" || this.state.countryCode == "NP" ? ["Unregistered"] :
+                ["Registered", "Unregistered"]}
               renderSeparator={() => {
                 return (<View></View>);
               }}
@@ -250,7 +287,7 @@ class NewCompanyDetails extends React.Component<any, any> {
             <View style={{ flexDirection: "row", }}>
               <Entypo name="news" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
               <Text style={{ marginLeft: 20 }}>
-                <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{'GSTIN'}</Text>
+                <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{this.state.countryCode != "IN" ? "TRN" : 'GSTIN'}</Text>
                 <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Roman' }}>{'*'}</Text>
               </Text>
             </View>
@@ -262,14 +299,14 @@ class NewCompanyDetails extends React.Component<any, any> {
               }
               }
               value={this.state.gstNumber}
-              placeholder={"Enter GSTIN"}
+              placeholder={this.state.countryCode != "IN" ? "Enter TRN" : "Enter GSTIN"}
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               style={style.GSTInput}>
             </TextInput>
           </View>}
           {this.state.bussinessType == "Registered" && (this.state.gstNumber != null && (this.state.gstNumberWrong || !this.gstValidator())) ? (
             <Text style={{ fontSize: 10, color: 'red', marginTop: 5, marginLeft: 40, fontFamily: 'AvenirLTStd-Roman' }}>
-              Invalid GSTIN Number
+              {this.state.countryCode == "IN" ? "Invalid GSTIN Number" : "Invalid TRN Number"}
             </Text>
           ) : null}
           {this.state.bussinessType == "Registered" && <View style={{ marginTop: 20, borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
@@ -323,7 +360,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               <FontAwesome name={'bank'} color="#5773FF" size={18} />
               <Text style={{ marginLeft: 20, marginBottom: 5 }}>
                 <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{'Applicable Taxes'}</Text>
-                <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Roman' }}>{'*'}</Text>
+                {/* <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Roman' }}>{'*'}</Text> */}
               </Text>
             </View>
             {/* <Dropdown
@@ -395,7 +432,7 @@ class NewCompanyDetails extends React.Component<any, any> {
           </View>}
           <Modal animationType="none" transparent={true} visible={this.state.modalVisible} onRequestClose={() => { this.setState({ modalVisible: false }) }}>
             <TouchableOpacity style={style.modalContainer} onPress={() => this.setState({ modalVisible: false })}>
-              <View style={style.centeredView}>
+              {this.state.countryCode == "IN" ? <View style={style.centeredView}>
                 <TouchableOpacity
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
                   onPress={() => {
@@ -459,7 +496,41 @@ class NewCompanyDetails extends React.Component<any, any> {
                   </View>
                   <Text style={{ fontSize: 14, marginLeft: 10 }}>GST 28%</Text>
                 </TouchableOpacity>
-              </View>
+              </View> : <View style={style.centeredView}>
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
+                  onPress={() => {
+                    this.addTaxOrRemove("VAT0")
+                  }}>
+                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+                    {this.state.applicableTax.includes("VAT0")
+                      ? (
+                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                      )
+                      : (
+                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                      )}
+                  </View>
+
+                  <Text style={{ fontSize: 14, marginLeft: 10 }}>VAT0</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
+                  onPress={() => {
+                    this.addTaxOrRemove("VAT5")
+                  }}>
+                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+                    {this.state.applicableTax.includes("VAT5")
+                      ? (
+                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                      )
+                      : (
+                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                      )}
+                  </View>
+
+                  <Text style={{ fontSize: 14, marginLeft: 10 }}>VAT5</Text>
+                </TouchableOpacity></View>}
             </TouchableOpacity>
           </Modal>
         </ScrollView>
@@ -488,6 +559,21 @@ class NewCompanyDetails extends React.Component<any, any> {
             <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Create</Text>
           </TouchableOpacity>
         </View>
+        {this.state.loader && (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              top: 0
+            }}>
+            <Bars size={15} color={color.PRIMARY_NORMAL} />
+          </View>
+        )}
       </SafeAreaView>
     );
     // }
@@ -499,7 +585,11 @@ const mapStateToProps = (state: RootState) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return {}
+  return {
+    getCompanyAndBranches: () => {
+      dispatch(getCompanyAndBranches());
+    }
+  };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewCompanyDetails);

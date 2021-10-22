@@ -38,4 +38,18 @@ export class CompanyService {
       return res.data;
     });
   }
+
+  /**
+  * Create Company
+  */
+   static createCompany (payload: any){
+    return httpInstance
+      .post(companyUrls.createCompany,payload)
+      .then((res) => {
+        return res.data;
+      }).catch((_err) => {
+        console.log("Error "+_err.data)
+        return _err.data;
+      });;
+  }
 }

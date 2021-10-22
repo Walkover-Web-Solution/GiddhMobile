@@ -157,7 +157,8 @@ export default (state = initialState, action: Action) => {
       };
     case CommonConstants.RESET:
       return {
-        ...initialState
+        ...initialState,
+        signUpOTPSent: false
       };
     case ActionConstants.OTP_SCREEN_UNMOUNTING:
       return {
