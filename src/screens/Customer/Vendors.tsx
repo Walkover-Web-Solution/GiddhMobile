@@ -292,6 +292,7 @@ export class Vendors extends React.Component<Props> {
             onChangeText={(val) => { this.setState({ foreignOpeningBalance: val }) }}
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: 40, paddingStart: 10 }} />
         </View>}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
@@ -338,6 +339,7 @@ export class Vendors extends React.Component<Props> {
             onChangeText={(val) => {
               this.setState({ openingBalance: val });
             }}
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             value={this.state.openingBalance.toString()}
             placeholder={"Amount"}
             returnKeyType={'done'}
@@ -360,6 +362,7 @@ export class Vendors extends React.Component<Props> {
                 paddingBottom: -5
               }}
               placeholder={'Enter Beneficiary Name '}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               value={this.state.beneficiaryName != '' ? this.state.beneficiaryName : ''}
               multiline={true}
               onChangeText={(text) => this.setState({ beneficiaryName: text })} />
@@ -373,6 +376,7 @@ export class Vendors extends React.Component<Props> {
             borderBottomWidth: 0.55,
             paddingBottom: -5,
           }}
+          placeholderTextColor={'rgba(80,80,80,0.5)'}
           placeholder={'Enter Bank Name '}
           value={this.state.bankName != '' ? this.state.bankName : ''}
           multiline={true}
@@ -386,6 +390,7 @@ export class Vendors extends React.Component<Props> {
                 borderBottomWidth: 0.55,
                 paddingBottom: -5
               }}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder={'Enter Branch Name'}
               value={this.state.bankBranchName != '' ? this.state.bankBranchName : ''}
               multiline={true}
@@ -400,6 +405,7 @@ export class Vendors extends React.Component<Props> {
             borderBottomWidth: 0.55,
             paddingBottom: -5
           }}
+          placeholderTextColor={'rgba(80,80,80,0.5)'}
           placeholder={'Enter Account No. '}
           value={this.state.bankAccountNumber != '' ? this.state.bankAccountNumber : ''}
           multiline={true}
@@ -414,6 +420,7 @@ export class Vendors extends React.Component<Props> {
                 borderBottomWidth: 0.55,
                 paddingBottom: -5
               }}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder={'Enter SWIFT/BIC Code'}
               value={this.state.bankAccountSwiftCode != '' ? this.state.bankAccountSwiftCode : ''}
               multiline={true}
@@ -428,6 +435,7 @@ export class Vendors extends React.Component<Props> {
                 borderBottomWidth: 0.55,
                 paddingBottom: -5
               }}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder={'Enter IFSC Code'}
               value={this.state.IFSC_Code != '' ? this.state.IFSC_Code : ''}
               multiline={true}
@@ -871,6 +879,7 @@ export class Vendors extends React.Component<Props> {
                   isMobileNoValid: !this.validateMobileNumberTextInput(text)
                 })
               }}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder="Enter Contact Number"
               value={this.state.contactNumber}
               style={styles.input} />
@@ -883,6 +892,7 @@ export class Vendors extends React.Component<Props> {
                 emailId: text,
                 isEmailInvalid: !this.validateEmailTextInput(text)
               })}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               value={this.state.emailId}
               placeholder="Email Address"
               style={styles.input} />

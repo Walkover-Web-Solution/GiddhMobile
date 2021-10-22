@@ -219,6 +219,7 @@ export class Customers extends React.Component<Props> {
             onChangeText={(val) => { this.setState({ foreignOpeningBalance: val }) }}
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: 40, paddingStart: 10 }} />
         </View>}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
@@ -267,6 +268,7 @@ export class Customers extends React.Component<Props> {
             onChangeText={(val) => {
               this.setState({ openingBalance: val });
             }}
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             value={this.state.openingBalance}
             placeholder="Amount"
             style={{ borderWidth: 1, width: '30%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5 }} />
@@ -632,6 +634,7 @@ export class Customers extends React.Component<Props> {
                   isMobileNoValid: !this.validateMobileNumberTextInput(text)
                 })
               }}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder="Enter Contact Number"
               value={this.state.contactNumber}
               style={{ ...styles.input, color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }} />
@@ -646,6 +649,7 @@ export class Customers extends React.Component<Props> {
               })}
               value={this.state.emailId}
               placeholder="Email Address"
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               style={styles.input} />
           </View>
           {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
