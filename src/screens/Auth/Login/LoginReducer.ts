@@ -99,6 +99,12 @@ export default (state = initialState, action: Action) => {
         isAuthenticatingUser: true,
         error: ''
       };
+    case ActionConstants.USER_EMAIL_SIGNUP_VERIFY_OTP:
+      return {
+        ...state,
+        isAuthenticatingUser: true,
+        error: ''
+      };
     case ActionConstants.USER_EMAIL_LOGIN_SUCCESS:
       return {
         ...state,

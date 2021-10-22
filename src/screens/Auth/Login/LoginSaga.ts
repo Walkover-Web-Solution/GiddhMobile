@@ -103,7 +103,7 @@ export function* signupUsingEmailPassword(action) {
     yield put(LoginAction.signupOTPFailure('Please enter valid email & Password'));
   } else {
     const response = yield call(LoginService.sentOTPSignup, action.payload);
-    if (response.status == 'success' && response.body.isNewUser) {
+    if (response.status == 'success' && response.body.isNewUser && !response.body.user.isVerified) {
       ToastAndroid.show("Verification code sent successfully", ToastAndroid.LONG)
       yield put(LoginAction.signupOTPSuccess('success'));
     } else {
