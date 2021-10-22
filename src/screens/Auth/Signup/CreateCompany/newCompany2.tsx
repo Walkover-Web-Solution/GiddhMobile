@@ -141,7 +141,7 @@ class NewCompanyDetails extends React.Component<any, any> {
       uniqueName: "walkovin16345510716060fvpzr",
       isBranch: false,
       subscriptionRequest: {
-        planUniqueName: "xoh1591185630174",
+        planUniqueName: "e6v1566224240273",// For Production, In testing we use xoh1591185630174 uniquename
         subscriptionId: "",
         userUniqueName: userEmail,
         licenceKey: ""
