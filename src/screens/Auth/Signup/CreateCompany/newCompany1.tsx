@@ -201,7 +201,7 @@ class NewCompany extends React.Component<any, any> {
                     <Text style={style.Heading}>{"Welcome " + this.state.userName + "!"}</Text>
                     <Text style={style.text}>Enter the following deatils to start hassel free accounting with Giddh </Text>
                     <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
-                        <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4 }} />
+                        <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4 ,paddingBottom:3}} />
                         <TextInput
                             onBlur={() => {
                                 if (this.state.companyName == '') {
@@ -225,7 +225,7 @@ class NewCompany extends React.Component<any, any> {
                         <View style={{ width: "48%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                             <Foundation name="flag" size={21} color={'#5773FF'} style={{ marginTop: 4 }} />
                             <Dropdown
-                                style={{ flex: 1, marginLeft: 20, marginTop: 1 }}
+                                style={{ flex: 1, marginLeft: 20, marginTop: Platform.OS=="ios"?4:1 }}
                                 textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
                                 options={this.state.countryData}
                                 renderSeparator={() => {
@@ -257,7 +257,7 @@ class NewCompany extends React.Component<any, any> {
                                 <FontAwesome name={'dollar'} color="white" size={14} />
                             </View>
                             <Dropdown
-                                style={{ flex: 1, marginLeft: 20, marginTop: 1 }}
+                                style={{ flex: 1, marginLeft: 20, marginTop: Platform.OS=="ios"?4:1  }}
                                 textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
                                 options={this.state.currencyData}
                                 renderSeparator={() => {
@@ -283,7 +283,7 @@ class NewCompany extends React.Component<any, any> {
                     <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                         <MaterialCommunityIcons name="phone-in-talk" size={17.5} color={'#5773FF'} style={{ marginTop: 4 }} />
                         <Dropdown
-                            textStyle={{ color: '#1C1C1C', fontSize: 15, marginTop: 5, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
+                            textStyle={{ color: '#1C1C1C', fontSize: 15, marginTop: Platform.OS=="ios"?3:5, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
                             defaultValue={this.state.selectedCallingCode}
                             renderButtonText={(text) => {
                                 return text;

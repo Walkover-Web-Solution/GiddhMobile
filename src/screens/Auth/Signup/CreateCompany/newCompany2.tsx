@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, Dimensions, Modal, ScrollView, StatusBar, Platform, DeviceEventEmitter, ToastAndroid } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Modal, StatusBar, Platform, DeviceEventEmitter, ToastAndroid } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +19,7 @@ import { getCompanyAndBranches } from '../../../../redux/CommonAction';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import TOAST from 'react-native-root-toast';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 class NewCompanyDetails extends React.Component<any, any> {
   constructor(props: any) {
@@ -40,7 +41,8 @@ class NewCompanyDetails extends React.Component<any, any> {
       pinCode: null,
       modalVisible: false,
       loader: false,
-      countryCode: this.props.route.params.country.alpha2CountryCode
+      countryCode: this.props.route.params.country.alpha2CountryCode,
+      disbaleCreateButton: false
     };
   }
 
@@ -150,7 +152,7 @@ class NewCompanyDetails extends React.Component<any, any> {
         return
       }
     }
-    this.setState({ loader: true })
+    this.setState({ loader: true, disbaleCreateButton: true })
     var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
     var companyNameWithoutAnySpecialChar = this.props.route.params.companyName.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '').replace(/ /g, '')
     var randomString = '';
@@ -199,9 +201,9 @@ class NewCompanyDetails extends React.Component<any, any> {
       // ToastAndroid.show("Company created Successfully", ToastAndroid.LONG)
       await this.props.getCompanyAndBranches();
       await DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
-      await this.setState({ loader: false })
+      await setTimeout(() => { this.setState({ loader: false, disbaleCreateButton: false }) }, 5000)
     } else {
-      this.setState({ loader: false })
+      this.setState({ loader: false, disbaleCreateButton: false })
       if (Platform.OS == "android") {
         ToastAndroid.show(response.message, ToastAndroid.LONG)
       } else {
@@ -238,7 +240,8 @@ class NewCompanyDetails extends React.Component<any, any> {
     return (
       <SafeAreaView style={style.container}>
         <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
-        <ScrollView style={{ flex: 1, marginBottom: 10, }}>
+        <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'}
+          style={{ flex: 1, marginBottom: 10, }}>
           <View style={{ borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
             <View style={{ flexDirection: "row", marginBottom: 4 }}>
               <FontAwesome name="th" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
@@ -248,7 +251,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               </Text>
             </View>
             <Dropdown
-              style={{ flex: 1, marginLeft: 40 }}
+              style={{ flex: 1, marginLeft: 40, marginTop: Platform.OS == "ios" ? 4 : 0 }}
               textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
               options={this.state.countryCode == "US" || this.state.countryCode == "GB" ||
                 this.state.countryCode == "AU" || this.state.countryCode == "NP" ? ["Unregistered"] :
@@ -277,7 +280,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman', marginLeft: 20 }}>{'Business Nature'}</Text>
             </View>
             <Dropdown
-              style={{ flex: 1, marginLeft: 40 }}
+              style={{ flex: 1, marginLeft: 40, marginTop: Platform.OS == "ios" ? 4 : 0 }}
               textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
               options={["Food", "Service", "Manufacturing", "Retail"]}
               renderSeparator={() => {
@@ -333,6 +336,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               </Text>
             </View>
             <TextInput
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
               editable={this.state.selectStateDisable ? false : true}
               placeholder={"Enter State"}
               style={[style.GSTInput, { backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null }]}
@@ -351,7 +355,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               style={{
                 width: 0,
                 height: 0,
-                marginLeft: 40, marginTop: -3
+                marginLeft: 40, marginTop: Platform.OS == "ios" ? 6.5 : -3
               }}
               textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
               options={this.state.filteredStates}
@@ -436,6 +440,7 @@ class NewCompanyDetails extends React.Component<any, any> {
             </View>
             <TextInput
               multiline={true}
+              returnKeyType={"done"}
               onChangeText={(text) => {
                 console.log(text)
                 this.setState({ Address: text })
@@ -549,7 +554,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                 </TouchableOpacity></View>}
             </TouchableOpacity>
           </Modal>
-        </ScrollView>
+        </KeyboardAwareScrollView>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <TouchableOpacity style={{
             justifyContent: 'center',
@@ -560,17 +565,20 @@ class NewCompanyDetails extends React.Component<any, any> {
             <Text style={{ color: '#5773FF', fontFamily: 'AvenirLTStd-Book', padding: 5, fontSize: 16 }}>Back</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            disabled={this.state.disbaleCreateButton}
             style={{
               height: Dimensions.get('screen').height * 0.06,
               width: Dimensions.get('screen').width * 0.45,
               borderRadius: 25,
-              backgroundColor: '#5773FF',
+              backgroundColor: this.state.disbaleCreateButton ? '#ACBAFF' : '#5773FF',
               justifyContent: 'center',
               alignItems: 'center',
               alignSelf: 'flex-end',
             }}
             onPress={() => {
-              this.submit()
+              if (!this.state.disbaleCreateButton) {
+                this.submit()
+              }
             }}>
             <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Create</Text>
           </TouchableOpacity>

@@ -1,4 +1,4 @@
-import { StyleSheet,Dimensions } from 'react-native';
+import { StyleSheet,Dimensions,Platform } from 'react-native';
 import colors from '@/utils/colors';
 import { FONT_FAMILY } from '../../../../utils/constants'
 const Screen_height = Dimensions.get('window').height;
@@ -7,7 +7,8 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 15,
-        paddingVertical: 25,
+        paddingTop: Platform.OS=="ios"?10:25,
+        paddingBottom:Platform.OS=="ios"?20:25,
         backgroundColor: '#fff',
     },
     Heading: {

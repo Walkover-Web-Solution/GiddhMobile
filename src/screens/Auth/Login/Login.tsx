@@ -150,7 +150,7 @@ class Login extends React.Component<any, any> {
 
           <LoginButton
             size={ButtonSize.medium}
-            label={'Sign in with Google'}
+            label={'Login with Google'}
             style={[style.gmailButton, { marginTop: this.state.keyboard ? 15 : 30 }]}
             onPress={this._googleSignIn}
             icon="gmail"
@@ -159,7 +159,7 @@ class Login extends React.Component<any, any> {
           {Platform.OS == 'ios' && (
             <LoginButton
               size={ButtonSize.medium}
-              label={'Sign in with Apple'}
+              label={'Login with Apple'}
               style={style.appleButton}
               icon="apple"
               onPress={() => this.onAppleButtonPress()}
