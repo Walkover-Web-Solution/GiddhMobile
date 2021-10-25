@@ -147,7 +147,7 @@ class TransactionList extends React.Component {
         if (Platform.OS === "ios") {
           let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${this.props.item.voucherNo + " " + new Date()}.pdf`;
           await this.setState({ DownloadModal: false })
-          await setTimeout(() => { RNFetchBlob.ios.openDocument(pdfLocation) }, 500)
+          await setTimeout(() => { RNFetchBlob.ios.openDocument(pdfLocation) }, 200)
         } else {
           this.props.downloadModal(false)
         }

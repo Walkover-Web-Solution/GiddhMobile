@@ -634,7 +634,7 @@ class PartiesTransactionScreen extends React.Component {
           if (Platform.OS == "ios") {
             TOAST.show(JSON.parse(res.data).message, {
               duration: TOAST.durations.LONG,
-              position: -200,
+              position: -150,
               hideOnPress: true,
               backgroundColor: "#1E90FF",
               textColor: "white",
@@ -924,7 +924,7 @@ class PartiesTransactionScreen extends React.Component {
       if (Platform.OS == "ios") {
         TOAST.show(response.body.message, {
           duration: TOAST.durations.LONG,
-          position: -200,
+          position: -150,
           hideOnPress: true,
           backgroundColor: "#1E90FF",
           textColor: "white",
@@ -941,7 +941,7 @@ class PartiesTransactionScreen extends React.Component {
       if (Platform.OS == "ios") {
         TOAST.show(response.data.message, {
           duration: TOAST.durations.LONG,
-          position: -200,
+          position: -150,
           hideOnPress: true,
           backgroundColor: "#1E90FF",
           textColor: "white",
@@ -1246,7 +1246,7 @@ class PartiesTransactionScreen extends React.Component {
                         if (Platform.OS == "ios") {
                           TOAST.show("Invalid Amount", {
                             duration: TOAST.durations.LONG,
-                            position: -200,
+                            position: -140,
                             hideOnPress: true,
                             backgroundColor: "#1E90FF",
                             textColor: "white",
@@ -1368,7 +1368,7 @@ class PartiesTransactionScreen extends React.Component {
                   </ScrollView>
                 ) : (
                   <FlatList
-                    style={{ marginTop: 20, marginBottom: 60 }}
+                    style={{ marginTop: 20}}
                     data={this.state.transactionsData}
                     renderItem={({ item }) => (
                       <TransactionList
@@ -1551,7 +1551,7 @@ class PartiesTransactionScreen extends React.Component {
           )}
           {this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN" ? (
             this.props.route.params.item.bankPaymentDetails === false ?
-              <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+              <View style={{ justifyContent: "flex-end", alignItems: "center",marginBottom:10}}>
                 <TouchableOpacity onPress={async () => {
                   await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
                     await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
@@ -1560,14 +1560,14 @@ class PartiesTransactionScreen extends React.Component {
                 </TouchableOpacity>
               </View> :
               this.state.payButtonPressed == false ?
-                <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                <View style={{ justifyContent: "flex-end", alignItems: "center",marginBottom:10}}>
                   <TouchableOpacity onPress={async () => {
                     this.PayButtonPressed()
                   }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
                   </TouchableOpacity>
                 </View> :
-                <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 98 + "%" }}>
+                <View style={{ justifyContent: "flex-end", alignItems: "center",marginBottom:10}}>
                   <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
                   </TouchableOpacity>
