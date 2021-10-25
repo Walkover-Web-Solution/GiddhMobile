@@ -8,7 +8,8 @@ import { getCompanyAndBranches } from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-community/async-storage';
 import LogRocket from '@logrocket/react-native';
 import { STORAGE_KEYS } from '@/utils/constants';
-import { ToastAndroid } from 'react-native';
+import { ToastAndroid, Platform } from 'react-native';
+import TOAST from 'react-native-root-toast';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -104,7 +105,21 @@ export function* signupUsingEmailPassword(action) {
   } else {
     const response = yield call(LoginService.sentOTPSignup, action.payload);
     if (response.status == 'success' && response.body.isNewUser && !response.body.user.isVerified) {
-      ToastAndroid.show("Verification code sent successfully", ToastAndroid.LONG)
+      if (Platform.OS == "android") {
+        ToastAndroid.show("Verification code sent successfully", ToastAndroid.LONG)
+      } else {
+        TOAST.show("Verification code sent successfully", {
+          duration: TOAST.durations.LONG,
+          position: -70,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      }
       yield put(LoginAction.signupOTPSuccess('success'));
     } else {
       if (response && response.body && response.body.session && response.body.session.id) {

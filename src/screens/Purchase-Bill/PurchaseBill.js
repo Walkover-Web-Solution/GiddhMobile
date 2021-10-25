@@ -446,7 +446,7 @@ export class PurchaseBill extends React.Component {
       //       })
       //     }>
       <Modal animationType="none" transparent={true} visible={true}>
-        <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
+        <View style={[style.searchResultContainer, { top: height * 0.14 }]}>
           <TouchableOpacity
             style={{
               flexDirection: 'row',

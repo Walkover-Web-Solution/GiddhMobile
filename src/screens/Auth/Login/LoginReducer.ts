@@ -28,7 +28,8 @@ export default (state = initialState, action: Action) => {
           isAuthenticatingUser: false,
           startTFA: false,
           isVerifyingOTP: false,
-          otpVerificationError: ''
+          otpVerificationError: '',
+          signUpOTPSent: false
           // Ensure isConnecting is reset to false on app restart
         };
       } else {

@@ -18,6 +18,7 @@ import { CompanyService } from '@/core/services/company/company.service';
 import { getCompanyAndBranches } from '../../../../redux/CommonAction';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
+import TOAST from 'react-native-root-toast';
 
 class NewCompanyDetails extends React.Component<any, any> {
   constructor(props: any) {
@@ -195,13 +196,27 @@ class NewCompanyDetails extends React.Component<any, any> {
     const response = await CompanyService.createCompany(payload)
     console.log("create Company Response " + JSON.stringify(response))
     if (response.status == "success") {
-      ToastAndroid.show("Company created Successfully", ToastAndroid.LONG)
+      // ToastAndroid.show("Company created Successfully", ToastAndroid.LONG)
       await this.props.getCompanyAndBranches();
-      this.setState({ loader: false })
       await DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+      await this.setState({ loader: false })
     } else {
       this.setState({ loader: false })
-      ToastAndroid.show(response.message, ToastAndroid.LONG)
+      if (Platform.OS == "android") {
+        ToastAndroid.show(response.message, ToastAndroid.LONG)
+      } else {
+        TOAST.show(response.message, {
+          duration: TOAST.durations.LONG,
+          position: -70,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      }
     }
   }
 
@@ -248,7 +263,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                   <Text style={{ padding: 10, color: '#1C1C1C' }}>{options}</Text>)
               }}
               onSelect={(index, value) => {
-                this.setState({ bussinessType: value, gstNumber: null, stateName: null, applicableTax: [] })
+                this.setState({ bussinessType: value, gstNumber: null, stateName: null, applicableTax: [], selectStateDisable: false, selectedState: null })
               }}>
               <View style={{ flexDirection: "row", marginBottom: 4 }}>
                 <Text style={{ color: this.state.bussinessType == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', flex: 1, fontFamily: 'AvenirLTStd-Book' }}>
@@ -420,6 +435,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               </Text>
             </View>
             <TextInput
+              multiline={true}
               onChangeText={(text) => {
                 console.log(text)
                 this.setState({ Address: text })

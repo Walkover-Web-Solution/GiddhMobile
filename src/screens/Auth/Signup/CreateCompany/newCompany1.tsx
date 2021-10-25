@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, StatusBar, ToastAndroid, Platform, Dimensions, Alert } from 'react-native';
+import { View, TouchableOpacity, StatusBar, ScrollView, Platform, Dimensions, Alert } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -196,135 +196,137 @@ class NewCompany extends React.Component<any, any> {
     render() {
         return (
             <SafeAreaView style={style.container}>
-                <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
-                <Text style={style.Heading}>{"Welcome " + this.state.userName + "!"}</Text>
-                <Text style={style.text}>Enter the following deatils to start hassel free accounting with Giddh </Text>
-                <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
-                    <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4 }} />
-                    <TextInput
-                        onBlur={() => {
-                            if (this.state.companyName == '') {
-                                this.setState({ companyNamePlaceholder: '' })
+                <ScrollView style={{ flex: 1 }}>
+                    <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
+                    <Text style={style.Heading}>{"Welcome " + this.state.userName + "!"}</Text>
+                    <Text style={style.text}>Enter the following deatils to start hassel free accounting with Giddh </Text>
+                    <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
+                        <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4 }} />
+                        <TextInput
+                            onBlur={() => {
+                                if (this.state.companyName == '') {
+                                    this.setState({ companyNamePlaceholder: '' })
+                                }
+                            }}
+                            onFocus={() => {
+                                this.setState({ companyNamePlaceholder: 'a' })
+                            }}
+                            onChangeText={(text) => {
+                                console.log(text)
+                                this.setState({ companyName: text })
                             }
-                        }}
-                        onFocus={() => {
-                            this.setState({ companyNamePlaceholder: 'a' })
-                        }}
-                        onChangeText={(text) => {
-                            console.log(text)
-                            this.setState({ companyName: text })
-                        }
-                        }
-                        style={style.companyName}>
-                        <Text style={{ color: this.state.companyNamePlaceholder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.companyNamePlaceholder == '' ? 'Company Name' : this.state.companyName}</Text>
-                        <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.companyNamePlaceholder == '' ? '*' : ''}</Text>
-                    </TextInput>
-                </View>
-                <View style={{ marginTop: 30, flexDirection: "row", }}>
-                    <View style={{ width: "48%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
-                        <Foundation name="flag" size={21} color={'#5773FF'} style={{ marginTop: 4 }} />
-                        <Dropdown
-                            style={{ flex: 1, marginLeft: 20, marginTop: 1 }}
-                            textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
-                            options={this.state.countryData}
-                            renderSeparator={() => {
-                                return (<View></View>);
-                            }}
-                            dropdownStyle={{ width: '40%', height: this.state.countryData.length > 0 ? 150 : 50, marginTop: 5, borderRadius: 5, marginLeft: -20 }}
-                            dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
-                            renderRow={(options) => {
-                                return (
-                                    <Text style={{ padding: 10, color: '#1C1C1C' }}>{(options.alpha3CountryCode + " - " + options.countryName)}</Text>)
-                            }}
-                            onSelect={async (index, value) => {
-                                await this.setState({
-                                    countryName: value, currency: value.currency,
-                                    selectedCallingCode: value.callingCode
-                                })
-                                await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
-                            }}>
-                            <View style={{ flexDirection: "row" }}>
-                                <Text style={{ color: this.state.countryName == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
-                                    {this.state.countryName == null ? 'Country' : (this.state.countryName.alpha3CountryCode + " - " + this.state.countryName.countryName)}</Text>
-                                <Text style={{ color: '#E04646' }}>{this.state.countryName == null ? '*' : ''}</Text>
-                            </View>
-                        </Dropdown>
+                            }
+                            style={style.companyName}>
+                            <Text style={{ color: this.state.companyNamePlaceholder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.companyNamePlaceholder == '' ? 'Company Name' : this.state.companyName}</Text>
+                            <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.companyNamePlaceholder == '' ? '*' : ''}</Text>
+                        </TextInput>
                     </View>
-                    <View style={{ width: 10 }} />
-                    <View style={{ width: "48%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
-                        <View style={{ backgroundColor: '#5773FF', width: 20, height: 20, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
-                            <FontAwesome name={'dollar'} color="white" size={14} />
+                    <View style={{ marginTop: 30, flexDirection: "row", }}>
+                        <View style={{ width: "48%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
+                            <Foundation name="flag" size={21} color={'#5773FF'} style={{ marginTop: 4 }} />
+                            <Dropdown
+                                style={{ flex: 1, marginLeft: 20, marginTop: 1 }}
+                                textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
+                                options={this.state.countryData}
+                                renderSeparator={() => {
+                                    return (<View></View>);
+                                }}
+                                dropdownStyle={{ width: '40%', height: this.state.countryData.length > 0 ? 150 : 50, marginTop: 5, borderRadius: 5, marginLeft: -20 }}
+                                dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
+                                renderRow={(options) => {
+                                    return (
+                                        <Text style={{ padding: 10, color: '#1C1C1C' }}>{(options.alpha3CountryCode + " - " + options.countryName)}</Text>)
+                                }}
+                                onSelect={async (index, value) => {
+                                    await this.setState({
+                                        countryName: value, currency: value.currency,
+                                        selectedCallingCode: value.callingCode
+                                    })
+                                    await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
+                                }}>
+                                <View style={{ flexDirection: "row" }}>
+                                    <Text style={{ color: this.state.countryName == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                                        {this.state.countryName == null ? 'Country' : (this.state.countryName.alpha3CountryCode + " - " + this.state.countryName.countryName)}</Text>
+                                    <Text style={{ color: '#E04646' }}>{this.state.countryName == null ? '*' : ''}</Text>
+                                </View>
+                            </Dropdown>
                         </View>
+                        <View style={{ width: 10 }} />
+                        <View style={{ width: "48%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
+                            <View style={{ backgroundColor: '#5773FF', width: 20, height: 20, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
+                                <FontAwesome name={'dollar'} color="white" size={14} />
+                            </View>
+                            <Dropdown
+                                style={{ flex: 1, marginLeft: 20, marginTop: 1 }}
+                                textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
+                                options={this.state.currencyData}
+                                renderSeparator={() => {
+                                    return (<View></View>);
+                                }}
+                                dropdownStyle={{ width: '40%', height: this.state.currencyData.length > 0 ? 150 : 50, marginTop: 5, borderRadius: 5 }}
+                                dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
+                                renderRow={(options) => {
+                                    return (
+                                        <Text style={{ padding: 10, color: '#1C1C1C' }}>{options.code}</Text>)
+                                }}
+                                onSelect={(index, value) => {
+                                    this.setState({ currency: value })
+                                }}>
+                                <View style={{ flexDirection: "row" }}>
+                                    <Text style={{ color: this.state.currency == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                                        {this.state.currency == null ? 'Currency' : this.state.currency.code}</Text>
+                                    <Text style={{ color: '#E04646' }}>{this.state.currency == null ? '*' : ''}</Text>
+                                </View>
+                            </Dropdown>
+                        </View>
+                    </View>
+                    <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
+                        <MaterialCommunityIcons name="phone-in-talk" size={17.5} color={'#5773FF'} style={{ marginTop: 4 }} />
                         <Dropdown
-                            style={{ flex: 1, marginLeft: 20, marginTop: 1 }}
-                            textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
-                            options={this.state.currencyData}
+                            textStyle={{ color: '#1C1C1C', fontSize: 15, marginTop: 5, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
+                            defaultValue={this.state.selectedCallingCode}
+                            renderButtonText={(text) => {
+                                return text;
+                            }}
+                            options={this.state.allCallingCode}
                             renderSeparator={() => {
                                 return (<View></View>);
                             }}
-                            dropdownStyle={{ width: '40%', height: this.state.currencyData.length > 0 ? 150 : 50, marginTop: 5, borderRadius: 5 }}
+                            onSelect={(idx, value) => this.setState({ selectedCallingCode: value })}
+
+                            dropdownStyle={{ width: '17%', marginTop: 6 }}
                             dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
                             renderRow={(options) => {
-                                return (
-                                    <Text style={{ padding: 10, color: '#1C1C1C' }}>{options.code}</Text>)
+                                return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
                             }}
-                            onSelect={(index, value) => {
-                                this.setState({ currency: value })
-                            }}>
-                            <View style={{ flexDirection: "row" }}>
-                                <Text style={{ color: this.state.currency == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
-                                    {this.state.currency == null ? 'Currency' : this.state.currency.code}</Text>
-                                <Text style={{ color: '#E04646' }}>{this.state.currency == null ? '*' : ''}</Text>
-                            </View>
-                        </Dropdown>
-                    </View>
-                </View>
-                <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
-                    <MaterialCommunityIcons name="phone-in-talk" size={17.5} color={'#5773FF'} style={{ marginTop: 4 }} />
-                    <Dropdown
-                        textStyle={{ color: '#1C1C1C', fontSize: 15, marginTop: 5, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
-                        defaultValue={this.state.selectedCallingCode}
-                        renderButtonText={(text) => {
-                            return text;
-                        }}
-                        options={this.state.allCallingCode}
-                        renderSeparator={() => {
-                            return (<View></View>);
-                        }}
-                        onSelect={(idx, value) => this.setState({ selectedCallingCode: value })}
-
-                        dropdownStyle={{ width: '17%', marginTop: 6 }}
-                        dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
-                        renderRow={(options) => {
-                            return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
-                        }}
-                    />
-                    <TextInput
-                        keyboardType={'number-pad'}
-                        returnKeyType={'done'}
-                        onBlur={() => {
-                            if (this.state.mobileNumber == '') {
-                                this.setState({ mobileNumberPlaceHolder: '' })
+                        />
+                        <TextInput
+                            keyboardType={'number-pad'}
+                            returnKeyType={'done'}
+                            onBlur={() => {
+                                if (this.state.mobileNumber == '') {
+                                    this.setState({ mobileNumberPlaceHolder: '' })
+                                }
+                            }}
+                            onFocus={() => {
+                                this.setState({ mobileNumberPlaceHolder: 'a' })
+                            }}
+                            onChangeText={(text) => {
+                                console.log(text)
+                                this.setState({
+                                    mobileNumber: text.replace(/[^0-9]/g, ''),
+                                    isMobileNoValid: !this.validateMobileNumberTextInput(text)
+                                })
                             }
-                        }}
-                        onFocus={() => {
-                            this.setState({ mobileNumberPlaceHolder: 'a' })
-                        }}
-                        onChangeText={(text) => {
-                            console.log(text)
-                            this.setState({
-                                mobileNumber: text.replace(/[^0-9]/g, ''),
-                                isMobileNoValid: !this.validateMobileNumberTextInput(text)
-                            })
-                        }
-                        }
-                        style={style.companyName}>
-                        <Text style={{ color: this.state.mobileNumberPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>
-                            {this.state.mobileNumberPlaceHolder == '' ? 'Mobile Number' : this.state.mobileNumber}</Text>
-                        <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.mobileNumberPlaceHolder == '' ? '*' : ''}</Text>
-                    </TextInput>
-                </View>
-                {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 30 }}>Sorry! Invalid Number</Text>}
+                            }
+                            style={style.companyName}>
+                            <Text style={{ color: this.state.mobileNumberPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>
+                                {this.state.mobileNumberPlaceHolder == '' ? 'Mobile Number' : this.state.mobileNumber}</Text>
+                            <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.mobileNumberPlaceHolder == '' ? '*' : ''}</Text>
+                        </TextInput>
+                    </View>
+                    {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 30 }}>Sorry! Invalid Number</Text>}
+                </ScrollView>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", position: "absolute", bottom: 20, marginHorizontal: 15, width: "100%" }}>
                     <TouchableOpacity
                         style={{
