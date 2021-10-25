@@ -59,6 +59,7 @@ export class GDRoundedInput extends Component<GDRoundedInputProps, GDRoundedInpu
         </View>
         <View style={styles.flexGrow}>
           <TextInput
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             style={styles.roundedInputTextStyle}
             editable={this.props.enable}
             placeholder={this.props.placeholder}
