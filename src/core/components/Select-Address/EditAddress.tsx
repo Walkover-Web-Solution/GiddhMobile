@@ -2841,7 +2841,8 @@ export class EditAddress extends React.Component<any, any> {
               <Dropdown
                 ref={(ref) => (this.state.stateDropDown = ref)}
                 style={{
-                  width: 0,height:0,
+                  width: 0,
+                  height:0,
                   marginVertical: 10,
                 }}
                 options={this.state.filteredStates}
@@ -2868,6 +2869,7 @@ export class EditAddress extends React.Component<any, any> {
             <TextInput
             editable={this.state.selectStateDisable ? false : true}
             placeholder={"Enter State name"}
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
               style={{
                 flex: 1,
                 color: '#1c1c1c',
@@ -2893,7 +2895,8 @@ export class EditAddress extends React.Component<any, any> {
           </View>
           <Text style={style.BMfieldTitle}>GSTIN</Text>
           <TextInput
-            placeholder={"Enter GST Number"}
+            placeholder={"Enter GSTIN"}
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             style={{
               borderColor: '#D9D9D9',
               borderBottomWidth: 1,
@@ -2914,6 +2917,7 @@ export class EditAddress extends React.Component<any, any> {
           <Text style={style.BMfieldTitle}>PinCode</Text>
           <TextInput
             placeholder={"Enter PinCode"}
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             returnKeyType={'done'}
             keyboardType="number-pad"
             style={{
