@@ -32,11 +32,10 @@ export default StyleSheet.create({
     },
     GSTInput: { 
         fontSize: 15, 
-        marginHorizontal: 10,
         marginLeft:40,
         textAlignVertical: "center", 
         padding: 0, 
-        width: "88%",
+        width: "90%",
         color:'#1c1c1c', 
         fontFamily: 'AvenirLTStd-Book' 
     },

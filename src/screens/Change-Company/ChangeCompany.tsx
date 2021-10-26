@@ -93,7 +93,7 @@ export class ChangeCompany extends React.Component<Props> {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, item.subscription.country.countryCode);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
-                      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, '');
+                      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName,  " ");
                       await this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     this.props.getCompanyAndBranches();

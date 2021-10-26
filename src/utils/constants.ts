@@ -76,7 +76,8 @@ export const STORAGE_KEYS = {
   sessionEnd: 'SESSION_END',
   sortBy: 'SORT_BY',
   order: 'ORDER',
-  activeCompanyCountryCode: 'ACTIVE_COMPANY_COUNTRY_CODE'
+  activeCompanyCountryCode: 'ACTIVE_COMPANY_COUNTRY_CODE',
+  APPLELOGINRESPONSE:"APPLELOGINRESPONSE",
 };
 
 // APP events constants

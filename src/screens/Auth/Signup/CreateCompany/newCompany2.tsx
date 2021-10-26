@@ -339,7 +339,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               editable={this.state.selectStateDisable ? false : true}
               placeholder={"Enter State"}
-              style={[style.GSTInput, { backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null }]}
+              style={[style.GSTInput, { backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null ,paddingBottom:Platform.OS=="ios"?10:0,}]}
               value={this.state.selectedState}
               onChangeText={(text) => {
                 this.setState({
@@ -347,7 +347,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                 })
                 setTimeout(() => {
                   this.filterStates(text);
-                }, 1000);
+                }, 2000);
               }}
             />
             <Dropdown
@@ -358,20 +358,22 @@ class NewCompanyDetails extends React.Component<any, any> {
                 marginLeft: 40, marginTop: Platform.OS == "ios" ? 6.5 : -3
               }}
               textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
-              options={this.state.filteredStates}
+              options={this.state.filteredStates.length == 0 ? ["Result Not Found"] : this.state.filteredStates}
               renderSeparator={() => {
                 return (<View></View>);
               }}
-              dropdownStyle={{ width: '81%', height: 100, marginTop: 5, borderRadius: 5 }}
+              dropdownStyle={{ width: '81%', height: this.state.filteredStates.length > 1 ? 100 : 50 , marginTop:Platform.OS=="ios"?-4:5, borderRadius: 5 }}
               dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
               renderButtonText={(text) => ""}
               renderRow={(options) => {
                 return (
-                  <Text style={{ padding: 10, color: '#1C1C1C' }}>{options.name}</Text>)
+                  <Text style={{ padding: 10, color: '#1C1C1C' }}>{options.name?options.name:"Result Not Found"}</Text>)
               }}
               onSelect={(index, value) => {
                 console.log(JSON.stringify(value))
+                if (value != "Result Not Found") {
                 this.setState({ stateName: value, selectedState: value.name })
+                }
               }} />
           </View>}
           {this.state.bussinessType == "Registered" && <View style={{ marginTop: 20, borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>

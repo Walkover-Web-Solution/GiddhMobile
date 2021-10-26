@@ -369,21 +369,23 @@ export class SalesInvoice extends React.Component<Props> {
               return (<View />);
             }}
             onSelect={(index, option) => {
-              const item = this.state.searchResults[index];
-              this.setState(
-                {
-                  partyName: item,
-                  searchResults: [],
-                  searchPartyName: item.name,
-                  searchError: '',
-                  isSearchingParty: false
-                },
-                () => {
-                  this.searchAccount();
-                  this.getAllAccountsModes();
-                  Keyboard.dismiss();
-                }
-              );
+              if (option != "Result Not found") {
+                const item = this.state.searchResults[index];
+                this.setState(
+                  {
+                    partyName: item,
+                    searchResults: [],
+                    searchPartyName: item.name,
+                    searchError: '',
+                    isSearchingParty: false
+                  },
+                  () => {
+                    this.searchAccount();
+                    this.getAllAccountsModes();
+                    Keyboard.dismiss();
+                  }
+                );
+              }
             }}
             renderRow={(option) => {
               return (
@@ -397,8 +399,8 @@ export class SalesInvoice extends React.Component<Props> {
                   {option}</Text>
               );
             }}
-            dropdownStyle={{ width: width * 0.75, marginTop: 10, borderRadius: 10 }}
-            options={this.state.searchNamesOnly} />
+            dropdownStyle={{ width: width * 0.75, marginTop: 10, borderRadius: 10, height: (this.state.searchResults.length ==0||this.state.searchResults.length ==1) ? 50:(this.state.searchResults.length<5?80:150)}}
+            options={this.state.searchNamesOnly.length == 0 ? ["Result Not found"] : this.state.searchNamesOnly} />
           <TextInput
             placeholderTextColor={'#A6D8BF'}
             placeholder={this.state.invoiceType == 'cash' ? 'Enter Party Name' : 'Search Party Name'}
@@ -1216,7 +1218,7 @@ export class SalesInvoice extends React.Component<Props> {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ height: '250%', width: '10%',alignItems:"flex-end"}}
+              style={{ height: '250%', width: '10%', alignItems: "flex-end" }}
               onPress={() => {
                 if (!this.state.partyName && this.state.invoiceType != INVOICE_TYPE.cash) {
                   alert('Please select a party.');
@@ -1319,7 +1321,7 @@ export class SalesInvoice extends React.Component<Props> {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ height: '250%', width: '10%',alignItems:"flex-end" }}
+              style={{ height: '250%', width: '10%', alignItems: "flex-end" }}
               onPress={() => {
                 if (!this.state.partyName && this.state.invoiceType != INVOICE_TYPE.cash) {
                   alert('Please select a party.');
@@ -1712,7 +1714,7 @@ export class SalesInvoice extends React.Component<Props> {
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', width: "25%", alignItems: "flex-end",justifyContent:"flex-end"}}>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', width: "25%", alignItems: "flex-end", justifyContent: "flex-end" }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>

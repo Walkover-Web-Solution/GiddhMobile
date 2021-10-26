@@ -20,6 +20,8 @@ import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import colors from '@/utils/colors';
+import { STORAGE_KEYS} from '@/utils/constants';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class Signup extends React.Component<any, any> {
   constructor(props: any) {
@@ -66,7 +68,15 @@ class Signup extends React.Component<any, any> {
       // get current authentication state for user
       // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
       const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
-
+      if (appleAuthRequestResponse.email != null) {
+        await AsyncStorage.setItem(STORAGE_KEYS.APPLELOGINRESPONSE, JSON.stringify(appleAuthRequestResponse))
+      } else {
+        let appleLoginOldResponse = await AsyncStorage.getItem(STORAGE_KEYS.APPLELOGINRESPONSE)
+        if (appleLoginOldResponse != null && JSON.parse(appleLoginOldResponse).user==appleAuthRequestResponse.user) {
+          appleAuthRequestResponse.email = JSON.parse(appleLoginOldResponse).email
+          appleAuthRequestResponse.fullName = JSON.parse(appleLoginOldResponse).fullName
+        }
+      }      
       // use credentialState response to ensure the user is authenticated
       if (credentialState === appleAuth.State.AUTHORIZED) {
         // user is authenticated

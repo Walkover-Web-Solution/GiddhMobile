@@ -163,7 +163,7 @@ export class CreditNote extends React.Component<Props> {
   //   console.log(activeCompany);
   // };
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#2e80d1" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
+    return isFocused ? <StatusBar backgroundColor="#2e80d1" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
 
   componentDidMount() {
@@ -483,30 +483,34 @@ export class CreditNote extends React.Component<Props> {
           {/* <Text style={{marginLeft: 3}}>Close</Text> */}
         </TouchableOpacity>
         <FlatList
-          data={this.state.searchResults}
+          data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
           style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={{}}
               onFocus={() => this.onChangeText('')}
               onPress={async () => {
-                this.setState(
-                  {
-                    partyName: item,
-                    searchResults: [],
-                    searchPartyName: item.name,
-                    searchError: '',
-                    isSearchingParty: false,
-                  },
-                  () => {
-                    this.getAllInvoice();
-                    this.searchAccount();
-                    this.getAllAccountsModes();
-                    Keyboard.dismiss();
-                  },
-                );
+                if (item != "Result Not found") {
+                  this.setState(
+                    {
+                      partyName: item,
+                      searchResults: [],
+                      searchPartyName: item.name,
+                      searchError: '',
+                      isSearchingParty: false,
+                    },
+                    () => {
+                      this.getAllInvoice();
+                      this.searchAccount();
+                      this.getAllAccountsModes();
+                      Keyboard.dismiss();
+                    },
+                  );
+                } else {
+                  this.setState({ isSearchingParty: false, searchResults: [] })
+                }
               }}>
-              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}</Text>
+                <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
             </TouchableOpacity>
           )}
         />
@@ -1146,7 +1150,7 @@ export class CreditNote extends React.Component<Props> {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ height: '250%', width: '10%',alignItems:"flex-end" }}
+              style={{ height: '250%', width: '10%', alignItems: "flex-end" }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1234,7 +1238,7 @@ export class CreditNote extends React.Component<Props> {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ height: '250%', width: '10%',alignItems:"flex-end" }}
+              style={{ height: '250%', width: '10%', alignItems: "flex-end" }}
               onPress={() => {
                 if (!this.state.partyName) {
                   alert('Please select a party.');
@@ -1588,8 +1592,8 @@ export class CreditNote extends React.Component<Props> {
               },
             });
           }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',paddingVertical: 10 }}>
-          <View style={{ flexDirection: 'row', width: "75%", }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10 }}>
+            <View style={{ flexDirection: 'row', width: "75%", }}>
               <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>{item.name}</Text>
               {item.stock && (
                 <Text numberOfLines={1} style={{ color: '#1C1C1C', flex: 1 }}>
@@ -1597,7 +1601,7 @@ export class CreditNote extends React.Component<Props> {
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', width: "25%", alignItems: "flex-end",justifyContent:"flex-end" }}>
+            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', width: "25%", alignItems: "flex-end", justifyContent: "flex-end" }}>
               <AntDesign name={'plus'} color={'#808080'} size={15} />
               <Text style={{ color: '#808080' }}>Add again</Text>
             </TouchableOpacity>
