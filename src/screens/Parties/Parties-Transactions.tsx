@@ -970,17 +970,19 @@ class PartiesTransactionScreen extends React.Component {
     if (response.status == "success") {
       await this.setState({ paymentProcessing: false })
       if (Platform.OS == "ios") {
-        TOAST.show(response.body.message, {
-          duration: TOAST.durations.LONG,
-          position: -150,
-          hideOnPress: true,
-          backgroundColor: "#1E90FF",
-          textColor: "white",
-          opacity: 1,
-          shadow: false,
-          animation: true,
-          containerStyle: { borderRadius: 10 }
-        });
+        await setTimeout(() => {
+          TOAST.show(response.body.message, {
+            duration: TOAST.durations.LONG,
+            position: -150,
+            hideOnPress: true,
+            backgroundColor: "#1E90FF",
+            textColor: "white",
+            opacity: 1,
+            shadow: false,
+            animation: true,
+            containerStyle: { borderRadius: 10 }
+          }), 100
+        })
       } else {
         ToastAndroid.show(response.body.Message, ToastAndroid.LONG)
       }
@@ -988,17 +990,19 @@ class PartiesTransactionScreen extends React.Component {
     } else {
       await this.setState({ paymentProcessing: false })
       if (Platform.OS == "ios") {
-        TOAST.show(response.data.message, {
-          duration: TOAST.durations.LONG,
-          position: -150,
-          hideOnPress: true,
-          backgroundColor: "#1E90FF",
-          textColor: "white",
-          opacity: 1,
-          shadow: false,
-          animation: true,
-          containerStyle: { borderRadius: 10 }
-        });
+        await setTimeout(() => {
+          TOAST.show(response.data.message, {
+            duration: TOAST.durations.LONG,
+            position: -150,
+            hideOnPress: true,
+            backgroundColor: "#1E90FF",
+            textColor: "white",
+            opacity: 1,
+            shadow: false,
+            animation: true,
+            containerStyle: { borderRadius: 10 }
+          }), 100
+        })
       } else {
         ToastAndroid.show(response.data.message, ToastAndroid.LONG)
       }
@@ -1319,6 +1323,7 @@ class PartiesTransactionScreen extends React.Component {
                     autoFocusOnLoad
                     codeInputFieldStyle={style.underlineStyleBase}
                     onCodeFilled={(code) => {
+                      this.setState({ code })
                       console.log(`Code is ${code}, you are good to go!`)
                     }}
                   />
@@ -1368,7 +1373,7 @@ class PartiesTransactionScreen extends React.Component {
                   </ScrollView>
                 ) : (
                   <FlatList
-                    style={{ marginTop: 20}}
+                    style={{ marginTop: 20 }}
                     data={this.state.transactionsData}
                     renderItem={({ item }) => (
                       <TransactionList
@@ -1551,7 +1556,7 @@ class PartiesTransactionScreen extends React.Component {
           )}
           {this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN" ? (
             this.props.route.params.item.bankPaymentDetails === false ?
-              <View style={{ justifyContent: "flex-end", alignItems: "center",marginBottom:10}}>
+              <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                 <TouchableOpacity onPress={async () => {
                   await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
                     await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
@@ -1560,14 +1565,14 @@ class PartiesTransactionScreen extends React.Component {
                 </TouchableOpacity>
               </View> :
               this.state.payButtonPressed == false ?
-                <View style={{ justifyContent: "flex-end", alignItems: "center",marginBottom:10}}>
+                <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                   <TouchableOpacity onPress={async () => {
                     this.PayButtonPressed()
                   }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
                   </TouchableOpacity>
                 </View> :
-                <View style={{ justifyContent: "flex-end", alignItems: "center",marginBottom:10}}>
+                <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                   <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
                   </TouchableOpacity>

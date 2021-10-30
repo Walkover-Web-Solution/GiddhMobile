@@ -35,7 +35,7 @@ export default StyleSheet.create({
         marginLeft:40,
         textAlignVertical: "center", 
         padding: 0, 
-        width: "90%",
+        width: "100%",
         color:'#1c1c1c', 
         fontFamily: 'AvenirLTStd-Book' 
     },
