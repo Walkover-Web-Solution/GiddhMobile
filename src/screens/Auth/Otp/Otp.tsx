@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
-import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Alert, Platform } from 'react-native';
+import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Platform } from 'react-native';
 import style from '@/screens/Auth/Otp/style';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { GdImages } from '@/utils/icons-pack';
@@ -12,6 +12,11 @@ import { sendOTP } from '../Login/LoginService';
 import { Bars } from 'react-native-loader';
 import { baseColor } from '../../../utils/colors';
 import TOAST from 'react-native-root-toast';
+import SMSUserConsent from 'react-native-sms-user-consent';
+
+interface SMSMessage {
+  receivedOtpMessage: string
+}
 
 const { width, height } = Dimensions.get('window');
 class Login extends React.Component<any, any> {
@@ -19,20 +24,43 @@ class Login extends React.Component<any, any> {
     super(props);
     this.state = {
       showLoader: false,
-      code: ''
+      code: '',
+      disableResendButton: false,
     };
+    this.getSMSMessage()
+  }
+
+  getSMSMessage = async () => {
+    try {
+      const message: SMSMessage = await SMSUserConsent.listenOTP()
+      let messageResponse = message.receivedOtpMessage.slice(message.receivedOtpMessage.length - 5)
+      messageResponse = messageResponse.slice(0, 4)
+      console.log(messageResponse)
+      await this.setState({ code: messageResponse.toString() })
+    } catch (e) {
+      console.log(JSON.stringify(e))
+    }
   }
 
   componentWillUnmount() {
     this.props.unmounting();
   }
 
+  removeSmsListener = () => {
+    try {
+      SMSUserConsent.removeOTPListener()
+    } catch (e) {
+      // error
+    }
+  }
+
   sendOTP = async () => {
-    await this.setState({code:''})
+    await this.setState({ code: '', disableResendButton: true })
     let payload = await { mobileNumber: this.props.tfaDetails.contactNumber, countryCode: this.props.tfaDetails.countryCode }
     const response = await sendOTP(payload);
     if (response.status == "success") {
-      if(Platform.OS=="ios"){
+      if (Platform.OS == "ios") {
+        await this.setState({ disableResendButton: false })      
         TOAST.show(response.body, {
           duration: TOAST.durations.LONG,
           position: -140,
@@ -44,8 +72,11 @@ class Login extends React.Component<any, any> {
           animation: true,
           containerStyle: { borderRadius: 10 }
         });
-      }else{
-      await ToastAndroid.show(response.body, ToastAndroid.LONG)
+      } else {
+        ToastAndroid.show(response.body, ToastAndroid.LONG)
+        await this.removeSmsListener()
+        await this.getSMSMessage()
+        await this.setState({ disableResendButton: false })
       }
     }
   }
@@ -67,6 +98,7 @@ class Login extends React.Component<any, any> {
             style={{ width: '65%', height: height * 0.15, color: 'red' }}
             pinCount={4}
             color={'red'}
+            textContentType="oneTimeCode"
             placeholderCharacter={'*'}
             codeInputFieldStyle={'red'}
             placeholderTextColor={colors.PRIMARY_NORMAL}
@@ -86,7 +118,7 @@ class Login extends React.Component<any, any> {
           {/* <TouchableOpacity delayPressIn={0}>
             <Text style={{color: colors.PRIMARY_NORMAL, fontSize: 18}}>Resend Code</Text>
           </TouchableOpacity> */}
-          <TouchableOpacity onPress={() => { this.sendOTP() }} style={{ paddingHorizontal: 10, paddingVertical: 5 }}><Text style={{ color: "#4285F4", fontFamily: 'AvenirLTStd-Book' }}>Resend Code</Text></TouchableOpacity>
+          <TouchableOpacity disabled={this.state.disableResendButton} onPress={() => { this.sendOTP() }} style={{ paddingHorizontal: 10, paddingVertical: 5 }}><Text style={{ color: this.state.disableResendButton ? colors.PRIMARY_DISABLED : colors.PRIMARY_BASIC, fontFamily: 'AvenirLTStd-Book' }}>Resend Code</Text></TouchableOpacity>
           <TouchableOpacity style={[style.submitButton, { backgroundColor: this.state.code.length == 4 ? colors.PRIMARY_BASIC : colors.PRIMARY_DISABLED }]} delayPressIn={0} onPress={() => {
             if (this.state.code.length == 4 && !this.props.isVerifyingOTP) {
               this.props.verifyOTP(this.state.code, this.props.tfaDetails.countryCode, this.props.tfaDetails.contactNumber)

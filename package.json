@@ -88,6 +88,7 @@
     "react-native-screens": "2.10.1",
     "react-native-share": "^5.1.0",
     "react-native-simple-radio-button": "^2.7.4",
+    "react-native-sms-user-consent": "^1.0.51",
     "react-native-splash-screen": "^3.2.0",
     "react-native-svg": "12.1.0",
     "react-native-swipe-list-view": "3.2.3",

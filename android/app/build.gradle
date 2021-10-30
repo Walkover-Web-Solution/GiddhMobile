@@ -200,6 +200,8 @@ android {
 
 dependencies {
     compile 'com.android.support:multidex:1.0.0'
+    implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:17.4.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
