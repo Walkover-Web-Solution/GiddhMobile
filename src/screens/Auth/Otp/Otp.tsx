@@ -78,6 +78,8 @@ class Login extends React.Component<any, any> {
         await this.getSMSMessage()
         await this.setState({ disableResendButton: false })
       }
+    }else{
+      await this.setState({ disableResendButton: false })
     }
   }
   render() {

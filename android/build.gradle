@@ -2,10 +2,10 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "29.0.2"
+        buildToolsVersion = "30.0.0"
         minSdkVersion = 19
-        compileSdkVersion = 29
-        targetSdkVersion = 29
+        compileSdkVersion = 30
+        targetSdkVersion = 30
          googlePlayServicesAuthVersion = "18.0.0" // Google Sign in
     }
     repositories {
@@ -37,5 +37,23 @@ allprojects {
         jcenter()
         maven { url "https://storage.googleapis.com/logrocket-maven/" }
         maven { url 'https://www.jitpack.io' }
+    }
+}
+subprojects {
+    project.configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.android.support'
+                    && !details.requested.name.contains('multidex') ) {
+                details.useVersion "30.0.0"
+            }
+        }
+    }
+    afterEvaluate {
+        project -> if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion 30
+                buildToolsVersion '30.0.0'
+            }
+        }
     }
 }

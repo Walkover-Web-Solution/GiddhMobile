@@ -52,8 +52,11 @@ import Dropdown from 'react-native-modal-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PaymentServices } from '@/core/services/payment/payment';
 import TOAST from 'react-native-root-toast';
+import SMSUserConsent from 'react-native-sms-user-consent';
 
-
+interface SMSMessage {
+  receivedOtpMessage: string
+}
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 
@@ -103,7 +106,8 @@ class PartiesTransactionScreen extends React.Component {
       bankAccounts: [],
       OTPMessage: "",
       requestIdOTP: '',
-      paymentProcessing: false
+      paymentProcessing: false,
+      disableResendButton: false
     };
 
   }
@@ -116,6 +120,26 @@ class PartiesTransactionScreen extends React.Component {
       console.log('Initial Notification', notification);
     });
 
+  }
+
+  getSMSMessage = async () => {
+    try {
+      const message: SMSMessage = await SMSUserConsent.listenOTP()
+      let messageResponse = message.receivedOtpMessage.slice(15)
+      messageResponse = messageResponse.slice(0, 6)
+      console.log(messageResponse)
+      await this.setState({ code: messageResponse.toString() })
+    } catch (e) {
+      console.log(JSON.stringify(e))
+    }
+  }
+
+  removeSmsListener = () => {
+    try {
+      SMSUserConsent.removeOTPListener()
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async getBankAccountsData() {
@@ -909,20 +933,60 @@ class PartiesTransactionScreen extends React.Component {
 
   resendOTP = async () => {
     // Resend OTP
-    await this.setState({ code: '' })
-    const payload = {
-      bankName: this.state.bankAccounts[0].bankName,
-      urn: this.state.selectedPayor.urn,
-      uniqueName: this.state.bankAccounts[0].uniqueName,
-      totalAmount: (((this.state.totalAmount).substring(1)).replace(/,/g, '')).trim(),
-      bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route.params.item.uniqueName }]
-    }
-    console.log("Send OTP request " + JSON.stringify(payload))
-    const response = await PaymentServices.sendOTP(payload)
-    console.log("OTP response" + JSON.stringify(response))
-    if (response.status == "success") {
+    try {
+      await this.setState({ code: '', disableResendButton: true })
+      const payload = {
+        bankName: this.state.bankAccounts[0].bankName,
+        urn: this.state.selectedPayor.urn,
+        uniqueName: this.state.bankAccounts[0].uniqueName,
+        totalAmount: (((this.state.totalAmount).substring(1)).replace(/,/g, '')).trim(),
+        bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route.params.item.uniqueName }]
+      }
+      console.log("Send OTP request " + JSON.stringify(payload))
+      const response = await PaymentServices.sendOTP(payload)
+      console.log("OTP response" + JSON.stringify(response))
+      if (response.status == "success") {
+        if (Platform.OS == "ios") {
+          await this.setState({ disableResendButton: false })
+          TOAST.show(response.body.message, {
+            duration: TOAST.durations.LONG,
+            position: -150,
+            hideOnPress: true,
+            backgroundColor: "#1E90FF",
+            textColor: "white",
+            opacity: 1,
+            shadow: false,
+            animation: true,
+            containerStyle: { borderRadius: 10 }
+          });
+        } else {
+          ToastAndroid.show(response.body.message, ToastAndroid.LONG)
+          await this.removeSmsListener()
+          await this.getSMSMessage()
+        }
+        await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
+      } else {
+        await this.setState({ disableResendButton: false })
+        if (Platform.OS == "ios") {
+          TOAST.show(response.data.message, {
+            duration: TOAST.durations.LONG,
+            position: -150,
+            hideOnPress: true,
+            backgroundColor: "#1E90FF",
+            textColor: "white",
+            opacity: 1,
+            shadow: false,
+            animation: true,
+            containerStyle: { borderRadius: 10 }
+          });
+        } else {
+          ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+        }
+      }
+    } catch (e) {
+      await this.setState({ disableResendButton: false })
       if (Platform.OS == "ios") {
-        TOAST.show(response.body.message, {
+        TOAST.show("Error - Please try again", {
           duration: TOAST.durations.LONG,
           position: -150,
           hideOnPress: true,
@@ -934,25 +998,9 @@ class PartiesTransactionScreen extends React.Component {
           containerStyle: { borderRadius: 10 }
         });
       } else {
-        ToastAndroid.show(response.body.message, ToastAndroid.LONG)
+        ToastAndroid.show("Error - Please try again", ToastAndroid.LONG)
       }
-      await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId })
-    } else {
-      if (Platform.OS == "ios") {
-        TOAST.show(response.data.message, {
-          duration: TOAST.durations.LONG,
-          position: -150,
-          hideOnPress: true,
-          backgroundColor: "#1E90FF",
-          textColor: "white",
-          opacity: 1,
-          shadow: false,
-          animation: true,
-          containerStyle: { borderRadius: 10 }
-        });
-      } else {
-        ToastAndroid.show(response.data.message, ToastAndroid.LONG)
-      }
+      console.log("Error in sending OTP " + JSON.stringify(e))
     }
   }
 
@@ -1319,6 +1367,7 @@ class PartiesTransactionScreen extends React.Component {
                     style={{ width: '85%', height: 100, }}
                     pinCount={6}
                     code={this.state.code}
+                    textContentType="oneTimeCode"
                     onCodeChanged={code => { this.setState({ code }) }}
                     autoFocusOnLoad
                     codeInputFieldStyle={style.underlineStyleBase}
@@ -1328,8 +1377,8 @@ class PartiesTransactionScreen extends React.Component {
                     }}
                   />
                   <Text style={{ fontSize: 16, color: '#808080' }} >{this.state.OTPMessage}</Text>
-                  <TouchableOpacity onPress={() => this.resendOTP()}>
-                    <Text style={{ fontSize: 16, color: '#5773FF', marginTop: 10, marginBottom: 20 }} >Resend</Text>
+                  <TouchableOpacity disabled={this.state.disableResendButton} onPress={() => this.resendOTP()}>
+                    <Text style={{ fontSize: 16, color: this.state.disableResendButton ? colors.PRIMARY_DISABLED : '#5773FF', marginTop: 10, marginBottom: 20 }} >Resend</Text>
                   </TouchableOpacity>
                 </View> : null}
             </ScrollView>
