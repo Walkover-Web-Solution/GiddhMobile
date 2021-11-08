@@ -110,7 +110,7 @@ export class Vendors extends React.Component<Props> {
     partyName: '',
     contactNumber: '',
     emailId: '',
-    partyType: 'not applicable',
+    partyType: "NOT APPLICABLE",
     allPartyType: [],
     AllGroups: ['Sundry Creditors'],
     ref: RBSheet,
@@ -758,7 +758,8 @@ export class Vendors extends React.Component<Props> {
             console.log('w');
             this.setState({ partyDialog: false })
           }}
-          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%' }}
+          onRequestClose={()=>{this.setState({ partyDialog: false })}}
+          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%',marginTop:Platform.OS=="ios"?50:undefined }}
         >
           <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
           <FlatList
@@ -768,7 +769,7 @@ export class Vendors extends React.Component<Props> {
               return (
                 <TouchableOpacity
                   onPress={() => {
-                    this.setState({ partyType: item.item.value, partyDialog: false });
+                    this.setState({ partyType: item.item.label, partyDialog: false });
                   }}
                   key={item.item.value}
                   style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
@@ -778,7 +779,9 @@ export class Vendors extends React.Component<Props> {
           />
         </Dialog.Container>
         {this.state.successDialog
-          ? <Dialog.Container visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+          ? <Dialog.Container 
+          onRequestClose={()=>{this.setState({ successDialog: false })}}
+          visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Award />
             <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
             <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{`The Vendor is ${this.props.uniqueName != null ? 'updated' : 'created'} successfully.`}</Text>
@@ -806,7 +809,9 @@ export class Vendors extends React.Component<Props> {
           </Dialog.Container>
           : null}
         {this.state.faliureDialog
-          ? <Dialog.Container visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+          ? <Dialog.Container 
+          onRequestClose={()=>{this.setState({ faliureDialog: false })}}
+          visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Faliure />
             <Text style={{ color: '#F2596F', fontSize: 16 }}>Error!</Text>
             <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{this.state.faliureMessage != '' ? this.state.faliureMessage : "Sorry, Failed to import the entries."}</Text>

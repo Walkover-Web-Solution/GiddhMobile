@@ -1016,7 +1016,7 @@ class PartiesTransactionScreen extends React.Component {
     console.log("Payment payload " + JSON.stringify(payload))
     const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor.urn, this.state.bankAccounts[0].uniqueName)
     if (response.status == "success") {
-      await this.setState({ paymentProcessing: false })
+      this.props.navigation.navigate("Parties")
       if (Platform.OS == "ios") {
         await setTimeout(() => {
           TOAST.show(response.body.message, {
@@ -1034,9 +1034,9 @@ class PartiesTransactionScreen extends React.Component {
       } else {
         ToastAndroid.show(response.body.Message, ToastAndroid.LONG)
       }
-      this.props.navigation.navigate("Parties")
-    } else {
       await this.setState({ paymentProcessing: false })
+    } else {
+      await this.setState({ paymentProcessing: false,code: '' })
       if (Platform.OS == "ios") {
         await setTimeout(() => {
           TOAST.show(response.data.message, {
@@ -1292,7 +1292,7 @@ class PartiesTransactionScreen extends React.Component {
                     if (this.state.totalAmount == '') {
                       await this.setState({ totalAmountPlaceHolder: '' })
                     } else {
-                      let amount = await (this.currencyFormat(Number(((this.state.totalAmount).substring(1)).replace(/,/g, '')), this.props.route.params.activeCompany?.balanceDisplayFormat))
+                      let amount = await (this.currencyFormat(Number((this.state.totalAmount).replace(/[^0-9]/g,'').replace(/,/g, '')), this.props.route.params.activeCompany?.balanceDisplayFormat))
                       console.log("Total Amount with commas " + amount + " currency symbol " + this.state.currencySymbol)
                       if (amount == "NaN") {
                         if (Platform.OS == "ios") {
@@ -1326,11 +1326,12 @@ class PartiesTransactionScreen extends React.Component {
                     this.setState({ totalAmount: (text).replace(/[^0-9₹]/g, '') })
                   }}
                   style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
-                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
-                    'Total Amount' : (this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol) && this.state.currencySymbol != "" ? (this.state.currencySymbol).substring(1)
-                      : (this.state.currencySymbol)}</Text>
-                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
-                    '' : (this.state.totalAmount)}</Text>
+                  <Text style={{ color:'#1c1c1c'}}>{this.state.totalAmountPlaceHolder != '' ? ((this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol) && this.state.currencySymbol != "" ? (this.state.currencySymbol).substring(1)
+                      : (this.state.currencySymbol)):''}</Text>
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' &&
+                    'Total Amount'}</Text>
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder != '' &&
+                   (this.state.totalAmount)}</Text>
                   <Text style={{ color: '#E04646' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
@@ -1622,7 +1623,8 @@ class PartiesTransactionScreen extends React.Component {
                   </TouchableOpacity>
                 </View> :
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
-                  <TouchableOpacity onPress={async () => { this.confirmPayment() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
+                  <TouchableOpacity disabled={this.state.paymentProcessing} onPress={async () => { this.confirmPayment() }} 
+                  style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.paymentProcessing?'#ACBAFF':'#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: "white" }}>{"Confirm"}</Text>
                   </TouchableOpacity>
                 </View>)
