@@ -567,9 +567,9 @@ export class Vendors extends React.Component<Props> {
       }
       return true
     } else {
-      if (this.state.bankName == '' && this.state.beneficiaryName == '' && this.state.bankBranchName == '' && this.state.bankAccountSwiftCode != '' && this.state.bankAccountNumber != '') {
+      if (this.state.bankName == '' && this.state.beneficiaryName == '' && this.state.bankBranchName == '' && this.state.bankAccountSwiftCode == '' && this.state.bankAccountNumber == '') {
         return true
-      } else if (this.state.bankName == '' || this.state.beneficiaryName == '' || this.state.bankBranchName == '' || this.state.bankAccountSwiftCode != '' || this.state.bankAccountNumber != '') {
+      } else if (this.state.bankName == '' || this.state.beneficiaryName == '' || this.state.bankBranchName == '' || this.state.bankAccountSwiftCode == '' || this.state.bankAccountNumber == '') {
         Alert.alert('Error', 'All the bank fields are mandatory if you provide data for any of them', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return false
       }

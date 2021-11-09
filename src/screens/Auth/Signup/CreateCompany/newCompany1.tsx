@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, StatusBar, ScrollView, Platform, Dimensions, Alert } from 'react-native';
+import { View, TouchableOpacity, StatusBar, ScrollView, Platform, Dimensions, Alert, FlatList } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Foundation from 'react-native-vector-icons/Foundation';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -15,7 +16,10 @@ import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as CommonActions from '@/redux/CommonAction';
+import CountryPicker from 'react-native-country-picker-modal'
+import Modal from 'react-native-modal';
 
+var PhoneNumber = require('awesome-phonenumber');
 class NewCompany extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -23,8 +27,21 @@ class NewCompany extends React.Component<any, any> {
             userName: "",
             companyName: '',
             companyNamePlaceholder: '',
-            countryName: null,
-            currency: null,
+            countryName: {
+                "alpha3CountryCode": "IND",
+                "alpha2CountryCode": "IN",
+                "countryName": "India",
+                "callingCode": "91",
+                "currency": {
+                    "code": "INR",
+                    "symbol": "₹"
+                },
+                "countryIndia": true
+            },
+            currency: {
+                "code": "INR",
+                "symbol": "₹"
+            },
             mobileNumber: '',
             mobileNumberPlaceHolder: '',
             isMobileNoValid: false,
@@ -152,8 +169,12 @@ class NewCompany extends React.Component<any, any> {
                 }
             ],
             currencyData: [{ "code": "AMD", "symbol": "֏" }, { "code": "AZN", "symbol": "₼" }, { "code": "BAM", "symbol": "KM" }, { "code": "KZT", "symbol": "₸" }, { "code": "LTL", "symbol": "Lt" }, { "code": "LVL", "symbol": "Ls" }, { "code": "EEK", "symbol": "kr" }, { "code": "STD", "symbol": "Db" }, { "code": "SCR", "symbol": "SRe" }, { "code": "SLL", "symbol": "Le" }, { "code": "SBD", "symbol": "$" }, { "code": "SZL", "symbol": "L" }, { "code": "TJS", "symbol": "ЅМ" }, { "code": "FKP", "symbol": "£" }, { "code": "LAK", "symbol": "₭" }, { "code": "KPW", "symbol": "₩" }, { "code": "SHP", "symbol": "£" }, { "code": "XCD", "symbol": "$" }, { "code": "USD", "symbol": "$" }, { "code": "CAD", "symbol": "$" }, { "code": "EUR", "symbol": "€" }, { "code": "AED", "symbol": "د.إ" }, { "code": "AFN", "symbol": "؋" }, { "code": "ALL", "symbol": "L" }, { "code": "ARS", "symbol": "$" }, { "code": "AUD", "symbol": "$" }, { "code": "BDT", "symbol": "৳" }, { "code": "BGN", "symbol": "лв" }, { "code": "BHD", "symbol": ".د.ب" }, { "code": "BIF", "symbol": "Fr" }, { "code": "BND", "symbol": "$" }, { "code": "BOB", "symbol": "Bs." }, { "code": "BRL", "symbol": "R$" }, { "code": "BWP", "symbol": "P" }, { "code": "BYR", "symbol": "Br" }, { "code": "BZD", "symbol": "$" }, { "code": "CDF", "symbol": "Fr" }, { "code": "CHF", "symbol": "Fr" }, { "code": "CLP", "symbol": "$" }, { "code": "CNY", "symbol": "¥" }, { "code": "COP", "symbol": "$" }, { "code": "CRC", "symbol": "₡" }, { "code": "CVE", "symbol": "Esc" }, { "code": "CZK", "symbol": "Kč" }, { "code": "DJF", "symbol": "Fr" }, { "code": "DKK", "symbol": "kr" }, { "code": "DOP", "symbol": "$" }, { "code": "DZD", "symbol": "د.ج" }, { "code": "EGP", "symbol": "£" }, { "code": "SRD", "symbol": "$" }, { "code": "FJD", "symbol": "$" }, { "code": "XPF", "symbol": "₣" }, { "code": "GMD", "symbol": "D" }, { "code": "GIP", "symbol": "£" }, { "code": "GYD", "symbol": "$" }, { "code": "HTG", "symbol": "G" }, { "code": "KGS", "symbol": "Лв" }, { "code": "LSL", "symbol": "M" }, { "code": "LRD", "symbol": "$" }, { "code": "MWK", "symbol": "MK" }, { "code": "MVR", "symbol": ".ރ" }, { "code": "MRO", "symbol": "UM" }, { "code": "MNT", "symbol": "₮" }, { "code": "PGK", "symbol": "K" }, { "code": "WST", "symbol": "T" }, { "code": "AOA", "symbol": "Kz" }, { "code": "AWG", "symbol": "ƒ" }, { "code": "BSD", "symbol": "$" }, { "code": "BBD", "symbol": "$" }, { "code": "BYN", "symbol": "Br" }, { "code": "BMD", "symbol": "$" }, { "code": "BTN", "symbol": "Nu." }, { "code": "KYD", "symbol": "$" }, { "code": "CUC", "symbol": "$" }, { "code": "CUP", "symbol": "$" }, { "code": "TMT", "symbol": "m" }, { "code": "VUV", "symbol": "Vt" }, { "code": "ERN", "symbol": "Nfk" }, { "code": "ETB", "symbol": "Br" }, { "code": "GBP", "symbol": "£" }, { "code": "GEL", "symbol": "ლ" }, { "code": "GHS", "symbol": "₵" }, { "code": "GNF", "symbol": "Fr" }, { "code": "GTQ", "symbol": "Q" }, { "code": "HKD", "symbol": "$" }, { "code": "HNL", "symbol": "L" }, { "code": "HRK", "symbol": "kn" }, { "code": "HUF", "symbol": "Ft" }, { "code": "IDR", "symbol": "Rp" }, { "code": "ILS", "symbol": "₪" }, { "code": "INR", "symbol": "₹" }, { "code": "IQD", "symbol": "ع.د" }, { "code": "IRR", "symbol": "﷼" }, { "code": "ISK", "symbol": "kr" }, { "code": "JMD", "symbol": "$" }, { "code": "JOD", "symbol": "د.ا" }, { "code": "JPY", "symbol": "¥" }, { "code": "KES", "symbol": "Sh" }, { "code": "KHR", "symbol": "៛" }, { "code": "KMF", "symbol": "Fr" }, { "code": "KRW", "symbol": "₩" }, { "code": "KWD", "symbol": "د.ك" }, { "code": "LBP", "symbol": "ل.ل" }, { "code": "LKR", "symbol": "Rs" }, { "code": "LYD", "symbol": "ل.د" }, { "code": "MAD", "symbol": "د.م." }, { "code": "MDL", "symbol": "L" }, { "code": "MGA", "symbol": "Ar" }, { "code": "MKD", "symbol": "ден" }, { "code": "MMK", "symbol": "Ks" }, { "code": "MOP", "symbol": "P" }, { "code": "MUR", "symbol": "₨" }, { "code": "MXN", "symbol": "$" }, { "code": "MYR", "symbol": "RM" }, { "code": "MZN", "symbol": "MT" }, { "code": "NAD", "symbol": "$" }, { "code": "NGN", "symbol": "₦" }, { "code": "NIO", "symbol": "C$" }, { "code": "NOK", "symbol": "kr" }, { "code": "NPR", "symbol": "₨" }, { "code": "NZD", "symbol": "$" }, { "code": "OMR", "symbol": "ر.ع." }, { "code": "PAB", "symbol": "B/." }, { "code": "PEN", "symbol": "S/." }, { "code": "PHP", "symbol": "₱" }, { "code": "PKR", "symbol": "₨" }, { "code": "PLN", "symbol": "zł" }, { "code": "PYG", "symbol": "₲" }, { "code": "QAR", "symbol": "ر.ق" }, { "code": "RON", "symbol": "lei" }, { "code": "RSD", "symbol": "дин." }, { "code": "RUB", "symbol": "₽" }, { "code": "RWF", "symbol": "Fr" }, { "code": "SAR", "symbol": "ر.س" }, { "code": "SDG", "symbol": "ج.س." }, { "code": "SEK", "symbol": "kr" }, { "code": "SGD", "symbol": "$" }, { "code": "SOS", "symbol": "Sh" }, { "code": "SYP", "symbol": "£" }, { "code": "THB", "symbol": "฿" }, { "code": "TND", "symbol": "د.ت" }, { "code": "TOP", "symbol": "T$" }, { "code": "TTD", "symbol": "$" }, { "code": "TWD", "symbol": "$" }, { "code": "TZS", "symbol": "Sh" }, { "code": "UAH", "symbol": "₴" }, { "code": "UGX", "symbol": "Sh" }, { "code": "UYU", "symbol": "$" }, { "code": "VEF", "symbol": "Bs F" }, { "code": "VND", "symbol": "₫" }, { "code": "XAF", "symbol": "Fr" }, { "code": "XOF", "symbol": "Fr" }, { "code": "YER", "symbol": "﷼" }, { "code": "ZAR", "symbol": "Rs" }, { "code": "TRY", "symbol": "₺" }, { "code": "UZS", "symbol": "so'm" }, { "code": "ZMW", "symbol": "ZK" }],
+            filteredCurrencyData: [{ "code": "AMD", "symbol": "֏" }, { "code": "AZN", "symbol": "₼" }, { "code": "BAM", "symbol": "KM" }, { "code": "KZT", "symbol": "₸" }, { "code": "LTL", "symbol": "Lt" }, { "code": "LVL", "symbol": "Ls" }, { "code": "EEK", "symbol": "kr" }, { "code": "STD", "symbol": "Db" }, { "code": "SCR", "symbol": "SRe" }, { "code": "SLL", "symbol": "Le" }, { "code": "SBD", "symbol": "$" }, { "code": "SZL", "symbol": "L" }, { "code": "TJS", "symbol": "ЅМ" }, { "code": "FKP", "symbol": "£" }, { "code": "LAK", "symbol": "₭" }, { "code": "KPW", "symbol": "₩" }, { "code": "SHP", "symbol": "£" }, { "code": "XCD", "symbol": "$" }, { "code": "USD", "symbol": "$" }, { "code": "CAD", "symbol": "$" }, { "code": "EUR", "symbol": "€" }, { "code": "AED", "symbol": "د.إ" }, { "code": "AFN", "symbol": "؋" }, { "code": "ALL", "symbol": "L" }, { "code": "ARS", "symbol": "$" }, { "code": "AUD", "symbol": "$" }, { "code": "BDT", "symbol": "৳" }, { "code": "BGN", "symbol": "лв" }, { "code": "BHD", "symbol": ".د.ب" }, { "code": "BIF", "symbol": "Fr" }, { "code": "BND", "symbol": "$" }, { "code": "BOB", "symbol": "Bs." }, { "code": "BRL", "symbol": "R$" }, { "code": "BWP", "symbol": "P" }, { "code": "BYR", "symbol": "Br" }, { "code": "BZD", "symbol": "$" }, { "code": "CDF", "symbol": "Fr" }, { "code": "CHF", "symbol": "Fr" }, { "code": "CLP", "symbol": "$" }, { "code": "CNY", "symbol": "¥" }, { "code": "COP", "symbol": "$" }, { "code": "CRC", "symbol": "₡" }, { "code": "CVE", "symbol": "Esc" }, { "code": "CZK", "symbol": "Kč" }, { "code": "DJF", "symbol": "Fr" }, { "code": "DKK", "symbol": "kr" }, { "code": "DOP", "symbol": "$" }, { "code": "DZD", "symbol": "د.ج" }, { "code": "EGP", "symbol": "£" }, { "code": "SRD", "symbol": "$" }, { "code": "FJD", "symbol": "$" }, { "code": "XPF", "symbol": "₣" }, { "code": "GMD", "symbol": "D" }, { "code": "GIP", "symbol": "£" }, { "code": "GYD", "symbol": "$" }, { "code": "HTG", "symbol": "G" }, { "code": "KGS", "symbol": "Лв" }, { "code": "LSL", "symbol": "M" }, { "code": "LRD", "symbol": "$" }, { "code": "MWK", "symbol": "MK" }, { "code": "MVR", "symbol": ".ރ" }, { "code": "MRO", "symbol": "UM" }, { "code": "MNT", "symbol": "₮" }, { "code": "PGK", "symbol": "K" }, { "code": "WST", "symbol": "T" }, { "code": "AOA", "symbol": "Kz" }, { "code": "AWG", "symbol": "ƒ" }, { "code": "BSD", "symbol": "$" }, { "code": "BBD", "symbol": "$" }, { "code": "BYN", "symbol": "Br" }, { "code": "BMD", "symbol": "$" }, { "code": "BTN", "symbol": "Nu." }, { "code": "KYD", "symbol": "$" }, { "code": "CUC", "symbol": "$" }, { "code": "CUP", "symbol": "$" }, { "code": "TMT", "symbol": "m" }, { "code": "VUV", "symbol": "Vt" }, { "code": "ERN", "symbol": "Nfk" }, { "code": "ETB", "symbol": "Br" }, { "code": "GBP", "symbol": "£" }, { "code": "GEL", "symbol": "ლ" }, { "code": "GHS", "symbol": "₵" }, { "code": "GNF", "symbol": "Fr" }, { "code": "GTQ", "symbol": "Q" }, { "code": "HKD", "symbol": "$" }, { "code": "HNL", "symbol": "L" }, { "code": "HRK", "symbol": "kn" }, { "code": "HUF", "symbol": "Ft" }, { "code": "IDR", "symbol": "Rp" }, { "code": "ILS", "symbol": "₪" }, { "code": "INR", "symbol": "₹" }, { "code": "IQD", "symbol": "ع.د" }, { "code": "IRR", "symbol": "﷼" }, { "code": "ISK", "symbol": "kr" }, { "code": "JMD", "symbol": "$" }, { "code": "JOD", "symbol": "د.ا" }, { "code": "JPY", "symbol": "¥" }, { "code": "KES", "symbol": "Sh" }, { "code": "KHR", "symbol": "៛" }, { "code": "KMF", "symbol": "Fr" }, { "code": "KRW", "symbol": "₩" }, { "code": "KWD", "symbol": "د.ك" }, { "code": "LBP", "symbol": "ل.ل" }, { "code": "LKR", "symbol": "Rs" }, { "code": "LYD", "symbol": "ل.د" }, { "code": "MAD", "symbol": "د.م." }, { "code": "MDL", "symbol": "L" }, { "code": "MGA", "symbol": "Ar" }, { "code": "MKD", "symbol": "ден" }, { "code": "MMK", "symbol": "Ks" }, { "code": "MOP", "symbol": "P" }, { "code": "MUR", "symbol": "₨" }, { "code": "MXN", "symbol": "$" }, { "code": "MYR", "symbol": "RM" }, { "code": "MZN", "symbol": "MT" }, { "code": "NAD", "symbol": "$" }, { "code": "NGN", "symbol": "₦" }, { "code": "NIO", "symbol": "C$" }, { "code": "NOK", "symbol": "kr" }, { "code": "NPR", "symbol": "₨" }, { "code": "NZD", "symbol": "$" }, { "code": "OMR", "symbol": "ر.ع." }, { "code": "PAB", "symbol": "B/." }, { "code": "PEN", "symbol": "S/." }, { "code": "PHP", "symbol": "₱" }, { "code": "PKR", "symbol": "₨" }, { "code": "PLN", "symbol": "zł" }, { "code": "PYG", "symbol": "₲" }, { "code": "QAR", "symbol": "ر.ق" }, { "code": "RON", "symbol": "lei" }, { "code": "RSD", "symbol": "дин." }, { "code": "RUB", "symbol": "₽" }, { "code": "RWF", "symbol": "Fr" }, { "code": "SAR", "symbol": "ر.س" }, { "code": "SDG", "symbol": "ج.س." }, { "code": "SEK", "symbol": "kr" }, { "code": "SGD", "symbol": "$" }, { "code": "SOS", "symbol": "Sh" }, { "code": "SYP", "symbol": "£" }, { "code": "THB", "symbol": "฿" }, { "code": "TND", "symbol": "د.ت" }, { "code": "TOP", "symbol": "T$" }, { "code": "TTD", "symbol": "$" }, { "code": "TWD", "symbol": "$" }, { "code": "TZS", "symbol": "Sh" }, { "code": "UAH", "symbol": "₴" }, { "code": "UGX", "symbol": "Sh" }, { "code": "UYU", "symbol": "$" }, { "code": "VEF", "symbol": "Bs F" }, { "code": "VND", "symbol": "₫" }, { "code": "XAF", "symbol": "Fr" }, { "code": "XOF", "symbol": "Fr" }, { "code": "YER", "symbol": "﷼" }, { "code": "ZAR", "symbol": "Rs" }, { "code": "TRY", "symbol": "₺" }, { "code": "UZS", "symbol": "so'm" }, { "code": "ZMW", "symbol": "ZK" }],
             allCallingCode: ["590", "591", "350", "592", "230", "351", "593", "352", "231", "353", "595", "232", "354", "233", "234", "355", "597", "356", "235", "598", "236", "357", "237", "358", "359", "238", "239", "1473", "240", "241", "242", "1", "243", "244", "245", "246", "1345", "248", "249", "7", "20", "27", "1242", "370", "371", "250", "372", "251", "252", "373", "374", "253", "254", "375", "376", "255", "377", "256", "378", "257", "258", "379", "30", "31", "32", "33", "34", "36", "39", "1809", "380", "381", "260", "261", "382", "262", "263", "264", "385", "386", "265", "387", "266", "267", "1246", "389", "268", "269", "40", "41", "43", "44", "45", "46", "47", "48", "49", "1264", "51", "52", "53", "54", "55", "56", "57", "58", "960", "961", "1268", "962", "963", "964", "965", "966", "60", "967", "968", "61", "62", "63", "4779", "64", "65", "66", "290", "291", "1284", "297", "298", "299", "850", "971", "972", "852", "973", "974", "853", "975", "855", "976", "977", "856", "76", "500", "501", "502", "503", "504", "81", "505", "82", "506", "507", "84", "508", "86", "509", "992", "993", "994", "995", "996", "90", "91", "998", "92", "93", "94", "95", "98", "880", "886", "1869", "1868", "1 340", "1876", "1758", "1767", "420", "421", "423", "1649", "670", "672", "673", "674", "675", "676", "677", "678", "679", "1671", "1670", "680", "681", "682", "683", "1787", "685", "686", "1664", "1784", "687", "688", "689", "690", "691", "692", "212", "213", "216", "218", "220", "221", "222", "223", "224", "225", "1684", "226", "227", "1441", "228", "229"],
+            filteredCallingCode: ["590", "591", "350", "592", "230", "351", "593", "352", "231", "353", "595", "232", "354", "233", "234", "355", "597", "356", "235", "598", "236", "357", "237", "358", "359", "238", "239", "1473", "240", "241", "242", "1", "243", "244", "245", "246", "1345", "248", "249", "7", "20", "27", "1242", "370", "371", "250", "372", "251", "252", "373", "374", "253", "254", "375", "376", "255", "377", "256", "378", "257", "258", "379", "30", "31", "32", "33", "34", "36", "39", "1809", "380", "381", "260", "261", "382", "262", "263", "264", "385", "386", "265", "387", "266", "267", "1246", "389", "268", "269", "40", "41", "43", "44", "45", "46", "47", "48", "49", "1264", "51", "52", "53", "54", "55", "56", "57", "58", "960", "961", "1268", "962", "963", "964", "965", "966", "60", "967", "968", "61", "62", "63", "4779", "64", "65", "66", "290", "291", "1284", "297", "298", "299", "850", "971", "972", "852", "973", "974", "853", "975", "855", "976", "977", "856", "76", "500", "501", "502", "503", "504", "81", "505", "82", "506", "507", "84", "508", "86", "509", "992", "993", "994", "995", "996", "90", "91", "998", "92", "93", "94", "95", "98", "880", "886", "1869", "1868", "1 340", "1876", "1758", "1767", "420", "421", "423", "1649", "670", "672", "673", "674", "675", "676", "677", "678", "679", "1671", "1670", "680", "681", "682", "683", "1787", "685", "686", "1664", "1784", "687", "688", "689", "690", "691", "692", "212", "213", "216", "218", "220", "221", "222", "223", "224", "225", "1684", "226", "227", "1441", "228", "229"],
             selectedCallingCode: "91",
+            isMobileModalVisible: false,
+            isCurrencyModalVisible: false,
         };
     }
 
@@ -191,7 +212,148 @@ class NewCompany extends React.Component<any, any> {
         return false
     }
 
+    onSelect = (country: any) => {
+        for (let i = 0; i < this.state.countryData.length; i++) {
+            if (this.state.countryData[i].alpha2CountryCode.includes(country.cca2)) {
+                this.setState({
+                    countryName: this.state.countryData[i], currency: this.state.countryData[i].currency,
+                    selectedCallingCode: this.state.countryData[i].callingCode
+                })
+                this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
+            }
+        }
+    }
 
+    getMobilePlaceHolder = () => {
+        let placeholder = PhoneNumber.getExample(PhoneNumber.getRegionCodeForCountryCode(this.state.selectedCallingCode), 'mobile').getNumber('significant')
+        return placeholder
+    }
+
+    searchCallingCode = (text: string) => {
+        if (text == '') {
+            this.setState({
+                filteredCallingCode: this.state.allCallingCode,
+            })
+            return
+        }
+        let filteredCallingCode: any[] = [];
+        for (let i = 0; i < this.state.allCallingCode.length; i++) {
+            if (this.state.allCallingCode[i].includes(text)) {
+                filteredCallingCode.push(this.state.allCallingCode[i]);
+            }
+        }
+        this.setState({ filteredCallingCode })
+    };
+
+    searchCurrency = (text: string) => {
+        if (text == '') {
+            this.setState({
+                filteredCurrencyData: this.state.currencyData,
+            })
+            return
+        }
+        let filteredCurrencyData: any[] = [];
+        for (let i = 0; i < this.state.filteredCurrencyData.length; i++) {
+            if (this.state.filteredCurrencyData[i].code.toLowerCase().includes(text.toLowerCase())) {
+                filteredCurrencyData.push(this.state.filteredCurrencyData[i]);
+            }
+        }
+        this.setState({ filteredCurrencyData })
+    };
+
+    renderItem(callingCode: any) {
+        return (
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
+                    onPress={() => {
+                        this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible, selectedCallingCode: callingCode })
+                        this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
+                    }}>
+                    <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{callingCode}</Text>
+                </TouchableOpacity>
+                <View style={style.borderInModal} />
+            </View>
+        );
+    }
+
+    renderCurrencyItem(Currency: any) {
+        return (
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <TouchableOpacity style={{ paddingVertical: 10, width: "90%", flexDirection: "row", justifyContent: "space-between",}}
+                    onPress={() => {
+                        this.setState({ currency: Currency, isCurrencyModalVisible: !this.state.isCurrencyModalVisible })
+                    }}>
+                    <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.code}</Text>
+                    <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.symbol}</Text>
+                </TouchableOpacity>
+                <View style={style.borderInModal} />
+            </View>
+        );
+    }
+
+    renderModalView = () => {
+        return (
+            <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
+                onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
+                style={style.modalMobileContainer}>
+                <View style={style.modalViewContainer}>
+                    <View style={style.cancelButtonModal} >
+                        <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }} style={style.cancelButtonTextModal}>
+                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+                        </TouchableOpacity>
+                        <TextInput
+                            placeholderTextColor={'rgba(80,80,80,0.5)'}
+                            placeholder="Enter Calling Code"
+                            style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+                            onChangeText={(text) => {
+                                this.searchCallingCode(text);
+                            }}
+                        />
+                    </View>
+                    <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+                        <FlatList
+                            scrollEnabled
+                            data={this.state.filteredCallingCode}
+                            renderItem={({ item }) => this.renderItem(item)}
+                            keyExtractor={(item, index) => index.toString()}
+                        />
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
+    renderCurrencyModalView = () => {
+        return (
+            <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
+                onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
+                style={style.modalMobileContainer}>
+                <View style={style.modalViewContainer}>
+                    <View style={style.cancelButtonModal} >
+                        <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }} style={style.cancelButtonTextModal}>
+                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+                        </TouchableOpacity>
+                        <TextInput
+                            placeholderTextColor={'rgba(80,80,80,0.5)'}
+                            placeholder="Enter Currency e.g. INR"
+                            style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+                            onChangeText={(text) => {
+                                this.searchCurrency(text);
+                            }}
+                        />
+                    </View>
+                    <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+                        <FlatList
+                            scrollEnabled
+                            data={this.state.filteredCurrencyData}
+                            renderItem={({ item }) => this.renderCurrencyItem(item)}
+                            keyExtractor={(item, index) => index.toString()}
+                        />
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
 
     render() {
         return (
@@ -201,7 +363,7 @@ class NewCompany extends React.Component<any, any> {
                     <Text style={style.Heading}>{"Welcome " + this.state.userName + "!"}</Text>
                     <Text style={style.text}>Enter the following deatils to start hassel free accounting with Giddh </Text>
                     <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
-                        <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4 ,paddingBottom:3}} />
+                        <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4, paddingBottom: 3 }} />
                         <TextInput
                             onBlur={() => {
                                 if (this.state.companyName == '') {
@@ -222,10 +384,24 @@ class NewCompany extends React.Component<any, any> {
                         </TextInput>
                     </View>
                     <View style={{ marginTop: 30, flexDirection: "row", }}>
-                        <View style={{ width: "48%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
+                        <View style={{ width: "67%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                             <Foundation name="flag" size={21} color={'#5773FF'} style={{ marginTop: 4 }} />
-                            <Dropdown
-                                style={{ flex: 1, marginLeft: 20, marginTop: Platform.OS=="ios"?4:1 }}
+                            <View style={{ flex: 1, marginLeft: 15, marginTop: Platform.OS == "ios" ? 4 : 1 }}>
+                                <CountryPicker
+                                    countryCode={this.state.countryName.alpha2CountryCode}
+                                    countryCodes={["IN", "KW", "NP", "OM", "QA", "SA", "AU", "BH", "GB", "AE", "US",]}
+                                    theme={{ fontSize: 15, flagSizeButton: 15, fontFamily: 'AvenirLTStd-Book', primaryColor: '#1c1c1c' }}
+                                    withFilter={true}
+                                    withFlag={false}
+                                    withCountryNameButton={true}
+                                    withAlphaFilter={true}
+                                    withCallingCode={true}
+                                    withEmoji={true}
+                                    onSelect={this.onSelect}
+                                />
+                            </View>
+                            {/* <Dropdown
+                                style={{ flex: 1, marginLeft: 20, marginTop: Platform.OS == "ios" ? 4 : 1 }}
                                 textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
                                 options={this.state.countryData}
                                 renderSeparator={() => {
@@ -249,15 +425,24 @@ class NewCompany extends React.Component<any, any> {
                                         {this.state.countryName == null ? 'Country' : (this.state.countryName.alpha3CountryCode + " - " + this.state.countryName.countryName)}</Text>
                                     <Text style={{ color: '#E04646' }}>{this.state.countryName == null ? '*' : ''}</Text>
                                 </View>
-                            </Dropdown>
+                            </Dropdown> */}
                         </View>
                         <View style={{ width: 10 }} />
-                        <View style={{ width: "48%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
+                        <View style={{ width: "30%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                             <View style={{ backgroundColor: '#5773FF', width: 20, height: 20, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
                                 <FontAwesome name={'dollar'} color="white" size={14} />
                             </View>
-                            <Dropdown
-                                style={{ flex: 1, marginLeft: 20, marginTop: Platform.OS=="ios"?4:1  }}
+                            <TouchableOpacity
+                                onPress={() => {
+                                    this.setState({
+                                        isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
+                                        filteredCurrencyData: this.state.currencyData,
+                                    })
+                                }} style={{ padding: 2 }}><Text
+                                    style={{ color: '#1C1C1C', fontSize: 15, marginTop: 3, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
+                                >{this.state.currency.code}</Text></TouchableOpacity>
+                            {/* <Dropdown
+                                style={{ flex: 1, marginLeft: 20, marginTop: Platform.OS == "ios" ? 4 : 5 }}
                                 textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
                                 options={this.state.currencyData}
                                 renderSeparator={() => {
@@ -277,13 +462,20 @@ class NewCompany extends React.Component<any, any> {
                                         {this.state.currency == null ? 'Currency' : this.state.currency.code}</Text>
                                     <Text style={{ color: '#E04646' }}>{this.state.currency == null ? '*' : ''}</Text>
                                 </View>
-                            </Dropdown>
+                            </Dropdown> */}
                         </View>
                     </View>
                     <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                         <MaterialCommunityIcons name="phone-in-talk" size={17.5} color={'#5773FF'} style={{ marginTop: 4 }} />
-                        <Dropdown
-                            textStyle={{ color: '#1C1C1C', fontSize: 15, marginTop: Platform.OS=="ios"?3:5, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
+                        <TouchableOpacity onPress={() => {
+                            this.setState({
+                                isMobileModalVisible: !this.state.isMobileModalVisible, filteredCallingCode: this.state.allCallingCode,
+                            })
+                        }} style={{ padding: 2 }}><Text
+                            style={{ color: '#1C1C1C', fontSize: 15, marginTop: Platform.OS == "ios" ? 1 : 2.5, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
+                        >{this.state.selectedCallingCode}</Text></TouchableOpacity>
+                        {/* <Dropdown
+                            textStyle={{ color: '#1C1C1C', fontSize: 15, marginTop: Platform.OS == "ios" ? 3 : 5, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
                             defaultValue={this.state.selectedCallingCode}
                             renderButtonText={(text) => {
                                 return text;
@@ -292,14 +484,17 @@ class NewCompany extends React.Component<any, any> {
                             renderSeparator={() => {
                                 return (<View></View>);
                             }}
-                            onSelect={(idx, value) => this.setState({ selectedCallingCode: value })}
+                            onSelect={async (idx, value) => {
+                                await this.setState({ selectedCallingCode: value })
+                                await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
+                            }}
 
                             dropdownStyle={{ width: '17%', marginTop: 6 }}
                             dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
                             renderRow={(options) => {
                                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
                             }}
-                        />
+                        /> */}
                         <TextInput
                             keyboardType={'number-pad'}
                             returnKeyType={'done'}
@@ -319,13 +514,17 @@ class NewCompany extends React.Component<any, any> {
                                 })
                             }
                             }
-                            style={style.companyName}>
+                            style={[style.companyName, { marginLeft: 5, }]}>
                             <Text style={{ color: this.state.mobileNumberPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>
-                                {this.state.mobileNumberPlaceHolder == '' ? 'Mobile Number' : this.state.mobileNumber}</Text>
+                                {this.state.mobileNumberPlaceHolder == '' ?
+                                    this.getMobilePlaceHolder()
+                                    : this.state.mobileNumber}</Text>
                             <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.mobileNumberPlaceHolder == '' ? '*' : ''}</Text>
                         </TextInput>
                     </View>
                     {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 30 }}>Sorry! Invalid Number</Text>}
+                    {this.renderModalView()}
+                    {this.renderCurrencyModalView()}
                 </ScrollView>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", position: "absolute", bottom: 20, marginHorizontal: 15, width: "100%" }}>
                     <TouchableOpacity
@@ -354,7 +553,7 @@ class NewCompany extends React.Component<any, any> {
                                     currency: this.state.currency,
                                     mobileNumber: this.state.mobileNumber,
                                     callingCode: this.state.selectedCallingCode,
-                                    oldUser:this.props.route.params?this.props.route.params.oldUser:false
+                                    oldUser: this.props.route.params ? this.props.route.params.oldUser : false
                                 })
                             } else {
                                 Alert.alert("Missing Fields", "Enter all the mandatory fields",
