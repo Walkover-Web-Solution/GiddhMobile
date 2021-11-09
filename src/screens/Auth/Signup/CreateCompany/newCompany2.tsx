@@ -199,6 +199,12 @@ class NewCompanyDetails extends React.Component<any, any> {
     console.log("create Company Response " + JSON.stringify(response))
     if (response.status == "success") {
       // ToastAndroid.show("Company created Successfully", ToastAndroid.LONG)
+      await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, response.body.subscription.country.countryCode);
+      await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, response.body.uniqueName);
+      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName,  " ");
+      if(this.props.route.params.oldUser){
+        this.props.navigation.navigate('Home');
+      }
       await this.props.getCompanyAndBranches();
       await DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
       await setTimeout(() => { this.setState({ loader: false, disbaleCreateButton: false }) }, 5000)

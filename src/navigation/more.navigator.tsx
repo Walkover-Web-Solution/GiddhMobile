@@ -19,8 +19,8 @@ function MoreStack () {
       initialRouteName={'MoreScreen'}>
       <Screen component={MoreScreen} name={'More'} />
       <Screen component={SettingsScreen} name={'Settings'} />
-      <Screen component={ChangeCompany} name={'ChangeCompany'} />
-      <Screen component={BranchChange} name={'BranchChange'} />
+      {/* <Screen component={ChangeCompany} name={'ChangeCompany'} /> */}
+      {/* <Screen component={BranchChange} name={'BranchChange'} /> */}
       <Screen component={HelpScreen} name={'HelpScreen'} />
       <Screen component={SalesInvoiceScreen} name={'SalesInvoiceScreen'} />
     </Navigator>

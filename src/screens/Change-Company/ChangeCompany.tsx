@@ -1,6 +1,6 @@
 import React from 'react';
 import { GDContainer } from '@/core/components/container/container.component';
-import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar,Platform } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar, Platform } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -13,13 +13,15 @@ import color from '@/utils/colors';
 import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import LogRocket from '@logrocket/react-native';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 interface Props {
   navigation: any;
 }
+const SIZE = 48;
 
 export class ChangeCompany extends React.Component<Props> {
-  constructor (props: MoreComponentProp) {
+  constructor(props: MoreComponentProp) {
     super(props);
     this.state = {
       loading: false
@@ -27,7 +29,7 @@ export class ChangeCompany extends React.Component<Props> {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
 
   /**
@@ -35,7 +37,7 @@ export class ChangeCompany extends React.Component<Props> {
    * @param companyName 
    * @param BranchName 
    */
-   addUserDeatilsToLogRocket = async (companyName: string, BranchName: string) => {
+  addUserDeatilsToLogRocket = async (companyName: string, BranchName: string) => {
     var userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
     var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
     if (userName == null) {
@@ -44,17 +46,17 @@ export class ChangeCompany extends React.Component<Props> {
     if (userEmail == null) {
       userEmail = "";
     }
-    console.log("Current company and Branch name "+userName+" "+userEmail+" "+companyName+" "+BranchName)
+    console.log("Current company and Branch name " + userName + " " + userEmail + " " + companyName + " " + BranchName)
     LogRocket.identify(userEmail, {
       name: userName,
       email: userEmail,
       CompanyName: companyName,
       BranchName: BranchName,
-      newUser:false
+      newUser: false
     });
   }
 
-  render () {
+  render() {
     const activeCompany = this.props.route.params.activeCompany;
     const companyList = this.props.comapnyList.sort((a, b) =>
       a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
@@ -93,12 +95,12 @@ export class ChangeCompany extends React.Component<Props> {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, item.subscription.country.countryCode);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
-                      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName,  " ");
+                      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
                       await this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     this.props.getCompanyAndBranches();
                     DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
-                    this.props.navigation.popToTop();
+                    this.props.navigation.goBack();
                   }}>
                   <Text
                     numberOfLines={2}
@@ -119,7 +121,23 @@ export class ChangeCompany extends React.Component<Props> {
               style={{height: 50, width: 100, backgroundColor: 'pink'}}
               onPress={() => console.log(companyList)}></TouchableOpacity> */}
           </View>
+          <View style={{ alignItems: "flex-end", paddingBottom: 10, paddingHorizontal: 15 }}>
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('createCompany', { oldUser: true })}
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: SIZE,
+                height: SIZE,
+                borderRadius: SIZE / 2,
+                backgroundColor: '#5773FF',
+                //bottom: SIZE / 2
+              }}>
+              <Entypo name="plus" size={24} color={'#fff'} />
+            </TouchableOpacity>
+          </View>
         </View>
+
         {this.state.loading && (
           <View
             style={{
@@ -140,13 +158,13 @@ export class ChangeCompany extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   const { commonReducer } = state;
   return {
     ...commonReducer
   };
 }
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
@@ -154,7 +172,7 @@ function mapDispatchToProps (dispatch) {
   };
 }
 
-function Screen (props) {
+function Screen(props) {
   const isFocused = useIsFocused();
 
   return <ChangeCompany {...props} isFocused={isFocused} />;
@@ -162,3 +180,4 @@ function Screen (props) {
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
 export default MyComponent;
+

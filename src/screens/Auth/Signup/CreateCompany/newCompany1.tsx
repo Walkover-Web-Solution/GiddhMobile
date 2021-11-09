@@ -353,7 +353,8 @@ class NewCompany extends React.Component<any, any> {
                                     country: this.state.countryName,
                                     currency: this.state.currency,
                                     mobileNumber: this.state.mobileNumber,
-                                    callingCode: this.state.selectedCallingCode
+                                    callingCode: this.state.selectedCallingCode,
+                                    oldUser:this.props.route.params?this.props.route.params.oldUser:false
                                 })
                             } else {
                                 Alert.alert("Missing Fields", "Enter all the mandatory fields",
@@ -362,7 +363,7 @@ class NewCompany extends React.Component<any, any> {
                         }}>
                         <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Next</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{
+                    {!this.props.route.params && <TouchableOpacity style={{
                         justifyContent: 'center',
                         alignItems: 'center', width: "40%",
                     }}
@@ -374,7 +375,7 @@ class NewCompany extends React.Component<any, any> {
                         }}
                     >
                         <Text style={{ color: '#5773FF', fontFamily: 'AvenirLTStd-Book', padding: 5, fontSize: 16 }}>Exit</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
                 </View>
             </SafeAreaView>
         );

@@ -29,7 +29,7 @@ type MoreComponentState = {
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
-  constructor (props: MoreComponentProp) {
+  constructor(props: MoreComponentProp) {
     super(props);
     this.state = {
       activeCompany: undefined,
@@ -37,14 +37,14 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this._getActiveCompany();
     });
     this._getActiveCompany();
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     // this._getActiveCompany();
   }
 
@@ -62,7 +62,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     this.setState({ badgeTabs: this.state.badgeTabs });
   };
 
-  async _getActiveCompany () {
+  async _getActiveCompany() {
     const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
     const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
 
@@ -84,7 +84,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     }
   }
 
-  getInitails (name) {
+  getInitails(name) {
     const allWords = name.split(' ');
     if (allWords.length > 2) {
       const twoLaterWord = allWords[0] + ' ' + allWords[allWords.length - 1];
@@ -107,7 +107,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     // console.log(this.props.companyList);
   };
 
-  render () {
+  render() {
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
     const { navigation } = this.props;
@@ -132,34 +132,38 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         <View style={{ flex: 1, backgroundColor: 'white' }}>
           {activeCompanyName && activeCompanyName.length > 1
             ? (
-            <TouchableOpacity
-              style={style.companyView}
-              onPress={() => {
-                navigation.navigate('ChangeCompany', { activeCompany: this.state.activeCompany });
-              }}>
-              <View style={style.companyShortView}>
-                <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
-                <Text numberOfLines={1} style={style.companyNameText}>
-                  {activeCompanyName}
-                </Text>
+              <TouchableOpacity
+                style={style.companyView}
+                onPress={() => {
+                  navigation.navigate('ChangeCompany', {
+                    screen: 'ChangeCompany',
+                    initial: false,
+                    params: { activeCompany: this.state.activeCompany }
+                  });
+                }}>
+                <View style={style.companyShortView}>
+                  <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
+                  <Text numberOfLines={1} style={style.companyNameText}>
+                    {activeCompanyName}
+                  </Text>
 
-                <Entypo name="chevron-right" size={26} color={'#1A237E'} />
-                {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
-              </View>
-            </TouchableOpacity>
-              )
+                  <Entypo name="chevron-right" size={26} color={'#1A237E'} />
+                  {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
+                </View>
+              </TouchableOpacity>
+            )
             : (
-            <View style={style.companyView}>
-              <View style={style.companyShortView}>
-                <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+              <View style={style.companyView}>
+                <View style={style.companyShortView}>
+                  <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
+                  <Text style={style.companyNameText}>{activeCompanyName}</Text>
+                </View>
               </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
-                <Text style={style.companyNameText}>{activeCompanyName}</Text>
-              </View>
-            </View>
-              )}
+            )}
           {
             // Switch Branch
           }
@@ -167,9 +171,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             <TouchableOpacity
               style={style.branchView}
               onPress={() => {
-                navigation.navigate('BranchChange', {
-                  branches: this.props.branchList,
-                  activeBranch: this.state.activeBranch
+                navigation.navigate('ChangeCompanyBranch', {
+                  screen: 'BranchChange',
+                  initial: false,
+                  params: {
+                    activeBranch: this.state.activeBranch,
+                    branches: this.props.branchList
+                  }
                 });
               }}>
               <View style={{ marginLeft: 15 }}>
