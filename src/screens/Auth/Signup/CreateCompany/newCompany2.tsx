@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, Dimensions, Modal, StatusBar, Platform, DeviceEventEmitter, ToastAndroid } from 'react-native';
+import { View, TouchableOpacity, Modal,Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +20,7 @@ import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import TOAST from 'react-native-root-toast';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Modal1 from 'react-native-modal';
 
 class NewCompanyDetails extends React.Component<any, any> {
   constructor(props: any) {
@@ -42,7 +43,8 @@ class NewCompanyDetails extends React.Component<any, any> {
       modalVisible: false,
       loader: false,
       countryCode: this.props.route.params.country.alpha2CountryCode,
-      disbaleCreateButton: false
+      disbaleCreateButton: false,
+      isStateModalVisible: false
     };
   }
 
@@ -72,7 +74,7 @@ class NewCompanyDetails extends React.Component<any, any> {
       this.setState({
         filteredStates: this.state.stateData,
       });
-      this.state.stateDropDown.show();
+      // this.state.stateDropDown.show();
       return;
     }
     let newFilteredStates: any[] = [];
@@ -84,7 +86,7 @@ class NewCompanyDetails extends React.Component<any, any> {
     this.setState({
       filteredStates: newFilteredStates,
     });
-    this.state.stateDropDown.show();
+    // this.state.stateDropDown.show();
   }
 
   findState = (gstNo: any) => {
@@ -201,8 +203,8 @@ class NewCompanyDetails extends React.Component<any, any> {
       // ToastAndroid.show("Company created Successfully", ToastAndroid.LONG)
       await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, response.body.subscription.country.countryCode);
       await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, response.body.uniqueName);
-      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName,  " ");
-      if(this.props.route.params.oldUser){
+      await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
+      if (this.props.route.params.oldUser) {
         this.props.navigation.navigate('Home');
       }
       await this.props.getCompanyAndBranches();
@@ -239,6 +241,56 @@ class NewCompanyDetails extends React.Component<any, any> {
       applicableTax.push(tax)
       this.setState({ applicableTax })
     }
+  }
+
+  renderStateModalView = () => {
+    return (
+      <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
+        onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
+        style={style.modalMobileContainer}>
+        <View style={style.modalViewContainer}>
+          <View style={style.cancelButtonModal} >
+            <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }} style={style.cancelButtonTextModal}>
+              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+            </TouchableOpacity>
+            <TextInput
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
+              placeholder="Enter State Name"
+              style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+              onChangeText={(text) => {
+                this.filterStates(text);
+              }}
+            />
+          </View>
+          <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+            <FlatList
+              scrollEnabled
+              data={this.state.filteredStates.length == 0 ? ["Result Not Found"] : this.state.filteredStates}
+              renderItem={({ item }) => this.renderItem(item)}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          </View>
+        </View>
+      </Modal1>
+    )
+  }
+
+  renderItem = (state: any) => {
+    return (
+      <View style={{ justifyContent: "center", alignItems: "center" }}>
+        <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
+          onPress={() => {
+            if (state != "Result Not Found") {
+              this.setState({ stateName: state, selectedState: state.name, isStateModalVisible: !this.state.isStateModalVisible })
+            }else{
+              this.setState({ isStateModalVisible: !this.state.isStateModalVisible })
+            }
+          }}>
+          <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name?state.name:state}</Text>
+        </TouchableOpacity>
+        <View style={style.borderInModal} />
+      </View>
+    );
   }
 
 
@@ -341,22 +393,22 @@ class NewCompanyDetails extends React.Component<any, any> {
                 <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Roman' }}>{'*'}</Text>
               </Text>
             </View>
-            <TextInput
-              placeholderTextColor={'rgba(80,80,80,0.5)'}
-              editable={this.state.selectStateDisable ? false : true}
-              placeholder={"Enter State"}
-              style={[style.GSTInput, { backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null ,paddingBottom:Platform.OS=="ios"?10:0,}]}
-              value={this.state.selectedState}
-              onChangeText={(text) => {
-                this.setState({
-                  selectedState: text
-                })
-                setTimeout(() => {
-                  this.filterStates(text);
-                }, 2000);
-              }}
-            />
-            <Dropdown
+            <TouchableOpacity
+            style={{backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null}}
+              onPress={() => {
+                if (!this.state.selectStateDisable) {
+                  this.setState({
+                    isStateModalVisible: !this.state.isStateModalVisible,
+                    filteredStates: this.state.stateData
+                  })
+                }
+              }}>
+              <Text
+                style={[style.GSTInput, 
+                  {paddingBottom: Platform.OS == "ios" ? 13 : 9, }]}
+              >{this.state.selectedState==null?<Text style={{color:'rgba(80,80,80,0.5)',fontFamily: 'AvenirLTStd-Roman'}}>Enter State</Text>:this.state.selectedState}</Text>
+            </TouchableOpacity>
+            {/* <Dropdown
               ref={(ref) => (this.state.stateDropDown = ref)}
               style={{
                 width: 0,
@@ -368,19 +420,19 @@ class NewCompanyDetails extends React.Component<any, any> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
-              dropdownStyle={{ width: '81%', height: this.state.filteredStates.length > 1 ? 100 : 50 , marginTop:Platform.OS=="ios"?-4:5, borderRadius: 5 }}
+              dropdownStyle={{ width: '81%', height: this.state.filteredStates.length > 1 ? 100 : 50, marginTop: Platform.OS == "ios" ? -4 : 5, borderRadius: 5 }}
               dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
               renderButtonText={(text) => ""}
               renderRow={(options) => {
                 return (
-                  <Text style={{ padding: 10, color: '#1C1C1C' }}>{options.name?options.name:"Result Not Found"}</Text>)
+                  <Text style={{ padding: 10, color: '#1C1C1C' }}>{options.name ? options.name : "Result Not Found"}</Text>)
               }}
               onSelect={(index, value) => {
                 console.log(JSON.stringify(value))
                 if (value != "Result Not Found") {
-                this.setState({ stateName: value, selectedState: value.name })
+                  this.setState({ stateName: value, selectedState: value.name })
                 }
-              }} />
+              }} /> */}
           </View>}
           {this.state.bussinessType == "Registered" && <View style={{ marginTop: 20, borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
             <View style={{ flexDirection: "row", marginBottom: 4 }}>
@@ -591,6 +643,7 @@ class NewCompanyDetails extends React.Component<any, any> {
             <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Create</Text>
           </TouchableOpacity>
         </View>
+        {this.renderStateModalView()}
         {this.state.loader && (
           <View
             style={{

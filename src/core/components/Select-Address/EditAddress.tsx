@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, StyleSheet } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
@@ -9,8 +9,11 @@ import color from '@/utils/colors';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
-
+import CountryPicker from 'react-native-country-picker-modal'
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import Modal1 from 'react-native-modal';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+
 const allCountry = [
    {
       "alpha3CountryCode": "GTM",
@@ -2565,12 +2568,13 @@ const allCountry = [
       "countryIndia": false
    }
 ];
+const allcountryCode: any = ["GT", "GN", "GW", "HN", "HK", "HU", "IS", "IN", "ID", "IQ", "IE", "IM", "IL", "IT", "JM", "JP", "JE", "JO", "KZ", "KE", "KI", "KW", "LV", "LB", "LY", "LI", "LT", "LU", "MG", "MY", "ML", "MT", "MH", "MU", "YT", "MX", "MC", "ME", "MS", "MA", "MZ", "MM", "NA", "NR", "NP", "NL", "NZ", "NI", "NE", "NG", "NU", "MP", "NO", "OM", "PK", "PA", "PY", "PE", "PH", "PL", "PT", "PR", "QA", "RO", "RW", "PM", "SM", "SA", "SN", "RS", "SG", "SK", "SI", "SO", "ZA", "ES", "LK", "SD", "SE", "CH", "TW", "AF", "AL", "DZ", "AS", "AD", "AI", "AQ", "AR", "AM", "AU", "AT", "AZ", "BH", "BD", "BE", "BZ", "BJ", "BA", "BW", "BR", "IO", "BG", "BF", "BI", "KH", "CM", "CA", "CF", "TD", "CL", "CN", "CX", "CC", "CO", "KM", "CK", "CR", "HR", "CY", "CZ", "DK", "DJ", "DM", "DO", "EC", "EG", "SV", "GQ", "ER", "AO", "AW", "BS", "BB", "BY", "BM", "BT", "KY", "CU", "AG", "BO", "VG", "VI", "BN", "CV", "CG", "CD", "FK", "VA", "CI", "IR", "LA", "MO", "MK", "FM", "MD", "KP", "PN", "RU", "BL", "SH", "KN", "LC", "MF", "VC", "KR", "SR", "SJ", "SY", "TZ", "TT", "EE", "ET", "FO", "FI", "FR", "GA", "GE", "DE", "GH", "GR", "GL", "GD", "GU", "FJ", "PF", "GM", "GI", "GY", "HT", "KG", "LS", "LR", "MW", "MV", "MR", "MN", "NC", "PW", "PG", "WS", "ST", "SC", "SL", "SB", "SZ", "TJ", "GB", "VE", "VN", "TH", "TL", "TG", "TK", "TO", "TN", "TR", "TC", "TV", "UG", "UA", "AE", "US", "UY", "UZ", "EH", "YE", "ZW", "TM", "VU", "WF", "ZM"]
 export class EditAddress extends React.Component<any, any> {
    constructor(props: any) {
       super(props);
       this.state = {
          selectedState: this.props.route.params.address.stateName != null && this.props.route.params.address.stateName != ''
-            ? this.props.route.params.address.stateName
+            ? (this.props.route.params.address.stateName.name ? this.props.route.params.address.stateName.name : this.props.route.params.address.stateName)
             : '',
          filteredStates: [],
          stateDropDown: Dropdown,
@@ -2606,6 +2610,7 @@ export class EditAddress extends React.Component<any, any> {
          loading: false,
          activeCompanyCountryCode: '',
          companyCountryDetails: '',
+         isStateModalVisible: false
       };
    }
 
@@ -2616,10 +2621,12 @@ export class EditAddress extends React.Component<any, any> {
 
    getDetails = async () => {
       this.setState({ loading: true });
+      var countryCode = (this.props.route.params.address.selectedCountry.alpha2CountryCode != null ? this.props.route.params.address.selectedCountry.alpha2CountryCode
+         : (this.props.route.params.address.selectedCountry.countryCode != null ? this.props.route.params.address.selectedCountry.countryCode :
+            this.state.companyCountryDetails.alpha2CountryCode))
       if (
-         this.state.gstNo != '' ||
-         (this.props.route.params.address.taxNumber != undefined && this.props.route.params.address.taxNumber != '')
-      ) {
+         (this.state.gstNo != '' ||
+            (this.props.route.params.address.taxNumber != undefined && this.props.route.params.address.taxNumber != '')) && countryCode == "IN") {
          this.setState({ selectStateDisable: true });
          this.props.route.params.address.taxNumber
             ? this.setState({ gstNo: this.props.route.params.address.taxNumber })
@@ -2663,25 +2670,47 @@ export class EditAddress extends React.Component<any, any> {
    }
 
    gstValidator() {
-      const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-      const vadidatorResult = this.state.gstNo != undefined && this.state.gstNo != '' ? regex.test((this.state.gstNo).toUpperCase()) : true;
-      return vadidatorResult;
+      var countryCode = (this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
+         : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
+            this.state.companyCountryDetails.alpha2CountryCode))
+      if (countryCode == "IN") {
+         const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+         const vadidatorResult = this.state.gstNo != undefined && this.state.gstNo != '' ? regex.test((this.state.gstNo).toUpperCase()) : true;
+         return vadidatorResult;
+      } else {
+         var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+         console.log(format.test(this.state.gstNo))
+         if (this.state.gstNo != null && this.state.gstNo != '') {
+            if (format.test(this.state.gstNo) || this.state.gstNo.length != 15) {
+               return false;
+            } else {
+               return true;
+            }
+         } else {
+            return true
+         }
+      }
    }
 
    onSubmit = () => {
       console.log('state' + this.state.state_billing);
       console.log('country' + this.state.selectedCountry);
+      var countryCode = (this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
+         : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
+            this.state.companyCountryDetails.alpha2CountryCode))
       if (this.state.selectedCountry.countryName == '') {
          alert('Please Enter Country Name');
       } else if (
-         this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode &&
+         countryCode == this.state.activeCompanyCountryCode &&
          this.state.state_billing == ''
       ) {
          alert('Please Enter State Name');
       } else if (this.state.gstNo && this.state.gstNo.length != 15) {
-         alert('Enter a valid gst number, should be 15 characters long');
+         countryCode == "IN" ?
+            alert('Enter a valid gst number, should be 15 characters long') :
+            alert('Enter a valid TRN number, should be 15 characters long')
       } else if (this.state.gstNumberWrong || !this.gstValidator()) {
-         alert('Enter a valid gst number');
+         countryCode == "IN" ? alert('Enter a valid gst number') : alert('Enter a valid TRN number')
       } else {
          const address = {
             address: this.state.address,
@@ -2702,24 +2731,34 @@ export class EditAddress extends React.Component<any, any> {
       }
    };
 
-   setCountrySelected = async (value: any) => {
+   setCountrySelected = async (country: any) => {
       await this.setState({ loading: true });
+      var value = {}
+      for (let i = 0; i < allCountry.length; i++) {
+         if (allCountry[i].alpha2CountryCode.includes(country.cca2)) {
+            value = await allCountry[i]
+         }
+      }
       await this.setState({
          state_billing: '',
          gstNo: '',
          selectedCountry: value,
-         countryName: value.countryNamem,
+         countryName: value.countryName,
          selectStateDisable: false,
          gstNumberWrong: false,
+         selectedState: ''
       });
       const allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode);
       await this.setState({ allStates: allStateName.body.stateList });
-      await this.state.addresssDropDown.select(-1);
+      // await this.state.addresssDropDown.select(-1);
       await this.setState({ loading: false });
    };
 
    findState = async (gstNo: any) => {
-      if (gstNo == '') {
+      var countryCode = (this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
+         : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
+            this.state.companyCountryDetails.alpha2CountryCode))
+      if (gstNo == '' || countryCode != "IN") {
          this.setState({ selectStateDisable: false, gstNumberWrong: false });
          return;
       }
@@ -2732,7 +2771,7 @@ export class EditAddress extends React.Component<any, any> {
                selectedState: this.state.allStates[i].name,
                selectStateDisable: true,
             });
-            await this.state.addresssDropDown.select(-1);
+            //await this.state.addresssDropDown.select(-1);
             break;
          } else {
             await this.setState({ selectStateDisable: false });
@@ -2750,7 +2789,7 @@ export class EditAddress extends React.Component<any, any> {
          this.setState({
             filteredStates: this.state.allStates,
          });
-         this.state.stateDropDown.show();
+         //this.state.stateDropDown.show();
          return;
       }
       let newFilteredStates: any[] = [];
@@ -2762,8 +2801,64 @@ export class EditAddress extends React.Component<any, any> {
       this.setState({
          filteredStates: newFilteredStates,
       });
-      this.state.stateDropDown.show();
+      //this.state.stateDropDown.show();
    }
+
+   renderStateModalView = () => {
+      return (
+         <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
+            onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
+            style={style.modalMobileContainer}>
+            <View style={style.modalViewContainer}>
+               <View style={style.cancelButtonModal} >
+                  <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }} style={style.cancelButtonTextModal}>
+                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+                  </TouchableOpacity>
+                  <TextInput
+                     placeholderTextColor={'rgba(80,80,80,0.5)'}
+                     placeholder="Enter State Name"
+                     style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+                     onChangeText={(text) => {
+                        this.filterStates(text);
+                     }}
+                  />
+               </View>
+               <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+                  <FlatList
+                     scrollEnabled
+                     data={this.state.filteredStates.length == 0 ? ["Result Not Found"] : this.state.filteredStates}
+                     renderItem={({ item }) => this.renderItem(item)}
+                     keyExtractor={(item, index) => index.toString()}
+                  />
+               </View>
+            </View>
+         </Modal1>
+      )
+   }
+
+   renderItem = (state: any) => {
+      return (
+         <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
+               onPress={() => {
+                  if (state != "Result Not Found") {
+                     this.setState({
+                        state_billing: state,
+                        stateCode: state.code,
+                        selectedState: state.name,
+                        isStateModalVisible: false
+                     })
+                  } else {
+                     this.setState({ isStateModalVisible: false })
+                  }
+               }}>
+               <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name ? state.name : state}</Text>
+            </TouchableOpacity>
+            <View style={style.borderInModal} />
+         </View>
+      );
+   }
+
 
    render() {
       return (
@@ -2796,11 +2891,37 @@ export class EditAddress extends React.Component<any, any> {
                   multiline
                   onChangeText={(text) => this.setState({ address: text })}
                   value={this.state.address}></TextInput>
-               <View style={{ flexDirection: 'row' }}>
+               <View style={{ flexDirection: 'row', marginBottom: 10 }}>
                   <Text style={style.BMfieldTitle}>Country</Text>
                   <Text style={{ color: '#E04646', marginTop: 20 }}>*</Text>
                </View>
-               <Dropdown
+               <View style={{ flex: 1, backgroundColor: this.props.route.params.dontChangeCountry ? '#F1F1F2' : '', }}>
+                  <CountryPicker
+                     modalProps={this.props.route.params.dontChangeCountry ? { visible: false } : null}
+                     countryCode={this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
+                        : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode : this.state.companyCountryDetails.alpha2CountryCode)}
+                     countryCodes={allcountryCode}
+                     theme={{
+                        fontSize: 15, flagSizeButton: 15,
+                        fontFamily: 'AvenirLTStd-Book', primaryColor: '#1c1c1c',
+                     }}
+                     withFilter={true}
+                     withFlag={false}
+                     withCountryNameButton={true}
+                     withAlphaFilter={true}
+                     withCallingCode={true}
+                     withEmoji={true}
+                     onSelect={this.setCountrySelected}
+                  />
+                  <View style={{
+                     borderBottomWidth: 0.5,
+                     paddingTop: 0,
+                     borderBottomColor: '#808080',
+                     marginTop: 0,
+                     paddingBottom: 10,
+                  }} />
+               </View>
+               {/* <Dropdown
                   disabled={this.props.route.params.dontChangeCountry}
                   ref={(ref) => (this.state.addresssDropDown = ref)}
                   style={{
@@ -2828,15 +2949,17 @@ export class EditAddress extends React.Component<any, any> {
                   }}
                   renderButtonText={(text) => text.countryName}
                   onSelect={(idx, value) => this.setCountrySelected(value)}
-               />
+               /> */}
                <View style={{ flexDirection: 'row' }}>
                   <Text style={style.BMfieldTitle}>State </Text>
-                  {this.state.selectedCountry.alpha2CountryCode == this.state.activeCompanyCountryCode ? (
+                  {(this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
+                     : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
+                        this.state.companyCountryDetails.alpha2CountryCode)) == this.state.activeCompanyCountryCode ? (
                      <Text style={{ color: '#E04646', marginTop: 20 }}>*</Text>
                   ) : null}
                </View>
                <View style={{ flexDirection: 'row' }}>
-                  <View>
+                  {/* <View>
                      <Dropdown
                         ref={(ref) => (this.state.stateDropDown = ref)}
                         style={{
@@ -2865,8 +2988,38 @@ export class EditAddress extends React.Component<any, any> {
                            }
                         }}
                      />
-                  </View>
-                  <TextInput
+                  </View> */}
+                  <TouchableOpacity
+                     style={{
+                        flex: 1, backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null,
+                     }}
+                     onPress={() => {
+                        if (!this.state.selectStateDisable) {
+                           this.setState({
+                              isStateModalVisible: !this.state.isStateModalVisible,
+                              filteredStates: this.state.allStates
+                           })
+                        }
+                     }}>
+                     <Text
+                        style={{
+                           flex: 1,
+                           color: '#1c1c1c',
+                           fontSize: 14,
+                           fontFamily: FONT_FAMILY.regular,
+                           marginTop: Platform.OS == "ios" ? 10 : 0,
+                           paddingTop: 5,
+                        }}
+                     >{this.state.selectedState == null || this.state.selectedState == undefined || this.state.selectedState == "" ? <Text style={{ color: 'rgba(80,80,80,0.5)' }}>Enter State</Text> : this.state.selectedState}</Text>
+                     <View style={{
+                        borderBottomWidth: 0.5,
+                        paddingTop: 0,
+                        borderBottomColor: '#808080',
+                        marginTop: 0,
+                        paddingBottom: 10,
+                     }} />
+                  </TouchableOpacity>
+                  {/* <TextInput
                      editable={this.state.selectStateDisable ? false : true}
                      placeholder={"Enter State name"}
                      placeholderTextColor={'rgba(80,80,80,0.5)'}
@@ -2892,11 +3045,21 @@ export class EditAddress extends React.Component<any, any> {
                            this.filterStates(text);
                         }, 2000);
                      }}
-                  />
+                  /> */}
                </View>
-               <Text style={style.BMfieldTitle}>GSTIN</Text>
-               <TextInput
-                  placeholder={"Enter GSTIN"}
+               {this.state.allStates.length > 0 ?
+                  ((this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
+                     : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
+                        this.state.companyCountryDetails.alpha2CountryCode))
+                     == "IN" ?
+                     <Text style={style.BMfieldTitle}>GSTIN</Text> :
+                     <Text style={style.BMfieldTitle}>TRN</Text>)
+                  : null}
+               {this.state.allStates.length > 0 ? <TextInput
+                  placeholder={(this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
+                     : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
+                        this.state.companyCountryDetails.alpha2CountryCode))
+                     == "IN" ? "Enter GSTIN" : "Enter TRN"}
                   placeholderTextColor={'rgba(80,80,80,0.5)'}
                   style={{
                      borderColor: '#D9D9D9',
@@ -2908,7 +3071,7 @@ export class EditAddress extends React.Component<any, any> {
                   onChangeText={(text) => {
                      this.setState({ gstNo: text }), this.findState(text);
                   }}
-                  value={this.state.gstNo}></TextInput>
+                  value={this.state.gstNo}></TextInput> : null}
                {this.state.gstNumberWrong ? (
                   <Text style={{ fontSize: 10, color: 'red', marginTop: 6, marginLeft: 5, fontFamily: FONT_FAMILY.regular }}>
                      Invalid GSTIN Number
@@ -2944,6 +3107,7 @@ export class EditAddress extends React.Component<any, any> {
             <TouchableOpacity style={style.button} onPress={() => this.onSubmit()}>
                <Text style={style.buttonText}>Save</Text>
             </TouchableOpacity>
+            {this.renderStateModalView()}
             {this.state.loading && (
                <View
                   style={{

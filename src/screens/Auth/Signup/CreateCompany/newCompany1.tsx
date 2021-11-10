@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import * as CommonActions from '@/redux/CommonAction';
 import CountryPicker from 'react-native-country-picker-modal'
 import Modal from 'react-native-modal';
+import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
 
 var PhoneNumber = require('awesome-phonenumber');
 class NewCompany extends React.Component<any, any> {
@@ -184,7 +185,7 @@ class NewCompany extends React.Component<any, any> {
         }
         var PhoneNumber = require('awesome-phonenumber');
         //alert(PhoneNumber.getExample( 'SA', 'mobile' ).getNumber())
-        var getRegionCode = PhoneNumber.getRegionCodeForCountryCode(this.state.selectedCallingCode);
+        var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
         var pn = new PhoneNumber(mobileNo, getRegionCode);
         return pn.isValid()
     }
@@ -212,20 +213,22 @@ class NewCompany extends React.Component<any, any> {
         return false
     }
 
-    onSelect = (country: any) => {
+    onSelect = async(country: any) => {
         for (let i = 0; i < this.state.countryData.length; i++) {
             if (this.state.countryData[i].alpha2CountryCode.includes(country.cca2)) {
-                this.setState({
+                await this.setState({
                     countryName: this.state.countryData[i], currency: this.state.countryData[i].currency,
                     selectedCallingCode: this.state.countryData[i].callingCode
                 })
-                this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
+                await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
             }
         }
     }
 
+   
     getMobilePlaceHolder = () => {
-        let placeholder = PhoneNumber.getExample(PhoneNumber.getRegionCodeForCountryCode(this.state.selectedCallingCode), 'mobile').getNumber('significant')
+        var regionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode)
+        let placeholder = regionCode != null ? PhoneNumber.getExample(regionCode, 'mobile').getNumber('significant') : "Enter Contact number"
         return placeholder
     }
 
@@ -265,9 +268,9 @@ class NewCompany extends React.Component<any, any> {
         return (
             <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
-                    onPress={() => {
-                        this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible, selectedCallingCode: callingCode })
-                        this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
+                    onPress={async() => {
+                        await this.setState({ isMobileModalVisible: false, selectedCallingCode: callingCode })
+                        await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
                     }}>
                     <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{callingCode}</Text>
                 </TouchableOpacity>
@@ -281,7 +284,7 @@ class NewCompany extends React.Component<any, any> {
             <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <TouchableOpacity style={{ paddingVertical: 10, width: "90%", flexDirection: "row", justifyContent: "space-between",}}
                     onPress={() => {
-                        this.setState({ currency: Currency, isCurrencyModalVisible: !this.state.isCurrencyModalVisible })
+                        this.setState({ currency: Currency, isCurrencyModalVisible: false })
                     }}>
                     <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.code}</Text>
                     <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.symbol}</Text>
@@ -539,9 +542,8 @@ class NewCompany extends React.Component<any, any> {
                         }}
                         onPress={() => {
                             var PhoneNumber = require('awesome-phonenumber');
-                            var getRegionCode = PhoneNumber.getRegionCodeForCountryCode(this.state.selectedCallingCode);
+                            var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
                             var pn = new PhoneNumber(this.state.mobileNumber, getRegionCode);
-                            pn.isValid()
                             if (!pn.isValid()) {
                                 alert("Invalid Contact Number")
                                 return

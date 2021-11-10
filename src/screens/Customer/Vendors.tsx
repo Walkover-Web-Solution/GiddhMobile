@@ -22,8 +22,12 @@ import Award from '../../assets/images/icons/customer_success.svg';// customer_f
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import AsyncStorage from '@react-native-community/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Modal from 'react-native-modal';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 
+const PhoneNumber = require('awesome-phonenumber');
 interface Props {
   resetFun: any;
   navigation: any;
@@ -40,6 +44,10 @@ export class Vendors extends React.Component<Props> {
     if (vendorEntry.body && vendorEntry.status == "success") {
       const vendorEntryResponse = vendorEntry.body
       console.log("RESULT " + JSON.stringify(vendorEntryResponse))
+      var mobileCode = ""
+      if (vendorEntryResponse.mobileNo) {
+        mobileCode = vendorEntryResponse.mobileNo.split('-')[0]
+      }
       await this.setState({
         partyName: vendorEntryResponse.name,
         partyPlaceHolder: 'a',
@@ -60,7 +68,7 @@ export class Vendors extends React.Component<Props> {
         foreignOpeningBalance: vendorEntryResponse.foreignOpeningBalance,
         openingBalance: vendorEntryResponse.openingBalance,
         selectedCurrency: vendorEntryResponse.currency,
-        selectedCallingCode: vendorEntryResponse.mobileCode ? vendorEntryResponse.mobileCode : '91',
+        selectedCallingCode: mobileCode,
         countryFromProps: vendorEntryResponse.country,
         bankName: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].bankName == null ? '' : vendorEntryResponse.accountBankDetails[0].bankName) : '',
         beneficiaryName: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].beneficiaryName != null ? vendorEntryResponse.accountBankDetails[0].beneficiaryName : '') : '',
@@ -96,8 +104,12 @@ export class Vendors extends React.Component<Props> {
         await this.setState({
           activeCompanyCountryCode: activeCompanyCountryCode,
           selectedCountry: results.body.country,
-          selectedCallingCode: results.body.country.callingCode,
         })
+        if (this.state.selectedCallingCode == "" || this.state.countryFromProps == '') {
+          await this.setState({
+            selectedCallingCode: results.body.country.callingCode,
+          })
+        }
         if (this.state.countryFromProps == '') { this.setState({ selectedCurrency: results.body.country.currency.code }) }
         await this.setState({ loading: false });
       }
@@ -169,7 +181,11 @@ export class Vendors extends React.Component<Props> {
     isAccountNoValid: false,
     isSwiftCodeValid: false,
     countryFromProps: '',
-    faliureMessage: ''
+    faliureMessage: '',
+    isMobileModalVisible: false,
+    isCurrencyModalVisible: false,
+    filteredCurrencyData: [{ "code": "AMD", "symbol": "֏" }, { "code": "AZN", "symbol": "₼" }, { "code": "BAM", "symbol": "KM" }, { "code": "KZT", "symbol": "₸" }, { "code": "LTL", "symbol": "Lt" }, { "code": "LVL", "symbol": "Ls" }, { "code": "EEK", "symbol": "kr" }, { "code": "STD", "symbol": "Db" }, { "code": "SCR", "symbol": "SRe" }, { "code": "SLL", "symbol": "Le" }, { "code": "SBD", "symbol": "$" }, { "code": "SZL", "symbol": "L" }, { "code": "TJS", "symbol": "ЅМ" }, { "code": "FKP", "symbol": "£" }, { "code": "LAK", "symbol": "₭" }, { "code": "KPW", "symbol": "₩" }, { "code": "SHP", "symbol": "£" }, { "code": "XCD", "symbol": "$" }, { "code": "USD", "symbol": "$" }, { "code": "CAD", "symbol": "$" }, { "code": "EUR", "symbol": "€" }, { "code": "AED", "symbol": "د.إ" }, { "code": "AFN", "symbol": "؋" }, { "code": "ALL", "symbol": "L" }, { "code": "ARS", "symbol": "$" }, { "code": "AUD", "symbol": "$" }, { "code": "BDT", "symbol": "৳" }, { "code": "BGN", "symbol": "лв" }, { "code": "BHD", "symbol": ".د.ب" }, { "code": "BIF", "symbol": "Fr" }, { "code": "BND", "symbol": "$" }, { "code": "BOB", "symbol": "Bs." }, { "code": "BRL", "symbol": "R$" }, { "code": "BWP", "symbol": "P" }, { "code": "BYR", "symbol": "Br" }, { "code": "BZD", "symbol": "$" }, { "code": "CDF", "symbol": "Fr" }, { "code": "CHF", "symbol": "Fr" }, { "code": "CLP", "symbol": "$" }, { "code": "CNY", "symbol": "¥" }, { "code": "COP", "symbol": "$" }, { "code": "CRC", "symbol": "₡" }, { "code": "CVE", "symbol": "Esc" }, { "code": "CZK", "symbol": "Kč" }, { "code": "DJF", "symbol": "Fr" }, { "code": "DKK", "symbol": "kr" }, { "code": "DOP", "symbol": "$" }, { "code": "DZD", "symbol": "د.ج" }, { "code": "EGP", "symbol": "£" }, { "code": "SRD", "symbol": "$" }, { "code": "FJD", "symbol": "$" }, { "code": "XPF", "symbol": "₣" }, { "code": "GMD", "symbol": "D" }, { "code": "GIP", "symbol": "£" }, { "code": "GYD", "symbol": "$" }, { "code": "HTG", "symbol": "G" }, { "code": "KGS", "symbol": "Лв" }, { "code": "LSL", "symbol": "M" }, { "code": "LRD", "symbol": "$" }, { "code": "MWK", "symbol": "MK" }, { "code": "MVR", "symbol": ".ރ" }, { "code": "MRO", "symbol": "UM" }, { "code": "MNT", "symbol": "₮" }, { "code": "PGK", "symbol": "K" }, { "code": "WST", "symbol": "T" }, { "code": "AOA", "symbol": "Kz" }, { "code": "AWG", "symbol": "ƒ" }, { "code": "BSD", "symbol": "$" }, { "code": "BBD", "symbol": "$" }, { "code": "BYN", "symbol": "Br" }, { "code": "BMD", "symbol": "$" }, { "code": "BTN", "symbol": "Nu." }, { "code": "KYD", "symbol": "$" }, { "code": "CUC", "symbol": "$" }, { "code": "CUP", "symbol": "$" }, { "code": "TMT", "symbol": "m" }, { "code": "VUV", "symbol": "Vt" }, { "code": "ERN", "symbol": "Nfk" }, { "code": "ETB", "symbol": "Br" }, { "code": "GBP", "symbol": "£" }, { "code": "GEL", "symbol": "ლ" }, { "code": "GHS", "symbol": "₵" }, { "code": "GNF", "symbol": "Fr" }, { "code": "GTQ", "symbol": "Q" }, { "code": "HKD", "symbol": "$" }, { "code": "HNL", "symbol": "L" }, { "code": "HRK", "symbol": "kn" }, { "code": "HUF", "symbol": "Ft" }, { "code": "IDR", "symbol": "Rp" }, { "code": "ILS", "symbol": "₪" }, { "code": "INR", "symbol": "₹" }, { "code": "IQD", "symbol": "ع.د" }, { "code": "IRR", "symbol": "﷼" }, { "code": "ISK", "symbol": "kr" }, { "code": "JMD", "symbol": "$" }, { "code": "JOD", "symbol": "د.ا" }, { "code": "JPY", "symbol": "¥" }, { "code": "KES", "symbol": "Sh" }, { "code": "KHR", "symbol": "៛" }, { "code": "KMF", "symbol": "Fr" }, { "code": "KRW", "symbol": "₩" }, { "code": "KWD", "symbol": "د.ك" }, { "code": "LBP", "symbol": "ل.ل" }, { "code": "LKR", "symbol": "Rs" }, { "code": "LYD", "symbol": "ل.د" }, { "code": "MAD", "symbol": "د.م." }, { "code": "MDL", "symbol": "L" }, { "code": "MGA", "symbol": "Ar" }, { "code": "MKD", "symbol": "ден" }, { "code": "MMK", "symbol": "Ks" }, { "code": "MOP", "symbol": "P" }, { "code": "MUR", "symbol": "₨" }, { "code": "MXN", "symbol": "$" }, { "code": "MYR", "symbol": "RM" }, { "code": "MZN", "symbol": "MT" }, { "code": "NAD", "symbol": "$" }, { "code": "NGN", "symbol": "₦" }, { "code": "NIO", "symbol": "C$" }, { "code": "NOK", "symbol": "kr" }, { "code": "NPR", "symbol": "₨" }, { "code": "NZD", "symbol": "$" }, { "code": "OMR", "symbol": "ر.ع." }, { "code": "PAB", "symbol": "B/." }, { "code": "PEN", "symbol": "S/." }, { "code": "PHP", "symbol": "₱" }, { "code": "PKR", "symbol": "₨" }, { "code": "PLN", "symbol": "zł" }, { "code": "PYG", "symbol": "₲" }, { "code": "QAR", "symbol": "ر.ق" }, { "code": "RON", "symbol": "lei" }, { "code": "RSD", "symbol": "дин." }, { "code": "RUB", "symbol": "₽" }, { "code": "RWF", "symbol": "Fr" }, { "code": "SAR", "symbol": "ر.س" }, { "code": "SDG", "symbol": "ج.س." }, { "code": "SEK", "symbol": "kr" }, { "code": "SGD", "symbol": "$" }, { "code": "SOS", "symbol": "Sh" }, { "code": "SYP", "symbol": "£" }, { "code": "THB", "symbol": "฿" }, { "code": "TND", "symbol": "د.ت" }, { "code": "TOP", "symbol": "T$" }, { "code": "TTD", "symbol": "$" }, { "code": "TWD", "symbol": "$" }, { "code": "TZS", "symbol": "Sh" }, { "code": "UAH", "symbol": "₴" }, { "code": "UGX", "symbol": "Sh" }, { "code": "UYU", "symbol": "$" }, { "code": "VEF", "symbol": "Bs F" }, { "code": "VND", "symbol": "₫" }, { "code": "XAF", "symbol": "Fr" }, { "code": "XOF", "symbol": "Fr" }, { "code": "YER", "symbol": "﷼" }, { "code": "ZAR", "symbol": "Rs" }, { "code": "TRY", "symbol": "₺" }, { "code": "UZS", "symbol": "so'm" }, { "code": "ZMW", "symbol": "ZK" }],
+    filteredCallingCode: ["590", "591", "350", "592", "230", "351", "593", "352", "231", "353", "595", "232", "354", "233", "234", "355", "597", "356", "235", "598", "236", "357", "237", "358", "359", "238", "239", "1473", "240", "241", "242", "1", "243", "244", "245", "246", "1345", "248", "249", "7", "20", "27", "1242", "370", "371", "250", "372", "251", "252", "373", "374", "253", "254", "375", "376", "255", "377", "256", "378", "257", "258", "379", "30", "31", "32", "33", "34", "36", "39", "1809", "380", "381", "260", "261", "382", "262", "263", "264", "385", "386", "265", "387", "266", "267", "1246", "389", "268", "269", "40", "41", "43", "44", "45", "46", "47", "48", "49", "1264", "51", "52", "53", "54", "55", "56", "57", "58", "960", "961", "1268", "962", "963", "964", "965", "966", "60", "967", "968", "61", "62", "63", "4779", "64", "65", "66", "290", "291", "1284", "297", "298", "299", "850", "971", "972", "852", "973", "974", "853", "975", "855", "976", "977", "856", "76", "500", "501", "502", "503", "504", "81", "505", "82", "506", "507", "84", "508", "86", "509", "992", "993", "994", "995", "996", "90", "91", "998", "92", "93", "94", "95", "98", "880", "886", "1869", "1868", "1 340", "1876", "1758", "1767", "420", "421", "423", "1649", "670", "672", "673", "674", "675", "676", "677", "678", "679", "1671", "1670", "680", "681", "682", "683", "1787", "685", "686", "1664", "1784", "687", "688", "689", "690", "691", "692", "212", "213", "216", "218", "220", "221", "222", "223", "224", "225", "1684", "226", "227", "1441", "228", "229"],
   }
 
   radio_props = [
@@ -247,7 +263,16 @@ export class Vendors extends React.Component<Props> {
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
           </View>
           <View style={{ ...styles.rowContainer, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "30%", borderWidth: 1, borderColor: '#d9d9d9', justifyContent: 'space-between' }}>
-            <Dropdown
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({
+                  isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
+                  filteredCurrencyData: this.state.allCurrency,
+                })
+              }} style={{ padding: 2, flex: 1 }}><Text
+                style={{ color: '#1C1C1C', fontSize: 15, marginTop: 3, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
+              >{this.state.selectedCurrency}</Text></TouchableOpacity>
+            {/* <Dropdown
               ref={(ref) => this.state.creditPeriodRef = ref}
               textStyle={{ color: '#808080' }}
               defaultValue={this.state.selectedCurrency}
@@ -275,7 +300,7 @@ export class Vendors extends React.Component<Props> {
               onPress={() => {
                 this.state.creditPeriodRef.show();
               }}
-            />
+            /> */}
           </View>
         </View>
         {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
@@ -462,13 +487,11 @@ export class Vendors extends React.Component<Props> {
     if (this.state.contactNumber == '') {
       return true
     }
-    const pattern = new RegExp(/^[0-9\b]+$/);
-    if (!pattern.test(this.state.contactNumber)) {
-      Alert.alert('Error', 'Please enter only number in phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
-      return false;
-    } else if (this.state.contactNumber.length != 10) {
+    var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
+    var pn = new PhoneNumber(this.state.contactNumber.toString(), getRegionCode);
+    if (!pn.isValid()) {
       Alert.alert('Error', 'Please enter valid phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
-      return false;
+      return false
     }
     return true
   }
@@ -477,14 +500,12 @@ export class Vendors extends React.Component<Props> {
     if (mobileNo == '') {
       return true
     }
-    const pattern = new RegExp(/^[0-9\b]+$/);
-    if (!pattern.test(mobileNo)) {
-      return false;
-    } else if (mobileNo.length != 10) {
-      return false;
-    }
-    return true
+    //alert(PhoneNumber.getExample( 'SA', 'mobile' ).getNumber())
+    var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
+    var pn = new PhoneNumber(mobileNo.toString(), getRegionCode);
+    return pn.isValid()
   }
+
 
   validateEmail = () => {
     if (this.state.emailId == '') {
@@ -727,7 +748,11 @@ export class Vendors extends React.Component<Props> {
       isAccountNoValid: false,
       isSwiftCodeValid: false,
       countryFromProps: '',
-      faliureMessage: ''
+      faliureMessage: '',
+      isMobileModalVisible: false,
+      isCurrencyModalVisible: false,
+      filteredCurrencyData: [{ "code": "AMD", "symbol": "֏" }, { "code": "AZN", "symbol": "₼" }, { "code": "BAM", "symbol": "KM" }, { "code": "KZT", "symbol": "₸" }, { "code": "LTL", "symbol": "Lt" }, { "code": "LVL", "symbol": "Ls" }, { "code": "EEK", "symbol": "kr" }, { "code": "STD", "symbol": "Db" }, { "code": "SCR", "symbol": "SRe" }, { "code": "SLL", "symbol": "Le" }, { "code": "SBD", "symbol": "$" }, { "code": "SZL", "symbol": "L" }, { "code": "TJS", "symbol": "ЅМ" }, { "code": "FKP", "symbol": "£" }, { "code": "LAK", "symbol": "₭" }, { "code": "KPW", "symbol": "₩" }, { "code": "SHP", "symbol": "£" }, { "code": "XCD", "symbol": "$" }, { "code": "USD", "symbol": "$" }, { "code": "CAD", "symbol": "$" }, { "code": "EUR", "symbol": "€" }, { "code": "AED", "symbol": "د.إ" }, { "code": "AFN", "symbol": "؋" }, { "code": "ALL", "symbol": "L" }, { "code": "ARS", "symbol": "$" }, { "code": "AUD", "symbol": "$" }, { "code": "BDT", "symbol": "৳" }, { "code": "BGN", "symbol": "лв" }, { "code": "BHD", "symbol": ".د.ب" }, { "code": "BIF", "symbol": "Fr" }, { "code": "BND", "symbol": "$" }, { "code": "BOB", "symbol": "Bs." }, { "code": "BRL", "symbol": "R$" }, { "code": "BWP", "symbol": "P" }, { "code": "BYR", "symbol": "Br" }, { "code": "BZD", "symbol": "$" }, { "code": "CDF", "symbol": "Fr" }, { "code": "CHF", "symbol": "Fr" }, { "code": "CLP", "symbol": "$" }, { "code": "CNY", "symbol": "¥" }, { "code": "COP", "symbol": "$" }, { "code": "CRC", "symbol": "₡" }, { "code": "CVE", "symbol": "Esc" }, { "code": "CZK", "symbol": "Kč" }, { "code": "DJF", "symbol": "Fr" }, { "code": "DKK", "symbol": "kr" }, { "code": "DOP", "symbol": "$" }, { "code": "DZD", "symbol": "د.ج" }, { "code": "EGP", "symbol": "£" }, { "code": "SRD", "symbol": "$" }, { "code": "FJD", "symbol": "$" }, { "code": "XPF", "symbol": "₣" }, { "code": "GMD", "symbol": "D" }, { "code": "GIP", "symbol": "£" }, { "code": "GYD", "symbol": "$" }, { "code": "HTG", "symbol": "G" }, { "code": "KGS", "symbol": "Лв" }, { "code": "LSL", "symbol": "M" }, { "code": "LRD", "symbol": "$" }, { "code": "MWK", "symbol": "MK" }, { "code": "MVR", "symbol": ".ރ" }, { "code": "MRO", "symbol": "UM" }, { "code": "MNT", "symbol": "₮" }, { "code": "PGK", "symbol": "K" }, { "code": "WST", "symbol": "T" }, { "code": "AOA", "symbol": "Kz" }, { "code": "AWG", "symbol": "ƒ" }, { "code": "BSD", "symbol": "$" }, { "code": "BBD", "symbol": "$" }, { "code": "BYN", "symbol": "Br" }, { "code": "BMD", "symbol": "$" }, { "code": "BTN", "symbol": "Nu." }, { "code": "KYD", "symbol": "$" }, { "code": "CUC", "symbol": "$" }, { "code": "CUP", "symbol": "$" }, { "code": "TMT", "symbol": "m" }, { "code": "VUV", "symbol": "Vt" }, { "code": "ERN", "symbol": "Nfk" }, { "code": "ETB", "symbol": "Br" }, { "code": "GBP", "symbol": "£" }, { "code": "GEL", "symbol": "ლ" }, { "code": "GHS", "symbol": "₵" }, { "code": "GNF", "symbol": "Fr" }, { "code": "GTQ", "symbol": "Q" }, { "code": "HKD", "symbol": "$" }, { "code": "HNL", "symbol": "L" }, { "code": "HRK", "symbol": "kn" }, { "code": "HUF", "symbol": "Ft" }, { "code": "IDR", "symbol": "Rp" }, { "code": "ILS", "symbol": "₪" }, { "code": "INR", "symbol": "₹" }, { "code": "IQD", "symbol": "ع.د" }, { "code": "IRR", "symbol": "﷼" }, { "code": "ISK", "symbol": "kr" }, { "code": "JMD", "symbol": "$" }, { "code": "JOD", "symbol": "د.ا" }, { "code": "JPY", "symbol": "¥" }, { "code": "KES", "symbol": "Sh" }, { "code": "KHR", "symbol": "៛" }, { "code": "KMF", "symbol": "Fr" }, { "code": "KRW", "symbol": "₩" }, { "code": "KWD", "symbol": "د.ك" }, { "code": "LBP", "symbol": "ل.ل" }, { "code": "LKR", "symbol": "Rs" }, { "code": "LYD", "symbol": "ل.د" }, { "code": "MAD", "symbol": "د.م." }, { "code": "MDL", "symbol": "L" }, { "code": "MGA", "symbol": "Ar" }, { "code": "MKD", "symbol": "ден" }, { "code": "MMK", "symbol": "Ks" }, { "code": "MOP", "symbol": "P" }, { "code": "MUR", "symbol": "₨" }, { "code": "MXN", "symbol": "$" }, { "code": "MYR", "symbol": "RM" }, { "code": "MZN", "symbol": "MT" }, { "code": "NAD", "symbol": "$" }, { "code": "NGN", "symbol": "₦" }, { "code": "NIO", "symbol": "C$" }, { "code": "NOK", "symbol": "kr" }, { "code": "NPR", "symbol": "₨" }, { "code": "NZD", "symbol": "$" }, { "code": "OMR", "symbol": "ر.ع." }, { "code": "PAB", "symbol": "B/." }, { "code": "PEN", "symbol": "S/." }, { "code": "PHP", "symbol": "₱" }, { "code": "PKR", "symbol": "₨" }, { "code": "PLN", "symbol": "zł" }, { "code": "PYG", "symbol": "₲" }, { "code": "QAR", "symbol": "ر.ق" }, { "code": "RON", "symbol": "lei" }, { "code": "RSD", "symbol": "дин." }, { "code": "RUB", "symbol": "₽" }, { "code": "RWF", "symbol": "Fr" }, { "code": "SAR", "symbol": "ر.س" }, { "code": "SDG", "symbol": "ج.س." }, { "code": "SEK", "symbol": "kr" }, { "code": "SGD", "symbol": "$" }, { "code": "SOS", "symbol": "Sh" }, { "code": "SYP", "symbol": "£" }, { "code": "THB", "symbol": "฿" }, { "code": "TND", "symbol": "د.ت" }, { "code": "TOP", "symbol": "T$" }, { "code": "TTD", "symbol": "$" }, { "code": "TWD", "symbol": "$" }, { "code": "TZS", "symbol": "Sh" }, { "code": "UAH", "symbol": "₴" }, { "code": "UGX", "symbol": "Sh" }, { "code": "UYU", "symbol": "$" }, { "code": "VEF", "symbol": "Bs F" }, { "code": "VND", "symbol": "₫" }, { "code": "XAF", "symbol": "Fr" }, { "code": "XOF", "symbol": "Fr" }, { "code": "YER", "symbol": "﷼" }, { "code": "ZAR", "symbol": "Rs" }, { "code": "TRY", "symbol": "₺" }, { "code": "UZS", "symbol": "so'm" }, { "code": "ZMW", "symbol": "ZK" }],
+      filteredCallingCode: ["590", "591", "350", "592", "230", "351", "593", "352", "231", "353", "595", "232", "354", "233", "234", "355", "597", "356", "235", "598", "236", "357", "237", "358", "359", "238", "239", "1473", "240", "241", "242", "1", "243", "244", "245", "246", "1345", "248", "249", "7", "20", "27", "1242", "370", "371", "250", "372", "251", "252", "373", "374", "253", "254", "375", "376", "255", "377", "256", "378", "257", "258", "379", "30", "31", "32", "33", "34", "36", "39", "1809", "380", "381", "260", "261", "382", "262", "263", "264", "385", "386", "265", "387", "266", "267", "1246", "389", "268", "269", "40", "41", "43", "44", "45", "46", "47", "48", "49", "1264", "51", "52", "53", "54", "55", "56", "57", "58", "960", "961", "1268", "962", "963", "964", "965", "966", "60", "967", "968", "61", "62", "63", "4779", "64", "65", "66", "290", "291", "1284", "297", "298", "299", "850", "971", "972", "852", "973", "974", "853", "975", "855", "976", "977", "856", "76", "500", "501", "502", "503", "504", "81", "505", "82", "506", "507", "84", "508", "86", "509", "992", "993", "994", "995", "996", "90", "91", "998", "92", "93", "94", "95", "98", "880", "886", "1869", "1868", "1 340", "1876", "1758", "1767", "420", "421", "423", "1649", "670", "672", "673", "674", "675", "676", "677", "678", "679", "1671", "1670", "680", "681", "682", "683", "1787", "685", "686", "1664", "1784", "687", "688", "689", "690", "691", "692", "212", "213", "216", "218", "220", "221", "222", "223", "224", "225", "1684", "226", "227", "1441", "228", "229"],
     })
   }
 
@@ -749,6 +774,138 @@ export class Vendors extends React.Component<Props> {
     }
   }
 
+  getMobilePlaceHolder = () => {
+    var regionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode)
+    let placeholder = regionCode != null ? PhoneNumber.getExample(regionCode, 'mobile').getNumber('significant') : "Enter Contact number"
+    return placeholder
+  }
+
+  searchCallingCode = (text: string) => {
+    if (text == '') {
+      this.setState({
+        filteredCallingCode: this.state.allCallingCode,
+      })
+      return
+    }
+    let filteredCallingCode: any[] = [];
+    for (let i = 0; i < this.state.allCallingCode.length; i++) {
+      if (this.state.allCallingCode[i].includes(text)) {
+        filteredCallingCode.push(this.state.allCallingCode[i]);
+      }
+    }
+    this.setState({ filteredCallingCode })
+  };
+
+  searchCurrency = (text: string) => {
+    if (text == '') {
+      this.setState({
+        filteredCurrencyData: this.state.allCurrency,
+      })
+      return
+    }
+    let filteredCurrencyData: any[] = [];
+    for (let i = 0; i < this.state.filteredCurrencyData.length; i++) {
+      if (this.state.filteredCurrencyData[i].code.toLowerCase().includes(text.toLowerCase())) {
+        filteredCurrencyData.push(this.state.filteredCurrencyData[i]);
+      }
+    }
+    this.setState({ filteredCurrencyData })
+  };
+
+  renderItem(callingCode: any) {
+    return (
+      <View style={{ justifyContent: "center", alignItems: "center" }}>
+        <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
+          onPress={async () => {
+            await this.setState({ isMobileModalVisible: false, selectedCallingCode: callingCode })
+            await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.contactNumber) })
+          }}>
+          <Text style={{ fontSize: 15, color: '#1c1c1c' }}>{callingCode}</Text>
+        </TouchableOpacity>
+        <View style={styles.borderInModal} />
+      </View>
+    );
+  }
+
+  renderCurrencyItem(Currency: any) {
+    return (
+      <View style={{ justifyContent: "center", alignItems: "center" }}>
+        <TouchableOpacity style={{ paddingVertical: 10, width: "90%", flexDirection: "row", justifyContent: "space-between" }}
+          onPress={() => {
+            this.setState({ selectedCurrency: Currency.code, isCurrencyModalVisible: false })
+          }}>
+          <Text style={{ fontSize: 15, color: '#1c1c1c' }}>{Currency.code}</Text>
+          <Text style={{ fontSize: 15, color: '#1c1c1c' }}>{Currency.symbol}</Text>
+        </TouchableOpacity>
+        <View style={styles.borderInModal} />
+      </View>
+    );
+  }
+
+  renderModalView = () => {
+    return (
+      <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
+        onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
+        style={styles.modalMobileContainer}>
+        <View style={styles.modalViewContainer}>
+          <View style={styles.cancelButtonModal} >
+            <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }} style={styles.cancelButtonTextModal}>
+              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+            </TouchableOpacity>
+            <TextInput
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
+              placeholder="Enter Calling Code"
+              style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, color: '#1c1c1c' }}
+              onChangeText={(text) => {
+                this.searchCallingCode(text);
+              }}
+            />
+          </View>
+          <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+            <FlatList
+              scrollEnabled
+              data={this.state.filteredCallingCode}
+              renderItem={({ item }) => this.renderItem(item)}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          </View>
+        </View>
+      </Modal>
+    )
+  }
+
+  renderCurrencyModalView = () => {
+    return (
+      <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
+        onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
+        style={styles.modalMobileContainer}>
+        <View style={styles.modalViewContainer}>
+          <View style={styles.cancelButtonModal} >
+            <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }} style={styles.cancelButtonTextModal}>
+              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+            </TouchableOpacity>
+            <TextInput
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
+              placeholder="Enter Currency e.g. INR"
+              style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, color: '#1c1c1c' }}
+              onChangeText={(text) => {
+                this.searchCurrency(text);
+              }}
+            />
+          </View>
+          <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+            <FlatList
+              scrollEnabled
+              data={this.state.filteredCurrencyData}
+              renderItem={({ item }) => this.renderCurrencyItem(item)}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          </View>
+        </View>
+      </Modal>
+    )
+  }
+
   render() {
     return (
       <KeyboardAwareScrollView style={styles.customerMainContainer}>
@@ -758,8 +915,8 @@ export class Vendors extends React.Component<Props> {
             console.log('w');
             this.setState({ partyDialog: false })
           }}
-          onRequestClose={()=>{this.setState({ partyDialog: false })}}
-          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%',marginTop:Platform.OS=="ios"?50:undefined }}
+          onRequestClose={() => { this.setState({ partyDialog: false }) }}
+          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%', marginTop: Platform.OS == "ios" ? 50 : undefined }}
         >
           <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
           <FlatList
@@ -779,9 +936,9 @@ export class Vendors extends React.Component<Props> {
           />
         </Dialog.Container>
         {this.state.successDialog
-          ? <Dialog.Container 
-          onRequestClose={()=>{this.setState({ successDialog: false })}}
-          visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+          ? <Dialog.Container
+            onRequestClose={() => { this.setState({ successDialog: false }) }}
+            visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Award />
             <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
             <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{`The Vendor is ${this.props.uniqueName != null ? 'updated' : 'created'} successfully.`}</Text>
@@ -793,7 +950,7 @@ export class Vendors extends React.Component<Props> {
                 borderRadius: 30,
                 backgroundColor: '#229F5F',
                 marginTop: 30,
-                height: 50
+                height: 50, marginBottom: 5
               }}
               onPress={() => {
                 this.setState({ successDialog: false });
@@ -809,9 +966,9 @@ export class Vendors extends React.Component<Props> {
           </Dialog.Container>
           : null}
         {this.state.faliureDialog
-          ? <Dialog.Container 
-          onRequestClose={()=>{this.setState({ faliureDialog: false })}}
-          visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+          ? <Dialog.Container
+            onRequestClose={() => { this.setState({ faliureDialog: false }) }}
+            visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Faliure />
             <Text style={{ color: '#F2596F', fontSize: 16 }}>Error!</Text>
             <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>{this.state.faliureMessage != '' ? this.state.faliureMessage : "Sorry, Failed to import the entries."}</Text>
@@ -823,7 +980,7 @@ export class Vendors extends React.Component<Props> {
                 borderRadius: 30,
                 backgroundColor: '#F2596F',
                 marginTop: 30,
-                height: 50
+                height: 50, marginBottom: 5
               }}
               onPress={() => {
                 this.setState({ faliureDialog: false });
@@ -856,7 +1013,14 @@ export class Vendors extends React.Component<Props> {
           </View>
           <View style={styles.rowContainer}>
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
-            <Dropdown
+            <TouchableOpacity onPress={() => {
+              this.setState({
+                isMobileModalVisible: !this.state.isMobileModalVisible, filteredCallingCode: this.state.allCallingCode,
+              })
+            }}><Text
+              style={{ color: '#808080', paddingRight: 7, paddingVertical: 5, fontSize: 15, marginTop: -1, }}
+            >{this.state.selectedCallingCode}</Text></TouchableOpacity>
+            {/* <Dropdown
               ref={(ref) => this.state.partyDropDown = ref}
               textStyle={{ color: '#808080', fontSize: 15, marginTop: -1 }}
               defaultValue={this.state.selectedCallingCode}
@@ -874,7 +1038,7 @@ export class Vendors extends React.Component<Props> {
               renderRow={(options) => {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
               }}
-            />
+            /> */}
             <TextInput
               returnKeyType={'done'}
               keyboardType="number-pad"
@@ -885,9 +1049,9 @@ export class Vendors extends React.Component<Props> {
                 })
               }}
               placeholderTextColor={'rgba(80,80,80,0.5)'}
-              placeholder="Enter Contact Number"
+              placeholder={this.getMobilePlaceHolder()}
               value={this.state.contactNumber}
-              style={styles.input} />
+              style={{ ...styles.input, paddingLeft: 5, color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }} />
           </View>
           {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
@@ -1084,6 +1248,8 @@ export class Vendors extends React.Component<Props> {
           }}>
           {this.renderAddressDetails()}
         </RBSheet> */}
+        {this.renderModalView()}
+        {this.renderCurrencyModalView()}
         {this.state.loading && (
           <View
             style={{

@@ -209,5 +209,40 @@ export default StyleSheet.create({
     fontSize: 16,
     paddingLeft: 15,
     fontFamily: FONT_FAMILY.bold
-  }
+  },
+  modalMobileContainer: {
+    flex: 1,
+    backgroundColor: "white",
+    height: "100%",
+    width:"100%",
+    margin:0,
+    paddingTop:Platform.OS=="ios"?15:0
+  },
+  modalViewContainer: {
+    flex: 1,
+  },
+  modalViewHeading: {
+    marginHorizontal: 20,
+    fontSize: 19,
+    color: "black",
+  },
+  cancelButtonModal: {
+    width: "100%",
+    backgroundColor: "white",
+    flexDirection:"row",
+    marginHorizontal:15
+  },
+  cancelButtonTextModal: {
+    padding:5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop:6
+  },
+  borderInModal: {
+    width: "100%",
+    borderBottomWidth: 0.27,
+    opacity:0.15,
+    borderBottomColor: "grey",
+    marginTop: 5
+  },
 });
