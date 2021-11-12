@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, Modal,Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert } from 'react-native';
+import { View, TouchableOpacity, Modal, Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -248,14 +248,15 @@ class NewCompanyDetails extends React.Component<any, any> {
       <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
         style={style.modalMobileContainer}>
-        <View style={style.modalViewContainer}>
+        <SafeAreaView style={style.modalViewContainer}>
           <View style={style.cancelButtonModal} >
-            <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }} style={style.cancelButtonTextModal}>
-              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+            <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
+              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
             </TouchableOpacity>
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder="Enter State Name"
+              returnKeyType={"done"}
               style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
               onChangeText={(text) => {
                 this.filterStates(text);
@@ -270,7 +271,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               keyExtractor={(item, index) => index.toString()}
             />
           </View>
-        </View>
+        </SafeAreaView>
       </Modal1>
     )
   }
@@ -282,11 +283,11 @@ class NewCompanyDetails extends React.Component<any, any> {
           onPress={() => {
             if (state != "Result Not Found") {
               this.setState({ stateName: state, selectedState: state.name, isStateModalVisible: !this.state.isStateModalVisible })
-            }else{
+            } else {
               this.setState({ isStateModalVisible: !this.state.isStateModalVisible })
             }
           }}>
-          <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name?state.name:state}</Text>
+          <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name ? state.name : state}</Text>
         </TouchableOpacity>
         <View style={style.borderInModal} />
       </View>
@@ -317,7 +318,10 @@ class NewCompanyDetails extends React.Component<any, any> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
-              dropdownStyle={{ width: '81%', height: 90, marginTop: 5, borderRadius: 5 }}
+              dropdownStyle={{
+                width: '81%', height: this.state.countryCode == "US" || this.state.countryCode == "GB" ||
+                  this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 40 : 90, marginTop: 5, borderRadius: 5
+              }}
               dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
               renderRow={(options) => {
                 return (
@@ -394,7 +398,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               </Text>
             </View>
             <TouchableOpacity
-            style={{backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null}}
+              style={{ backgroundColor: this.state.selectStateDisable ? '#F1F1F2' : null }}
               onPress={() => {
                 if (!this.state.selectStateDisable) {
                   this.setState({
@@ -404,9 +408,9 @@ class NewCompanyDetails extends React.Component<any, any> {
                 }
               }}>
               <Text
-                style={[style.GSTInput, 
-                  {paddingBottom: Platform.OS == "ios" ? 13 : 9, }]}
-              >{this.state.selectedState==null?<Text style={{color:'rgba(80,80,80,0.5)',fontFamily: 'AvenirLTStd-Roman'}}>Enter State</Text>:this.state.selectedState}</Text>
+                style={[style.GSTInput,
+                { paddingBottom: Platform.OS == "ios" ? 13 : 9, }]}
+              >{this.state.selectedState == null ? <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>Enter State</Text> : this.state.selectedState}</Text>
             </TouchableOpacity>
             {/* <Dropdown
               ref={(ref) => (this.state.stateDropDown = ref)}

@@ -299,14 +299,16 @@ class NewCompany extends React.Component<any, any> {
             <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
                 onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
                 style={style.modalMobileContainer}>
-                <View style={style.modalViewContainer}>
+                <SafeAreaView style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
-                        <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }} style={style.cancelButtonTextModal}>
-                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+                        <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible:false }) }} style={style.cancelButtonTextModal}>
+                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
                         </TouchableOpacity>
                         <TextInput
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
                             placeholder="Enter Calling Code"
+                            keyboardType={'number-pad'}
+                            returnKeyType={"done"}
                             style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
                             onChangeText={(text) => {
                                 this.searchCallingCode(text);
@@ -321,7 +323,7 @@ class NewCompany extends React.Component<any, any> {
                             keyExtractor={(item, index) => index.toString()}
                         />
                     </View>
-                </View>
+                </SafeAreaView>
             </Modal>
         )
     }
@@ -331,12 +333,13 @@ class NewCompany extends React.Component<any, any> {
             <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
                 onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
                 style={style.modalMobileContainer}>
-                <View style={style.modalViewContainer}>
+                <SafeAreaView style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
-                        <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }} style={style.cancelButtonTextModal}>
-                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+                        <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: false }) }} style={style.cancelButtonTextModal}>
+                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
                         </TouchableOpacity>
                         <TextInput
+                            returnKeyType={"done"}
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
                             placeholder="Enter Currency e.g. INR"
                             style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
@@ -353,7 +356,7 @@ class NewCompany extends React.Component<any, any> {
                             keyExtractor={(item, index) => index.toString()}
                         />
                     </View>
-                </View>
+                </SafeAreaView>
             </Modal>
         )
     }

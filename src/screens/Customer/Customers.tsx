@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard, Platform, Dimensions } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard, Platform, Dimensions, SafeAreaView } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -598,14 +598,16 @@ export class Customers extends React.Component<Props> {
       <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
         style={styles.modalMobileContainer}>
-        <View style={styles.modalViewContainer}>
+        <SafeAreaView style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
-            <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }} style={styles.cancelButtonTextModal}>
+            <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: false }) }} style={styles.cancelButtonTextModal}>
               <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
             </TouchableOpacity>
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder="Enter Calling Code"
+              keyboardType={'number-pad'}
+              returnKeyType={"done"}
               style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, color: '#1c1c1c' }}
               onChangeText={(text) => {
                 this.searchCallingCode(text);
@@ -620,7 +622,7 @@ export class Customers extends React.Component<Props> {
               keyExtractor={(item, index) => index.toString()}
             />
           </View>
-        </View>
+        </SafeAreaView>
       </Modal>
     )
   }
@@ -630,14 +632,15 @@ export class Customers extends React.Component<Props> {
       <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
         style={styles.modalMobileContainer}>
-        <View style={styles.modalViewContainer}>
+        <SafeAreaView style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
-            <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }} style={styles.cancelButtonTextModal}>
+            <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: false }) }} style={styles.cancelButtonTextModal}>
               <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
             </TouchableOpacity>
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder="Enter Currency e.g. INR"
+              returnKeyType={"done"}
               style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, color: '#1c1c1c' }}
               onChangeText={(text) => {
                 this.searchCurrency(text);
@@ -652,7 +655,7 @@ export class Customers extends React.Component<Props> {
               keyExtractor={(item, index) => index.toString()}
             />
           </View>
-        </View>
+        </SafeAreaView>
       </Modal>
     )
   }

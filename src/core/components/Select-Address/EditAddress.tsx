@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, SafeAreaView } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
@@ -2809,14 +2809,15 @@ export class EditAddress extends React.Component<any, any> {
          <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
             onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
             style={style.modalMobileContainer}>
-            <View style={style.modalViewContainer}>
+            <SafeAreaView style={style.modalViewContainer}>
                <View style={style.cancelButtonModal} >
-                  <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }} style={style.cancelButtonTextModal}>
-                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
+                  <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
+                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
                   </TouchableOpacity>
                   <TextInput
                      placeholderTextColor={'rgba(80,80,80,0.5)'}
                      placeholder="Enter State Name"
+                     returnKeyType={"done"}
                      style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
                      onChangeText={(text) => {
                         this.filterStates(text);
@@ -2831,7 +2832,7 @@ export class EditAddress extends React.Component<any, any> {
                      keyExtractor={(item, index) => index.toString()}
                   />
                </View>
-            </View>
+            </SafeAreaView>
          </Modal1>
       )
    }
