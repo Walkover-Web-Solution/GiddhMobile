@@ -10,9 +10,9 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Company } from '@/models/interfaces/company';
 import { Bars } from 'react-native-loader';
-import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
-import { APP_EVENTS } from '@/utils/constants';
+import { APP_EVENTS,STORAGE_KEYS } from '@/utils/constants';
 import TOAST from 'react-native-root-toast';
+import AsyncStorage from '@react-native-community/async-storage';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -50,13 +50,28 @@ const amountColorStyle = (type: string) => {
   };
 };
 
+let selectedItemTemp :any=[]
+let selectedItemDeatilsTemp:any=[]
 export const Vendors = (props) => {
   const { partiesData, activeCompany, handleRefresh, loadMore, navigation, dataLoadedTime } = props;
-  const [selectedItem, setSelectedItem] = useState([])
-  const [selectedItemDeatils, setselectedItemDeatils] = useState([])
+  const [selectedItem, setSelectedItem] = useState(selectedItemTemp)
+  const [selectedItemDeatils, setselectedItemDeatils] = useState(selectedItemDeatilsTemp)
   const [refreshData, setRefreshData] = useState(false)
   const [bulkPaymentprocessing, setBulkPaymentprocessing] = useState(false)
+  DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+    selectedItemTemp= []
+    selectedItemDeatilsTemp=[]
+    setSelectedItem([])
+    setselectedItemDeatils([])
+  });
 
+  const getActiveCompany=async()=> {
+    let activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyName);
+    if (activeCompany == null || activeCompany == undefined) {
+        activeCompany = " "
+    }
+    return (activeCompany)
+}
 
   const addItem = async (item: any) => {
     if (item.country.code != "IN") {
@@ -84,14 +99,20 @@ export const Vendors = (props) => {
       await setSelectedItem([...selectedItem, item.uniqueName]);
       await setRefreshData(!refreshData)
       await setselectedItemDeatils([...selectedItemDeatils, item]);
+      selectedItemTemp=  [...selectedItem, item.uniqueName]
+      selectedItemDeatilsTemp= [...selectedItemDeatils, item]  
     } else {
       await selectedItem.splice(index, 1)
       await setRefreshData(!refreshData)
       await selectedItemDeatils.splice(index, 1)
+      selectedItemTemp=  selectedItem
+      selectedItemDeatilsTemp= selectedItemDeatils  
     }
   };
 
   function getback(success: any) {
+    selectedItemTemp= []
+    selectedItemDeatilsTemp=[]
     setSelectedItem([])
     setselectedItemDeatils([])
     setRefreshData(false)
@@ -159,6 +180,7 @@ export const Vendors = (props) => {
 
   const navigateToBulkPaymentScreen = async () => {
     await setBulkPaymentprocessing(true)
+    let activeCompanyName = await getActiveCompany()
     let count = 0
     let finalSelectedItems: any = []
     await selectedItemDeatils.forEach((item) => {
@@ -173,23 +195,19 @@ export const Vendors = (props) => {
         [{
           text: "OK", onPress: async () => {
             if (finalSelectedItems.length > 0) {
-              await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany, getback: getback })
-              await setBulkPaymentprocessing(false)
+              await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany,activeCompanyName:(activeCompanyName) ,getback: getback})
             }
+            await setBulkPaymentprocessing(false)
           }
         }])
     } else {
-      await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany, getback: getback })
+      await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany,activeCompanyName:(activeCompanyName),getback: getback })
       await setBulkPaymentprocessing(false)
     }
   }
 
   return (
     <View style={{ flex: 1 }}>
-      {/* {dataLoadedTime.length > 0 ?
-        <LastDataLoadedTime
-          paddingHorizontal={10}
-          text={dataLoadedTime} /> : null} */}
       <SwipeListView
         extraData={refreshData}
         data={partiesData}

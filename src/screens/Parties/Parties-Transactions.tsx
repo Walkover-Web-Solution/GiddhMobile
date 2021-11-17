@@ -95,8 +95,8 @@ class PartiesTransactionScreen extends React.Component {
       payorDropDown: Dropdown,
       isPayorDD: false,
       selectedPayor: null,
-      totalAmount: '',
-      totalAmountPlaceHolder: '',
+      totalAmount: "₹" + this.currencyFormat(this.props.route.params.item.closingBalance.amount, this.props.route.params.activeCompany?.balanceDisplayFormat),
+      totalAmountPlaceHolder: 'a',
       review: '',
       reviewPlaceHolder: '',
       code: '',
@@ -111,7 +111,20 @@ class PartiesTransactionScreen extends React.Component {
     };
 
   }
+
+  getActiveCompany = async () => {
+    if (this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN") {
+      let activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyName);
+      if (activeCompany == null || activeCompany == undefined) {
+        activeCompany = " "
+      }
+      let remark = await (this.props.route.params.item.name).split(' ')[0] + " - " + (activeCompany).split(' ')[0]
+      this.setState({ review: remark, reviewPlaceHolder: 'a' })
+    }
+  }
+
   componentDidMount() {
+    this.getActiveCompany()
     if (this.props.route.params.item.bankPaymentDetails && this.props.route.params.type == 'Vendors') {
       this.getBankAccountsData()
     }
@@ -1254,7 +1267,7 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                   onDropdownWillShow={() => this.setState({ isPayorDD: true })}
                   onDropdownWillHide={() => this.setState({ isPayorDD: false })}
-                  dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 0 ? 150 : 50, marginTop: 5, borderRadius: 5 }}
+                  dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 1 ? 100 : 50, marginTop: 5, borderRadius: 5 }}
                   dropdownTextStyle={{ color: '#1C1C1C' }}
                   renderRow={(options) => {
                     return (
@@ -1339,6 +1352,8 @@ class PartiesTransactionScreen extends React.Component {
               <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20 }}>
                 <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
                 <TextInput
+                  multiline={true}
+                  returnKeyType={"done"}
                   onBlur={() => {
                     if (this.state.review == '') {
                       this.setState({ reviewPlaceHolder: '' })

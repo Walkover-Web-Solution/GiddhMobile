@@ -89,7 +89,7 @@ export class ChangeBranch extends React.Component<Props> {
                   delayPressIn={0}
                   onPress={async () => {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
-                    await this.addUserDeatilsToLogRocket(item.name,item.alias)
+                    this.addUserDeatilsToLogRocket(item.name,item.alias)
                     this.props.getCompanyAndBranches();
                     DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                     this.props.navigation.goBack();

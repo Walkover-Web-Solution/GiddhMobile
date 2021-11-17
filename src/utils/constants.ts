@@ -68,6 +68,7 @@ export const FALL_BACK_LANGUAGE = 'en';
 // STORAGE KEYS
 export const STORAGE_KEYS = {
   token: 'AUTH_TOKEN',
+  activeCompanyName:'ACTIVE_COMPANY_NAME',
   activeCompanyUniqueName: 'ACTIVE_COMPANY_UNIQUE_NAME',
   activeBranchUniqueName: 'ACTIVE_BRANCH_UNIQUE_NAME',
   googleEmail: 'GOOGLE_USER_EMAIL',

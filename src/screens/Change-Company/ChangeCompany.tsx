@@ -94,9 +94,10 @@ export class ChangeCompany extends React.Component<Props> {
                   onPress={async () => {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, item.subscription.country.countryCode);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
+                    await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyName, item.name);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
-                      await this.addUserDeatilsToLogRocket(item.name, " ")
+                      this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     this.props.getCompanyAndBranches();
                     DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});

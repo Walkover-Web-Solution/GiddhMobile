@@ -30,15 +30,17 @@ class BulkPayment extends React.Component {
     constructor(props: Props) {
         super(props)
     }
-
+    
     storeAmountAndReviewText = () => {
+        let activeCompany = this.props.route.params.activeCompanyName
         let selectedItemTextinputAndReview: any = {}
         this.props.route.params.selectedItem.forEach((item) => {
+            let remark = (item.name).split(' ')[0] + " - " + (activeCompany).split(' ')[0]
             selectedItemTextinputAndReview[item.uniqueName] = {
-                totalAmount: '',
-                totalAmountPlaceHolder: '',
-                remark: '',
-                remarkPlaceHolder: '',
+                totalAmount: "₹"+this.currencyFormat(item.closingBalance.amount, this.props.route.params.activeCompany?.balanceDisplayFormat),
+                totalAmountPlaceHolder: 'a',
+                remark: remark,
+                remarkPlaceHolder: 'a',
             }
         });
         return selectedItemTextinputAndReview
@@ -53,7 +55,7 @@ class BulkPayment extends React.Component {
         selectedItemTextinputAndReview: this.storeAmountAndReviewText(),
         bankAccounts: [],
         selectPayorData: [],
-        disablePayButton: false
+        disablePayButton: false,
     }
 
     componentDidMount() {
@@ -249,7 +251,7 @@ class BulkPayment extends React.Component {
                 return
             } else if (Number(amount) <= 0) {
                 this.setState({ disablePayButton: false })
-                Alert.alert("Invalid", "Total Amount should be greater than zero",
+                Alert.alert("Invalid", "Amount should be greater than zero",
                     [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
                 return
             }
@@ -263,7 +265,7 @@ class BulkPayment extends React.Component {
         return (
             <View style={{ marginHorizontal: 20, marginVertical: 5 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                    <Text style={{ fontSize: 15, }}>{item.name}</Text>
+                    <Text style={{ fontSize: 15,width:"70%" }}>{item.name}</Text>
                     <View style={{ flexDirection: "row" }}>
                         <Text style={{ fontSize: 15, fontWeight: "bold" }}>
                             {item.country.code === 'IN' ? (getSymbolFromCurrency("INR") +
@@ -368,6 +370,8 @@ class BulkPayment extends React.Component {
                 <View style={{ flexDirection: "row", marginLeft: 0 }}>
                     <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
                     <TextInput
+                        multiline={true}
+                        returnKeyType={"done"}
                         onBlur={() => {
                             if (this.state.selectedItemTextinputAndReview[item.uniqueName].remark == '') {
                                 let selectedItemTextinputAndReview = { ...this.state.selectedItemTextinputAndReview }
