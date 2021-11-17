@@ -33,7 +33,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     super(props);
     this.state = {
       activeCompany: undefined,
-      activeBranch: undefined
+      activeBranch: undefined,
+      activeUserEmail: ''
     };
   }
 
@@ -42,6 +43,14 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this._getActiveCompany();
     });
     this._getActiveCompany();
+    const getUserEmail = async () => {
+      let activeUserEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
+      if (activeUserEmail == null) {
+        activeUserEmail = ""
+      }
+      this.setState({ activeUserEmail })
+    }
+    getUserEmail()
   }
 
   componentDidUpdate() {
@@ -197,13 +206,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             onPress={() => this.func1()}></TouchableOpacity> */}
           <TouchableOpacity
             style={{
-              height: 60,
+              height: 65,
               width: '100%',
               backgroundColor: 'white',
-              flexDirection: 'row',
+              //flexDirection: 'row',
               position: 'absolute',
               bottom: 10,
-              alignItems: 'center',
+              //alignItems: 'center',
               paddingHorizontal: 30,
               shadowColor: '#000',
               shadowOffset: {
@@ -215,10 +224,16 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               elevation: 3
             }}
             onPress={this.props.logout}
-            // onPress={() => console.log('working ?')}
+          // onPress={() => console.log('working ?')}
           >
-            <Ionicons name="ios-power" size={26} color={'#5773FF'} />
-            <Text style={{ fontFamily: 'AvenirLTStd-Black', marginLeft: 20 }}>Logout</Text>
+            <View style={{
+              flexDirection: "row",
+              alignItems: "center", marginTop: 10
+            }}>
+              <Ionicons name="ios-power" size={26} color={'#5773FF'} />
+              <Text style={{ fontFamily: 'AvenirLTStd-Black', marginLeft: 20 }}>Logout</Text>
+            </View>
+            <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 41.5 }}> {this.state.activeUserEmail}  </Text>
           </TouchableOpacity>
           {/* <MoreList />
           {

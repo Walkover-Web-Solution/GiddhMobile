@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle, DeviceEventEmitter, Alert, } from 'react-native';
+import { SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle, DeviceEventEmitter, Alert, Platform, ToastAndroid } from 'react-native';
 import styles from '@/screens/Parties/components/PMstyle';
 import { GdSVGIcons } from '@/utils/icons-pack';
 import { SwipeListView } from 'react-native-swipe-list-view';
@@ -12,6 +12,7 @@ import { Company } from '@/models/interfaces/company';
 import { Bars } from 'react-native-loader';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import { APP_EVENTS } from '@/utils/constants';
+import TOAST from 'react-native-root-toast';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -54,9 +55,30 @@ export const Vendors = (props) => {
   const [selectedItem, setSelectedItem] = useState([])
   const [selectedItemDeatils, setselectedItemDeatils] = useState([])
   const [refreshData, setRefreshData] = useState(false)
+  const [bulkPaymentprocessing, setBulkPaymentprocessing] = useState(false)
 
 
   const addItem = async (item: any) => {
+    if (item.country.code != "IN") {
+      if (Platform.OS == "ios") {
+        await setTimeout(() => {
+          TOAST.show(`Country should be INDIA for ${item.name} account`, {
+            duration: TOAST.durations.SHORT,
+            position: -150,
+            hideOnPress: true,
+            backgroundColor: "#1E90FF",
+            textColor: "white",
+            opacity: 1,
+            shadow: false,
+            animation: true,
+            containerStyle: { borderRadius: 10 }
+          }), 100
+        });
+      } else {
+        ToastAndroid.show(`Country should be INDIA for ${item.name} account`, ToastAndroid.SHORT)
+      }
+      return
+    }
     let index = await selectedItem.indexOf(item.uniqueName)
     if (index == -1) {
       await setSelectedItem([...selectedItem, item.uniqueName]);
@@ -136,20 +158,29 @@ export const Vendors = (props) => {
   }
 
   const navigateToBulkPaymentScreen = async () => {
+    await setBulkPaymentprocessing(true)
     let count = 0
     let finalSelectedItems: any = []
     await selectedItemDeatils.forEach((item) => {
-      if (item.bankPaymentDetails) {
+      if (item.bankPaymentDetails && item.country.code == "IN") {
         finalSelectedItems.push(item)
       } else {
         count = count + 1
       }
     });
     if (count > 0) {
-      Alert.alert("Missing Bank Details", `${count} out of ${selectedItemDeatils.length} transactions could not be processed as bank details of those accounts are not updated.`,
-        [{ text: "OK", onPress: async () => { if (finalSelectedItems.length > 0) { await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany }) } } }])
+      Alert.alert("Missing Bank Details", `${count} out of ${selectedItemDeatils.length} transactions could not be processed as bank details of those accounts are not updated`,
+        [{
+          text: "OK", onPress: async () => {
+            if (finalSelectedItems.length > 0) {
+              await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany, getback: getback })
+              await setBulkPaymentprocessing(false)
+            }
+          }
+        }])
     } else {
       await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany, getback: getback })
+      await setBulkPaymentprocessing(false)
     }
   }
 
@@ -168,10 +199,10 @@ export const Vendors = (props) => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[styles.rowFront, { backgroundColor: selectedItem.indexOf(item.uniqueName) != -1 ? "#ebebfa" : '#F5F5F5' }]}
-            // onLongPress={async () => {
-            //   await addItem(item)
-            // }}
-            onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Vendors',activeCompany:activeCompany })}>
+            onLongPress={async () => {
+              await addItem(item)
+            }}
+            onPress={() => navigation.navigate('PartiesTransactions', { item: item, type: 'Vendors', activeCompany: activeCompany })}>
             <View style={styles.viewWrap}>
               {/* {item.category === 'liabilities' && console.log("Item vendorrrrrr " + JSON.stringify(item))} */}
               <View style={{ flex: 1 }}>
@@ -206,7 +237,7 @@ export const Vendors = (props) => {
                       )}
                     </View>
                     <View style={{ flexDirection: 'column', alignItems: "flex-end" }}>
-                      {item.bankPaymentDetails === false && item.country.code == "IN" && <TouchableOpacity onPress={async () => {
+                      {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
                         await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
                           await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                       }} ><Text style={{ color: "orange", fontSize: 13, }}>Add Bank Details</Text></TouchableOpacity>}
@@ -217,7 +248,7 @@ export const Vendors = (props) => {
               {item.closingBalance.amount === 0 && (
                 <View style={[styles.amountWrap, { alignItems: "flex-end" }]}>
                   <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
-                  {item.bankPaymentDetails === false && item.country.code == "IN"&&<TouchableOpacity onPress={async () => {
+                  {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
                     await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
                       await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                   }} ><Text style={{ color: "orange", fontSize: 13, }}>Add Bank Details</Text></TouchableOpacity>}
@@ -228,12 +259,27 @@ export const Vendors = (props) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      { selectedItem.length > 0 ?
-        <View style={{ justifyContent: "flex-end", alignItems: "center", position: "absolute", width: 100 + "%", height: 95 + "%" }}>
+      {selectedItem.length > 0 ?
+        <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
           <TouchableOpacity onPress={() => { navigateToBulkPaymentScreen() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
             <Text style={{ fontSize: 20, color: "white" }}>Bulk Payment</Text>
           </TouchableOpacity>
         </View> : null}
+      {bulkPaymentprocessing && (
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'absolute',
+            backgroundColor: 'rgba(0,0,0,0.1)',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
+          }}>
+          <Bars size={15} color={'#5773FF'} />
+        </View>
+      )}
     </View>
   );
 };

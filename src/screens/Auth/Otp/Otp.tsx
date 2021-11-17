@@ -44,6 +44,7 @@ class Login extends React.Component<any, any> {
 
   componentWillUnmount() {
     this.props.unmounting();
+    this.removeSmsListener()
   }
 
   removeSmsListener = () => {
@@ -60,7 +61,7 @@ class Login extends React.Component<any, any> {
     const response = await sendOTP(payload);
     if (response.status == "success") {
       if (Platform.OS == "ios") {
-        await this.setState({ disableResendButton: false })      
+        await this.setState({ disableResendButton: false })
         TOAST.show(response.body, {
           duration: TOAST.durations.LONG,
           position: -140,
@@ -78,7 +79,7 @@ class Login extends React.Component<any, any> {
         await this.getSMSMessage()
         await this.setState({ disableResendButton: false })
       }
-    }else{
+    } else {
       await this.setState({ disableResendButton: false })
     }
   }
