@@ -1080,10 +1080,11 @@ class PartiesTransactionScreen extends React.Component {
           this.resendOTP();
         } else {
           if ((this.state.totalAmount).substr(1, 1) == 0) {
-            Alert.alert("Invalid", "Total Amount should be greater than zero",
+            Alert.alert("Invalid", "Amount should be greater than or equal to 1",
               [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
           } else {
-            alert("Invalid amount entered")
+            Alert.alert("Invalid", "Please Enter Valid Amount",
+              [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
           }
         }
       } else {
@@ -1306,8 +1307,8 @@ class PartiesTransactionScreen extends React.Component {
                     if (this.state.totalAmount == '') {
                       await this.setState({ totalAmountPlaceHolder: '' })
                     } else {
-                      let amount = await (this.currencyFormat(Number((this.state.totalAmount).replace(/[^0-9]/g, '').replace(/,/g, '')), this.props.route.params.activeCompany?.balanceDisplayFormat))
-                      console.log("Total Amount with commas " + amount + " currency symbol " + this.state.currencySymbol)
+                      let amount = await (this.currencyFormat(Number((this.state.totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '')), this.props.route.params.activeCompany?.balanceDisplayFormat))
+                      console.log("Total Amount " + (this.state.totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '') + " currency symbol " + this.state.currencySymbol)
                       if (amount == "NaN") {
                         if (Platform.OS == "ios") {
                           TOAST.show("Invalid Amount", {
@@ -1337,7 +1338,7 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                   onChangeText={(text) => {
                     console.log(text)
-                    this.setState({ totalAmount: (text).replace(/[^0-9₹]/g, '') })
+                    this.setState({ totalAmount: (text).replace(/[^0-9.₹]/g, '') })
                   }}
                   style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
                   <Text style={{ color: '#1c1c1c' }}>{this.state.totalAmountPlaceHolder != '' ? ((this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol) && this.state.currencySymbol != "" ? (this.state.currencySymbol).substring(1)

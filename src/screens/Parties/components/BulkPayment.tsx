@@ -30,14 +30,14 @@ class BulkPayment extends React.Component {
     constructor(props: Props) {
         super(props)
     }
-    
+
     storeAmountAndReviewText = () => {
         let activeCompany = this.props.route.params.activeCompanyName
         let selectedItemTextinputAndReview: any = {}
         this.props.route.params.selectedItem.forEach((item) => {
             let remark = (item.name).split(' ')[0] + " - " + (activeCompany).split(' ')[0]
             selectedItemTextinputAndReview[item.uniqueName] = {
-                totalAmount: "₹"+this.currencyFormat(item.closingBalance.amount, this.props.route.params.activeCompany?.balanceDisplayFormat),
+                totalAmount: "₹" + this.currencyFormat(item.closingBalance.amount, this.props.route.params.activeCompany?.balanceDisplayFormat),
                 totalAmountPlaceHolder: 'a',
                 remark: remark,
                 remarkPlaceHolder: 'a',
@@ -249,9 +249,14 @@ class BulkPayment extends React.Component {
                 Alert.alert("Missing Fields", "Enter all the mandatory fields",
                     [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
                 return
-            } else if (Number(amount) <= 0) {
+            } else if (Number(amount) == null || Number(amount) == undefined || Number(amount).toString() == "NaN") {
                 this.setState({ disablePayButton: false })
-                Alert.alert("Invalid", "Amount should be greater than zero",
+                Alert.alert("Invalid", "Please Enter Valid Amount",
+                    [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+                return
+            } else if (Number(amount) < 1) {
+                this.setState({ disablePayButton: false })
+                Alert.alert("Invalid", "Amount should be greater than or equal to 1",
                     [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
                 return
             }
@@ -265,7 +270,7 @@ class BulkPayment extends React.Component {
         return (
             <View style={{ marginHorizontal: 20, marginVertical: 5 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                    <Text style={{ fontSize: 15,width:"70%" }}>{item.name}</Text>
+                    <Text style={{ fontSize: 15, width: "70%" }}>{item.name}</Text>
                     <View style={{ flexDirection: "row" }}>
                         <Text style={{ fontSize: 15, fontWeight: "bold" }}>
                             {item.country.code === 'IN' ? (getSymbolFromCurrency("INR") +
@@ -307,8 +312,8 @@ class BulkPayment extends React.Component {
                                 let selectedItemTextinputAndReview = { ...this.state.selectedItemTextinputAndReview }
                                 let deatils = selectedItemTextinputAndReview[item.uniqueName]
                                 let totalAmount = deatils.totalAmount
-                                let amount = await (this.currencyFormat(Number((totalAmount).replace(/[^0-9]/g, '').replace(/,/g, '')), this.state.activeCompany?.balanceDisplayFormat))
-                                console.log("Total Amount with commas " + amount + " currency symbol " + currencySymbol)
+                                let amount = await (this.currencyFormat(Number((totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '')), this.state.activeCompany?.balanceDisplayFormat))
+                                console.log("Total Amount " + (totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '') + " currency symbol " + currencySymbol)
                                 if (amount == "NaN") {
                                     if (Platform.OS == "ios") {
                                         TOAST.show("Invalid Amount", {
@@ -346,7 +351,7 @@ class BulkPayment extends React.Component {
                             console.log(text)
                             let selectedItemTextinputAndReview = { ...this.state.selectedItemTextinputAndReview }
                             let deatils = selectedItemTextinputAndReview[item.uniqueName]
-                            deatils.totalAmount = (text).replace(/[^0-9₹]/g, '')
+                            deatils.totalAmount = (text).replace(/[^0-9.₹]/g, '')
                             this.setState({ selectedItemTextinputAndReview: selectedItemTextinputAndReview })
                         }
                         }
