@@ -168,13 +168,14 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Platform.OS=="ios"? 15:0,
-    paddingHorizontal:20
+    paddingHorizontal:20,
   },
   input: {
     flex: 1,
     width: '100%',
-    color: '#808080',
-    paddingLeft: 10
+    color: '#1c1c1c',
+    paddingLeft: 10,
+    fontFamily:'AvenirLTStd-Book' 
   },
   GreyText: {
     color: '#808080',

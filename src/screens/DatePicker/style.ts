@@ -23,9 +23,9 @@ export default StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: '10%'
   },
-  periodText: { fontFamily: 'AvenirLTStd-Black', fontSize: 16 },
+  periodText: { fontFamily: 'AvenirLTStd-Book', fontSize: 16 },
   periodDot: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#5773FF' },
-  customHeading: { fontSize: 18, fontFamily: 'AvenirLTStd-Black', marginTop: '5%' },
+  customHeading: { fontSize: 18, fontFamily: 'AvenirLTStd-Book', marginTop: '5%' },
   customDatePicker: {
     height: 40,
     // width: Dimensions.get('window').width * 0.85,

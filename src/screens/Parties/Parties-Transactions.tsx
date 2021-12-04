@@ -189,19 +189,22 @@ class PartiesTransactionScreen extends React.Component {
     );
   }
 
-  sendNotification = async (companyName) => {
+  sendNotification = async (data: any) => {
     try {
       await this.createChannel();
-      PushNotification.localNotificationSchedule({
+      const activeCompanyUniqueName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName)
+      const activeCompanyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyName)
+      await PushNotification.localNotificationSchedule({
         date: this.state.dateTime,
-        message: 'Payment to ' + companyName + " is due",
+        message: 'Payment to ' + data.name + " is due",
         allowWhileIdle: true,
         channelId: 'channel-id',
         smallIcon: 'ic_launcher',
-        title: 'Reminder'
+        title: 'Reminder',
+        userInfo: { item: JSON.stringify(data), activeCompanyUniqueName: activeCompanyUniqueName,activeCompanyName:activeCompanyName,activeCompany: this.props.route.params.activeCompany }
       });
-      this.setState({ remainderModal: false });
-      await Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]);
+      await this.setState({ remainderModal: false });
+      await setTimeout(() => { Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]) }, 400)
     } catch (error) {
       console.log("failed to push notification" + error);
       Alert.alert("Fail", "Failed to activat reminder", [{ style: 'destructive', text: 'Okay' }])
@@ -921,7 +924,7 @@ class PartiesTransactionScreen extends React.Component {
     if (today.getDate() == selected.getDate() && today.getMonth() == selected.getMonth() && today.getFullYear() == selected.getFullYear() && this.state.dateTime.getTime() <= new Date(Date.now()).getTime()) {
       Alert.alert("Invalid time", "Please enter a valid time", [{ style: 'destructive', text: 'Okay' }]);
     } else {
-      this.sendNotification(this.props.route.params.item.name);
+      this.sendNotification(this.props.route.params.item);
     }
   }
 

@@ -25,7 +25,7 @@ export default StyleSheet.create({
     companyName: { 
         fontSize: 15, 
         marginHorizontal: 10,
-        marginLeft:20,
+        marginLeft:21,
         textAlignVertical: "center", 
         padding: 0, 
         width: "90%",

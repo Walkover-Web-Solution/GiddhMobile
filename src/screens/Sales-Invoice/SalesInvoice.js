@@ -399,7 +399,7 @@ export class SalesInvoice extends React.Component<Props> {
                   {option}</Text>
               );
             }}
-            dropdownStyle={{ width: width * 0.75, marginTop: 10, borderRadius: 10, height: (this.state.searchResults.length ==0||this.state.searchResults.length ==1) ? 50:(this.state.searchResults.length<5?80:150)}}
+            dropdownStyle={{ width: width * 0.75, marginTop: 10, borderRadius: 10, height: (this.state.searchResults.length == 0 || this.state.searchResults.length == 1) ? 50 : (this.state.searchResults.length < 5 ? 80 : 150) }}
             options={this.state.searchNamesOnly.length == 0 ? ["Result Not found"] : this.state.searchNamesOnly} />
           <TextInput
             placeholderTextColor={'#A6D8BF'}
@@ -1111,17 +1111,28 @@ export class SalesInvoice extends React.Component<Props> {
       // </DateRangePicker>
       <View>
         <View style={style.dateView}>
-          <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
+          <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.setState({ showDatePicker: true })
+            }
+          }}>
             <Icon name={'Calendar'} color={'#229F5F'} size={16} />
             <Text style={style.selectedDateText}>{'Invoice Date - ' + this.formatDate('InvoiceDate')}</Text>
             {/* <Text style={style.selectedDateText}>{"Invoice Date "}</Text> */}
           </TouchableOpacity>
           <TouchableOpacity
             style={{ borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2 }}
-            onPress={() =>
-              this.state.date.startOf('day').isSame(moment().startOf('day'))
-                ? this.getYesterdayDate()
-                : this.getTodayDate()
+            onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.state.date.startOf('day').isSame(moment().startOf('day'))
+                  ? this.getYesterdayDate()
+                  : this.getTodayDate()
+              }
+            }
             }>
             <Text style={{ color: '#808080' }}>
               {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
@@ -1129,7 +1140,11 @@ export class SalesInvoice extends React.Component<Props> {
           </TouchableOpacity>
         </View>
         <View style={style.dueDateView}>
-          <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDueDatePicker: true })}>
+          <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else { this.setState({ showDueDatePicker: true }) }
+          }}>
             <Icon name={'Calendar'} color={'#229F5F'} size={16} />
             <Text style={style.selectedDateText}>{'Due Date - ' + this.formatDate('DueDate')}</Text>
           </TouchableOpacity>
@@ -2074,11 +2089,14 @@ export class SalesInvoice extends React.Component<Props> {
           marginTop: 8
         }}
         onPress={() => {
+          if (!this.state.partyName) {
+            alert('Please select a party.');
+          } else {
           this.props.navigation.navigate('InvoiceOtherDetailScreen', {
             warehouseArray: this.state.warehouseArray,
             setOtherDetails: this.setOtherDetails,
             otherDetails: this.state.otherDetails
-          });
+          })}
         }}>
         <View style={{ flexDirection: 'row' }}>
           <Icon style={{ marginRight: 16 }} name={'Sections'} size={16} color="#229F5F" />

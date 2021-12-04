@@ -509,26 +509,26 @@ export class DebiteNote extends React.Component<Props> {
               onPress={async () => {
                 if (item != "Result Not found") {
 
-                this.setState(
-                  {
-                    partyName: item,
-                    searchResults: [],
-                    searchPartyName: item.name,
-                    searchError: '',
-                    isSearchingParty: false,
-                  },
-                  () => {
-                    this.getAllInvoice();
-                    this.searchAccount();
-                    this.getAllAccountsModes();
-                    Keyboard.dismiss();
-                  },
-                );
-              } else {
-                this.setState({ isSearchingParty: false, searchResults: [] })
-              }
+                  this.setState(
+                    {
+                      partyName: item,
+                      searchResults: [],
+                      searchPartyName: item.name,
+                      searchError: '',
+                      isSearchingParty: false,
+                    },
+                    () => {
+                      this.getAllInvoice();
+                      this.searchAccount();
+                      this.getAllAccountsModes();
+                      Keyboard.dismiss();
+                    },
+                  );
+                } else {
+                  this.setState({ isSearchingParty: false, searchResults: [] })
+                }
               }}>
-                <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
+              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
             </TouchableOpacity>
           )}
         />
@@ -974,16 +974,27 @@ export class DebiteNote extends React.Component<Props> {
       // </DateRangePicker>
 
       <View style={style.dateView}>
-        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
+        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => {
+          if (!this.state.partyName) {
+            alert('Please select a party.');
+          } else {
+            this.setState({ showDatePicker: true })
+          }
+        }}>
           <Icon name={'Calendar'} color={'#ff6961'} size={16} />
           <Text style={style.selectedDateText}>{this.formatDate()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{ borderColor: '#D9D9D9', borderWidth: 1 }}
-          onPress={() =>
-            this.state.date.startOf('day').isSame(moment().startOf('day'))
-              ? this.getYesterdayDate()
-              : this.getTodayDate()
+          onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.state.date.startOf('day').isSame(moment().startOf('day'))
+                ? this.getYesterdayDate()
+                : this.getTodayDate()
+            }
+          }
           }>
           <Text style={{ color: '#808080' }}>
             {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
@@ -1844,11 +1855,14 @@ export class DebiteNote extends React.Component<Props> {
           marginTop: 8,
         }}
         onPress={() => {
+          if (!this.state.partyName) {
+            alert('Please select a party.');
+          } else {
           this.props.navigation.navigate('InvoiceOtherDetailScreen', {
             enteredDetails: this.state.otherDetails,
             warehouseArray: this.state.warehouseArray,
             setOtherDetails: this.setOtherDetails,
-          });
+          })}
         }}>
         <View style={{ flexDirection: 'row' }}>
           <Icon style={{ marginRight: 16 }} name={'Sections'} size={16} color="#ff6961" />

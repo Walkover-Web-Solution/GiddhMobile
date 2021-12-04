@@ -160,13 +160,13 @@ export class Customers extends React.Component<Props> {
 
   renderSavedAddress = () => {
     return (
-      <View style={{ marginLeft: 46 }}>
-        <Text style={{ fontFamily: FONT_FAMILY.bold }}>Billing Address*</Text>
-        {this.state.selectedCountry && this.state.savedAddress.state_billing != '' && <Text style={{ color: '#808080' }} >{this.state.selectedCountry.countryName}</Text>}
-        {this.state.savedAddress.street_billing != '' && <Text style={{ color: '#808080' }} >{this.state.savedAddress.street_billing}</Text>}
-        {this.state.savedAddress.state_billing.name != '' && <Text style={{ color: '#808080' }}>{this.state.savedAddress.state_billing.name}</Text>}
-        {this.state.savedAddress.pincode != '' && <Text style={{ color: '#808080' }}>{this.state.savedAddress.pincode}</Text>}
-        {this.state.savedAddress.gstin_billing != '' && <Text style={{ color: '#808080' }}>{this.state.savedAddress.gstin_billing}</Text>}
+      <View style={{ marginLeft: 46 ,marginTop:10,marginBottom:5}}>
+        <Text style={{ fontFamily: FONT_FAMILY.regular }}>Billing Address*</Text>
+        {this.state.selectedCountry && this.state.savedAddress.state_billing != '' && <Text style={{ color: '#808080',fontFamily:'AvenirLTStd-Book'  }} >{this.state.selectedCountry.countryName}</Text>}
+        {this.state.savedAddress.street_billing != '' && <Text style={{ color: '#808080',fontFamily:'AvenirLTStd-Book'  }} >{this.state.savedAddress.street_billing}</Text>}
+        {this.state.savedAddress.state_billing.name != '' && <Text style={{ color: '#808080',fontFamily:'AvenirLTStd-Book'  }}>{this.state.savedAddress.state_billing.name}</Text>}
+        {this.state.savedAddress.pincode != '' && <Text style={{ color: '#808080',fontFamily:'AvenirLTStd-Book'  }}>{this.state.savedAddress.pincode}</Text>}
+        {this.state.savedAddress.gstin_billing != '' && <Text style={{ color: '#808080',fontFamily:'AvenirLTStd-Book'  }}>{this.state.savedAddress.gstin_billing}</Text>}
       </View>);
   };
 
@@ -176,7 +176,7 @@ export class Customers extends React.Component<Props> {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Set Currency (account)</Text>
+              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10,fontFamily:'AvenirLTStd-Book'  }} >Set Currency (account)</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
@@ -224,7 +224,7 @@ export class Customers extends React.Component<Props> {
         {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
           <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Foreign Opening Balance</Text>
+              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10,fontFamily:'AvenirLTStd-Book'}} >Foreign Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%' }}>Enter Amount</Text> */}
@@ -236,12 +236,12 @@ export class Customers extends React.Component<Props> {
             value={this.state.foreignOpeningBalance}
             placeholder="Amount"
             placeholderTextColor={'rgba(80,80,80,0.5)'}
-            style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: 40, paddingStart: 10 }} />
+            style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: 40, paddingStart: 10,fontFamily:'AvenirLTStd-Book'}} />
         </View>}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
           <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10 }} >Opening Balance</Text>
+              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10,fontFamily:'AvenirLTStd-Book'}} >Opening Balance</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             <RadioForm
@@ -271,7 +271,7 @@ export class Customers extends React.Component<Props> {
                       index={i}
                       labelHorizontal={true}
                       onPress={() => { }}
-                      labelStyle={{ color: '#808080' }}
+                      labelStyle={{ color: '#808080',fontFamily:'AvenirLTStd-Book'  }}
                       labelWrapStyle={{ marginRight: 10, marginTop: 10 }}
                     />
                   </RadioButton>
@@ -287,7 +287,7 @@ export class Customers extends React.Component<Props> {
             placeholderTextColor={'rgba(80,80,80,0.5)'}
             value={this.state.openingBalance}
             placeholder="Amount"
-            style={{ borderWidth: 1, width: '30%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5 }} />
+            style={{ borderWidth: 1, width: '30%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5,fontFamily:'AvenirLTStd-Book'  }} />
         </View>
       </View>
     );
@@ -684,7 +684,7 @@ export class Customers extends React.Component<Props> {
                   }}
                   key={item.item.value}
                   style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
-                  <Text style={{ flex: 1, padding: 20, fontSize: 13 }}>{item.item.label}</Text>
+                  <Text style={{ flex: 1, padding: 20, fontSize: 13,fontFamily:'AvenirLTStd-Book' }}>{item.item.label}</Text>
                 </TouchableOpacity>);
             }}
           />
@@ -694,8 +694,8 @@ export class Customers extends React.Component<Props> {
             onRequestClose={() => { this.setState({ successDialog: false }) }}
             visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Award />
-            <Text style={{ color: '#229F5F', fontSize: 16 }}>Success</Text>
-            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>The Customer is created successfully.</Text>
+            <Text style={{ color: '#229F5F', fontSize: 16,fontFamily:'AvenirLTStd-Book'  }}>Success</Text>
+            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center',fontFamily:'AvenirLTStd-Book'  }}>The Customer is created successfully.</Text>
             <TouchableOpacity
               style={{
                 alignItems: 'center',
@@ -711,7 +711,7 @@ export class Customers extends React.Component<Props> {
                 this.props.navigation.goBack();
               }}
             >
-              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Done</Text>
+              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center',fontFamily:'AvenirLTStd-Book'  }}>Done</Text>
             </TouchableOpacity>
           </Dialog.Container>
           : null}
@@ -720,8 +720,8 @@ export class Customers extends React.Component<Props> {
             onRequestClose={() => { this.setState({ faliureDialog: false }) }}
             visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
             <Faliure />
-            <Text style={{ color: '#F2596F', fontSize: 16 }}>Error!</Text>
-            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center' }}>Sorry, Failed to import the entries.</Text>
+            <Text style={{ color: '#F2596F', fontSize: 16,fontFamily:'AvenirLTStd-Book'  }}>Error!</Text>
+            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center',fontFamily:'AvenirLTStd-Book'  }}>Sorry, Failed to import the entries.</Text>
             <TouchableOpacity
               style={{
                 alignItems: 'center',
@@ -736,7 +736,7 @@ export class Customers extends React.Component<Props> {
                 this.setState({ faliureDialog: false });
               }}
             >
-              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center' }}>Try Again</Text>
+              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center',fontFamily:'AvenirLTStd-Book'  }}>Try Again</Text>
             </TouchableOpacity>
           </Dialog.Container>
           : null}
@@ -757,8 +757,8 @@ export class Customers extends React.Component<Props> {
               }
               }
               style={styles.input}>
-              <Text style={{ color: this.state.partyPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
-              <Text style={{ color: '#E04646' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
+              <Text style={{ color: this.state.partyPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily:'AvenirLTStd-Book'  }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
+              <Text style={{ color: '#E04646',fontFamily:'AvenirLTStd-Book'  }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
             </TextInput>
           </View>
           <View style={styles.rowContainer}>
@@ -768,7 +768,7 @@ export class Customers extends React.Component<Props> {
                 isMobileModalVisible: !this.state.isMobileModalVisible, filteredCallingCode: this.state.allCallingCode,
               })
             }}><Text
-              style={{ color: '#808080', paddingRight: 7, paddingVertical: 5, fontSize: 15, marginTop: -1, }}
+              style={{ color: '#1c1c1c', paddingRight: 7, paddingVertical: 5, fontSize: 15,fontFamily:'AvenirLTStd-Book'  }}
             >{this.state.selectedCallingCode}</Text></TouchableOpacity>
             {/* <Dropdown
               ref={(ref) => this.state.partyDropDown = ref}
@@ -801,7 +801,7 @@ export class Customers extends React.Component<Props> {
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder={this.getMobilePlaceHolder()}
               value={this.state.contactNumber}
-              style={{ ...styles.input, paddingLeft: 5, color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }} />
+              style={{ ...styles.input, paddingLeft: 5,marginTop:2 ,color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c'}} />
           </View>
           {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
@@ -822,7 +822,7 @@ export class Customers extends React.Component<Props> {
             <Dropdown
               ref={(ref) => this.state.groupDropDown = ref}
               style={{ flex: 1, paddingLeft: 10 }}
-              textStyle={{ color: '#808080' }}
+              textStyle={{ color: '#1c1c1c',fontFamily:'AvenirLTStd-Book',fontSize:14  }}
               defaultValue={this.state.selectedGroup}
               options={this.state.AllGroups}
               renderSeparator={() => {
@@ -831,9 +831,9 @@ export class Customers extends React.Component<Props> {
               onDropdownWillShow={() => this.setState({ isGroupDD: true })}
               onDropdownWillHide={() => this.setState({ isGroupDD: false })}
               dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
-              dropdownTextStyle={{ color: '#1C1C1C' }}
+              dropdownTextStyle={{ color: '#1c1c1c',fontFamily:'AvenirLTStd-Book',fontSize:14  }}
               renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
+                return (<Text style={{ padding: 13, color: '#1c1c1c',fontSize:14 }}>{options}</Text>);
               }}
               onSelect={(index, value) => { this.setState({ selectedGroup: value }) }} />
             <Icon
@@ -848,14 +848,14 @@ export class Customers extends React.Component<Props> {
             />
           </View>
           <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 10, paddingVertical: 20, justifyContent: 'space-between' }}>
-            <MaterialIcons name="hourglass-full" size={18} color="#864DD3" />
+            <MaterialIcons name="hourglass-full" size={18} color="#864DD3" style={{marginLeft:-1}} />
             <TouchableOpacity
               onPress={() => {
                 this.setState({ partyDialog: true })
               }}
               style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}</Text>
-              <Text style={{ color: '#E04646' }}>{this.state.partyType == '' ? '*' : ''}</Text>
+              <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily:'AvenirLTStd-Book'  }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}</Text>
+              <Text style={{ color: '#E04646',fontFamily:'AvenirLTStd-Book'  }}>{this.state.partyType == '' ? '*' : ''}</Text>
             </TouchableOpacity>
             {/* <Dropdown
               ref={(ref) => this.state.partyDropDown = ref}
@@ -911,11 +911,11 @@ export class Customers extends React.Component<Props> {
               color="#864DD3"
               style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
             <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
-              <Text style={{ color: '#1C1C1C' }}>Address Details</Text>
-              <Text style={{ color: '#E04646' }}>*</Text>
+              <Text style={{ color: '#1C1C1C',fontFamily:'AvenirLTStd-Book'  }}>Address Details</Text>
+              <Text style={{ color: '#E04646',fontFamily:'AvenirLTStd-Book'  }}>*</Text>
             </View>
             <Icon
-              style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }] }}
+              style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }],padding:6,right:-5}}
               name={'9'}
               size={12}
               color="#808080"
@@ -950,7 +950,7 @@ export class Customers extends React.Component<Props> {
               color="#864DD3"
               style={{ transform: [{ rotate: this.state.showBalanceDetails ? '45deg' : '0deg' }] }} />
             <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: '#1C1C1C' }}>Balance Details</Text>
+              <Text style={{ color: '#1C1C1C',fontFamily:'AvenirLTStd-Book'  }}>Balance Details</Text>
             </View>
             <Icon
               style={{ transform: [{ rotate: this.state.showBalanceDetails ? '180deg' : '0deg' }] }}

@@ -510,7 +510,7 @@ export class CreditNote extends React.Component<Props> {
                   this.setState({ isSearchingParty: false, searchResults: [] })
                 }
               }}>
-                <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
+              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
             </TouchableOpacity>
           )}
         />
@@ -954,16 +954,27 @@ export class CreditNote extends React.Component<Props> {
       // </DateRangePicker>
 
       <View style={style.dateView}>
-        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
+        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => {
+          if (!this.state.partyName) {
+            alert('Please select a party.');
+          } else {
+            this.setState({ showDatePicker: true })
+          }
+        }}>
           <Icon name={'Calendar'} color={'#3497FD'} size={16} />
           <Text style={style.selectedDateText}>{this.formatDate()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{ borderColor: '#D9D9D9', borderWidth: 1 }}
-          onPress={() =>
-            this.state.date.startOf('day').isSame(moment().startOf('day'))
-              ? this.getYesterdayDate()
-              : this.getTodayDate()
+          onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.state.date.startOf('day').isSame(moment().startOf('day'))
+                ? this.getYesterdayDate()
+                : this.getTodayDate()
+            }
+          }
           }>
           <Text style={{ color: '#808080' }}>
             {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
@@ -1820,11 +1831,14 @@ export class CreditNote extends React.Component<Props> {
           marginTop: 8,
         }}
         onPress={() => {
+          if (!this.state.partyName) {
+            alert('Please select a party.');
+          } else {
           this.props.navigation.navigate('CreditNoteOtherDetails', {
             enteredDetails: this.state.otherDetails,
             warehouseArray: this.state.warehouseArray,
             setOtherDetails: this.setOtherDetails,
-          });
+          })}
         }}>
         <View style={{ flexDirection: 'row' }}>
           <Icon style={{ marginRight: 16 }} name={'Sections'} size={16} color="#3497FD" />

@@ -8,7 +8,7 @@ import {
   Dimensions,
   StatusBar,
   InteractionManager,
-  DeviceEventEmitter,Platform
+  DeviceEventEmitter, Platform, KeyboardAwareScrollView
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -26,7 +26,7 @@ interface Props {
   navigation: any;
 }
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
@@ -48,11 +48,13 @@ export class Customer extends React.Component<Props> {
       index: 0,
       customerReset: () => { },
       vendorReset: () => { },
-      screenWidth: Dimensions.get('window').width
+      screenWidth: Dimensions.get('window').width,
+      screenHeight: Dimensions.get('window').height
     }
     Dimensions.addEventListener('change', () => {
       this.setState({
         screenWidth: Dimensions.get('window').width,
+        screenHeight: Dimensions.get('window').height
       });
     });
   }
@@ -67,7 +69,7 @@ export class Customer extends React.Component<Props> {
   }
 
   FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
+    return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
 
   renderHeader() {
@@ -81,10 +83,10 @@ export class Customer extends React.Component<Props> {
         </TouchableOpacity>
         <View style={style.invoiceTypeButton}>
           <Text style={style.invoiceType}>
-            Create New Party
-            </Text>
+            {this.state.currentPage == 1 ? (this.props.route.params.uniqueName ? "Enter Bank Detail" : "Create New Party") : "Create New Party"}
+          </Text>
           <TouchableOpacity onPress={this.resetFun}>
-            <Text style={{ color: 'white' }}>Clear All</Text>
+            <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
           </TouchableOpacity>
         </View >
       </View>
@@ -172,9 +174,9 @@ export class Customer extends React.Component<Props> {
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
           keyboardShouldPersistTaps="always"
-          style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
-          bounces={false}>
-          <View style={style.container}>
+          style={[{ flex: 1, backgroundColor: 'white' }]}
+          bounces={true}>
+          <View style={[style.container, { height: this.state.screenHeight,width:this.state.screenWidth }]}>
             {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
@@ -215,7 +217,7 @@ export class Customer extends React.Component<Props> {
                     fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal'
                   }}>
                   Customers
-            </Text>
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
@@ -245,13 +247,13 @@ export class Customer extends React.Component<Props> {
                     fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal'
                   }}>
                   Vendors
-            </Text>
+                </Text>
               </TouchableOpacity>
             </View>
             <ScrollView
               ref={this.scrollRef}
               onLayout={this.ScrollViewOnLayout}
-              style={{ flex: 1 }}
+              style={{ flex: 1,marginBottom:Platform.OS=="ios"?100:20 }}
               horizontal={true}
               scrollEventThrottle={16}
               pagingEnabled={true}
@@ -266,7 +268,7 @@ export class Customer extends React.Component<Props> {
                       <View style={{
                         justifyContent: 'center',
                         alignItems: 'center',
-                        position:"absolute",
+                        position: "absolute",
                         backgroundColor: 'rgba(0,0,0,0)',
                         left: 0,
                         right: 0,
@@ -291,7 +293,7 @@ export class Customer extends React.Component<Props> {
                       <View style={{
                         justifyContent: 'center',
                         alignItems: 'center',
-                        position:"absolute",
+                        position: "absolute",
                         backgroundColor: 'rgba(0,0,0,0)',
                         left: 0,
                         right: 0,

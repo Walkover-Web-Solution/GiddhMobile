@@ -2711,6 +2711,9 @@ export class EditAddress extends React.Component<any, any> {
             alert('Enter a valid TRN number, should be 15 characters long')
       } else if (this.state.gstNumberWrong || !this.gstValidator()) {
          countryCode == "IN" ? alert('Enter a valid gst number') : alert('Enter a valid TRN number')
+      } else if (this.state.pinCode.length > 15) {
+         alert('Pincode can be maximum 15 digits in length');
+         return
       } else {
          const address = {
             address: this.state.address,

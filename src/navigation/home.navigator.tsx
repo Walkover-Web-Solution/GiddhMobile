@@ -12,19 +12,95 @@ import { PartiesStack } from './parties.navigator';
 import AddButton from './components/AddButton';
 import DashboardStack from './dashboard.navigator';
 
-import { View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter } from 'react-native';
+import { View, TouchableOpacity, Text, Dimensions, DeviceEventEmitter, Alert } from 'react-native';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useSelector } from 'react-redux';
 import { InventoryNavigator } from './inventory.navigator';
+import { useNavigation } from '@react-navigation/native';
+import PushNotification from 'react-native-push-notification';
+import PushNotificationIOS from "@react-native-community/push-notification-ios";
+
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
 const { height } = Dimensions.get('window');
 
+export function setupPushNotification(handleNotification: any) {
+
+  PushNotification.configure({
+    // (optional) Called when Token is generated (iOS and Android)
+    onRegister: function (token) {
+      console.log("TOKEN:", token);
+    },
+
+    // (required) Called when a remote is received or opened, or local notification is opened
+    onNotification: function (notification) {
+      handleNotification(notification)
+      notification.finish(PushNotificationIOS.FetchResult.NoData);
+    },
+
+    // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
+    onAction: function (notification) {
+      console.log("ACTION:", notification.action);
+      console.log("NOTIFICATION:", notification);
+
+      // process the action
+    },
+
+    // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
+    onRegistrationError: function (err) {
+      console.error(err.message, err);
+    },
+
+    // IOS ONLY (optional): default: all - Permissions to register.
+    permissions: {
+      alert: true,
+      badge: true,
+      sound: true,
+    },
+
+    // Should the initial notification be popped automatically
+    // default: true
+    popInitialNotification: true,
+
+    /**
+     * (optional) default: true
+     * - Specified if permissions (ios) and token (android and ios) will requested or not,
+     * - if not, you must call PushNotificationsHandler.requestPermissions() later
+     * - if you are not using remote notification or do not have Firebase installed, use this:
+     *     requestPermissions: Platform.OS === 'ios'
+     */
+    requestPermissions: true,
+  });
+}
+
 export const HomeNavigator = () => {
   const [branchSelected, setBranchSelected] = useState(true);
   const disableTabs = useSelector((state) => state.commonReducer.isUnauth);
+  const navigationRef = useNavigation();
+
+  const _handleNotificationOpen = async (notification: any) => {
+    console.log("NOTIFICATION RECEIVED-------------" + JSON.stringify(notification))
+    const activeCompanyUniqueName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName)
+    var item = JSON.parse(notification.data.item)
+    if (activeCompanyUniqueName == notification.data.activeCompanyUniqueName) {
+      navigationRef.navigate("parties",
+        {
+          screen: 'PartiesTransactions',
+          initial: false,
+          params: {
+            item: item,
+            type: (item.category === 'liabilities' ? 'Vendors' : 'Creditors'),
+            activeCompany: notification.data.activeCompany ? notification.data.activeCompany : null
+          },
+        })
+    } else {
+      alert(`For doing payment to ${item.name}, You need to select company "${notification.data.activeCompanyName}"`)
+    }
+  }
+  setupPushNotification(_handleNotificationOpen)
+
   useEffect(() => {
     // getPartiesSundryCreditors();
     isBranchSelected();
@@ -51,7 +127,7 @@ export const HomeNavigator = () => {
       <View
         style={{
           flexDirection: 'row',
-          backgroundColor: disableTabs ? 'rgba(00,00,00,0.1)' : 'white',
+          backgroundColor: disableTabs ? "red" : 'white',
           height: height * 0.08,
           justifyContent: 'space-between',
           alignItems: 'center',

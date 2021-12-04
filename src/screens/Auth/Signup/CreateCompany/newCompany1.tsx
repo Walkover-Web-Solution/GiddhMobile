@@ -19,6 +19,7 @@ import * as CommonActions from '@/redux/CommonAction';
 import CountryPicker from 'react-native-country-picker-modal'
 import Modal from 'react-native-modal';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 var PhoneNumber = require('awesome-phonenumber');
 class NewCompany extends React.Component<any, any> {
@@ -207,13 +208,14 @@ class NewCompany extends React.Component<any, any> {
     }
 
     validateDetails = () => {
-        if (this.state.companyName != "" && this.state.countryName != null && this.state.currency != null && this.state.mobileNumber != null) {
+        console.log(this.state.mobileNumber)
+        if (this.state.companyName != "" && this.state.countryName != null && this.state.currency != null && this.state.mobileNumber != null && this.state.mobileNumber != '') {
             return true
         }
         return false
     }
 
-    onSelect = async(country: any) => {
+    onSelect = async (country: any) => {
         for (let i = 0; i < this.state.countryData.length; i++) {
             if (this.state.countryData[i].alpha2CountryCode.includes(country.cca2)) {
                 await this.setState({
@@ -225,7 +227,7 @@ class NewCompany extends React.Component<any, any> {
         }
     }
 
-   
+
     getMobilePlaceHolder = () => {
         var regionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode)
         let placeholder = regionCode != null ? PhoneNumber.getExample(regionCode, 'mobile').getNumber('significant') : "Enter Contact number"
@@ -268,7 +270,7 @@ class NewCompany extends React.Component<any, any> {
         return (
             <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
-                    onPress={async() => {
+                    onPress={async () => {
                         await this.setState({ isMobileModalVisible: false, selectedCallingCode: callingCode })
                         await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
                     }}>
@@ -282,7 +284,7 @@ class NewCompany extends React.Component<any, any> {
     renderCurrencyItem(Currency: any) {
         return (
             <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <TouchableOpacity style={{ paddingVertical: 10, width: "90%", flexDirection: "row", justifyContent: "space-between",}}
+                <TouchableOpacity style={{ paddingVertical: 10, width: "90%", flexDirection: "row", justifyContent: "space-between", }}
                     onPress={() => {
                         this.setState({ currency: Currency, isCurrencyModalVisible: false })
                     }}>
@@ -301,7 +303,7 @@ class NewCompany extends React.Component<any, any> {
                 style={style.modalMobileContainer}>
                 <SafeAreaView style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
-                        <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible:false }) }} style={style.cancelButtonTextModal}>
+                        <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: false }) }} style={style.cancelButtonTextModal}>
                             <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
                         </TouchableOpacity>
                         <TextInput
@@ -366,8 +368,23 @@ class NewCompany extends React.Component<any, any> {
             <SafeAreaView style={style.container}>
                 <ScrollView style={{ flex: 1 }}>
                     <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
-                    <Text style={style.Heading}>{"Welcome " + this.state.userName + "!"}</Text>
-                    <Text style={style.text}>Enter the following deatils to start hassel free accounting with Giddh </Text>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center'
+                        }}>
+                        {this.props.route.params ? <View style={{ marginRight: 10 }}>
+                            <Icon
+                                size={20}
+                                name={'Backward-arrow'}
+                                onPress={() => {
+                                    this.props.navigation.goBack();
+                                }}
+                            />
+                        </View> : null}
+                        <Text style={[style.Heading, { marginHorizontal: this.props.route.params ? 10 : 0 }]}>{"Welcome " + this.state.userName + ","}</Text>
+                    </View>
+                    <Text style={[style.text, { marginLeft: this.props.route.params ? 40 : 0 }]}>Enter the following details to start hassel free accounting with Giddh </Text>
                     <View style={{ marginTop: 30, flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                         <FontAwesome5 name="building" size={18} color={'#5773FF'} style={{ marginTop: 4, paddingBottom: 3 }} />
                         <TextInput
@@ -436,7 +453,8 @@ class NewCompany extends React.Component<any, any> {
                         <View style={{ width: 10 }} />
                         <View style={{ width: "30%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                             <View style={{ backgroundColor: '#5773FF', width: 20, height: 20, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
-                                <FontAwesome name={'dollar'} color="white" size={14} />
+                                {/* <FontAwesome name={'dollar'} color="white" size={14} /> */}
+                                <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book', fontSize: this.state.currency.symbol.length > 1 ? (this.state.currency.symbol.length > 3 ? 8 : 10) : 14 }}>{this.state.currency.symbol}</Text>
                             </View>
                             <TouchableOpacity
                                 onPress={() => {
@@ -520,7 +538,7 @@ class NewCompany extends React.Component<any, any> {
                                 })
                             }
                             }
-                            style={[style.companyName, { marginLeft: 5, }]}>
+                            style={[style.companyName, { marginLeft: 10 }]}>
                             <Text style={{ color: this.state.mobileNumberPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>
                                 {this.state.mobileNumberPlaceHolder == '' ?
                                     this.getMobilePlaceHolder()
@@ -528,7 +546,7 @@ class NewCompany extends React.Component<any, any> {
                             <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.mobileNumberPlaceHolder == '' ? '*' : ''}</Text>
                         </TextInput>
                     </View>
-                    {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 30 }}>Sorry! Invalid Number</Text>}
+                    {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 30 }}>Sorry!Invalid Number</Text>}
                     {this.renderModalView()}
                     {this.renderCurrencyModalView()}
                 </ScrollView>
@@ -544,14 +562,14 @@ class NewCompany extends React.Component<any, any> {
                             alignSelf: 'center',
                         }}
                         onPress={() => {
-                            var PhoneNumber = require('awesome-phonenumber');
-                            var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
-                            var pn = new PhoneNumber(this.state.mobileNumber, getRegionCode);
-                            if (!pn.isValid()) {
-                                alert("Invalid Contact Number")
-                                return
-                            }
                             if (this.validateDetails()) {
+                                var PhoneNumber = require('awesome-phonenumber');
+                                var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
+                                var pn = new PhoneNumber(this.state.mobileNumber, getRegionCode);
+                                if (!pn.isValid()) {
+                                    alert("Invalid Contact Number")
+                                    return
+                                }
                                 this.props.navigation.navigate("createCompanyDetails", {
                                     companyName: this.state.companyName,
                                     country: this.state.countryName,

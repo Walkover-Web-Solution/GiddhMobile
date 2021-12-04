@@ -305,9 +305,7 @@ export class PurchaseBill extends React.Component {
             returnKeyType={'done'}
             value={this.state.searchPartyName}
             onChangeText={(text) =>
-              this.setState({ searchPartyName: text }, () => {
-                this.searchCalls();
-              })
+              this.setState({ searchPartyName: text }, this.searchCalls())
             }
             style={style.searchTextInputStyle}
           />
@@ -445,58 +443,59 @@ export class PurchaseBill extends React.Component {
       //         isSearchingParty: false,
       //       })
       //     }>
-      <Modal animationType="none" transparent={true} visible={true}>
-        <View style={[style.searchResultContainer, { top: Platform.OS == "ios" ? height * 0.145 : height * 0.12 }]}>
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-              padding: 5,
-              alignItems: 'center',
-            }}
-            onPress={() =>
-              this.setState({
-                searchResults: [],
-                searchError: '',
-                isSearchingParty: false,
-              })
-            }>
-            <Ionicons name="close-circle" size={20} color={'#424242'} />
-            {/* <Text style={{marginLeft: 3}}>Close</Text> */}
-          </TouchableOpacity>
-          <FlatList
-            data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
-            style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={{}}
-                onFocus={() => this.onChangeText('')}
-                onPress={async () => {
-                  if (item != "Result Not found") {
-                    this.setState(
-                      {
-                        partyName: item,
-                        searchResults: [],
-                        searchPartyName: item.name,
-                        searchError: '',
-                        isSearchingParty: false,
-                      },
-                      () => {
-                        this.searchAccount();
-                        this.getAllAccountsModes();
-                        Keyboard.dismiss();
-                      },
-                    );
-                  } else {
-                    this.setState({ isSearchingParty: false, searchResults: [] })
-                  }
-                }}>
-                <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      </Modal>
+      // <Modal animationType="none" transparent={true} visible={true}>
+      <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'flex-end',
+            padding: 5,
+            alignItems: 'center',
+          }}
+          onPress={() =>
+            this.setState({
+              searchResults: [],
+              searchError: '',
+              isSearchingParty: false,
+            })
+          }>
+          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          {/* <Text style={{marginLeft: 3}}>Close</Text> */}
+        </TouchableOpacity>
+        <FlatList
+          data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
+          style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={{}}
+              onFocus={() => this.onChangeText('')}
+              onPress={async () => {
+                if (item != "Result Not found") {
+                  this.setState(
+                    {
+                      partyName: item,
+                      searchResults: [],
+                      searchPartyName: item.name,
+                      searchError: '',
+                      isSearchingParty: false,
+                    },
+                    () => {
+                      this.searchAccount();
+                      this.getAllAccountsModes();
+                      Keyboard.dismiss();
+                    },
+                  );
+                } else {
+                  this.setState({ isSearchingParty: false, searchResults: [] })
+                }
+              }}>
+              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+      // </Modal>
     );
   }
 
@@ -1087,17 +1086,27 @@ export class PurchaseBill extends React.Component {
       // </DateRangePicker>
 
       <View style={style.dateView}>
-        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => this.setState({ showDatePicker: true })}>
+        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => {
+          if (!this.state.partyName) {
+            alert('Please select a party.');
+          } else {
+            this.setState({ showDatePicker: true })
+          }
+        }}>
           <Icon name={'Calendar'} color={'#FC8345'} size={16} />
           <Text style={style.selectedDateText}>{this.formatDate()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{ borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2 }}
-          onPress={() =>
-            this.state.date.startOf('day').isSame(moment().startOf('day'))
-              ? this.getYesterdayDate()
-              : this.getTodayDate()
-          }>
+          onPress={() => {
+            if (!this.state.partyName) {
+              alert('Please select a party.');
+            } else {
+              this.state.date.startOf('day').isSame(moment().startOf('day'))
+                ? this.getYesterdayDate()
+                : this.getTodayDate()
+            }
+          }}>
           <Text style={{ color: '#808080' }}>
             {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
           </Text>
@@ -1720,6 +1729,7 @@ export class PurchaseBill extends React.Component {
           data={this.state.addedItems}
           style={{ paddingHorizontal: 10, paddingVertical: 10 }}
           renderItem={({ item }) => this.renderStockItem(item)}
+          keyExtractor={(item, index) => index.toString()}
         />
       </View>
     );
@@ -2081,11 +2091,15 @@ export class PurchaseBill extends React.Component {
           marginTop: 8,
         }}
         onPress={() => {
-          this.props.navigation.navigate('PurchaseBillOtherDetails', {
-            warehouseArray: this.state.warehouseArray,
-            setOtherDetails: this.setOtherDetails,
-            otherDetails: this.state.otherDetails,
-          });
+          if (!this.state.partyName) {
+            alert('Please select a party.');
+          } else {
+            this.props.navigation.navigate('PurchaseBillOtherDetails', {
+              warehouseArray: this.state.warehouseArray,
+              setOtherDetails: this.setOtherDetails,
+              otherDetails: this.state.otherDetails,
+            })
+          }
         }}>
         <View style={{ flexDirection: 'row' }}>
           <Icon style={{ marginRight: 16 }} name={'Sections'} size={16} color="#FC8345" />
@@ -2163,7 +2177,8 @@ export class PurchaseBill extends React.Component {
                         <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + item.amount}</Text>
                       </View>
                     )
-                  }} />
+                  }}
+                  keyExtractor={(item, index) => index.toString()} />
                 : null
             }
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>

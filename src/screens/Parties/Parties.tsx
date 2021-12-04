@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, DeviceEventEmitter, Text } from 'react-native';
+import { View, DeviceEventEmitter, Text, Image } from 'react-native';
 import style from '@/screens/Parties/style';
 import color from '@/utils/colors';
 import { PartiesList } from '@/screens/Parties/components/parties-list.component';
@@ -88,10 +88,21 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       );
     } else {
       return (
-        <ScrollView style={style.container}>
-         {this.state.debtData.length>9?<Text style={{textAlign:"center",fontSize:15,fontWeight:"bold"}}>TOP 10 Creditors and Debtors</Text>:null}
-          <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
-        </ScrollView>
+        this.state.debtData.length == 0
+          ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center',backgroundColor:'#FAFBFF'}}>
+              <Image
+                source={require('@/assets/images/noParty.png')}
+                style={{ resizeMode: 'contain', height: 230, width: 300 }}
+              />
+              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop:0 }}>No Parties</Text>
+            </View>
+          )
+          :
+          (<ScrollView style={style.container}>
+            {this.state.debtData.length > 9 ? <Text style={{ textAlign: "center", fontSize: 15, fontWeight: "bold" }}>TOP 10 Creditors and Debtors</Text> : null}
+            <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
+          </ScrollView>)
       );
     }
   }

@@ -46,11 +46,11 @@ class Signup extends React.Component<any, any> {
   }
 
   componentDidUpdate(prevProps) {
-    if (!prevProps.startTFA && this.props.startTFA) {
-      this.setState({ showLoader: false });
-      console.log('going to otp');
-      this.props.navigation.navigate('Otp');
-    }
+    // if (!prevProps.startTFA && this.props.startTFA) {
+    //   this.setState({ showLoader: false });
+    //   console.log('going to otp');
+    //   this.props.navigation.navigate('Otp');
+    // }
   }
 
   componentWillUnmount() {
@@ -132,7 +132,7 @@ class Signup extends React.Component<any, any> {
 
   async verifyOTP() {
     if (this.state.code.length !== 8) {
-      alert("Please enter valid OTP");
+      alert("Please enter valid verification code");
       return
     }
     await this.props.verifySignupOTP({ email: this.state.username, verificationCode: this.state.code })
@@ -178,7 +178,7 @@ class Signup extends React.Component<any, any> {
 
           <LoginButton
             size={ButtonSize.medium}
-            label={'Sign up with Google'}
+            label={'Signup with Google'}
             style={[style.gmailButton, { marginTop: this.state.keyboard ? 15 : 30 }]}
             onPress={this._googleSignIn}
             icon="gmail"
@@ -187,7 +187,7 @@ class Signup extends React.Component<any, any> {
           {Platform.OS == 'ios' && (
             <LoginButton
               size={ButtonSize.medium}
-              label={'Sign up with Apple'}
+              label={'Signup with Apple'}
               style={style.appleButton}
               icon="apple"
               onPress={() => this.onAppleButtonPress()}
@@ -202,7 +202,7 @@ class Signup extends React.Component<any, any> {
 
         {!this.state.otpSent ? <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>
           <View>
-            <Text style={style.registerStyle}>Registered Email ID</Text>
+            <Text style={style.registerStyle}>Email ID</Text>
           </View>
 
           <View style={style.formInput}>

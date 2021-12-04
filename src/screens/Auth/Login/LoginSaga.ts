@@ -39,7 +39,7 @@ const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, use
 export function* resetPassword(action) {
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
-    alert('Please enter valid email & Password');
+    alert('Please enter valid email & password');
     yield put(LoginAction.resetPasswordFailure('Please enter valid email'));
   } else {
     const response = yield call(LoginService.resetPassword, action.payload);
@@ -55,7 +55,7 @@ export function* resetPassword(action) {
 export function* verifyUserEmailPasswordLogin(action) {
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
-    alert('Please enter valid email & Password');
+    alert('Please enter valid email & password');
     yield put(LoginAction.loginUserFailure('Please enter valid email & Password'));
   } else {
     const response = yield call(LoginService.userLogin, action.payload);
@@ -100,8 +100,8 @@ export function* verifyUserEmailPasswordLogin(action) {
 export function* signupUsingEmailPassword(action) {
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (reg.test(action.payload.email) === false || action.payload.password.length == 0) {
-    alert('Please enter valid email & Password');
-    yield put(LoginAction.signupOTPFailure('Please enter valid email & Password'));
+    alert('Please enter valid email & password');
+    yield put(LoginAction.signupOTPFailure('Please enter valid email & password'));
   } else {
     const response = yield call(LoginService.sentOTPSignup, action.payload);
     if (response.status == 'success' && response.body.isNewUser && !response.body.user.isVerified) {
