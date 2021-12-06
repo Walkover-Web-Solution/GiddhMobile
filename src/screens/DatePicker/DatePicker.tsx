@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { View, Dimensions, Text } from 'react-native';
+import { View, Dimensions, Text,StatusBar } from 'react-native';
 import styles from './style';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Custom from './Custom';
@@ -9,7 +9,7 @@ import Period from './Period';
 const initialLayout = { width: Dimensions.get('window').width };
 
 export class AppDatePicker extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       index: 0,
@@ -60,7 +60,7 @@ export class AppDatePicker extends React.Component {
     />
   );
 
-  render () {
+  render() {
     const FirstRoute = () => (
       <Period
         selectDate={this.props.route.params.selectDate}
@@ -87,6 +87,7 @@ export class AppDatePicker extends React.Component {
     });
     return (
       <View style={styles.container}>
+        <StatusBar backgroundColor='#520EAD' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} />
         {this.props.route.params.DateRangeOnly ? SecondRoute()
           : <TabView
             navigationState={{ index: this.state.index, routes: this.state.routes }}

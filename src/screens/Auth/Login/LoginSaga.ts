@@ -91,7 +91,22 @@ export function* verifyUserEmailPasswordLogin(action) {
       yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
       yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
     } else {
-      alert(response.data.message);
+      //alert(response.data.message);
+      if (Platform.OS == "android") {
+        ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+      } else {
+        TOAST.show(response.data.message, {
+          duration: TOAST.durations.LONG,
+          position: -70,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        });
+      }
       yield put(LoginAction.loginUserFailure(response.data.message));
     }
   }
@@ -150,7 +165,22 @@ export function* signupUsingEmailPassword(action) {
         yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
       } else {
         yield put(LoginAction.signupOTPFailure(response.data.message));
-        yield alert(response.data.message);
+        if (Platform.OS == "android") {
+          ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+        } else {
+          TOAST.show(response.data.message, {
+            duration: TOAST.durations.LONG,
+            position: -70,
+            hideOnPress: true,
+            backgroundColor: "#1E90FF",
+            textColor: "white",
+            opacity: 1,
+            shadow: false,
+            animation: true,
+            containerStyle: { borderRadius: 10 }
+          });
+        }
+        //yield alert(response.data.message);
       }
     }
   }
@@ -175,7 +205,21 @@ export function* verifySignupOTP(action) {
       }),
     );
   } else {
-    alert(response.data.message);
+    if (Platform.OS == "android") {
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+    } else {
+      TOAST.show(response.data.message, {
+        duration: TOAST.durations.LONG,
+        position: -70,
+        hideOnPress: true,
+        backgroundColor: "#1E90FF",
+        textColor: "white",
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      });
+    }
     yield put(LoginAction.loginUserFailure(response.data.message));
   }
 }
@@ -218,6 +262,21 @@ export function* googleLogin(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
   } else {
+    if (Platform.OS == "android") {
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+    } else {
+      TOAST.show(response.data.message, {
+        duration: TOAST.durations.LONG,
+        position: -70,
+        hideOnPress: true,
+        backgroundColor: "#1E90FF",
+        textColor: "white",
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      });
+    }
     yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
   }
 }
@@ -243,6 +302,21 @@ export function* verifyOTP(action) {
     );
   } else {
     yield put(LoginAction.verifyOTPFailed(response.data.message));
+    if (Platform.OS == "android") {
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+    } else {
+      TOAST.show(response.data.message, {
+        duration: TOAST.durations.LONG,
+        position: -70,
+        hideOnPress: true,
+        backgroundColor: "#1E90FF",
+        textColor: "white",
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      });
+    } 
   }
 }
 
@@ -282,7 +356,22 @@ export function* appleLogin(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
   } else {
-    alert(response.data.message);
+    //alert(response.data.message);
+    if (Platform.OS == "android") {
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+    } else {
+      TOAST.show(response.data.message, {
+        duration: TOAST.durations.LONG,
+        position: -70,
+        hideOnPress: true,
+        backgroundColor: "#1E90FF",
+        textColor: "white",
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      });
+    }
     yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
   }
 }

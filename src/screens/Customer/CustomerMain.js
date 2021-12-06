@@ -8,7 +8,7 @@ import {
   Dimensions,
   StatusBar,
   InteractionManager,
-  DeviceEventEmitter, Platform, KeyboardAwareScrollView
+  DeviceEventEmitter, Platform,
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -21,6 +21,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Vendors } from './Vendors';
 import { Customers } from './Customers';
 import { APP_EVENTS } from '@/utils/constants';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 interface Props {
   navigation: any;
@@ -171,152 +172,154 @@ export class Customer extends React.Component<Props> {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <Animated.ScrollView
-          keyboardShouldPersistTaps="always"
-          style={[{ flex: 1, backgroundColor: 'white' }]}
-          bounces={true}>
-          <View style={[style.container, { height: this.state.screenHeight,width:this.state.screenWidth }]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
-            <View style={style.headerConatiner}>
-              {this.renderHeader()}
-            </View>
-            <View
-              style={{
-                marginTop: 10,
-
-                justifyContent: 'space-around',
-                flexDirection: 'row',
-                marginBottom: 5
-              }}>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: this.state.currentPage == 0 ? '#ECE4F8' : null,
-                  borderTopEndRadius: 17,
-                  borderTopLeftRadius: 17,
-                  borderBottomLeftRadius: 17,
-                  borderColor: this.state.currentPage == 1 ? '#5773FF' : '#D9D9D9',
-                  width: Dimensions.get('window').width * 0.4,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingVertical: 7,
-                  borderWidth: 1
-                }}
-                onPress={() =>
-                  this.scrollRef.current.scrollTo({
-                    animated: true,
-                    y: 0,
-                    x: this.state.screenWidth * -1
-                  })
-                }>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    color: this.state.currentPage == 0 ? '#5773FF' : '#808080',
-                    // fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-                    fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal'
-                  }}>
-                  Customers
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  borderTopEndRadius: 17,
-                  borderTopLeftRadius: 17,
-                  borderBottomLeftRadius: 17,
-                  backgroundColor: this.state.currentPage == 1 ? '#ECE4F8' : null,
-                  borderColor: this.state.currentPage == 0 ? '#5773FF' : '#D9D9D9',
-                  width: Dimensions.get('window').width * 0.4,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingVertical: 2,
-                  borderWidth: 1
-                }}
-                onPress={() =>
-                  this.scrollRef.current.scrollTo({
-                    animated: true,
-                    y: 0,
-                    x: this.state.screenWidth * 2
-                  })
-                }>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    color: this.state.currentPage == 1 ? '#5773FF' : '#808080',
-                    // fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-                    fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal'
-                  }}>
-                  Vendors
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView
-              ref={this.scrollRef}
-              onLayout={this.ScrollViewOnLayout}
-              style={{ flex: 1,marginBottom:Platform.OS=="ios"?100:20 }}
-              horizontal={true}
-              scrollEventThrottle={16}
-              pagingEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              onScroll={(event) => {
-                this.setSliderPage(event);
-              }}>
-              <View style={{ height: '100%', width: this.state.screenWidth }}>
-                {this.state.showLoader
-                  ? (
-                    <View style={{ flex: 1 }}>
-                      <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: "absolute",
-                        backgroundColor: 'rgba(0,0,0,0)',
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        top: 0
-                      }}>
-                        <Bars size={15} color={color.PRIMARY_NORMAL} />
-                      </View>
-                    </View>
-                  )
-                  : (
-                    <Customers
-                      resetFun={this.setCustomerFun}
-                      navigation={this.props.navigation}
-                    />
-                  )}
+      <SafeAreaInsetsContext.Consumer>
+        {(insets) => <View style={{ flex: 1 }}>
+          <Animated.ScrollView
+            keyboardShouldPersistTaps="always"
+            style={[{ flex: 1, backgroundColor: 'white' }]}
+            bounces={true}>
+            <View style={[style.container, { height: this.state.screenHeight, width: this.state.screenWidth }]}>
+              {this.FocusAwareStatusBar(this.props.isFocused)}
+              <View style={style.headerConatiner}>
+                {this.renderHeader()}
               </View>
-              <View style={{ height: '100%', width: this.state.screenWidth }}>
-                {this.state.showLoader
-                  ? (
-                    <View style={{ flex: 1 }}>
-                      <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: "absolute",
-                        backgroundColor: 'rgba(0,0,0,0)',
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        top: 0
-                      }}>
-                        <Bars size={15} color={color.PRIMARY_NORMAL} />
-                      </View>
-                    </View>
-                  )
-                  : (
-                    <Vendors
-                      resetFun={this.setVendorFun}
-                      navigation={this.props.navigation}
-                      uniqueName={this.props.route.params.uniqueName}
-                    />
-                  )}
-              </View>
-            </ScrollView>
+              <View
+                style={{
+                  marginTop: 10,
 
-          </View>
-        </Animated.ScrollView>
-      </View>
+                  justifyContent: 'space-around',
+                  flexDirection: 'row',
+                  marginBottom: 5
+                }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: this.state.currentPage == 0 ? '#ECE4F8' : null,
+                    borderTopEndRadius: 17,
+                    borderTopLeftRadius: 17,
+                    borderBottomLeftRadius: 17,
+                    borderColor: this.state.currentPage == 1 ? '#5773FF' : '#D9D9D9',
+                    width: Dimensions.get('window').width * 0.4,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingVertical: 7,
+                    borderWidth: 1
+                  }}
+                  onPress={() =>
+                    this.scrollRef.current.scrollTo({
+                      animated: true,
+                      y: 0,
+                      x: this.state.screenWidth * -1
+                    })
+                  }>
+                  <Text
+                    numberOfLines={1}
+                    style={{
+                      color: this.state.currentPage == 0 ? '#5773FF' : '#808080',
+                      // fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                      fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal'
+                    }}>
+                    Customers
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    borderTopEndRadius: 17,
+                    borderTopLeftRadius: 17,
+                    borderBottomLeftRadius: 17,
+                    backgroundColor: this.state.currentPage == 1 ? '#ECE4F8' : null,
+                    borderColor: this.state.currentPage == 0 ? '#5773FF' : '#D9D9D9',
+                    width: Dimensions.get('window').width * 0.4,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingVertical: 2,
+                    borderWidth: 1
+                  }}
+                  onPress={() =>
+                    this.scrollRef.current.scrollTo({
+                      animated: true,
+                      y: 0,
+                      x: this.state.screenWidth * 2
+                    })
+                  }>
+                  <Text
+                    numberOfLines={1}
+                    style={{
+                      color: this.state.currentPage == 1 ? '#5773FF' : '#808080',
+                      // fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+                      fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal'
+                    }}>
+                    Vendors
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                ref={this.scrollRef}
+                onLayout={this.ScrollViewOnLayout}
+                style={{ flex: 1, marginBottom: insets?.bottom + 30 }}
+                horizontal={true}
+                scrollEventThrottle={16}
+                pagingEnabled={true}
+                showsHorizontalScrollIndicator={false}
+                onScroll={(event) => {
+                  this.setSliderPage(event);
+                }}>
+                <View style={{ height: '100%', width: this.state.screenWidth }}>
+                  {this.state.showLoader
+                    ? (
+                      <View style={{ flex: 1 }}>
+                        <View style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          position: "absolute",
+                          backgroundColor: 'rgba(0,0,0,0)',
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          top: 0
+                        }}>
+                          <Bars size={15} color={color.PRIMARY_NORMAL} />
+                        </View>
+                      </View>
+                    )
+                    : (
+                      <Customers
+                        resetFun={this.setCustomerFun}
+                        navigation={this.props.navigation}
+                      />
+                    )}
+                </View>
+                <View style={{ height: '100%', width: this.state.screenWidth }}>
+                  {this.state.showLoader
+                    ? (
+                      <View style={{ flex: 1 }}>
+                        <View style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          position: "absolute",
+                          backgroundColor: 'rgba(0,0,0,0)',
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          top: 0
+                        }}>
+                          <Bars size={15} color={color.PRIMARY_NORMAL} />
+                        </View>
+                      </View>
+                    )
+                    : (
+                      <Vendors
+                        resetFun={this.setVendorFun}
+                        navigation={this.props.navigation}
+                        uniqueName={this.props.route.params.uniqueName}
+                      />
+                    )}
+                </View>
+              </ScrollView>
+
+            </View>
+          </Animated.ScrollView>
+        </View>}
+      </SafeAreaInsetsContext.Consumer>
     );
   }
 }

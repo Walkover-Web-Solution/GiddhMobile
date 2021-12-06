@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, Dimensions, ScrollView, Image,StatusBar,Platform } from 'react-native';
+import { View, Text, Dimensions, ScrollView, Image, StatusBar, Platform } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import style from './style';
 import routes from '@/navigation/routes';
@@ -144,23 +144,23 @@ class Welcome extends React.Component<any, any> {
     const { currentPage: pageIndex } = this.state;
     return (
       <View style={style.container}>
-        <StatusBar backgroundColor='#000080' barStyle={Platform.OS=='ios'?"dark-content":"light-content"} />
+        <StatusBar backgroundColor='#000080' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} />
         <View style={{ height: this.state.screenHeight * 0.7, width: this.state.screenWidth, marginTop: this.state.screenHeight * 0.05 }}>
           <ScrollView
             ref={(ref) => this.state.scrollRef = ref}
             style={{ flex: 1 }}
             horizontal={true}
             scrollEventThrottle={16}
-            onScroll={(prop) => {
-              if (this.state.currentPage == 3 && Math.floor(prop.nativeEvent.contentOffset.x) > Math.floor(this.state.screenWidth * this.state.currentPage)) {
-                this.setState({pageIndex:0,currentPage:0})
-                this.state.scrollRef.scrollTo({
-                  animated: true,
-                  x: this.state.screenWidth * 0,
-                  y: 0
-                });
-              }
-            }}
+            // onScroll={(prop) => {
+            //   if (this.state.currentPage == 3 && Math.floor(prop.nativeEvent.contentOffset.x) > Math.floor(this.state.screenWidth * this.state.currentPage)) {
+            //     this.setState({pageIndex:0,currentPage:0})
+            //     this.state.scrollRef.scrollTo({
+            //       animated: true,
+            //       x: this.state.screenWidth * 0,
+            //       y: 0
+            //     });
+            //   }
+            // }}
             pagingEnabled={true}
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={(event) => {
@@ -176,9 +176,9 @@ class Welcome extends React.Component<any, any> {
             {this.Slide2()}
             {this.Slide3()}
             {this.Slide4()}
-            {this.Slide1()}
+            {/* {this.Slide1()}
             {this.Slide2()}
-            {this.Slide3()}
+            {this.Slide3()} */}
           </ScrollView>
           <View style={[style.paginationWrapper, { top: this.state.screenHeight * 0.6 }]}>
             {Array.from(Array(4).keys()).map((key, index) => (
