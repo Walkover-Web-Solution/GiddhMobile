@@ -255,7 +255,7 @@ export class Customer extends React.Component<Props> {
               <ScrollView
                 ref={this.scrollRef}
                 onLayout={this.ScrollViewOnLayout}
-                style={{ flex: 1, marginBottom: insets?.bottom + 30 }}
+                style={{ flex: 1, marginBottom: Platform.OS == "ios" ? insets?.bottom + 30 : 0 }}
                 horizontal={true}
                 scrollEventThrottle={16}
                 pagingEnabled={true}

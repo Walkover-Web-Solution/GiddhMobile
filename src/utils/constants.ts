@@ -79,6 +79,7 @@ export const STORAGE_KEYS = {
   order: 'ORDER',
   activeCompanyCountryCode: 'ACTIVE_COMPANY_COUNTRY_CODE',
   APPLELOGINRESPONSE:"APPLELOGINRESPONSE",
+  NOTIFICATION_SET_ARR:"NOTIFICATION_SET_ARR"
 };
 
 // APP events constants

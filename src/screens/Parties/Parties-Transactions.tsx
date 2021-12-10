@@ -194,6 +194,40 @@ class PartiesTransactionScreen extends React.Component {
       await this.createChannel();
       const activeCompanyUniqueName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName)
       const activeCompanyName = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyName)
+      let notificationSetArr: any = await AsyncStorage.getItem(STORAGE_KEYS.NOTIFICATION_SET_ARR)
+      if (notificationSetArr == null) {
+        notificationSetArr = []
+      } else {
+        notificationSetArr = JSON.parse(notificationSetArr)
+      }
+      let notificationExist = false
+      if (notificationSetArr.length > 0) {
+        for (var i = 0; i < notificationSetArr.length; i++) {
+          if (new Date(Date.now()).getTime() > notificationSetArr[i][1]) {
+            // Remove old notifications
+            notificationSetArr.splice(i, 1)
+            i = (i == notificationSetArr.length - 1) ? i : i - 1
+          }
+        }
+        for (var i = 0; i < notificationSetArr.length; i++) {
+          if (notificationSetArr[i][0] == (data.uniqueName + (this.state.dateTime).getTime())) {
+            notificationExist = true
+            break
+          }
+        }
+      }
+      if (notificationExist) {
+        console.log("Notification Exist, After all notifications set Array " + notificationSetArr)
+        await AsyncStorage.setItem(STORAGE_KEYS.NOTIFICATION_SET_ARR, JSON.stringify(notificationSetArr))
+        alert(`Reminder for ${data.name} is already set for selected date and time`)
+        return
+      }
+
+      await notificationSetArr.push([data.uniqueName + this.state.dateTime.getTime(), this.state.dateTime.getTime()])
+      console.log("After all notifications set Array " + notificationSetArr)
+      // Store Already set notifications unique name.
+      await AsyncStorage.setItem(STORAGE_KEYS.NOTIFICATION_SET_ARR, JSON.stringify(notificationSetArr))
+
       await PushNotification.localNotificationSchedule({
         date: this.state.dateTime,
         message: 'Payment to ' + data.name + " is due",
@@ -201,12 +235,28 @@ class PartiesTransactionScreen extends React.Component {
         channelId: 'channel-id',
         smallIcon: 'ic_launcher',
         title: 'Reminder',
-        userInfo: { item: JSON.stringify(data), activeCompanyUniqueName: activeCompanyUniqueName,activeCompanyName:activeCompanyName,activeCompany: this.props.route.params.activeCompany }
+        userInfo: { item: JSON.stringify(data), activeCompanyUniqueName: activeCompanyUniqueName, activeCompanyName: activeCompanyName, activeCompany: this.props.route.params.activeCompany }
       });
       await this.setState({ remainderModal: false });
       await setTimeout(() => { Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]) }, 400)
     } catch (error) {
       console.log("failed to push notification" + error);
+      let notificationSetArr: any = await AsyncStorage.getItem(STORAGE_KEYS.NOTIFICATION_SET_ARR)
+      if (notificationSetArr == null) {
+        notificationSetArr = []
+      } else {
+        notificationSetArr = JSON.parse(notificationSetArr)
+      }
+      if (notificationSetArr.length > 0) {
+        for (var i = 0; i < notificationSetArr.length; i++) {
+          if (notificationSetArr[i][0] == (data.uniqueName + (this.state.dateTime).getTime())) {
+            notificationSetArr.splice(i, 1)
+            console.log("After removing notification" + notificationSetArr)
+            await AsyncStorage.setItem(STORAGE_KEYS.NOTIFICATION_SET_ARR, JSON.stringify(notificationSetArr))
+            break
+          }
+        }
+      }
       Alert.alert("Fail", "Failed to activat reminder", [{ style: 'destructive', text: 'Okay' }])
     }
   }
@@ -1534,6 +1584,7 @@ class PartiesTransactionScreen extends React.Component {
                     newDate.setDate(date.getDate());
                     newDate.setMonth(date.getMonth());
                     newDate.setFullYear(date.getFullYear());
+                    newDate.setSeconds(0);
                     console.log(newDate);
                     this.setState({ dateTime: newDate });
                   }
@@ -1550,6 +1601,7 @@ class PartiesTransactionScreen extends React.Component {
                 onConfirm={(date) => {
                   const newTime: Date = this.state.dateTime;
                   newTime.setTime(date.getTime());
+                  newTime.setSeconds(0)
                   console.log(newTime);
                   this.setState({ timePicker: false, dateTime: newTime });
                 }}
