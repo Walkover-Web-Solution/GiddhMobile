@@ -154,7 +154,7 @@ class NewCompanyDetails extends React.Component<any, any> {
         return
       }
     }
-    else if (this.state.pinCode.length > 15) {
+    if (this.state.pinCode!=null && this.state.pinCode.length > 15) {
       alert('Pincode can be maximum 15 digits in length');
       return
     }
@@ -324,12 +324,21 @@ class NewCompanyDetails extends React.Component<any, any> {
               }}
               dropdownStyle={{
                 width: '81%', height: this.state.countryCode == "US" || this.state.countryCode == "GB" ||
-                  this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 40 : 90, marginTop: 5, borderRadius: 5
+                  this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 40 : 80, marginTop: 5, borderRadius: 10
               }}
               dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
               renderRow={(options) => {
                 return (
-                  <Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book' }}>{options}</Text>)
+                  <View style={{
+                    flexDirection: "row", justifyContent: "flex-start", borderBottomColor: 'rgba(80,80,80,0.5)', borderBottomWidth: this.state.countryCode == "US" || this.state.countryCode == "GB" ||
+                      this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 0 : (options == "Registered" ? 0.5 : 0),padding: 10,
+                  }}>
+                    {this.state.bussinessType==options?<AntDesign name="check" size={20} color={'black'} />:<View style={{width:this.state.bussinessType==null?0:20}}/>}
+                    <Text style={{
+                       color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
+                    }}>{options}
+                    </Text>
+                  </View>)
               }}
               onSelect={(index, value) => {
                 this.setState({ bussinessType: value, gstNumber: null, stateName: null, applicableTax: [], selectStateDisable: false, selectedState: null })
@@ -352,11 +361,19 @@ class NewCompanyDetails extends React.Component<any, any> {
               renderSeparator={() => {
                 return (<View></View>);
               }}
-              dropdownStyle={{ width: '81%', height: 100, marginTop: 5, borderRadius: 5 }}
+              dropdownStyle={{ width: '81%', height: 100, marginTop: 5, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
               renderRow={(options) => {
                 return (
-                  <Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book' }}>{options}</Text>)
+                  <View style={{
+                    flexDirection: "row", justifyContent: "flex-start", borderBottomColor: 'rgba(80,80,80,0.5)', borderBottomWidth:(options == "Retail" ? 0.5 : 0),padding: 10,
+                  }}>
+                    {this.state.bussinessNature==options?<AntDesign name="check" size={20} />:<View style={{width:this.state.bussinessNature==null?0:20}}/>}
+                    <Text style={{
+                       color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
+                    }}>{options}
+                    </Text>
+                  </View>)
               }}
               onSelect={(index, value) => {
                 this.setState({ bussinessNature: value })
@@ -537,7 +554,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                       )}
                   </View>
 
-                  <Text style={{ fontSize: 14, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>GST 5%</Text>
+                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 5%</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -554,7 +571,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                       )}
                   </View>
 
-                  <Text style={{ fontSize: 14, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>GST 12%</Text>
+                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 12%</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -569,7 +586,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                       )}
                   </View>
 
-                  <Text style={{ fontSize: 14, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>GST 18%</Text>
+                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 18%</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -583,7 +600,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                         <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
                       )}
                   </View>
-                  <Text style={{ fontSize: 14, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>GST 28%</Text>
+                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 28%</Text>
                 </TouchableOpacity>
               </View> : <View style={style.centeredView}>
                 <TouchableOpacity
@@ -601,7 +618,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                       )}
                   </View>
 
-                  <Text style={{ fontSize: 14, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>VAT0</Text>
+                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>VAT0</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -618,7 +635,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                       )}
                   </View>
 
-                  <Text style={{ fontSize: 14, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>VAT5</Text>
+                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>VAT5</Text>
                 </TouchableOpacity></View>}
             </TouchableOpacity>
           </Modal>
