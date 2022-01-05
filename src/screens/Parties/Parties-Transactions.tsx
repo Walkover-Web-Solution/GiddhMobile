@@ -138,10 +138,33 @@ class PartiesTransactionScreen extends React.Component {
   getSMSMessage = async () => {
     try {
       const message: SMSMessage = await SMSUserConsent.listenOTP()
-      let messageResponse = message.receivedOtpMessage.slice(15)
-      messageResponse = messageResponse.slice(0, 6)
+      let messageResponse = message.receivedOtpMessage
       console.log(messageResponse)
-      await this.setState({ code: messageResponse.toString() })
+      var otp = ''
+      for (var i = 0; i < (messageResponse.length - 5); i++) {
+        var Rmessage = await messageResponse[i] + messageResponse[i + 1] + messageResponse[i + 2] + messageResponse[i + 3] + messageResponse[i + 4] + messageResponse[i + 5]
+        if (i == 0) {
+          if (!isNaN(Rmessage) &&
+            (Rmessage).trim().length == 6 && (messageResponse[i + 6] === ' ' || messageResponse[i + 6] === "," || messageResponse[i + 6] === ".")) {
+            otp = await Rmessage
+            break
+          }
+        } else if (i == messageResponse.length - 6) {
+          if (!isNaN(Rmessage) &&
+            (Rmessage).trim().length == 6 && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
+            otp = await Rmessage
+            break
+          }
+        } else {
+          if (!isNaN(Rmessage) &&
+            (Rmessage).trim().length == 6 && (messageResponse[i + 6] === ' ' || messageResponse[i + 6] === "," || messageResponse[i + 6] === ".")
+            && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
+            otp = await Rmessage
+            break
+          }
+        }
+      }
+      await this.setState({ code: otp.toString() })
     } catch (e) {
       console.log(JSON.stringify(e))
     }
@@ -1025,12 +1048,13 @@ class PartiesTransactionScreen extends React.Component {
             animation: true,
             containerStyle: { borderRadius: 10 }
           });
+          await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
         } else {
           ToastAndroid.show(response.body.message, ToastAndroid.LONG)
+          await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
           await this.removeSmsListener()
           await this.getSMSMessage()
         }
-        await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
       } else {
         await this.setState({ disableResendButton: false })
         if (Platform.OS == "ios") {

@@ -38,7 +38,7 @@ export default StyleSheet.create({
     justifyContent: 'center'
   },
   heading: { fontSize: 20, fontFamily: 'AvenirLTStd-Black', marginTop: height * 0.1 },
-  message: { fontSize: 18, textAlign: 'center', color: '#808080', marginTop: 10 },
+  message: { fontSize: 18, textAlign: 'center', color: '#808080', marginTop: 10,fontFamily: 'AvenirLTStd-Book' },
   submitButton: {
     backgroundColor: colors.PRIMARY_NORMAL,
     height: 50,

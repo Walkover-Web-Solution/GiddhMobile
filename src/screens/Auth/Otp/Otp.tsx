@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
-import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Platform } from 'react-native';
+import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Platform, Alert } from 'react-native';
 import style from '@/screens/Auth/Otp/style';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { GdImages } from '@/utils/icons-pack';
@@ -30,13 +30,48 @@ class Login extends React.Component<any, any> {
     this.getSMSMessage()
   }
 
+  // getSMSMessage = async () => {
+  //   try {
+  //     const message: SMSMessage = await SMSUserConsent.listenOTP()
+  //     let messageResponse = message.receivedOtpMessage.slice(message.receivedOtpMessage.length - 5)
+  //     messageResponse = messageResponse.slice(0, 4)
+  //     console.log(messageResponse)
+  //     await this.setState({ code: messageResponse.toString() })
+  //   } catch (e) {
+  //     console.log(JSON.stringify(e))
+  //   }
+  // }
+
   getSMSMessage = async () => {
     try {
       const message: SMSMessage = await SMSUserConsent.listenOTP()
-      let messageResponse = message.receivedOtpMessage.slice(message.receivedOtpMessage.length - 5)
-      messageResponse = messageResponse.slice(0, 4)
+      let messageResponse = message.receivedOtpMessage
       console.log(messageResponse)
-      await this.setState({ code: messageResponse.toString() })
+      var otp = ''
+      for (var i = 0; i < (messageResponse.length - 3); i++) {
+        var Rmessage = await messageResponse[i] + messageResponse[i + 1] + messageResponse[i + 2] + messageResponse[i + 3]
+        if (i == 0) {
+          if (!isNaN(Rmessage) &&
+            (Rmessage).trim().length == 4 && (messageResponse[i + 4] === ' ' || messageResponse[i + 4] === "," || messageResponse[i + 4] === ".")) {
+            otp = await Rmessage
+            break
+          }
+        } else if (i == messageResponse.length - 6) {
+          if (!isNaN(Rmessage) &&
+            (Rmessage).trim().length == 4 && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
+            otp = await Rmessage
+            break
+          }
+        } else {
+          if (!isNaN(Rmessage) &&
+            (Rmessage).trim().length == 4 && (messageResponse[i + 4] === ' ' || messageResponse[i + 4] === "," || messageResponse[i + 4] === ".")
+            && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
+            otp = await Rmessage
+            break
+          }
+        }
+      }
+      await this.setState({ code: otp.toString() })
     } catch (e) {
       console.log(JSON.stringify(e))
     }
@@ -75,9 +110,9 @@ class Login extends React.Component<any, any> {
         });
       } else {
         ToastAndroid.show(response.body, ToastAndroid.LONG)
+        await this.setState({ disableResendButton: false })
         await this.removeSmsListener()
         await this.getSMSMessage()
-        await this.setState({ disableResendButton: false })
       }
     } else {
       await this.setState({ disableResendButton: false })
@@ -98,7 +133,7 @@ class Login extends React.Component<any, any> {
           <Text style={[style.message, { color: baseColor.PRIMARY_RED }]}>{this.props.otpVerificationError}</Text>
 
           <OTPInputView
-            style={{ width: '65%', height: height * 0.15, color: 'red' }}
+            style={{ width: '65%', height: height * 0.15, color: 'red',fontFamily: 'AvenirLTStd-Book' }}
             pinCount={4}
             color={'red'}
             textContentType="oneTimeCode"
@@ -127,7 +162,7 @@ class Login extends React.Component<any, any> {
               this.props.verifyOTP(this.state.code, this.props.tfaDetails.countryCode, this.props.tfaDetails.contactNumber)
             }
           }}>
-            <Text style={{ color: 'white', fontSize: 18 }}>Submit</Text>
+            <Text style={{ color: 'white', fontSize: 18 ,fontFamily: 'AvenirLTStd-Book'}}>Submit</Text>
           </TouchableOpacity>
           {/* <View style={{flexDirection: 'row', position: 'absolute', bottom: 20}}>
             <Text style={{fontSize: 18}}>Entered wrong E-mail ID ?</Text>
