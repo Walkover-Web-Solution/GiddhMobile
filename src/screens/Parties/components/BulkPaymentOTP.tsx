@@ -24,7 +24,6 @@ interface SMSMessage {
 class BulkPaymentOTP extends React.Component {
     constructor(props: Props) {
         super(props)
-        this.removeSmsListener()
         this.getSMSMessage()
     }
 
@@ -97,6 +96,10 @@ class BulkPaymentOTP extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        this.removeSmsListener()
+    }
+
     removeSmsListener = () => {
         try {
             SMSUserConsent.removeOTPListener()
@@ -145,11 +148,10 @@ class BulkPaymentOTP extends React.Component {
                         animation: true,
                         containerStyle: { borderRadius: 10 }
                     });
-                    await this.setState({ disableResendButton: false, requestIdOTP: response.body.requestId, OTPMessage: response.body.message })
+                    this.setState({ disableResendButton: false, requestIdOTP: response.body.requestId, OTPMessage: response.body.message })
                 } else {
                     ToastAndroid.show(response.body.message, ToastAndroid.LONG)
-                    await this.setState({ disableResendButton: false, requestIdOTP: response.body.requestId, OTPMessage: response.body.message })
-                    await this.removeSmsListener()
+                    this.setState({ disableResendButton: false, requestIdOTP: response.body.requestId, OTPMessage: response.body.message })
                     await this.getSMSMessage()
                 }
             } else {
@@ -171,7 +173,7 @@ class BulkPaymentOTP extends React.Component {
                 }
             }
         } catch (e) {
-            await this.setState({ disableResendButton: false })
+            this.setState({ disableResendButton: false })
             if (Platform.OS == "ios") {
                 TOAST.show("Error - Please try again", {
                     duration: TOAST.durations.LONG,

@@ -135,6 +135,10 @@ class PartiesTransactionScreen extends React.Component {
 
   }
 
+  componentWillUnmount() {
+    this.removeSmsListener()
+  }
+
   getSMSMessage = async () => {
     try {
       const message: SMSMessage = await SMSUserConsent.listenOTP()
@@ -1036,7 +1040,6 @@ class PartiesTransactionScreen extends React.Component {
       console.log("OTP response" + JSON.stringify(response))
       if (response.status == "success") {
         if (Platform.OS == "ios") {
-          await this.setState({ disableResendButton: false })
           TOAST.show(response.body.message, {
             duration: TOAST.durations.LONG,
             position: -150,
@@ -1048,15 +1051,14 @@ class PartiesTransactionScreen extends React.Component {
             animation: true,
             containerStyle: { borderRadius: 10 }
           });
-          await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
+          this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
         } else {
           ToastAndroid.show(response.body.message, ToastAndroid.LONG)
-          await this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
-          await this.removeSmsListener()
+          this.setState({ OTPMessage: response.body.message, payButtonPressed: true, requestIdOTP: response.body.requestId, disableResendButton: false })
           await this.getSMSMessage()
         }
       } else {
-        await this.setState({ disableResendButton: false })
+        this.setState({ disableResendButton: false })
         if (Platform.OS == "ios") {
           TOAST.show(response.data.message, {
             duration: TOAST.durations.LONG,
@@ -1074,7 +1076,7 @@ class PartiesTransactionScreen extends React.Component {
         }
       }
     } catch (e) {
-      await this.setState({ disableResendButton: false })
+      this.setState({ disableResendButton: false })
       if (Platform.OS == "ios") {
         TOAST.show("Error - Please try again", {
           duration: TOAST.durations.LONG,
@@ -1333,6 +1335,7 @@ class PartiesTransactionScreen extends React.Component {
               <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
+                backgroundColor:this.state.payButtonPressed?'#F1F1F2':null
               }}>
                 <Ionicons name="person" size={25} color="#864DD3" style={{ marginTop: 7 }} />
                 <Dropdown
@@ -1344,6 +1347,7 @@ class PartiesTransactionScreen extends React.Component {
                     return (<View></View>);
                   }}
                   onDropdownWillShow={() => this.setState({ isPayorDD: true })}
+                  disabled={this.state.payButtonPressed}
                   onDropdownWillHide={() => this.setState({ isPayorDD: false })}
                   dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 1 ? 100 : 50, marginTop: 5, borderRadius: 5 }}
                   dropdownTextStyle={{ color: '#1C1C1C' }}
@@ -1368,14 +1372,16 @@ class PartiesTransactionScreen extends React.Component {
                   size={12}
                   color="#808080"
                   onPress={() => {
-                    this.setState({ isPayorDD: true });
-                    this.state.payorDropDown.show();
+                    if (!this.state.payButtonPressed) {
+                      this.setState({ isPayorDD: true });
+                      this.state.payorDropDown.show();
+                    }
                   }}
                 />
               </View>
               {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 15, color: '#808080', fontSize: 12, marginBottom: 10 }}>
                 {`Bank Bal ${this.state.bankAccounts.length > 0 ? this.state.bankAccounts[0].effectiveBal : 0} dr`}</Text> : <View style={{ marginBottom: 0 }}></View>}
-              <View style={{ flexDirection: "row", marginTop: 15 }}>
+              <View style={{ flexDirection: "row", marginTop: 15,backgroundColor:this.state.payButtonPressed?'#F1F1F2':null }}>
                 <View style={{ backgroundColor: '#864DD3', width: 25, height: 25, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
                   <FontAwesome name={'dollar'} color="white" size={18} />
                 </View>
@@ -1410,6 +1416,7 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                   returnKeyType={'done'}
                   keyboardType="number-pad"
+                  editable={!this.state.payButtonPressed}
                   onFocus={() => {
                     this.setState({ totalAmountPlaceHolder: 'a' })
                   }}
@@ -1427,10 +1434,11 @@ class PartiesTransactionScreen extends React.Component {
                   <Text style={{ color: '#E04646' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
-              <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20 }}>
+              <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20,backgroundColor:this.state.payButtonPressed?'#F1F1F2':null }}>
                 <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
                 <TextInput
                   multiline={true}
+                  editable={!this.state.payButtonPressed}
                   returnKeyType={"done"}
                   onBlur={() => {
                     if (this.state.review == '') {
@@ -1713,7 +1721,7 @@ class PartiesTransactionScreen extends React.Component {
               this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN" &&
               (this.state.payButtonPressed == false ?
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
-                  <TouchableOpacity onPress={async () => {
+                  <TouchableOpacity onPress={() => {
                     this.PayButtonPressed()
                   }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
                     <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black" }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
