@@ -416,7 +416,7 @@ export class SalesInvoice extends React.Component<Props> {
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
+          <Text style={{ color: 'white', marginRight: 16,fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
         </TouchableOpacity>
       </View>
     );

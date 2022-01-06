@@ -313,7 +313,7 @@ export class PurchaseBill extends React.Component {
           {/* </View> */}
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{ color: 'white', marginRight: 16 }}>Clear All</Text>
+          <Text style={{ color: 'white', marginRight: 16,fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
         </TouchableOpacity>
       </View>
     );

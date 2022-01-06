@@ -270,9 +270,9 @@ class BulkPayment extends React.Component {
         return (
             <View style={{ marginHorizontal: 20, marginVertical: 5 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                    <Text style={{ fontSize: 15, width: "70%" }}>{item.name}</Text>
+                    <Text style={{ fontSize: 15, width: "70%",fontFamily: 'AvenirLTStd-Book'  }}>{item.name}</Text>
                     <View style={{ flexDirection: "row" }}>
-                        <Text style={{ fontSize: 15, fontWeight: "bold" }}>
+                        <Text style={{ fontSize: 15,fontFamily: 'AvenirLTStd-Black'}}>
                             {item.country.code === 'IN' ? (getSymbolFromCurrency("INR") +
                                 this.currencyFormat(item.closingBalance.amount, this.state.activeCompany?.balanceDisplayFormat)) :
                                 ((getSymbolFromCurrency(item.country.code) ? getSymbolFromCurrency(item.country.code) : '') +
@@ -356,15 +356,15 @@ class BulkPayment extends React.Component {
                         }
                         }
                         style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, width: "90%", padding: 0, paddingTop: 8 }}>
-                        <Text style={{ color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                        <Text style={{ fontFamily: 'AvenirLTStd-Book',color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
                             {this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'Total Amount' :
                                 ((this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount.length > 1 ||
                                     this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount == currencySymbol) && currencySymbol != "" ?
                                     (currencySymbol).substring(1)
                                     : (currencySymbol))}</Text>
-                        <Text style={{ color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
+                        <Text style={{ fontFamily: 'AvenirLTStd-Book',color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.totalAmountPlaceHolder == '' ?
                             '' : (this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount)}</Text>
-                        <Text style={{ color: '#E04646' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? '*' : ''}</Text>
+                        <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book'}}>{this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? '*' : ''}</Text>
                     </TextInput>
                 </View>
                 {this.state.selectedItem.length > 1 ? <View style={{ alignItems: "flex-end", justifyContent: "flex-end" }}>
@@ -400,8 +400,8 @@ class BulkPayment extends React.Component {
                         }
                         }
                         style={{ fontSize: 15, marginHorizontal: 10, textAlignVertical: "center", padding: 0, width: "90%", }}>
-                        <Text style={{ color: this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'Remark' : this.state.selectedItemTextinputAndReview[item.uniqueName].remark}</Text>
-                        <Text style={{ color: '#E04646' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? '*' : ''}</Text>
+                        <Text style={{ fontFamily: 'AvenirLTStd-Book',color: this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'Remark' : this.state.selectedItemTextinputAndReview[item.uniqueName].remark}</Text>
+                        <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book'}}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? '*' : ''}</Text>
                     </TextInput>
                 </View>
                 <View style={{ marginVertical: 5, width: "100%", height: 1, backgroundColor: colors.LABEL_COLOR, opacity: 0.4 }} />
@@ -440,7 +440,7 @@ class BulkPayment extends React.Component {
                         <Dropdown
                             ref={(ref) => this.state.payorDropDown = ref}
                             style={{ flex: 1, paddingLeft: 10 }}
-                            textStyle={{ color: 'black', fontSize: 15 }}
+                            textStyle={{ color: 'black', fontSize: 15 ,fontFamily: 'AvenirLTStd-Book' }}
                             options={this.state.selectPayorData.length > 0 ? this.state.selectPayorData : ["No results found"]}
                             renderSeparator={() => {
                                 return (<View></View>);
@@ -450,7 +450,7 @@ class BulkPayment extends React.Component {
                             dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 1 ? 100 : 50, marginTop: 5, borderRadius: 5 }}
                             dropdownTextStyle={{ color: '#1C1C1C' }}
                             renderRow={(options) => {
-                                return (<Text style={{ padding: 10, color: '#1C1C1C' }}>{options == "No results found" ? options : options.user.name}</Text>);
+                                return (<Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book'  }}>{options == "No results found" ? options : options.user.name}</Text>);
                             }}
                             onSelect={(index, value) => {
                                 if (value != "No results found") {
@@ -458,9 +458,9 @@ class BulkPayment extends React.Component {
                                 }
                             }} >
                             <View style={{ flexDirection: "row" }}>
-                                <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
+                                <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily: 'AvenirLTStd-Book'  }}>
                                     {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor.user.name}</Text>
-                                <Text style={{ color: '#E04646' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
+                                <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book'  }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
                             </View>
                         </Dropdown>
                         <Icon
@@ -474,7 +474,7 @@ class BulkPayment extends React.Component {
                             }}
                         />
                     </View>
-                    {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 35, color: '#808080', fontSize: 12, marginBottom: 10 }}>
+                    {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 35, color: '#808080', fontSize: 12, marginBottom: 10,fontFamily: 'AvenirLTStd-Book'  }}>
                         {`Bank Bal ${this.state.bankAccounts.length > 0 ? this.state.bankAccounts[0].effectiveBal : 0} dr`}</Text> : <View style={{ marginBottom: 10 }}></View>}
                     <FlatList
                         data={this.state.selectedItem}
@@ -485,7 +485,7 @@ class BulkPayment extends React.Component {
                 </KeyboardAwareScrollView>
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                     <TouchableOpacity disabled={this.state.disablePayButton} onPress={() => { this.submit() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.disablePayButton ? '#ACBAFF' : '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                        <Text style={{ fontSize: 20, color: "white" }}>Pay</Text>
+                        <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book'  }}>Pay</Text>
                     </TouchableOpacity>
                 </View>
                 {this.state.disablePayButton && (

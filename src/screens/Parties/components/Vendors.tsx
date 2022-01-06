@@ -258,7 +258,7 @@ export const Vendors = (props) => {
                       {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
                         await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
                           await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                      }} ><Text style={{ color: "orange", fontSize: 13, }}>Add Bank Details</Text></TouchableOpacity>}
+                      }} ><Text style={{ color: "orange", fontSize: 13,fontFamily: 'AvenirLTStd-Book',marginTop:5 }}>Add Bank Details</Text></TouchableOpacity>}
                     </View>
                   </View>
                 </View>
@@ -269,7 +269,7 @@ export const Vendors = (props) => {
                   {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
                     await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
                       await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                  }} ><Text style={{ color: "orange", fontSize: 13, }}>Add Bank Details</Text></TouchableOpacity>}
+                  }} ><Text style={{ color: "orange", fontSize: 13,fontFamily: 'AvenirLTStd-Book' }}>Add Bank Details</Text></TouchableOpacity>}
                 </View>
               )}
             </View>
@@ -280,7 +280,7 @@ export const Vendors = (props) => {
       {selectedItem.length > 0 ?
         <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
           <TouchableOpacity onPress={() => { navigateToBulkPaymentScreen() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-            <Text style={{ fontSize: 20, color: "white" }}>Bulk Payment</Text>
+            <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book'  }}>Bulk Payment</Text>
           </TouchableOpacity>
         </View> : null}
       {bulkPaymentprocessing && (

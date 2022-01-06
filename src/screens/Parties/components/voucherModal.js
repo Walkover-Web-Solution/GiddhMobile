@@ -52,7 +52,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Sales</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily:'AvenirLTStd-Book'}}>Sales</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -77,7 +77,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Purchase</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book'}}>Purchase</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -102,7 +102,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Credit Note</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Credit Note</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -127,7 +127,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Debit Note</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily:'AvenirLTStd-Book' }}>Debit Note</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -152,7 +152,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Receipt</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Receipt</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -177,7 +177,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Payment</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Payment</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -202,7 +202,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Journal</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Journal</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
@@ -227,7 +227,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
                   )}
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Contra</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Contra</Text>
           </TouchableOpacity>
 
           <View style={{ height: 2, width: '100%', alignSelf: 'center', backgroundColor: '#D9D9D9', marginTop: 15 }} />
@@ -249,7 +249,7 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
               <AntDesign name="close" size={20} color={'#FF1717'} />
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Clear All</Text>
+            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
           </TouchableOpacity>
 
           {/* <TouchableOpacity style={{marginTop: 20, alignSelf: 'center'}} onPress={setModalVisible}>
