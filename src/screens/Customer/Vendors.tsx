@@ -970,7 +970,7 @@ export class Vendors extends React.Component<Props> {
                 }
               }}
             >
-              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>Done</Text>
+              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book',marginTop:Platform.OS =="ios"?5:0  }}>Done</Text>
             </TouchableOpacity>
           </Dialog.Container>
           : null}
