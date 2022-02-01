@@ -12,7 +12,7 @@ import { sendOTP } from '../Login/LoginService';
 import { Bars } from 'react-native-loader';
 import { baseColor } from '../../../utils/colors';
 import TOAST from 'react-native-root-toast';
-import SMSUserConsent from 'react-native-sms-user-consent';
+import SMSUserConsent from '../../../../SMSUserConsent';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -42,35 +42,18 @@ class Login extends React.Component<any, any> {
   //   }
   // }
 
+  retrieveVerificationCode=(sms:any, codeLength:any) =>{
+    const codeRegExp = new RegExp(`\\d{${codeLength}}`, 'm');
+    const code = sms?.match(codeRegExp)?.[0];
+    return code ?? "";
+  } 
+
   getSMSMessage = async () => {
     try {
       const message: SMSMessage = await SMSUserConsent.listenOTP()
       let messageResponse = message.receivedOtpMessage
       console.log(messageResponse)
-      var otp = ''
-      for (var i = 0; i < (messageResponse.length - 3); i++) {
-        var Rmessage = await messageResponse[i] + messageResponse[i + 1] + messageResponse[i + 2] + messageResponse[i + 3]
-        if (i == 0) {
-          if (!isNaN(Rmessage) &&
-            (Rmessage).trim().length == 4 && (messageResponse[i + 4] === ' ' || messageResponse[i + 4] === "," || messageResponse[i + 4] === ".")) {
-            otp = await Rmessage
-            break
-          }
-        } else if (i == messageResponse.length - 6) {
-          if (!isNaN(Rmessage) &&
-            (Rmessage).trim().length == 4 && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
-            otp = await Rmessage
-            break
-          }
-        } else {
-          if (!isNaN(Rmessage) &&
-            (Rmessage).trim().length == 4 && (messageResponse[i + 4] === ' ' || messageResponse[i + 4] === "," || messageResponse[i + 4] === ".")
-            && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
-            otp = await Rmessage
-            break
-          }
-        }
-      }
+      var otp = this.retrieveVerificationCode(messageResponse,4)
       await this.setState({ code: otp.toString() })
     } catch (e) {
       console.log(JSON.stringify(e))
@@ -111,7 +94,6 @@ class Login extends React.Component<any, any> {
       } else {
         ToastAndroid.show(response.body, ToastAndroid.LONG)
         await this.setState({ disableResendButton: false })
-        await this.removeSmsListener()
         await this.getSMSMessage()
       }
     } else {

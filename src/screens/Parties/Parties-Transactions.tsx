@@ -52,7 +52,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PaymentServices } from '@/core/services/payment/payment';
 import TOAST from 'react-native-root-toast';
-import SMSUserConsent from 'react-native-sms-user-consent';
+import SMSUserConsent from '../../../SMSUserConsent';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -139,35 +139,18 @@ class PartiesTransactionScreen extends React.Component {
     this.removeSmsListener()
   }
 
+  retrieveVerificationCode=(sms:any, codeLength:any) =>{
+    const codeRegExp = new RegExp(`\\d{${codeLength}}`, 'm');
+    const code = sms?.match(codeRegExp)?.[0];
+    return code ?? "";
+  } 
+
   getSMSMessage = async () => {
     try {
       const message: SMSMessage = await SMSUserConsent.listenOTP()
       let messageResponse = message.receivedOtpMessage
       console.log(messageResponse)
-      var otp = ''
-      for (var i = 0; i < (messageResponse.length - 5); i++) {
-        var Rmessage = await messageResponse[i] + messageResponse[i + 1] + messageResponse[i + 2] + messageResponse[i + 3] + messageResponse[i + 4] + messageResponse[i + 5]
-        if (i == 0) {
-          if (!isNaN(Rmessage) &&
-            (Rmessage).trim().length == 6 && (messageResponse[i + 6] === ' ' || messageResponse[i + 6] === "," || messageResponse[i + 6] === ".")) {
-            otp = await Rmessage
-            break
-          }
-        } else if (i == messageResponse.length - 6) {
-          if (!isNaN(Rmessage) &&
-            (Rmessage).trim().length == 6 && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
-            otp = await Rmessage
-            break
-          }
-        } else {
-          if (!isNaN(Rmessage) &&
-            (Rmessage).trim().length == 6 && (messageResponse[i + 6] === ' ' || messageResponse[i + 6] === "," || messageResponse[i + 6] === ".")
-            && (messageResponse[i - 1] === ' ' || messageResponse[i - 1] === "," || messageResponse[i - 1] === ".")) {
-            otp = await Rmessage
-            break
-          }
-        }
-      }
+      var otp = this.retrieveVerificationCode(messageResponse,6)
       await this.setState({ code: otp.toString() })
     } catch (e) {
       console.log(JSON.stringify(e))

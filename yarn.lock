@@ -8936,11 +8936,6 @@ react-native-simple-radio-button@^2.7.4:
   resolved "https://registry.npmjs.org/react-native-simple-radio-button/-/react-native-simple-radio-button-2.7.4.tgz"
   integrity sha512-QOZNmJUn0ViBGU+at7wAG/uGzd5PfXi0kMHr9lfTCLXknW/f9f2fOVjxjdHvOCdf/zA/eMJBjGjtusSDzQf1+w==
 
-react-native-sms-user-consent@^1.0.51:
-  version "1.0.51"
-  resolved "https://registry.npmjs.org/react-native-sms-user-consent/-/react-native-sms-user-consent-1.0.51.tgz"
-  integrity sha512-zggQrpV98iNjUdGcgScBNgAcHIRHLKoT+KKNZtxldTQRJ77p0FHABhlftwCoLcHUhYnaofAL84XNnXSZh+acLQ==
-
 react-native-splash-screen@^3.2.0:
   version "3.2.0"
   resolved "https://registry.npmjs.org/react-native-splash-screen/-/react-native-splash-screen-3.2.0.tgz"
