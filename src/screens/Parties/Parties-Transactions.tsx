@@ -95,13 +95,13 @@ class PartiesTransactionScreen extends React.Component {
       payorDropDown: Dropdown,
       isPayorDD: false,
       selectedPayor: null,
-      totalAmount: "₹" + this.currencyFormat(this.props.route.params.item.closingBalance.amount, this.props.route.params.activeCompany?.balanceDisplayFormat),
+      totalAmount: "₹" + this.currencyFormat(this.props.route?.params?.item?.closingBalance?.amount, this.props.route?.params?.activeCompany?.balanceDisplayFormat),
       totalAmountPlaceHolder: 'a',
       review: '',
       reviewPlaceHolder: '',
       code: '',
-      currencySymbol: this.props.route.params.item.country.code == 'IN'
-        ? '₹' : (getSymbolFromCurrency(this.props.route.params.item.country.code) == undefined ? "" : getSymbolFromCurrency(this.props.route.params.item.country.code)),
+      currencySymbol: this.props.route.params?.item?.country?.code == 'IN'
+        ? '₹' : (getSymbolFromCurrency(this.props.route?.params?.item?.country?.code) == undefined ? "" : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code)),
       selectPayorData: [],
       bankAccounts: [],
       OTPMessage: "",
@@ -113,19 +113,19 @@ class PartiesTransactionScreen extends React.Component {
   }
 
   getActiveCompany = async () => {
-    if (this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN") {
+    if (this.props.route?.params?.type == 'Vendors' && this.props.route?.params?.item?.country?.code == "IN") {
       let activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyName);
       if (activeCompany == null || activeCompany == undefined) {
         activeCompany = " "
       }
-      let remark = await (this.props.route.params.item.name).split(' ')[0] + " - " + (activeCompany).split(' ')[0]
+      let remark = await (this.props.route?.params?.item?.name).split(' ')[0] + " - " + (activeCompany).split(' ')[0]
       this.setState({ review: remark, reviewPlaceHolder: 'a' })
     }
   }
 
   componentDidMount() {
     this.getActiveCompany()
-    if (this.props.route.params.item.bankPaymentDetails && this.props.route.params.type == 'Vendors') {
+    if (this.props.route?.params?.item?.bankPaymentDetails && this.props.route?.params?.type == 'Vendors') {
       this.getBankAccountsData()
     }
     this.getTransactions();
@@ -139,18 +139,18 @@ class PartiesTransactionScreen extends React.Component {
     this.removeSmsListener()
   }
 
-  retrieveVerificationCode=(sms:any, codeLength:any) =>{
+  retrieveVerificationCode = (sms: any, codeLength: any) => {
     const codeRegExp = new RegExp(`\\d{${codeLength}}`, 'm');
     const code = sms?.match(codeRegExp)?.[0];
     return code ?? "";
-  } 
+  }
 
   getSMSMessage = async () => {
     try {
       const message: SMSMessage = await SMSUserConsent.listenOTP()
       let messageResponse = message.receivedOtpMessage
       console.log(messageResponse)
-      var otp = this.retrieveVerificationCode(messageResponse,6)
+      var otp = this.retrieveVerificationCode(messageResponse, 6)
       await this.setState({ code: otp.toString() })
     } catch (e) {
       console.log(JSON.stringify(e))
@@ -420,23 +420,23 @@ class PartiesTransactionScreen extends React.Component {
   };
 
   onWhatsApp = () => {
-    if (this.props.route.params.item.mobileNo) {
-      Linking.openURL(`whatsapp://send?phone=${this.props.route.params.item.mobileNo}&text=${''}`);
+    if (this.props.route.params?.item?.mobileNo) {
+      Linking.openURL(`whatsapp://send?phone=${this.props.route?.params?.item?.mobileNo}&text=${''}`);
     } else {
       return Alert.alert('', 'The phone number for this person is not available');
     }
   };
   onCall = () => {
-    if (this.props.route.params.item.mobileNo) {
-      Linking.openURL(`tel://${this.props.route.params.item.mobileNo}`);
+    if (this.props.route.params?.item?.mobileNo) {
+      Linking.openURL(`tel://${this.props.route.params?.item?.mobileNo}`);
     } else {
       return Alert.alert('', 'The phone number for this person is not available');
     }
   };
 
   phoneNo = () => {
-    if (this.props.route.params.item.mobileNo) {
-      return `${this.props.route.params.item.mobileNo}`;
+    if (this.props.route.params?.item?.mobileNo) {
+      return `${this.props.route.params?.item?.mobileNo}`;
     } else {
       return Alert.alert('', 'The phone number for this person is not available');
     }
@@ -622,7 +622,7 @@ class PartiesTransactionScreen extends React.Component {
         this.state.startDate,
         this.state.endDate,
         this.state.page,
-        this.props.route.params.item.uniqueName,
+        this.props.route.params?.item?.uniqueName,
         this.state.vouchers,
       );
 
@@ -658,7 +658,7 @@ class PartiesTransactionScreen extends React.Component {
         this.state.startDate,
         this.state.endDate,
         this.state.page,
-        this.props.route.params.item.uniqueName,
+        this.props.route.params?.item?.uniqueName,
         this.state.vouchers,
       );
       this.setState({
@@ -869,7 +869,7 @@ class PartiesTransactionScreen extends React.Component {
   };
 
   onWhatsAppShare = async () => {
-    Linking.canOpenURL(`whatsapp://send?phone=${this.props.route.params.item.mobileNo.replace(/\D/g, '')}&text=${''}`)
+    Linking.canOpenURL(`whatsapp://send?phone=${this.props?.route?.params?.item?.mobileNo.replace(/\D/g, '')}&text=${''}`)
       .then(async (supported) => {
         if (!supported) {
           Alert.alert('', 'Please install whats app to send direct message via whats app');
@@ -883,7 +883,7 @@ class PartiesTransactionScreen extends React.Component {
               message: 'Transactions report',
               url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
               social: Share.Social.WHATSAPP,
-              whatsAppNumber: this.props.route.params.item.mobileNo.replace(/\D/g, ''),
+              whatsAppNumber: this.props.route?.params?.item?.mobileNo.replace(/\D/g, ''),
               filename: 'Transactions report',
             };
             RNFetchBlob.fetch(
@@ -938,6 +938,9 @@ class PartiesTransactionScreen extends React.Component {
 
   currencyFormat(amount: number, currencyType: string | undefined) {
     console.log("Currency type " + currencyType + " total Amount " + amount)
+    if(amount==null|| amount==undefined){
+      return ""
+    }
     switch (currencyType) {
       case 'IND_COMMA_SEPARATED':
         // eslint-disable-next-line no-lone-blocks
@@ -984,7 +987,7 @@ class PartiesTransactionScreen extends React.Component {
     if (today.getDate() == selected.getDate() && today.getMonth() == selected.getMonth() && today.getFullYear() == selected.getFullYear() && this.state.dateTime.getTime() <= new Date(Date.now()).getTime()) {
       Alert.alert("Invalid time", "Please enter a valid time", [{ style: 'destructive', text: 'Okay' }]);
     } else {
-      this.sendNotification(this.props.route.params.item);
+      this.sendNotification(this.props.route?.params?.item);
     }
   }
 
@@ -1016,7 +1019,7 @@ class PartiesTransactionScreen extends React.Component {
         urn: this.state.selectedPayor.urn,
         uniqueName: this.state.bankAccounts[0].uniqueName,
         totalAmount: (((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')).trim(),
-        bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route.params.item.uniqueName }]
+        bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route?.params?.item?.uniqueName }]
       }
       console.log("Send OTP request " + JSON.stringify(payload))
       const response = await PaymentServices.sendOTP(payload)
@@ -1184,16 +1187,16 @@ class PartiesTransactionScreen extends React.Component {
             {this.state.payNowButtonPressed ?
               <View style={{ justifyContent: "space-between", alignItems: "center", flexDirection: "row", flex: 1 }}>
                 <Text numberOfLines={1} style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF', width: "60%" }}>
-                  {this.props.route.params.item.name}
+                  {this.props.route?.params?.item?.name}
                 </Text>
                 <Text
                   numberOfLines={1}
                   style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, color: '#FFFFFF', width: "35%", textAlign: "right", paddingLeft: 2 }}>
-                  {this.state.currencySymbol + this.numberWithCommas(this.props.route.params.item.closingBalance.amount)}
+                  {this.state.currencySymbol + this.numberWithCommas(this.props.route?.params?.item?.closingBalance?.amount)}
                 </Text>
               </View>
               : <Text numberOfLines={1} style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
-                {this.props.route.params.item.name}
+                {this.props.route?.params?.item?.name}
               </Text>
             }
           </View>
@@ -1211,18 +1214,18 @@ class PartiesTransactionScreen extends React.Component {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Credit Total :</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 5 }}>
-                  {this.props.route.params.item.country.code == 'IN'
+                  {this.props.route?.params?.item?.country?.code == 'IN'
                     ? '₹'
-                    : getSymbolFromCurrency(this.props.route.params.item.country.code)}
+                    : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code)}
                   {this.numberWithCommas(this.state.creditTotal)}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Debit Total :</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 18, marginLeft: 8 }}>
-                  {this.props.route.params.item.country.code == 'IN'
+                  {this.props.route?.params?.item?.country?.code == 'IN'
                     ? '₹'
-                    : getSymbolFromCurrency(this.props.route.params.item.country.code)}
+                    : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code)}
                   {this.numberWithCommas(this.state.debitTotal)}
                 </Text>
               </View>
@@ -1236,14 +1239,14 @@ class PartiesTransactionScreen extends React.Component {
               <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => this.setState({ remainderModal: true })}>
                 <MaterialCommunityIcons name="bell-ring" size={22} color={"#808080"} />
               </TouchableOpacity>
-              {this.props.route.params.item.mobileNo && (
+              {this.props.route?.params?.item?.mobileNo ? (
                 <TouchableOpacity
                   delayPressIn={0}
                   style={{ marginLeft: 15, padding: 5 }}
                   onPress={() => this.setState({ MoreModal: true })}>
                   <Entypo name="dots-three-vertical" size={22} color={'#808080'} />
                 </TouchableOpacity>
-              )}
+              ) : null}
             </View>
           </View>
           <View style={{ marginTop: Dimensions.get('window').height * 0.02 }} />
@@ -1309,7 +1312,7 @@ class PartiesTransactionScreen extends React.Component {
               }}
               onPress={() => this.setState({ voucherModal: true })}
             // onPress={() => this.tryDate()}
-            // onPress={() => console.log(this.props.route.params.item.uniqueName, 'hello')}
+            // onPress={() => console.log(this.props?.route?.params?.item?.uniqueName, 'hello')}
             >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
@@ -1318,7 +1321,7 @@ class PartiesTransactionScreen extends React.Component {
               <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor:this.state.payButtonPressed?'#F1F1F2':null
+                backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null
               }}>
                 <Ionicons name="person" size={25} color="#864DD3" style={{ marginTop: 7 }} />
                 <Dropdown
@@ -1336,7 +1339,7 @@ class PartiesTransactionScreen extends React.Component {
                   dropdownTextStyle={{ color: '#1C1C1C' }}
                   renderRow={(options) => {
                     return (
-                      <Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book' }}>{options == "No results found" ? options : options.user.name}</Text>)
+                      <Text style={{ padding: 10, color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',backgroundColor:"white" }}>{options == "No results found" ? options : options.user.name}</Text>)
                   }}
                   onSelect={(index, value) => {
                     if (value != "No results found") {
@@ -1344,9 +1347,9 @@ class PartiesTransactionScreen extends React.Component {
                     }
                   }}>
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily: 'AvenirLTStd-Book' }}>
+                    <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>
                       {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor.user.name}</Text>
-                    <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
+                    <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
                   </View>
                 </Dropdown>
                 <Icon
@@ -1362,9 +1365,9 @@ class PartiesTransactionScreen extends React.Component {
                   }}
                 />
               </View>
-              {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 15, color: '#808080', fontSize: 12, marginBottom: 10,fontFamily: 'AvenirLTStd-Book' }}>
+              {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 15, color: '#808080', fontSize: 12, marginBottom: 10, fontFamily: 'AvenirLTStd-Book' }}>
                 {`Bank Bal ${this.state.bankAccounts.length > 0 ? this.state.bankAccounts[0].effectiveBal : 0} dr`}</Text> : <View style={{ marginBottom: 0 }}></View>}
-              <View style={{ flexDirection: "row", marginTop: 15,backgroundColor:this.state.payButtonPressed?'#F1F1F2':null }}>
+              <View style={{ flexDirection: "row", marginTop: 15, backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null }}>
                 <View style={{ backgroundColor: '#864DD3', width: 25, height: 25, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
                   <FontAwesome name={'dollar'} color="white" size={18} />
                 </View>
@@ -1408,16 +1411,16 @@ class PartiesTransactionScreen extends React.Component {
                     this.setState({ totalAmount: (text).replace(/[^0-9.₹]/g, '') })
                   }}
                   style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
-                  <Text style={{ color: '#1c1c1c',fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder != '' ? ((this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol) && this.state.currencySymbol != "" ? (this.state.currencySymbol).substring(1)
+                  <Text style={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder != '' ? ((this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol) && this.state.currencySymbol != "" ? (this.state.currencySymbol).substring(1)
                     : (this.state.currencySymbol)) : ''}</Text>
-                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' &&
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' &&
                     'Total Amount'}</Text>
-                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder != '' &&
+                  <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder != '' &&
                     (this.state.totalAmount)}</Text>
-                  <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
+                  <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
-              <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20,backgroundColor:this.state.payButtonPressed?'#F1F1F2':null }}>
+              <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20, backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null }}>
                 <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
                 <TextInput
                   multiline={true}
@@ -1437,8 +1440,8 @@ class PartiesTransactionScreen extends React.Component {
                   }
                   }
                   style={{ fontSize: 15, marginHorizontal: 8, textAlignVertical: "center", padding: 0, width: "90%", }}>
-                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? 'Comments' : this.state.review}</Text>
-                  <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? '*' : ''}</Text>
+                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? 'Comments' : this.state.review}</Text>
+                  <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
               {this.state.payButtonPressed ?
@@ -1448,7 +1451,7 @@ class PartiesTransactionScreen extends React.Component {
                   flex: 1,
                   marginBottom: 30
                 }}>
-                  <Text style={{ fontSize: 18, color: 'black', marginTop: 40,fontFamily: 'AvenirLTStd-Book' }} >Enter OTP</Text>
+                  <Text style={{ fontSize: 18, color: 'black', marginTop: 40, fontFamily: 'AvenirLTStd-Book' }} >Enter OTP</Text>
                   <OTPInputView
                     style={{ width: '85%', height: 100, }}
                     pinCount={6}
@@ -1462,9 +1465,9 @@ class PartiesTransactionScreen extends React.Component {
                       console.log(`Code is ${code}, you are good to go!`)
                     }}
                   />
-                  <Text style={{ fontSize: 16, color: '#808080',fontFamily: 'AvenirLTStd-Book' ,alignSelf:"center",width: '85%'}} >{this.state.OTPMessage}</Text>
+                  <Text style={{ fontSize: 16, color: '#808080', fontFamily: 'AvenirLTStd-Book', alignSelf: "center", width: '85%' }} >{this.state.OTPMessage}</Text>
                   <TouchableOpacity disabled={this.state.disableResendButton} onPress={() => this.resendOTP()}>
-                    <Text style={{ fontSize: 16, color: this.state.disableResendButton ? colors.PRIMARY_DISABLED : '#5773FF', marginTop: 10, marginBottom: 20,fontFamily: 'AvenirLTStd-Book' }} >Resend</Text>
+                    <Text style={{ fontSize: 16, color: this.state.disableResendButton ? colors.PRIMARY_DISABLED : '#5773FF', marginTop: 10, marginBottom: 20, fontFamily: 'AvenirLTStd-Book' }} >Resend</Text>
                   </TouchableOpacity>
                 </View> : null}
             </ScrollView>
@@ -1515,7 +1518,7 @@ class PartiesTransactionScreen extends React.Component {
                         item={item}
                         downloadModal={this.downloadModalVisible}
                         transactionType={'partyTransaction'}
-                        phoneNo={this.props.route.params.item.mobileNo}
+                        phoneNo={this.props.route?.params?.item?.mobileNo}
                       />
                     )}
                     keyExtractor={(item) => item.uniqueName}
@@ -1537,7 +1540,7 @@ class PartiesTransactionScreen extends React.Component {
             onWhatsAppShare={this.permissonWhatsapp}
             downloadModal={this.downloadModalVisible}
             shareModal={this.shareModalVisible}
-            phoneNo={this.props.route.params.item.mobileNo}
+            phoneNo={this.props.route?.params?.item?.mobileNo}
           />
           <VoucherModal
             modalVisible={this.state.voucherModal}
@@ -1557,20 +1560,20 @@ class PartiesTransactionScreen extends React.Component {
 
             <Text style={{ textAlign: 'center', fontSize: 18, marginBottom: 10, fontFamily: FONT_FAMILY.bold }}>Set Reminder</Text>
             <View style={{ paddingHorizontal: 15 }}>
-              <Text style={{fontFamily: 'AvenirLTStd-Book'}}>Date</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Book' }}>Date</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ datePicker: true })}
                 style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
                 <View style={{ flexDirection: "row", alignItems: 'center' }}>
-                  <Text style={{ color: '#808080', paddingVertical: 10,fontFamily: 'AvenirLTStd-Book' }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
+                  <Text style={{ color: '#808080', paddingVertical: 10, fontFamily: 'AvenirLTStd-Book' }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
                 </View>
               </TouchableOpacity>
-              <Text style={{ marginTop: 20,fontFamily: 'AvenirLTStd-Book' }}>Time</Text>
+              <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Book' }}>Time</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ timePicker: true })}
                 style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
                 <View style={{ flexDirection: "row", alignItems: 'center' }}>
-                  <Text style={{ color: '#808080', paddingVertical: 10,fontFamily: 'AvenirLTStd-Book' }}>{format(this.state.dateTime, "HH:mm")}</Text>
+                  <Text style={{ color: '#808080', paddingVertical: 10, fontFamily: 'AvenirLTStd-Book' }}>{format(this.state.dateTime, "HH:mm")}</Text>
                 </View>
               </TouchableOpacity>
               <View style={{ justifyContent: "center", alignItems: "center" }}>
@@ -1581,7 +1584,7 @@ class PartiesTransactionScreen extends React.Component {
                     height: height * 0.05,
                     width: width * 0.6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
                   }}>
-                  <Text style={{ color: 'white',fontFamily: 'AvenirLTStd-Book' }}>Done</Text>
+                  <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book' }}>Done</Text>
                 </TouchableOpacity>
               </View>
               <DateTimePickerModal
@@ -1692,28 +1695,28 @@ class PartiesTransactionScreen extends React.Component {
             </View>
           )}
           {this.props.route.params.type == 'Vendors' ? (
-            this.props.route.params.item.bankPaymentDetails === false ?
+            this.props.route?.params?.item?.bankPaymentDetails === false ?
               <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                 <TouchableOpacity onPress={async () => {
-                  await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route.params.item.uniqueName } }),
+                  await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route?.params?.item?.uniqueName } }),
                     await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                 }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                  <Text style={{ fontSize: 20, color: "black",fontFamily: 'AvenirLTStd-Book' }}>Add Bank Details</Text>
+                  <Text style={{ fontSize: 20, color: "black", fontFamily: 'AvenirLTStd-Book' }}>Add Bank Details</Text>
                 </TouchableOpacity>
               </View> :
-              this.props.route.params.type == 'Vendors' && this.props.route.params.item.country.code == "IN" &&
+              this.props.route.params.type == 'Vendors' && this.props.route?.params?.item?.country?.code == "IN" &&
               (this.state.payButtonPressed == false ?
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                   <TouchableOpacity onPress={() => {
                     this.PayButtonPressed()
                   }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                    <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black",fontFamily: 'AvenirLTStd-Book' }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
+                    <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black", fontFamily: 'AvenirLTStd-Book' }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
                   </TouchableOpacity>
                 </View> :
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                   <TouchableOpacity disabled={this.state.paymentProcessing} onPress={async () => { this.confirmPayment() }}
                     style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.paymentProcessing ? '#ACBAFF' : '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                    <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book' }}>{"Confirm"}</Text>
+                    <Text style={{ fontSize: 20, color: "white", fontFamily: 'AvenirLTStd-Book' }}>{"Confirm"}</Text>
                   </TouchableOpacity>
                 </View>))
             : null}

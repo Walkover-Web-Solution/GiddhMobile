@@ -130,7 +130,6 @@ export const PartiesList = (props: PartiesListProp) => {
                       numberOfLines={1}>
                       {getSymbolFromCurrency('INR')}
                       {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
-                      {/* 1000000000000000 */}
                     </Text>
                   )}
                   {item.country.code !== 'IN' && (

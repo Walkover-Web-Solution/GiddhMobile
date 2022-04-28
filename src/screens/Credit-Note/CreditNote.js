@@ -1039,6 +1039,7 @@ export class CreditNote extends React.Component<Props> {
                       paddingTop: this.state.allVoucherInvoice.length > 1 ? 3 : 10,
                       borderBottomColor: 'grey',
                       borderBottomWidth: this.state.allVoucherInvoice.length > 1 ? 0.7 : 0,
+                      backgroundColor:"white"
                     }}>
                     <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.regular }}>
                       {this.state.allVoucherInvoice.length == 0

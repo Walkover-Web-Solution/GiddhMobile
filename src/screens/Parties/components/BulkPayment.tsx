@@ -450,7 +450,7 @@ class BulkPayment extends React.Component {
                             dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 1 ? 100 : 50, marginTop: 5, borderRadius: 5 }}
                             dropdownTextStyle={{ color: '#1C1C1C' }}
                             renderRow={(options) => {
-                                return (<Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book'  }}>{options == "No results found" ? options : options.user.name}</Text>);
+                                return (<Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book',backgroundColor:"white"  }}>{options == "No results found" ? options : options.user.name}</Text>);
                             }}
                             onSelect={(index, value) => {
                                 if (value != "No results found") {

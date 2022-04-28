@@ -331,7 +331,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                 return (
                   <View style={{
                     flexDirection: "row", justifyContent: "flex-start", borderBottomColor: 'rgba(80,80,80,0.5)', borderBottomWidth: this.state.countryCode == "US" || this.state.countryCode == "GB" ||
-                      this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 0 : (options == "Registered" ? 0.5 : 0),padding: 10,
+                      this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 0 : (options == "Registered" ? 0.5 : 0),padding: 10,backgroundColor:"white"
                   }}>
                     {this.state.bussinessType==options?<AntDesign name="check" size={20} color={'black'} />:<View style={{width:this.state.bussinessType==null?0:20}}/>}
                     <Text style={{
@@ -366,7 +366,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               renderRow={(options) => {
                 return (
                   <View style={{
-                    flexDirection: "row", justifyContent: "flex-start", borderBottomColor: 'rgba(80,80,80,0.5)', borderBottomWidth:(options == "Retail" ? 0.5 : 0),padding: 10,
+                    flexDirection: "row", justifyContent: "flex-start", borderBottomColor: 'rgba(80,80,80,0.5)', borderBottomWidth:(options == "Retail" ? 0.5 : 0),padding: 10,backgroundColor:"white"
                   }}>
                     {this.state.bussinessNature==options?<AntDesign name="check" size={20} />:<View style={{width:this.state.bussinessNature==null?0:20}}/>}
                     <Text style={{

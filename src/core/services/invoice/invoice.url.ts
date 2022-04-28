@@ -1,7 +1,6 @@
 import { createEndpoint } from '@/utils/helper';
 
 export const invoiceUrls = {
-  searchCreditCompanies: createEndpoint('company/harshain16149540530350fghd3/account-search?q=&page=&group='),
   search: createEndpoint(
     'company/:companyUniqueName/account-search?q=&page=&group=&branchUniqueName=:branchUniqueName&withStocks='
   ),

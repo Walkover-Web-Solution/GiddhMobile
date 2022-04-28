@@ -833,7 +833,7 @@ export class Customers extends React.Component<Props> {
               dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1c1c1c',fontFamily:'AvenirLTStd-Book',fontSize:14  }}
               renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1c1c1c',fontSize:14 }}>{options}</Text>);
+                return (<Text style={{ padding: 13,color: '#1c1c1c',fontSize:14,backgroundColor:"white" }}>{options}</Text>);
               }}
               onSelect={(index, value) => { this.setState({ selectedGroup: value }) }} />
             <Icon

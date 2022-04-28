@@ -49,6 +49,7 @@ export function* getCompanyAndBranches() {
           if(defaultComp.name){
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyName, defaultComp.name);
           }
+          yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber, defaultComp.voucherVersion);
         } else {
           yield put(CommonActions.isUnauth());
         }
@@ -64,6 +65,7 @@ export function* getCompanyAndBranches() {
             const defaultComp = listResponse.body[0]; //unregistered email would give 0 length listResponse.body
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyName, defaultComp.name);
+            yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber, defaultComp.voucherVersion);
             if (
               defaultComp.subscription &&
               defaultComp.subscription.country &&

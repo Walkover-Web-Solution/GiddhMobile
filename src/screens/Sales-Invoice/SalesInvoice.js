@@ -394,7 +394,8 @@ export class SalesInvoice extends React.Component<Props> {
                     color: '#1C1C1C',
                     paddingVertical: 10,
                     paddingHorizontal: 15,
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    backgroundColor:"white"
                   }}>
                   {option}</Text>
               );
