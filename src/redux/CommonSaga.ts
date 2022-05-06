@@ -49,7 +49,6 @@ export function* getCompanyAndBranches() {
           if(defaultComp.name){
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyName, defaultComp.name);
           }
-          yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber, defaultComp.voucherVersion);
         } else {
           yield put(CommonActions.isUnauth());
         }
@@ -65,7 +64,6 @@ export function* getCompanyAndBranches() {
             const defaultComp = listResponse.body[0]; //unregistered email would give 0 length listResponse.body
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, defaultComp.uniqueName);
             yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyName, defaultComp.name);
-            yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber, defaultComp.voucherVersion);
             if (
               defaultComp.subscription &&
               defaultComp.subscription.country &&
@@ -118,6 +116,14 @@ export function* getCompanyAndBranches() {
       }
     }
     if (companyData.success == true) {
+        const activeCompany = yield AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+        const companyResults = companyData.companyList.find(function (item) {
+          return item.uniqueName == activeCompany;
+        });
+        if (companyResults.voucherVersion) {
+          console.log("company voucher version",(companyResults.voucherVersion))
+          yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber,JSON.stringify(companyResults.voucherVersion))
+        }
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
     } else {

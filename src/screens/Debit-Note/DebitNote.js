@@ -136,6 +136,7 @@ export class DebiteNote extends React.Component<Props> {
       tdsOrTcsArray: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
+      companyVersionNumber: 1
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -203,8 +204,10 @@ export class DebiteNote extends React.Component<Props> {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+    this.getCompanyVersionNumber();
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      this.getCompanyVersionNumber();
       if (this.state.searchPartyName == "") {
         this.searchCalls();
       }
@@ -224,6 +227,7 @@ export class DebiteNote extends React.Component<Props> {
       this.getAllDiscounts();
       this.getAllWarehouse();
       this.getAllAccountsModes();
+      this.getCompanyVersionNumber();
     });
 
     if (Platform.OS == 'ios') {
@@ -232,6 +236,14 @@ export class DebiteNote extends React.Component<Props> {
         const { bottomOffset } = offset;
         this.setState({ bottomOffset });
       });
+    }
+
+  }
+
+  getCompanyVersionNumber = async () => {
+    let companyVersionNumber = await AsyncStorage.getItem(STORAGE_KEYS.companyVersionNumber)
+    if (companyVersionNumber != null || companyVersionNumber != undefined) {
+      this.setState({ companyVersionNumber })
     }
   }
 
@@ -373,6 +385,7 @@ export class DebiteNote extends React.Component<Props> {
     await this.getAllDiscounts();
     await this.getAllWarehouse();
     await this.getAllAccountsModes();
+    await this.getCompanyVersionNumber();
   };
 
   onLayout = (e) => {
@@ -421,11 +434,14 @@ export class DebiteNote extends React.Component<Props> {
       const date = await moment(this.state.date).format('DD-MM-YYYY');
       const payload = await {
         accountUniqueNames: [this.state.partyName.uniqueName, 'sales'],
+        accountUniqueName: this.state.partyName.uniqueName,
         voucherType: INVOICE_TYPE.debit,
+        noteVoucherType: 'sales'
       };
-      const results = await InvoiceService.getVoucherInvoice(date, payload);
+      const results = await InvoiceService.getVoucherInvoice(date, payload,this.state.companyVersionNumber);
       if (results.body && results.status == 'success') {
-        this.setState({ allVoucherInvoice: results.body.results });
+        let allVoucherInvoice = this.state.companyVersionNumber==1?results.body.results:results.body.items
+        this.setState({ allVoucherInvoice });
       }
     } catch (e) {
       this.setState({ allVoucherInvoice: [] });
@@ -604,6 +620,7 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   resetState = () => {
+    this.state.accountDropDown.select(-1);
     this.setState({
       loading: false,
       invoiceType: INVOICE_TYPE.debit,
@@ -681,6 +698,7 @@ export class DebiteNote extends React.Component<Props> {
       tdsOrTcsArray: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
+      companyVersionNumber: 1
     });
   };
 
@@ -783,6 +801,7 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   async createInvoice() {
+    try {
     this.setState({ loading: true });
     if (this.state.currency != this.state.companyCountryDetails.currency.code) {
       let exchangeRate = 1;
@@ -791,9 +810,8 @@ export class DebiteNote extends React.Component<Props> {
         : (exchangeRate = 1);
       await this.setState({ exchangeRate: exchangeRate });
     }
-    try {
       console.log('came to this');
-      const postBody = {
+      const postBody = this.state.companyVersionNumber == 1 ? {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
@@ -834,7 +852,8 @@ export class DebiteNote extends React.Component<Props> {
           uniqueName: this.state.partyName.uniqueName,
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
-        dueDate: moment(this.state.date).format('DD-MM-YYYY'),
+        // dueDate: moment(this.state.date).format('DD-MM-YYYY'),
+        dueDate: "",
         deposit: {
           type: 'DEBIT',
           accountUniqueName: this.state.selectedPayMode.uniqueName,
@@ -856,17 +875,89 @@ export class DebiteNote extends React.Component<Props> {
         touristSchemeApplicable: false,
         type: this.state.invoiceType,
         updateAccountDetails: false,
-      };
+      } : {
+        account: {
+          attentionTo: '',
+          billingDetails: {
+            address: [this.state.partyBillingAddress.address],
+            countryName: this.state.countryDeatils.countryName,
+            taxNumber: this.state.partyBillingAddress.gstNumber ? this.state.partyBillingAddress.gstNumber : '',
+            panNumber: '',
+            state: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
+            },
+            country: {
+              code: this.state.countryDeatils.countryCode,
+              name: this.state.countryDeatils.countryName,
+            },
+            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : '',
+            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
+            pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
+          },
+          contactNumber: '',
+          country: this.state.countryDeatils,
+          currency: { code: this.state.currency, symbol: this.state.currencySymbol },
+          currencySymbol: this.state.currencySymbol,
+          email: " ",
+          mobileNumber: '',
+          name: this.state.partyName.name,
+          uniqueName: this.state.partyName.uniqueName,
+          shippingDetails: {
+            address: [this.state.partyShippingAddress.address],
+            country: {
+              code: this.state.countryDeatils.countryCode,
+              name: this.state.countryDeatils.countryName,
+            },
+            taxNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
+            panNumber: '',
+            state: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
+            },
+            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : '',
+            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : '',
+            pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
+          },
+        },
+        date: moment(this.state.date).format('DD-MM-YYYY'),
+        dueDate: "",
+        deposit: {
+          type: 'DEBIT',
+          accountUniqueName: this.state.selectedPayMode.uniqueName,
+          amountForAccount: this.state.amountPaidNowText,
+        },
+        entries: this.getEntries(),
+        exchangeRate: this.state.exchangeRate,
+        templateDetails: {
+          other: {
+            shippingDate: this.state.otherDetails.shipDate,
+            shippedVia: this.state.otherDetails.shippedVia,
+            trackingNumber: this.state.otherDetails.trackingNumber,
+            customField1: this.state.otherDetails.customField1,
+            customField2: this.state.otherDetails.customField2,
+            customField3: this.state.otherDetails.customField3,
+          },
+        },
+        type: this.state.invoiceType,
+        updateAccountDetails: false,
+        // Not having option to choose warehouse in mobile
+        // "warehouse": {
+        //   "name": "",
+        //   "uniqueName": ""
+        // },
+      }
 
       if (this.state.selectedInvoice != '') {
-        postBody.invoiceLinkingRequest = { linkedInvoices: [this.state.linkedInvoices] };
+        this.state.companyVersionNumber == 1 ? postBody.invoiceLinkingRequest = { linkedInvoices: [this.state.linkedInvoices] }
+          : postBody.referenceVoucher = this.state.linkedInvoices
       }
 
       console.log('postBody is', JSON.stringify(postBody));
-      const results = await InvoiceService.createDebitNote(
+      const results = await InvoiceService.createVoucher(
         postBody,
         this.state.partyName.uniqueName,
-        this.state.invoiceType,
+        this.state.companyVersionNumber
       );
       this.setState({ loading: false });
       if (results.body) {
@@ -878,6 +969,7 @@ export class DebiteNote extends React.Component<Props> {
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
+        this.getCompanyVersionNumber();
         this.props.navigation.goBack();
         DeviceEventEmitter.emit(APP_EVENTS.DebitNoteCreated, {});
       }
@@ -1032,6 +1124,7 @@ export class DebiteNote extends React.Component<Props> {
                   ? this.setState({
                     selectedInvoice: value.voucherNumber == null ? ' - ' : value.voucherNumber,
                     linkedInvoices: {
+                      uniqueName: value.uniqueName,
                       invoiceUniqueName: value.uniqueName,
                       voucherType: value.voucherType,
                     },
@@ -1842,6 +1935,7 @@ export class DebiteNote extends React.Component<Props> {
       const amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
+    console.log(total)
     return total.toFixed(2);
   }
 

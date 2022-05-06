@@ -750,14 +750,17 @@ class PartiesTransactionScreen extends React.Component {
         }
         let base64Str = res.base64();
         let base69 = base64.decode(base64Str);
-        let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+        let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate} - ${moment()}.pdf`;
         RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
         if (Platform.OS === "ios") {
-          let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+          //let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate} - ${moment()}.pdf`;
           RNFetchBlob.ios.openDocument(pdfLocation)
           this.setState({ iosLoaderToExport: false })
         } else {
           this.downloadModalVisible(false)
+        }
+        if (Platform.OS !== "ios") {
+          ToastAndroid.show("Pdf saved successfully", ToastAndroid.LONG)
         }
       })
     } catch (e) {

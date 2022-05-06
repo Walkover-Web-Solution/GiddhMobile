@@ -26,7 +26,8 @@ export class SelectAddress extends React.Component<any, any> {
       // this.props.route.params.type == 'warehouse'
       //   ? this.props.route.params.warehouseArray
       //   : ,
-      selectedAddress: {}
+      selectedAddress: {},
+      dataPresent: true
     };
   }
 
@@ -44,6 +45,14 @@ export class SelectAddress extends React.Component<any, any> {
 
   componentDidMount() {
     this.findActiveIndex();
+    if (this.state.addressList.length == 1) {
+      let value = this.props.route.params.type == 'warehouse'
+        ? (this.state.addressList[0].name ? this.state.addressList[0].name : this.state.addressList[0].address) :
+        (this.state.addressList[0].address ? this.state.addressList[0].address : this.state.addressList[0].stateName)
+      if (value == null || value == undefined || value == "") {
+        this.setState({ dataPresent: false })
+      }
+    }
   }
 
   findActiveIndex() {
@@ -117,7 +126,7 @@ export class SelectAddress extends React.Component<any, any> {
             </TouchableOpacity>
             : null} */}
         </View>
-        <View style={{ height: height * 0.8 }}>
+        {/* <View style={{ height: height * 0.8 }}>
           <FlatList
             data={this.state.addressList}
             renderItem={({ item, index }) => (
@@ -132,8 +141,31 @@ export class SelectAddress extends React.Component<any, any> {
             )}
             keyExtractor={(item, index) => index.toString()}
           />
-        </View>
-        <TouchableOpacity
+        </View> */}
+        {this.state.dataPresent ? <View style={{ height: height * 0.8 }}>
+          <FlatList
+            data={this.state.addressList}
+            renderItem={({ item, index }) => {
+              let address = this.props.route.params.type == 'warehouse'
+                ? (item.name ? item.name : item.address) : (item.address ? item.address : item.stateName)
+              return (address != null && address != undefined && address !== "") ? <AddressItem
+                index={index}
+                type={this.props.route.params.type}
+                item={item}
+                activeIndex={this.state.activeIndex}
+                changeactiveIndex={this.changeactiveIndex}
+                color={this.props.route.params.color ? this.props.route.params.color : '#229F5F'}
+              /> : <View />
+            }}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View> : <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text style={{
+            fontFamily: 'AvenirLTStd-Book',
+            fontSize: 20,
+          }}>Not Exist</Text>
+        </View>}
+        {this.state.dataPresent ? <TouchableOpacity
           style={style.button}
           onPress={() => {
             this.props.route.params.selectAddress(this.state.addressList[this.state.activeIndex]);
@@ -143,7 +175,7 @@ export class SelectAddress extends React.Component<any, any> {
         // onPress={() => console.log(this.state.array)}
         >
           <Text style={style.buttonText}>Select</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> : null}
         {/* {this.state.editAddress && this._renderBottomSheetForItemDetails()} */}
       </View>
     );

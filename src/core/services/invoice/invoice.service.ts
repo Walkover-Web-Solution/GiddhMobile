@@ -7,7 +7,7 @@ export class InvoiceService {
    * get company details
    * @returns {Promise<BaseResponse<Company>>}
    */
-  static search (query: string, page: number, group: string, withStocks: boolean) {
+  static search(query: string, page: number, group: string, withStocks: boolean) {
     return httpInstance
       .get(
         invoiceUrls.search
@@ -27,7 +27,7 @@ export class InvoiceService {
       });
   }
 
-  static Pbsearch (query: string, page: number, group: string) {
+  static Pbsearch(query: string, page: number, group: string) {
     return httpInstance
       .get(
         invoiceUrls.purchaseBillsearch
@@ -47,7 +47,7 @@ export class InvoiceService {
       });
   }
 
-  static getAccountDetails (query: any) {
+  static getAccountDetails(query: any) {
     return httpInstance
       .get(invoiceUrls.getAccountDetails.replace(':q', `${query}`), {})
       .then((res) => {
@@ -63,7 +63,7 @@ export class InvoiceService {
   /**
    * get company Address
    */
-  static getCompanyBranchesDetails () {
+  static getCompanyBranchesDetails() {
     return httpInstance.get(invoiceUrls.companyBranchDeatils, {}).then((res) => {
       return res.data;
     }).catch((err) => {
@@ -72,7 +72,7 @@ export class InvoiceService {
     });
   }
 
-  static getCompanyBranchAdresses () {
+  static getCompanyBranchAdresses() {
     return httpInstance
       .get(invoiceUrls.getCompanyBranchAddresses, {})
       .then((res) => {
@@ -84,7 +84,7 @@ export class InvoiceService {
       });
   }
 
-  static getWareHouse () {
+  static getWareHouse() {
     return httpInstance
       .get(invoiceUrls.getWareHouse, {})
       .then((res) => {
@@ -98,7 +98,7 @@ export class InvoiceService {
 
   //  stockDetailService: createEndpoint('v2/company/:companyUniqueName/particular/sales?stockUniqueName=&branchUniqueName=:branchUniqueName'),
   // serviceType - servicesales|sales
-  static getStockDetails (uniqueName: any, stockUniqueName: any) {
+  static getStockDetails(uniqueName: any, stockUniqueName: any) {
     return httpInstance
       .get(
         invoiceUrls.stockDetailService
@@ -115,7 +115,7 @@ export class InvoiceService {
       });
   }
 
-  static getSalesDetails (serviceType: any) {
+  static getSalesDetails(serviceType: any) {
     return httpInstance
       .get(invoiceUrls.salesDetailService.replace(':sales_type', `${serviceType}`), {})
       .then((res) => {
@@ -127,7 +127,7 @@ export class InvoiceService {
       });
   }
 
-  static getDiscounts () {
+  static getDiscounts() {
     return httpInstance
       .get(invoiceUrls.getDiscounts, {})
       .then((res) => {
@@ -140,7 +140,7 @@ export class InvoiceService {
       });
   }
 
-  static getTaxes () {
+  static getTaxes() {
     return httpInstance
       .get(invoiceUrls.getTaxes, {})
       .then((res) => {
@@ -152,8 +152,8 @@ export class InvoiceService {
         return null;
       });
   }
-  
-  static getInvoiceTemplate () {
+
+  static getInvoiceTemplate() {
     return httpInstance
       .get(invoiceUrls.getCompanyInvoiceTemplate, {})
       .then((res) => {
@@ -164,8 +164,8 @@ export class InvoiceService {
         return null;
       });
   }
-  
-  static getVoucherTemplate () {
+
+  static getVoucherTemplate() {
     return httpInstance
       .get(invoiceUrls.getCompanyVoucherTemplate, {})
       .then((res) => {
@@ -176,8 +176,9 @@ export class InvoiceService {
         return null;
       });
   }
-
-  static createInvoice (payload: { account: { attentionTo: string; billingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string; mobileNumber: string; name: any; shippingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; uniqueName: any; customerName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; passportNumber: string; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; touristSchemeApplicable: boolean; type: string; updateAccountDetails: boolean; voucherAdjustments: { adjustments: never[]; }; }, accountUniqueName: any, invoiceType: string) {
+  
+  // Becuase of version 2, Not using this function. Using common function for version 1 and 2 i.e; createVoucher.
+  static createInvoice(payload: { account: { attentionTo: string; billingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string; mobileNumber: string; name: any; shippingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; uniqueName: any; customerName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; passportNumber: string; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; touristSchemeApplicable: boolean; type: string; updateAccountDetails: boolean; voucherAdjustments: { adjustments: never[]; }; }, accountUniqueName: any, invoiceType: string) {
     console.log(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`));
     console.log('invoice type', invoiceType);
     if (invoiceType == 'sales') {
@@ -207,13 +208,14 @@ export class InvoiceService {
   }
 
   /**
+   * Becuase of version 2, Not using this function. Using common function for version 1 and 2 i.e; createVoucher.
    * Api call to create debit note.
    * @param payload
    * @param accountUniqueName
    * @param invoiceType
    * @returns
    */
-  static createDebitNote (payload: any, accountUniqueName: any, invoiceType: any) {
+  static createDebitNote(payload: any, accountUniqueName: any, invoiceType: any) {
     console.log(invoiceUrls.generateDebitNote.replace(':accountUniqueName', `${accountUniqueName}`));
     console.log('invoice type', invoiceType);
     return httpInstance
@@ -229,7 +231,8 @@ export class InvoiceService {
       });
   }
 
-  static createPurchaseBill (payload: { account: { attentionTo: string; billingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string; mobileNumber: string; name: any; shippingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; uniqueName: any; }; date: string; dueDate: string; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; type: string; attachedFiles: never[]; subVoucher: string; purchaseOrders: never[]; company: { billingDetails: { address: any[]; countryName: any; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; shippingDetails: { address: any[]; countryName: any; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; }; }, accountUniqueName: any) {
+  // Becuase of version 2, Using this function for version 1 only and for version 2 using function createVoucher.
+  static createPurchaseBill(payload: { account: { attentionTo: string; billingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string; mobileNumber: string; name: any; shippingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; uniqueName: any; }; date: string; dueDate: string; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; type: string; attachedFiles: never[]; subVoucher: string; purchaseOrders: never[]; company: { billingDetails: { address: any[]; countryName: any; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; shippingDetails: { address: any[]; countryName: any; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; }; }, accountUniqueName: any) {
     console.log(invoiceUrls.genratePurchaseBill.replace(':accountUniqueName', `${accountUniqueName}`));
     return httpInstance
       .post(invoiceUrls.genratePurchaseBill.replace(':accountUniqueName', `${accountUniqueName}`), payload)
@@ -243,7 +246,7 @@ export class InvoiceService {
       });
   }
 
-  static getBriefAccount () {
+  static getBriefAccount() {
     return httpInstance
       .get(invoiceUrls.getBriefAccount, {})
       .then((res) => {
@@ -256,7 +259,7 @@ export class InvoiceService {
       });
   }
 
-  static getCountryDetails (code: any) {
+  static getCountryDetails(code: any) {
     console.log(invoiceUrls.getCountryDetails.replace(':countryCode', `${code}`))
     return httpInstance
       .get(invoiceUrls.getCountryDetails.replace(':countryCode', `${code}`), {})
@@ -282,10 +285,10 @@ export class InvoiceService {
       });
   }
 
-  static getVoucherInvoice (date: any, payload: any) {
-    console.log(invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`), payload)
+  static getVoucherInvoice(date: any, payload: any, voucherVersion: any) {
+    console.log(invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`), payload)
     return httpInstance
-      .post(invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`), payload)
+      .post(invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`), payload)
       .then((res) => {
         return res.data;
       })
@@ -295,11 +298,11 @@ export class InvoiceService {
       });
   }
 
-  static createCreditNote (payload: { account: { attentionTo: string; billingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string | null; mobileNumber: string; name: any; shippingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; uniqueName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; type: string; updateAccountDetails: boolean; }, accountUniqueName: any, invoiceType: string) {
-    console.log(invoiceUrls.generateCreditNote.replace(':accountUniqueName', `${accountUniqueName}`));
-    console.log('invoice type', invoiceType);
+  static createVoucher(payload: { account: { attentionTo: string; billingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string | null; mobileNumber: string; name: any; shippingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; uniqueName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; type: string; updateAccountDetails: boolean; }, accountUniqueName: any, voucherVersion: any) {
+    console.log(
+      invoiceUrls.generateVoucher.replace(':voucherVersion', `${voucherVersion}`).replace(':accountUniqueName', `${accountUniqueName}`));
     return httpInstance
-      .post(invoiceUrls.generateCreditNote.replace(':accountUniqueName', `${accountUniqueName}`), payload)
+      .post(invoiceUrls.generateVoucher.replace(':voucherVersion', `${voucherVersion}`).replace(':accountUniqueName', `${accountUniqueName}`), payload)
       .then((res) => {
         console.log('yayyy!', res.data);
         return res.data;

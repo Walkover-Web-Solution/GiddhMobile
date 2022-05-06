@@ -23,9 +23,9 @@ export const invoiceUrls = {
   genratePurchaseBill: createEndpoint(
     'company/:companyUniqueName/accounts/:accountUniqueName/purchase-record/generate?branchUniqueName=:branchUniqueName'
   ),
-  generateCreditNote: createEndpoint(
-    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
-  ),
+  generateVoucher: createEndpoint(
+    'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName&voucherVersion=:voucherVersion'
+    ),
   generateDebitNote: createEndpoint(
     'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
   ),
@@ -36,7 +36,7 @@ export const invoiceUrls = {
     'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts&count=0&currency=INR,%20INR&branchUniqueName=:branchUniqueName'
   ),
   getVoucherInvoice: createEndpoint(
-    'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName'
+    'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName&voucherVersion=:voucherVersion'
   ),
   getExchangeRateToINR: createEndpoint(
     'currency/rate?from=:from&to=:to&date=:date&branchUniqueName=:branchUniqueName'

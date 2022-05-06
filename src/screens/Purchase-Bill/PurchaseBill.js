@@ -140,6 +140,7 @@ export class PurchaseBill extends React.Component {
       partyType: undefined,
       defaultAccountTax: [],
       defaultAccountDiscount: [],
+      companyVersionNumber: 1
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -221,6 +222,7 @@ export class PurchaseBill extends React.Component {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+    this.getCompanyVersionNumber();
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInPurchaseBill, (data) => {
       this.updateAddedItems(data);
@@ -229,6 +231,7 @@ export class PurchaseBill extends React.Component {
     });
 
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
+      this.getCompanyVersionNumber();
       if (this.state.searchPartyName == "") {
         this.searchCalls();
       }
@@ -241,6 +244,7 @@ export class PurchaseBill extends React.Component {
       this.getAllDiscounts();
       this.getAllWarehouse();
       this.getAllAccountsModes();
+      this.getCompanyVersionNumber();
     });
 
     if (Platform.OS == 'ios') {
@@ -249,6 +253,13 @@ export class PurchaseBill extends React.Component {
         const { bottomOffset } = offset;
         this.setState({ bottomOffset });
       });
+    }
+  }
+
+  getCompanyVersionNumber = async () => {
+    let companyVersionNumber = await AsyncStorage.getItem(STORAGE_KEYS.companyVersionNumber)
+    if (companyVersionNumber != null || companyVersionNumber != undefined) {
+      this.setState({ companyVersionNumber })
     }
   }
 
@@ -305,7 +316,7 @@ export class PurchaseBill extends React.Component {
             returnKeyType={'done'}
             value={this.state.searchPartyName}
             onChangeText={(text) =>
-              this.setState({ searchPartyName: text }, this.searchCalls())
+              this.setState({ searchPartyName: text }, () => this.searchCalls())
             }
             style={style.searchTextInputStyle}
           />
@@ -313,7 +324,7 @@ export class PurchaseBill extends React.Component {
           {/* </View> */}
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{ color: 'white', marginRight: 16,fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+          <Text style={{ color: 'white', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
         </TouchableOpacity>
       </View>
     );
@@ -666,6 +677,7 @@ export class PurchaseBill extends React.Component {
       defaultAccountDiscount: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
+      companyVersionNumber: 1
     });
   };
 
@@ -767,6 +779,12 @@ export class PurchaseBill extends React.Component {
     return entriesArray;
   }
 
+  /**
+   * Currenlty not supporting download files in purchase bills.
+   * @param {*} voucherName 
+   * @param {*} voucherNo 
+   * @param {*} partyUniqueName 
+   */
   downloadFile = async (voucherName, voucherNo, partyUniqueName) => {
     try {
       if (Platform.OS == "ios") {
@@ -785,12 +803,18 @@ export class PurchaseBill extends React.Component {
     }
   };
 
+
+ /**
+ * Currently not supporting on share in purchase bills.
+ * @param {*} voucherName 
+ * @param {*} voucherNo 
+ * @param {*} partyUniqueName 
+ */
   onShare = async (voucherName, voucherNo, partyUniqueName) => {
     try {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-      console.log("hereeee");
-      console.log(token);
+      console.log("for on share api",token);
       console.log(`https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=base64`);
       RNFetchBlob.fetch(
         'GET',
@@ -843,7 +867,7 @@ export class PurchaseBill extends React.Component {
           : (exchangeRate = 1);
         await this.setState({ exchangeRate: exchangeRate });
       }
-      const postBody = {
+      const postBody = this.state.companyVersionNumber == 1 ? {
         account: {
           attentionTo: '',
           // billingDetails: this.state.partyBillingAddress,
@@ -884,7 +908,8 @@ export class PurchaseBill extends React.Component {
           uniqueName: this.state.partyName.uniqueName,
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
-        dueDate: moment(this.state.date).format('DD-MM-YYYY'),
+        //dueDate: moment(this.state.date).format('DD-MM-YYYY'),
+        dueDate: "",
         // deposit: {
         //   type: 'DEBIT',
         //   accountUniqueName: this.state.selectedPayMode.uniqueName,
@@ -938,14 +963,122 @@ export class PurchaseBill extends React.Component {
             pincode: this.state.shipToAddress.pincode,
           },
         },
-      };
+      } : {
+        account: {
+          attentionTo: '',
+          // billingDetails: this.state.partyBillingAddress,
+          billingDetails: {
+            address: [this.state.BillFromAddress.address],
+            taxNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
+            panNumber: '',
+            state: {
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '',
+              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '',
+            },
+            country: {
+              code: this.state.countryDeatils.countryCode,
+              name: this.state.countryDeatils.countryName,
+            },
+            countryName: this.state.countryDeatils.countryName,
+            stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : '',
+            stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : '',
+            pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : '',
+          },
+          contactNumber: '',
+          country: this.state.countryDeatils,
+          currency: { code: this.state.currency, symbol: this.state.currencySymbol },
+          currencySymbol: this.state.currencySymbol,
+          email: '',
+          mobileNumber: '',
+          name: this.state.partyName.name,
+          // shippingDetails: this.state.partyShippingAddress,
+          shippingDetails: {
+            address: [this.state.shipFromAddress.address],
+            country: {
+              code: this.state.countryDeatils.countryCode,
+              name: this.state.countryDeatils.countryName,
+            },
+            countryName: this.state.countryDeatils.countryName,
+            taxNumber: this.state.shipFromAddress.gstNumber ? this.state.shipFromAddress.gstNumber : '',
+            panNumber: '',
+            state: {
+              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '',
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '',
+            },
+            stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : '',
+            stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : '',
+            pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
+          },
+          uniqueName: this.state.partyName.uniqueName,
+        },
+        date: moment(this.state.date).format('DD-MM-YYYY'),
+        dueDate: "",
+        // deposit: {
+        //   type: 'DEBIT',
+        //   accountUniqueName: this.state.selectedPayMode.uniqueName,
+        //   amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
+        // },
+        entries: this.getEntries(),
+        exchangeRate: this.state.exchangeRate,
+        // passportNumber: '',
+        templateDetails: {
+          other: {
+            shippingDate: this.state.otherDetails.shipDate,
+            shippedVia: this.state.otherDetails.shippedVia,
+            trackingNumber: this.state.otherDetails.trackingNumber,
+            customField1: this.state.otherDetails.customField1,
+            customField2: this.state.otherDetails.customField2,
+            customField3: this.state.otherDetails.customField3,
+          },
+        },
+        // touristSchemeApplicable: false,
+        type: 'purchase',
+        attachedFiles: [],
+        subVoucher: '',
+        purchaseOrders: [],
+        // updateAccountDetails: false,
+        // voucherAdjustments: {adjustments: []},
+        company: {
+          billingDetails: {
+            address: [this.state.BillToAddress.address],
+            countryName: this.state.companyCountryDetails.countryName,
+            gstNumber: this.state.BillToAddress.gstNumber,
+            taxNumber: this.state.BillToAddress.gstNumber,
+            panNumber: '',
+            state: {
+              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : '',
+              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : '',
+            },
+            stateCode: this.state.BillToAddress.stateCode,
+            stateName: this.state.BillToAddress.stateName,
+            pincode: this.state.BillToAddress.pincode,
+          },
+          shippingDetails: {
+            address: [this.state.shipToAddress.address],
+            countryName: this.state.companyCountryDetails.countryName,
+            gstNumber: this.state.shipToAddress.gstNumber,
+            taxNumber: this.state.shipToAddress.gstNumber,
+            panNumber: '',
+            state: {
+              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : '',
+              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : '',
+            },
+            stateCode: this.state.shipToAddress.stateCode,
+            stateName: this.state.shipToAddress.stateName,
+            pincode: this.state.shipToAddress.pincode,
+          },
+        },
+      }
 
       if (this.state.selectedInvoice != '') {
         postBody.number = this.state.selectedInvoice;
       }
 
       console.log('purchase bill postBody is', JSON.stringify(postBody));
-      const results = await InvoiceService.createPurchaseBill(postBody, this.state.partyName.uniqueName);
+      const results = this.state.companyVersionNumber == 1 ?
+        await InvoiceService.createPurchaseBill(postBody, this.state.partyName.uniqueName)
+        : await InvoiceService.createVoucher(postBody, this.state.partyName.uniqueName, this.state.companyVersionNumber)
+
       if (type != 'share') {
         this.setState({ loading: false });
       }
@@ -960,6 +1093,7 @@ export class PurchaseBill extends React.Component {
         this.getAllDiscounts();
         this.getAllWarehouse();
         this.getAllAccountsModes();
+        this.getCompanyVersionNumber();
         DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
         if (type == 'navigate') {
           this.props.navigation.navigate(routes.Parties, {
@@ -976,14 +1110,14 @@ export class PurchaseBill extends React.Component {
             },
           });
         }
-        else if (type == 'share') {
-          console.log('sharing');
-          this.downloadFile(
-            results.body.uniqueName,
-            isInteger(results.body.entries[0].voucherNumber) ? results.body.entries[0].voucherNumber : results.body.entries[0].uniqueName,
-            partyUniqueName,
-          );
-        }
+        // else if (type == 'share') {
+        //   console.log('sharing');
+        //   this.downloadFile(
+        //     results.body.uniqueName,
+        //     isInteger(results.body.entries[0].voucherNumber) ? results.body.entries[0].voucherNumber : results.body.entries[0].uniqueName,
+        //     partyUniqueName,
+        //   );
+        // }
       }
     } catch (e) {
       console.log('problem occured', e);
@@ -999,6 +1133,7 @@ export class PurchaseBill extends React.Component {
     this.getAllDiscounts();
     this.getAllWarehouse();
     this.getAllAccountsModes();
+    this.getCompanyVersionNumber();
   };
 
   renderAmount() {

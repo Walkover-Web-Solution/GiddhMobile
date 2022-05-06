@@ -59,11 +59,20 @@ class TransactionList extends React.Component {
     super(props);
     this.state = {
       DownloadModal: false,
-      iosShare: false
+      iosShare: false,
+      companyVersionNumber: 1
     };
   }
+  getCompanyVersionNumber = async () => {
+    let companyVersionNumber: any = await AsyncStorage.getItem(STORAGE_KEYS.companyVersionNumber)
+    if (companyVersionNumber != null || companyVersionNumber != undefined) {
+      this.setState({ companyVersionNumber })
+    }
+  }
 
-  componentDidMount() { }
+  componentDidMount() {
+    this.getCompanyVersionNumber()
+  }
 
   downloadFile = async () => {
     try {
@@ -107,19 +116,22 @@ class TransactionList extends React.Component {
 
   exportFile = async () => {
     try {
+      //test this part of code
       await Platform.OS == "ios" ? this.setState({ DownloadModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`,
+        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf` :
+          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'
         },
         JSON.stringify({
           voucherNumber: [`${this.props.item.voucherNo}`],
-          voucherType: `${this.props.item.voucherName}`
+          uniqueName: this.props.item.voucherUniqueName,
+          voucherType: `${this.props.item.voucherName}`,
         })
       ).then(async (res) => {
         if (res.respInfo.status != 200) {
@@ -141,15 +153,26 @@ class TransactionList extends React.Component {
           }
           return
         }
-        let base64Str = await res.base64();
-        let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo + " " + new Date()}.pdf`;
-        await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+        let base64Str =  res.base64();
+        let pdfName = this.props.item.voucherNo+" - "+moment();
+        let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${pdfName}.pdf`;
+        try {
+          console.log("PDF location",pdfLocation)
+          await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+        } catch (e) {
+          console.log("Error", e)
+          Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
+          return
+        }
         if (Platform.OS === "ios") {
-          let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${this.props.item.voucherNo + " " + new Date()}.pdf`;
+          let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${this.props.item.voucherNo}.pdf`;
           await this.setState({ DownloadModal: false })
           await setTimeout(() => { RNFetchBlob.ios.openDocument(pdfLocation) }, 200)
         } else {
           this.props.downloadModal(false)
+        }
+        if (Platform.OS !== "ios") {
+          ToastAndroid.show("Pdf saved successfully", ToastAndroid.LONG)
         }
       })
     } catch (e) {
@@ -165,20 +188,28 @@ class TransactionList extends React.Component {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`,
+        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf` :
+          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'
         },
         JSON.stringify({
           voucherNumber: [`${this.props.item.voucherNo}`],
-          voucherType: `${this.props.item.voucherName}`
+          voucherType: `${this.props.item.voucherName}`,
+          uniqueName: this.props.item.voucherUniqueName,
         })
       )
         .then(async (res) => {
           const base64Str = await res.base64();
           const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`;
-          await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          try {
+            await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          } catch (e) {
+            console.log("Error", e)
+            this.setState({ iosShare: false });
+            return 
+          }
           await this.setState({ iosShare: false });
           if (Platform.OS === "ios") {
             // await this.setState({ DownloadModal: false })
@@ -240,28 +271,36 @@ class TransactionList extends React.Component {
             const shareOptions = {
               title: 'Share via',
               message: 'Voucher share',
-              url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`,
+              url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`,
               social: Share.Social.WHATSAPP,
               whatsAppNumber: this.props.phoneNo.replace(/\D/g, ''),
               filename: 'Voucher share'
             };
             RNFetchBlob.fetch(
               'POST',
-              `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`,
+              this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf` :
+                `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
               {
                 'session-id': `${token}`,
                 'Content-Type': 'application/json'
               },
               JSON.stringify({
                 voucherNumber: [`${this.props.item.voucherNo}`],
-                voucherType: `${this.props.item.voucherName}`
+                voucherType: `${this.props.item.voucherName}`,
+                uniqueName: this.props.item.voucherUniqueName,
               })
             )
               .then(async (res) => {
                 // console.log(res.base64());
                 const base64Str = await res.base64();
-                const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.props.item.voucherNo}.pdf`;
-                await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+                const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`;
+                try {
+                  await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+                } catch (e) {
+                  console.log("Error", e)
+                  this.setState({ iosShare: false });
+                  return
+                }
                 await this.setState({ iosShare: false })
                 if (Platform.OS === "ios") {
                   await RNFetchBlob.ios.previewDocument(pdfLocation)
@@ -278,7 +317,6 @@ class TransactionList extends React.Component {
               });
           } catch (e) {
             this.setState({ iosShare: false })
-            console.log(e);
             console.log(e);
           }
         }

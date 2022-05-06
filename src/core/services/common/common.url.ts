@@ -13,8 +13,4 @@ export const commonUrls = {
   customer_transactions: createEndpoint(
     'company/:companyUniqueName/daybook?page=1&count=25&from=:startDate&to=:endDate&branchUniqueName=:branchUniqueName'
   )
-  // customer_: createEndpoint(
-  //   'v2/companies/:companyUniqueName/groups/sundrycreditors/account-balances?page=1&count=10&sort=desc&sortBy=closingBalance&refresh=false',
-  // ),
-  // https://apitest.giddh.com/users/%7BuserUniqueName%7D/v2/companies
 };

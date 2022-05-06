@@ -2899,7 +2899,7 @@ export class EditAddress extends React.Component<any, any> {
                   <Text style={style.BMfieldTitle}>Country</Text>
                   <Text style={{ color: '#E04646', marginTop: 20 }}>*</Text>
                </View>
-               <View style={{ flex: 1, backgroundColor: this.props.route.params.dontChangeCountry ? '#F1F1F2' : '', }}>
+               <View style={{ flex: 1,backgroundColor: this.props.route.params.dontChangeCountry ? '#F1F1F2' : '', }}>
                   <CountryPicker
                      modalProps={this.props.route.params.dontChangeCountry ? { visible: false } : null}
                      countryCode={this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
@@ -2920,9 +2920,10 @@ export class EditAddress extends React.Component<any, any> {
                   <View style={{
                      borderBottomWidth: 0.5,
                      paddingTop: 0,
+                     backgroundColor:"red",
                      borderBottomColor: '#808080',
-                     marginTop: 0,
-                     paddingBottom: 10,
+                     marginTop: 5,
+                     //paddingBottom: 10,
                   }} />
                </View>
                {/* <Dropdown
