@@ -752,8 +752,9 @@ class PartiesTransactionScreen extends React.Component {
         let base69 = base64.decode(base64Str);
         let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate} - ${moment()}.pdf`;
         RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+        Platform.OS == "android" && RNFetchBlob.android.actionViewIntent(pdfLocation, 'application/pdf')
         if (Platform.OS === "ios") {
-          //let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate} - ${moment()}.pdf`;
+          let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate} - ${moment()}.pdf`;
           RNFetchBlob.ios.openDocument(pdfLocation)
           this.setState({ iosLoaderToExport: false })
         } else {
@@ -941,7 +942,7 @@ class PartiesTransactionScreen extends React.Component {
 
   currencyFormat(amount: number, currencyType: string | undefined) {
     console.log("Currency type " + currencyType + " total Amount " + amount)
-    if(amount==null|| amount==undefined){
+    if (amount == null || amount == undefined) {
       return ""
     }
     switch (currencyType) {
@@ -1342,7 +1343,7 @@ class PartiesTransactionScreen extends React.Component {
                   dropdownTextStyle={{ color: '#1C1C1C' }}
                   renderRow={(options) => {
                     return (
-                      <Text style={{ padding: 10, color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',backgroundColor:"white" }}>{options == "No results found" ? options : options.user.name}</Text>)
+                      <Text style={{ padding: 10, color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book', backgroundColor: "white" }}>{options == "No results found" ? options : options.user.name}</Text>)
                   }}
                   onSelect={(index, value) => {
                     if (value != "No results found") {

@@ -9,6 +9,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MoreStack from './more.navigator';
 import { PartiesStack } from './parties.navigator';
+import { DashPartyStack } from './dashboard.parties.navigator';
 import AddButton from './components/AddButton';
 import DashboardStack from './dashboard.navigator';
 
@@ -251,7 +252,7 @@ export const HomeNavigator = () => {
     <Navigator tabBar={(props) => <MyTabBar {...props} />}>
       <Screen
         name={Routes.Transaction}
-        component={HomeScreen}
+        component={DashPartyStack}
         options={({ route }) => ({
           tabBarLabel: 'Dashboard',
           tabBarVisible: getTabBarVisibility(route),

@@ -42,7 +42,7 @@ export default StyleSheet.create({
   submitButton: {
     backgroundColor: colors.PRIMARY_NORMAL,
     height: 50,
-    width: width * 0.9,
+    width: width * 0.8,
     marginTop: 10,
     borderRadius: 25,
     alignItems: 'center',

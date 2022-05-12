@@ -983,12 +983,12 @@ export class SalesInvoice extends React.Component<Props> {
           }
         },
         touristSchemeApplicable: false,
-        type: this.state.companyVersionNumber==1 && this.state.invoiceType =='cash'?'cash':'sales',
+        type: this.state.companyVersionNumber == 1 && this.state.invoiceType == 'cash' ? 'cash' : 'sales',
         updateAccountDetails: false,
         voucherAdjustments: { adjustments: [] }
       };
       console.log('postBody is---------------', JSON.stringify(postBody));
-      let uniqueName = this.state.invoiceType == 'sales'? this.state.partyName.uniqueName : "cash"
+      let uniqueName = this.state.invoiceType == 'sales' ? this.state.partyName.uniqueName : "cash"
       const results = await InvoiceService.createVoucher(
         postBody,
         uniqueName,
@@ -1034,7 +1034,7 @@ export class SalesInvoice extends React.Component<Props> {
           console.log('sharing');
           this.downloadFile(
             results.body.entries[0].voucherType,
-            this.state.companyVersionNumber==1?results.body.entries[0].voucherNumber:results.body.number,
+            this.state.companyVersionNumber == 1 ? results.body.entries[0].voucherNumber : results.body.number,
             partyUniqueName,
             results.body.uniqueName
           );
@@ -2045,7 +2045,7 @@ export class SalesInvoice extends React.Component<Props> {
     return total.toFixed(2);
   }
 
-  downloadFile = async (voucherName, voucherNo, partyUniqueName,voucherUniqueName) => {
+  downloadFile = async (voucherName, voucherNo, partyUniqueName, voucherUniqueName) => {
     try {
       if (Platform.OS == "ios") {
         await this.onShare(voucherName, voucherNo, partyUniqueName);
@@ -2053,7 +2053,7 @@ export class SalesInvoice extends React.Component<Props> {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           console.log('yes its granted');
-          await this.onShare(voucherName, voucherNo, partyUniqueName,voucherUniqueName);
+          await this.onShare(voucherName, voucherNo, partyUniqueName, voucherUniqueName);
         } else {
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
@@ -2063,7 +2063,7 @@ export class SalesInvoice extends React.Component<Props> {
     }
   };
 
-  onShare = async (voucherName, voucherNo, partyUniqueName,voucherUniqueName) => {
+  onShare = async (voucherName, voucherNo, partyUniqueName, voucherUniqueName) => {
     try {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
@@ -2080,7 +2080,7 @@ export class SalesInvoice extends React.Component<Props> {
           voucherType: `${voucherName}`,
           uniqueName: voucherUniqueName,
         })
-      ) 
+      )
         .then((res) => {
           console.log(res)
           const base64Str = res.base64();
@@ -2164,9 +2164,11 @@ export class SalesInvoice extends React.Component<Props> {
           onPress={() => {
             this.setState({ showPaymentModePopup: false });
           }}>
-          <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center' }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center', width: "75%", height: "40%" }}>
+            <Text> Amount </Text>
             {this.state.invoiceType == 'sales' && (
               <TextInput
+                style={{ borderWidth: 0.5, borderColor: "grey", borderRadius: 5, padding: 5, marginVertical: 10 }}
                 value={this.state.amountPaidNowText}
                 keyboardType="number-pad"
                 returnKeyType={'done'}
@@ -2181,6 +2183,7 @@ export class SalesInvoice extends React.Component<Props> {
                 }}
               />
             )}
+            <Text> Payment Mode </Text>
             <FlatList
               data={this.state.modesArray}
               style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300 }}
@@ -2282,7 +2285,7 @@ export class SalesInvoice extends React.Component<Props> {
                 : null
             }
 
-            <View
+            {this.state.invoiceType !== 'cash' && <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -2291,6 +2294,7 @@ export class SalesInvoice extends React.Component<Props> {
                 alignItems: 'center'
               }}>
               <TouchableOpacity
+                style={{ width: "80%" }}
                 onPress={() => {
                   if (this.state.modesArray.length > 0) {
                     this.setState({ showPaymentModePopup: true });
@@ -2307,6 +2311,7 @@ export class SalesInvoice extends React.Component<Props> {
                 <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
               ) : (
                 <TouchableOpacity
+                  style={{ width: "20%", alignItems: "flex-end" }}
                   onPress={() => {
                     this.setState({ showPaymentModePopup: true });
                   }}>
@@ -2326,17 +2331,15 @@ export class SalesInvoice extends React.Component<Props> {
                   /> */}
                 </TouchableOpacity>
               )}
-            </View>
+            </View>}
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+            {this.state.invoiceType !== 'cash' && <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
               <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {this.state.invoiceType == 'cash'
-                  ? 0
-                  : String(this.getInvoiceDueTotalAmount()) - this.state.amountPaidNowText}
+                {String(this.getInvoiceDueTotalAmount()) - this.state.amountPaidNowText}
               </Text>
-            </View>
+            </View>}
           </View>
         )}
 

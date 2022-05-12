@@ -8,7 +8,7 @@ export class AuthService {
    * get response from server
    * @returns {Promise<BaseResponse<LoginResponse>>}
    */
-  static submitGoogleAuthToken (token: string): Promise<BaseResponse<LoginResponse>> {
+  static submitGoogleAuthToken(token: string): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
       .get(AccountUrls.googleLogin, {
         headers: { 'access-token': token }
@@ -22,10 +22,51 @@ export class AuthService {
    * get response from server
    * @returns {Promise<BaseResponse<LoginResponse>>}
    */
-  static resetPassword (payload: any): Promise<BaseResponse<LoginResponse>> {
+  static resetPassword(payload: any): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
-      .post(AccountUrls.resetPassword, {
-        headers: { email: payload.email }
+      .put(AccountUrls.resetPassword.replace(":userEmail", payload), {})
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+  /**
+   * get response from server
+   * @returns {Promise<BaseResponse<LoginResponse>>}
+   */
+  static setNewPassword(payload: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .put(AccountUrls.setNewPassword, payload)
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+  /**
+   * get response from server
+   * @returns {Promise<BaseResponse<LoginResponse>>}
+   */
+  static userLogin(payload: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.userLogin, {
+        uniqueKey: payload.username,
+        password: payload.password
+      })
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+
+  /**
+  * get response from server
+  * @returns {Promise<BaseResponse<LoginResponse>>}
+  */
+  static sentOTPSignup(payload: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.userSignUpOTP, {
+        email: payload.email,
+        password: payload.password
       })
       .then((res) => {
         return res.data;
@@ -36,38 +77,7 @@ export class AuthService {
    * get response from server
    * @returns {Promise<BaseResponse<LoginResponse>>}
    */
-   static userLogin (payload: any): Promise<BaseResponse<LoginResponse>> {
-    return httpInstance
-      .post(AccountUrls.userLogin, {
-        uniqueKey: payload.username,
-        password: payload.password
-      })
-      .then((res) => {
-        return res.data;
-      });
-    }
-
-  
-  /**
-  * get response from server
-  * @returns {Promise<BaseResponse<LoginResponse>>}
-  */
-   static sentOTPSignup (payload: any): Promise<BaseResponse<LoginResponse>> {
-   return httpInstance
-     .post(AccountUrls.userSignUpOTP, {
-       email: payload.email,
-       password: payload.password
-     })
-     .then((res) => {
-       return res.data;
-     });
- }
-
- /**
-  * get response from server
-  * @returns {Promise<BaseResponse<LoginResponse>>}
-  */
-  static verifySignupOTP (payload: any): Promise<BaseResponse<LoginResponse>> {
+  static verifySignupOTP(payload: any): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
       .post(AccountUrls.verifySignupOTP, {
         email: payload.email,
@@ -82,7 +92,7 @@ export class AuthService {
    * get response from server
    * @returns {Promise<BaseResponse<LoginResponse>>}
    */
-  static submitAppleAuthToken (payload: any): Promise<BaseResponse<LoginResponse>> {
+  static submitAppleAuthToken(payload: any): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
       .post(AccountUrls.appleLogin, {
         authorizationCode: payload.authorizationCode,
@@ -97,7 +107,7 @@ export class AuthService {
       });
   }
 
-  static verifyOTP (otp: string, mobileNumber: string, countryCode: string): Promise<BaseResponse<LoginResponse>> {
+  static verifyOTP(otp: string, mobileNumber: string, countryCode: string): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
       .post(AccountUrls.verifyOTP, {
         oneTimePassword: otp,
@@ -108,10 +118,10 @@ export class AuthService {
         return res.data;
       });
   }
-  
-  static sendOTP (payload:any): Promise<BaseResponse<LoginResponse>> {
+
+  static sendOTP(payload: any): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
-      .post(AccountUrls.sendOTP,payload)
+      .post(AccountUrls.sendOTP, payload)
       .then((res) => {
         return res.data;
       });

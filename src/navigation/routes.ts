@@ -2,6 +2,7 @@ export default {
   Home: 'home',
   Login: 'login',
   Password: 'Password',
+  ResetPassword: 'ResetPassword',
   Otp: 'Otp',
   Signup: 'Signup',
   createCompany:'createCompany',

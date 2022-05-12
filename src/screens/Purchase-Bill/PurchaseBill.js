@@ -140,7 +140,8 @@ export class PurchaseBill extends React.Component {
       partyType: undefined,
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      showPaymentModePopup: false,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -517,6 +518,7 @@ export class PurchaseBill extends React.Component {
       const results = await InvoiceService.Pbsearch(this.state.searchPartyName, 1, 'sundrycreditors');
 
       if (results.body && results.body.results) {
+        console.log(results.body)
         this.setState({ searchResults: results.body.results, isSearchingParty: false, searchError: '' });
       }
     } catch (e) {
@@ -677,7 +679,8 @@ export class PurchaseBill extends React.Component {
       defaultAccountDiscount: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      showPaymentModePopup: false,
     });
   };
 
@@ -804,17 +807,17 @@ export class PurchaseBill extends React.Component {
   };
 
 
- /**
- * Currently not supporting on share in purchase bills.
- * @param {*} voucherName 
- * @param {*} voucherNo 
- * @param {*} partyUniqueName 
- */
+  /**
+  * Currently not supporting on share in purchase bills.
+  * @param {*} voucherName 
+  * @param {*} voucherNo 
+  * @param {*} partyUniqueName 
+  */
   onShare = async (voucherName, voucherNo, partyUniqueName) => {
     try {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-      console.log("for on share api",token);
+      console.log("for on share api", token);
       console.log(`https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=base64`);
       RNFetchBlob.fetch(
         'GET',
@@ -910,11 +913,12 @@ export class PurchaseBill extends React.Component {
         date: moment(this.state.date).format('DD-MM-YYYY'),
         //dueDate: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: "",
-        // deposit: {
-        //   type: 'DEBIT',
-        //   accountUniqueName: this.state.selectedPayMode.uniqueName,
-        //   amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
-        // },
+        deposit: this.state.partyDetails.accountType == "Asset" ? null :
+          {
+            type: 'DEBIT',
+            accountUniqueName: this.state.selectedPayMode.uniqueName,
+            amountForAccount: this.state.amountPaidNowText,
+          },
         entries: this.getEntries(),
         exchangeRate: this.state.exchangeRate,
         // passportNumber: '',
@@ -1013,11 +1017,11 @@ export class PurchaseBill extends React.Component {
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: "",
-        // deposit: {
-        //   type: 'DEBIT',
-        //   accountUniqueName: this.state.selectedPayMode.uniqueName,
-        //   amountForAccount: this.state.invoiceType == 'cash' ? 0 : this.state.amountPaidNowText,
-        // },
+        deposit: this.state.partyDetails.accountType == "Asset" ? null : {
+          type: 'DEBIT',
+          accountUniqueName: this.state.selectedPayMode.uniqueName,
+          amountForAccount: this.state.amountPaidNowText,
+        },
         entries: this.getEntries(),
         exchangeRate: this.state.exchangeRate,
         // passportNumber: '',
@@ -2245,6 +2249,77 @@ export class PurchaseBill extends React.Component {
     );
   }
 
+  _renderPaymentMode() {
+    return (
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={this.state.showPaymentModePopup}
+        onRequestClose={() => {
+          this.setState({ showPaymentModePopup: false });
+        }}>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center'
+          }}
+          onPress={() => {
+            this.setState({ showPaymentModePopup: false });
+          }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center', width: "75%", height: "40%" }}>
+            <Text> Amount </Text>
+            {this.state.invoiceType == 'sales' && (
+              <TextInput
+                style={{ borderWidth: 0.5, borderColor: "grey", borderRadius: 5, padding: 5, marginVertical: 10, paddingVertical:10 }}
+                value={this.state.amountPaidNowText}
+                keyboardType="number-pad"
+                returnKeyType={'done'}
+                placeholder="Enter Amount"
+                placeholderTextColor="black"
+                onChangeText={(text) => {
+                  if (Number(text) > Number(this.getTotalAmount())) {
+                    Alert.alert('Alert', 'deposit amount should not be more than invoice amount');
+                  } else {
+                    this.setState({ amountPaidNowText: text });
+                  }
+                }}
+              />
+            )}
+            <Text> Payment Mode </Text>
+            <FlatList
+              data={this.state.modesArray}
+              style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={{
+                    borderBottomWidth: this.state.selectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
+                    borderColor: '#FC8345',
+                    alignSelf: 'flex-start',
+                    // backgroundColor: 'pink',
+                    width: '100%'
+                  }}
+                  onFocus={() => this.onChangeText('')}
+                  onPress={async () => {
+                    this.setState({ selectedPayMode: item });
+                    if (this.state.amountPaidNowText != 0) {
+                      this.setState({ showPaymentModePopup: false });
+                    }
+                  }}>
+                  <Text style={{ color: '#1C1C1C', paddingVertical: 10, textAlign: 'left' }}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  }
+
   _renderTotalAmount() {
     return (
       <View>
@@ -2316,6 +2391,54 @@ export class PurchaseBill extends React.Component {
                   keyExtractor={(item, index) => index.toString()} />
                 : null
             }
+            {this.state.partyDetails.accountType != "Asset" && <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: this.state.invoiceType == 'cash' ? 10 : 4,
+                // backgroundColor: 'pink',
+                alignItems: 'center'
+              }}>
+              <TouchableOpacity
+                style={{ width: "80%" }}
+                onPress={() => {
+                  if (this.state.modesArray.length > 0) {
+                    this.setState({ showPaymentModePopup: true });
+                  }
+                }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ color: '#808080', borderBottomWidth: 1, borderBottomColor: '#808080', marginRight: 5 }}>
+                    {this.state.selectedPayMode.name}
+                  </Text>
+                  <Icon style={{ transform: [{ rotate: '0deg' }] }} name={'9'} size={16} color="#808080"></Icon>
+                </View>
+              </TouchableOpacity>
+              {this.state.invoiceType == 'cash' ? (
+                <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
+              ) : (
+                <TouchableOpacity
+                  style={{ width: "20%", alignItems: "flex-end" }}
+                  onPress={() => {
+                    this.setState({ showPaymentModePopup: true });
+                  }}>
+                  <Text style={{ color: '#1C1C1C' }}>
+                    {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
+                  </Text>
+                  {/* <TextInput
+                    style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
+                    placeholder={`${this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbol}0.00`}
+                    returnKeyType={'done'}
+                    editable={false}
+                    keyboardType="number-pad"
+                    value={this.state.addedItems.length > 0 && this.state.addedItems[0].currency.symbolthis.state.amountPaidNowText}
+                    onChangeText={(text) => {
+                      this.setState({amountPaidNowText: text});
+                    }}
+                  /> */}
+                </TouchableOpacity>
+              )}
+            </View>}
+
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={{ color: '#1C1C1C' }}>Balance Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
@@ -2494,6 +2617,7 @@ export class PurchaseBill extends React.Component {
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
             {this.state.addedItems.length > 0 && this._renderTotalAmount()}
+            {this.state.showPaymentModePopup && this._renderPaymentMode()}
 
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}

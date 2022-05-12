@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
 
-import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid } from 'react-native';
+import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid, TouchableOpacity } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
@@ -18,7 +18,7 @@ import { Bars } from 'react-native-loader';
 import { googleLogin, appleLogin, userEmailLogin } from './LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
-import { STORAGE_KEYS} from '@/utils/constants';
+import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 
 class Login extends React.Component<any, any> {
@@ -68,7 +68,7 @@ class Login extends React.Component<any, any> {
         await AsyncStorage.setItem(STORAGE_KEYS.APPLELOGINRESPONSE, JSON.stringify(appleAuthRequestResponse))
       } else {
         let appleLoginOldResponse = await AsyncStorage.getItem(STORAGE_KEYS.APPLELOGINRESPONSE)
-        if (appleLoginOldResponse != null && JSON.parse(appleLoginOldResponse).user==appleAuthRequestResponse.user) {
+        if (appleLoginOldResponse != null && JSON.parse(appleLoginOldResponse).user == appleAuthRequestResponse.user) {
           appleAuthRequestResponse.email = JSON.parse(appleLoginOldResponse).email
           appleAuthRequestResponse.fullName = JSON.parse(appleLoginOldResponse).fullName
         }
@@ -215,12 +215,11 @@ class Login extends React.Component<any, any> {
               label={'Login'}
               onPress={() => this.signInWithUsernamePassword()}
             />
-            {/* <TouchableOpacity onPress={() =>
-              {
-                this.props.navigation.navigate('Password')
-              }}>
-                <Text style={style.forgotStyle}>Forgot password?</Text>
-              </TouchableOpacity> */}
+            <TouchableOpacity onPress={() => {
+              this.props.navigation.navigate('Password')
+            }}>
+              <Text style={style.forgotStyle}>Forgot password?</Text>
+            </TouchableOpacity>
           </View>
         </View>
         <View style={style.troubleLoginContainer}>
@@ -229,7 +228,7 @@ class Login extends React.Component<any, any> {
               <Text style={style.bottomTextStyleLink}>Click here</Text>
             </View> */}
           {/* <Text style={[style.bottomTextSeparater, style.forgotStyle]}>or</Text> */}
-          <Text onPress={() => { this.props.navigation.navigate("Signup") }} style={[style.bottomTextStyleLink,{padding:5,width:170}]}>Create a new account</Text>
+          <Text onPress={() => { this.props.navigation.navigate("Signup") }} style={[style.bottomTextStyleLink, { padding: 5, width: 170 }]}>Create a new account</Text>
         </View>
         {this.props.isAuthenticatingUser && (
           <View

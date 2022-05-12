@@ -14,14 +14,14 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { resetPassword } from '../Login/LoginAction';
 
 class ForgotPassword extends React.Component<any, any> {
-  constructor (props: any) {
+  constructor(props: any) {
     super(props);
     this.state = {
       email: ''
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     // initial google sign in configuration
     GoogleSignin.configure({
       webClientId: '641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com'
@@ -61,7 +61,7 @@ class ForgotPassword extends React.Component<any, any> {
     }
   };
 
-  render () {
+  render() {
     return (
       <GDContainer>
         <View style={style.backgroundContainer}>
@@ -82,17 +82,17 @@ class ForgotPassword extends React.Component<any, any> {
                   onChange={(value) => this.setState({ email: value })}
                   icon="email"
                   label="Company Name"
-                  value=""
-                  style ={{ flex: 1 }}
-                  placeholder="*********" />
-                   {/* <GDRoundedInput
+                  value={this.state.email}
+                  style={{ flex: 1 }}
+                  placeholder="*************" />
+                {/* <GDRoundedInput
                   onChange={(value) => this.setState({ email: value })}
                   icon=""
                   label="Password"
                   value=""
                   style ={{flex:1}}
                   placeholder="*********" /> */}
-                   {/* <GDRoundedInput
+                {/* <GDRoundedInput
                   onChange={(value) => this.setState({ email: value })}
                   icon="email"
                   label="Company Name"
@@ -105,9 +105,12 @@ class ForgotPassword extends React.Component<any, any> {
                   size={ButtonSize.medium}
                   style={style.requestButtonStyle}
                   label={'Request'}
-                  onPress={() => this.props.resetPassword()}
+                  onPress={async () => {
+                    await this.props.resetPassword({ email: this.state.email, navigation: this.props.navigation })
+                  }}
                 />
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.goBack()}>
                   <Text style={style.loginStyle}>Back to Login</Text>
                 </TouchableOpacity>
               </View>

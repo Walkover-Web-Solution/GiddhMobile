@@ -103,14 +103,11 @@ export const PartiesList = (props: PartiesListProp) => {
       renderItem={({ item }) => (
         <TouchableOpacity 
         onPress={() => {
-          navigationRef.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
+          navigationRef.navigate("Dash.PartiesTransactions", {
             initial: false,
-            params: {
-              item:item,
-              type: (item.category === 'liabilities'?'Vendors':'Creditors'),
-              activeCompany:activeCompany
-            },
+            item:item,
+            type: (item.category === 'liabilities'?'Vendors':'Creditors'),
+            activeCompany:activeCompany
           });}}
           style={styles.rowFront}>
           <View style={styles.flatList}>

@@ -5,7 +5,7 @@ import { AuthService } from '@/core/services/auth/auth.service';
  * @returns {Promise<void>}
  */
 
-export async function googleLogin (token) {
+export async function googleLogin(token) {
   try {
     const response = await AuthService.submitGoogleAuthToken(token);
     return response;
@@ -20,9 +20,24 @@ export async function googleLogin (token) {
  * @returns {Promise<void>}
  */
 
-export async function resetPassword (payload) {
+export async function resetPassword(payload: any) {
   try {
     const response = await AuthService.resetPassword(payload);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
+/**
+ * set new password action
+ * @returns {Promise<void>}
+ */
+
+export async function setNewPassword(payload: any) {
+  try {
+    const response = await AuthService.setNewPassword(payload);
     return response;
   } catch (error) {
     console.log(error);
@@ -35,7 +50,7 @@ export async function resetPassword (payload) {
  * @returns {Promise<void>}
  */
 
- export async function userLogin (payload) {
+export async function userLogin(payload) {
   try {
     const response = await AuthService.userLogin(payload);
     console.log('the login response is ', response);
@@ -51,7 +66,7 @@ export async function resetPassword (payload) {
  * @returns {Promise<void>}
  */
 
-export async function sentOTPSignup (payload:any) {
+export async function sentOTPSignup(payload: any) {
   try {
     const response = await AuthService.sentOTPSignup(payload);
     console.log('the signup OTP response is ', response);
@@ -67,7 +82,7 @@ export async function sentOTPSignup (payload:any) {
  * @returns {Promise<void>}
  */
 
- export async function verifySignupOTP (payload:any) {
+export async function verifySignupOTP(payload: any) {
   try {
     const response = await AuthService.verifySignupOTP(payload);
     console.log('the signup OTP response is ', response);
@@ -83,7 +98,7 @@ export async function sentOTPSignup (payload:any) {
  * @returns {Promise<void>}
  */
 
-export async function appleLogin (payload) {
+export async function appleLogin(payload) {
   try {
     const response = await AuthService.submitAppleAuthToken(payload);
     return response;
@@ -97,7 +112,7 @@ export async function appleLogin (payload) {
  * @returns {Promise<void>}
  */
 
-export async function verifyOTP (otp, mobileNumber, countryCode) {
+export async function verifyOTP(otp, mobileNumber, countryCode) {
   try {
     const response = await AuthService.verifyOTP(otp, mobileNumber, countryCode);
     return response;
@@ -112,7 +127,7 @@ export async function verifyOTP (otp, mobileNumber, countryCode) {
  * @returns {Promise<void>}
  */
 
- export async function sendOTP (payload:any) {
+export async function sendOTP(payload: any) {
   try {
     const response = await AuthService.sendOTP(payload);
     return response;

@@ -19,6 +19,7 @@ export default function* watcherSaga() {
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
   yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP, signupUsingEmailPassword);
   yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP_VERIFY_OTP, verifySignupOTP);
+  yield takeLatest(ActionConstants.SET_NEW_PASSWORD, setNewPassword);
 }
 
 /**
@@ -36,19 +37,85 @@ const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, use
   });
 }
 
-export function* resetPassword(action) {
+export function* resetPassword(action: any) {
+  console.log("+++++", action)
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-  if (reg.test(action.payload.username) === false || action.payload.password.length == 0) {
+  if (reg.test(action.payload.email) === false || action.payload.email.length == 0) {
     alert('Please enter valid email & password');
     yield put(LoginAction.resetPasswordFailure('Please enter valid email'));
   } else {
-    const response = yield call(LoginService.resetPassword, action.payload);
+    const response = yield call(LoginService.resetPassword, action.payload.email);
     if (response && response.body && response.status == 'success') {
       yield put(LoginAction.resetPasswordSuccess(response.body));
+      action.payload?.navigation?.navigate("ResetPassword", { email: action.payload.email })
+      if (Platform.OS == "ios") {
+        TOAST.show(response.body, {
+          duration: TOAST.durations.LONG,
+          position: -150,
+          hideOnPress: true,
+          backgroundColor: "#1E90FF",
+          textColor: "white",
+          opacity: 1,
+          shadow: false,
+          animation: true,
+          containerStyle: { borderRadius: 10 }
+        })
+      } else {
+        ToastAndroid.show(response.body, ToastAndroid.LONG)
+      }
     } else {
-      alert(response.data.message);
+      //alert(response.data.message);
       yield put(LoginAction.loginUserFailure(response.data.message));
+      Platform.OS == "ios" ? TOAST.show(response.data.message, {
+        duration: TOAST.durations.LONG,
+        position: -150,
+        hideOnPress: true,
+        backgroundColor: "#1E90FF",
+        textColor: "white",
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      }) :
+        ToastAndroid.show(response.data.message, ToastAndroid.LONG)
     }
+  }
+}
+
+export function* setNewPassword(action: any) {
+  console.log("New passord", action)
+  const response = yield call(LoginService.setNewPassword, action.payload.data);
+  if (response && response.body && response.status == 'success') {
+    console.log(response.body)
+    yield put(LoginAction.resetPasswordSuccess(response.body));
+    Platform.OS == "ios" ? TOAST.show(response.body, {
+      duration: TOAST.durations.LONG,
+      position: -150,
+      hideOnPress: true,
+      backgroundColor: "#1E90FF",
+      textColor: "white",
+      opacity: 1,
+      shadow: false,
+      animation: true,
+      containerStyle: { borderRadius: 10 }
+    }) :
+      ToastAndroid.show(response.body, ToastAndroid.LONG)
+    action.payload?.navigation?.pop(2)
+  } else {
+    //alert(response.data.message);
+    yield put(LoginAction.loginUserFailure(response.data.message));
+    Platform.OS == "ios" ? TOAST.show(response.data.message, {
+      duration: TOAST.durations.LONG,
+      position: -150,
+      hideOnPress: true,
+      backgroundColor: "#1E90FF",
+      textColor: "white",
+      opacity: 1,
+      shadow: false,
+      animation: true,
+      containerStyle: { borderRadius: 10 }
+    }) :
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
   }
 }
 
@@ -316,7 +383,7 @@ export function* verifyOTP(action) {
         animation: true,
         containerStyle: { borderRadius: 10 }
       });
-    } 
+    }
   }
 }
 

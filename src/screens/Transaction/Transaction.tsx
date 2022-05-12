@@ -72,7 +72,8 @@ export class TransactionScreen extends React.Component {
 
   async sort(array: any) {
     await this.setState({ transactionsData: [], refreshlist: true })
-    const sortedArray = await array.sort((a: any, b: any) => { return Number(moment(a.entryDate, 'DD-MM-YYYY')) - Number(moment(b.entryDate, 'DD-MM-YYYY')) }).reverse()
+    // const sortedArray = await array.sort((a: any, b: any) => { return Number(moment(a.entryDate, 'DD-MM-YYYY')) - Number(moment(b.entryDate, 'DD-MM-YYYY')) }).reverse()
+    const sortedArray = await array.sort((a: any, b: any) => { return Number(moment(b.entryDate, 'DD-MM-YYYY')) - Number(moment(a.entryDate, 'DD-MM-YYYY')) })
     await this.setState({
       transactionsData: sortedArray,
       refreshlist: !this.state.refreshlist,
@@ -117,7 +118,7 @@ export class TransactionScreen extends React.Component {
         this.state.page
       );
       // console.log("ALL  Transaction on load more " + JSON.stringify([...this.state.transactionsData, ...transactions.body.entries]))
-      await this.sort([...[...this.state.transactionsData, ...transactions.body.entries]]);
+      await this.sort([...this.state.transactionsData, ...transactions.body.entries]);
       // this.setState({
       //transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
       // showLoader: false,

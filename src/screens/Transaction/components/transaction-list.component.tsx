@@ -153,19 +153,20 @@ class TransactionList extends React.Component {
           }
           return
         }
-        let base64Str =  res.base64();
-        let pdfName = this.props.item.voucherNo+" - "+moment();
+        let base64Str = res.base64();
+        let pdfName = this.props.item.voucherNo + " - " + moment();
         let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${pdfName}.pdf`;
         try {
-          console.log("PDF location",pdfLocation)
-          await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          console.log("PDF location", pdfLocation)
+          RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+          Platform.OS=="android" && RNFetchBlob.android.actionViewIntent(pdfLocation, 'application/pdf')
         } catch (e) {
           console.log("Error", e)
           Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
           return
         }
         if (Platform.OS === "ios") {
-          let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${this.props.item.voucherNo}.pdf`;
+          //let pdfLocation = await `${RNFetchBlob.fs.dirs.DocumentDir}/${pdfName}.pdf`;
           await this.setState({ DownloadModal: false })
           await setTimeout(() => { RNFetchBlob.ios.openDocument(pdfLocation) }, 200)
         } else {
@@ -186,6 +187,7 @@ class TransactionList extends React.Component {
       // await Platform.OS == "ios" ? this.setState({ DownloadModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      let pdfName = this.props.item.voucherNo + " - " + moment();
       RNFetchBlob.fetch(
         'POST',
         this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf` :
@@ -202,13 +204,14 @@ class TransactionList extends React.Component {
       )
         .then(async (res) => {
           const base64Str = await res.base64();
-          const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`;
+          console.log(pdfName)
+          const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`;
           try {
             await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
           } catch (e) {
             console.log("Error", e)
             this.setState({ iosShare: false });
-            return 
+            return
           }
           await this.setState({ iosShare: false });
           if (Platform.OS === "ios") {
@@ -222,7 +225,7 @@ class TransactionList extends React.Component {
           await Share.open({
             title: 'This is the report',
             //message: 'Message:',
-            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`,
+            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`,
             subject: 'Transaction report'
           })
             .then((res) => {
@@ -370,7 +373,7 @@ class TransactionList extends React.Component {
               {this.props.showDate == null || this.props.showDate == undefined ?
                 <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
                 : <View style={[styles.iconPlacingStyle, { alignItems: "flex-end", }]}>
-                  {this.props.item.voucherNo && (
+                  {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
                     <TouchableOpacity
                       delayPressIn={0}
                       style={{ padding: 5, paddingRight: 5, paddingVertical: 10, }}
@@ -381,7 +384,7 @@ class TransactionList extends React.Component {
                       <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
                     </TouchableOpacity>
                   )}
-                  {this.props.item.voucherNo && (
+                  {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
                     <TouchableOpacity
                       delayPressIn={0}
                       style={{ padding: 5, paddingRight: 0, paddingLeft: 10, paddingVertical: 10, }}
@@ -391,7 +394,8 @@ class TransactionList extends React.Component {
                       }}>
                       <AntDesign name="download" size={17} color={'#8E8E8E'} />
                     </TouchableOpacity>
-                  )}</View>}
+                  )}
+                </View>}
             </View>
           </View>
           {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}

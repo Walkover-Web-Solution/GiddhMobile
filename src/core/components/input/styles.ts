@@ -63,7 +63,7 @@ export default StyleSheet.create({
     paddingBottom: 4,
     width: '100%',
     paddingLeft: 5,
-    fontFamily: 'AvenirLTStd-Book'
+    fontFamily: 'AvenirLTStd-Book',
   },
   roundedViewArea: {
     height: 48,
