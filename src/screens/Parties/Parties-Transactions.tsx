@@ -754,7 +754,7 @@ class PartiesTransactionScreen extends React.Component {
         RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
         Platform.OS == "android" && RNFetchBlob.android.actionViewIntent(pdfLocation, 'application/pdf')
         if (Platform.OS === "ios") {
-          let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate} - ${moment()}.pdf`;
+          //let pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate} - ${moment()}.pdf`;
           RNFetchBlob.ios.openDocument(pdfLocation)
           this.setState({ iosLoaderToExport: false })
         } else {
@@ -832,6 +832,7 @@ class PartiesTransactionScreen extends React.Component {
       await Platform.OS == "ios" ? this.setState({ ShareModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+      let pdfName = `${this.state.startDate} to ${this.state.endDate} - ${moment()}`
       RNFetchBlob.fetch(
         'GET',
         `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
@@ -842,29 +843,28 @@ class PartiesTransactionScreen extends React.Component {
         .then(async (res) => {
           let base64Str = await res.base64();
           let base69 = await base64.decode(base64Str);
-          let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
-          await this.setState({ ShareModal: false });
+          let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`;
           await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-          if (Platform.OS === "ios") {
-            RNFetchBlob.ios.previewDocument(pdfLocation)
-          }
           await this.setState({ ShareModal: false });
+          //if (Platform.OS === "ios") {
+          //RNFetchBlob.ios.previewDocument(pdfLocation)
+          //}
         })
         .then(async () => {
-          await Share.open({
+          setTimeout(async () => await Share.open({
             title: 'This is the report',
             //message: 'Message:',
-            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
+            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`,
             subject: 'Report',
           })
             .then((res) => {
-              // this.setState({ ShareModal: false });
+              this.setState({ ShareModal: false });
               console.log(res);
             })
             .catch((err) => {
               // this.setState({ ShareModal: false });
               // err && console.log(err);
-            });
+            }), 100)
         });
     } catch (e) {
       this.setState({ ShareModal: false });

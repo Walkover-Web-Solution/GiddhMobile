@@ -429,7 +429,7 @@ export class CreditNote extends React.Component<Props> {
       };
       const results = await InvoiceService.getVoucherInvoice(date, payload, this.state.companyVersionNumber);
       if (results.body && results.status == 'success') {
-        let allVoucherInvoice = this.state.companyVersionNumber==1?results.body.results:results.body.items
+        let allVoucherInvoice = this.state.companyVersionNumber == 1 ? results.body.results : results.body.items
         this.setState({ allVoucherInvoice });
       }
     } catch (e) {
@@ -800,11 +800,11 @@ export class CreditNote extends React.Component<Props> {
             gstNumber: this.state.partyBillingAddress.gstNumber ? this.state.partyBillingAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
-              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
             },
-            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : '',
-            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
+            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : this.state.partyBillingAddress?.state?.code ,
+            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName :  this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
           contactNumber: '',
@@ -821,11 +821,11 @@ export class CreditNote extends React.Component<Props> {
             gstNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
-              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
-            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : '',
-            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : '',
+            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : this.state.partyShippingAddress?.state?.code,
+            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : this.state.partyShippingAddress?.state?.name,
             pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
@@ -898,7 +898,7 @@ export class CreditNote extends React.Component<Props> {
           },
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
-        dueDate:"",
+        dueDate: "",
         deposit: {
           type: 'DEBIT',
           accountUniqueName: this.state.selectedPayMode.uniqueName,
@@ -1090,7 +1090,7 @@ export class CreditNote extends React.Component<Props> {
                 return this.state.allVoucherInvoice.length == 0
                   ? 'Select Account'
                   : options.voucherNumber == null
-                    ? ' - '
+                    ? 'NA'
                     : options.voucherNumber;
               }}
               options={this.state.allVoucherInvoice.length == 0 ? ['Result Not found'] : this.state.allVoucherInvoice}
@@ -1136,7 +1136,7 @@ export class CreditNote extends React.Component<Props> {
                       {this.state.allVoucherInvoice.length == 0
                         ? options
                         : options.voucherNumber == null
-                          ? ' - '
+                          ? 'NA'
                           : options.voucherNumber}
                     </Text>
                     {this.state.allVoucherInvoice.length != 0 ? (

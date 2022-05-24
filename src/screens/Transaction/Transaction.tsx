@@ -37,7 +37,7 @@ export class TransactionScreen extends React.Component {
       loadingMore: false,
       DownloadModal: false,
       dataLoadedTime: 'Time and Date',
-      refreshlist: false
+      //refreshlist: false
       // Realm: Realm
     };
   }
@@ -71,12 +71,12 @@ export class TransactionScreen extends React.Component {
   };
 
   async sort(array: any) {
-    await this.setState({ transactionsData: [], refreshlist: true })
+    await this.setState({ transactionsData: [] })
     // const sortedArray = await array.sort((a: any, b: any) => { return Number(moment(a.entryDate, 'DD-MM-YYYY')) - Number(moment(b.entryDate, 'DD-MM-YYYY')) }).reverse()
     const sortedArray = await array.sort((a: any, b: any) => { return Number(moment(b.entryDate, 'DD-MM-YYYY')) - Number(moment(a.entryDate, 'DD-MM-YYYY')) })
     await this.setState({
       transactionsData: sortedArray,
-      refreshlist: !this.state.refreshlist,
+      //refreshlist: !this.state.refreshlist,
       showLoader: false,
       loadingMore: false,
     })
@@ -96,12 +96,12 @@ export class TransactionScreen extends React.Component {
         this.state.page
       );
       // console.log("ALL  Transaction " + JSON.stringify(transactions.body))
-      await this.sort(transactions.body.entries);
+      //await this.sort(transactions.body.entries);
       this.setState(
         {
-          //transactionsData: transactions.body.entries,
+          transactionsData: transactions.body.entries,
           totalPages: transactions.body.totalPages,
-          // showLoader: false
+          showLoader: false
         },
       );
     } catch (e) {
@@ -118,29 +118,35 @@ export class TransactionScreen extends React.Component {
         this.state.page
       );
       // console.log("ALL  Transaction on load more " + JSON.stringify([...this.state.transactionsData, ...transactions.body.entries]))
-      await this.sort([...this.state.transactionsData, ...transactions.body.entries]);
+      // await this.sort([...this.state.transactionsData, ...transactions.body.entries]);
       // this.setState({
-      //transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
+      // transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
       // showLoader: false,
       // loadingMore: false
       // });
+      await this.setState({
+        transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
+        showLoader: false,
+        loadingMore: false,
+      })
     } catch (e) {
       console.log(e);
       this.setState({ showLoader: false });
     }
   }
 
-  handleRefresh = () => {
-    if (this.state.page < this.state.totalPages) {
-      this.setState(
+  handleRefresh = async () => {
+    if (this.state.page < this.state.totalPages && !this.state.loadingMore) {
+      await this.setState(
         {
           page: this.state.page + 1,
           loadingMore: true
         },
-        () => {
-          this.handleLoadMore();
-        }
+        // () => {
+        //   this.handleLoadMore();
+        // }
       );
+      await this.handleLoadMore();
     }
   };
 
@@ -224,7 +230,7 @@ export class TransactionScreen extends React.Component {
                   onEndReachedThreshold={0.2}
                   onEndReached={() => this.handleRefresh()}
                   ListFooterComponent={this._renderFooter}
-                  extraData={this.state.refreshlist}
+                //extraData={this.state.refreshlist}
                 />
               </View>
             )}

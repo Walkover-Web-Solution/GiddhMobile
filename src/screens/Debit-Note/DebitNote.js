@@ -370,7 +370,7 @@ export class DebiteNote extends React.Component<Props> {
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{ color: 'white', marginRight: 16,fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+          <Text style={{ color: 'white', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
         </TouchableOpacity>
       </View>
     );
@@ -438,9 +438,9 @@ export class DebiteNote extends React.Component<Props> {
         voucherType: INVOICE_TYPE.debit,
         noteVoucherType: 'sales'
       };
-      const results = await InvoiceService.getVoucherInvoice(date, payload,this.state.companyVersionNumber);
+      const results = await InvoiceService.getVoucherInvoice(date, payload, this.state.companyVersionNumber);
       if (results.body && results.status == 'success') {
-        let allVoucherInvoice = this.state.companyVersionNumber==1?results.body.results:results.body.items
+        let allVoucherInvoice = this.state.companyVersionNumber == 1 ? results.body.results : results.body.items
         this.setState({ allVoucherInvoice });
       }
     } catch (e) {
@@ -802,14 +802,14 @@ export class DebiteNote extends React.Component<Props> {
 
   async createInvoice() {
     try {
-    this.setState({ loading: true });
-    if (this.state.currency != this.state.companyCountryDetails.currency.code) {
-      let exchangeRate = 1;
-      (await this.getTotalAmount()) > 0
-        ? (exchangeRate = Number(this.state.totalAmountInINR) / this.getTotalAmount())
-        : (exchangeRate = 1);
-      await this.setState({ exchangeRate: exchangeRate });
-    }
+      this.setState({ loading: true });
+      if (this.state.currency != this.state.companyCountryDetails.currency.code) {
+        let exchangeRate = 1;
+        (await this.getTotalAmount()) > 0
+          ? (exchangeRate = Number(this.state.totalAmountInINR) / this.getTotalAmount())
+          : (exchangeRate = 1);
+        await this.setState({ exchangeRate: exchangeRate });
+      }
       console.log('came to this');
       const postBody = this.state.companyVersionNumber == 1 ? {
         account: {
@@ -821,11 +821,11 @@ export class DebiteNote extends React.Component<Props> {
             gstNumber: this.state.partyBillingAddress.gstNumber ? this.state.partyBillingAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
-              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
             },
-            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : '',
-            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
+            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : this.state.partyBillingAddress?.state?.code,
+            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
           contactNumber: '',
@@ -842,11 +842,11 @@ export class DebiteNote extends React.Component<Props> {
             gstNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
-              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
-            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : '',
-            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : '',
+            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : this.state.partyShippingAddress?.state?.code,
+            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : this.state.partyShippingAddress?.state?.name,
             pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
@@ -884,15 +884,15 @@ export class DebiteNote extends React.Component<Props> {
             taxNumber: this.state.partyBillingAddress.gstNumber ? this.state.partyBillingAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
-              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
             },
             country: {
               code: this.state.countryDeatils.countryCode,
               name: this.state.countryDeatils.countryName,
             },
-            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : '',
-            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
+            stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : this.state.partyBillingAddress?.state?.code,
+            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName :  this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
           contactNumber: '',
@@ -912,11 +912,11 @@ export class DebiteNote extends React.Component<Props> {
             taxNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
-              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
-            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : '',
-            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : '',
+            stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : this.state.partyShippingAddress?.state?.code,
+            stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : this.state.partyShippingAddress?.state?.name,
             pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
           },
         },
@@ -1112,7 +1112,7 @@ export class DebiteNote extends React.Component<Props> {
                 return this.state.allVoucherInvoice.length == 0
                   ? 'Select Account'
                   : options.voucherNumber == null
-                    ? ' - '
+                    ? 'NA'
                     : options.voucherNumber;
               }}
               options={this.state.allVoucherInvoice.length == 0 ? ['Result Not found'] : this.state.allVoucherInvoice}
@@ -1152,13 +1152,13 @@ export class DebiteNote extends React.Component<Props> {
                       paddingTop: this.state.allVoucherInvoice.length > 1 ? 3 : 10,
                       borderBottomColor: 'grey',
                       borderBottomWidth: this.state.allVoucherInvoice.length > 1 ? 0.7 : 0,
-                      backgroundColor:"white"
+                      backgroundColor: "white"
                     }}>
                     <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.regular }}>
                       {this.state.allVoucherInvoice.length == 0
                         ? options
                         : options.voucherNumber == null
-                          ? ' - '
+                          ? 'NA'
                           : options.voucherNumber}
                     </Text>
                     {this.state.allVoucherInvoice.length != 0 ? (
@@ -1953,11 +1953,12 @@ export class DebiteNote extends React.Component<Props> {
           if (!this.state.partyName) {
             alert('Please select a party.');
           } else {
-          this.props.navigation.navigate('InvoiceOtherDetailScreen', {
-            enteredDetails: this.state.otherDetails,
-            warehouseArray: this.state.warehouseArray,
-            setOtherDetails: this.setOtherDetails,
-          })}
+            this.props.navigation.navigate('InvoiceOtherDetailScreen', {
+              enteredDetails: this.state.otherDetails,
+              warehouseArray: this.state.warehouseArray,
+              setOtherDetails: this.setOtherDetails,
+            })
+          }
         }}>
         <View style={{ flexDirection: 'row' }}>
           <Icon style={{ marginRight: 16 }} name={'Sections'} size={16} color="#ff6961" />

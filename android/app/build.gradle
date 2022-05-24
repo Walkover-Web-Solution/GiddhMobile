@@ -137,8 +137,8 @@ android {
         applicationId "com.app.Giddh"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 30019
-        versionName "3.0.19"
+        versionCode 30020
+        versionName "3.0.20"
         multiDexEnabled true
 
     }

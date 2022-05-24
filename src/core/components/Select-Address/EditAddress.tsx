@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, SafeAreaView, ScrollViewBase } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
@@ -13,6 +13,7 @@ import CountryPicker from 'react-native-country-picker-modal'
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import Modal1 from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const allCountry = [
    {
@@ -2881,7 +2882,7 @@ export class EditAddress extends React.Component<any, any> {
                </TouchableOpacity>
                <Text style={style.title}>Enter Address</Text>
             </View>
-            <ScrollView style={style.body}>
+            <KeyboardAwareScrollView style={style.body}>
                <Text style={style.BMfieldTitle}>Address</Text>
                <TextInput
                   placeholder={"Enter Address"}
@@ -3108,7 +3109,7 @@ export class EditAddress extends React.Component<any, any> {
             </TouchableOpacity>
             <Text style={style.DefaultAddressText}>Default Address</Text>
           </View> */}
-            </ScrollView>
+            </KeyboardAwareScrollView>
             <TouchableOpacity style={style.button} onPress={() => this.onSubmit()}>
                <Text style={style.buttonText}>Save</Text>
             </TouchableOpacity>

@@ -40,9 +40,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
   arrangeAZ = () => {
     this.setState({
-      debtData: this.state.debtData.sort((a, b) =>
-        a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
-      ),
+      // debtData: this.state.debtData.sort((a, b) =>
+      //   a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
+      // ),
       showLoader: false
     });
   };
@@ -58,8 +58,8 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     this.setState(
       {
         debtData: [...this.state.partiesDebtData, ...this.state.partiesCredData]
-      },
-      () => {
+      }
+      , () => {
         this.arrangeAZ();
       }
     );
@@ -78,7 +78,7 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   }
 
   render() {
-    const { activeCompany } = this.props;
+    const { activeCompany }: any = this.props;
 
     if (this.state.showLoader) {
       return (
@@ -90,12 +90,12 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       return (
         this.state.debtData.length == 0
           ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center',backgroundColor:'#FAFBFF'}}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAFBFF' }}>
               <Image
                 source={require('@/assets/images/noParty.png')}
                 style={{ resizeMode: 'contain', height: 230, width: 300 }}
               />
-              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop:0 }}>No Parties</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 0 }}>No Parties</Text>
             </View>
           )
           :

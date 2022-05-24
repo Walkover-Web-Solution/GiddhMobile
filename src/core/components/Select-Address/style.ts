@@ -34,6 +34,7 @@ export default StyleSheet.create({
   },
   body: {
     height: height * 0.8,
+    //flex:1,
     paddingHorizontal: 20,
     marginBottom: 20
   },

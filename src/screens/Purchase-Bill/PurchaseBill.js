@@ -89,11 +89,16 @@ export class PurchaseBill extends React.Component {
       showItemDetails: false,
       expandedBalance: true,
       amountPaidNowText: 0,
+      tempAmountPaidNowText: 0,
       itemDetails: undefined,
       warehouseArray: [],
       // selectedArrayType: [],
       fetechingWarehouseList: false,
       selectedPayMode: {
+        name: 'Cash',
+        uniqueName: 'cash',
+      },
+      tempSelectedPayMode: {
         name: 'Cash',
         uniqueName: 'cash',
       },
@@ -626,6 +631,7 @@ export class PurchaseBill extends React.Component {
       showItemDetails: false,
       expandedBalance: true,
       amountPaidNowText: 0,
+      tempAmountPaidNowText: 0,
       itemDetails: undefined,
       warehouseArray: [],
       // selectedArrayType: [],
@@ -633,6 +639,10 @@ export class PurchaseBill extends React.Component {
       selectedPayMode: {
         name: 'Cash',
         uniqueName: 'cash',
+      },
+      tempSelectedPayMode: {
+        name: 'Cash',
+        uniqueName: 'cash'
       },
       modesArray: [],
       editItemDetails: {
@@ -880,11 +890,11 @@ export class PurchaseBill extends React.Component {
             gstNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '',
-              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '',
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : this.state.BillFromAddress.stateCode,
+              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : this.state.BillFromAddress.stateName,
             },
-            stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : '',
-            stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : '',
+            stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : this.state.BillFromAddress?.state?.code,
+            stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : this.state.BillFromAddress?.state?.name,
             pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : '',
           },
           contactNumber: '',
@@ -901,11 +911,11 @@ export class PurchaseBill extends React.Component {
             gstNumber: this.state.shipFromAddress.gstNumber ? this.state.shipFromAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '',
-              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '',
+              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : this.state.shipFromAddress.stateCode,
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : this.state.shipFromAddress.stateName,
             },
-            stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : '',
-            stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : '',
+            stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : this.state.shipFromAddress?.state?.code ,
+            stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : this.state.shipFromAddress?.state?.name,
             pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
@@ -946,8 +956,8 @@ export class PurchaseBill extends React.Component {
             gstNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : '',
-              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : '',
+              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : this.state.BillToAddress.stateCode,
+              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : this.state.BillToAddress.stateName,
             },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
@@ -959,8 +969,8 @@ export class PurchaseBill extends React.Component {
             gstNumber: this.state.shipToAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : '',
-              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : '',
+              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : this.state.shipToAddress.stateCode,
+              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : this.state.shipToAddress.stateName,
             },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
@@ -976,16 +986,16 @@ export class PurchaseBill extends React.Component {
             taxNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : '',
-              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : '',
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code :  this.state.BillFromAddress.stateCode,
+              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : this.state.BillFromAddress.stateName,
             },
             country: {
               code: this.state.countryDeatils.countryCode,
               name: this.state.countryDeatils.countryName,
             },
             countryName: this.state.countryDeatils.countryName,
-            stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : '',
-            stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : '',
+            stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : this.state.BillFromAddress?.state?.code,
+            stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : this.state.BillFromAddress?.state?.name,
             pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : '',
           },
           contactNumber: '',
@@ -1006,11 +1016,11 @@ export class PurchaseBill extends React.Component {
             taxNumber: this.state.shipFromAddress.gstNumber ? this.state.shipFromAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : '',
-              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : '',
+              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : this.state.shipFromAddress.stateCode,
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name :  this.state.shipFromAddress.stateName,
             },
-            stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : '',
-            stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : '',
+            stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : this.state.shipFromAddress?.state?.code,
+            stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : this.state.shipFromAddress?.state?.name,
             pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
@@ -1050,8 +1060,8 @@ export class PurchaseBill extends React.Component {
             taxNumber: this.state.BillToAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : '',
-              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : '',
+              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : this.state.BillToAddress.stateCode,
+              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : this.state.BillToAddress.stateName,
             },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
@@ -1064,8 +1074,8 @@ export class PurchaseBill extends React.Component {
             taxNumber: this.state.shipToAddress.gstNumber,
             panNumber: '',
             state: {
-              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : '',
-              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : '',
+              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : this.state.shipToAddress.stateCode,
+              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : this.state.shipToAddress.stateName,
             },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
@@ -2268,16 +2278,17 @@ export class PurchaseBill extends React.Component {
             backgroundColor: 'rgba(0,0,0,0.5)',
             justifyContent: 'center'
           }}
-          onPress={() => {
-            this.setState({ showPaymentModePopup: false });
-          }}>
+        onPress={() => {
+        this.setState({ showPaymentModePopup: false });
+        }}
+        >
           <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center', width: "75%", height: "40%" }}>
             <Text> Amount </Text>
             {this.state.invoiceType == 'sales' && (
               <TextInput
-                style={{ borderWidth: 0.5, borderColor: "grey", borderRadius: 5, padding: 5, marginVertical: 10, paddingVertical:10 }}
-                value={this.state.amountPaidNowText}
-                keyboardType="number-pad"
+                style={{ borderWidth: 0.5, borderColor: "grey", borderRadius: 5, padding: 5, marginVertical: 10 }}
+                value={this.state.tempAmountPaidNowText}
+                keyboardType="numeric"
                 returnKeyType={'done'}
                 placeholder="Enter Amount"
                 placeholderTextColor="black"
@@ -2285,7 +2296,7 @@ export class PurchaseBill extends React.Component {
                   if (Number(text) > Number(this.getTotalAmount())) {
                     Alert.alert('Alert', 'deposit amount should not be more than invoice amount');
                   } else {
-                    this.setState({ amountPaidNowText: text });
+                    this.setState({ tempAmountPaidNowText: text })
                   }
                 }}
               />
@@ -2293,27 +2304,33 @@ export class PurchaseBill extends React.Component {
             <Text> Payment Mode </Text>
             <FlatList
               data={this.state.modesArray}
-              style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300 }}
+              style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300, marginTop: 5 }}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={{
-                    borderBottomWidth: this.state.selectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
+                    borderBottomWidth: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
                     borderColor: '#FC8345',
                     alignSelf: 'flex-start',
-                    // backgroundColor: 'pink',
-                    width: '100%'
+                    backgroundColor: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? '#ffe0b2' : null,
+                    width: '100%', paddingHorizontal: 5
                   }}
                   onFocus={() => this.onChangeText('')}
                   onPress={async () => {
-                    this.setState({ selectedPayMode: item });
-                    if (this.state.amountPaidNowText != 0) {
-                      this.setState({ showPaymentModePopup: false });
-                    }
+                    this.setState({ tempSelectedPayMode: item });
+                    //if (this.state.amountPaidNowText != 0) {
+                    //this.setState({ showPaymentModePopup: false });
+                    //}
                   }}>
                   <Text style={{ color: '#1C1C1C', paddingVertical: 10, textAlign: 'left' }}>{item.name}</Text>
                 </TouchableOpacity>
               )}
             />
+            <TouchableOpacity style={{ backgroundColor: '#FC8345', width: "30%", padding: 5, paddingVertical: 10, borderRadius: 10, alignItems: "center", alignSelf: "flex-end" }}
+              onPress={() => {
+                this.setState({ showPaymentModePopup: false, amountPaidNowText: isNaN(Number(this.state.tempAmountPaidNowText)) ? 0 : Number(this.state.tempAmountPaidNowText), selectedPayMode: this.state.tempSelectedPayMode })
+              }}>
+              <Text style={{ color: "white" }}>Done</Text>
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -2404,6 +2421,7 @@ export class PurchaseBill extends React.Component {
                 onPress={() => {
                   if (this.state.modesArray.length > 0) {
                     this.setState({ showPaymentModePopup: true });
+                    this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
                   }
                 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -2420,9 +2438,10 @@ export class PurchaseBill extends React.Component {
                   style={{ width: "20%", alignItems: "flex-end" }}
                   onPress={() => {
                     this.setState({ showPaymentModePopup: true });
+                    this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
                   }}>
                   <Text style={{ color: '#1C1C1C' }}>
-                    {this.state.addedItems.length > 0 && this.state.currencySymbol + this.state.amountPaidNowText}
+                    {this.state.addedItems.length > 0 && this.state.currencySymbol + Number(this.state.amountPaidNowText).toFixed(2)}
                   </Text>
                   {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
@@ -2443,7 +2462,7 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#1C1C1C' }}>Balance Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {String(this.getInvoiceDueTotalAmount()) - this.state.amountPaidNowText}
+                {String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)}
               </Text>
             </View>
           </View>

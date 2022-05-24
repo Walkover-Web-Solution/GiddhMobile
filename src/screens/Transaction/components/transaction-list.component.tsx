@@ -213,16 +213,16 @@ class TransactionList extends React.Component {
             this.setState({ iosShare: false });
             return
           }
-          await this.setState({ iosShare: false });
-          if (Platform.OS === "ios") {
-            // await this.setState({ DownloadModal: false })
-            await RNFetchBlob.ios.previewDocument(pdfLocation)
-          }
+          this.setState({ iosShare: false });
+          // if (Platform.OS === "ios") {
+          //   // await this.setState({ DownloadModal: false })
+          //   await RNFetchBlob.ios.previewDocument(pdfLocation)
+          // }
           // else {
           //   await this.props.downloadModal(false);
           // }
         }).then(async () => {
-          await Share.open({
+          setTimeout(async () => await Share.open({
             title: 'This is the report',
             //message: 'Message:',
             url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`,
@@ -233,7 +233,7 @@ class TransactionList extends React.Component {
             })
             .catch(() => {
               // err && console.log(err);
-            });
+            }),100)
         });
     } catch (e) {
       this.setState({ iosShare: false });
