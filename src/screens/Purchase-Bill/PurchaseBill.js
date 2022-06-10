@@ -16,6 +16,7 @@ import {
   StatusBar,
   PermissionsAndroid,
   Alert,
+  KeyboardAvoidingView
 } from 'react-native';
 // import style from './style';
 import { connect } from 'react-redux';
@@ -462,24 +463,9 @@ export class PurchaseBill extends React.Component {
       //     }>
       // <Modal animationType="none" transparent={true} visible={true}>
       <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-            padding: 5,
-            alignItems: 'center',
-          }}
-          onPress={() =>
-            this.setState({
-              searchResults: [],
-              searchError: '',
-              isSearchingParty: false,
-            })
-          }>
-          <Ionicons name="close-circle" size={20} color={'#424242'} />
-          {/* <Text style={{marginLeft: 3}}>Close</Text> */}
-        </TouchableOpacity>
+        
         <FlatList
+        showsVerticalScrollIndicator={false}
           data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
           style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
           keyExtractor={(item, index) => index.toString()}
@@ -511,6 +497,23 @@ export class PurchaseBill extends React.Component {
             </TouchableOpacity>
           )}
         />
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'flex-start',
+            padding: 5,
+            alignItems: 'center',
+          }}
+          onPress={() =>
+            this.setState({
+              searchResults: [],
+              searchError: '',
+              isSearchingParty: false,
+            })
+          }>
+          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          {/* <Text style={{marginLeft: 3}}>Close</Text> */}
+        </TouchableOpacity>
       </View>
       // </Modal>
     );
@@ -2276,13 +2279,20 @@ export class PurchaseBill extends React.Component {
             left: 0,
             right: 0,
             backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center'
+            justifyContent: 'center',
           }}
         onPress={() => {
         this.setState({ showPaymentModePopup: false });
         }}
         >
-          <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center', width: "75%", height: "40%" }}>
+        <KeyboardAvoidingView behavior='padding' style={{flex:1}}>
+          <View style={{ backgroundColor: 'white', 
+          marginTop:height*0.3,
+          borderRadius: 10, 
+          padding: 10, 
+          alignSelf: 'center', 
+          width: "75%", 
+          height: "40%" }}>
             <Text> Amount </Text>
             {this.state.invoiceType == 'sales' && (
               <TextInput
@@ -2332,6 +2342,7 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: "white" }}>Done</Text>
             </TouchableOpacity>
           </View>
+          </KeyboardAvoidingView>
         </TouchableOpacity>
       </Modal>
     );
@@ -2417,7 +2428,7 @@ export class PurchaseBill extends React.Component {
                 alignItems: 'center'
               }}>
               <TouchableOpacity
-                style={{ width: "80%" }}
+                style={{ width: "40%" }}
                 onPress={() => {
                   if (this.state.modesArray.length > 0) {
                     this.setState({ showPaymentModePopup: true });
@@ -2435,7 +2446,7 @@ export class PurchaseBill extends React.Component {
                 <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
               ) : (
                 <TouchableOpacity
-                  style={{ width: "20%", alignItems: "flex-end" }}
+                  style={{ width: "50%", alignItems: "flex-end" }}
                   onPress={() => {
                     this.setState({ showPaymentModePopup: true });
                     this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
@@ -2462,7 +2473,7 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#1C1C1C' }}>Balance Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)}
+                {(String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2)}
               </Text>
             </View>
           </View>

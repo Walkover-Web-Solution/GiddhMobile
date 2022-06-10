@@ -84,16 +84,46 @@ export class CustomerVendorService {
       });
   }
 
+    /**
+   * Get all currency
+   * @returns
+   */
+     static getCustomerGroupName() {
+      return httpInstance
+        .get(CustomerVendorUrls.getCustomerGroupName, {})
+        .then((res) => {
+          return res.data;
+        })
+        .catch((_err) => {
+          return null;
+        });
+    }
+
+    /**
+   * Get all currency
+   * @returns
+   */
+     static getVendorGroupName() {
+      return httpInstance
+        .get(CustomerVendorUrls.getVendorGroupName, {})
+        .then((res) => {
+          return res.data;
+        })
+        .catch((_err) => {
+          return null;
+        });
+    }
+
   /**
    * Create Customer
    * @param payload
    * @param accountUniqueName
    * @returns
    */
-  static createCustomer(payload: any) {
+  static createCustomer(groupUniqueName:any,payload: any) {
     console.log(CustomerVendorUrls.generateCreateCustomer);
     return httpInstance
-      .post(CustomerVendorUrls.generateCreateCustomer, payload)
+      .post(CustomerVendorUrls.generateCreateCustomer.replace(':groupUniqueName', `${groupUniqueName}`), payload)
       .then((res) => {
         console.log('yayyy!', res.data);
         return res.data;
@@ -121,16 +151,17 @@ export class CustomerVendorService {
       });
   }
 
+
   /**
    * Create Vendor
    * @param payload
    * @param accountUniqueName
    * @returns
    */
-  static createVendor(payload: any) {
+  static createVendor(groupUniqueName:any,payload: any) {
     console.log(CustomerVendorUrls.generateCreateVendor);
     return httpInstance
-      .post(CustomerVendorUrls.generateCreateVendor, payload)
+      .post(CustomerVendorUrls.generateCreateVendor.replace(':groupUniqueName', `${groupUniqueName}`), payload)
       .then((res) => {
         console.log('yayyy!', res.data);
         return res.data;
@@ -148,10 +179,10 @@ export class CustomerVendorService {
    * @param accountUniqueName
    * @returns
    */
-   static async updateVendor(payload: any, uniqueName: any) {
-    console.log(CustomerVendorUrls.generateUpdateVendor.replace(':uniqueName', `${uniqueName}`));  
+   static async updateVendor(payload: any, uniqueName: any,groupUniqueName:any) {
+    console.log(CustomerVendorUrls.generateUpdateVendor.replace(':uniqueName', `${uniqueName}`).replace(':groupUniqueName',`${groupUniqueName}`));  
     return httpInstance
-      .put(CustomerVendorUrls.generateUpdateVendor.replace(':uniqueName', `${uniqueName}`),payload)
+      .put(CustomerVendorUrls.generateUpdateVendor.replace(':uniqueName', `${uniqueName}`).replace(':groupUniqueName',`${groupUniqueName}`),payload)
       .then((res) => {
         console.log('UPDATE VENDOR RESPONSE!', res.data);
         return res.data;

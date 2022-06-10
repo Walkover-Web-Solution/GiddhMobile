@@ -10,6 +10,12 @@ export const CustomerVendorUrls = {
   getAllPartyType: createEndpoint(
     'ui/party-types?branchUniqueName=:branchUniqueName'
   ),
+  getCustomerGroupName: createEndpoint(
+    'company/:companyUniqueName/group-search?&group=sundrydebtors&includeSearchedGroup=true'
+  ),
+  getVendorGroupName: createEndpoint(
+    'company/:companyUniqueName/group-search?&group=sundrycreditors&includeSearchedGroup=true'
+  ),
   getAllCurrency: createEndpoint(
     'currency?branchUniqueName=:branchUniqueName'
   ),
@@ -17,16 +23,15 @@ export const CustomerVendorUrls = {
     'ui/calling-code?branchUniqueName=:branchUniqueName'
   ),
   generateCreateCustomer: createEndpoint(
-    'v2/company/:companyUniqueName/groups/sundrydebtors/accounts?branchUniqueName=:branchUniqueName'
+    'v2/company/:companyUniqueName/groups/:groupUniqueName/accounts?branchUniqueName=:branchUniqueName'
   ),
   generateCreateVendor: createEndpoint(
-    'v2/company/:companyUniqueName/groups/sundrycreditors/accounts?branchUniqueName=:branchUniqueName'
+    'v2/company/:companyUniqueName/groups/:groupUniqueName/accounts?branchUniqueName=:branchUniqueName'
   ),
   generateUpdateVendor: createEndpoint(
-    'v2/company/:companyUniqueName/groups/sundrycreditors/accounts/:uniqueName?branchUniqueName=:branchUniqueName'
+    'v2/company/:companyUniqueName/groups/:groupUniqueName/accounts/:uniqueName?branchUniqueName=:branchUniqueName'
   ),
   getVendorEntry: createEndpoint(
     'v2/company/:companyUniqueName/accounts/:uniqueName?branchUniqueName=:branchUniqueName'
-  )
-  
+  ),
 };

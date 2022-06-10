@@ -14,7 +14,7 @@ export default StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
 
   rowFront: {
@@ -33,20 +33,20 @@ export default StyleSheet.create({
     color: colors.INPUT_COLOR,
     marginLeft: 0,
     fontSize: constants.GD_FONT_SIZE.medium,
-    width: '65%',
-    fontFamily: 'OpenSans'
+    // width: '45%',
+    fontFamily: 'OpenSans',
   },
   subheading: {
     color: colors.LABEL_COLOR,
     fontSize: 10,
     marginLeft: 0,
-    paddingBottom: 10
+    paddingBottom: 10,
   },
   amountWrap: {
     display: 'flex',
     justifyContent: 'flex-end',
     flexDirection: 'row',
-    width: '30%'
+    width: '60%',
   },
   amountStyle: {
     fontFamily: 'AvenirLTStd-Black',

@@ -115,7 +115,15 @@ export const PartiesList = (props: PartiesListProp) => {
               <Text style={styles.partiesName} numberOfLines={1}>
                 {item.name}
               </Text>
-              {item.closingBalance.amount !== 0 && (
+              
+            </View>
+            <View style={{flexDirection:'row',
+            justifyContent:'space-between',
+           alignItems:'center'
+            }} >
+            {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
+            {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
+            {item.closingBalance.amount !== 0 && (
                 <View style={styles.amountWrap}>
                   {item.country.code === 'IN' && (
                     <Text
@@ -156,8 +164,6 @@ export const PartiesList = (props: PartiesListProp) => {
                 </View>
               )}
             </View>
-            {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
-            {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
             <View style={styles.seperator} />
           </View>
         </TouchableOpacity>

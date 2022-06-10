@@ -15,7 +15,8 @@ import {
   Dimensions,
   StatusBar,
   PermissionsAndroid,
-  Alert
+  Alert,
+  KeyboardAvoidingView
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -38,6 +39,8 @@ import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -2154,14 +2157,15 @@ export class SalesInvoice extends React.Component<Props> {
 
   _renderPaymentMode() {
     return (
+    
       <Modal
         animationType="none"
         transparent={true}
         visible={this.state.showPaymentModePopup}
         onRequestClose={() => {
           this.setState({ showPaymentModePopup: false });
-        }}>
-        <TouchableOpacity
+        }}> 
+         <TouchableOpacity
           style={{
             position: 'absolute',
             top: 0,
@@ -2175,7 +2179,13 @@ export class SalesInvoice extends React.Component<Props> {
         this.setState({ showPaymentModePopup: false });
         }}
         >
-          <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 10, alignSelf: 'center', width: "75%", height: "40%" }}>
+         <KeyboardAvoidingView behavior='padding' style={{flex:1}}>
+          <View style={{ 
+            marginTop:height*0.3,
+            backgroundColor: 'white', 
+          borderRadius: 10, padding: 10, 
+          alignSelf: 'center', width: "75%", 
+          height: "40%" }}>
             <Text> Amount </Text>
             {this.state.invoiceType == 'sales' && (
               <TextInput
@@ -2224,8 +2234,9 @@ export class SalesInvoice extends React.Component<Props> {
               <Text style={{ color: "white" }}>Done</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </Modal>
+          </KeyboardAvoidingView>
+        </TouchableOpacity> 
+        </Modal>
     );
   }
 
@@ -2310,7 +2321,7 @@ export class SalesInvoice extends React.Component<Props> {
                 alignItems: 'center'
               }}>
               <TouchableOpacity
-                style={{ width: "80%" }}
+                style={{ width: "40%"}}
                 onPress={() => {
                   if (this.state.modesArray.length > 0) {
                     this.setState({ showPaymentModePopup: true });
@@ -2328,7 +2339,7 @@ export class SalesInvoice extends React.Component<Props> {
                 <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
               ) : (
                 <TouchableOpacity
-                  style={{ width: "20%", alignItems: "flex-end" }}
+                  style={{ width: "50%", alignItems: "flex-end" }}
                   onPress={() => {
                     this.setState({ showPaymentModePopup: true });
                     this.setState({ tempSelectedPayMode: this.state.selectedPayMode,tempAmountPaidNowText:this.state.amountPaidNowText })
@@ -2355,7 +2366,7 @@ export class SalesInvoice extends React.Component<Props> {
               <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)}
+                {(String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2)}
               </Text>
             </View>}
           </View>

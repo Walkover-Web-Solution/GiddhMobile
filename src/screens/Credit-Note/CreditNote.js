@@ -480,25 +480,10 @@ export class CreditNote extends React.Component<Props> {
       //       })
       //     }>
       <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-            padding: 5,
-            alignItems: 'center',
-          }}
-          onPress={() =>
-            this.setState({
-              searchResults: [],
-              searchError: '',
-              isSearchingParty: false,
-            })
-          }>
-          <Ionicons name="close-circle" size={20} color={'#424242'} />
-          {/* <Text style={{marginLeft: 3}}>Close</Text> */}
-        </TouchableOpacity>
+       
         <FlatList
           data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
+          showsVerticalScrollIndicator={false}
           style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -529,6 +514,23 @@ export class CreditNote extends React.Component<Props> {
             </TouchableOpacity>
           )}
         />
+         <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'flex-start',
+            padding: 5,
+            alignItems: 'center',
+          }}
+          onPress={() =>
+            this.setState({
+              searchResults: [],
+              searchError: '',
+              isSearchingParty: false,
+            })
+          }>
+          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          {/* <Text style={{marginLeft: 3}}>Close</Text> */}
+        </TouchableOpacity>
       </View>
       //   </TouchableOpacity>
       // </Modal>

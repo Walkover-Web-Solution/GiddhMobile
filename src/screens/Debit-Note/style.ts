@@ -36,6 +36,7 @@ export default StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+    flexDirection:'row'
     //borderRadius: 10
   },
   searchTextInputStyle: {

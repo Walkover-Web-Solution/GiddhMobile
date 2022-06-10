@@ -28,7 +28,7 @@ export default StyleSheet.create({
   searchResultContainer: {
     maxHeight: 300,
     width: '80%',
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     position: 'absolute',
     alignSelf: 'center',
     shadowColor: 'grey',
@@ -36,6 +36,7 @@ export default StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+    flexDirection:'row'
     //borderRadius: 10
   },
   searchTextInputStyle: {

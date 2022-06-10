@@ -50,6 +50,8 @@ export class Customers extends React.Component<Props> {
   async getAllDeatils() {
     const allPartyTypes = await CustomerVendorService.getAllPartyType()
     await this.setState({ allPartyType: allPartyTypes.body.partyTypes })
+    const customerGroupName = await CustomerVendorService.getCustomerGroupName()
+    await this.setState({ AllGroups: customerGroupName.body.results })
   }
 
   async setActiveCompanyCountry() {
@@ -76,7 +78,7 @@ export class Customers extends React.Component<Props> {
     emailId: '',
     partyType: "NOT APPLICABLE",
     allPartyType: [],
-    AllGroups: ['Sundry Debtors'],
+    AllGroups: [],
     ref: RBSheet,
     allStates: [],
     savedAddress: {
@@ -112,6 +114,7 @@ export class Customers extends React.Component<Props> {
     successDialog: false,
     faliureDialog: false,
     selectedGroup: 'Sundry Debtors',
+    selectedGroupUniqueName: 'sundrydebtors',
     partyDropDown: Dropdown,
     pincode: '',
     isEmailInvalid: false,
@@ -365,7 +368,7 @@ export class Customers extends React.Component<Props> {
     this.setState({ loading: true });
     try {
       const postBody = {
-        activeGroupUniqueName: 'sundrydebtors',
+        activeGroupUniqueName: this.state.selectedGroup,
         name: this.state.partyName,
         uniqueName: '',
         openingBalanceType: this.state.radioBtn == 0 ? 'DEBIT' : 'CREDIT',
@@ -401,7 +404,7 @@ export class Customers extends React.Component<Props> {
         sacNumber: ''
       }
       console.log('Create Customer postBody is', JSON.stringify(postBody));
-      const results = await CustomerVendorService.createCustomer(postBody);
+      const results = await CustomerVendorService.createCustomer(this.state.selectedGroupUniqueName,postBody);
       console.log('rabbit' + JSON.stringify(results));
       if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
@@ -431,7 +434,7 @@ export class Customers extends React.Component<Props> {
       emailId: '',
       partyType: 'not applicable',
       allPartyType: [],
-      AllGroups: ['Sundry Debtors'],
+      AllGroups: [],
       ref: RBSheet,
       allStates: [],
       savedAddress: {
@@ -467,6 +470,7 @@ export class Customers extends React.Component<Props> {
       successDialog: false,
       faliureDialog: false,
       selectedGroup: 'Sundry Debtors',
+      selectedGroupUniqueName: 'sundrydebtors',
       partyDropDown: Dropdown,
       groupDropDown: Dropdown,
       isGroupDD: false,
@@ -692,7 +696,7 @@ export class Customers extends React.Component<Props> {
         {this.state.successDialog
           ? <Dialog.Container
             onRequestClose={() => { this.setState({ successDialog: false }) }}
-            visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+            visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center',backgroundColor: '#fff'}}>
             <Award />
             <Text style={{ color: '#229F5F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Success</Text>
             <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>The Customer is created successfully.</Text>
@@ -825,6 +829,7 @@ export class Customers extends React.Component<Props> {
               textStyle={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14 }}
               defaultValue={this.state.selectedGroup}
               options={this.state.AllGroups}
+              renderButtonText={(text) => text.name}
               renderSeparator={() => {
                 return (<View></View>);
               }}
@@ -833,9 +838,14 @@ export class Customers extends React.Component<Props> {
               dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14 }}
               renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1c1c1c', fontSize: 14, backgroundColor: "white" }}>{options}</Text>);
+                return (<Text style={{ padding: 13, color: '#1c1c1c', fontSize: 14, backgroundColor: "white" }}>{options.name}</Text>);
               }}
-              onSelect={(index, value) => { this.setState({ selectedGroup: value }) }} />
+              onSelect={(index, value) => { 
+                this.setState({ selectedGroup: value.name }) 
+                this.setState({ selectedGroupUniqueName: value.uniqueName,}) 
+              }}
+                />
+             
             <Icon
               style={{ transform: [{ rotate: this.state.isGroupDD ? '180deg' : '0deg' }] }}
               name={'9'}

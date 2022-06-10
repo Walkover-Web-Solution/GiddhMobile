@@ -162,7 +162,7 @@ export default StyleSheet.create({
     alignSelf: 'center'
   },
   customerMainContainer: {
-    flex: 1
+    flex: 1,
   },
   rowContainer: {
     flexDirection: 'row',
