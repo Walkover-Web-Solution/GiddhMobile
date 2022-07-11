@@ -173,7 +173,6 @@ export class SalesInvoice extends React.Component<Props> {
     };
     this.keyboardMargin = new Animated.Value(0);
   }
-
   setOtherDetails = (data) => {
     this.setState({ otherDetails: data });
   };
@@ -379,50 +378,6 @@ export class SalesInvoice extends React.Component<Props> {
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
           <Icon name={'Profile'} color={'#A6D8BF'} style={{ margin: 16 }} size={16} />
-          <Dropdown
-            ref={(ref) => this.state.test = ref}
-            defaultValue={''}
-            renderSeparator={() => {
-              return (<View />);
-            }}
-            renderButtonText={() => {
-              return (<View />);
-            }}
-            onSelect={(index, option) => {
-              if (option != "Result Not found") {
-                const item = this.state.searchResults[index];
-                this.setState(
-                  {
-                    partyName: item,
-                    searchResults: [],
-                    searchPartyName: item?.name,
-                    searchError: '',
-                    isSearchingParty: false
-                  },
-                  () => {
-                    this.searchAccount();
-                    this.getAllAccountsModes();
-                    Keyboard.dismiss();
-                  }
-                );
-              }
-            }}
-            renderRow={(option) => {
-              return (
-                <Text
-                  style={{
-                    color: '#1C1C1C',
-                    paddingVertical: 10,
-                    paddingHorizontal: 15,
-                    alignItems: 'center',
-                    backgroundColor: "white",
-                    //borderRadius: 10
-                  }}>
-                  {option}</Text>
-              );
-            }}
-            dropdownStyle={{ width: width * 0.75, marginTop: 10, height: (this.state.searchResults.length == 0 || this.state.searchResults.length == 1) ? 50 : (this.state.searchResults.length < 5 ? 80 : 150) }}
-            options={this.state.searchNamesOnly.length == 0 ? ["Result Not found"] : this.state.searchNamesOnly} />
           <TextInput
             placeholderTextColor={'#A6D8BF'}
             placeholder={this.state.invoiceType == 'cash' ? 'Enter Party Name' : 'Search Party Name'}
@@ -536,54 +491,60 @@ export class SalesInvoice extends React.Component<Props> {
 
   _renderSearchList() {
     return (
-      <Modal animationType="none" transparent={true} visible={true}>
+      // <Modal animationType="none" transparent={true} visible={true}>
         <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-              padding: 5,
-              alignItems: 'center'
-            }}
-            onPress={() =>
-              this.setState({
-                searchResults: [],
-                searchError: '',
-                isSearchingParty: false
-              })
-            }>
-            <Ionicons name="close-circle" size={20} color={'#424242'} />
-            {/* <Text style={{marginLeft: 3}}>Close</Text> */}
-          </TouchableOpacity>
+          
           <FlatList
-            data={this.state.searchResults}
+           showsVerticalScrollIndicator={false}
+           data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
             style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={{}}
-                onFocus={() => this.onChangeText('')}
-                onPress={async () => {
+              style={{}}
+              onFocus={() => this.onChangeText('')}
+              onPress={async () => {
+                if (item != "Result Not found") {
                   this.setState(
                     {
                       partyName: item,
                       searchResults: [],
                       searchPartyName: item.name,
                       searchError: '',
-                      isSearchingParty: false
+                      isSearchingParty: false,
                     },
                     () => {
                       this.searchAccount();
                       this.getAllAccountsModes();
                       Keyboard.dismiss();
-                    }
+                    },
                   );
-                }}>
-                <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name}</Text>
-              </TouchableOpacity>
+                } else {
+                  this.setState({ isSearchingParty: false, searchResults: [] })
+                }
+              }}>
+              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
+            </TouchableOpacity>
             )}
           />
+              <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'flex-start',
+            padding: 5,
+            alignItems: 'center',
+          }}
+          onPress={() =>
+            this.setState({
+              searchResults: [],
+              searchError: '',
+              isSearchingParty: false,
+            })
+          }>
+          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          {/* <Text style={{marginLeft: 3}}>Close</Text> */}
+        </TouchableOpacity>
         </View>
-      </Modal>
+      // </Modal>
     );
   }
 
@@ -604,7 +565,7 @@ export class SalesInvoice extends React.Component<Props> {
           }
         });
         this.setState({ searchResults: results.body.results, isSearchingParty: false, searchError: '' });
-        this.state.test.show();
+        // this.state.test.show();
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
@@ -2531,6 +2492,7 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   render() {
+    console.log('search results-=-=-=-=-=-=',this.state.searchResults)
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
@@ -2567,8 +2529,7 @@ export class SalesInvoice extends React.Component<Props> {
               style={{height: 60, width: 60, backgroundColor: 'pink'}}
               onPress={() => console.log(this.state.partyBillingAddress)}></TouchableOpacity> */}
           </View>
-
-          {/* {this.state.searchResults.length > 0 && this._renderSearchList()} */}
+          {this.state.searchResults.length > 0 && this._renderSearchList()}
           {this.state.loading && (
             <View
               style={{
