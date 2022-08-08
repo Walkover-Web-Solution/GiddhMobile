@@ -26,6 +26,9 @@ import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.ser
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import PhoneInput from 'react-native-phone-input';
+import CountryPicker from 'react-native-country-picker-modal';
+
 
 interface Props {
   navigation: any;
@@ -35,6 +38,11 @@ const PhoneNumber = require('awesome-phonenumber');
 export class Customers extends React.Component<Props> {
   constructor(props: any) {
     super(props);
+
+    this.onPressFlag = this.onPressFlag.bind(this);
+    this.selectCountry = this.selectCountry.bind(this);
+    this.updateInfo = this.updateInfo.bind(this);
+    this.setState({picker:false})
   }
 
   clearAll = async () => {
@@ -44,6 +52,7 @@ export class Customers extends React.Component<Props> {
     await this.getAllDeatils();
     await this.setActiveCompanyCountry()
     await this.checkStoredCountryCode();
+    this.phone.setValue('91');
     await this.state.partyDropDown.select(-1);
   }
 
@@ -72,6 +81,9 @@ export class Customers extends React.Component<Props> {
   }
 
   state = {
+    picker:false,
+    pickerData: null,
+    cca2: 'US',
     loading: false,
     partyName: '',
     contactNumber: '',
@@ -312,10 +324,13 @@ export class Customers extends React.Component<Props> {
     if (this.state.contactNumber == '') {
       return true
     }
-    var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
-    var pn = new PhoneNumber(this.state.contactNumber.toString(), getRegionCode);
-    if (!pn.isValid()) {
-      Alert.alert('Error', 'Please enter valid phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+    // var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
+    // var pn = new PhoneNumber(this.state.contactNumber.toString(), getRegionCode);
+    // if (!pn.isValid()) {
+    //   Alert.alert('Error', 'Please enter valid phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+    //   return false
+    // }
+    if(this.state.isMobileNoValid){
       return false
     }
     return true
@@ -409,6 +424,7 @@ export class Customers extends React.Component<Props> {
       if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
+        this.phone.setValue('91');
         await this.setState({ successDialog: true });
         this.setActiveCompanyCountry()
         this.getAllDeatils();
@@ -428,6 +444,9 @@ export class Customers extends React.Component<Props> {
 
   resetState = () => {
     this.setState({
+      picker:false,
+      pickerData: null,
+      cca2: 'US',
       loading: false,
       partyName: '',
       contactNumber: '',
@@ -517,7 +536,31 @@ export class Customers extends React.Component<Props> {
     this.getAllDeatils();
     this.checkStoredCountryCode();
     this.props.resetFun(this.clearAll);
+    this.setState({
+      pickerData: this.phone.getPickerData(),
+    });
   }
+  onPressFlag() {
+  this.setState({picker:true})
+  }
+  updateInfo() {
+    if(this.phone.isValidNumber()){
+      this.setState({isMobileNoValid:false})
+    }else{
+      this.setState({isMobileNoValid:true})
+    }
+  }
+
+  selectCountry(country) {
+    this.phone.selectCountry(country.cca2.toLowerCase());
+    this.setState({ cca2: country.cca2 });
+  }
+  setSelectedCountry(cca2){
+    this.phone.selectCountry(cca2.toLowerCase());
+    this.setState({ cca2: cca2 });
+    this.phone.focus();
+  }
+
 
   checkStoredCountryCode = async () => {
     const storedCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
@@ -765,7 +808,7 @@ export class Customers extends React.Component<Props> {
               <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
             </TextInput>
           </View>
-          <View style={styles.rowContainer}>
+          {/* <View style={styles.rowContainer}>
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
             <TouchableOpacity onPress={() => {
               this.setState({
@@ -774,25 +817,6 @@ export class Customers extends React.Component<Props> {
             }}><Text
               style={{ color: '#1c1c1c', paddingRight: 7, paddingVertical: 5, fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
             >{this.state.selectedCallingCode}</Text></TouchableOpacity>
-            {/* <Dropdown
-              ref={(ref) => this.state.partyDropDown = ref}
-              textStyle={{ color: '#808080', fontSize: 15, marginTop: -1 }}
-              defaultValue={this.state.selectedCallingCode}
-              renderButtonText={(text) => {
-                return text;
-              }}
-              options={this.state.allCallingCode}
-              renderSeparator={() => {
-                return (<View></View>);
-              }}
-              onSelect={(idx, value) => this.setState({ selectedCallingCode: value })}
-
-              dropdownStyle={{ width: '17%' }}
-              dropdownTextStyle={{ color: '#1C1C1C' }}
-              renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
-              }}
-            /> */}
             <TextInput
               keyboardType="number-pad"
               returnKeyType={'done'}
@@ -807,6 +831,46 @@ export class Customers extends React.Component<Props> {
               value={this.state.contactNumber}
               style={{ ...styles.input, paddingLeft: 5, marginTop: 2, color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }} />
           </View>
+           */}
+           <View style={[styles.rowContainer,{marginVertical:10}]} >
+           <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
+          <PhoneInput
+             ref={(ref) => { this.phone = ref; }}
+             textComponent={TextInput}
+             textProps={{placeholder: 'Enter Party Number'}}
+            initialCountry={"in"} 
+            onChangeFormattedText={value => 
+              this.selectCountry(value)
+            }
+            onChangePhoneNumber={(num)=> {
+              this.updateInfo()
+              this.setState({contactNumber:num})
+            }}
+            textStyle={{fontFamily:'AvenirLTStd-Book'}}
+            withShadow
+            onPressFlag={this.onPressFlag}
+            // blur={this.updateInfo}
+          />
+         <CountryPicker
+           modalProps={{
+            visible: this.state.picker,
+          }}
+          placeholder={' '}
+          onSelect={({ cca2 }) =>
+          this.setSelectedCountry(cca2)
+               }
+          translation="eng"
+          cca2={this.state.cca2}
+          withCallingCode
+          withAlphaFilter
+          withFilter
+          onClose={() => this.setState({picker:false})}
+        >
+          <View />
+     
+        </CountryPicker>
+    
+           </View>
           {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
             <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />

@@ -26,6 +26,8 @@ import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.ser
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import PhoneInput from 'react-native-phone-input';
+import CountryPicker from 'react-native-country-picker-modal';
 
 const PhoneNumber = require('awesome-phonenumber');
 interface Props {
@@ -36,8 +38,11 @@ interface Props {
 export class Vendors extends React.Component<Props> {
   constructor(props: any) {
     super(props);
+    this.onPressFlag = this.onPressFlag.bind(this);
+    this.selectCountry = this.selectCountry.bind(this);
+    this.updateInfo = this.updateInfo.bind(this);
+    this.setState({picker:false})
   }
-
   getProps = async (uniqueName: any) => {
     await this.setState({ loading: true })
     const vendorEntry = await CustomerVendorService.getVendorEntry(uniqueName)
@@ -53,7 +58,7 @@ export class Vendors extends React.Component<Props> {
         partyPlaceHolder: 'a',
         selectedGroup: vendorEntryResponse.parentGroups[vendorEntryResponse.parentGroups.length - 1].name,
         selectedGroupUniqueName: vendorEntryResponse.parentGroups[vendorEntryResponse.parentGroups.length - 1].uniqueName,
-        contactNumber: vendorEntryResponse.mobileNo ? (vendorEntryResponse.mobileNo).split("-").pop() : '',
+        contactNumber: vendorEntryResponse.mobileNo ? (vendorEntryResponse.mobileNo).replace('-','') : '',
         emailId: vendorEntryResponse.emails.length > 0 ? vendorEntryResponse.emails[0] : '',
         partyType: vendorEntryResponse.addresses[0].partyType,
         savedAddress: {
@@ -80,6 +85,8 @@ export class Vendors extends React.Component<Props> {
         IFSC_Code: vendorEntryResponse.accountBankDetails.length > 0 ? (vendorEntryResponse.accountBankDetails[0].ifsc != null ? vendorEntryResponse.accountBankDetails[0].ifsc : '') : '',
       })
       await this.setActiveCompanyCountry();
+      this.getInitialNumber(this.state.contactNumber)
+      
     }
   }
 
@@ -90,6 +97,7 @@ export class Vendors extends React.Component<Props> {
     await this.getAllDeatils();
     await this.setActiveCompanyCountry()
     await this.checkStoredCountryCode();
+    await this.phone.setValue('91');
     await this.state.partyDropDown.select(-1);
   }
 
@@ -122,6 +130,9 @@ export class Vendors extends React.Component<Props> {
   }
 
   state = {
+    picker:false,
+    pickerData: null,
+    cca2: 'US',
     loading: false,
     partyName: '',
     contactNumber: '',
@@ -498,10 +509,13 @@ export class Vendors extends React.Component<Props> {
     if (this.state.contactNumber == '') {
       return true
     }
-    var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
-    var pn = new PhoneNumber(this.state.contactNumber.toString(), getRegionCode);
-    if (!pn.isValid()) {
-      Alert.alert('Error', 'Please enter valid phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+    // var getRegionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode);
+    // var pn = new PhoneNumber(this.state.contactNumber.toString(), getRegionCode);
+    // if (!pn.isValid()) {
+    //   Alert.alert('Error', 'Please enter valid phone number.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+    //   return false
+    // }
+    if(this.state.isMobileNoValid){
       return false
     }
     return true
@@ -677,6 +691,7 @@ export class Vendors extends React.Component<Props> {
       if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
+        this.phone.setValue('91');
         // this.state.partyDropDown.select(-1);
         await this.setState({ successDialog: true });
         this.setActiveCompanyCountry()
@@ -697,6 +712,9 @@ export class Vendors extends React.Component<Props> {
 
   resetState = () => {
     this.setState({
+      picker:false,
+      pickerData: null,
+      cca2: 'US',
       loading: false,
       partyName: '',
       contactNumber: '',
@@ -775,7 +793,35 @@ export class Vendors extends React.Component<Props> {
     this.checkStoredCountryCode();
     this.props.uniqueName && this.getProps(this.props.uniqueName)
     this.props.resetFun(this.clearAll);
+    this.setState({
+      pickerData: this.phone.getPickerData(),
+    });
   }
+
+  onPressFlag() {
+    this.setState({picker:true})
+    }
+    updateInfo() {
+      if(this.phone.isValidNumber()){
+        this.setState({isMobileNoValid:false})
+      }else{
+        this.setState({isMobileNoValid:true})
+      }
+    }
+    getInitialNumber(number){
+      this.phone.setValue(number)
+    }
+  
+    selectCountry(country) {
+      console.log(country);
+      this.phone.selectCountry(country.cca2.toLowerCase());
+      this.setState({ cca2: country.cca2 });
+    }
+    setSelectedCountry(cca2){
+      this.phone.selectCountry(cca2.toLowerCase());
+      this.setState({ cca2: cca2 });
+      this.phone.focus();
+    }
 
   checkStoredCountryCode = async () => {
     const storedCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
@@ -1026,7 +1072,7 @@ export class Vendors extends React.Component<Props> {
               <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
             </TextInput>
           </View>
-          <View style={styles.rowContainer}>
+          {/* <View style={styles.rowContainer}>
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
             <TouchableOpacity onPress={() => {
               this.setState({
@@ -1034,7 +1080,7 @@ export class Vendors extends React.Component<Props> {
               })
             }}><Text
               style={{ color: '#1c1c1c', paddingRight: 7, paddingVertical: 5, fontSize: 15, fontFamily: 'AvenirLTStd-Book', }}
-            >{this.state.selectedCallingCode}</Text></TouchableOpacity>
+            >{this.state.selectedCallingCode}</Text></TouchableOpacity> */}
             {/* <Dropdown
               ref={(ref) => this.state.partyDropDown = ref}
               textStyle={{ color: '#808080', fontSize: 15, marginTop: -1 }}
@@ -1054,7 +1100,7 @@ export class Vendors extends React.Component<Props> {
                 return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
               }}
             /> */}
-            <TextInput
+            {/* <TextInput
               returnKeyType={'done'}
               keyboardType="number-pad"
               onChangeText={(text) => {
@@ -1067,7 +1113,46 @@ export class Vendors extends React.Component<Props> {
               placeholder={this.getMobilePlaceHolder()}
               value={this.state.contactNumber}
               style={{ ...styles.input, paddingLeft: 5, marginTop: 2, color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', }} />
-          </View>
+          </View> */}
+          <View style={[styles.rowContainer,{marginVertical:10}]} >
+           <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
+          <PhoneInput
+             ref={(ref) => { this.phone = ref; }}
+            //  initialValue={this.getInitialNumber()}
+             textProps={{placeholder: 'Enter Party Number'}}
+             initialCountry={"in"} 
+             onChangeFormattedText={value => 
+              this.selectCountry(value)
+            }
+            onChangePhoneNumber={(num)=> {
+              this.updateInfo()
+              this.setState({contactNumber:num})
+            }}
+            textStyle={{fontFamily:'AvenirLTStd-Book'}}
+            withShadow
+            onPressFlag={this.onPressFlag}
+            // blur={this.updateInfo}
+          />
+         <CountryPicker
+           modalProps={{
+            visible: this.state.picker,
+          }}
+          placeholder={' '}
+          onSelect={({ cca2 }) =>
+          this.setSelectedCountry(cca2)
+               }
+          translation="eng"
+          cca2={this.state.cca2}
+          withCallingCode
+          withAlphaFilter
+          withFilter
+          onClose={() => this.setState({picker:false})}
+        >
+          <View />
+     
+        </CountryPicker>
+    
+           </View>
           {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
           <View style={styles.rowContainer}>
             <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />

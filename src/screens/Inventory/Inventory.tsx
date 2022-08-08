@@ -11,7 +11,7 @@ import moment from 'moment';
 import { InventoryService } from '@/core/services/inventory/inventory.service';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { catch } from 'metro.config';
+// import { catch } from 'metro.config';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;

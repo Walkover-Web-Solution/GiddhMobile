@@ -45,7 +45,7 @@ import Share from 'react-native-share';
 import base64 from 'react-native-base64';
 import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
-import { catch } from 'metro.config';
+// import { catch } from 'metro.config';
 import color from '@/utils/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Dropdown from 'react-native-modal-dropdown';
