@@ -2255,7 +2255,7 @@ export class DebiteNote extends React.Component<Props> {
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
-          <View style={[style.container, , {paddingBottom: 80}]}>
+          <View style={[style.container, {paddingBottom: 80}]}>
             {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
@@ -2320,7 +2320,7 @@ export class DebiteNote extends React.Component<Props> {
             }}
           />
         )}
-        {this.getTotalAmount() > 0 && this._renderSaveButton()}
+        {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
       </View>
     );
   }

@@ -304,8 +304,6 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
         return res.data;
       })
       .catch((_err) => {
-        // alert(JSON.stringify(err));
-        console.log('error getting briefAccount for Receipt', _err);
         return null;
       });
   }
@@ -337,11 +335,9 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
   }
 
   static getVoucherInvoice(date: any, payload: any, voucherVersion: any) {
-    console.log('}}}}}}}}}',invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`), payload)
     return httpInstance
       .post(invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`), payload)
       .then((res) => {
-        console.log('response==============>',res.data)
         return res.data;
       })
       .catch((err) => {
@@ -350,11 +346,9 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       });
   }
   static getInvoicesForReceipt(date: any, payload: any, voucherVersion: any, page: any, count: any) {
-    console.log('Invoices for receipt -------------->',invoiceUrls.getInvoicesForReceipt.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`).replace(':page', `${page}`).replace(':count', `${count}`), payload)
     return httpInstance
       .post(invoiceUrls.getInvoicesForReceipt.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`).replace(':page', `${page}`).replace(':count', `${count}`), payload)
       .then((res) => {
-        console.log('response==============>',res.data)
         return res.data;
       })
       .catch((err) => {

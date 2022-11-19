@@ -2581,7 +2581,7 @@ export class SalesInvoice extends React.Component<Props> {
             }}
           />
         )}
-        {this.getTotalAmount() > 0 && this._renderSaveButton()}
+        {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
       </View>
     );
   }
