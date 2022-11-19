@@ -41,6 +41,7 @@
 		E900EF63728E4064A5367E2B /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A3CE96A2194E4AFD85E0F262 /* OpenSans-Regular.ttf */; };
 		EFF2F6B94864E2C50AACF86D /* libPods-giddh-giddhTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E7B62DB4FB267120E5FBE07 /* libPods-giddh-giddhTests.a */; };
 		F48E9A212229419D8F31BD57 /* OpenSans-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 184976FA1AB9432E8374BCDB /* OpenSans-LightItalic.ttf */; };
+		65EA6EAA84F740CDA968AE6D /* noParty.png in Resources */ = {isa = PBXBuildFile; fileRef = 32B4F22124F5465F984E841E /* noParty.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -192,6 +193,7 @@
 		FC5C75904E6A35520B7261A7 /* Pods-giddh-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-giddh-tvOSTests/Pods-giddh-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		FCF3F07DC5664EBE9EA8F2F3 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
 		FE2F01C62F8F41B38473B04F /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
+		32B4F22124F5465F984E841E /* noParty.png */ = {isa = PBXFileReference; name = "noParty.png"; path = "../src/assets/images/noParty.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -430,6 +432,7 @@
 				94D9EF93DDA0410BA1F00EF9 /* Zocial.ttf */,
 				21DD958D5E6C454981DF22F8 /* customer_faliure.svg */,
 				078CCAE98E954BB99749ED2F /* customer_success.svg */,
+				32B4F22124F5465F984E841E /* noParty.png */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -601,6 +604,7 @@
 				354991B985D14A128EE3ABE3 /* noInventory.png in Resources */,
 				DE119A1056694656AFB026EF /* customer_faliure.svg in Resources */,
 				0577EB6227ED481A99848F4B /* customer_success.svg in Resources */,
+				65EA6EAA84F740CDA968AE6D /* noParty.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

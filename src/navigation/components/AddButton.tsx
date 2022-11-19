@@ -23,9 +23,12 @@ const arrButtons = [
   { name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD' },
   { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
   { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345' },
+  { name: 'Receipt', navigateTo: 'ReceiptScreens', icon: 'path-5', color: '#00B795' },
+  { name: 'Payment', navigateTo: 'PaymentScreens', icon: 'Union-63', color: '#084EAD' },
   { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961' },
   { name: 'Customer', navigateTo: 'CustomerVendorScreens', icon: 'Group-6187', color: '#864DD3' },
-  { name: 'Vendor', navigateTo: 'CustomerVendorScreens', icon: 'Group-6188', color: '#FF72BE' }
+  { name: 'Vendor', navigateTo: 'CustomerVendorScreens', icon: 'Group-6188', color: '#FF72BE' },
+  // { name: 'Advance Rcpt', navigateTo: 'AdvanceReceiptScreens', icon: 'Group-6188', color: '#51C445' }
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
   // {name: 'Payment', navigateTo: 'Payment', icon: 'Payment', color: '#084EAD'},

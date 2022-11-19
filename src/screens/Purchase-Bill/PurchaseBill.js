@@ -465,7 +465,8 @@ export class PurchaseBill extends React.Component {
       <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
         
         <FlatList
-        showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={false}
           data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
           style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
           keyExtractor={(item, index) => index.toString()}
@@ -2285,7 +2286,7 @@ export class PurchaseBill extends React.Component {
         this.setState({ showPaymentModePopup: false });
         }}
         >
-        <KeyboardAvoidingView behavior='padding' style={{flex:1}}>
+        <KeyboardAvoidingView behavior='height' style={{flex:1}}>
           <View style={{ backgroundColor: 'white', 
           marginTop:height*0.3,
           borderRadius: 10, 
@@ -2516,14 +2517,26 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and Share</Text>
             </TouchableOpacity> */}
           </View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               this.genrateInvoice('navigate');
             }}>
             <Icon name={'path-18'} size={48} color={'#5773FF'} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
+    );
+  }
+
+  _renderSaveButton() {
+    return (
+      <TouchableOpacity
+        style={{flex: 1, position: 'absolute', right: 10, bottom: 30, backgroundColor: 'white', borderRadius: 60}}
+        onPress={() => {
+          this.genrateInvoice('navigate');
+        }}>
+        <Icon name={'path-18'} size={48} color={'#5773FF'} />
+      </TouchableOpacity>
     );
   }
 
@@ -2631,10 +2644,10 @@ export class PurchaseBill extends React.Component {
       //   </View>
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
-          keyboardShouldPersistTaps="always"
+          keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
-          <View style={style.container}>
+          <View style={[style.container, {paddingBottom: 40}]}>
             {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
@@ -2705,6 +2718,8 @@ export class PurchaseBill extends React.Component {
             }}
           />
         )}
+        {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
+
       </View>
     );
   }

@@ -29,15 +29,27 @@ export const invoiceUrls = {
   generateDebitNote: createEndpoint(
     'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
   ),
+  generateReceipt: createEndpoint(
+    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2/?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
+  ),
+  generatePayment: createEndpoint(
+    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2/?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
+  ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName'
   ),
   getBriefAccount: createEndpoint(
     'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts&count=0&currency=INR,%20INR&branchUniqueName=:branchUniqueName'
   ),
+  getBriefAccountForReceipt: createEndpoint(
+    'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts,%20loanandoverdraft&count=0&currency=IN,%20INR&lang=en'
+  ),
   getVoucherInvoice: createEndpoint(
     'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName&voucherVersion=:voucherVersion'
   ),
+  getInvoicesForReceipt: createEndpoint(
+    'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&adjustmentRequest=true&count=:count&page=:page&number=&voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en'
+    ),
   getExchangeRateToINR: createEndpoint(
     'currency/rate?from=:from&to=:to&date=:date&branchUniqueName=:branchUniqueName'
   ),
