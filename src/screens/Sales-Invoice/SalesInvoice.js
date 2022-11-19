@@ -495,6 +495,7 @@ export class SalesInvoice extends React.Component<Props> {
         <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
           
           <FlatList
+           nestedScrollEnabled={true}
            showsVerticalScrollIndicator={false}
            data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
             style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
@@ -2140,13 +2141,17 @@ export class SalesInvoice extends React.Component<Props> {
         this.setState({ showPaymentModePopup: false });
         }}
         >
-         <KeyboardAvoidingView behavior='padding' style={{flex:1}}>
+         <KeyboardAvoidingView 
+         behavior='height' style={{flex:1}}>
           <View style={{ 
             marginTop:height*0.3,
             backgroundColor: 'white', 
-          borderRadius: 10, padding: 10, 
-          alignSelf: 'center', width: "75%", 
-          height: "40%" }}>
+            borderRadius: 10, 
+            padding: 10, 
+            alignSelf: 'center', 
+            width: "75%", 
+            height: "40%" 
+            }}>
             <Text> Amount </Text>
             {this.state.invoiceType == 'sales' && (
               <TextInput
@@ -2375,14 +2380,26 @@ export class SalesInvoice extends React.Component<Props> {
               <Text style={{ color: '#808080', fontSize: 13 }}>Create and Share</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               this.genrateInvoice('navigate');
             }}>
             <Icon name={'path-18'} size={48} color={'#5773FF'} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
+    );
+  }
+
+  _renderSaveButton() {
+    return (
+      <TouchableOpacity
+        style={{flex: 1, position: 'absolute', right: 10, bottom: 30, backgroundColor: 'white', borderRadius: 60}}
+        onPress={() => {
+          this.genrateInvoice('navigate');
+        }}>
+        <Icon name={'path-18'} size={48} color={'#5773FF'} />
+      </TouchableOpacity>
     );
   }
 
@@ -2496,7 +2513,7 @@ export class SalesInvoice extends React.Component<Props> {
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
-          keyboardShouldPersistTaps="always"
+          keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={style.container}>
@@ -2564,6 +2581,7 @@ export class SalesInvoice extends React.Component<Props> {
             }}
           />
         )}
+        {this.getTotalAmount() > 0 && this._renderSaveButton()}
       </View>
     );
   }

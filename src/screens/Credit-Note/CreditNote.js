@@ -482,6 +482,7 @@ export class CreditNote extends React.Component<Props> {
       <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
        
         <FlatList
+          nestedScrollEnabled={true}
           data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
           showsVerticalScrollIndicator={false}
           style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
@@ -2085,15 +2086,27 @@ export class CreditNote extends React.Component<Props> {
             }}
           />
         ) : null}
-        <View style={{ justifyContent: 'flex-end', flexDirection: 'row', marginTop: 20, margin: 16 }}>
+        {/* <View style={{ justifyContent: 'flex-end', flexDirection: 'row', marginTop: 20, margin: 16 }}>
           <TouchableOpacity
             onPress={() => {
               this.genrateCreditNote();
             }}>
             <Icon name={'path-18'} size={48} color={'#5773FF'} />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
+    );
+  }
+
+  _renderSaveButton() {
+    return (
+      <TouchableOpacity
+        style={{flex: 1, position: 'absolute', right: 10, bottom: 30, backgroundColor: 'white', borderRadius: 60}}
+        onPress={() => {
+         this.genrateCreditNote();
+        }}>
+        <Icon name={'path-18'} size={48} color={'#5773FF'} />
+      </TouchableOpacity>
     );
   }
 
@@ -2212,10 +2225,11 @@ export class CreditNote extends React.Component<Props> {
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView
-          keyboardShouldPersistTaps="always"
+          nestedScrollEnabled={true}
+          keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
-          <View style={style.container}>
+          <View style={[style.container, {paddingBottom: 80}]}>
             {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
@@ -2280,6 +2294,8 @@ export class CreditNote extends React.Component<Props> {
             }}
           />
         )}
+
+        {this.getTotalAmount() > 0 && this._renderSaveButton()}
       </View>
     );
   }

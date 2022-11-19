@@ -123,12 +123,22 @@ class PartiesTransactionScreen extends React.Component {
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.getActiveCompany()
     if (this.props.route?.params?.item?.bankPaymentDetails && this.props.route?.params?.type == 'Vendors') {
       this.getBankAccountsData()
     }
-    this.getTransactions();
+
+    // This listener calls API again when screen in focus.
+    this.unsubscribe = this.props.navigation.addListener('focus', async () => {
+      try {
+        await this.setState({showLoader: true})
+        await this.getTransactions();
+      } catch (error) {
+        // handle errors here
+      }
+    })
+
     PushNotification.popInitialNotification((notification) => {
       console.log('Initial Notification', notification);
     });
@@ -137,6 +147,8 @@ class PartiesTransactionScreen extends React.Component {
 
   componentWillUnmount() {
     this.removeSmsListener()
+    this.unsubscribe()
+
   }
 
   retrieveVerificationCode = (sms: any, codeLength: any) => {

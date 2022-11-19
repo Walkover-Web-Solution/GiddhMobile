@@ -230,6 +230,44 @@ export class InvoiceService {
         return null;
       });
   }
+  static createReceipt(payload: any, accountUniqueName: any, voucherVersion: any, lang: any) {
+console.log('services inside-=-',invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`))
+    // console.log('invoice type', invoiceType);
+    return httpInstance
+      .post(invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), payload)
+      .then((res) => {
+        console.log('yayyy!', res.data);
+        // Alert.alert('Success','Receipt is created successfully.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        return res.data;
+      })
+      .catch((err) => {
+        // console.log('In Catch createReceipt', invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), JSON.stringify(payload));
+
+        console.log('catch block of reciekadmdandjndkdbk',JSON.stringify(err.response));
+        Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        return null;
+      });
+  }
+
+
+  static createPayment(payload: any, accountUniqueName: any, voucherVersion: any, lang: any) {
+console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`))
+    // console.log('invoice type', invoiceType);
+    return httpInstance
+      .post(invoiceUrls.generatePayment.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), payload)
+      .then((res) => {
+        console.log('yayyy!', res.data);
+        // Alert.alert('Success','Receipt is created successfully.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        return res.data;
+      })
+      .catch((err) => {
+        // console.log('In Catch createReceipt', invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), JSON.stringify(payload));
+
+        console.log('catch block of reciekadmdandjndkdbk',JSON.stringify(err.response));
+        Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        return null;
+      });
+  }
 
   // Becuase of version 2, Using this function for version 1 only and for version 2 using function createVoucher.
   static createPurchaseBill(payload: { account: { attentionTo: string; billingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string; mobileNumber: string; name: any; shippingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; uniqueName: any; }; date: string; dueDate: string; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; type: string; attachedFiles: never[]; subVoucher: string; purchaseOrders: never[]; company: { billingDetails: { address: any[]; countryName: any; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; shippingDetails: { address: any[]; countryName: any; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; }; }, accountUniqueName: any) {
@@ -255,6 +293,19 @@ export class InvoiceService {
       .catch((_err) => {
         // alert(JSON.stringify(err));
         console.log('error getting briefAccount ', _err);
+        return null;
+      });
+  }
+
+  static getBriefAccountForReceipt() {
+    return httpInstance
+      .get(invoiceUrls.getBriefAccountForReceipt, {})
+      .then((res) => {
+        return res.data;
+      })
+      .catch((_err) => {
+        // alert(JSON.stringify(err));
+        console.log('error getting briefAccount for Receipt', _err);
         return null;
       });
   }
@@ -286,10 +337,24 @@ export class InvoiceService {
   }
 
   static getVoucherInvoice(date: any, payload: any, voucherVersion: any) {
-    console.log(invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`), payload)
+    console.log('}}}}}}}}}',invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`), payload)
     return httpInstance
       .post(invoiceUrls.getVoucherInvoice.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`), payload)
       .then((res) => {
+        console.log('response==============>',res.data)
+        return res.data;
+      })
+      .catch((err) => {
+        JSON.stringify('ERROR' + JSON.stringify(err));
+        return null;
+      });
+  }
+  static getInvoicesForReceipt(date: any, payload: any, voucherVersion: any, page: any, count: any) {
+    console.log('Invoices for receipt -------------->',invoiceUrls.getInvoicesForReceipt.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`).replace(':page', `${page}`).replace(':count', `${count}`), payload)
+    return httpInstance
+      .post(invoiceUrls.getInvoicesForReceipt.replace(':voucherDate', `${date}`).replace(':voucherVersion', `${voucherVersion}`).replace(':page', `${page}`).replace(':count', `${count}`), payload)
+      .then((res) => {
+        console.log('response==============>',res.data)
         return res.data;
       })
       .catch((err) => {

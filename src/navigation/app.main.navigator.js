@@ -8,6 +8,8 @@ import CustomerVendorStack from './customerVendorNavigator';
 import DebitNoteStack from './debitNoteNavigator';
 import { ChangeCompanyStack } from './change.company.navigator';
 import { ChangeCompanyBranchStack } from './change.companyBranch.navigator';
+import ReceiptStack from './receiptNavigator';
+import PaymentStack from './paymentNavigator'; 
 
 const Drawer = createDrawerNavigator();
 
@@ -19,6 +21,8 @@ export default function AppMainNav() {
       <Drawer.Screen name="PurchaseBillScreens" component={PurchaseBillStack} />
       <Drawer.Screen name="CreditNoteScreens" component={CreditNoteStack} />
       <Drawer.Screen name="DebitNoteScreens" component={DebitNoteStack} />
+      <Drawer.Screen name="ReceiptScreens" component={ReceiptStack} />
+      <Drawer.Screen name="PaymentScreens" component={PaymentStack} />
       <Drawer.Screen name="CustomerVendorScreens" component={CustomerVendorStack} />
       <Drawer.Screen name='ChangeCompany' component={ChangeCompanyStack} />
       <Drawer.Screen name='ChangeCompanyBranch' component={ChangeCompanyBranchStack} />
