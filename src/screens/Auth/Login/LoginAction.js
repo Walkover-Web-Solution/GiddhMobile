@@ -155,3 +155,24 @@ export function OTPScreenUnmounting() {
     type: Actions.OTP_SCREEN_UNMOUNTING
   }
 }
+
+export function loginWithOTP(accessToken) {
+  return {
+    type: Actions.LOGIN_WITH_OTP,
+    accessToken: accessToken
+  }
+}
+
+export function loginWithOtpSuccess(payload) {
+  return {
+    type: Actions.LOGIN_WITH_OTP_SUCCESS,
+    payload: payload
+  }
+}
+
+export function loginWithOtpFailure(error) {
+  return {
+    type: Actions.LOGIN_WITH_OTP_FAILURE,
+    payload: error
+  }
+}

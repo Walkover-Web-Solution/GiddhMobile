@@ -32,10 +32,8 @@ export default StyleSheet.create({
     color: '#808080',
     fontFamily: FONT_FAMILY.regular,
     textAlign: 'center',
-    // alignSelf: 'center',
-    // width: 150,
-    // height: 40,
     fontSize: 14,
+    marginHorizontal: 5
   },
   invoiceTypeTextRight: {
     fontFamily: FONT_FAMILY.regular,
@@ -82,14 +80,6 @@ export default StyleSheet.create({
   senderAddress: {
     marginTop: 14,
     marginHorizontal: 16
-    // padding:20,
-    // backgroundColor: 'white',
-    // borderRadius: 4,
-    // shadowColor: 'grey',
-    // shadowOffset: { width: 0, height: 1 },
-    // shadowOpacity: 0.8,
-    // shadowRadius: 2,
-    // elevation: 5,
   },
   dateView: {
     flexDirection: 'row',
@@ -114,7 +104,6 @@ export default StyleSheet.create({
   senderAddressText: {
     fontFamily: FONT_FAMILY.regular,
     fontSize: 13
-    // alignSelf: 'left'
   },
   selectedAddressText: {
     fontFamily: FONT_FAMILY.regular,
@@ -133,7 +122,6 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     fontSize: 14,
     color: '#1C1C1C',
-    // backgroundColor: 'grey',
     width: '50%'
   },
   footerItemsTotalText: {
@@ -173,15 +161,12 @@ export default StyleSheet.create({
     fontSize: 13,
     marginLeft: 22,
     marginTop: 4
-    // backgroundColor: 'pink',
   },
   TaxText: {
     color: '#000',
     fontFamily: FONT_FAMILY.regular,
     fontSize: 15,
-    // marginLeft: 22,
     marginTop: 4
-    // backgroundColor: 'pink',
   },
   finalItemAmount: {
     color: '#1C1C1C',
@@ -199,24 +184,7 @@ export default StyleSheet.create({
     alignSelf: 'center',
     marginTop: -2
   },
-  
-  // modalView: {
 
-  //   margin: 20,
-  //   backgroundColor: 'white',
-  //   borderRadius: 20,
-  //   padding: 50,
-  //   alignItems: 'center',
-  //   shadowColor: '#000',
-  //   shadowOffset: {
-  //     width: 0,
-  //     height: 2,
-  //   },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 4,
-  //   elevation: 5,
-  // },
-  
   modalView: {
     margin: 80,
     backgroundColor: "white",

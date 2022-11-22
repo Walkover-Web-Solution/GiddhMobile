@@ -1409,6 +1409,7 @@ export class Payment extends React.Component {
                 style.cashBankButtonWrapper,
                 {marginHorizontal: 20},
                 {
+                  justifyContent: 'center',
                   width: 150,
                   height: 40,
                   borderColor: this.state.chequeNumber ? '#084EAD' : '#d9d9d9',

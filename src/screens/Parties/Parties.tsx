@@ -48,11 +48,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
   };
 
   apiCalls = async () => {
-    if (this.state.debtData.length == 0) {
       this.setState({
         showLoader: true
       });
-    }
     await this.getPartiesSundryDebtors();
     await this.getPartiesSundryCreditors();
     this.setState(

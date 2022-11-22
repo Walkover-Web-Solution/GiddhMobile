@@ -172,7 +172,28 @@ export default (state = initialState, action: Action) => {
         ...state,
         isAuthenticatingUser: false,
         startTFA: false
-      }
+      };
+    case ActionConstants.LOGIN_WITH_OTP:
+      return {
+        ...state,
+        isAuthenticatingUser: true,
+        error: ''
+      };
+    case ActionConstants.LOGIN_WITH_OTP_SUCCESS:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: '',
+        token: action.payload.token,
+        isUserAuthenticated: true
+      };
+    case ActionConstants.LOGIN_WITH_OTP_FAILURE:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: action.payload,
+        isUserAuthenticated: false
+      };
     default:
       return state;
   }

@@ -135,14 +135,9 @@ export function* getCompanyAndBranches() {
 }
 
 export function* logoutUser() {
-  console.log('here');
   try {
     appleAuth.Operation.LOGOUT;
-    yield AsyncStorage.removeItem(STORAGE_KEYS.token);
-    yield AsyncStorage.removeItem(STORAGE_KEYS.googleEmail);
-    yield AsyncStorage.removeItem(STORAGE_KEYS.sessionStart);
-    yield AsyncStorage.removeItem(STORAGE_KEYS.sessionEnd);
-    // yield AsyncStorage.removeItem(STORAGE_KEYS.activeCompanyUniqueName);
+    yield AsyncStorage.clear();
     console.log('logout worked');
   } catch (e) {
     console.log(e);

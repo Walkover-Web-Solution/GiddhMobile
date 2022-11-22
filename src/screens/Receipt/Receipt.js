@@ -1356,10 +1356,11 @@ export class Receipt extends React.Component {
                 style.buttonWrapper,
                 {marginHorizontal: 20},
                 {
+                  justifyContent: 'center',
                   width: 150,
                   height: 40,
                   borderColor: this.state.chequeNumber ? '#00B795' : '#d9d9d9',
-                },
+                }
               ]}>
               <TextInput
                 style={[

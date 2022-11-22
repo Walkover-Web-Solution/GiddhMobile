@@ -16,6 +16,7 @@ export default function* watcherSaga() {
   yield takeLatest(ActionConstants.GOOGLE_USER_LOGIN, googleLogin);
   yield takeLatest(ActionConstants.VERIFY_OTP, verifyOTP);
   yield takeLatest(ActionConstants.APPLE_USER_LOGIN, appleLogin);
+  yield takeLatest(ActionConstants.LOGIN_WITH_OTP, loginWithOTP);
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
   yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP, signupUsingEmailPassword);
   yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP_VERIFY_OTP, verifySignupOTP);
@@ -440,6 +441,53 @@ export function* appleLogin(action) {
       });
     }
     yield put(LoginAction.googleLoginUserFailure('Failed to do google login'));
+  }
+}
+
+export function* loginWithOTP(action) {
+  const response = yield call(LoginService.loginWithOTP, action.accessToken);
+  if (response && response.body && response.body.session && response.body.session.id) {
+    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+    yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body.user.email ? response.body.user.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+    yield put(getCompanyAndBranches());
+    yield put(
+      LoginAction.loginWithOtpSuccess({
+        token: response.body.session.id,
+        createdAt: response.body.session.createdAt,
+        expiresAt: response.body.session.expiresAt,
+      }),
+    );
+  } else if (
+    response &&
+    response.status == 'success' &&
+    response.body &&
+    response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
+  ) {
+    yield addUserDeatilsToLogRocket(response.body.user.uniqueName, response.body.user.name, response.body.user.email)
+    yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body.user.email ? response.body.user.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+    yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
+  } else {
+    if (Platform.OS == "android") {
+      ToastAndroid.show(response.data.message, ToastAndroid.LONG)
+    } else {
+      TOAST.show(response.data.message, {
+        duration: TOAST.durations.LONG,
+        position: -70,
+        hideOnPress: true,
+        backgroundColor: "#1E90FF",
+        textColor: "white",
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      });
+    }
+    yield put(LoginAction.loginWithOtpFailure('Failed to do login with OTP'));
   }
 }
 
