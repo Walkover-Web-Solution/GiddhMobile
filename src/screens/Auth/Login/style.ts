@@ -59,10 +59,16 @@ export default StyleSheet.create({
     backgroundColor: colors.PRIMARY_BASIC
   },
   appleButton: {
-    marginBottom: 20,
+    marginBottom: 10,
     marginRight: 10,
     fontFamily: 'AvenirLTStd-Book',
     backgroundColor: colors.INPUT_COLOR
+  },
+  otpButton: {
+    marginBottom: 20,
+    marginRight: 10,
+    fontFamily: 'AvenirLTStd-Book',
+    backgroundColor: colors.LOGIN_OPT
   },
 
   seperator: {

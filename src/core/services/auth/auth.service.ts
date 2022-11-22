@@ -107,6 +107,20 @@ export class AuthService {
       });
   }
 
+  /**
+   * get response from server
+   * @returns {Promise<BaseResponse<LoginResponse>>}
+   */
+  static submitLoginWithOtpAuthToken(accessToken: any): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.loginWithOTP, {
+        accessToken: accessToken
+      })
+      .then((res) => {
+        return res.data;
+      });
+  }
+
   static verifyOTP(otp: string, mobileNumber: string, countryCode: string): Promise<BaseResponse<LoginResponse>> {
     return httpInstance
       .post(AccountUrls.verifyOTP, {

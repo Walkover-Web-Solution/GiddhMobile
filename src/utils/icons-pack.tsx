@@ -44,6 +44,7 @@ export const GdIconsPack = {
     voucher: IconProvider(require('../assets/images/icons/voucher.png')),
     gmail: IconProvider(require('../assets/images/icons/google.png')),
     apple: IconProvider(require('../assets/images/icons/apple.png')),
+    msg91: IconProvider(require('../assets/images/icons/msg91-white-icon.png')),
     email: IconProvider(require('../assets/images/icons/email.png')),
     lock: IconProvider(require('../assets/images/icons/Lock.png')),
     send: IconProvider(require('../assets/images/icons/send.svg')),

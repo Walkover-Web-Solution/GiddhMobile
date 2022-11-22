@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
 
-import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid, TouchableOpacity } from 'react-native';
+import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid, TouchableOpacity, Modal } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import color from '@/utils/colors';
@@ -15,11 +15,12 @@ import { GdImages } from '@/utils/icons-pack';
 import { WEBCLIENT_ID } from '@/env.json';
 // @ts-ignore
 import { Bars } from 'react-native-loader';
-import { googleLogin, appleLogin, userEmailLogin } from './LoginAction';
+import { googleLogin, appleLogin, userEmailLogin, loginWithOTP } from './LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import {OTPVerification} from '@msg91comm/react-native-sendotp'
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -28,7 +29,8 @@ class Login extends React.Component<any, any> {
       showLoader: false,
       keyboard: false,
       username: '',
-      password: ''
+      password: '',
+      isOtpModalVisible: false
     };
   }
 
@@ -81,6 +83,35 @@ class Login extends React.Component<any, any> {
     } catch (err) {
       alert(err);
     }
+  }
+
+  _loginWithOTP = () => {
+    return (
+         <Modal  
+          style={{backgroundColor: '#fff',
+          margin: 0,
+          }}
+          visible={this.state.isOtpModalVisible}>
+          <View style={{ flex: 1 ,backgroundColor:'#fff'}}>
+          <OTPVerification 
+            onVisible={this.state.isOtpModalVisible} 
+            onCompletion={async (data)=>{
+              const response = JSON.parse(data);
+              if(response?.type == 'success' && response?.message){
+                const accessToken = response.message;
+                await this.props.loginWithOTP(accessToken);
+              }
+              else {
+                ToastAndroid.show('Verification Failed', ToastAndroid.LONG);
+              }
+            await this.setState({isOtpModalVisible: false})
+            }} 
+            authToken={'205968TmXguUAwoD633af103P1'}
+            widgetId={'326a63733354393830313330'} />
+          </View>
+        </Modal>
+
+    );
   }
 
   _googleSignIn = async () => {
@@ -175,6 +206,13 @@ class Login extends React.Component<any, any> {
               onPress={() => this.onAppleButtonPress()}
             />
           )}
+            <LoginButton
+              size={ButtonSize.medium}
+              label={'Login with OTP'}
+              style={style.otpButton}
+              icon="msg91"
+              onPress={() => this.setState({isOtpModalVisible: true})}
+            />
         </View>
 
         <View style={style.seperator}>
@@ -245,6 +283,7 @@ class Login extends React.Component<any, any> {
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
         )}
+        {this.state.isOtpModalVisible && this._loginWithOTP()}
       </ScrollView>
     );
     // }
@@ -266,6 +305,9 @@ function mapDispatchToProps(dispatch) {
     },
     appleLogin: (payload) => {
       dispatch(appleLogin(payload));
+    },
+    loginWithOTP: (accessToken) => {
+      dispatch(loginWithOTP(accessToken))
     },
     userLogin: (payload) => {
       dispatch(userEmailLogin(payload));

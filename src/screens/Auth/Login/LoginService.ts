@@ -107,6 +107,21 @@ export async function appleLogin(payload) {
     return error;
   }
 }
+
+/**
+ * set Login with OTP action
+ * @returns {Promise<void>}
+ */
+
+export async function loginWithOTP(accessToken: string) {
+  try {
+    const response = await AuthService.submitLoginWithOtpAuthToken(accessToken);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
 /**
  * set verify OTP action
  * @returns {Promise<void>}
