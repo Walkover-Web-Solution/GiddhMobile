@@ -1023,7 +1023,7 @@ export class Payment extends React.Component {
   renderAmount() {
     return (
       <View style={{flexDirection: 'row', flex: 1}}>
-        <View style={{paddingHorizontal: 15, flex: 1, flexDirection: 'row'}}>
+        <View style={{paddingVertical: Platform.OS == 'ios'? 10 : 0, paddingHorizontal: 15, flex: 1, flexDirection: 'row'}}>
           <Text style={[style.invoiceAmountText, {textAlignVertical: 'center', fontSize: 18}]}>
             {this.state.currencySymbol}
           </Text>
@@ -1428,14 +1428,14 @@ export class Payment extends React.Component {
                 placeholderTextColor={'#868686'}
                 returnKeyType={'done'}
                 multiline={true}
-                onFocus={() => {
-                  if (!this.state.partyName) {
-                    alert('Please select a party.');
-                  } else if (this.state.amountForReceipt == '') {
-                    alert('Please enter amount.');
-                  } else {
-                  }
-                }}
+                // onFocus={() => {
+                //   if (!this.state.partyName) {
+                //     alert('Please select a party.');
+                //   } else if (this.state.amountForReceipt == '') {
+                //     alert('Please enter amount.');
+                //   } else {
+                //   }
+                // }}
                 onChangeText={(text) => {
                   if (!this.state.partyName) {
                     alert('Please select a party.');
