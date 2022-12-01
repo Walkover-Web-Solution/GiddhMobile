@@ -315,11 +315,6 @@ class ReceiptLinkToInvice extends React.Component<Props> {
                         }
                       }
                     }}
-                    onFocus={() => {
-                      if (!item.isSelect) {
-                        alert('Please select an invoice.');
-                      }
-                    }}
                   />
                   <View style={{backgroundColor: 'black', width: 120, height: 1.2}}></View>
                 </View>

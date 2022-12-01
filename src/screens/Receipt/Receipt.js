@@ -95,7 +95,7 @@ export class Receipt extends React.Component {
         countryCode: '',
       },
       currency: '',
-      currencySymbol: '₹ ',
+      currencySymbol: '₹',
       exchangeRate: 1,
       companyCountryDetails: '',
       selectedInvoice: '',
@@ -163,6 +163,7 @@ export class Receipt extends React.Component {
         accountUniqueName: this.state.partyName.uniqueName,
         voucherType: INVOICE_TYPE.receipt,
         number: '',
+        voucherBalanceType: "cr",
         page: page,
       };
       const results = await InvoiceService.getInvoicesForReceipt(
@@ -700,7 +701,7 @@ export class Receipt extends React.Component {
             bottom: 0,
             left: 0,
             right: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            backgroundColor: 'rgba(0,0,0,0.2)',
             justifyContent: 'center',
           }}
           onPress={() => {
@@ -953,9 +954,11 @@ export class Receipt extends React.Component {
 
                 );
               }}
+              keyExtractor={(item, index) => index.toString()}
             />
           </View>
         </TouchableOpacity>
+        {this._renderTaxCalculationMethodModal()}
       </Modal>
     );
   }
@@ -967,7 +970,7 @@ export class Receipt extends React.Component {
   renderAmount() {
     return (
       <View style={{flexDirection: 'row', flex: 1}}>
-        <View style={{paddingVertical: Platform.OS == 'ios'? 10 : 0,paddingHorizontal: 15, flex: 1, flexDirection: 'row'}}>
+        <View style={{paddingVertical: Platform.OS == 'ios'? 10 : 0, paddingHorizontal: 15, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
           <Text style={[style.invoiceAmountText, {textAlignVertical: 'center', fontSize: 18}]}>
             {this.state.currencySymbol}
           </Text>
@@ -1337,6 +1340,7 @@ export class Receipt extends React.Component {
             </View>
           : <Text style={[style.fieldHeadingText, {marginLeft: 5}]}>{'Tax'}</Text>}
         </View>
+        {this._renderTax()}
       </TouchableOpacity>
     );
   }
@@ -1722,8 +1726,6 @@ export class Receipt extends React.Component {
             {this._renderAddDescription()}
             {this.state.amountForReceipt > 0 && this.state.partyName.name && this._renderTotalAmount()}
             {this.state.showAccountsPopup && this._renderAccountsPopUp()}
-            {this.state.showTaxPopup && this._renderTax()}
-            {this.state.showTaxCalculationMethodPopup&& this._renderTaxCalculationMethodModal()}
 
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
