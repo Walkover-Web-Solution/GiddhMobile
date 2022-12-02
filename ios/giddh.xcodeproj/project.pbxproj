@@ -100,7 +100,7 @@
 		2D8A98FBE33A8E95C41B74D9 /* Pods-giddh-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh-tvOS.release.xcconfig"; path = "Target Support Files/Pods-giddh-tvOS/Pods-giddh-tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		2D8E79DA5B2A445683BE7689 /* noTransactions.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = noTransactions.png; path = ../src/assets/images/noTransactions.png; sourceTree = "<group>"; };
 		3158209BDBB446FBADF78694 /* books.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = books.png; path = ../src/assets/images/books.png; sourceTree = "<group>"; };
-		32B4F22124F5465F984E841E /* noParty.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = noParty.png; path = ../src/assets/images/noParty.png; sourceTree = "<group>"; };
+		32B4F22124F5465F984E841E /* noParty.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = noParty.png; path = ../src/assets/images/noParty.png; sourceTree = "<group>"; };
 		34F97B2D8EEC43C1A2FAE81B /* search.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = search.svg; path = ../src/assets/images/icons/search.svg; sourceTree = "<group>"; };
 		358D4A8607F3478BB7BD8494 /* purchase.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = purchase.svg; path = ../src/assets/images/icons/purchase.svg; sourceTree = "<group>"; };
 		3DACCE012D874B6BAE6C14FF /* slider3.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = slider3.png; path = ../src/assets/images/slider3.png; sourceTree = "<group>"; };
@@ -1023,7 +1023,7 @@
 				INFOPLIST_FILE = giddh/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.2.6;
+				MARKETING_VERSION = 2.2.7;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1055,7 +1055,7 @@
 				INFOPLIST_FILE = giddh/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.2.6;
+				MARKETING_VERSION = 2.2.7;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
