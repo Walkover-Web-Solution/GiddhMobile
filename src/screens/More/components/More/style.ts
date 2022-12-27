@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import colors from '../../../../utils/colors';
-import { GD_ICON_SIZE } from '@/utils/constants';
+import { FONT_FAMILY, GD_ICON_SIZE } from '@/utils/constants';
 
 export default StyleSheet.create({
   countriesContainer: {
@@ -80,5 +80,76 @@ export default StyleSheet.create({
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon
+  },
+  contactUsView: {
+    backgroundColor: colors.BACKGROUND,
+    marginTop: 10
+  },
+  contactUsText: { 
+    color: 'black', 
+    fontFamily: FONT_FAMILY.bold, 
+    fontSize: 20, 
+    margin: 10, 
+    marginVertical: 20 
+  },
+  emailField: { 
+    flexDirection: 'row', 
+    margin: 10 
+  },
+  contactUsButtons: {
+    margin: 10,
+    marginVertical: 30,
+    backgroundColor: "#E3E8FF",
+    borderRadius: 100,
+    alignItems: 'center',
+    width: '50%'
+  },
+  contactDtailsText: {
+    color: 'black',
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 16
+  },
+  modalView: {
+    backgroundColor: 'white',
+    height: '70%',
+    width: '100%',
+    marginVertical: 80,
+    alignSelf: 'center',
+    flex: 1,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  renderLoadingView: { 
+    height: '100%', 
+    width: '100%', 
+    alignSelf: 'center', 
+    backgroundColor: 'white', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  renderErrorView: { 
+    height: '100%', 
+    width: '100%', 
+    alignSelf: 'center', 
+    backgroundColor: 'white', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  renderErrorText: { 
+    color: 'black', 
+    fontFamily: FONT_FAMILY.bold, 
+    fontSize: 16 
+  },
+  buttonText: { 
+    color: 'black', 
+    fontFamily: FONT_FAMILY.semibold, 
+    margin: 10 
   }
 });

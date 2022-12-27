@@ -1,18 +1,24 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid } from 'react-native';
 import { Country } from '@/models/interfaces/country';
-
+import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-community/async-storage';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import WebView from 'react-native-webview';
+import Modal from 'react-native-modal';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Clipboard from '@react-native-community/clipboard';
+import TOAST from 'react-native-root-toast';
+import ChatWidget from '@msg91comm/react-native-hello-sdk';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -26,6 +32,11 @@ type MoreComponentProp = WithTranslation &
 
 type MoreComponentState = {
   badgeTabs: BadgeTab[];
+  userName: string,
+  activeUserEmail: string,
+  copiedText: string,
+  isModalVisible: boolean,
+  showWidget: boolean
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
@@ -34,7 +45,11 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     this.state = {
       activeCompany: undefined,
       activeBranch: undefined,
-      activeUserEmail: ''
+      userName: '',
+      activeUserEmail: '',
+      isModalVisible: false,
+      copiedText: '',
+      showWidget: false
     };
   }
 
@@ -43,14 +58,18 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this._getActiveCompany();
     });
     this._getActiveCompany();
-    const getUserEmail = async () => {
+    const getUserDetails = async () => {
       let activeUserEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
+      let userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
+      if (userName == null) {
+        userName = ""
+      }
       if (activeUserEmail == null) {
         activeUserEmail = ""
       }
-      this.setState({ activeUserEmail })
+      this.setState({ userName, activeUserEmail })
     }
-    getUserEmail()
+    getUserDetails()
   }
 
   componentDidUpdate() {
@@ -115,6 +134,78 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     console.log(activeCompany);
     // console.log(this.props.companyList);
   };
+
+  contactUsModal = () => {
+    return (
+      <Modal
+        isVisible={this.state.isModalVisible}
+        backdropColor={'black'}
+        backdropOpacity={0.7}
+        animationIn={'zoomIn'}
+        animationOut={'zoomOut'}
+        animationOutTiming={200}
+        onBackdropPress={() => {
+          this.setState({ isModalVisible: false })
+        }}
+      >
+          <WebView
+            containerStyle={style.modalView}
+            source={{ uri: 'https://calendly.com/d/cg6-6kx-924/schedule-demo?embed_domain=giddh.com&embed_type=PopupText' }}
+            originWhitelist={['*']}
+            scrollEnabled={false}
+            startInLoadingState={true}
+            renderLoading={() => <View style={style.renderLoadingView}><Bars size={15} color={color.PRIMARY_NORMAL} /></View>}
+            renderError={() => {
+              return (
+                <View style={style.renderErrorView}>
+                  <Text style={style.renderErrorText}>Something Went Wrong.</Text>
+                  <Text style={style.renderErrorText}>Please Try Again.</Text>
+                </View>
+              )
+            }}
+          />
+      </Modal>
+    )
+  }
+
+  chatWithUsView = () => {
+    var helloConfig = {
+      widgetToken: "88461",
+      name: this.state.userName,
+      mail: this.state.activeUserEmail  
+    }
+    return (
+      <ChatWidget
+        showWidget={this.state.showWidget}
+        helloConfig={helloConfig}
+        onCloseWidget={() => this.setState({ showWidget: false })}
+      />
+    );
+  }
+
+  copyEmailButton = (email: string) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          Clipboard.setString(email);
+          Platform.OS == "ios" ? TOAST.show('Email Copied to Clipboard', {
+            duration: TOAST.durations.LONG,
+            position: -150,
+            hideOnPress: true,
+            backgroundColor: "#1E90FF",
+            textColor: "white",
+            opacity: 1,
+            shadow: false,
+            animation: true,
+            containerStyle: { borderRadius: 10 }
+          }) :
+            ToastAndroid.show('Email Copied to Clipboard', ToastAndroid.LONG)
+        }}
+      >
+        <AntDesign name="copy1" size={20} color={'#1A237E'} style={{ marginLeft: 10 }} />
+      </TouchableOpacity>
+    )
+  }
 
   render() {
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
@@ -201,9 +292,54 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-          {/* <TouchableOpacity
-            style={{height: 50, width: 150, backgroundColor: 'pink'}}
-            onPress={() => this.func1()}></TouchableOpacity> */}
+
+          {/* ------------ Contact Us View ------------ */}
+          <View style={style.contactUsView}>
+            <View style={{ margin: 15 }}>
+              <Text style={style.contactUsText}>
+                Contact Us
+              </Text>
+              <View style={style.emailField}>
+                <Text style={style.contactDtailsText}>
+                  {"Sales: "}
+                </Text>
+                <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:sales@giddh.com') }}>
+                  sales@giddh.com
+                </Text>
+                {this.copyEmailButton('sales@giddh.com')}
+              </View>
+              <View style={style.emailField}>
+                <Text style={style.contactDtailsText}>
+                  {"Support: "}
+                </Text>
+                <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:support@giddh.com') }}>
+                  support@giddh.com
+                </Text>
+                {this.copyEmailButton('support@giddh.com')}
+              </View>
+              <TouchableOpacity
+                style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
+                onPress={() => {
+                  this.setState({ isModalVisible: true })
+                }}
+              >
+                <Icon name={'Calendar'} color={'#1A237E'} size={18} style={{ marginLeft: 13, marginRight: 3 }} />
+                <Text style={style.buttonText}>
+                  Schedule A Meet
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[style.contactUsButtons, { flexDirection: 'row' }]}
+                onPress={() => this.setState({ showWidget: true })}
+              >
+                <MaterialIcons name="support-agent" size={25} color={'#1A237E'} style={{ marginLeft: 10 }} />
+                <Text style={style.buttonText}>
+                  Chat With Us
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <TouchableOpacity
             style={{
               height: 65,
@@ -246,6 +382,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           {/* <TouchableOpacity
             onPress={() => this.props.navigation.navigate('SalesInvoiceScreen')}
             style={{height: 50, width: 150, backgroundColor: 'pink'}}></TouchableOpacity> */}
+          {this.contactUsModal()}
+          {this.chatWithUsView()}
         </View>
       );
     }
