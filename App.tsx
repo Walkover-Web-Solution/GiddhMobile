@@ -1,7 +1,7 @@
 import React from 'react';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import * as material from '@eva-design/material';
-import {AppearanceProvider} from 'react-native-appearance';
+// import {AppearanceProvider} from 'react-native-appearance';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
@@ -98,7 +98,7 @@ export default class App extends React.Component<any> {
         <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            <AppearanceProvider>
+            {/* <AppearanceProvider> */}
               <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
                   <RootSiblingParent>
@@ -117,7 +117,7 @@ export default class App extends React.Component<any> {
                   </RootSiblingParent>
                 </SafeAreaProvider>
               </ApplicationProvider>
-            </AppearanceProvider>
+            {/* </AppearanceProvider> */}
           </PersistGate>
         </Provider>
       </SafeAreaProvider>

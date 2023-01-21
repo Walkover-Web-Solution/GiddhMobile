@@ -105,7 +105,7 @@ class Welcome extends React.Component<any, any> {
         }
       );
     }, 2000);
-    Dimensions.addEventListener('change', this.changeHandler);
+    this.dimensionsSubscription = Dimensions.addEventListener('change', this.changeHandler);
   }
 
   changeHandler = ({ window: { width, height } }) => {
@@ -121,7 +121,7 @@ class Welcome extends React.Component<any, any> {
   }
 
   componentWillUnmount() {
-    Dimensions.removeEventListener('change', this.changeHandler);
+    this.dimensionsSubscription?.remove('change', this.changeHandler);
     if (this.timer) clearInterval(this.timer);
   }
 

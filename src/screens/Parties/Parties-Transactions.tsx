@@ -638,7 +638,6 @@ class PartiesTransactionScreen extends React.Component {
         this.state.vouchers,
       );
 
-      console.log('transactions are', JSON.stringify(transactions));
       if (this.state.startDate == null || this.state.endDate == null) {
         this.setState({
           startDate: transactions.body.fromDate,
