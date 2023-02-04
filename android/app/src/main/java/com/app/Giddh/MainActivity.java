@@ -5,7 +5,6 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import android.content.Intent;
-import com.emekalites.react.alarm.notification.BundleJSONConverter;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import org.json.JSONObject;
 

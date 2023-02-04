@@ -1,6 +1,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions } from 'react-native';
 import { Country } from '@/models/interfaces/country';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
@@ -19,6 +19,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-community/clipboard';
 import TOAST from 'react-native-root-toast';
 import ChatWidget from '@msg91comm/react-native-hello-sdk';
+const { height } = Dimensions.get('window');
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -139,11 +140,12 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     return (
       <Modal
         isVisible={this.state.isModalVisible}
-        backdropColor={'black'}
+        backdropColor={'#000'}
         backdropOpacity={0.7}
         animationIn={'zoomIn'}
         animationOut={'zoomOut'}
         animationOutTiming={200}
+        deviceHeight={height + 50}
         onBackdropPress={() => {
           this.setState({ isModalVisible: false })
         }}

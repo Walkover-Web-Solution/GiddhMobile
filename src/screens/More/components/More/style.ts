@@ -110,7 +110,7 @@ export default StyleSheet.create({
     fontSize: 16
   },
   modalView: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     height: '70%',
     width: '100%',
     marginVertical: 80,
