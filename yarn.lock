@@ -1953,6 +1953,11 @@
   "resolved" "https://registry.npmjs.org/@microsoft/applicationinsights-web-snippet/-/applicationinsights-web-snippet-1.0.1.tgz"
   "version" "1.0.1"
 
+"@msg91comm/react-native-hello-sdk@^1.0.1":
+  "integrity" "sha512-cZKk2vEQO77m6LMAhLH6Lu1KIuW3lyCfADgbKApyXeSW81I9oOCzRt5ocdm/n78xu48uhJFFnK9RWQyTFBpHxQ=="
+  "resolved" "https://registry.npmjs.org/@msg91comm/react-native-hello-sdk/-/react-native-hello-sdk-1.0.1.tgz"
+  "version" "1.0.1"
+
 "@msg91comm/react-native-sendotp@^2.0.0":
   "integrity" "sha512-8XnlY3xi4OL9tejTed7R/cHSwbH8DgjWj2xBDxUAKpANlZDXIIQTWh67OxtpmdxtbZ0YLdPrUbHrFe+B7lYblQ=="
   "resolved" "https://registry.npmjs.org/@msg91comm/react-native-sendotp/-/react-native-sendotp-2.0.0.tgz"
@@ -3156,6 +3161,13 @@
   dependencies:
     "@types/react" "^17"
 
+"@types/react-native@^0.69.6":
+  "integrity" "sha512-wNaFnc3fyl33OcoZxRpamb9LN6B4bBkvQS/SswJLLM+h6y7SpsKmAIwKAxFAdttr+DZj9pVMwTIn6XA4Bto3KQ=="
+  "resolved" "https://registry.npmjs.org/@types/react-native/-/react-native-0.69.16.tgz"
+  "version" "0.69.16"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@7.1.9":
   "integrity" "sha512-mpC0jqxhP4mhmOl3P4ipRsgTgbNofMRXJb08Ms6gekViLj61v1hOZEKWDCyWsdONr6EjEA6ZHXC446wdywDe0w=="
   "resolved" "https://registry.npmjs.org/@types/react-redux/-/react-redux-7.1.9.tgz"
@@ -3185,6 +3197,15 @@
   "integrity" "sha512-vwk8QqVODi0VaZZpDXQCmEmiOuyjEFPY7Ttaw5vjM112LOq37yz1CDJGrRJwA1fYEq4Iitd5rnjd1yWAc/bT+A=="
   "resolved" "https://registry.npmjs.org/@types/react/-/react-17.0.52.tgz"
   "version" "17.0.52"
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    "csstype" "^3.0.2"
+
+"@types/react@^18.0.18":
+  "integrity" "sha512-hCR3PJQsAIXyxhTNSiDFY//LhnMZWpNNr5etoCqx/iUfGc5gXWtQR2Phl908jVR6uPXacojQWTg4qRpkxTuGug=="
+  "resolved" "https://registry.npmjs.org/@types/react/-/react-18.0.26.tgz"
+  "version" "18.0.26"
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -4687,6 +4708,16 @@
     "@types/q" "^1.5.1"
     "chalk" "^2.4.1"
     "q" "^1.1.2"
+
+"cobrowse-sdk-react-native@^2.13.0":
+  "integrity" "sha512-ht16SNJeLhICkjsfdGbIbeghDk3zeTOh1Y50Vi5ZmYLoaI7azAsA7+NZSIvTF/Mk7WOPaC9U0ISGOj2lm0RP/g=="
+  "resolved" "https://registry.npmjs.org/cobrowse-sdk-react-native/-/cobrowse-sdk-react-native-2.13.0.tgz"
+  "version" "2.13.0"
+  dependencies:
+    "lodash" "^4.17.21"
+  optionalDependencies:
+    "@types/react" "^18.0.18"
+    "@types/react-native" "^0.69.6"
 
 "collect-v8-coverage@^1.0.0":
   "integrity" "sha512-iBPtljfCNcTKNAto0KEtDfZ3qzjJvqE3aTGZsbhjSBlorqpXJlaWWtPO35D+ZImoC3KWejX64o+yPGxhWSTzfg=="
