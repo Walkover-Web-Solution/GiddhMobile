@@ -17,15 +17,17 @@ import colors from '@/utils/colors';
 import moment from 'moment';
 import * as CommonActions from '@/redux/CommonAction';
 import DownloadModal from '@/screens/Parties/components/downloadingModal';
+import StickyDay from './components/StickyDay';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 export let previousItem = null
 
 export class TransactionScreen extends React.Component {
+  private stickyDayRef: React.RefObject<any>;
   constructor(props: Props) {
     super(props);
-
+    this.stickyDayRef = React.createRef();
     this.state = {
       showLoader: false,
       transactionsData: [],
@@ -196,6 +198,12 @@ export class TransactionScreen extends React.Component {
     );
   }
 
+  onViewableItemsChanged = ({ viewableItems } : any) => {
+
+    // Get the day of top most item present in the viewport and pass it to the pulicHandler of stickyDayRef
+    this.stickyDayRef.current.publicHandler(moment(viewableItems[0]?.item?.entryDate, 'DD-MM-YYYY').format('DD MMM YYYY'));
+  }
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -218,20 +226,20 @@ export class TransactionScreen extends React.Component {
             )
             : (
               <View>
-                {/* {this.state.dataLoadedTime.length > 0 ?
-                  <LastDataLoadedTime
-                    paddingHorizontal={10}
-                    text={this.state.dataLoadedTime} /> : null} */}
-                <FlatList
-                  ref={this.state.flatListRef}
-                  data={this.state.transactionsData}
-                  renderItem={({ item, index }) => this.renderItem(item, index)}
-                  keyExtractor={(item) => item.createdAt}
-                  onEndReachedThreshold={0.2}
-                  onEndReached={() => this.handleRefresh()}
-                  ListFooterComponent={this._renderFooter}
-                //extraData={this.state.refreshlist}
-                />
+                <View>
+                  <StickyDay stickyDayRef={this.stickyDayRef}/>
+                  <FlatList
+                    ref={this.state.flatListRef}
+                    data={this.state.transactionsData}
+                    renderItem={({ item, index }) => this.renderItem(item, index)}
+                    keyExtractor={(item) => item.createdAt}
+                    onEndReachedThreshold={0.2}
+                    onEndReached={() => this.handleRefresh()}
+                    ListFooterComponent={this._renderFooter}
+                    onViewableItemsChanged={this.onViewableItemsChanged}
+                  //extraData={this.state.refreshlist}
+                  />
+                  </View>
               </View>
             )}
           <DownloadModal modalVisible={this.state.DownloadModal} />
