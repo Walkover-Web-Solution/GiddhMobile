@@ -710,7 +710,7 @@ export class Customers extends React.Component<Props> {
 
   render() {
     return (
-      <KeyboardAwareScrollView style={styles.customerMainContainer}>
+      <View style={styles.customerMainContainer}>
         <Dialog.Container
           visible={this.state.partyDialog}
           onBackdropPress={() => {
@@ -1035,13 +1035,13 @@ export class Customers extends React.Component<Props> {
           </TouchableOpacity>
           {this.state.showBalanceDetails && this.renderBalanceDetails()}
         </View>
-        {this.isCreateButtonVisible() && <TouchableOpacity
+        {/* {this.isCreateButtonVisible() && <TouchableOpacity
           style={{ alignSelf: 'flex-end', paddingHorizontal: 10, flex: 1 }}
           onPress={() => {
             this.genrateCustomer();
           }}>
           <Icon name={'path-18'} size={48} color={'#5773FF'} />
-        </TouchableOpacity>}
+        </TouchableOpacity>} */}
         {this.renderModalView()}
         {this.renderCurrencyModalView()}
         {this.state.loading && (
@@ -1059,7 +1059,14 @@ export class Customers extends React.Component<Props> {
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
         )}
-      </KeyboardAwareScrollView>
+        {this.isCreateButtonVisible() && <TouchableOpacity
+          style={styles.saveButton}
+          onPress={() => {
+            this.genrateCustomer();
+          }}>
+          <Text style={styles.saveText}>Save</Text>
+        </TouchableOpacity>}
+      </View>
     )
   }
 };

@@ -969,7 +969,7 @@ export class Vendors extends React.Component<Props> {
 
   render() {
     return (
-      <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'} style={styles.customerMainContainer}>
+      <View keyboardShouldPersistTaps={'handled'} style={styles.customerMainContainer}>
         <Dialog.Container
           visible={this.state.partyDialog}
           onBackdropPress={() => {
@@ -1052,7 +1052,7 @@ export class Vendors extends React.Component<Props> {
           </Dialog.Container>
           : null}
 
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1}}>
           <View style={styles.rowContainer}>
             <Ionicons name="person" size={18} color="#864DD3" />
             <TextInput
@@ -1184,7 +1184,7 @@ export class Vendors extends React.Component<Props> {
               dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1c1c1c', fontSize: 14, fontFamily: 'AvenirLTStd-Book' }}
               renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1c1c1c', fontSize: 14 }}>{options.name}</Text>);
+                return (<Text style={{ padding: 13, color: '#1c1c1c', fontSize: 14, backgroundColor:'white' }}>{options.name}</Text>);
               }}
               onSelect={(index, value) => { 
                 this.setState({ selectedGroup: value.name }) 
@@ -1337,13 +1337,13 @@ export class Vendors extends React.Component<Props> {
 
           {this.state.showBankDetails && this.renderBankDetails()}
         </View>
-        {this.isCreateButtonVisible() && <TouchableOpacity
-          style={{ alignSelf: 'flex-end', paddingHorizontal: 10, flex: 1 }}
+        {/* {this.isCreateButtonVisible() && <TouchableOpacity
+          style={{ position:'absolute',bottom:10 }}
           onPress={() => {
             this.genrateCustomer();
           }}>
           <Icon name={'path-18'} size={48} color={'#5773FF'} />
-        </TouchableOpacity>}
+        </TouchableOpacity>} */}
         {/* <RBSheet ref={(ref) => { this.state.ref = ref }}
           height={500}
           customStyles={{
@@ -1370,7 +1370,17 @@ export class Vendors extends React.Component<Props> {
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
         )}
-      </KeyboardAwareScrollView>
+       {this.isCreateButtonVisible() &&<TouchableOpacity
+            style={styles.saveButton}
+            onPress={() => {
+              this.genrateCustomer();
+            }}>
+            <Text
+              style={styles.saveText}>
+              Save
+            </Text>
+          </TouchableOpacity>}
+      </View>
     )
   }
 };

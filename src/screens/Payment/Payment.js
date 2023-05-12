@@ -351,6 +351,7 @@ export class Payment extends React.Component {
         this.getAllPaymentModes();
         this.getAllTaxes();
         this.getCompanyVersionNumber();
+        DeviceEventEmitter.emit(APP_EVENTS.PaymentCreated, {});
         if (type == 'navigate') {
           this.props.navigation.navigate(routes.Parties, {
             screen: 'PartiesTransactions',

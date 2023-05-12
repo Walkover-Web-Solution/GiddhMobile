@@ -333,6 +333,7 @@ export class Receipt extends React.Component {
         this.getAllTaxes();
         this.getAllPaymentModes();
         this.getCompanyVersionNumber();
+        DeviceEventEmitter.emit(APP_EVENTS.ReceiptCreated, {});
         if (type == 'navigate') {
           this.props.navigation.navigate(routes.Parties, {
             screen: 'PartiesTransactions',

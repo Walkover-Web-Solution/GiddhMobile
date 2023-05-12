@@ -12,5 +12,6 @@ export const DashPartyStack = () => (
   <Navigator initialRouteName={'DashParty'}>
     <Screen component={HomeScreen} name={'Dash'} options={{ headerShown: false }} />
     <Screen component={PartiesTransactions} name={'Dash.PartiesTransactions'} options={{ headerShown: false }} />
+    <Screen component={AppDatePicker} name={'AppDatePicker'} options={{ headerShown: false }} />
   </Navigator>
 );

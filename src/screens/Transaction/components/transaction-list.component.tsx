@@ -16,6 +16,7 @@ import DownloadModal from '../../Parties/components/downloadingModal';
 import moment from 'moment';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TOAST from 'react-native-root-toast';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 class TransactionList extends React.Component {
   listData = [
@@ -341,9 +342,9 @@ class TransactionList extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {this.props.showDate == false ? <View style={[styles.seperator, { marginBottom: 15, marginTop: -5 }]} /> : null}
+        {this.props.showDate == false ? <View style={[styles.seperator, { marginBottom: 10, marginTop: -5 }]} /> : null}
         {this.props.showDate &&
-          <View style={{ flexDirection: "row", flex: 1, alignItems: "center", marginBottom: 5 }}>
+          <View style={{ flexDirection: "row", flex: 1, alignItems: "center"}}>
             <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
             <Text style={{ textAlign: "center", borderRadius: 15, borderWidth: 0.3, paddingHorizontal: 5, paddingVertical: 3, borderColor: '#8E8E8E', width: "35%" }}>{moment(this.props.item.entryDate, 'DD-MM-YYYY').format('DD MMM YYYY')}</Text>
             <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
@@ -381,7 +382,8 @@ class TransactionList extends React.Component {
                         this.setState({ iosShare: true })
                         this.shareFile();
                       }}>
-                      <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} />
+                        <FontAwesome name="send" size={14} color={'#1C1C1C'} />
+                      {/* <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} /> */}
                     </TouchableOpacity>
                   )}
                   {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
@@ -392,7 +394,7 @@ class TransactionList extends React.Component {
                         await Platform.OS != "ios" ? this.props.downloadModal(true) : null
                         await this.downloadFile();
                       }}>
-                      <AntDesign name="download" size={17} color={'#8E8E8E'} />
+                      <AntDesign name="download" size={17} color={'#1C1C1C'} />
                     </TouchableOpacity>
                   )}
                 </View>}
@@ -419,7 +421,8 @@ class TransactionList extends React.Component {
                       this.setState({ iosShare: true })
                       this.shareFile();
                     }}>
-                    <GdSVGIcons.send style={styles.iconStyle} width={19} height={18} />
+                    <FontAwesome name="send" size={14} color={'#1C1C1C'} />
+                    {/* <GdSVGIcons.send style={styles.iconStyle} width={19} height={18} /> */}
                   </TouchableOpacity>
                 )}
               {this.props.transactionType == 'partyTransaction' &&
@@ -431,7 +434,7 @@ class TransactionList extends React.Component {
                       await Platform.OS != "ios" ? this.props.downloadModal(true) : null
                       await this.downloadFile();
                     }}>
-                    <AntDesign name="download" size={17} color={'#8E8E8E'} />
+                    <AntDesign name="download" size={17} color={'#1C1C1C'} />
                   </TouchableOpacity>
                 )}
 

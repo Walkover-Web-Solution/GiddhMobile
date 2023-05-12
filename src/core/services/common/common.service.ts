@@ -31,7 +31,7 @@ export class CommonService {
    * get sundry debtors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static async getTransactions(startDate: string, endDate: string, page: any): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static async getTransactions(startDate: string, endDate: string, page: any,vouchers = []): Promise<BaseResponse<PartiesPaginatedResponse>> {
     // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     return httpInstance
       .post(
@@ -40,7 +40,9 @@ export class CommonService {
           .replace(':endDate', endDate)
           .replace('page=1', `page=${page}`),
         // .replace(':branchUniqueName', `${branchName}`),
-        {}
+        {
+          vouchers: vouchers
+        }
       )
       .then((res) => {
         return res.data;

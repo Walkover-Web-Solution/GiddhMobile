@@ -1275,7 +1275,7 @@ class PartiesTransactionScreen extends React.Component {
             <TouchableWithoutFeedback
               style={{
                 height: 40,
-                width: Dimensions.get('window').width * 0.6,
+                width: Dimensions.get('window').width * 0.5,
                 borderRadius: 20,
                 borderWidth: 1,
                 // marginLeft: 15,
@@ -1300,7 +1300,7 @@ class PartiesTransactionScreen extends React.Component {
                   moment(this.state.endDate, 'DD-MM-YYYY').format('DD MMM YY')}
               </Text>
             </TouchableWithoutFeedback>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row', width:'20%' ,justifyContent:'space-between' }}>
               <TouchableOpacity style={{ padding: 5 }} onPress={() => this.dateShift('left')}>
                 <Entypo name="chevron-left" size={22} color={'#808080'} />
               </TouchableOpacity>

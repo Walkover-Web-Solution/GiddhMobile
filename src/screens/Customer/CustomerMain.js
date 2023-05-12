@@ -61,6 +61,7 @@ export class Customer extends React.Component<Props> {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
+    Keyboard.dismiss();
     let index = 0;
     index = nextProps.route.params.index;
     console.log('getDerivedStateFromProps Index Value  ' + JSON.stringify(index))
@@ -89,7 +90,7 @@ export class Customer extends React.Component<Props> {
           <TouchableOpacity onPress={this.resetFun}>
             <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
           </TouchableOpacity>
-        </View >
+        </View>
       </View>
     );
   }

@@ -1,5 +1,7 @@
-import { StyleSheet,Platform } from 'react-native';
+import { StyleSheet,Platform,Dimensions } from 'react-native';
 import { FONT_FAMILY } from '../../utils/constants';
+const { height, width } = Dimensions.get('window');
+
 export default StyleSheet.create({
   container: {
     flex: 1
@@ -246,4 +248,20 @@ export default StyleSheet.create({
     borderBottomColor: "grey",
     marginTop: 5
   },
+  saveButton:{
+    height: height * 0.06,
+    width: width * 0.9,
+    borderRadius: 25,
+    backgroundColor: '#5773FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    position: 'absolute',
+    bottom: 0
+  },
+  saveText:{
+    fontFamily: 'AvenirLTStd-Black',
+    color: '#fff',
+    fontSize: 20
+  }
 });

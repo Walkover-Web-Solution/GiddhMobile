@@ -94,6 +94,8 @@ export const APP_EVENTS = {
   PurchaseBillCreated: 'PURCHASEBILLCREATED',
   CreditNoteCreated: 'CREDITNOTECREATED',
   DebitNoteCreated: 'DEBITNOTECREATED',
+  ReceiptCreated: 'RECEIPTCREATED',
+  PaymentCreated: 'PAYMENTCREATED',
   CustomerCreated: 'CUSTOMERCREATED',
   REFRESHPAGE: 'REFRESHPAGE'
 };

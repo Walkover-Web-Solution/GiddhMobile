@@ -34,13 +34,14 @@ export default StyleSheet.create({
     marginLeft: 0,
     fontSize: constants.GD_FONT_SIZE.medium,
     // width: '45%',
-    fontFamily: 'OpenSans',
+    fontFamily: 'AvenirLTStd-Book',
   },
   subheading: {
     color: colors.LABEL_COLOR,
     fontSize: 10,
     marginLeft: 0,
     paddingBottom: 10,
+    fontFamily:'AvenirLTStd-Book'
   },
   amountWrap: {
     display: 'flex',

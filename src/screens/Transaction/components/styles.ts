@@ -8,14 +8,15 @@ export default StyleSheet.create({
     flex: 1
   },
   flatList: {
-    marginBottom: 15,
+    marginBottom: 2,
     paddingHorizontal: 10,
     // height: Dimensions.get('window').height * 0.14,
   },
   listHeading: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.medium,
-    fontFamily: 'AvenirLTStd-Black'
+    fontFamily: 'AvenirLTStd-Book',
+   
   },
   aboutSales: {
     display: 'flex',
@@ -82,7 +83,7 @@ export default StyleSheet.create({
   balStyle: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.normal,
-    fontFamily: 'AvenirLTStd-Black'
+    fontFamily: 'AvenirLTStd-Book'
   },
   iconPlacingStyle: {
     flexDirection: 'row',
@@ -90,7 +91,7 @@ export default StyleSheet.create({
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
-    width: GD_ICON_SIZE.input_icon
+    width: GD_ICON_SIZE.input_icon,
   },
   inventoryData: { marginBottom: 5, color: baseColor.GRAY_LIGHT },
   seperator: {

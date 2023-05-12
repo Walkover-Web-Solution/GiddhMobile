@@ -554,7 +554,7 @@ class NewCompany extends React.Component<any, any> {
                     <TouchableOpacity
                         style={{
                             height: Dimensions.get('screen').height * 0.06,
-                            width: "60%",
+                            width: !this.props.route.params ? "60%" : "100%",
                             borderRadius: 25,
                             backgroundColor: this.validateDetails() ? '#5773FF' : colors.PRIMARY_DISABLED,
                             justifyContent: 'center',

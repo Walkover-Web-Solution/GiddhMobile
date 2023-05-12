@@ -129,7 +129,7 @@ export const PartiesList = (props: PartiesListProp) => {
                     <Text
                       style={{
                         color: '#000',
-                        fontFamily: 'AvenirLTStd-Black',
+                        fontFamily: 'AvenirLTStd-Book',
                         fontSize: constants.GD_FONT_SIZE.medium
                       }}
                       numberOfLines={1}>
@@ -141,7 +141,7 @@ export const PartiesList = (props: PartiesListProp) => {
                     <Text
                       style={{
                         color: '#000',
-                        fontFamily: 'AvenirLTStd-Black',
+                        fontFamily: 'AvenirLTStd-Book',
                         fontSize: constants.GD_FONT_SIZE.medium
                       }}
                       numberOfLines={1}>

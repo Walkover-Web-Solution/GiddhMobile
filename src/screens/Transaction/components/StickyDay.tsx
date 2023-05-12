@@ -17,9 +17,13 @@ const StickyDay: React.ForwardRefRenderFunction<unknown, Props> = ({stickyDayRef
 
   useImperativeHandle(stickyDayRef, () => ({publicHandler: updateDay}), [updateDay]);
 
-  return (
-    <Text style={styles.dayText}>{day}</Text>
-  )
+  if(day != ''){
+    return (
+      <Text style={styles.dayText}>{day}</Text>
+    )
+  }else{
+    return null;
+  }
 };
 
 export default forwardRef(StickyDay);
