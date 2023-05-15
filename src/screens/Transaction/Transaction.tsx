@@ -527,13 +527,15 @@ export class TransactionScreen extends React.Component<Props, {}> {
     // console.log("Previos Item Time "+Number(moment(PreviousItem!=null?PreviousItem.entryDate:"",'DD-MM-YYYY')))
     previousItem = item
     return (
-      <TransactionList item={item} downloadModal={this.downloadModalVisible}
+      <TransactionList item={item} index={index} downloadModal={this.downloadModalVisible}
         showDate={Number(moment(item.entryDate, 'DD-MM-YYYY')) == Number(moment(PreviousItem != null ? PreviousItem.entryDate : "", 'DD-MM-YYYY')) ? false : true} />
     );
   }
 
   onViewableItemsChanged = ({ viewableItems } : any) => {
-
+    if(!viewableItems[0]?.item?.entryDate){
+      return;
+    }
     // Get the day of top most item present in the viewport and pass it to the pulicHandler of stickyDayRef
     this.stickyDayRef.current.publicHandler(moment(viewableItems[0]?.item?.entryDate, 'DD-MM-YYYY').format('DD MMM YYYY'));
   }
@@ -634,7 +636,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
                     initialNumToRender={this.state.totalItems}
                     data={this.state.transactionsData}
                     renderItem={({ item, index }) => this.renderItem(item, index)}
-                    keyExtractor={(item) => item.createdAt.toString()}
+                    keyExtractor={(item,index) => index.toString()}
                     onEndReachedThreshold={0.1}
                     onEndReached={() => this.handleRefresh()}
                     ListFooterComponent={this._renderFooter}
