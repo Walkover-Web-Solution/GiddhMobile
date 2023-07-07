@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SafeAreaView from 'react-native-safe-area-view';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { connect } from 'react-redux';
@@ -6,6 +6,9 @@ import { AuthStack } from './auth.navigator';
 import analytics from '@react-native-firebase/analytics';
 import AppMainNav from './app.main.navigator';
 import {CompanyStack} from './company.navigator';
+import ChatWidget from '@msg91comm/react-native-hello-sdk';
+import AsyncStorage from '@react-native-community/async-storage';
+import { STORAGE_KEYS } from '@/utils/constants';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -30,6 +33,21 @@ const getActiveRouteName = (navigationState: any) => {
 const AppNavigator = (props: any): React.ReactElement => {
   const routeNameRef = React.createRef();
   const navigationRef = React.createRef();
+const [helloConfig, setHelloConfig] = useState<object>({});
+
+useEffect(() => {
+  const setValues = async () => {
+    let name = await AsyncStorage.getItem(STORAGE_KEYS.userName);
+    let mail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+    setHelloConfig({
+      widgetToken: "88461",
+      name: name,
+      mail: mail
+    });
+  }
+  setValues();
+}, [])
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {
@@ -48,6 +66,11 @@ const AppNavigator = (props: any): React.ReactElement => {
             }
           }}>
           {!props.isUserAuthenticated ? <AuthStack/> : (!props.isUnauth?<AppMainNav />:<CompanyStack/>)}
+          <ChatWidget
+            preLoaded={true}
+            widgetColor={'#1A237E'}
+            helloConfig={helloConfig}
+          />
         </NavigationContainer>
       }
     </SafeAreaView>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Dimensions, SafeAreaView } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Dimensions, SafeAreaView, ScrollView } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -969,408 +969,415 @@ export class Vendors extends React.Component<Props> {
 
   render() {
     return (
-      <View keyboardShouldPersistTaps={'handled'} style={styles.customerMainContainer}>
-        <Dialog.Container
-          visible={this.state.partyDialog}
-          onBackdropPress={() => {
-            console.log('w');
-            this.setState({ partyDialog: false })
-          }}
-          onRequestClose={() => { this.setState({ partyDialog: false }) }}
-          contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%', marginTop: Platform.OS == "ios" ? 50 : undefined }}
+      <View style={styles.customerMainContainer}>
+        <KeyboardAwareScrollView
+          keyboardShouldPersistTaps="handled"
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.scrollViewContainerStyle}
+          bounces={true}
         >
-          <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
-          <FlatList
-            style={{ flex: 1, width: '100%', height: '100%' }}
-            data={this.state.allPartyType}
-            renderItem={(item) => {
-              return (
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({ partyType: item.item.label, partyDialog: false });
-                  }}
-                  key={item.item.value}
-                  style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
-                  <Text style={{ flex: 1, padding: 20, fontSize: 13, fontFamily: 'AvenirLTStd-Book' }}>{item.item.label}</Text>
-                </TouchableOpacity>);
+          <Dialog.Container
+            visible={this.state.partyDialog}
+            onBackdropPress={() => {
+              console.log('w');
+              this.setState({ partyDialog: false })
             }}
-          />
-        </Dialog.Container>
-        {this.state.successDialog
-          ? <Dialog.Container
-            onRequestClose={() => { this.setState({ successDialog: false }) }}
-            visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center', backgroundColor:'#fff' }}>
-            <Award />
-            <Text style={{ color: '#229F5F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Success</Text>
-            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{`The Vendor is ${this.props.uniqueName != null ? 'updated' : 'created'} successfully.`}</Text>
-            <TouchableOpacity
-              style={{
-                alignItems: 'center',
-                width: '70%',
-                alignSelf: 'center',
-                borderRadius: 30,
-                backgroundColor: '#229F5F',
-                marginTop: 30,
-                height: 50, marginBottom: 5
+            onRequestClose={() => { this.setState({ partyDialog: false }) }}
+            contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%', marginTop: Platform.OS == "ios" ? 50 : undefined }}
+          >
+            <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
+            <FlatList
+              style={{ flex: 1, width: '100%', height: '100%' }}
+              data={this.state.allPartyType}
+              renderItem={(item) => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.setState({ partyType: item.item.label, partyDialog: false });
+                    }}
+                    key={item.item.value}
+                    style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
+                    <Text style={{ flex: 1, padding: 20, fontSize: 13, fontFamily: 'AvenirLTStd-Book' }}>{item.item.label}</Text>
+                  </TouchableOpacity>);
               }}
-              onPress={() => {
-                this.setState({ successDialog: false });
-                if (this.props.uniqueName != null) {
-                  this.props.navigation.navigate("Parties");
-                } else {
-                  this.props.navigation.goBack();
-                }
-              }}
-            >
-              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book',marginTop:Platform.OS =="ios"?5:0  }}>Done</Text>
-            </TouchableOpacity>
+            />
           </Dialog.Container>
-          : null}
-        {this.state.faliureDialog
-          ? <Dialog.Container
-            onRequestClose={() => { this.setState({ faliureDialog: false }) }}
-            visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Faliure />
-            <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Error!</Text>
-            <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{this.state.faliureMessage != '' ? this.state.faliureMessage : "Sorry, Failed to import the entries."}</Text>
-            <TouchableOpacity
-              style={{
-                alignItems: 'center',
-                width: '70%',
-                alignSelf: 'center',
-                borderRadius: 30,
-                backgroundColor: '#F2596F',
-                marginTop: 30,
-                height: 50, marginBottom: 5
-              }}
-              onPress={() => {
-                this.setState({ faliureDialog: false });
-              }}
-            >
-              <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>Try Again</Text>
-            </TouchableOpacity>
-          </Dialog.Container>
-          : null}
+          {this.state.successDialog
+            ? <Dialog.Container
+              onRequestClose={() => { this.setState({ successDialog: false }) }}
+              visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center', backgroundColor:'#fff' }}>
+              <Award />
+              <Text style={{ color: '#229F5F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Success</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{`The Vendor is ${this.props.uniqueName != null ? 'updated' : 'created'} successfully.`}</Text>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  width: '70%',
+                  alignSelf: 'center',
+                  borderRadius: 30,
+                  backgroundColor: '#229F5F',
+                  marginTop: 30,
+                  height: 50, marginBottom: 5
+                }}
+                onPress={() => {
+                  this.setState({ successDialog: false });
+                  if (this.props.uniqueName != null) {
+                    this.props.navigation.navigate("Parties");
+                  } else {
+                    this.props.navigation.goBack();
+                  }
+                }}
+              >
+                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book',marginTop:Platform.OS =="ios"?5:0  }}>Done</Text>
+              </TouchableOpacity>
+            </Dialog.Container>
+            : null}
+          {this.state.faliureDialog
+            ? <Dialog.Container
+              onRequestClose={() => { this.setState({ faliureDialog: false }) }}
+              visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Faliure />
+              <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Error!</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{this.state.faliureMessage != '' ? this.state.faliureMessage : "Sorry, Failed to import the entries."}</Text>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  width: '70%',
+                  alignSelf: 'center',
+                  borderRadius: 30,
+                  backgroundColor: '#F2596F',
+                  marginTop: 30,
+                  height: 50, marginBottom: 5
+                }}
+                onPress={() => {
+                  this.setState({ faliureDialog: false });
+                }}
+              >
+                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>Try Again</Text>
+              </TouchableOpacity>
+            </Dialog.Container>
+            : null}
 
-        <View style={{ flex: 1}}>
-          <View style={styles.rowContainer}>
-            <Ionicons name="person" size={18} color="#864DD3" />
-            <TextInput
-              onBlur={() => {
-                if (this.state.partyName == '') {
-                  this.setState({ partyPlaceHolder: '' })
+          <View style={{ flex: 1}}>
+            <View style={styles.rowContainer}>
+              <Ionicons name="person" size={18} color="#864DD3" />
+              <TextInput
+                onBlur={() => {
+                  if (this.state.partyName == '') {
+                    this.setState({ partyPlaceHolder: '' })
+                  }
+                }}
+                onFocus={() => this.setState({ partyPlaceHolder: 'a' })}
+                onChangeText={(text) => {
+                  console.log(text)
+                  this.setState({ partyName: text })
                 }
-              }}
-              onFocus={() => this.setState({ partyPlaceHolder: 'a' })}
-              onChangeText={(text) => {
-                console.log(text)
-                this.setState({ partyName: text })
-              }
-              }
-              style={styles.input}>
-              <Text style={{ color: this.state.partyPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
-              <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
-            </TextInput>
-          </View>
-          {/* <View style={styles.rowContainer}>
-            <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
-            <TouchableOpacity onPress={() => {
-              this.setState({
-                isMobileModalVisible: !this.state.isMobileModalVisible, filteredCallingCode: this.state.allCallingCode,
-              })
-            }}><Text
-              style={{ color: '#1c1c1c', paddingRight: 7, paddingVertical: 5, fontSize: 15, fontFamily: 'AvenirLTStd-Book', }}
-            >{this.state.selectedCallingCode}</Text></TouchableOpacity> */}
-            {/* <Dropdown
-              ref={(ref) => this.state.partyDropDown = ref}
-              textStyle={{ color: '#808080', fontSize: 15, marginTop: -1 }}
-              defaultValue={this.state.selectedCallingCode}
-              renderButtonText={(text) => {
-                return text;
-              }}
-              options={this.state.allCallingCode}
-              renderSeparator={() => {
-                return (<View></View>);
-              }}
-              onSelect={(idx, value) => this.setState({ selectedCallingCode: value })}
-
-              dropdownStyle={{ width: '17%' }}
-              dropdownTextStyle={{ color: '#1C1C1C' }}
-              renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
-              }}
-            /> */}
-            {/* <TextInput
-              returnKeyType={'done'}
-              keyboardType="number-pad"
-              onChangeText={(text) => {
+                }
+                style={styles.input}>
+                <Text style={{ color: this.state.partyPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
+                <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
+              </TextInput>
+            </View>
+            {/* <View style={styles.rowContainer}>
+              <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
+              <TouchableOpacity onPress={() => {
                 this.setState({
-                  contactNumber: text,
-                  isMobileNoValid: !this.validateMobileNumberTextInput(text)
+                  isMobileModalVisible: !this.state.isMobileModalVisible, filteredCallingCode: this.state.allCallingCode,
+                })
+              }}><Text
+                style={{ color: '#1c1c1c', paddingRight: 7, paddingVertical: 5, fontSize: 15, fontFamily: 'AvenirLTStd-Book', }}
+              >{this.state.selectedCallingCode}</Text></TouchableOpacity> */}
+              {/* <Dropdown
+                ref={(ref) => this.state.partyDropDown = ref}
+                textStyle={{ color: '#808080', fontSize: 15, marginTop: -1 }}
+                defaultValue={this.state.selectedCallingCode}
+                renderButtonText={(text) => {
+                  return text;
+                }}
+                options={this.state.allCallingCode}
+                renderSeparator={() => {
+                  return (<View></View>);
+                }}
+                onSelect={(idx, value) => this.setState({ selectedCallingCode: value })}
+
+                dropdownStyle={{ width: '17%' }}
+                dropdownTextStyle={{ color: '#1C1C1C' }}
+                renderRow={(options) => {
+                  return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options}</Text>);
+                }}
+              /> */}
+              {/* <TextInput
+                returnKeyType={'done'}
+                keyboardType="number-pad"
+                onChangeText={(text) => {
+                  this.setState({
+                    contactNumber: text,
+                    isMobileNoValid: !this.validateMobileNumberTextInput(text)
+                  })
+                }}
+                placeholderTextColor={'rgba(80,80,80,0.5)'}
+                placeholder={this.getMobilePlaceHolder()}
+                value={this.state.contactNumber}
+                style={{ ...styles.input, paddingLeft: 5, marginTop: 2, color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', }} />
+            </View> */}
+            <View style={[styles.rowContainer,{marginVertical:10}]} >
+            <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
+            <PhoneInput
+              ref={(ref) => { this.phone = ref; }}
+              //  initialValue={this.getInitialNumber()}
+              textProps={{placeholder: 'Enter Party Number'}}
+              initialCountry={"in"} 
+              onChangeFormattedText={value => 
+                this.selectCountry(value)
+              }
+              onChangePhoneNumber={(num)=> {
+                this.updateInfo()
+                this.setState({contactNumber:num})
+              }}
+              textStyle={{fontFamily:'AvenirLTStd-Book'}}
+              withShadow
+              onPressFlag={this.onPressFlag}
+              // blur={this.updateInfo}
+            />
+          <CountryPicker
+            modalProps={{
+              visible: this.state.picker,
+            }}
+            placeholder={' '}
+            onSelect={({ cca2 }) =>
+            this.setSelectedCountry(cca2)
+                }
+            translation="eng"
+            cca2={this.state.cca2}
+            withCallingCode
+            withAlphaFilter
+            withFilter
+            onClose={() => this.setState({picker:false})}
+          >
+            <View />
+      
+          </CountryPicker>
+      
+            </View>
+            {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
+            <View style={styles.rowContainer}>
+              <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />
+              <TextInput
+                onChangeText={(text) => this.setState({
+                  emailId: text,
+                  isEmailInvalid: !this.validateEmailTextInput(text)
+                })}
+                placeholderTextColor={'rgba(80,80,80,0.5)'}
+                value={this.state.emailId}
+                placeholder="Email Address"
+                style={styles.input} />
+            </View>
+            {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
+            <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 15 }}>
+              <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
+              <Dropdown
+                ref={(ref) => this.state.groupDropDown = ref}
+                style={{ flex: 1, paddingLeft: 10 }}
+                textStyle={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14 }}
+                defaultValue={this.state.selectedGroup}
+                options={this.state.AllGroups}
+                renderButtonText={(text) => text.name}
+                renderSeparator={() => {
+                  return (<View></View>);
+                }}
+                onDropdownWillShow={() => this.setState({ isGroupDD: true })}
+                onDropdownWillHide={() => this.setState({ isGroupDD: false })}
+                dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
+                dropdownTextStyle={{ color: '#1c1c1c', fontSize: 14, fontFamily: 'AvenirLTStd-Book' }}
+                renderRow={(options) => {
+                  return (<Text style={{ padding: 13, color: '#1c1c1c', fontSize: 14, backgroundColor:'white' }}>{options.name}</Text>);
+                }}
+                onSelect={(index, value) => { 
+                  this.setState({ selectedGroup: value.name }) 
+                  this.setState({ selectedGroupUniqueName: value.uniqueName}) 
+                }}
+
+              />
+              <Icon
+                style={{ transform: [{ rotate: this.state.isGroupDD ? '180deg' : '0deg' }] }}
+                name={'9'}
+                size={12}
+                color="#808080"
+                onPress={() => {
+                  this.setState({ isGroupDD: true });
+                  this.state.groupDropDown.show();
+                }}
+              />
+            </View>
+            <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 10, paddingVertical: 20, justifyContent: 'space-between' }}>
+              <MaterialIcons name="hourglass-full" size={18} color="#864DD3" style={{ marginLeft: -1 }} />
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({ partyDialog: true })
+                }}
+                style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
+                <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}</Text>
+                <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? '*' : ''}</Text>
+              </TouchableOpacity>
+              {/* <Dropdown
+                ref={(ref) => this.state.partyDropDown = ref}
+                style={{ flex: 1, paddingLeft: 10 }}
+                textStyle={{ color: '#808080' }}
+                defaultValue={this.state.partyType}
+                options={this.state.allPartyType}
+                renderSeparator={() => {
+                  return (<View></View>);
+                }}
+                onDropdownWillShow={() => this.setState({ isPartyDD: true })}
+                onDropdownWillHide={() => this.setState({ isPartyDD: false })}
+                dropdownStyle={{ marginLeft: 30, width: '75%', marginTop: 10, borderRadius: 10 }}
+                dropdownTextStyle={{ color: '#1C1C1C' }}
+                renderRow={(options) => {
+                  return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.value}</Text>);
+                }}
+                renderButtonText={(text) => text.value}
+                onSelect={(index, value) => { this.setState({ partyType: value.value }) }}
+              /> */}
+              <Icon
+                style={{ transform: [{ rotate: this.state.isPartyDD ? '180deg' : '0deg' }] }}
+                name={'9'}
+                size={12}
+                color="#808080"
+                onPress={() => {
+                  this.setState({ partyDialog: true });
+                  // this.setState({ isPartyDD: true })
+                  // this.state.partyDropDown.show();
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                const BillingAddress = {
+                  address: this.state.savedAddress.street_billing,
+                  stateName: this.state.savedAddress.state_billing,
+                  selectedCountry: this.state.selectedCountry,
+                  gstNumber: this.state.savedAddress.gstin_billing,
+                  pincode: this.state.savedAddress.pincode
+                };
+                this.props.navigation.navigate('EditAddressCV', {
+                  address: BillingAddress,
+                  selectAddress: (this.selectBillingAddress).bind(this),
+                  headerColor: '#864DD3',
+                  statusBarColor: '#520EAD'
                 })
               }}
-              placeholderTextColor={'rgba(80,80,80,0.5)'}
-              placeholder={this.getMobilePlaceHolder()}
-              value={this.state.contactNumber}
-              style={{ ...styles.input, paddingLeft: 5, marginTop: 2, color: this.state.contactNumber == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', }} />
-          </View> */}
-          <View style={[styles.rowContainer,{marginVertical:10}]} >
-           <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
-          <PhoneInput
-             ref={(ref) => { this.phone = ref; }}
-            //  initialValue={this.getInitialNumber()}
-             textProps={{placeholder: 'Enter Party Number'}}
-             initialCountry={"in"} 
-             onChangeFormattedText={value => 
-              this.selectCountry(value)
-            }
-            onChangePhoneNumber={(num)=> {
-              this.updateInfo()
-              this.setState({contactNumber:num})
-            }}
-            textStyle={{fontFamily:'AvenirLTStd-Book'}}
-            withShadow
-            onPressFlag={this.onPressFlag}
-            // blur={this.updateInfo}
-          />
-         <CountryPicker
-           modalProps={{
-            visible: this.state.picker,
-          }}
-          placeholder={' '}
-          onSelect={({ cca2 }) =>
-          this.setSelectedCountry(cca2)
-               }
-          translation="eng"
-          cca2={this.state.cca2}
-          withCallingCode
-          withAlphaFilter
-          withFilter
-          onClose={() => this.setState({picker:false})}
-        >
-          <View />
-     
-        </CountryPicker>
-    
-           </View>
-          {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
-          <View style={styles.rowContainer}>
-            <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />
-            <TextInput
-              onChangeText={(text) => this.setState({
-                emailId: text,
-                isEmailInvalid: !this.validateEmailTextInput(text)
-              })}
-              placeholderTextColor={'rgba(80,80,80,0.5)'}
-              value={this.state.emailId}
-              placeholder="Email Address"
-              style={styles.input} />
-          </View>
-          {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
-          <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 15 }}>
-            <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
-            <Dropdown
-              ref={(ref) => this.state.groupDropDown = ref}
-              style={{ flex: 1, paddingLeft: 10 }}
-              textStyle={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14 }}
-              defaultValue={this.state.selectedGroup}
-              options={this.state.AllGroups}
-              renderButtonText={(text) => text.name}
-              renderSeparator={() => {
-                return (<View></View>);
-              }}
-              onDropdownWillShow={() => this.setState({ isGroupDD: true })}
-              onDropdownWillHide={() => this.setState({ isGroupDD: false })}
-              dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
-              dropdownTextStyle={{ color: '#1c1c1c', fontSize: 14, fontFamily: 'AvenirLTStd-Book' }}
-              renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1c1c1c', fontSize: 14, backgroundColor:'white' }}>{options.name}</Text>);
-              }}
-              onSelect={(index, value) => { 
-                this.setState({ selectedGroup: value.name }) 
-                this.setState({ selectedGroupUniqueName: value.uniqueName}) 
-              }}
-
-            />
-            <Icon
-              style={{ transform: [{ rotate: this.state.isGroupDD ? '180deg' : '0deg' }] }}
-              name={'9'}
-              size={12}
-              color="#808080"
-              onPress={() => {
-                this.setState({ isGroupDD: true });
-                this.state.groupDropDown.show();
-              }}
-            />
-          </View>
-          <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 10, paddingVertical: 20, justifyContent: 'space-between' }}>
-            <MaterialIcons name="hourglass-full" size={18} color="#864DD3" style={{ marginLeft: -1 }} />
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({ partyDialog: true })
-              }}
-              style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}</Text>
-              <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? '*' : ''}</Text>
+              style={{ ...styles.rowContainer, justifyContent: 'space-between', paddingVertical: 20, backgroundColor: this.state.openAddress ? 'rgba(80,80,80,0.05)' : 'white' }}>
+              <AntDesign
+                name="pluscircle"
+                size={16}
+                color="#864DD3"
+                style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
+              <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
+                <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Address Details</Text>
+                <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>*</Text>
+              </View>
+              <Icon
+                style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }], padding: 6, right: -5 }}
+                name={'9'}
+                size={12}
+                color="#808080"
+                onPress={() => {
+                  if (this.state.savedAddress.state_billing) {
+                    this.setState({ openAddress: !this.state.openAddress });
+                  } else {
+                    const BillingAddress = {
+                      address: this.state.savedAddress.street_billing,
+                      stateName: this.state.savedAddress.state_billing,
+                      selectedCountry: this.state.selectedCountry,
+                      gstNumber: this.state.savedAddress.gstin_billing,
+                      pincode: this.state.savedAddress.pincode
+                    };
+                    this.props.navigation.navigate('EditAddressCV', {
+                      address: BillingAddress,
+                      selectAddress: (this.selectBillingAddress).bind(this),
+                      headerColor: '#864DD3',
+                      statusBarColor: '#520EAD'
+                    })
+                  }
+                }}
+              />
             </TouchableOpacity>
-            {/* <Dropdown
-              ref={(ref) => this.state.partyDropDown = ref}
-              style={{ flex: 1, paddingLeft: 10 }}
-              textStyle={{ color: '#808080' }}
-              defaultValue={this.state.partyType}
-              options={this.state.allPartyType}
-              renderSeparator={() => {
-                return (<View></View>);
-              }}
-              onDropdownWillShow={() => this.setState({ isPartyDD: true })}
-              onDropdownWillHide={() => this.setState({ isPartyDD: false })}
-              dropdownStyle={{ marginLeft: 30, width: '75%', marginTop: 10, borderRadius: 10 }}
-              dropdownTextStyle={{ color: '#1C1C1C' }}
-              renderRow={(options) => {
-                return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.value}</Text>);
-              }}
-              renderButtonText={(text) => text.value}
-              onSelect={(index, value) => { this.setState({ partyType: value.value }) }}
-            /> */}
-            <Icon
-              style={{ transform: [{ rotate: this.state.isPartyDD ? '180deg' : '0deg' }] }}
-              name={'9'}
-              size={12}
-              color="#808080"
-              onPress={() => {
-                this.setState({ partyDialog: true });
-                // this.setState({ isPartyDD: true })
-                // this.state.partyDropDown.show();
-              }}
-            />
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              const BillingAddress = {
-                address: this.state.savedAddress.street_billing,
-                stateName: this.state.savedAddress.state_billing,
-                selectedCountry: this.state.selectedCountry,
-                gstNumber: this.state.savedAddress.gstin_billing,
-                pincode: this.state.savedAddress.pincode
-              };
-              this.props.navigation.navigate('EditAddressCV', {
-                address: BillingAddress,
-                selectAddress: (this.selectBillingAddress).bind(this),
-                headerColor: '#864DD3',
-                statusBarColor: '#520EAD'
-              })
-            }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', paddingVertical: 20, backgroundColor: this.state.openAddress ? 'rgba(80,80,80,0.05)' : 'white' }}>
-            <AntDesign
-              name="pluscircle"
-              size={16}
-              color="#864DD3"
-              style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
-            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
-              <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Address Details</Text>
-              <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>*</Text>
-            </View>
-            <Icon
-              style={{ transform: [{ rotate: this.state.openAddress ? '180deg' : '0deg' }], padding: 6, right: -5 }}
-              name={'9'}
-              size={12}
-              color="#808080"
-              onPress={() => {
-                if (this.state.savedAddress.state_billing) {
-                  this.setState({ openAddress: !this.state.openAddress });
-                } else {
-                  const BillingAddress = {
-                    address: this.state.savedAddress.street_billing,
-                    stateName: this.state.savedAddress.state_billing,
-                    selectedCountry: this.state.selectedCountry,
-                    gstNumber: this.state.savedAddress.gstin_billing,
-                    pincode: this.state.savedAddress.pincode
-                  };
-                  this.props.navigation.navigate('EditAddressCV', {
-                    address: BillingAddress,
-                    selectAddress: (this.selectBillingAddress).bind(this),
-                    headerColor: '#864DD3',
-                    statusBarColor: '#520EAD'
-                  })
-                }
-              }}
-            />
-          </TouchableOpacity>
-          {this.state.openAddress && this.renderSavedAddress()}
-          <TouchableOpacity
-            onPress={() => { this.setState({ showBalanceDetails: !this.state.showBalanceDetails }) }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
-            <AntDesign
-              name="pluscircle"
-              size={16}
-              color="#864DD3"
-              style={{ transform: [{ rotate: this.state.showBalanceDetails ? '45deg' : '0deg' }] }} />
-            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Balance Details</Text>
-            </View>
-            <Icon
-              style={{ transform: [{ rotate: this.state.showBalanceDetails ? '180deg' : '0deg' }] }}
-              name={'9'}
-              size={12}
-              color="#808080"
-            />
-          </TouchableOpacity>
-          {this.state.showBalanceDetails && this.renderBalanceDetails()}
-          <TouchableOpacity
-            onPress={() => { this.setState({ showBankDetails: !this.state.showBankDetails }) }}
-            style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBankDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
-            <AntDesign
-              name="pluscircle"
-              size={16}
-              color="#864DD3"
-              style={{ transform: [{ rotate: this.state.showBankDetails ? '45deg' : '0deg' }] }} />
-            <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-              <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Bank Details</Text>
-            </View>
-            <Icon
-              style={{ transform: [{ rotate: this.state.showBankDetails ? '180deg' : '0deg' }] }}
-              name={'9'}
-              size={12}
-              color="#808080"
-            />
-          </TouchableOpacity>
+            {this.state.openAddress && this.renderSavedAddress()}
+            <TouchableOpacity
+              onPress={() => { this.setState({ showBalanceDetails: !this.state.showBalanceDetails }) }}
+              style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBalanceDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
+              <AntDesign
+                name="pluscircle"
+                size={16}
+                color="#864DD3"
+                style={{ transform: [{ rotate: this.state.showBalanceDetails ? '45deg' : '0deg' }] }} />
+              <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
+                <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Balance Details</Text>
+              </View>
+              <Icon
+                style={{ transform: [{ rotate: this.state.showBalanceDetails ? '180deg' : '0deg' }] }}
+                name={'9'}
+                size={12}
+                color="#808080"
+              />
+            </TouchableOpacity>
+            {this.state.showBalanceDetails && this.renderBalanceDetails()}
+            <TouchableOpacity
+              onPress={() => { this.setState({ showBankDetails: !this.state.showBankDetails }) }}
+              style={{ ...styles.rowContainer, justifyContent: 'space-between', backgroundColor: this.state.showBankDetails ? 'rgba(80,80,80,0.05)' : 'white', paddingVertical: 20 }}>
+              <AntDesign
+                name="pluscircle"
+                size={16}
+                color="#864DD3"
+                style={{ transform: [{ rotate: this.state.showBankDetails ? '45deg' : '0deg' }] }} />
+              <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
+                <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Bank Details</Text>
+              </View>
+              <Icon
+                style={{ transform: [{ rotate: this.state.showBankDetails ? '180deg' : '0deg' }] }}
+                name={'9'}
+                size={12}
+                color="#808080"
+              />
+            </TouchableOpacity>
 
-          {this.state.showBankDetails && this.renderBankDetails()}
-        </View>
-        {/* {this.isCreateButtonVisible() && <TouchableOpacity
-          style={{ position:'absolute',bottom:10 }}
-          onPress={() => {
-            this.genrateCustomer();
-          }}>
-          <Icon name={'path-18'} size={48} color={'#5773FF'} />
-        </TouchableOpacity>} */}
-        {/* <RBSheet ref={(ref) => { this.state.ref = ref }}
-          height={500}
-          customStyles={{
-            container: {
-              borderRadius: 10
-            }
-          }}>
-          {this.renderAddressDetails()}
-        </RBSheet> */}
-        {this.renderModalView()}
-        {this.renderCurrencyModalView()}
-        {this.state.loading && (
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'absolute',
-              backgroundColor: 'rgba(0,0,0,0)',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 0
-            }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
+            {this.state.showBankDetails && this.renderBankDetails()}
           </View>
-        )}
-       {this.isCreateButtonVisible() &&<TouchableOpacity
+          {/* {this.isCreateButtonVisible() && <TouchableOpacity
+            style={{ position:'absolute',bottom:10 }}
+            onPress={() => {
+              this.genrateCustomer();
+            }}>
+            <Icon name={'path-18'} size={48} color={'#5773FF'} />
+          </TouchableOpacity>} */}
+          {/* <RBSheet ref={(ref) => { this.state.ref = ref }}
+            height={500}
+            customStyles={{
+              container: {
+                borderRadius: 10
+              }
+            }}>
+            {this.renderAddressDetails()}
+          </RBSheet> */}
+          {this.renderModalView()}
+          {this.renderCurrencyModalView()}
+          {this.state.loading && (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                backgroundColor: 'rgba(0,0,0,0)',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: 0
+              }}>
+              <Bars size={15} color={color.PRIMARY_NORMAL} />
+            </View>
+          )}
+        </KeyboardAwareScrollView>
+        {this.isCreateButtonVisible() &&<TouchableOpacity
             style={styles.saveButton}
             onPress={() => {
               this.genrateCustomer();

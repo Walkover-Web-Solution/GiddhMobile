@@ -10,7 +10,6 @@ export default StyleSheet.create({
   flatList: {
     marginBottom: 2,
     paddingHorizontal: 10,
-    // height: Dimensions.get('window').height * 0.14,
   },
   listHeading: {
     color: colors.INPUT_COLOR,
@@ -51,8 +50,6 @@ export default StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
-
     justifyContent: 'space-between'
   },
   transactionTypeBanner: {
@@ -95,7 +92,7 @@ export default StyleSheet.create({
   },
   inventoryData: { marginBottom: 5, color: baseColor.GRAY_LIGHT },
   seperator: {
-    marginTop: 5,
+    marginBottom: 5,
     borderBottomColor: baseColor.GRAY_LIGHT,
     opacity: 0.2,
     borderBottomWidth: 1

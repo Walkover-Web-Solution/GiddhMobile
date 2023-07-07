@@ -156,7 +156,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
     }
   }
 
-  debounceLoadMore = _.debounce(this.handleLoadMore, 1000);
+  debounceLoadMore = _.debounce(this.handleLoadMore, 200);
 
   handleRefresh = async () => {
     if(this.state.transactionsData.length < this.state.totalItems && this.state.page < this.state.totalPages && !this.state.loadingMore){
@@ -565,7 +565,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
                       width: Dimensions.get('window').width * 0.5,
                       borderRadius: 20,
                       borderWidth: 1,
-                      // marginLeft: 15,
+                      justifyContent: 'center',
                       borderColor: '#D9D9D9',
                       alignItems: 'center',
                       flexDirection: 'row',
@@ -581,7 +581,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
                     }
                   >
 
-                    <View style={{ marginLeft: 10 }} />
+                    {/* <View style={{ marginLeft: 10 }} /> */}
                     <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
                     <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
                       {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +

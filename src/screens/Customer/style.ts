@@ -257,11 +257,14 @@ export default StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     position: 'absolute',
-    bottom: 0
+    bottom: 10
   },
   saveText:{
     fontFamily: 'AvenirLTStd-Black',
     color: '#fff',
     fontSize: 20
+  },
+  scrollViewContainerStyle: {
+    paddingBottom: height * 0.08,
   }
 });

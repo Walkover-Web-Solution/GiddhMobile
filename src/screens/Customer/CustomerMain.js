@@ -174,12 +174,7 @@ export class Customer extends React.Component<Props> {
   render() {
     return (
       <SafeAreaInsetsContext.Consumer>
-        {(insets) => <View style={{ flex: 1 }}>
-          <Animated.ScrollView
-            keyboardShouldPersistTaps="always"
-            style={[{ flex: 1, backgroundColor: 'white' }]}
-            bounces={true}>
-            <View style={[style.container, { height: this.state.screenHeight, width: this.state.screenWidth }]}>
+        {(insets) => <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
               {this.FocusAwareStatusBar(this.props.isFocused)}
               <View style={style.headerConatiner}>
                 {this.renderHeader()}
@@ -256,7 +251,9 @@ export class Customer extends React.Component<Props> {
               <ScrollView
                 ref={this.scrollRef}
                 onLayout={this.ScrollViewOnLayout}
-                style={{ flex: 1, marginBottom: Platform.OS == "ios" ? insets?.bottom + 50 : 0 }}
+                style={{ flex: 1, 
+                  // marginBottom: Platform.OS == "ios" ? insets?.bottom + 50 : 0 
+                }}
                 horizontal={true}
                 scrollEventThrottle={16}
                 pagingEnabled={true}
@@ -316,9 +313,6 @@ export class Customer extends React.Component<Props> {
                     )}
                 </View>
               </ScrollView>
-
-            </View>
-          </Animated.ScrollView>
         </View>}
       </SafeAreaInsetsContext.Consumer>
     );

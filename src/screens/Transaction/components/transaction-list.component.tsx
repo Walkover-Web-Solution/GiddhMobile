@@ -416,7 +416,7 @@ class TransactionList extends React.Component {
                 this.props.item.voucherNo && (
                   <TouchableOpacity
                     delayPressIn={0}
-                    style={{ padding: 5, paddingVertical: 10, }}
+                    style={{ padding: 5}}
                     onPress={() => {
                       this.setState({ iosShare: true })
                       this.shareFile();
@@ -429,7 +429,7 @@ class TransactionList extends React.Component {
                 this.props.item.voucherNo && (
                   <TouchableOpacity
                     delayPressIn={0}
-                    style={{ padding: 5, marginLeft: 4, paddingVertical: 10, }}
+                    style={{ padding: 5, marginLeft: 4}}
                     onPress={async () => {
                       await Platform.OS != "ios" ? this.props.downloadModal(true) : null
                       await this.downloadFile();
@@ -442,7 +442,7 @@ class TransactionList extends React.Component {
               {this.props.transactionType == 'partyTransaction' && this.props.item.voucherNo && this.props.phoneNo ? (
                 <TouchableOpacity
                   delayPressIn={0}
-                  style={{ padding: 3, marginLeft: 0, paddingVertical: 10, }}
+                  style={{ padding: 3, marginLeft: 0}}
                   // onPress={() => console.log(this.props.phoneNo ? this.props.phoneNo.replace(/\D/g, '') : 'no phono')}
                   onPress={() => {
                     this.permissonWhatsapp();

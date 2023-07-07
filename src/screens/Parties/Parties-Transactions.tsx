@@ -1278,7 +1278,7 @@ class PartiesTransactionScreen extends React.Component {
                 width: Dimensions.get('window').width * 0.5,
                 borderRadius: 20,
                 borderWidth: 1,
-                // marginLeft: 15,
+                justifyContent: 'center',
                 borderColor: '#D9D9D9',
                 alignItems: 'center',
                 flexDirection: 'row',
@@ -1292,7 +1292,7 @@ class PartiesTransactionScreen extends React.Component {
                   setActiveDateFilter: this.setActiveDateFilter,
                 })
               }>
-              <View style={{ marginLeft: 10 }} />
+              {/* <View style={{ marginLeft: 10 }} /> */}
               <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
               <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
                 {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +

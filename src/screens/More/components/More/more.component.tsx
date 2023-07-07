@@ -1,6 +1,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription } from 'react-native';
 import { Country } from '@/models/interfaces/country';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
@@ -18,7 +18,6 @@ import Modal from 'react-native-modal';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-community/clipboard';
 import TOAST from 'react-native-root-toast';
-import ChatWidget from '@msg91comm/react-native-hello-sdk';
 const { height } = Dimensions.get('window');
 
 type MoreComponentProp = WithTranslation &
@@ -32,12 +31,13 @@ type MoreComponentProp = WithTranslation &
   };
 
 type MoreComponentState = {
-  badgeTabs: BadgeTab[];
+  // badgeTabs: BadgeTab[];
   userName: string,
   activeUserEmail: string,
   copiedText: string,
   isModalVisible: boolean,
-  showWidget: boolean
+  activeCompany: any,
+  activeBranch: any
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
@@ -50,7 +50,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       activeUserEmail: '',
       isModalVisible: false,
       copiedText: '',
-      showWidget: false
     };
   }
 
@@ -170,21 +169,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     )
   }
 
-  chatWithUsView = () => {
-    var helloConfig = {
-      widgetToken: "88461",
-      name: this.state.userName,
-      mail: this.state.activeUserEmail  
-    }
-    return (
-      <ChatWidget
-        showWidget={this.state.showWidget}
-        helloConfig={helloConfig}
-        onCloseWidget={() => this.setState({ showWidget: false })}
-      />
-    );
-  }
-
   copyEmailButton = (email: string) => {
     return (
       <TouchableOpacity
@@ -231,7 +215,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       );
     } else {
       return (
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={{ flex: 1, backgroundColor: 'white' }} >
           {activeCompanyName && activeCompanyName.length > 1
             ? (
               <TouchableOpacity
@@ -332,7 +316,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </TouchableOpacity>
               <TouchableOpacity
                 style={[style.contactUsButtons, { flexDirection: 'row' }]}
-                onPress={() => this.setState({ showWidget: true })}
+                onPress={() => DeviceEventEmitter.emit("showHelloWidget", { status: true })}
               >
                 <MaterialIcons name="support-agent" size={25} color={'#1A237E'} style={{ marginLeft: 10 }} />
                 <Text style={style.buttonText}>
@@ -362,7 +346,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               elevation: 3
             }}
             onPress={this.props.logout}
-          // onPress={() => console.log('working ?')}
           >
             <View style={{
               flexDirection: "row",
@@ -373,19 +356,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             </View>
             <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 41.5 }}> {this.state.activeUserEmail}  </Text>
           </TouchableOpacity>
-          {/* <MoreList />
-          {
-        <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Menus</Text>
-        <MenuList navigation={navigation} />
-        <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Help</Text>
-        <HelpList navigation={navigation} />
-        <Text style={{marginLeft: 20, fontSize: 20, fontWeight: 'bold', marginTop: 10}}>Others</Text>
-         */}
-          {/* <TouchableOpacity
-            onPress={() => this.props.navigation.navigate('SalesInvoiceScreen')}
-            style={{height: 50, width: 150, backgroundColor: 'pink'}}></TouchableOpacity> */}
           {this.contactUsModal()}
-          {this.chatWithUsView()}
         </View>
       );
     }
