@@ -9,6 +9,7 @@ import * as constants from '@/utils/constants';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Bars } from 'react-native-loader';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
+import ListEmptyComponent from './ListEmptyComponent';
 
 const amountColorStyle = (type: string) => {
   let bgColor = colors.TEXT_NORMAL;
@@ -89,12 +90,13 @@ export const Customers = (props) => {
   }
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       {/* {dataLoadedTime.length > 0 ?
         <LastDataLoadedTime
           paddingHorizontal={10}
           text={dataLoadedTime} /> : null} */}
       <SwipeListView
+        contentContainerStyle={{ flexGrow: 1 }}
         data={partiesData}
         onEndReachedThreshold={0.2}
         onEndReached={handleRefresh}
@@ -141,6 +143,7 @@ export const Customers = (props) => {
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}
+        ListEmptyComponent={<ListEmptyComponent message={'No Customer Exist'} buttonLable={'Create Customer'} partiesScreenIndex={0} />}
       />
     </View>
   );

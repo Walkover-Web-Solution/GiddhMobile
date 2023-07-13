@@ -79,27 +79,14 @@ export class Custom extends React.Component {
           <Text style={styles.customDateStyle}>{this.state.endDate}</Text>
         </TouchableWithoutFeedback>
         <TouchableOpacity
-          style={{
-            // height: height * 0.05,
-            // width: width * 0.2,
-            height:35,
-            width:70,
-            backgroundColor: '#5773FF',
-            position: 'absolute',
-            bottom: 5,
-            right: 15,
-            borderRadius: 10,
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
+          style={styles.buttonContainer}
           onPress={() => {
             this.props.selectDate(`${this.state.startDate}`, `${this.state.endDate}`);
             this.props.setActiveDateFilter('', 'custom');
             this.props.navigation.goBack();
           }}
-          //   onPress={() => console.log(moment().subtract(1, 'quarter').endOf('quarter').format('DD-MM-YYYY'))}
         >
-          <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Done</Text>
+          <Text style={styles.buttonText}>Done</Text>
         </TouchableOpacity>
         <DateTimePickerModal
           isVisible={this.state.isStartDatePickerVisible}

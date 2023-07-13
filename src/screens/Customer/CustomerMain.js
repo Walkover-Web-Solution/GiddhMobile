@@ -78,6 +78,7 @@ export class Customer extends React.Component<Props> {
     return (
       <View style={[style.header, { paddingHorizontal: 20, height: Dimensions.get('window').height * 0.08 }]}>
         <TouchableOpacity
+          hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
           onPress={() => {
             this.props.navigation.goBack();
           }}>

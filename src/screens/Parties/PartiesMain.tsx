@@ -29,6 +29,8 @@ import { Customers } from './components/Customers';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AsyncStorage from '@react-native-community/async-storage';
+import colors from '@/utils/colors';
+import styles from './style'
 
 const { width } = Dimensions.get('window');
 
@@ -329,7 +331,7 @@ export class PartiesMainScreen extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={styles.container}>
         {this.FocusAwareStatusBar(this.props.isFocused)}
         <View
           style={{
@@ -345,16 +347,17 @@ export class PartiesMainScreen extends React.Component {
                 <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
 
                 <TextInput
-                  placeholder={'Search name'}
+                  autoFocus={true}
+                  placeholder={'Search Name'}
                   ref={this.inputRef}
-                  placeholderTextColor={'white'}
-                  style={{ fontSize: 18, width: this.state.screenWidth * 0.6, marginLeft: 10, color: '#fff' }}
+                  placeholderTextColor={colors.WHITE}
+                  style={styles.searchText}
                   onChangeText={this.handleSearch}
                   value={this.state.searchQuery}
                 />
 
                 <TouchableOpacity
-                  style={{ position: 'absolute', right: 20, padding: 8 }}
+                  hitSlop={{right: 10, left: 10, top: 10, bottom: 10}}
                   onPress={() => {
                     if (this.state.searchQuery != '') {
                       this.inputRef.current.clear();
@@ -369,7 +372,7 @@ export class PartiesMainScreen extends React.Component {
             : (
               <>
                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Parties</Text>
-                <View style={{ position: 'absolute', right: 20, flexDirection: 'row', padding: 10 }}>
+                <View style={{ position: 'absolute', right: 15, flexDirection: 'row', padding: 10, alignItems: 'center' }}>
                   <TouchableOpacity
                     delayPressIn={0}
                     onPress={() => this.setState({ sortModal: true })}
@@ -377,7 +380,8 @@ export class PartiesMainScreen extends React.Component {
                     <Icon name={'Group-6191'} size={20} color={'#FFFFFF'} />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={{ padding: 8, marginLeft: 15 }}
+                    hitSlop={{right: 10, left: 10, top: 10, bottom: 10}}
+                    style={{ marginLeft: 15 }}
                     delayPressIn={0}
                     onPress={() => this.setState({ textInputOpen: true }, () => this.inputRef.current.focus())}
                   >
@@ -465,10 +469,8 @@ export class PartiesMainScreen extends React.Component {
           <View style={{ height: '100%', width: this.state.screenWidth }}>
             {this.state.showLoader
               ? (
-                <View style={{ flex: 1 }}>
-                  <View style={style.alignLoader}>
-                    <Bars size={15} color={color.PRIMARY_NORMAL} />
-                  </View>
+                <View style={style.alignLoader}>
+                  <Bars size={15} color={color.PRIMARY_NORMAL} />
                 </View>
               )
               : (

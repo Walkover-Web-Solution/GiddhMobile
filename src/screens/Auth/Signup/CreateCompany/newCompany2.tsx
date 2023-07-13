@@ -22,24 +22,26 @@ import TOAST from 'react-native-root-toast';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal1 from 'react-native-modal';
 
+const { height, width } = Dimensions.get('screen');
+
 class NewCompanyDetails extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      selectedState: null,
-      stateData: [],
-      filteredStates: [],
-      bussinessType: null,
-      gstNumber: null,
-      Address: null,
-      stateName: null,
-      applicableTaxData: [],
-      applicableTax: [],
-      stateDropDown: Dropdown,
+      selectedState: this.props.route.params.selectedState,
+      stateData: this.props.route.params.stateData,
+      filteredStates: this.props.route.params.filteredStates,
+      bussinessType: this.props.route.params.bussinessType,
+      gstNumber: this.props.route.params.gstNumber,
+      Address: this.props.route.params.Address,
+      stateName: this.props.route.params.stateName,
+      applicableTaxData: this.props.route.params.applicableTaxData,
+      applicableTax: this.props.route.params.applicableTax,
+      stateDropDown: this.props.route.params.stateDropDown,
       selectStateDisable: false,
-      gstNumberWrong: false,
-      bussinessNature: null,
-      pinCode: null,
+      gstNumberWrong: this.props.route.params.gstNumberWrong,
+      bussinessNature: this.props.route.params.bussinessNature,
+      pinCode: this.props.route.params.pinCode,
       modalVisible: false,
       loader: false,
       countryCode: this.props.route.params.country.alpha2CountryCode,
@@ -58,7 +60,21 @@ class NewCompanyDetails extends React.Component<any, any> {
   }
 
   componentWillUnmount() {
-
+    this.props.route.params.handlePersistData({
+      selectedState: this.state.selectedState,
+      stateData: this.state.stateData,
+      filteredStates: this.state.filteredStates,
+      bussinessType: this.state.bussinessType,
+      gstNumber: this.state.gstNumber,
+      Address: this.state.Address,
+      stateName: this.state.stateName,
+      applicableTaxData: this.state.applicableTaxData,
+      applicableTax: this.state.applicableTax,
+      stateDropDown: this.state.stateDropDown,
+      gstNumberWrong: this.state.gstNumberWrong,
+      bussinessNature: this.state.bussinessNature,
+      pinCode: this.state.pinCode,
+    })
   }
 
   getStates = async () => {
@@ -118,7 +134,6 @@ class NewCompanyDetails extends React.Component<any, any> {
     if (this.state.countryCode == "IN") {
       const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
       const vadidatorResult = this.state.gstNumber != null && this.state.gstNumber != '' ? regex.test((this.state.gstNumber).toUpperCase()) : true;
-      console.log(vadidatorResult)
       return vadidatorResult;
     } else {
       var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
@@ -200,7 +215,6 @@ class NewCompanyDetails extends React.Component<any, any> {
       userBillingDetails: { name: "", email: "", contactNo: "", gstin: "", stateCode: "", address: "", autorenew: "" },
       nameAlias: "", paymentId: "", amountPaid: "", razorpaySignature: ""
     }
-    console.log("Create Company " + JSON.stringify(payload))
     const response = await CompanyService.createCompany(payload)
     console.log("create Company Response " + JSON.stringify(response))
     if (response.status == "success") {
@@ -235,7 +249,7 @@ class NewCompanyDetails extends React.Component<any, any> {
   }
 
   addTaxOrRemove = (tax: string) => {
-    if (this.state.applicableTax.includes(tax)) {
+    if (this.state.applicableTax?.includes(tax)) {
       let index = this.state.applicableTax.indexOf(tax)
       let applicableTax = [...this.state.applicableTax]
       applicableTax.splice(index, 1)
@@ -254,27 +268,27 @@ class NewCompanyDetails extends React.Component<any, any> {
         style={style.modalMobileContainer}>
         <SafeAreaView style={style.modalViewContainer}>
           <View style={style.cancelButtonModal} >
-            <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
-              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
-            </TouchableOpacity>
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder="Enter State Name"
               returnKeyType={"done"}
-              style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+              style={{ height: 50, borderRadius: 5, width: "80%", fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
               onChangeText={(text) => {
                 this.filterStates(text);
               }}
             />
+            <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
+              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
+            </TouchableOpacity>
           </View>
-          <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
-            <FlatList
-              scrollEnabled
-              data={this.state.filteredStates.length == 0 ? ["Result Not Found"] : this.state.filteredStates}
-              renderItem={({ item }) => this.renderItem(item)}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          </View>
+          <FlatList
+            scrollEnabled
+            contentContainerStyle={{paddingHorizontal: 15}}
+            data={this.state.filteredStates.length == 0 ? ["Result Not Found"] : this.state.filteredStates}
+            renderItem={({ item }) => this.renderItem(item)}
+            keyExtractor={(item, index) => index.toString()}
+            ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
+          />
         </SafeAreaView>
       </Modal1>
     )
@@ -282,19 +296,16 @@ class NewCompanyDetails extends React.Component<any, any> {
 
   renderItem = (state: any) => {
     return (
-      <View style={{ justifyContent: "center", alignItems: "center" }}>
-        <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
-          onPress={() => {
-            if (state != "Result Not Found") {
-              this.setState({ stateName: state, selectedState: state.name, isStateModalVisible: !this.state.isStateModalVisible })
-            } else {
-              this.setState({ isStateModalVisible: !this.state.isStateModalVisible })
-            }
-          }}>
-          <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name ? state.name : state}</Text>
-        </TouchableOpacity>
-        <View style={style.borderInModal} />
-      </View>
+      <TouchableOpacity style={{ paddingVertical: 15 }}
+        onPress={() => {
+          if (state != "Result Not Found") {
+            this.setState({ stateName: state, selectedState: state.name, isStateModalVisible: !this.state.isStateModalVisible })
+          } else {
+            this.setState({ isStateModalVisible: !this.state.isStateModalVisible })
+          }
+        }}>
+        <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name ? state.name : state}</Text>
+      </TouchableOpacity>
     );
   }
 
@@ -314,6 +325,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               </Text>
             </View>
             <Dropdown
+              renderRowProps={{ underlayColor: '#CCCCCC50' }}
               style={{ flex: 1, marginLeft: 40, marginTop: Platform.OS == "ios" ? 4 : 0 }}
               textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
               options={this.state.countryCode == "US" || this.state.countryCode == "GB" ||
@@ -329,10 +341,13 @@ class NewCompanyDetails extends React.Component<any, any> {
               dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
               renderRow={(options) => {
                 return (
-                  <View style={{
-                    flexDirection: "row", justifyContent: "flex-start", borderBottomColor: 'rgba(80,80,80,0.5)', borderBottomWidth: this.state.countryCode == "US" || this.state.countryCode == "GB" ||
-                      this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 0 : (options == "Registered" ? 0.5 : 0),padding: 10,backgroundColor:"white"
-                  }}>
+                  <View 
+                    style={{
+                    flexDirection: "row", 
+                    justifyContent: "flex-start", 
+                    padding: 10
+                    }}
+                  >
                     {this.state.bussinessType==options?<AntDesign name="check" size={20} color={'black'} />:<View style={{width:this.state.bussinessType==null?0:20}}/>}
                     <Text style={{
                        color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
@@ -355,19 +370,27 @@ class NewCompanyDetails extends React.Component<any, any> {
               <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman', marginLeft: 20 }}>{'Business Nature'}</Text>
             </View>
             <Dropdown
+              renderRowProps={{ underlayColor: '#CCCCCC50' }}
               style={{ flex: 1, marginLeft: 40, marginTop: Platform.OS == "ios" ? 4 : 0 }}
               textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
               options={["Food", "Service", "Manufacturing", "Retail"]}
               renderSeparator={() => {
                 return (<View></View>);
               }}
-              dropdownStyle={{ width: '81%', height: 100, marginTop: 5, borderRadius: 10 }}
+              dropdownStyle={{ marginTop: 5, borderRadius: 10 }}
               dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
               renderRow={(options) => {
                 return (
-                  <View style={{
-                    flexDirection: "row", justifyContent: "flex-start", borderBottomColor: 'rgba(80,80,80,0.5)', borderBottomWidth:(options == "Retail" ? 0.5 : 0),padding: 10,backgroundColor:"white"
-                  }}>
+                  <View 
+                    style={{ 
+                      flex: 1,
+                      flexDirection: "row", 
+                      justifyContent: "flex-start", 
+                      padding: 10,
+                      width: width * 0.8,
+                      borderRadius: 10
+                    }}
+                  >
                     {this.state.bussinessNature==options?<AntDesign name="check" size={20} />:<View style={{width:this.state.bussinessNature==null?0:20}}/>}
                     <Text style={{
                        color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
@@ -394,7 +417,6 @@ class NewCompanyDetails extends React.Component<any, any> {
             </View>
             <TextInput
               onChangeText={(text) => {
-                console.log(text)
                 this.setState({ gstNumber: text })
                 this.findState(text)
               }
@@ -506,7 +528,6 @@ class NewCompanyDetails extends React.Component<any, any> {
               keyboardType={"number-pad"}
               returnKeyType={"done"}
               onChangeText={(text) => {
-                console.log(text)
                 this.setState({ pinCode: text })
               }}
               value={this.state.pinCode}
@@ -527,7 +548,6 @@ class NewCompanyDetails extends React.Component<any, any> {
               multiline={true}
               returnKeyType={"done"}
               onChangeText={(text) => {
-                console.log(text)
                 this.setState({ Address: text })
               }}
               value={this.state.Address}
@@ -545,7 +565,7 @@ class NewCompanyDetails extends React.Component<any, any> {
                     this.addTaxOrRemove("GST 5%")
                   }}>
                   <View style={{ height: 20, width: 20, borderRadius: 2 }}>
-                    {this.state.applicableTax.includes("GST 5%")
+                    {this.state.applicableTax?.includes("GST 5%")
                       ? (
                         <AntDesign name="checksquare" size={20} color={'#5773FF'} />
                       )
@@ -641,12 +661,15 @@ class NewCompanyDetails extends React.Component<any, any> {
           </Modal>
         </KeyboardAwareScrollView>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <TouchableOpacity style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            flex: 1
-          }}
-            onPress={() => { this.props.navigation.goBack() }}>
+          <TouchableOpacity  
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              flex: 1
+            }}
+            onPress={() => { 
+              this.props.navigation.goBack(); 
+            }}>
             <Text style={{ color: '#5773FF', fontFamily: 'AvenirLTStd-Book', padding: 5, fontSize: 16 }}>Back</Text>
           </TouchableOpacity>
           <TouchableOpacity

@@ -230,9 +230,9 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
             <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Contra</Text>
           </TouchableOpacity>
 
-          <View style={{ height: 2, width: '100%', alignSelf: 'center', backgroundColor: '#D9D9D9', marginTop: 15 }} />
+          <View style={{flex: 1, flexDirection: 'row', marginTop: 15, borderTopWidth: 1, borderTopColor: '#D9D9D9',  justifyContent: 'space-around' }} >
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
+            style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, alignSelf: 'center', }}
             onPress={() => {
               setsales(false);
               setPurchase(false);
@@ -249,8 +249,18 @@ function VoucherModal ({ modalVisible, setModalVisible, filter, loader }) {
               <AntDesign name="close" size={20} color={'#FF1717'} />
             </View>
 
-            <Text style={{ fontSize: 18, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+            <Text style={{ fontSize: 18, marginLeft: 5, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
+            onPress={setModalVisible}>
+            <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+              <AntDesign name="check" size={20} color={'#25D366'} />
+            </View>
+
+            <Text style={{ fontSize: 18, marginLeft: 5, fontFamily: 'AvenirLTStd-Book' }}>Done</Text>
+          </TouchableOpacity>
+          </View>
 
           {/* <TouchableOpacity style={{marginTop: 20, alignSelf: 'center'}} onPress={setModalVisible}>
             <Text style={{fontSize: 18}}>Close</Text>

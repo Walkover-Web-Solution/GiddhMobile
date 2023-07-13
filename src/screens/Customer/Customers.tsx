@@ -28,6 +28,7 @@ import Modal from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PhoneInput from 'react-native-phone-input';
 import CountryPicker from 'react-native-country-picker-modal';
+import { Feather } from 'react-native-vector-icons';
 
 
 interface Props {
@@ -839,43 +840,42 @@ export class Customers extends React.Component<Props> {
             </View>
             */}
             <View style={[styles.rowContainer,{marginVertical:10}]} >
-            <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
-            <PhoneInput
-              ref={(ref) => { this.phone = ref; }}
-              textComponent={TextInput}
-              textProps={{placeholder: 'Enter Party Number'}}
-              initialCountry={"in"} 
-              onChangeFormattedText={value => 
-                this.selectCountry(value)
-              }
-              onChangePhoneNumber={(num)=> {
-                this.updateInfo()
-                this.setState({contactNumber:num})
-              }}
-              textStyle={{fontFamily:'AvenirLTStd-Book'}}
-              withShadow
-              onPressFlag={this.onPressFlag}
-              // blur={this.updateInfo}
-            />
-          <CountryPicker
-            modalProps={{
-              visible: this.state.picker,
-            }}
-            placeholder={' '}
-            onSelect={({ cca2 }) =>
-            this.setSelectedCountry(cca2)
+              <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
+              <PhoneInput
+                ref={(ref) => { this.phone = ref; }}
+                textComponent={TextInput}
+                textProps={{placeholder: 'Enter Party Number'}}
+                initialCountry={"in"} 
+                onChangeFormattedText={value => 
+                  this.selectCountry(value)
                 }
-            translation="eng"
-            cca2={this.state.cca2}
-            withCallingCode
-            withAlphaFilter
-            withFilter
-            onClose={() => this.setState({picker:false})}
-          >
-            <View />
-      
-          </CountryPicker>
-      
+                onChangePhoneNumber={(num)=> {
+                  this.updateInfo()
+                  this.setState({contactNumber:num})
+                }}
+                textStyle={{fontFamily:'AvenirLTStd-Book'}}
+                withShadow
+                onPressFlag={this.onPressFlag}
+                // blur={this.updateInfo}
+              />
+              <CountryPicker
+                modalProps={{
+                  visible: this.state.picker,
+                }}
+                onSelect={({ cca2 }) =>
+                this.setSelectedCountry(cca2)
+                    }
+                translation="eng"
+                cca2={this.state.cca2}
+                withCallingCode={true}
+                withAlphaFilter={true}
+                withFilter={true}
+                theme={{fontSize: 15, flagSizeButton: 15, fontFamily: FONT_FAMILY.regular, primaryColor: '#1c1c1c'}}
+                filterProps={{marginHorizontal: 10}}
+                closeButtonStyle={{position: 'absolute', right: -5, zIndex: 1}}
+                flatListProps={{contentContainerStyle: { paddingLeft: 10 }}}
+                onClose={() => this.setState({picker:false})}
+              />
             </View>
             {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
             <View style={styles.rowContainer}>

@@ -92,7 +92,9 @@ export class SelectAddress extends React.Component<any, any> {
             style.header,
             { backgroundColor: this.props.route.params.color ? this.props.route.params.color : '#229F5F' }
           ]}>
-          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+          <TouchableOpacity
+            hitSlop={{right: 20, left: 20, top: 10, bottom: 10}} 
+            onPress={() => this.props.navigation.goBack()}>
             <Icon name={'Backward-arrow'} color="#fff" size={18} />
           </TouchableOpacity>
           <Text style={style.title}>

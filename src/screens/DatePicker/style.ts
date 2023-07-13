@@ -1,3 +1,5 @@
+import colors from '@/utils/colors';
+import { FONT_FAMILY } from '@/utils/constants';
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
@@ -36,5 +38,18 @@ export default StyleSheet.create({
     borderColor: '#D9D9D9',
     justifyContent: 'center'
   },
-  customDateStyle: { marginLeft: 15, fontFamily: 'AvenirLTStd-Book' }
+  customDateStyle: { marginLeft: 15, fontFamily: 'AvenirLTStd-Book' },
+  buttonContainer: {
+    backgroundColor: colors.PRIMARY_NORMAL,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    paddingHorizontal: 20
+  },
+  buttonText: { 
+    color: colors.WHITE, 
+    fontFamily: FONT_FAMILY.bold, 
+    margin: 10 
+  }
 });

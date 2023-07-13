@@ -2815,27 +2815,27 @@ export class EditAddress extends React.Component<any, any> {
             style={style.modalMobileContainer}>
             <SafeAreaView style={style.modalViewContainer}>
                <View style={style.cancelButtonModal} >
-                  <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
-                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
-                  </TouchableOpacity>
                   <TextInput
                      placeholderTextColor={'rgba(80,80,80,0.5)'}
                      placeholder="Enter State Name"
                      returnKeyType={"done"}
-                     style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+                     style={{ height: 50, borderRadius: 5, width: "80%", fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
                      onChangeText={(text) => {
                         this.filterStates(text);
                      }}
                   />
+                  <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
+                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
+                  </TouchableOpacity>
                </View>
-               <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
-                  <FlatList
-                     scrollEnabled
-                     data={this.state.filteredStates.length == 0 ? ["Result Not Found"] : this.state.filteredStates}
-                     renderItem={({ item }) => this.renderItem(item)}
-                     keyExtractor={(item, index) => index.toString()}
-                  />
-               </View>
+               <FlatList
+                  scrollEnabled
+                  contentContainerStyle={{paddingHorizontal: 15}}
+                  data={this.state.filteredStates.length == 0 ? ["Result Not Found"] : this.state.filteredStates}
+                  renderItem={({ item }) => this.renderItem(item)}
+                  keyExtractor={(item, index) => index.toString()}
+                  ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
+               />
             </SafeAreaView>
          </Modal1>
       )
@@ -2843,24 +2843,21 @@ export class EditAddress extends React.Component<any, any> {
 
    renderItem = (state: any) => {
       return (
-         <View style={{ justifyContent: "center", alignItems: "center" }}>
-            <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
-               onPress={() => {
-                  if (state != "Result Not Found") {
-                     this.setState({
-                        state_billing: state,
-                        stateCode: state.code,
-                        selectedState: state.name,
-                        isStateModalVisible: false
-                     })
-                  } else {
-                     this.setState({ isStateModalVisible: false })
-                  }
-               }}>
-               <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name ? state.name : state}</Text>
-            </TouchableOpacity>
-            <View style={style.borderInModal} />
-         </View>
+         <TouchableOpacity style={{ paddingVertical: 15 }}
+            onPress={() => {
+               if (state != "Result Not Found") {
+                  this.setState({
+                     state_billing: state,
+                     stateCode: state.code,
+                     selectedState: state.name,
+                     isStateModalVisible: false
+                  })
+               } else {
+                  this.setState({ isStateModalVisible: false })
+               }
+            }}>
+            <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{state.name ? state.name : state}</Text>
+         </TouchableOpacity>
       );
    }
 
@@ -2877,7 +2874,11 @@ export class EditAddress extends React.Component<any, any> {
                   backgroundColor:
                      this.props.route.params.headerColor != null ? this.props.route.params.headerColor : '#229F5F',
                }}>
-               <TouchableOpacity delayPressIn={0} onPress={() => this.props.navigation.goBack()}>
+               <TouchableOpacity
+                  hitSlop={{right: 20, left: 20, top: 10, bottom: 10}} 
+                  delayPressIn={0} 
+                  onPress={() => this.props.navigation.goBack()}
+               >
                   <Icon name={'Backward-arrow'} color="#fff" size={18} />
                </TouchableOpacity>
                <Text style={style.title}>Enter Address</Text>
@@ -2916,6 +2917,9 @@ export class EditAddress extends React.Component<any, any> {
                      withAlphaFilter={true}
                      withCallingCode={true}
                      withEmoji={true}
+                     filterProps={{marginHorizontal: 10}}
+                     closeButtonStyle={{position: 'absolute', right: -5, zIndex: 1}}
+                     flatListProps={{contentContainerStyle: { paddingLeft: 10 }}}
                      onSelect={this.setCountrySelected}
                   />
                   <View style={{

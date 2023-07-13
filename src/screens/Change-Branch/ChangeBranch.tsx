@@ -60,13 +60,17 @@ export class ChangeBranch extends React.Component<Props> {
               style={{height: 40, width: 140, backgroundColor: 'pink'}}
               onPress={() => console.log(branches)}></TouchableOpacity> */}
             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
-              <Icon
-                size={20}
-                name={'Backward-arrow'}
+              <TouchableOpacity
+                hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
                 onPress={() => {
                   this.props.navigation.goBack();
                 }}
-              />
+              >
+                <Icon
+                  size={20}
+                  name={'Backward-arrow'}
+                />
+              </TouchableOpacity>
               <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>Switch Branch</Text>
             </View>
             <TouchableOpacity

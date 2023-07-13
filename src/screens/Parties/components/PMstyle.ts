@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import * as constants from '@/utils/constants';
 import { GD_ICON_SIZE } from '@/utils/constants';
 import colors, { baseColor } from '@/utils/colors';
@@ -56,6 +56,11 @@ export default StyleSheet.create({
     fontFamily: 'AvenirLTStd-Black',
     fontSize: constants.GD_FONT_SIZE.medium
   },
+  emptyContainerText: {
+    alignSelf: 'center',
+    fontFamily: 'AvenirLTStd-Black',
+    fontSize: constants.GD_FONT_SIZE.font_25
+  },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
@@ -92,5 +97,22 @@ export default StyleSheet.create({
     marginTop: 0,
     borderBottomColor: baseColor.BORDER_COLOR,
     borderBottomWidth: 1
+  },
+  buttonContainer: {
+    marginTop: 20,
+    backgroundColor: colors.PRIMARY_NORMAL,
+    borderRadius: 50,
+    alignItems: 'center',
+    paddingHorizontal: 20
+  },
+  buttonText: { 
+    color: colors.WHITE, 
+    fontFamily: constants.FONT_FAMILY.bold, 
+    margin: 10 
+  },
+  noPartyImage: {
+    resizeMode: 'contain', 
+    height: 250, 
+    width: 300
   }
 });

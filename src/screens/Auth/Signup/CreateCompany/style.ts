@@ -83,22 +83,20 @@ centeredView: {
     color: "black",
   },
   cancelButtonModal: {
-    width: "100%",
-    backgroundColor: "white",
     flexDirection:"row",
-    marginHorizontal:15
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 10
   },
   cancelButtonTextModal: {
     padding:5,
     justifyContent: "center",
     alignItems: "center",
-    marginTop:6
   },
   borderInModal: {
-    width: "100%",
+    marginHorizontal: 5,
     borderBottomWidth: 0.27,
     opacity:0.15,
     borderBottomColor: "grey",
-    marginTop: 5
   },
 });

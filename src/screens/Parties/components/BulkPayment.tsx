@@ -422,7 +422,10 @@ class BulkPayment extends React.Component {
                             alignItems: 'center',
                             paddingHorizontal: 20,
                         }}>
-                        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                        <TouchableOpacity
+                            hitSlop={{right: 20, left: 20, top: 10, bottom: 10}} 
+                            onPress={() => this.props.navigation.goBack()}
+                        >
                             <Icon name={'Backward-arrow'} color="#fff" size={18} />
                         </TouchableOpacity>
 

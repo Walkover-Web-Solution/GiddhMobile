@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { GD_ICON_SIZE } from '@/utils/constants';
+import { FONT_FAMILY, GD_ICON_SIZE } from '@/utils/constants';
 import colors from '@/utils/colors';
 
 export default StyleSheet.create({
@@ -10,8 +10,9 @@ export default StyleSheet.create({
     //justifyContent: 'flex-start'
   },
   alignLoader: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: 150
+    justifyContent: 'center'
   },
 
   filterStyle: {
@@ -48,5 +49,12 @@ export default StyleSheet.create({
   dataLoadedTime:{
     paddingHorizontal:10,
     fontSize:12
+  },
+  searchText: { 
+    flex: 1,
+    fontSize: 16,
+    fontFamily: FONT_FAMILY.regular, 
+    marginLeft: 10, 
+    color: colors.WHITE 
   }
 });

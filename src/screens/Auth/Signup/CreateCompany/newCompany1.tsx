@@ -177,6 +177,21 @@ class NewCompany extends React.Component<any, any> {
             selectedCallingCode: "91",
             isMobileModalVisible: false,
             isCurrencyModalVisible: false,
+            newCompany2ScreenData: {
+                    selectedState: null,
+                    stateData: [],
+                    filteredStates: [],
+                    bussinessType: null,
+                    gstNumber: null,
+                    Address: null,
+                    stateName: null,
+                    applicableTaxData: [],
+                    applicableTax: [],
+                    stateDropDown: Dropdown,
+                    gstNumberWrong: false,
+                    bussinessNature: null,
+                    pinCode: null,
+            }
         };
     }
 
@@ -207,8 +222,27 @@ class NewCompany extends React.Component<any, any> {
 
     }
 
+    handlePersistData = (payload: any) => {
+        this.setState({
+            newCompany2ScreenData: {
+                selectedState: payload.selectedState,
+                stateData: payload.stateData,
+                filteredStates: payload.filteredStates,
+                bussinessType: payload.bussinessType,
+                gstNumber: payload.gstNumber,
+                Address: payload.Address,
+                stateName: payload.stateName,
+                applicableTaxData: payload.applicableTaxData,
+                applicableTax: payload.applicableTax,
+                stateDropDown: payload.stateDropDown,
+                gstNumberWrong: payload.gstNumberWrong,
+                bussinessNature: payload.bussinessNature,
+                pinCode: payload.pinCode,
+            }
+    });
+    }
+
     validateDetails = () => {
-        console.log(this.state.mobileNumber)
         if (this.state.companyName != "" && this.state.countryName != null && this.state.currency != null && this.state.mobileNumber != null && this.state.mobileNumber != '') {
             return true
         }
@@ -268,31 +302,25 @@ class NewCompany extends React.Component<any, any> {
 
     renderItem(callingCode: any) {
         return (
-            <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <TouchableOpacity style={{ paddingVertical: 10, width: "90%", }}
-                    onPress={async () => {
-                        await this.setState({ isMobileModalVisible: false, selectedCallingCode: callingCode })
-                        await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
-                    }}>
-                    <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{callingCode}</Text>
-                </TouchableOpacity>
-                <View style={style.borderInModal} />
-            </View>
+            <TouchableOpacity style={{ paddingVertical: 15 }}
+                onPress={async () => {
+                    await this.setState({ isMobileModalVisible: false, selectedCallingCode: callingCode })
+                    await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
+                }}>
+                <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{callingCode}</Text>
+            </TouchableOpacity>
         );
     }
 
     renderCurrencyItem(Currency: any) {
         return (
-            <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <TouchableOpacity style={{ paddingVertical: 10, width: "90%", flexDirection: "row", justifyContent: "space-between", }}
-                    onPress={() => {
-                        this.setState({ currency: Currency, isCurrencyModalVisible: false })
-                    }}>
-                    <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.code}</Text>
-                    <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.symbol}</Text>
-                </TouchableOpacity>
-                <View style={style.borderInModal} />
-            </View>
+            <TouchableOpacity style={{ paddingVertical: 15, flexDirection: "row", justifyContent: "space-between", }}
+                onPress={() => {
+                    this.setState({ currency: Currency, isCurrencyModalVisible: false })
+                }}>
+                <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.code}</Text>
+                <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.symbol}</Text>
+            </TouchableOpacity>
         );
     }
 
@@ -303,28 +331,28 @@ class NewCompany extends React.Component<any, any> {
                 style={style.modalMobileContainer}>
                 <SafeAreaView style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
-                        <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: false }) }} style={style.cancelButtonTextModal}>
-                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
-                        </TouchableOpacity>
                         <TextInput
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
                             placeholder="Enter Calling Code"
                             keyboardType={'number-pad'}
                             returnKeyType={"done"}
-                            style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+                            style={{ height: 50, borderRadius: 5, width: "80%", fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
                             onChangeText={(text) => {
                                 this.searchCallingCode(text);
                             }}
                         />
+                        <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: false }) }} style={style.cancelButtonTextModal}>
+                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
+                        </TouchableOpacity>
                     </View>
-                    <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
-                        <FlatList
-                            scrollEnabled
-                            data={this.state.filteredCallingCode}
-                            renderItem={({ item }) => this.renderItem(item)}
-                            keyExtractor={(item, index) => index.toString()}
-                        />
-                    </View>
+                    <FlatList
+                        contentContainerStyle={{paddingHorizontal: 15}}
+                        scrollEnabled
+                        data={this.state.filteredCallingCode}
+                        renderItem={({ item }) => this.renderItem(item)}
+                        keyExtractor={(item, index) => index.toString()}
+                        ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
+                    />
                 </SafeAreaView>
             </Modal>
         )
@@ -337,27 +365,27 @@ class NewCompany extends React.Component<any, any> {
                 style={style.modalMobileContainer}>
                 <SafeAreaView style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
-                        <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: false }) }} style={style.cancelButtonTextModal}>
-                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
-                        </TouchableOpacity>
                         <TextInput
                             returnKeyType={"done"}
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
                             placeholder="Enter Currency e.g. INR"
-                            style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
+                            style={{ height: 50, borderRadius: 5, width: "80%", fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
                             onChangeText={(text) => {
                                 this.searchCurrency(text);
                             }}
                         />
+                        <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: false }) }} style={style.cancelButtonTextModal}>
+                            <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
+                        </TouchableOpacity>
                     </View>
-                    <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
-                        <FlatList
-                            scrollEnabled
-                            data={this.state.filteredCurrencyData}
-                            renderItem={({ item }) => this.renderCurrencyItem(item)}
-                            keyExtractor={(item, index) => index.toString()}
-                        />
-                    </View>
+                    <FlatList
+                        scrollEnabled
+                        contentContainerStyle={{paddingHorizontal: 15}}
+                        data={this.state.filteredCurrencyData}
+                        renderItem={({ item }) => this.renderCurrencyItem(item)}
+                        keyExtractor={(item, index) => index.toString()}
+                        ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
+                    />
                 </SafeAreaView>
             </Modal>
         )
@@ -373,15 +401,17 @@ class NewCompany extends React.Component<any, any> {
                             flexDirection: 'row',
                             alignItems: 'center'
                         }}>
-                        {this.props.route.params ? <View style={{ marginRight: 10 }}>
-                            <Icon
-                                size={20}
-                                name={'Backward-arrow'}
+                        {this.props.route.params ?   
+                            <TouchableOpacity 
+                                hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
+                                style={{ marginRight: 10 }}
                                 onPress={() => {
                                     this.props.navigation.goBack();
                                 }}
-                            />
-                        </View> : null}
+                            >
+                                <Icon size={20} name={'Backward-arrow'}/>
+                            </TouchableOpacity> 
+                        : null}
                         <Text style={[style.Heading, { marginHorizontal: this.props.route.params ? 10 : 0 }]}>{"Welcome " + this.state.userName + ","}</Text>
                     </View>
                     <Text style={[style.text, { marginLeft: this.props.route.params ? 40 : 0 }]}>Enter the following details to start hassel free accounting with Giddh </Text>
@@ -397,7 +427,6 @@ class NewCompany extends React.Component<any, any> {
                                 this.setState({ companyNamePlaceholder: 'a' })
                             }}
                             onChangeText={(text) => {
-                                console.log(text)
                                 this.setState({ companyName: text })
                             }
                             }
@@ -421,6 +450,9 @@ class NewCompany extends React.Component<any, any> {
                                     withCallingCode={true}
                                     withEmoji={true}
                                     onSelect={this.onSelect}
+                                    filterProps={{marginHorizontal: 10}}
+                                    closeButtonStyle={{position: 'absolute', right: -5, zIndex: 1}}
+                                    flatListProps={{contentContainerStyle: { paddingLeft: 10 }}}
                                 />
                             </View>
                             {/* <Dropdown
@@ -531,7 +563,6 @@ class NewCompany extends React.Component<any, any> {
                                 this.setState({ mobileNumberPlaceHolder: 'a' })
                             }}
                             onChangeText={(text) => {
-                                console.log(text)
                                 this.setState({
                                     mobileNumber: text.replace(/[^0-9]/g, ''),
                                     isMobileNoValid: !this.validateMobileNumberTextInput(text)
@@ -576,7 +607,9 @@ class NewCompany extends React.Component<any, any> {
                                     currency: this.state.currency,
                                     mobileNumber: this.state.mobileNumber,
                                     callingCode: this.state.selectedCallingCode,
-                                    oldUser: this.props.route.params ? this.props.route.params.oldUser : false
+                                    oldUser: this.props.route.params ? this.props.route.params.oldUser : false,
+                                    ...this.state.newCompany2ScreenData,
+                                    handlePersistData: this.handlePersistData,
                                 })
                             } else {
                                 Alert.alert("Missing Fields", "Enter all the mandatory fields",

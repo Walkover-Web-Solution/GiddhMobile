@@ -72,16 +72,18 @@ export class ChangeCompany extends React.Component<Props> {
                 flexDirection: 'row',
                 alignItems: 'center'
               }}>
-              <View style={{ marginLeft: 20 }}>
+              <TouchableOpacity
+                style={{marginLeft: 20}}
+                hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
+                onPress={() => {
+                  this.props.navigation.goBack();
+                }}
+              >
                 <Icon
                   size={20}
                   name={'Backward-arrow'}
-                  onPress={() => {
-                    this.props.navigation.goBack();
-                  }}
                 />
-              </View>
-
+              </TouchableOpacity>
               <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>Switch Company</Text>
             </View>
             <FlatList

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle, DeviceEventEmitter, Alert, Platform, ToastAndroid } from 'react-native';
+import React, { useState } from 'react';
+import { StyleProp, Text, TouchableOpacity, View, ViewStyle, DeviceEventEmitter, Alert, Platform, ToastAndroid } from 'react-native';
 import styles from '@/screens/Parties/components/PMstyle';
 import { GdSVGIcons } from '@/utils/icons-pack';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import colors, { baseColor } from '@/utils/colors';
+import colors from '@/utils/colors';
 import * as constants from '@/utils/constants';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
@@ -13,6 +13,7 @@ import { Bars } from 'react-native-loader';
 import { APP_EVENTS,STORAGE_KEYS } from '@/utils/constants';
 import TOAST from 'react-native-root-toast';
 import AsyncStorage from '@react-native-community/async-storage';
+import ListEmptyComponent from './ListEmptyComponent';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -209,6 +210,7 @@ export const Vendors = (props) => {
   return (
     <View style={{ flex: 1 }}>
       <SwipeListView
+        contentContainerStyle={{ flexGrow: 1 }}
         extraData={refreshData}
         data={partiesData}
         onEndReachedThreshold={0.2}
@@ -275,6 +277,7 @@ export const Vendors = (props) => {
             </View>
           </TouchableOpacity>
         )}
+        ListEmptyComponent={<ListEmptyComponent message={'No Vendor Exist'} buttonLable={'Create Vendor'} partiesScreenIndex={1} />}
         keyExtractor={(item, index) => index.toString()}
       />
       {selectedItem.length > 0 ?
