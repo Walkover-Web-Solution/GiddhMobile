@@ -20,10 +20,9 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // backgroundColor: 'pink',
     paddingVertical: 15,
     paddingHorizontal: 20,
-    marginTop: '10%'
+    marginTop: '5%'
   },
   periodText: { fontFamily: 'AvenirLTStd-Book', fontSize: 16 },
   periodDot: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#5773FF' },

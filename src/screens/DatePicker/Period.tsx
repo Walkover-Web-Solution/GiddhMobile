@@ -6,14 +6,23 @@ import styles from './style';
 import { ScrollView } from 'react-native-gesture-handler';
 
 export class Period extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       activeFilter: ''
     };
   }
+  getLastFinancialYearDates() {
+    const currentDate = moment();
+    const currentYear = currentDate.year();
+    const startYear = currentYear;
+    const endDate = currentDate;
+    const startDate = moment(`${startYear}-04-01`, 'YYYY-MM-DD');
 
-  render () {
+    return { startDate, endDate };
+  }
+
+  render() {
     return (
       <ScrollView style={styles.periodContainer}>
         <TouchableOpacity
@@ -65,16 +74,22 @@ export class Period extends React.Component {
           <Text style={styles.periodText}>Last Quarter</Text>
           {this.props.activeDateFilter == 'LQ' && <View style={styles.periodDot} />}
         </TouchableOpacity>
-        {/* <TouchableOpacity
+        <TouchableOpacity
           style={styles.periodButton}
-            onPress={() => {
-              this.props.selectDate(moment().startOf('month').format('DD-MM-YYYY'), moment().format('DD-MM-YYYY'));
-              this.props.navigation.goBack();
-            }}
-        >
-          <Text style={styles.periodText}>All Time</Text>
-          <View style={styles.periodDot} />
-        </TouchableOpacity> */}
+          onPress={() => {
+            this.props.setActiveDateFilter('FY');
+            
+            const currentYear = moment().year();
+            this.props.selectDate(
+              moment(`${currentYear}-04-01`, 'YYYY-MM-DD').format('DD-MM-YYYY'),
+              moment().format('DD-MM-YYYY')
+            );
+            this.props.navigation.goBack();
+          }}>
+          <Text style={styles.periodText}>This Financial Year to Date</Text>
+          {this.props.activeDateFilter == 'FY' && <View style={styles.periodDot} />}
+        </TouchableOpacity>
+
       </ScrollView>
     );
   }

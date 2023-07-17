@@ -143,7 +143,7 @@ export const Customers = (props) => {
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}
-        ListEmptyComponent={<ListEmptyComponent message={'No Customer Exist'} buttonLable={'Create Customer'} partiesScreenIndex={0} />}
+        ListEmptyComponent={<ListEmptyComponent message={'No Customer Exist'} buttonLable={'Add Customer'} partiesScreenIndex={0} />}
       />
     </View>
   );

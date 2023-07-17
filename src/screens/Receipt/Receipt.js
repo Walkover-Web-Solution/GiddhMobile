@@ -465,7 +465,7 @@ export class Receipt extends React.Component {
     });
   };
 
-  searchCalls = _.debounce(this.searchUser, 2000);
+  searchCalls = _.debounce(this.searchUser, 200);
 
   async getAllPaymentModes() {
     try {
@@ -1040,10 +1040,8 @@ export class Receipt extends React.Component {
       return 'Tomorrow';
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
-    } else if (diffYears >= 1) {
-      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     } else {
-      return month + ' ' + date;
+      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     }
   }
   formatClearanceDate() {

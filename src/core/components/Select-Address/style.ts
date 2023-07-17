@@ -81,7 +81,7 @@ export default StyleSheet.create({
   },
   BMfieldTitle: {
     fontFamily: 'AvenirLTStd-Book',
-    fontSize: 20,
+    fontSize: 14,
     marginTop: 20
   },
   DefaultAddress: { flexDirection: 'row', alignItems: 'center', marginTop: 20 },

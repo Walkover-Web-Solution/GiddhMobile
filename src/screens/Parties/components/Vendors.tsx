@@ -277,7 +277,7 @@ export const Vendors = (props) => {
             </View>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<ListEmptyComponent message={'No Vendor Exist'} buttonLable={'Create Vendor'} partiesScreenIndex={1} />}
+        ListEmptyComponent={<ListEmptyComponent message={'No Vendor Exist'} buttonLable={'Add Vendor'} partiesScreenIndex={1} />}
         keyExtractor={(item, index) => index.toString()}
       />
       {selectedItem.length > 0 ?

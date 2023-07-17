@@ -61,6 +61,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+/ios/Podfile.lock
 /environments/*
 /src/env.json
 .DS_Store

@@ -128,7 +128,7 @@ class AddItemScreen extends React.Component<Props> {
     );
   }
 
-  searchCalls = _.debounce(this.searchUser, 2000);
+  searchCalls = _.debounce(this.searchUser, 200);
 
   _renderSearchList () {
     return (

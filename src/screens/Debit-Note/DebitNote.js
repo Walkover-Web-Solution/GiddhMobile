@@ -394,7 +394,7 @@ export class DebiteNote extends React.Component<Props> {
     });
   };
 
-  searchCalls = _.debounce(this.searchUser, 2000);
+  searchCalls = _.debounce(this.searchUser, 200);
 
   async getAllDiscounts() {
     this.setState({ fetechingDiscountList: true });
@@ -498,7 +498,7 @@ export class DebiteNote extends React.Component<Props> {
       //       })
       //     }>
       <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
-       
+
         <FlatList
           nestedScrollEnabled={true}
           data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
@@ -534,7 +534,7 @@ export class DebiteNote extends React.Component<Props> {
             </TouchableOpacity>
           )}
         />
-         <TouchableOpacity
+        <TouchableOpacity
           style={{
             flexDirection: 'row',
             alignSelf: 'flex-start',
@@ -895,7 +895,7 @@ export class DebiteNote extends React.Component<Props> {
               name: this.state.countryDeatils.countryName,
             },
             stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : this.state.partyBillingAddress?.state?.code,
-            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName :  this.state.partyBillingAddress?.state?.name,
+            stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
           contactNumber: '',
@@ -1019,10 +1019,8 @@ export class DebiteNote extends React.Component<Props> {
       return 'Tomorrow';
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
-    } else if (diffYears >= 1) {
-      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     } else {
-      return month + ' ' + date;
+      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     }
   }
 
@@ -1620,6 +1618,15 @@ export class DebiteNote extends React.Component<Props> {
             <Text style={{ marginLeft: 10 }}>Select Product/Service</Text>
           </View>
           <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              borderColor: '#ff6961',
+              borderWidth: 1,
+              justifyContent: 'center',
+              alignItems:'center',
+              paddingHorizontal:5,
+              borderRadius:2
+            }}
             onPress={() => {
               this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: this.updateAddedItems.bind(this),
@@ -1627,7 +1634,8 @@ export class DebiteNote extends React.Component<Props> {
                 currencySymbol: this.state.currencySymbol,
               });
             }}>
-            <Icon name={'path-15'} color="#808080" size={18} />
+            <AntDesign name={'plus'} color={'#ff6961'} size={16} />
+            <Text style={[style.addItemMain, { fontFamily: FONT_FAMILY.regular, fontSize: 14 }]}> Add Item</Text>
           </TouchableOpacity>
         </View>
 
@@ -2128,7 +2136,7 @@ export class DebiteNote extends React.Component<Props> {
   _renderSaveButton() {
     return (
       <TouchableOpacity
-        style={{flex: 1, position: 'absolute', right: 10, bottom: 30, backgroundColor: 'white', borderRadius: 60}}
+        style={{ flex: 1, position: 'absolute', right: 10, bottom: 30, backgroundColor: 'white', borderRadius: 60 }}
         onPress={() => {
           this.genrateInvoice();
         }}>
@@ -2255,7 +2263,7 @@ export class DebiteNote extends React.Component<Props> {
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
-          <View style={[style.container, {paddingBottom: 80}]}>
+          <View style={[style.container, { paddingBottom: 80 }]}>
             {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}

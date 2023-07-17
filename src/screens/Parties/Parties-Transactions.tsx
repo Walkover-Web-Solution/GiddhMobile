@@ -942,7 +942,7 @@ class PartiesTransactionScreen extends React.Component {
       );
   };
 
-  filterCall = _.debounce(this.getTransactions, 2000);
+  filterCall = _.debounce(this.getTransactions, 200);
 
   numberWithCommas = (x: any) => {
     if (x == null) {

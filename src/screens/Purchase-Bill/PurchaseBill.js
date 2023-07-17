@@ -343,7 +343,7 @@ export class PurchaseBill extends React.Component {
     });
   };
 
-  searchCalls = _.debounce(this.searchUser, 2000);
+  searchCalls = _.debounce(this.searchUser, 200);
 
   async getAllDiscounts() {
     this.setState({ fetechingDiscountList: true });
@@ -1191,10 +1191,8 @@ export class PurchaseBill extends React.Component {
       return 'Tomorrow';
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
-    } else if (diffYears >= 1) {
-      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     } else {
-      return month + ' ' + date;
+      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     }
   }
 
@@ -1867,6 +1865,15 @@ export class PurchaseBill extends React.Component {
             <Text style={{ marginLeft: 10 }}>Select Product/Service</Text>
           </View>
           <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              borderColor: '#FC8345',
+              borderWidth: 1,
+              justifyContent: 'center',
+              alignItems:'center',
+              paddingHorizontal:5,
+              borderRadius:2
+              }}
             onPress={() => {
               this.props.navigation.navigate('PurchaseAddItem', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
@@ -1874,7 +1881,9 @@ export class PurchaseBill extends React.Component {
                 currencySymbol: this.state.currencySymbol
               });
             }}>
-            <Icon name={'path-15'} color="#808080" size={18} />
+            {/* <Icon name={'path-15'} color="red" size={18} /> */}
+            <AntDesign name={'plus'} color={'#FC8345'} size={16}/>
+            <Text style={[style.addItemMain,{fontFamily:FONT_FAMILY.regular,fontSize:14}]}> Add Item</Text>
           </TouchableOpacity>
         </View>
 

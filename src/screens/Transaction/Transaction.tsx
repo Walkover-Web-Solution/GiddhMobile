@@ -205,7 +205,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
       );
     }
   };
-  filterCall = _.debounce(this.getTransactions, 2000);
+  filterCall = _.debounce(this.getTransactions, 200);
   dateShift = (button) => {
     if (this.state.dateMode == 'default' && button == 'left') {
       this.setState(

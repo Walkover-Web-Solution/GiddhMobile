@@ -206,7 +206,7 @@ export class PartiesMainScreen extends React.Component {
     );
   };
 
-  searchCalls = _.debounce(this.apiCalls, 2000);
+  searchCalls = _.debounce(this.apiCalls, 200);
 
   handleSearch = (text: any) => {
     this.setState(

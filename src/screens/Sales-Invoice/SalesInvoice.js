@@ -28,7 +28,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _, { result } from 'lodash';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
@@ -405,7 +405,7 @@ export class SalesInvoice extends React.Component<Props> {
     });
   };
 
-  searchCalls = _.debounce(this.searchUser, 2000);
+  searchCalls = _.debounce(this.searchUser, 200);
 
   async getAllDiscounts() {
     this.setState({ fetechingDiscountList: true });
@@ -492,15 +492,15 @@ export class SalesInvoice extends React.Component<Props> {
   _renderSearchList() {
     return (
       // <Modal animationType="none" transparent={true} visible={true}>
-        <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
-          
-          <FlatList
-           nestedScrollEnabled={true}
-           showsVerticalScrollIndicator={false}
-           data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
-            style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
+      <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
+
+        <FlatList
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={false}
+          data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
+          style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
               style={{}}
               onFocus={() => this.onChangeText('')}
               onPress={async () => {
@@ -525,9 +525,9 @@ export class SalesInvoice extends React.Component<Props> {
               }}>
               <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
             </TouchableOpacity>
-            )}
-          />
-              <TouchableOpacity
+          )}
+        />
+        <TouchableOpacity
           style={{
             flexDirection: 'row',
             alignSelf: 'flex-start',
@@ -544,7 +544,7 @@ export class SalesInvoice extends React.Component<Props> {
           <Ionicons name="close-circle" size={20} color={'#424242'} />
           {/* <Text style={{marginLeft: 3}}>Close</Text> */}
         </TouchableOpacity>
-        </View>
+      </View>
       // </Modal>
     );
   }
@@ -694,7 +694,7 @@ export class SalesInvoice extends React.Component<Props> {
       showItemDetails: false,
       expandedBalance: true,
       amountPaidNowText: 0,
-      tempAmountPaidNowText:0,
+      tempAmountPaidNowText: 0,
       itemDetails: undefined,
       warehouseArray: [],
       // selectedArrayType: [],
@@ -1058,10 +1058,8 @@ export class SalesInvoice extends React.Component<Props> {
       return 'Tomorrow';
     } else if (diffYears === 0 && diffMonth === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
-    } else if (diffYears !== 0) {
-      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     } else {
-      return month + ' ' + date;
+      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     }
   }
 
@@ -1622,6 +1620,15 @@ export class SalesInvoice extends React.Component<Props> {
             <Text style={{ marginLeft: 10 }}>Select Product/Service</Text>
           </View>
           <TouchableOpacity
+            style={{
+              borderColor: '#229F5F',
+              flexDirection: 'row',
+              borderWidth: 1,
+              justifyContent: 'center',
+              alignItems:'center',
+              paddingHorizontal:5,
+              borderRadius:2
+            }}
             onPress={() => {
               this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
@@ -1629,7 +1636,8 @@ export class SalesInvoice extends React.Component<Props> {
                 currencySymbol: this.state.invoiceType == INVOICE_TYPE.cash ? this.state.companyCountryDetails.currency.symbol : this.state.currencySymbol
               });
             }}>
-            <Icon name={'path-15'} color="#808080" size={18} />
+            <AntDesign name={'plus'} color={'#229F5F'} size={16}  />
+            <Text style={[style.addItemMain,{fontFamily:FONT_FAMILY.regular,fontSize:14}]}> Add Item</Text>
           </TouchableOpacity>
         </View>
 
@@ -2119,15 +2127,15 @@ export class SalesInvoice extends React.Component<Props> {
 
   _renderPaymentMode() {
     return (
-    
+
       <Modal
         animationType="none"
         transparent={true}
         visible={this.state.showPaymentModePopup}
         onRequestClose={() => {
           this.setState({ showPaymentModePopup: false });
-        }}> 
-         <TouchableOpacity
+        }}>
+        <TouchableOpacity
           style={{
             position: 'absolute',
             top: 0,
@@ -2137,72 +2145,73 @@ export class SalesInvoice extends React.Component<Props> {
             backgroundColor: 'rgba(0,0,0,0.5)',
             justifyContent: 'center'
           }}
-        onPress={() => {
-        this.setState({ showPaymentModePopup: false });
-        }}
+          onPress={() => {
+            this.setState({ showPaymentModePopup: false });
+          }}
         >
-         <KeyboardAvoidingView 
-         behavior='height' style={{flex:1}}>
-          <View style={{ 
-            marginTop:height*0.3,
-            backgroundColor: 'white', 
-            borderRadius: 10, 
-            padding: 10, 
-            alignSelf: 'center', 
-            width: "75%", 
-            height: "40%" 
+          <KeyboardAvoidingView
+            behavior='height' style={{ flex: 1 }}>
+            <View style={{
+              marginTop: height * 0.3,
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 10,
+              alignSelf: 'center',
+              width: "75%",
+              height: "40%"
             }}>
-            <Text> Amount </Text>
-            {this.state.invoiceType == 'sales' && (
-              <TextInput
-                style={{ borderWidth: 0.5, borderColor: "grey", borderRadius: 5, padding: 5, marginVertical: 10 }}
-                value={this.state.tempAmountPaidNowText}
-                keyboardType="number-pad"
-                returnKeyType={'done'}
-                placeholder="Enter Amount"
-                placeholderTextColor="black"
-                onChangeText={(text) => {
-                  if (Number(text) > Number(this.getTotalAmount())) {
-                    Alert.alert('Alert', 'deposit amount should not be more than invoice amount');
-                  } else {
-                    this.setState({tempAmountPaidNowText:text})
-                  }
-                }}
-              />
-            )}
-            <Text> Payment Mode </Text>
-            <FlatList
-              data={this.state.modesArray}
-              style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300, marginTop: 5 }}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={{
-                    borderBottomWidth: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
-                    borderColor: '#229F5F',
-                    alignSelf: 'flex-start',
-                    backgroundColor: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? '#E0F2E9' : null,
-                    width: '100%', paddingHorizontal: 5
+              <Text> Amount </Text>
+              {this.state.invoiceType == 'sales' && (
+                <TextInput
+                  style={{ borderWidth: 0.5, borderColor: "grey", borderRadius: 5, padding: 5, marginVertical: 10 }}
+                  value={this.state.tempAmountPaidNowText}
+                  keyboardType="number-pad"
+                  returnKeyType={'done'}
+                  placeholder="Enter Amount"
+                  placeholderTextColor="black"
+                  onChangeText={(text) => {
+                    if (Number(text) > Number(this.getTotalAmount())) {
+                      Alert.alert('Alert', 'deposit amount should not be more than invoice amount');
+                    } else {
+                      this.setState({ tempAmountPaidNowText: text })
+                    }
                   }}
-                  onFocus={() => this.onChangeText('')}
-                  onPress={async () => {
-                    this.setState({ tempSelectedPayMode: item });
-                    //if (this.state.amountPaidNowText != 0) {
-                    //this.setState({ showPaymentModePopup: false });
-                    //}
-                  }}>
-                  <Text style={{ color: '#1C1C1C', paddingVertical: 10, textAlign: 'left' }}>{item.name}</Text>
-                </TouchableOpacity>
+                />
               )}
-            />
-            <TouchableOpacity style={{ backgroundColor: '#229F5F', width: "30%", padding: 5, paddingVertical: 10, borderRadius: 10, alignItems: "center", alignSelf: "flex-end" }}
-              onPress={() => {
-                this.setState({ showPaymentModePopup: false, amountPaidNowText: isNaN(Number(this.state.tempAmountPaidNowText)) ? 0 : Number(this.state.tempAmountPaidNowText), selectedPayMode: this.state.tempSelectedPayMode }) }}>
-              <Text style={{ color: "white" }}>Done</Text>
-            </TouchableOpacity>
-          </View>
+              <Text> Payment Mode </Text>
+              <FlatList
+                data={this.state.modesArray}
+                style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300, marginTop: 5 }}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={{
+                      borderBottomWidth: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
+                      borderColor: '#229F5F',
+                      alignSelf: 'flex-start',
+                      backgroundColor: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? '#E0F2E9' : null,
+                      width: '100%', paddingHorizontal: 5
+                    }}
+                    onFocus={() => this.onChangeText('')}
+                    onPress={async () => {
+                      this.setState({ tempSelectedPayMode: item });
+                      //if (this.state.amountPaidNowText != 0) {
+                      //this.setState({ showPaymentModePopup: false });
+                      //}
+                    }}>
+                    <Text style={{ color: '#1C1C1C', paddingVertical: 10, textAlign: 'left' }}>{item.name}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+              <TouchableOpacity style={{ backgroundColor: '#229F5F', width: "30%", padding: 5, paddingVertical: 10, borderRadius: 10, alignItems: "center", alignSelf: "flex-end" }}
+                onPress={() => {
+                  this.setState({ showPaymentModePopup: false, amountPaidNowText: isNaN(Number(this.state.tempAmountPaidNowText)) ? 0 : Number(this.state.tempAmountPaidNowText), selectedPayMode: this.state.tempSelectedPayMode })
+                }}>
+                <Text style={{ color: "white" }}>Done</Text>
+              </TouchableOpacity>
+            </View>
           </KeyboardAvoidingView>
-        </TouchableOpacity> 
-        </Modal>
+        </TouchableOpacity>
+      </Modal>
     );
   }
 
@@ -2287,11 +2296,11 @@ export class SalesInvoice extends React.Component<Props> {
                 alignItems: 'center'
               }}>
               <TouchableOpacity
-                style={{ width: "40%"}}
+                style={{ width: "40%" }}
                 onPress={() => {
                   if (this.state.modesArray.length > 0) {
                     this.setState({ showPaymentModePopup: true });
-                    this.setState({ tempSelectedPayMode: this.state.selectedPayMode,tempAmountPaidNowText:this.state.amountPaidNowText})
+                    this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
                   }
                 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -2308,7 +2317,7 @@ export class SalesInvoice extends React.Component<Props> {
                   style={{ width: "50%", alignItems: "flex-end" }}
                   onPress={() => {
                     this.setState({ showPaymentModePopup: true });
-                    this.setState({ tempSelectedPayMode: this.state.selectedPayMode,tempAmountPaidNowText:this.state.amountPaidNowText })
+                    this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
                   }}>
                   <Text style={{ color: '#1C1C1C' }}>
                     {this.state.addedItems.length > 0 && this.state.currencySymbol + Number(this.state.amountPaidNowText).toFixed(2)}
@@ -2394,7 +2403,7 @@ export class SalesInvoice extends React.Component<Props> {
   _renderSaveButton() {
     return (
       <TouchableOpacity
-        style={{flex: 1, position: 'absolute', right: 10, bottom: 30, backgroundColor: 'white', borderRadius: 60}}
+        style={{ flex: 1, position: 'absolute', right: 10, bottom: 30, backgroundColor: 'white', borderRadius: 60 }}
         onPress={() => {
           this.genrateInvoice('navigate');
         }}>
@@ -2509,7 +2518,7 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   render() {
-    console.log('search results-=-=-=-=-=-=',this.state.searchResults)
+    
     return (
       <View style={{ flex: 1 }}>
         <Animated.ScrollView

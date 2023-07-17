@@ -347,7 +347,7 @@ export class CreditNote extends React.Component<Props> {
     });
   };
 
-  searchCalls = _.debounce(this.searchUser, 2000);
+  searchCalls = _.debounce(this.searchUser, 200);
 
   async getAllDiscounts() {
     this.setState({ fetechingDiscountList: true });
@@ -997,10 +997,8 @@ export class CreditNote extends React.Component<Props> {
       return 'Tomorrow';
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
-    } else if (diffYears >= 1) {
-      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     } else {
-      return month + ' ' + date;
+      return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
     }
   }
 
@@ -1618,6 +1616,15 @@ export class CreditNote extends React.Component<Props> {
             <Text style={{ marginLeft: 10 }}>Select Product/Service</Text>
           </View>
           <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              borderColor: '#3497FD',
+              borderWidth: 1,
+              justifyContent: 'center',
+              alignItems:'center',
+              paddingHorizontal:5,
+              borderRadius:2
+            }}
             onPress={() => {
               this.props.navigation.navigate('CreditNoteAddItem', {
                 updateAddedItems: this.updateAddedItems.bind(this),
@@ -1625,7 +1632,8 @@ export class CreditNote extends React.Component<Props> {
                 currencySymbol: this.state.currencySymbol,
               });
             }}>
-            <Icon name={'path-15'} color="#808080" size={18} />
+            <AntDesign name={'plus'} color={'#3497FD'} size={16} />
+          <Text style={[style.addItemMain,{fontFamily:FONT_FAMILY.regular,fontSize:14}]}> Add Item</Text>
           </TouchableOpacity>
         </View>
         <FlatList
