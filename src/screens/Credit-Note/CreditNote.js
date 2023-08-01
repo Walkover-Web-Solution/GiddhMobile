@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import {
   View,
   Text,
@@ -33,9 +33,9 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import EditItemDetail from './EditItemDetails';
-import Dropdown from 'react-native-modal-dropdown';
 import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
+import BottomSheet from '@/components/BottomSheet';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -58,8 +58,11 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_HIDE: 'keyboardDidHide',
 };
 export class CreditNote extends React.Component<Props> {
+  // private invoiceBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props) {
     super(props);
+    this.invoiceBottomSheetRef = createRef();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       invoiceType: INVOICE_TYPE.creditNote,
       loading: false,
@@ -123,7 +126,6 @@ export class CreditNote extends React.Component<Props> {
       showAllInvoice: false,
       allVoucherInvoice: [],
       selectedInvoice: '',
-      accountDropDown: Dropdown,
       countryDeatils: {
         countryName: '',
         countryCode: '',
@@ -141,6 +143,15 @@ export class CreditNote extends React.Component<Props> {
     };
     this.keyboardMargin = new Animated.Value(0);
   }
+
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
 
   setOtherDetails = (data) => {
     this.setState({ otherDetails: data });
@@ -330,7 +341,6 @@ export class CreditNote extends React.Component<Props> {
   }
 
   clearAll = async () => {
-    await this.state.accountDropDown.select(-1);
     await this.resetState();
     await this.searchCalls();
     await this.setActiveCompanyCountry();
@@ -602,7 +612,6 @@ export class CreditNote extends React.Component<Props> {
   }
 
   resetState = () => {
-    this.state.accountDropDown.select(-1);
     this.setState({
       loading: false,
       invoiceType: INVOICE_TYPE.creditNote,
@@ -665,7 +674,6 @@ export class CreditNote extends React.Component<Props> {
       linkedInvoices: '',
       showAllInvoice: false,
       allVoucherInvoice: [],
-      accountDropDown: Dropdown,
       countryDeatils: {
         countryName: '',
         countryCode: '',
@@ -1011,7 +1019,6 @@ export class CreditNote extends React.Component<Props> {
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
     this.setState({ date: moment(date), selectedInvoice: '' });
     this.hideDatePicker();
-    this.state.accountDropDown.select(-1);
     this.getAllInvoice();
   };
 
@@ -1075,6 +1082,71 @@ export class CreditNote extends React.Component<Props> {
     );
   }
 
+  invoiceBottomSheet(){
+    const ListEmptyComponent = () => {
+      return (
+        <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={style.regularText}>
+            No Invoice Exist
+          </Text>
+        </View>
+      )
+    }
+    const renderItem = ({item}) => {
+      return (
+        <TouchableOpacity
+          style={{
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+          }}
+          onPress={() => {
+            this.state.allVoucherInvoice.length != 0
+              ? this.setState({
+                selectedInvoice: item.voucherNumber == null ? ' - ' : item.voucherNumber,
+                linkedInvoices: {
+                  uniqueName: item.uniqueName,
+                  voucherType: item.voucherType,
+                  invoiceUniqueName: item.uniqueName,
+                },
+              })
+              : null;
+            this.setBottomSheetVisible(this.invoiceBottomSheetRef, false);
+          }}
+        >
+        <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.regular }}>
+          {this.state.allVoucherInvoice.length == 0
+            ? item
+            : item.voucherNumber == null
+              ? 'NA'
+              : item.voucherNumber}
+        </Text>
+        {this.state.allVoucherInvoice.length != 0 ? (
+          <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
+            {'(Dated : ' + item.voucherDate + ')'}
+          </Text>
+        ) : null}
+        {this.state.allVoucherInvoice.length != 0 ? (
+          <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
+            {'(Due : ' + item.voucherTotal.amountForAccount + ')'}
+          </Text>
+        ) : null}
+      </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.invoiceBottomSheetRef}
+        headerText='Select Invoice'
+        headerTextColor='#084EAD'
+        flatListProps={{
+          data: this.state.allVoucherInvoice,
+          renderItem: renderItem,
+          ListEmptyComponent: <ListEmptyComponent/>
+        }}
+      />
+    )
+  }
+
   _renderSelectInvoice() {
     return (
       <View style={style.dateView}>
@@ -1082,78 +1154,18 @@ export class CreditNote extends React.Component<Props> {
           {/* <Icon name={'Calendar'} color={'#ff6961'} size={16} /> */}
           <Text style={style.InvoiceHeading}>Invoice #</Text>
           <View style={{ flexDirection: 'row', width: '80%', marginHorizontal: 15, justifyContent: 'space-between' }}>
-            <Dropdown
-              ref={(ref) => (this.state.accountDropDown = ref)}
-              textStyle={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular }}
-              defaultValue={'Select Account'}
-              value={this.state.selectedInvoice == '' ? 'Select Account' : this.state.selectedInvoice}
-              renderButtonText={(options) => {
-                return this.state.allVoucherInvoice.length == 0
-                  ? 'Select Account'
-                  : options.voucherNumber == null
-                    ? 'NA'
-                    : options.voucherNumber;
+            <TouchableOpacity
+              style={{flex: 1}}
+              onPress={() => {
+                this.setBottomSheetVisible(this.invoiceBottomSheetRef, true);
               }}
-              options={this.state.allVoucherInvoice.length == 0 ? ['Result Not found'] : this.state.allVoucherInvoice}
-              renderSeparator={() => {
-                return <View />;
-              }}
-              onSelect={(idx, value) => {
-                this.state.allVoucherInvoice.length != 0
-                  ? this.setState({
-                    selectedInvoice: value.voucherNumber == null ? ' - ' : value.voucherNumber,
-                    linkedInvoices: {
-                      uniqueName: value.uniqueName,
-                      voucherType: value.voucherType,
-                      invoiceUniqueName: value.uniqueName,
-                    },
-                  })
-                  : null;
-              }}
-              dropdownStyle={{
-                fontSize: 14,
-                width: '60%',
-                height: this.state.allVoucherInvoice.length == 0 ? 40 : 100,
-                color: 'white',
-                flex: 1,
-              }}
-              dropdownTextStyle={{
-                color: '#1C1C1C',
-                fontSize: 14,
-                fontFamily: FONT_FAMILY.regular,
-              }}
-              renderRow={(options) => {
-                return (
-                  <View
-                    style={{
-                      paddingHorizontal: 10,
-                      paddingBottom: 10,
-                      paddingTop: this.state.allVoucherInvoice.length > 1 ? 3 : 10,
-                      borderBottomColor: 'grey',
-                      borderBottomWidth: this.state.allVoucherInvoice.length > 1 ? 0.7 : 0,
-                      backgroundColor: "white"
-                    }}>
-                    <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.regular }}>
-                      {this.state.allVoucherInvoice.length == 0
-                        ? options
-                        : options.voucherNumber == null
-                          ? 'NA'
-                          : options.voucherNumber}
-                    </Text>
-                    {this.state.allVoucherInvoice.length != 0 ? (
-                      <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
-                        {'(Dated : ' + options.voucherDate + ')'}
-                      </Text>
-                    ) : null}
-                    {this.state.allVoucherInvoice.length != 0 ? (
-                      <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
-                        {'(Due : ' + options.voucherTotal.amountForAccount + ')'}
-                      </Text>
-                    ) : null}
-                  </View>
-                );
-              }}
-            />
+            >
+              <Text style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular }}>
+                {
+                  this.state.selectedInvoice != '' ? this.state.selectedInvoice : 'Select Account'
+                }
+              </Text>
+            </TouchableOpacity>
             {this.state.selectedInvoice != '' ? (
               <TouchableOpacity
                 style={{
@@ -1164,7 +1176,6 @@ export class CreditNote extends React.Component<Props> {
                   marginTop: -2,
                 }}
                 onPress={() => {
-                  this.state.accountDropDown.select(-1),
                     this.setState({
                       selectedInvoice: '',
                       linkedInvoices: '',
@@ -2304,6 +2315,7 @@ export class CreditNote extends React.Component<Props> {
         )}
 
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
+        {this.invoiceBottomSheet()}
       </View>
     );
   }

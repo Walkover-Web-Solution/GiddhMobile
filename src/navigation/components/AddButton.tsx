@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import {
   Animated,
   TouchableHighlight,
@@ -13,21 +12,27 @@ import {
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Icon from '@/core/components/custom-icon/custom-icon';
-// import {TouchableOpacity} from 'react-native-gesture-handler';
+import SalesInvoice from '@/assets/images/icons/options/SalesInvoice.svg'
+import CreditNote from '@/assets/images/icons/options/CreditNote.svg'
+import PurchaseBill from '@/assets/images/icons/options/PurchaseBill.svg'
+import DebitNote from '@/assets/images/icons/options/DebitNote.svg'
+import Payment from '@/assets/images/icons/options/Payment.svg'
+import Receipt from '@/assets/images/icons/options/Receipt.svg'
+import Customer from '@/assets/images/icons/options/Customer.svg'
+import Vendor from '@/assets/images/icons/options/Vendor.svg'
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-
-
 import { connect } from 'react-redux';
-import { APP_EVENTS } from '@/utils/constants';
+import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
+
 const arrButtons = [
-  { name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: 'Path-13013', color: '#3497FD' },
-  { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: 'purchase1', color: '#229F5F' },
-  { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: 'path1', color: '#FC8345' },
-  { name: 'Receipt', navigateTo: 'ReceiptScreens', icon: 'path-5', color: '#00B795' },
-  { name: 'Payment', navigateTo: 'PaymentScreens', icon: 'Union-63', color: '#084EAD' },
-  { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: 'Path-13014', color: '#ff6961' },
-  { name: 'Customer', navigateTo: 'CustomerVendorScreens', icon: 'Group-6187', color: '#864DD3' },
-  { name: 'Vendor', navigateTo: 'CustomerVendorScreens', icon: 'Group-6188', color: '#FF72BE' },
+  { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: <SalesInvoice/>, color: '#229F5F' },
+  { name: 'Credit Note', navigateTo: 'CreditNoteScreens', icon: <CreditNote/>, color: '#3497FD' },
+  { name: 'Purchase Bill', navigateTo: 'PurchaseBillScreens', icon: <PurchaseBill/>, color: '#FC8345' },
+  { name: 'Debit Note', navigateTo: 'DebitNoteScreens', icon: <DebitNote/>, color: '#ff6961' },
+  { name: 'Payment', navigateTo: 'PaymentScreens', icon: <Payment/>, color: '#084EAD' },
+  { name: 'Receipt', navigateTo: 'ReceiptScreens', icon: <Receipt/>, color: '#00B795' },
+  { name: 'Customer', navigateTo: 'CustomerVendorScreens', icon: <Customer/>, color: '#864DD3' },
+  { name: 'Vendor', navigateTo: 'CustomerVendorScreens', icon: <Vendor/>, color: '#FF72BE' },
   // { name: 'Advance Rcpt', navigateTo: 'AdvanceReceiptScreens', icon: 'Group-6188', color: '#51C445' }
   // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
   // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},
@@ -40,7 +45,7 @@ const arrButtons = [
 const SIZE = 48;
 const padding = 10;
 const { height, width } = Dimensions.get('window');
-const itemWidth = (Dimensions.get('window').width - (SIZE + padding * 8)) / (width > 550 ? 5 : 4);
+const itemWidth = (Dimensions.get('window').width - (SIZE + padding * 10)) / (width > 550 ? 5 : 4);
 type Props = {
   navigation: any;
   isDisabled: any;
@@ -89,6 +94,7 @@ class AddButton extends Component<Props> {
             transparent={true}
             onRequestClose={() => this.setState({ modalVisible: false })}>
             <TouchableOpacity
+              activeOpacity={1.0}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -126,10 +132,9 @@ class AddButton extends Component<Props> {
                   style={{ flex: 1, alignSelf: 'center', marginBottom: 0, }}
                   renderItem={({ item }) => (
                     <TouchableOpacity
+                      activeOpacity={0.7}
                       style={{
                         width: itemWidth,
-                        borderRadius: itemWidth / 2,
-                        justifyContent: 'center',
                         alignItems: 'center',
                         margin: padding
                       }}
@@ -147,7 +152,6 @@ class AddButton extends Component<Props> {
                           await this.props.navigation.navigate(item.navigateTo);
                         }
                         await this.setState({ modalVisible: false });
-                        // this.toggleView();
                       }}>
                       <View
                         style={{
@@ -158,15 +162,16 @@ class AddButton extends Component<Props> {
                           justifyContent: 'center',
                           alignItems: 'center'
                         }}>
-                        <Icon name={item.icon} size={24} color="#F8F8F8" />
+                        {item.icon}
                       </View>
-                      <Text style={{ fontSize: 9, textAlign: 'center', marginTop: 5 }}>{item.name}</Text>
+                      <Text style={{fontFamily: FONT_FAMILY.semibold, fontSize: GD_FONT_SIZE.small, textAlign: 'center', marginTop: 5 }}>{item.name}</Text>
                     </TouchableOpacity>
                   )}
                   keyExtractor={(item) => item.name}
                 />
               </View>
               <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => this.setState({ modalVisible: false })}
                 style={{
                   position: 'absolute',

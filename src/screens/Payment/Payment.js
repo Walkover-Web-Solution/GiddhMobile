@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  Modal,
   Keyboard,
   ActivityIndicator,
   DeviceEventEmitter,
@@ -14,9 +13,6 @@ import {
   Platform,
   Dimensions,
   StatusBar,
-  PermissionsAndroid,
-  Alert,
-  KeyboardAvoidingView,
 } from 'react-native';
 // import style from './style';
 import {connect} from 'react-redux';
@@ -37,6 +33,7 @@ import style from './style';
 import {FONT_FAMILY} from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
+import BottomSheet from '@/components/BottomSheet';
 
 const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
@@ -56,8 +53,15 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_HIDE: 'keyboardDidHide',
 };
 export class Payment extends React.Component {
+  // private taxModalRef: React.Ref<BottomSheet>;
+  // private calculationModalRef: React.Ref<BottomSheet>;
+  // private paymentModalRef: React.Ref<BottomSheet>;
   constructor(props) {
     super(props);
+    this.taxModalRef = React.createRef();
+    this.calculationModalRef = React.createRef();
+    this.paymentModalRef = React.createRef();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.focusRef = React.createRef();
     this.state = {
       loading: false,
@@ -131,13 +135,10 @@ export class Payment extends React.Component {
       navigatingAgain: false,
       checkedTaxName: '',
       allPaymentModes: [],
-      showAccountsPopup: false,
       radioBtn: 0,
       radio_props: [],
       isSelectAccountButtonSelected: false,
       selectedArrayType: [],
-      showTaxPopup: false,
-      showTaxCalculationMethodPopup: false,
       tdsTcsTaxCalculationMethod: 'OnTaxableAmount',
       taxAmount: 10,
       balanceDetails: {
@@ -149,6 +150,15 @@ export class Payment extends React.Component {
     };
     this.keyboardMargin = new Animated.Value(0);
   }
+
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
 
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? (
@@ -712,11 +722,8 @@ export class Payment extends React.Component {
       navigatingAgain: false,
       checkedTaxName: '',
       allPaymentModes: [],
-      showAccountsPopup: false,
       isSelectAccountButtonSelected: false,
       selectedArrayType: [],
-      showTaxPopup: false,
-      showTaxCalculationMethodPopup: false,
       tdsTcsTaxCalculationMethod: 'OnTaxableAmount',
       balanceDetails: {
         totalTaxableAmount: 0,
@@ -738,285 +745,218 @@ export class Payment extends React.Component {
 
   _renderTaxCalculationMethodModal() {
     return (
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={this.state.showTaxCalculationMethodPopup}
-        onRequestClose={() => {
-          this.setState({showTaxCalculationMethodPopup: false});
-        }}>
+      <BottomSheet
+        bottomSheetRef={this.calculationModalRef}
+        headerText='Calculation Method'
+        headerTextColor='#084EAD'
+      >
         <TouchableOpacity
+          onFocus={() => this.onChangeText('')}
           style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: 'rgba(0,0,0,0.2)',
-            justifyContent: 'center',
+            paddingHorizontal: 20,
+            marginHorizontal: 2,
+            borderRadius: 10,
+            marginTop: 10,
           }}
-          onPress={() => {
-            this.setState({showTaxCalculationMethodPopup: false});
+          onPress={async () => {
+            await this.setState({tdsTcsTaxCalculationMethod: 'OnTaxableAmount'});
+            await this.calculatedTaxAmounstForReceipt();
+            this.setBottomSheetVisible(this.calculationModalRef, false);
           }}>
-          <View
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 10,
-              marginHorizontal: 20,
-              maxHeight: 400,
-              alignSelf: 'stretch',
-              paddingBottom: 5,
-            }}>
+          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+            {this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? (
+              <Icon name={'radio-checked2'} color={'#084EAD'} size={16} />
+            ) : (
+              <Icon name={'radio-unchecked'} color={'#084EAD'} size={16} />
+            )}
             <Text
-              style={[
-                {fontFamily: FONT_FAMILY.bold, fontSize: 16, color: '#084EAD', marginHorizontal: 20, margin: 10},
-              ]}>
-              {'Calculation Method'}
+              style={{
+                color: '#1C1C1C',
+                paddingVertical: 4,
+                fontSize: 14,
+                textAlign: 'center',
+                marginLeft: 10,
+                fontFamily: FONT_FAMILY.semibold,
+              }}>
+              {'On Taxable Value (Amt - Dis)'}
             </Text>
-            <View style={{backgroundColor: 'black', height: 1.1}}></View>
-            <TouchableOpacity
-              onFocus={() => this.onChangeText('')}
-              style={{
-                backgroundColor: this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? '#084EAD80' : '#fff',
-                paddingHorizontal: 20,
-                marginHorizontal: 2,
-                borderRadius: 10,
-                marginTop: 10,
-              }}
-              onPress={async () => {
-                await this.setState({tdsTcsTaxCalculationMethod: 'OnTaxableAmount'});
-                await this.calculatedTaxAmounstForReceipt();
-                await this.setState({showTaxCalculationMethodPopup: false});
-              }}>
-              <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
-                {this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? (
-                  <Icon name={'radio-checked2'} color={'#084EAD'} size={16} />
-                ) : (
-                  <Icon name={'radio-unchecked'} color={'#084EAD'} size={16} />
-                )}
-                <Text
-                  style={{
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    marginLeft: 10,
-                    fontFamily: FONT_FAMILY.semibold,
-                  }}>
-                  {'On Taxable Value (Amt - Dis)'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onFocus={() => this.onChangeText('')}
-              style={{
-                backgroundColor: this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount' ? '#084EAD80' : '#fff',
-                paddingHorizontal: 20,
-                marginHorizontal: 2,
-                borderRadius: 10,
-                marginBottom: 10,
-              }}
-              onPress={async () => {
-                await this.setState({tdsTcsTaxCalculationMethod: 'OnTotalAmount'});
-                await this.calculatedTaxAmounstForReceipt();
-                await this.setState({showTaxCalculationMethodPopup: false});
-              }}>
-              <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
-                {this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount' ? (
-                  <Icon name={'radio-checked2'} color={'#084EAD'} size={16} />
-                ) : (
-                  <Icon name={'radio-unchecked'} color={'#084EAD'} size={16} />
-                )}
-                <Text
-                  style={{
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    marginLeft: 10,
-                    fontFamily: FONT_FAMILY.semibold,
-                  }}>
-                  {'On Total Value (Taxable + Gst + Cess)'}
-                </Text>
-              </View>
-            </TouchableOpacity>
           </View>
         </TouchableOpacity>
-      </Modal>
+        <TouchableOpacity
+          onFocus={() => this.onChangeText('')}
+          style={{
+            paddingHorizontal: 20,
+            marginHorizontal: 2,
+            borderRadius: 10,
+            marginBottom: 10,
+          }}
+          onPress={async () => {
+            await this.setState({tdsTcsTaxCalculationMethod: 'OnTotalAmount'});
+            await this.calculatedTaxAmounstForReceipt();
+            this.setBottomSheetVisible(this.calculationModalRef, false);
+          }}>
+          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+            {this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount' ? (
+              <Icon name={'radio-checked2'} color={'#084EAD'} size={16} />
+            ) : (
+              <Icon name={'radio-unchecked'} color={'#084EAD'} size={16} />
+            )}
+            <Text
+              style={{
+                color: '#1C1C1C',
+                paddingVertical: 4,
+                fontSize: 14,
+                textAlign: 'center',
+                marginLeft: 10,
+                fontFamily: FONT_FAMILY.semibold,
+              }}>
+              {'On Total Value (Taxable + Gst + Cess)'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </BottomSheet>
     );
   }
 
   _renderTax() {
     return (
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={this.state.showTaxPopup}
-        onRequestClose={() => {
-          this.setState({showTaxPopup: false});
-        }}>
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-          }}
-          onPress={() => {
-            this.setState({
-              showTaxPopup: false,
-              isChecked: this.state.SelectedTaxData.taxDetailsArray.length > 0 ? true : false,
+      <BottomSheet
+        bottomSheetRef={this.taxModalRef}
+        headerText='Select Taxes'
+        headerTextColor='#084EAD'
+        onClose={() => {
+          if(this.state.SelectedTaxData.taxDetailsArray.length == 0){
+            this.setState({ isChecked: false });
+            this.resetOnUncheckTax();
+          }
+        }}
+        flatListProps={{
+          data: this.state.tdsTcsTaxArray,
+          renderItem: ({item}) => {
+            const selectedTaxArray = this.state.SelectedTaxData.taxDetailsArray;
+            const selectedTaxTypeArr = [...this.state.selectedArrayType];
+            const filtered = _.filter(selectedTaxArray, function (o) {
+              if (o.uniqueName == item.uniqueName) {
+                return o;
+              }
             });
-          }}>
-          <View
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 10,
-              marginHorizontal: 20,
-              maxHeight: 400,
-              minWidth: 200,
-              maxWidth: 200,
-              alignSelf: 'center',
-            }}>
-            <FlatList
-              data={this.state.tdsTcsTaxArray}
-              style={{}}
-              renderItem={({item}) => {
-                const selectedTaxArray = this.state.SelectedTaxData.taxDetailsArray;
-                const selectedTaxTypeArr = [...this.state.selectedArrayType];
-                const filtered = _.filter(selectedTaxArray, function (o) {
-                  if (o.uniqueName == item.uniqueName) {
-                    return o;
-                  }
-                });
-                return (
-                  <TouchableOpacity
-                    style={{paddingHorizontal: 20}}
-                    onFocus={() => this.onChangeText('')}
-                    onPress={async () => {
-                      if (
-                        (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
-                        ((selectedTaxTypeArr.includes('tdspay') ||
-                          selectedTaxTypeArr.includes('tdsrc') ||
-                          selectedTaxTypeArr.includes('tcsrc')) &&
-                          item.taxType == 'tcspay') ||
-                        ((selectedTaxTypeArr.includes('tdspay') ||
-                          selectedTaxTypeArr.includes('tcspay') ||
-                          selectedTaxTypeArr.includes('tcsrc')) &&
-                          item.taxType == 'tdsrc') ||
-                        ((selectedTaxTypeArr.includes('tdspay') ||
-                          selectedTaxTypeArr.includes('tdsrc') ||
-                          selectedTaxTypeArr.includes('tcspay')) &&
-                          item.taxType == 'tcsrc') ||
-                        ((selectedTaxTypeArr.includes('tcspay') ||
-                          selectedTaxTypeArr.includes('tdsrc') ||
-                          selectedTaxTypeArr.includes('tcsrc')) &&
-                          item.taxType == 'tdspay')
-                      ) {
-                        console.log('did not select');
-                      } else {
-                        const itemDetails = this.state.SelectedTaxData;
-                        var filtered = _.filter(selectedTaxArray, function (o) {
-                          if (o.uniqueName == item.uniqueName) {
-                            return o;
-                          }
-                        });
-
-                        if (filtered.length == 0) {
-                          selectedTaxArray.push(item);
-                          itemDetails.taxDetailsArray = selectedTaxArray;
-                          const arr1 = [...selectedTaxTypeArr, item.taxType];
-                          if (
-                            item.taxType == 'tdspay' ||
-                            item.taxType == 'tcspay' ||
-                            item.taxType == 'tdsrc' ||
-                            item.taxType == 'tcsrc'
-                          ) {
-                            await this.calculatedTaxAmounstForReceipt();
-                            this.setState({showTaxCalculationMethodPopup: true});
-                          }
-                          this.setState({selectedArrayType: arr1});
-                        } else {
-                          await this.calculatedTaxAmounstForReceipt();
-                          var filtered = _.filter(selectedTaxArray, function (o) {
-                            if (o.uniqueName !== item.uniqueName) {
-                              return o;
-                            }
-                          });
-
-                          const arr2 = _.filter(selectedTaxTypeArr, function (o) {
-                            if (o !== item.taxType) {
-                              return o;
-                            }
-                          });
-                          itemDetails.taxDetailsArray = filtered;
-                          this.setState({selectedArrayType: arr2});
-                        }
+            return (
+              <TouchableOpacity
+                style={{paddingHorizontal: 20}}
+                onFocus={() => this.onChangeText('')}
+                onPress={async () => {
+                  if (
+                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                    ((selectedTaxTypeArr.includes('tdspay') ||
+                      selectedTaxTypeArr.includes('tdsrc') ||
+                      selectedTaxTypeArr.includes('tcsrc')) &&
+                      item.taxType == 'tcspay') ||
+                    ((selectedTaxTypeArr.includes('tdspay') ||
+                      selectedTaxTypeArr.includes('tcspay') ||
+                      selectedTaxTypeArr.includes('tcsrc')) &&
+                      item.taxType == 'tdsrc') ||
+                    ((selectedTaxTypeArr.includes('tdspay') ||
+                      selectedTaxTypeArr.includes('tdsrc') ||
+                      selectedTaxTypeArr.includes('tcspay')) &&
+                      item.taxType == 'tcsrc') ||
+                    ((selectedTaxTypeArr.includes('tcspay') ||
+                      selectedTaxTypeArr.includes('tdsrc') ||
+                      selectedTaxTypeArr.includes('tcsrc')) &&
+                      item.taxType == 'tdspay')
+                  ) {
+                    console.log('did not select');
+                  } else {
+                    const itemDetails = this.state.SelectedTaxData;
+                    var filtered = _.filter(selectedTaxArray, function (o) {
+                      if (o.uniqueName == item.uniqueName) {
+                        return o;
                       }
-                      this.calculatedTaxAmounstForReceipt();
-                    }}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
-                      <View
-                        style={{
-                          borderRadius: 1,
-                          borderWidth: 1,
-                          borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
-                          width: 18,
-                          height: 18,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          // backgroundColor: 'yellow'
-                        }}>
-                        {filtered.length > 0 && (
-                          <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
-                        )}
-                      </View>
+                    });
 
-                      <Text
-                        style={{
-                          color: '#1C1C1C',
-                          paddingVertical: 4,
-                          fontFamily: FONT_FAMILY.semibold,
-                          fontSize: 12,
-                          textAlign: 'center',
-                          marginLeft: 20,
-                          // backgroundColor: 'grey'
-                        }}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
-              ListEmptyComponent={() => {
-                return (
-                  <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
-                    <Text
-                      style={{
-                        flex: 1,
-                        color: '#1C1C1C',
-                        paddingVertical: 4,
-                        fontFamily: FONT_FAMILY.semibold,
-                        fontSize: 14,
-                        textAlign: 'center',
-                        alignSelf: 'center',
-                        // marginLeft: 20,
-                        // backgroundColor: 'grey'
-                      }}>
-                      No Taxes Available
-                    </Text>
+                    if (filtered.length == 0) {
+                      selectedTaxArray.push(item);
+                      itemDetails.taxDetailsArray = selectedTaxArray;
+                      const arr1 = [...selectedTaxTypeArr, item.taxType];
+                      if (
+                        item.taxType == 'tdspay' ||
+                        item.taxType == 'tcspay' ||
+                        item.taxType == 'tdsrc' ||
+                        item.taxType == 'tcsrc'
+                      ) {
+                        await this.calculatedTaxAmounstForReceipt();
+                        this.setBottomSheetVisible(this.calculationModalRef, true);
+                      }
+                      this.setState({selectedArrayType: arr1});
+                    } else {
+                      await this.calculatedTaxAmounstForReceipt();
+                      var filtered = _.filter(selectedTaxArray, function (o) {
+                        if (o.uniqueName !== item.uniqueName) {
+                          return o;
+                        }
+                      });
+
+                      const arr2 = _.filter(selectedTaxTypeArr, function (o) {
+                        if (o !== item.taxType) {
+                          return o;
+                        }
+                      });
+                      itemDetails.taxDetailsArray = filtered;
+                      this.setState({selectedArrayType: arr2});
+                    }
+                  }
+                  this.calculatedTaxAmounstForReceipt();
+                }}>
+                <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                  <View
+                    style={{
+                      borderRadius: 1,
+                      borderWidth: 1,
+                      borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
+                      width: 18,
+                      height: 18,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    {filtered.length > 0 && (
+                      <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
+                    )}
                   </View>
-                );
-              }}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          </View>
-        </TouchableOpacity>
-        {this._renderTaxCalculationMethodModal()}
-      </Modal>
+
+                  <Text
+                    style={{
+                      color: '#1C1C1C',
+                      paddingVertical: 4,
+                      fontFamily: FONT_FAMILY.semibold,
+                      fontSize: 14,
+                      textAlign: 'center',
+                      marginLeft: 20,
+                    }}>
+                    {item.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          },
+          ListEmptyComponent: () => {
+            return (
+              <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <Text
+                  style={{
+                    flex: 1,
+                    color: '#1C1C1C',
+                    paddingVertical: 4,
+                    fontFamily: FONT_FAMILY.semibold,
+                    fontSize: 14,
+                    textAlign: 'center',
+                    alignSelf: 'center',
+                  }}>
+                  No Taxes Available
+                </Text>
+              </View>
+            );
+          }
+        }}
+      />
     );
   }
 
@@ -1181,97 +1121,57 @@ export class Payment extends React.Component {
 
   _renderAccountsPopUp() {
     return (
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={this.state.showAccountsPopup}
-        onRequestClose={() => {
-          this.setState({showAccountsPopup: false});
-          this.setState({isSelectAccountButtonSelected: this.state.paymentMode.uniqueName != '' ? true : false});
-        }}>
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-          }}
-          onPress={() => {
-            this.setState({showAccountsPopup: false});
-            this.setState({isSelectAccountButtonSelected: this.state.paymentMode.uniqueName != '' ? true : false});
-          }}>
-          <View
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 10,
-              marginHorizontal: 20,
-              maxHeight: 400,
-              alignSelf: 'stretch',
-              paddingBottom: 5,
-            }}>
-            <Text
-              style={[
-                {fontFamily: FONT_FAMILY.bold, fontSize: 16, color: '#084EAD', marginHorizontal: 20, margin: 10},
-              ]}>
-              Select A/c
-            </Text>
-            <View style={{backgroundColor: 'black', height: 1.1}}></View>
-            <FlatList
-              data={this.state.allPaymentModes}
-              style={{paddingVertical: 10}}
-              keyExtractor={(item, index) => {
-                index;
-              }}
-              renderItem={({item}) => {
-                return (
-                  <TouchableOpacity
-                    onFocus={() => this.onChangeText('')}
+      <BottomSheet
+        bottomSheetRef={this.paymentModalRef}
+        headerText='Select A/c'
+        headerTextColor='#084EAD'
+        flatListProps={{
+          data: this.state.allPaymentModes,
+          style: {paddingVertical: 10},
+          renderItem: ({item}) => {
+            return (
+              <TouchableOpacity
+                onFocus={() => this.onChangeText('')}
+                style={{
+                  paddingHorizontal: 20,
+                  marginHorizontal: 2,
+                  borderRadius: 10,
+                }}
+                onPress={async () => {
+                  await this.setState({
+                    paymentMode: {
+                      uniqueName: item.uniqueName,
+                      name: item.name,
+                    },
+                  });
+                  this.setBottomSheetVisible(this.paymentModalRef, false);
+                  await this.setState({
+                    isSelectAccountButtonSelected: this.state.paymentMode.uniqueName != '' ? true : false,
+                  });
+                }}>
+                <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                  {this.state.paymentMode.uniqueName == item.uniqueName ? (
+                    <Icon name={'radio-checked2'} color={'#084EAD'} size={16} />
+                  ) : (
+                    <Icon name={'radio-unchecked'} color={'#084EAD'} size={16} />
+                  )}
+                  <Text
                     style={{
-                      backgroundColor: this.state.paymentMode.uniqueName == item.uniqueName ? '#084EAD80' : '#fff',
-                      paddingHorizontal: 20,
-                      marginHorizontal: 2,
-                      borderRadius: 10,
-                    }}
-                    onPress={async () => {
-                      await this.setState({
-                        paymentMode: {
-                          uniqueName: item.uniqueName,
-                          name: item.name,
-                        },
-                      });
-                      await this.setState({showAccountsPopup: false});
-                      await this.setState({
-                        isSelectAccountButtonSelected: this.state.paymentMode.uniqueName != '' ? true : false,
-                      });
+                      color: '#1C1C1C',
+                      paddingVertical: 4,
+                      fontSize: 14,
+                      textAlign: 'center',
+                      marginLeft: 10,
+                      fontFamily: FONT_FAMILY.bold,
                     }}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
-                      {this.state.paymentMode.uniqueName == item.uniqueName ? (
-                        <Icon name={'radio-checked2'} color={'#084EAD'} size={16} />
-                      ) : (
-                        <Icon name={'radio-unchecked'} color={'#084EAD'} size={16} />
-                      )}
-                      <Text
-                        style={{
-                          color: '#1C1C1C',
-                          paddingVertical: 4,
-                          fontSize: 14,
-                          textAlign: 'center',
-                          marginLeft: 10,
-                          fontFamily: FONT_FAMILY.bold,
-                        }}>
-                        {item.name}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
-            />
-          </View>
-        </TouchableOpacity>
-      </Modal>
+                    {item.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          }
+        }}
+      />
     );
   }
 
@@ -1289,7 +1189,7 @@ export class Payment extends React.Component {
               style={{flexDirection: 'row'}}
               onPress={() => {
                 if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-                  this.setState({showAccountsPopup: true});
+                  this.setBottomSheetVisible(this.paymentModalRef, true);
                 } else {
                   alert('Please select a party.');
                 }
@@ -1331,20 +1231,10 @@ export class Payment extends React.Component {
           } else if (this.state.amountForReceipt == '') {
             alert('Please enter amount.');
           } else {
+            this.setBottomSheetVisible(this.taxModalRef, true);
             await this.setState({
-              isChecked: true,
-              modalVisible: true,
-              showTaxPopup: true,
+              isChecked: true
             });
-
-            if (this.state.isChecked == false) {
-              await this.setState({
-                selectedTax: {uniqueName: '', taxType: ''},
-                SelectedTaxData: {taxDetailsArray: []},
-                selectedArrayType: '',
-              });
-              this.resetOnUncheckTax();
-            }
           }
         }}>
         <View style={{flexDirection: 'row'}}>
@@ -1358,20 +1248,10 @@ export class Payment extends React.Component {
               } else if (this.state.amountForReceipt == '') {
                 alert('Please enter amount.');
               } else {
+                this.setBottomSheetVisible(this.taxModalRef, true);
                 await this.setState({
-                  isChecked: !this.state.isChecked,
-                  modalVisible: !this.state.isChecked,
-                  showTaxPopup: !this.state.isChecked,
-                  selectedArrayType: '',
+                  isChecked: true
                 });
-                if (this.state.isChecked == false) {
-                  await this.setState({
-                    selectedTax: {uniqueName: '', taxType: ''},
-                    SelectedTaxData: {taxDetailsArray: []},
-                    selectedArrayType: '',
-                  });
-                  this.resetOnUncheckTax();
-                }
               }
             }}
             isChecked={this.state.isChecked}
@@ -1392,7 +1272,6 @@ export class Payment extends React.Component {
             <Text style={[style.addressHeaderText, {marginLeft: 5}]}>{'Tax'}</Text>
           )}
         </View>
-        {this._renderTax()}
       </TouchableOpacity>
     );
   }
@@ -1805,7 +1684,6 @@ export class Payment extends React.Component {
             {this._renderLinkIvoice()}
             {this._renderAddDescription()}
             {this.state.amountForReceipt > 0 && this.state.partyName.name && this._renderTotalAmount()}
-            {this.state.showAccountsPopup && this._renderAccountsPopUp()}
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
@@ -1842,6 +1720,9 @@ export class Payment extends React.Component {
           this.state.partyName.name &&
           this.state.paymentMode.uniqueName != '' &&
           this._renderSaveButton()}
+        {this._renderAccountsPopUp()}
+        {this._renderTax()}
+        {this._renderTaxCalculationMethodModal()}
       </View>
     );
   }

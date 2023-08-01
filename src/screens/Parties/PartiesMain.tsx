@@ -11,7 +11,9 @@ import {
   Dimensions,
   ScrollView,
   TextInput,
-  StatusBar, Platform
+  StatusBar, 
+  Platform, 
+  Keyboard
 } from 'react-native';
 import style from '@/screens/Parties/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -36,16 +38,18 @@ const { width } = Dimensions.get('window');
 
 export class PartiesMainScreen extends React.Component {
   private scrollRef;
+  private sortByBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: any) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollRef = React.createRef();
+    this.sortByBottomSheetRef = React.createRef<BottomSheet>();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       showLoader: false,
       searchQuery: '',
       vendorData: [],
       customerData: [],
-      sortModal: false,
       sortBy: 'closingBalance',
       order: 'desc',
       textInputOpen: false,
@@ -70,6 +74,15 @@ export class PartiesMainScreen extends React.Component {
       });
     });
   }
+
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
 
   FocusAwareStatusBar = (isFocused: any) => {
     return isFocused ? <StatusBar backgroundColor="#520EAD" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> : null;
@@ -150,10 +163,6 @@ export class PartiesMainScreen extends React.Component {
         }
       );
     }
-  };
-
-  modalVisible = () => {
-    this.setState({ sortModal: false });
   };
 
   apiCalls = async () => {
@@ -375,7 +384,7 @@ export class PartiesMainScreen extends React.Component {
                 <View style={{ position: 'absolute', right: 15, flexDirection: 'row', padding: 10, alignItems: 'center' }}>
                   <TouchableOpacity
                     delayPressIn={0}
-                    onPress={() => this.setState({ sortModal: true })}
+                    onPress={() => this.setBottomSheetVisible(this.sortByBottomSheetRef, true)}
                     style={{ padding: 8 }}>
                     <Icon name={'Group-6191'} size={20} color={'#FFFFFF'} />
                   </TouchableOpacity>
@@ -506,8 +515,8 @@ export class PartiesMainScreen extends React.Component {
           </View>
         </ScrollView>
         <SortModal
-          modalVisible={this.state.sortModal}
-          setModalVisible={this.modalVisible}
+          bottomSheetRef={this.sortByBottomSheetRef}
+          setBottomSheetVisible={this.setBottomSheetVisible}
           filter={this.filter}
           activeFilter={this.activeFilter()}
         />

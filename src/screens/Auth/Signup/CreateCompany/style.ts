@@ -1,6 +1,6 @@
 import { StyleSheet,Dimensions,Platform } from 'react-native';
 import colors from '@/utils/colors';
-import { FONT_FAMILY } from '../../../../utils/constants'
+import { FONT_FAMILY, GD_FONT_SIZE } from '../../../../utils/constants'
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 export default StyleSheet.create({
@@ -99,4 +99,16 @@ centeredView: {
     opacity:0.15,
     borderBottomColor: "grey",
   },
+  button: {
+    flexDirection: "row", 
+    alignItems: 'center',
+    justifyContent: "flex-start", 
+    paddingHorizontal: 20,
+    paddingVertical: 15
+  },
+  buttonText: {
+    color: '#1C1C1C', 
+    fontFamily: FONT_FAMILY.regular,
+    marginLeft: 10
+  }
 });

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { FONT_FAMILY } from '../../utils/constants';
+import { FONT_FAMILY, GD_FONT_SIZE } from '../../utils/constants';
 export default StyleSheet.create({
   container: {
     flex: 1
@@ -170,5 +170,22 @@ export default StyleSheet.create({
     fontSize: 16,
     color: '#229F5F',
     alignSelf: 'center'
+  },
+  text: {
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 14,
+    marginLeft: 20
+  },
+  regularText: {
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 14,
+  },
+  boldText: {
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 14,
   }
 });

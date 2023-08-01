@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { connect } from 'react-redux';
 import TransactionList from '@/screens/Transaction/components/transaction-list.component';
 import _ from 'lodash';
@@ -13,8 +13,11 @@ import {
   Alert,
   Linking,
   StatusBar,
-  Modal,
-  Platform, DeviceEventEmitter, TextInput, ToastAndroid
+  Platform, 
+  DeviceEventEmitter, 
+  TextInput, 
+  ToastAndroid, 
+  Keyboard
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused } from '@react-navigation/native';
@@ -38,14 +41,12 @@ import getSymbolFromCurrency from 'currency-symbol-map';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
 import PushNotification, { Importance } from 'react-native-push-notification';
-import Dialog from 'react-native-dialog';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 import Share from 'react-native-share';
 import base64 from 'react-native-base64';
 import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
-// import { catch } from 'metro.config';
 import color from '@/utils/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Dropdown from 'react-native-modal-dropdown';
@@ -53,6 +54,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PaymentServices } from '@/core/services/payment/payment';
 import TOAST from 'react-native-root-toast';
 import SMSUserConsent from '../../../SMSUserConsent';
+import BottomSheet from '@/components/BottomSheet';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -63,9 +65,17 @@ type Props = connectedProps;
 const { width, height } = Dimensions.get('window');
 
 class PartiesTransactionScreen extends React.Component {
+  private voucherBottomSheetRef: React.Ref<BottomSheet>;
+  private pdfBottomSheetRef: React.Ref<BottomSheet>;
+  private moreBottomSheetRef: React.Ref<BottomSheet>;
+  private reminderBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: Props) {
     super(props);
-
+    this.voucherBottomSheetRef = createRef<BottomSheet>();
+    this.pdfBottomSheetRef = createRef<BottomSheet>();
+    this.moreBottomSheetRef = createRef<BottomSheet>();
+    this.reminderBottomSheetRef = createRef<BottomSheet>();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       showLoader: true,
       transactionsLoader: true,
@@ -75,17 +85,13 @@ class PartiesTransactionScreen extends React.Component {
       page: 1,
       totalPages: 0,
       loadingMore: false,
-      voucherModal: false,
       DownloadModal: false,
       ShareModal: false,
-      MoreModal: false,
-      pdfModal: false,
       vouchers: [],
       creditTotal: 0,
       debitTotal: 0,
       activeDateFilter: '',
       dateMode: 'defaultDates',
-      remainderModal: false,
       datePicker: false,
       timePicker: false,
       dateTime: new Date(Date.now()),
@@ -259,7 +265,7 @@ class PartiesTransactionScreen extends React.Component {
         title: 'Reminder',
         userInfo: { item: JSON.stringify(data), activeCompanyUniqueName: activeCompanyUniqueName, activeCompanyName: activeCompanyName, activeCompany: this.props.route.params.activeCompany }
       });
-      await this.setState({ remainderModal: false });
+      this.setBottomSheetVisible(this.reminderBottomSheetRef, false);
       await setTimeout(() => { Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]) }, 400)
     } catch (error) {
       console.log("failed to push notification" + error);
@@ -415,11 +421,13 @@ class PartiesTransactionScreen extends React.Component {
     this.setState({ transactionsLoader: true });
   };
 
-  modalVisible = () => {
-    this.setState({ voucherModal: false });
-  };
-  pdfmodalVisible = () => {
-    this.setState({ pdfModal: false });
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
   };
   shareModalVisible = (value) => {
     this.setState({ ShareModal: value });
@@ -427,10 +435,6 @@ class PartiesTransactionScreen extends React.Component {
   downloadModalVisible = (value) => {
     this.setState({ DownloadModal: value });
   };
-  moreModalVisible = () => {
-    this.setState({ MoreModal: false });
-  };
-
   onWhatsApp = () => {
     if (this.props.route.params?.item?.mobileNo) {
       Linking.openURL(`whatsapp://send?phone=${this.props.route?.params?.item?.mobileNo}&text=${''}`);
@@ -1250,18 +1254,18 @@ class PartiesTransactionScreen extends React.Component {
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {this.state.transactionsData.length == 0 ? null : (
-                <TouchableOpacity delayPressIn={0} style={{ padding: 5 }} onPress={() => this.setState({ pdfModal: true })}>
+                <TouchableOpacity delayPressIn={0} style={{ padding: 5 }} onPress={() => this.setBottomSheetVisible(this.pdfBottomSheetRef, true)}>
                   <AntDesign name="pdffile1" size={22} color={'#FF7C7C'} />
                 </TouchableOpacity>
               )}
-              <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => this.setState({ remainderModal: true })}>
+              <TouchableOpacity style={{ marginLeft: 15 }} onPress={() => this.setBottomSheetVisible(this.reminderBottomSheetRef, true)}>
                 <MaterialCommunityIcons name="bell-ring" size={22} color={"#808080"} />
               </TouchableOpacity>
               {this.props.route?.params?.item?.mobileNo ? (
                 <TouchableOpacity
                   delayPressIn={0}
                   style={{ marginLeft: 15, padding: 5 }}
-                  onPress={() => this.setState({ MoreModal: true })}>
+                  onPress={() => this.setBottomSheetVisible(this.moreBottomSheetRef, true)}>
                   <Entypo name="dots-three-vertical" size={22} color={'#808080'} />
                 </TouchableOpacity>
               ) : null}
@@ -1328,9 +1332,9 @@ class PartiesTransactionScreen extends React.Component {
                 borderWidth: 1,
                 borderColor: '#D9D9D9',
               }}
-              onPress={() => this.setState({ voucherModal: true })}
-            // onPress={() => this.tryDate()}
-            // onPress={() => console.log(this.props?.route?.params?.item?.uniqueName, 'hello')}
+              onPress={() => { 
+                this.setBottomSheetVisible(this.voucherBottomSheetRef, true);
+              }}
             >
               <Foundation name="filter" size={22} color={'#808080'} />
             </TouchableOpacity>
@@ -1551,8 +1555,8 @@ class PartiesTransactionScreen extends React.Component {
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.ShareModal} />
           <PDFModal
-            modalVisible={this.state.pdfModal}
-            setModalVisible={this.pdfmodalVisible}
+            bottomSheetRef={this.pdfBottomSheetRef}
+            setBottomSheetVisible={this.setBottomSheetVisible}
             onExport={this.permissonDownload}
             onShare={this.permissonShare}
             onWhatsAppShare={this.permissonWhatsapp}
@@ -1561,23 +1565,23 @@ class PartiesTransactionScreen extends React.Component {
             phoneNo={this.props.route?.params?.item?.mobileNo}
           />
           <VoucherModal
-            modalVisible={this.state.voucherModal}
-            setModalVisible={this.modalVisible}
+            bottomSheetRef={this.voucherBottomSheetRef}
+            setBottomSheetVisible={this.setBottomSheetVisible}
             filter={this.filter}
             loader={this.transactionsLoader}
           />
           <MoreModal
-            modalVisible={this.state.MoreModal}
-            setModalVisible={this.moreModalVisible}
+            bottomSheetRef={this.moreBottomSheetRef}
+            setBottomSheetVisible={this.setBottomSheetVisible}
             onWhatsApp={this.onWhatsApp}
             onCall={this.onCall}
           />
-          <Dialog.Container
-            visible={this.state.remainderModal}
-            onBackdropPress={() => this.setState({ remainderModal: false })}>
-
-            <Text style={{ textAlign: 'center', fontSize: 18, marginBottom: 10, fontFamily: FONT_FAMILY.bold }}>Set Reminder</Text>
-            <View style={{ paddingHorizontal: 15 }}>
+          <BottomSheet
+            bottomSheetRef={this.reminderBottomSheetRef}
+            headerText='Set Reminder'
+            headerTextColor='#864DD3'
+          >
+            <View style={{ padding: 20 }}>
               <Text style={{ fontFamily: 'AvenirLTStd-Book' }}>Date</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ datePicker: true })}
@@ -1646,27 +1650,7 @@ class PartiesTransactionScreen extends React.Component {
                 }}
               />
             </View>
-          </Dialog.Container>
-          <Modal visible={false}>
-            <View style={{ flex: 1 }}>
-              {this.FocusAwareStatusBar(this.props.isFocused)}
-              <View
-                style={{
-                  height: Dimensions.get('window').height * 0.08,
-                  backgroundColor: '#864DD3',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingHorizontal: 20,
-                }}>
-                <TouchableOpacity onPress={() => this.setState({ remainderModal: false })}>
-                  <Icon name={'Backward-arrow'} color="#fff" size={18} />
-                </TouchableOpacity>
-                <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
-                  Set Remainder
-                </Text>
-              </View>
-            </View>
-          </Modal>
+          </BottomSheet>
           {this.state.iosLoaderToExport && (
             <View
               style={{

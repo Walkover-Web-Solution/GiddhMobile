@@ -258,6 +258,7 @@ export class Customer extends React.Component<Props> {
                 horizontal={true}
                 scrollEventThrottle={16}
                 pagingEnabled={true}
+                keyboardShouldPersistTaps="handled"
                 showsHorizontalScrollIndicator={false}
                 onScroll={(event) => {
                   this.setSliderPage(event);

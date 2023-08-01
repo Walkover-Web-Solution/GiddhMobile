@@ -40,6 +40,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
+import BottomSheet from '@/components/BottomSheet';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -63,6 +64,8 @@ export const KEYBOARD_EVENTS = {
 export class PurchaseBill extends React.Component {
   constructor(props) {
     super(props);
+    this.paymentModeBottomSheetRef = React.createRef();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
@@ -147,10 +150,17 @@ export class PurchaseBill extends React.Component {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
-      showPaymentModePopup: false,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
+
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
 
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> : null;
@@ -221,6 +231,7 @@ export class PurchaseBill extends React.Component {
   }
 
   componentDidMount() {
+    this.setBottomSheetVisible(this.paymentModeBottomSheetRef, true);
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
@@ -694,7 +705,6 @@ export class PurchaseBill extends React.Component {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
-      showPaymentModePopup: false,
     });
   };
 
@@ -2273,88 +2283,64 @@ export class PurchaseBill extends React.Component {
   }
 
   _renderPaymentMode() {
-    return (
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={this.state.showPaymentModePopup}
-        onRequestClose={() => {
-          this.setState({ showPaymentModePopup: false });
-        }}>
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-          }}
-        onPress={() => {
-        this.setState({ showPaymentModePopup: false });
-        }}
-        >
-        <KeyboardAvoidingView behavior='height' style={{flex:1}}>
-          <View style={{ backgroundColor: 'white', 
-          marginTop:height*0.3,
-          borderRadius: 10, 
-          padding: 10, 
-          alignSelf: 'center', 
-          width: "75%", 
-          height: "40%" }}>
-            <Text> Amount </Text>
-            {this.state.invoiceType == 'sales' && (
-              <TextInput
-                style={{ borderWidth: 0.5, borderColor: "grey", borderRadius: 5, padding: 5, marginVertical: 10 }}
-                value={this.state.tempAmountPaidNowText}
-                keyboardType="numeric"
-                returnKeyType={'done'}
-                placeholder="Enter Amount"
-                placeholderTextColor="black"
-                onChangeText={(text) => {
-                  if (Number(text) > Number(this.getTotalAmount())) {
-                    Alert.alert('Alert', 'deposit amount should not be more than invoice amount');
-                  } else {
-                    this.setState({ tempAmountPaidNowText: text })
-                  }
-                }}
-              />
-            )}
-            <Text> Payment Mode </Text>
-            <FlatList
-              data={this.state.modesArray}
-              style={{ paddingLeft: 5, paddingRight: 10, paddingBottom: 10, maxHeight: 300, marginTop: 5 }}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={{
-                    borderBottomWidth: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? 2 : 0,
-                    borderColor: '#FC8345',
-                    alignSelf: 'flex-start',
-                    backgroundColor: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? '#ffe0b2' : null,
-                    width: '100%', paddingHorizontal: 5
-                  }}
-                  onFocus={() => this.onChangeText('')}
-                  onPress={async () => {
-                    this.setState({ tempSelectedPayMode: item });
-                    //if (this.state.amountPaidNowText != 0) {
-                    //this.setState({ showPaymentModePopup: false });
-                    //}
-                  }}>
-                  <Text style={{ color: '#1C1C1C', paddingVertical: 10, textAlign: 'left' }}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            <TouchableOpacity style={{ backgroundColor: '#FC8345', width: "30%", padding: 5, paddingVertical: 10, borderRadius: 10, alignItems: "center", alignSelf: "flex-end" }}
-              onPress={() => {
-                this.setState({ showPaymentModePopup: false, amountPaidNowText: isNaN(Number(this.state.tempAmountPaidNowText)) ? 0 : Number(this.state.tempAmountPaidNowText), selectedPayMode: this.state.tempSelectedPayMode })
-              }}>
-              <Text style={{ color: "white" }}>Done</Text>
-            </TouchableOpacity>
-          </View>
-          </KeyboardAvoidingView>
+    const renderFooter = () => {
+      return (
+        <TouchableOpacity style={{ backgroundColor: '#229F5F', width: "30%", margin: 10, padding: 5, paddingVertical: 10, borderRadius: 10, alignItems: "center", alignSelf: "flex-end" }}
+          onPress={() => {
+            this.setState({ amountPaidNowText: isNaN(Number(this.state.tempAmountPaidNowText)) ? 0 : Number(this.state.tempAmountPaidNowText), selectedPayMode: this.state.tempSelectedPayMode });
+            this.setBottomSheetVisible(this.paymentModeBottomSheetRef, false);
+          }}>
+          <Text style={[style.boldText, {color: '#FFFFFF'}]}>Done</Text>
         </TouchableOpacity>
-      </Modal>
+      )
+    }
+    return (
+      <BottomSheet
+        bottomSheetRef={this.paymentModeBottomSheetRef}
+        headerText='Payment'
+        headerTextColor='#FC8345'
+        FooterComponent={renderFooter}
+        onClose={() => Keyboard.dismiss()}
+      >
+        <Text style={[style.boldText, {marginLeft: 20, marginTop: 10}]}>Amount</Text>
+        {this.state.invoiceType == 'sales' && (
+          <TextInput
+            style={[style.regularText, { borderWidth: 0.5, borderColor: "#D9D9D9", borderRadius: 5, padding: 5, marginVertical: 10, marginHorizontal: 20, height: 40 }]}
+            value={this.state.tempAmountPaidNowText}
+            keyboardType="number-pad"
+            returnKeyType={'done'}
+            placeholder="Enter Amount"
+            placeholderTextColor="#808080"
+            onChangeText={(text) => {
+              if (Number(text) > Number(this.getTotalAmount())) {
+                Alert.alert('Alert', 'deposit amount should not be more than invoice amount');
+              } else {
+                this.setState({tempAmountPaidNowText:text})
+              }
+            }}
+          />
+        )}
+        
+        <Text style={[style.boldText, {marginLeft: 20}]}>Payment Mode</Text>
+        <FlatList
+          data={this.state.modesArray}
+          style={{ marginHorizontal: 20,  marginTop: 10}}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={{
+                backgroundColor: this.state.tempSelectedPayMode.uniqueName == item.uniqueName ? '#E0F2E9' : null,
+                borderRadius: 5,
+                paddingVertical: 10
+              }}
+              onFocus={() => this.onChangeText('')}
+              onPress={async () => {
+                this.setState({ tempSelectedPayMode: item });
+              }}>
+              <Text style={[style.regularText, { marginLeft: 5}]}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </BottomSheet>
     );
   }
 
@@ -2441,7 +2427,7 @@ export class PurchaseBill extends React.Component {
                 style={{ width: "40%" }}
                 onPress={() => {
                   if (this.state.modesArray.length > 0) {
-                    this.setState({ showPaymentModePopup: true });
+                    this.setBottomSheetVisible(this.paymentModeBottomSheetRef, true);
                     this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
                   }
                 }}>
@@ -2458,7 +2444,7 @@ export class PurchaseBill extends React.Component {
                 <TouchableOpacity
                   style={{ width: "50%", alignItems: "flex-end" }}
                   onPress={() => {
-                    this.setState({ showPaymentModePopup: true });
+                    this.setBottomSheetVisible(this.paymentModeBottomSheetRef, true);
                     this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
                   }}>
                   <Text style={{ color: '#1C1C1C' }}>
@@ -2669,7 +2655,6 @@ export class PurchaseBill extends React.Component {
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
             {this.state.addedItems.length > 0 && this._renderTotalAmount()}
-            {this.state.showPaymentModePopup && this._renderPaymentMode()}
 
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
@@ -2728,7 +2713,7 @@ export class PurchaseBill extends React.Component {
           />
         )}
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
-
+        {this._renderPaymentMode()}
       </View>
     );
   }

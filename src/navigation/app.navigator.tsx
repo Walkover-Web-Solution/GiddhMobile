@@ -9,6 +9,7 @@ import {CompanyStack} from './company.navigator';
 import ChatWidget from '@msg91comm/react-native-hello-sdk';
 import AsyncStorage from '@react-native-community/async-storage';
 import { STORAGE_KEYS } from '@/utils/constants';
+import { Host } from 'react-native-portalize';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -65,7 +66,9 @@ useEffect(() => {
               });
             }
           }}>
-          {!props.isUserAuthenticated ? <AuthStack/> : (!props.isUnauth?<AppMainNav />:<CompanyStack/>)}
+          <Host>
+            {!props.isUserAuthenticated ? <AuthStack/> : (!props.isUnauth?<AppMainNav />:<CompanyStack/>)}
+          </Host>
           <ChatWidget
             preLoaded={true}
             widgetColor={'#1A237E'}

@@ -7,9 +7,9 @@ import {
   FlatList,
   Image,
   Text,
-  TouchableWithoutFeedback,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
+  Keyboard
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { CommonService } from '@/core/services/common/common.service';
@@ -27,15 +27,19 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Foundation from 'react-native-vector-icons/Foundation';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import VoucherModal from '../Parties/components/voucherModal'
+import BottomSheet from '@/components/BottomSheet';
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 export let previousItem = null
 
 export class TransactionScreen extends React.Component<Props, {}> {
   private stickyDayRef: React.RefObject<any>;
+  private voucherBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: Props) {
     super(props);
     this.stickyDayRef = React.createRef();
+    this.voucherBottomSheetRef = React.createRef<BottomSheet>();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       showLoader: false,
       transactionsData: [],
@@ -49,7 +53,6 @@ export class TransactionScreen extends React.Component<Props, {}> {
       dataLoadedTime: 'Time and Date',
       dateMode: 'defaultDates',
       activeDateFilter: '',
-      voucherModal: false,
       vouchers: [],
       transactionsLoader: true,
       totalItems: 0
@@ -86,8 +89,13 @@ export class TransactionScreen extends React.Component<Props, {}> {
   downloadModalVisible = (value) => {
     this.setState({ DownloadModal: value });
   };
-  modalVisible = () => {
-    this.setState({ voucherModal: false });
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
   };
   func1 = async () => {
     const v1 = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
@@ -541,122 +549,118 @@ export class TransactionScreen extends React.Component<Props, {}> {
   }
 
   render() {
-    if (this.state.showLoader) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Bars size={15} color={colors.PRIMARY_NORMAL} />
+    return (
+      <View style={style.container}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingVertical:10
+          }}>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={{
+              height: 40,
+              width: Dimensions.get('window').width * 0.5,
+              borderRadius: 20,
+              borderWidth: 1,
+              justifyContent: 'center',
+              borderColor: '#D9D9D9',
+              alignItems: 'center',
+              flexDirection: 'row',
+            }}
+            onPress={() =>
+              this.props.navigation.navigate('AppDatePicker', {
+                selectDate: this.changeDate,
+                startDate: this.state.startDate,
+                endDate: this.state.endDate,
+                activeDateFilter: this.state.activeDateFilter,
+                setActiveDateFilter: this.setActiveDateFilter,
+              })
+            }
+          >
+            <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
+            <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
+              {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +
+                ' - ' +
+                moment(this.state.endDate, 'DD-MM-YYYY').format('DD MMM YY')}
+            </Text>
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row',width:'20%',justifyContent:'space-between' }}>
+            <TouchableOpacity style={{ padding: 5 }} onPress={() => this.dateShift('left')}>
+              <Entypo name="chevron-left" size={22} color={'#808080'} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ padding: 5 }}
+              onPress={() => this.dateShift('right')}
+            // onPress={this.tryDate}
+            >
+              <Entypo name="chevron-right" size={22} color={'#808080'} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={{
+              height: 38,
+              width: 38,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: 19,
+              borderWidth: 1,
+              borderColor: '#D9D9D9',
+            }}
+            onPress={() => {
+              this.setBottomSheetVisible(this.voucherBottomSheetRef, true);
+            }}
+          >
+            <Foundation name="filter" size={22} color={'#808080'} />
+          </TouchableOpacity>
         </View>
-      );
-    } else {
-      return (
-        <View style={style.container}>
-          <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: 20,
-                    paddingVertical:10
-                  }}>
-                  <TouchableOpacity
-                    activeOpacity={1}
-                    style={{
-                      height: 40,
-                      width: Dimensions.get('window').width * 0.5,
-                      borderRadius: 20,
-                      borderWidth: 1,
-                      justifyContent: 'center',
-                      borderColor: '#D9D9D9',
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}
-                    onPress={() =>
-                      this.props.navigation.navigate('AppDatePicker', {
-                        selectDate: this.changeDate,
-                        startDate: this.state.startDate,
-                        endDate: this.state.endDate,
-                        activeDateFilter: this.state.activeDateFilter,
-                        setActiveDateFilter: this.setActiveDateFilter,
-                      })
-                    }
-                  >
-
-                    {/* <View style={{ marginLeft: 10 }} /> */}
-                    <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
-                    <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
-                      {moment(this.state.startDate, 'DD-MM-YYYY').format('DD MMM YY') +
-                        ' - ' +
-                        moment(this.state.endDate, 'DD-MM-YYYY').format('DD MMM YY')}
-                    </Text>
-
-                  </TouchableOpacity>
-                  <View style={{ flexDirection: 'row',width:'20%',justifyContent:'space-between' }}>
-                    <TouchableOpacity style={{ padding: 5 }} onPress={() => this.dateShift('left')}>
-                      <Entypo name="chevron-left" size={22} color={'#808080'} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={{ padding: 5 }}
-                      onPress={() => this.dateShift('right')}
-                    // onPress={this.tryDate}
-                    >
-                      <Entypo name="chevron-right" size={22} color={'#808080'} />
-                    </TouchableOpacity>
-                  </View>
-                  <TouchableOpacity
-                    style={{
-                      height: 38,
-                      width: 38,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderRadius: 19,
-                      borderWidth: 1,
-                      borderColor: '#D9D9D9',
-                    }}
-                    onPress={() => this.setState({ voucherModal: true })}
-                  >
-                    <Foundation name="filter" size={22} color={'#808080'} />
-                  </TouchableOpacity>
-                </View>
-          {this.state.transactionsData.length == 0
-            ? (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
-                <Image
-                  source={require('@/assets/images/noTransactions.png')}
-                  style={{ resizeMode: 'contain', height: 250, width: 300 }}
+        {this.state.showLoader
+          ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            </View>
+          )
+          : (
+            <View style={{flex:1}}>
+                <StickyDay stickyDayRef={this.stickyDayRef}/>
+                <FlatList
+                  contentContainerStyle={{flexGrow: 1}}
+                  ref={this.state.flatListRef}
+                  initialNumToRender={this.state.totalItems}
+                  data={this.state.transactionsData}
+                  renderItem={({ item, index }) => this.renderItem(item, index)}
+                  keyExtractor={(item,index) => index.toString()}
+                  onEndReachedThreshold={0.1}
+                  onEndReached={() => this.handleRefresh()}
+                  ListFooterComponent={this._renderFooter}
+                  onViewableItemsChanged={this.onViewableItemsChanged}
+                  disableVirtualization = {true}
+                  ListEmptyComponent={() => (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 30 }}>
+                      <Image
+                        source={require('@/assets/images/noTransactions.png')}
+                        style={{ resizeMode: 'contain', height: 250, width: 300 }}
+                      />
+                      <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
+                    </View>
+                  )}
+                //extraData={this.state.refreshlist}
                 />
-                <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
-              </View>
-            )
-            : (
-              <View style={{flex:1}}>
                 
-                  <StickyDay stickyDayRef={this.stickyDayRef}/>
-                  <FlatList
-                    ref={this.state.flatListRef}
-                    initialNumToRender={this.state.totalItems}
-                    data={this.state.transactionsData}
-                    renderItem={({ item, index }) => this.renderItem(item, index)}
-                    keyExtractor={(item,index) => index.toString()}
-                    onEndReachedThreshold={0.1}
-                    onEndReached={() => this.handleRefresh()}
-                    ListFooterComponent={this._renderFooter}
-                    onViewableItemsChanged={this.onViewableItemsChanged}
-                    disableVirtualization = {true}
-                  //extraData={this.state.refreshlist}
-                  />
-                 
-              </View>
-            )}
-          <DownloadModal modalVisible={this.state.DownloadModal} />
-          <VoucherModal
-            modalVisible={this.state.voucherModal}
-            setModalVisible={this.modalVisible}
-            filter={this.filter}
-            loader={this.transactionsLoader}
-          />
-        </View>
-      );
-    }
+            </View>
+          )}
+        <DownloadModal modalVisible={this.state.DownloadModal} />
+        <VoucherModal
+          bottomSheetRef={this.voucherBottomSheetRef}
+          setBottomSheetVisible={this.setBottomSheetVisible}
+          filter={this.filter}
+          loader={this.transactionsLoader}
+        />
+      </View>
+    );
   }
 }
 

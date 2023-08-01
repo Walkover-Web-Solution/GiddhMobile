@@ -1,11 +1,9 @@
 import React from 'react';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import * as material from '@eva-design/material';
-// import {AppearanceProvider} from 'react-native-appearance';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
-import AppNavigator from '@/navigation/app.navigator';
 import {Provider} from 'react-redux';
 import '@/utils/i18n';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -15,48 +13,13 @@ import {default as mapping} from './mappings.json';
 import {PersistGate} from 'redux-persist/integration/react';
 import BaseContainer from './src/BaseContainer/BaseContainer';
 import configureStore from './src/redux/store';
-import Invoice from '@/screens/Invoices/Invoice';
 const {store, persistor} = configureStore();
 import SplashScreen from 'react-native-splash-screen';
-import AppDatePicker from '@/screens/DatePicker/DatePicker';
-import PartiesMain from '@/screens/Parties/PartiesMain';
-import {PartiesStack} from '@/navigation/parties.navigator';
-import {NavigationContainer} from '@react-navigation/native';
-import PartiesTransactionScreen from '@/screens/Parties/Parties-Transactions';
 import {LogBox} from 'react-native';
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
-import NoteDenomination from '@/core/components/note-denomination/noteDenomination';
-import Otp from '@/screens/Auth/Otp/Otp';
-import SelectAddress from '@/core/components/Select-Address/SelectAddress';
-import EditAddress from '@/core/components/Select-Address/EditAddress';
-import {AddressStack} from '@/navigation/addressNavigator';
-import DashboardStack from '@/navigation/dashboard.navigator';
-import AppMainNav from '@/navigation/app.main.navigator';
-import EditItemDetails from '@/screens/Sales-Invoice/EditItemDetails';
-import {PurchaseBill} from '@/screens/Purchase-Bill/PurchaseBill';
 import { RootSiblingParent } from 'react-native-root-siblings';
-
-const demoData = {
-  applicableDiscounts: [],
-  applicableTaxes: [],
-  category: 'income',
-  currency: {
-    code: 'INR',
-    symbol: '₹',
-  },
-  groupTaxes: [],
-  hsnNumber: null,
-  name: 'sales 233',
-  oppositeAccount: null,
-  parentGroups: ['revenuefromoperations', 'sales'],
-  quantity: 1,
-  rate: '100',
-  sacNumber: null,
-  stock: null,
-  taxes: [],
-  uniqueName: 'sales233',
-};
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
@@ -93,31 +56,20 @@ export default class App extends React.Component<any> {
   }
 
   render() {
-    return (
+    return (  
       <SafeAreaProvider>
         <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            {/* <AppearanceProvider> */}
-              <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
+            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
                 <SafeAreaProvider>
-                  <RootSiblingParent>
-                    <BaseContainer />
-                    {/* <PurchaseBill /> */}
-                    {/* <EditItemDetails itemDetails={demoData} /> */}
-                    {/* <PartiesMain /> */}
-                    {/* <AppDatePicker /> */}
-                    {/* <BaseContainer /> */}
-                    {/* <Invoice /> */}
-
-                    {/* <Otp /> */}
-                    {/* <NavigationContainer>
-                    
-                    </NavigationContainer> */}
-                  </RootSiblingParent>
+                  <GestureHandlerRootView style={{ flex: 1 }}>
+                    <RootSiblingParent>
+                      <BaseContainer />
+                    </RootSiblingParent>
+                  </GestureHandlerRootView>
                 </SafeAreaProvider>
-              </ApplicationProvider>
-            {/* </AppearanceProvider> */}
+            </ApplicationProvider>
           </PersistGate>
         </Provider>
       </SafeAreaProvider>

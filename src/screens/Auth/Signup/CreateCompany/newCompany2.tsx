@@ -1,14 +1,12 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { connect } from 'react-redux';
-
-import { View, TouchableOpacity, Modal, Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert } from 'react-native';
+import Icon from '@/core/components/custom-icon/custom-icon';
+import { View, TouchableOpacity, TextInput, Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert, Keyboard } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
-import { TextInput } from 'react-native-gesture-handler';
-import Dropdown from 'react-native-modal-dropdown';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
@@ -21,12 +19,21 @@ import color from '@/utils/colors';
 import TOAST from 'react-native-root-toast';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal1 from 'react-native-modal';
+import styles from './style';
+import BottomSheet from '@/components/BottomSheet';
 
 const { height, width } = Dimensions.get('screen');
 
 class NewCompanyDetails extends React.Component<any, any> {
+  private businessTypeBottomSheetRef: React.Ref<BottomSheet>;
+  private businessNatureBottomSheetRef: React.Ref<BottomSheet>;
+  private taxBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: any) {
     super(props);
+    this.businessTypeBottomSheetRef = createRef<BottomSheet>();
+    this.businessNatureBottomSheetRef = createRef<BottomSheet>();
+    this.taxBottomSheetRef = createRef<BottomSheet>();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       selectedState: this.props.route.params.selectedState,
       stateData: this.props.route.params.stateData,
@@ -76,6 +83,15 @@ class NewCompanyDetails extends React.Component<any, any> {
       pinCode: this.state.pinCode,
     })
   }
+
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
 
   getStates = async () => {
     const allStateName = await CustomerVendorService.getAllStateName(this.props.route.params.country.alpha2CountryCode);
@@ -309,6 +325,203 @@ class NewCompanyDetails extends React.Component<any, any> {
     );
   }
 
+  businessTypeBottomSheet(){
+    return(
+      <BottomSheet
+        bottomSheetRef={this.businessTypeBottomSheetRef}
+        headerText='Select Business Type'
+        headerTextColor='#084EAD'
+      >
+        { this.state.countryCode != "US" && this.state.countryCode != "GB" &&
+          this.state.countryCode != "AU" && this.state.countryCode != "NP" &&
+          <TouchableOpacity 
+            style={{
+            flexDirection: "row", 
+            justifyContent: "flex-start", 
+            paddingHorizontal: 20,
+            paddingVertical: 15
+            }}
+            onPress={() => {
+              this.setState({ bussinessType: 'Registered', gstNumber: null, stateName: null, applicableTax: [], selectStateDisable: false, selectedState: null });
+              this.setBottomSheetVisible(this.businessTypeBottomSheetRef, false);
+            }}
+          >
+            <Icon name={this.state.bussinessType == 'Registered' ? 'radio-checked2' : 'radio-unchecked'} color={'#084EAD'} size={16} />
+            <Text style={{
+                color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
+            }}
+            >
+              Registered
+            </Text>
+          </TouchableOpacity>
+        }
+        <TouchableOpacity 
+          style={{
+          flexDirection: "row", 
+          justifyContent: "flex-start", 
+          paddingHorizontal: 20,
+          paddingVertical: 15
+          }}
+          onPress={() => {
+            this.setState({ bussinessType: 'Unregistered', gstNumber: null, stateName: null, applicableTax: [], selectStateDisable: false, selectedState: null });
+            this.setBottomSheetVisible(this.businessTypeBottomSheetRef, false);
+          }}
+        >
+          <Icon name={this.state.bussinessType == 'Unregistered' ? 'radio-checked2' : 'radio-unchecked'} color={'#084EAD'} size={16} />
+          <Text style={{
+              color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
+          }}>
+            Unregistered
+          </Text>
+        </TouchableOpacity>
+      </BottomSheet>
+    )
+  }
+
+
+
+  businessNatureBottomSheet(){
+    const Field = ({name}: {name: string}) => {
+      return (
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => {
+            this.setState({ bussinessNature: name })
+            this.setBottomSheetVisible(this.businessNatureBottomSheetRef, false);
+          }}
+        >
+          <Icon name={this.state.bussinessNature == name ? 'radio-checked2' : 'radio-unchecked'} color={'#084EAD'} size={16} />
+          <Text style={styles.buttonText}
+          >
+            {name}
+          </Text>
+        </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.businessNatureBottomSheetRef}
+        headerText='Select Business Nature'
+        headerTextColor='#084EAD'
+      >
+        <Field name='Food' />
+        <Field name='Service' />
+        <Field name='Manufacturing' />
+        <Field name='Retail' />
+      </BottomSheet>
+    )
+  }
+
+  taxBottomSheet(){
+    return(
+      <BottomSheet
+        bottomSheetRef={this.taxBottomSheetRef}
+        headerText='Select Taxes'
+        headerTextColor='#084EAD'
+      >
+        {this.state.countryCode == "IN" ? <View>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              this.addTaxOrRemove("GST 5%")
+            }}>
+            <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+              {this.state.applicableTax?.includes("GST 5%")
+                ? (
+                  <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                )
+                : (
+                  <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                )}
+            </View>
+
+            <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 5%</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              this.addTaxOrRemove("GST 12%")
+            }}>
+            <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+              {this.state.applicableTax.includes("GST 12%")
+                ? (
+                  <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                )
+                : (
+                  <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                )}
+            </View>
+
+            <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 12%</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => { this.addTaxOrRemove("GST 18%") }}>
+            <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+              {this.state.applicableTax.includes("GST 18%")
+                ? (
+                  <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                )
+                : (
+                  <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                )}
+            </View>
+
+            <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 18%</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => { this.addTaxOrRemove("GST 28%") }}>
+            <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+              {this.state.applicableTax.includes("GST 28%")
+                ? (
+                  <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                )
+                : (
+                  <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                )}
+            </View>
+            <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 28%</Text>
+          </TouchableOpacity>
+        </View> : <View>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              this.addTaxOrRemove("VAT0")
+            }}>
+            <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+              {this.state.applicableTax.includes("VAT0")
+                ? (
+                  <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                )
+                : (
+                  <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                )}
+            </View>
+
+            <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>VAT0</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              this.addTaxOrRemove("VAT5")
+            }}>
+            <View style={{ height: 20, width: 20, borderRadius: 2 }}>
+              {this.state.applicableTax.includes("VAT5")
+                ? (
+                  <AntDesign name="checksquare" size={20} color={'#5773FF'} />
+                )
+                : (
+                  <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+                )}
+            </View>
+
+            <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>VAT5</Text>
+          </TouchableOpacity></View>}
+      </BottomSheet>
+    )
+  }
+
 
   render() {
     return (
@@ -316,97 +529,33 @@ class NewCompanyDetails extends React.Component<any, any> {
         <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
         <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'}
           style={{ flex: 1, marginBottom: 10, }}>
-          <View style={{ borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
-            <View style={{ flexDirection: "row", marginBottom: 4 }}>
-              <FontAwesome name="th" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
-              <Text style={{ marginLeft: 20 }}>
-                <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{'Business Type'}</Text>
-                {/* <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Roman' }}>{this.state.bussinessType !=null?'*':""}</Text> */}
-              </Text>
+          
+          <View style={{ borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55, flexDirection: "row", marginTop: 4}}>
+            <FontAwesome name="th" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
+            <View style={{ marginLeft: 20, flex: 1}}>
+              <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{'Business Type'}</Text>
+              <TouchableOpacity
+                style={{flex: 1, justifyContent: 'center'}}
+                onPress={() => this.setBottomSheetVisible(this.businessTypeBottomSheetRef, true)}
+              >
+                <Text style={{ color: this.state.bussinessType ? '#1C1C1C' : 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{this.state.bussinessType ?? 'Select Business Type'}</Text>
+              </TouchableOpacity>
             </View>
-            <Dropdown
-              renderRowProps={{ underlayColor: '#CCCCCC50' }}
-              style={{ flex: 1, marginLeft: 40, marginTop: Platform.OS == "ios" ? 4 : 0 }}
-              textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
-              options={this.state.countryCode == "US" || this.state.countryCode == "GB" ||
-                this.state.countryCode == "AU" || this.state.countryCode == "NP" ? ["Unregistered"] :
-                ["Registered", "Unregistered"]}
-              renderSeparator={() => {
-                return (<View></View>);
-              }}
-              dropdownStyle={{
-                width: '81%', height: this.state.countryCode == "US" || this.state.countryCode == "GB" ||
-                  this.state.countryCode == "AU" || this.state.countryCode == "NP" ? 40 : 80, marginTop: 5, borderRadius: 10
-              }}
-              dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
-              renderRow={(options) => {
-                return (
-                  <View 
-                    style={{
-                    flexDirection: "row", 
-                    justifyContent: "flex-start", 
-                    padding: 10
-                    }}
-                  >
-                    {this.state.bussinessType==options?<AntDesign name="check" size={20} color={'black'} />:<View style={{width:this.state.bussinessType==null?0:20}}/>}
-                    <Text style={{
-                       color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
-                    }}>{options}
-                    </Text>
-                  </View>)
-              }}
-              onSelect={(index, value) => {
-                this.setState({ bussinessType: value, gstNumber: null, stateName: null, applicableTax: [], selectStateDisable: false, selectedState: null })
-              }}>
-              <View style={{ flexDirection: "row", marginBottom: 4 }}>
-                <Text style={{ color: this.state.bussinessType == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', flex: 1, fontFamily: 'AvenirLTStd-Book' }}>
-                  {this.state.bussinessType == null ? 'Select Business Type' : this.state.bussinessType}</Text>
-              </View>
-            </Dropdown>
           </View>
-          <View style={{ marginTop: 20, borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
-            <View style={{ flexDirection: "row", marginBottom: 4 }}>
-              <FontAwesome name="th" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
-              <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman', marginLeft: 20 }}>{'Business Nature'}</Text>
+
+          <View style={{ borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55, flexDirection: "row", marginTop: 20}}>
+            <FontAwesome name="th" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
+            <View style={{ marginLeft: 20, flex: 1}}>
+              <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{'Business Nature'}</Text>
+              <TouchableOpacity
+                style={{flex: 1, justifyContent: 'center'}}
+                onPress={() => this.setBottomSheetVisible(this.businessNatureBottomSheetRef, true)}
+              >
+                <Text style={{ color: this.state.bussinessNature ? '#1C1C1C' : 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{this.state.bussinessNature ?? 'Select Business Nature'}</Text>
+              </TouchableOpacity>
             </View>
-            <Dropdown
-              renderRowProps={{ underlayColor: '#CCCCCC50' }}
-              style={{ flex: 1, marginLeft: 40, marginTop: Platform.OS == "ios" ? 4 : 0 }}
-              textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
-              options={["Food", "Service", "Manufacturing", "Retail"]}
-              renderSeparator={() => {
-                return (<View></View>);
-              }}
-              dropdownStyle={{ marginTop: 5, borderRadius: 10 }}
-              dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
-              renderRow={(options) => {
-                return (
-                  <View 
-                    style={{ 
-                      flex: 1,
-                      flexDirection: "row", 
-                      justifyContent: "flex-start", 
-                      padding: 10,
-                      width: width * 0.8,
-                      borderRadius: 10
-                    }}
-                  >
-                    {this.state.bussinessNature==options?<AntDesign name="check" size={20} />:<View style={{width:this.state.bussinessNature==null?0:20}}/>}
-                    <Text style={{
-                       color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book',marginLeft:10
-                    }}>{options}
-                    </Text>
-                  </View>)
-              }}
-              onSelect={(index, value) => {
-                this.setState({ bussinessNature: value })
-              }}>
-              <View style={{ flexDirection: "row", marginBottom: 4 }}>
-                <Text style={{ color: this.state.bussinessNature == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', flex: 1, fontFamily: 'AvenirLTStd-Book' }}>
-                  {this.state.bussinessNature == null ? 'Select Business Type' : this.state.bussinessNature}</Text>
-              </View>
-            </Dropdown>
           </View>
+
           {this.state.bussinessType == "Registered" && <View style={{ marginTop: 20, borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
             <View style={{ flexDirection: "row", }}>
               <Entypo name="news" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
@@ -489,29 +638,8 @@ class NewCompanyDetails extends React.Component<any, any> {
                 {/* <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Roman' }}>{'*'}</Text> */}
               </Text>
             </View>
-            {/* <Dropdown
-              style={{ flex: 1, marginLeft: 40 }}
-              textStyle={{ color: 'black', fontSize: 15, fontFamily: 'AvenirLTStd-Book' }}
-              options={this.state.applicableTaxData}
-              renderSeparator={() => {
-                return (<View></View>);
-              }}
-              dropdownStyle={{ width: '81%', height: 100, marginTop: 3, borderRadius: 5 }}
-              dropdownTextStyle={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}
-              renderRow={(options) => {
-                return (
-                  <Text style={{ padding: 10, color: '#1C1C1C' }}>{options}</Text>)
-              }}
-              onSelect={(index, value) => {
-                this.setState({ applicableTax: value })
-              }}>
-              <View style={{ flexDirection: "row", marginVertical: 4 }}>
-                <Text style={{ color: this.state.applicableTax.length == 0 ? 'rgba(80,80,80,0.5)' : '#1c1c1c', flex: 1, fontFamily: 'AvenirLTStd-Book' }}>
-                  {this.state.applicableTax.length == 0 ? 'Select Taxes' : this.state.applicableTax}</Text>
-              </View>
-            </Dropdown> */}
             <TouchableOpacity
-              onPress={() => this.setState({ modalVisible: true })}
+              onPress={() => this.setBottomSheetVisible(this.taxBottomSheetRef, true)}
               style={{ flexDirection: "row", marginVertical: 4, marginLeft: 40 }}>
               <Text style={{ color: this.state.applicableTax.length == 0 ? 'rgba(80,80,80,0.5)' : '#1c1c1c', flex: 1, fontFamily: 'AvenirLTStd-Book' }}>
                 {this.state.applicableTax.length == 0 ? 'Select Taxes' : this.state.applicableTax + "  "}</Text>
@@ -556,109 +684,6 @@ class NewCompanyDetails extends React.Component<any, any> {
               style={style.GSTInput}>
             </TextInput>
           </View>}
-          <Modal animationType="none" transparent={true} visible={this.state.modalVisible} onRequestClose={() => { this.setState({ modalVisible: false }) }}>
-            <TouchableOpacity style={style.modalContainer} onPress={() => this.setState({ modalVisible: false })}>
-              {this.state.countryCode == "IN" ? <View style={style.centeredView}>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
-                  onPress={() => {
-                    this.addTaxOrRemove("GST 5%")
-                  }}>
-                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
-                    {this.state.applicableTax?.includes("GST 5%")
-                      ? (
-                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
-                      )
-                      : (
-                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
-                      )}
-                  </View>
-
-                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 5%</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
-                  onPress={() => {
-                    this.addTaxOrRemove("GST 12%")
-                  }}>
-                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
-                    {this.state.applicableTax.includes("GST 12%")
-                      ? (
-                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
-                      )
-                      : (
-                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
-                      )}
-                  </View>
-
-                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 12%</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
-                  onPress={() => { this.addTaxOrRemove("GST 18%") }}>
-                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
-                    {this.state.applicableTax.includes("GST 18%")
-                      ? (
-                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
-                      )
-                      : (
-                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
-                      )}
-                  </View>
-
-                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 18%</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
-                  onPress={() => { this.addTaxOrRemove("GST 28%") }}>
-                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
-                    {this.state.applicableTax.includes("GST 28%")
-                      ? (
-                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
-                      )
-                      : (
-                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
-                      )}
-                  </View>
-                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>GST 28%</Text>
-                </TouchableOpacity>
-              </View> : <View style={style.centeredView}>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
-                  onPress={() => {
-                    this.addTaxOrRemove("VAT0")
-                  }}>
-                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
-                    {this.state.applicableTax.includes("VAT0")
-                      ? (
-                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
-                      )
-                      : (
-                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
-                      )}
-                  </View>
-
-                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>VAT0</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
-                  onPress={() => {
-                    this.addTaxOrRemove("VAT5")
-                  }}>
-                  <View style={{ height: 20, width: 20, borderRadius: 2 }}>
-                    {this.state.applicableTax.includes("VAT5")
-                      ? (
-                        <AntDesign name="checksquare" size={20} color={'#5773FF'} />
-                      )
-                      : (
-                        <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
-                      )}
-                  </View>
-
-                  <Text style={{ fontSize: 14, marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>VAT5</Text>
-                </TouchableOpacity></View>}
-            </TouchableOpacity>
-          </Modal>
         </KeyboardAwareScrollView>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <TouchableOpacity  
@@ -707,6 +732,9 @@ class NewCompanyDetails extends React.Component<any, any> {
             <Bars size={15} color={color.PRIMARY_NORMAL} />
           </View>
         )}
+        {this.businessTypeBottomSheet()}
+        {this.businessNatureBottomSheet()}
+        {this.taxBottomSheet()}
       </SafeAreaView>
     );
     // }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Dimensions, SafeAreaView, ScrollView } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -28,6 +28,7 @@ import Modal from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PhoneInput from 'react-native-phone-input';
 import CountryPicker from 'react-native-country-picker-modal';
+import BottomSheet from '@/components/BottomSheet';
 
 const PhoneNumber = require('awesome-phonenumber');
 interface Props {
@@ -36,13 +37,28 @@ interface Props {
 }
 
 export class Vendors extends React.Component<Props> {
+  private showGroupBottomSheetRef: React.Ref<BottomSheet>;
+  private partyTypeBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: any) {
     super(props);
+    this.showGroupBottomSheetRef = createRef<BottomSheet>();
+    this.partyTypeBottomSheetRef = createRef<BottomSheet>();
+    this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.onPressFlag = this.onPressFlag.bind(this);
     this.selectCountry = this.selectCountry.bind(this);
     this.updateInfo = this.updateInfo.bind(this);
     this.setState({picker:false})
   }
+
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
+
   getProps = async (uniqueName: any) => {
     await this.setState({ loading: true })
     const vendorEntry = await CustomerVendorService.getVendorEntry(uniqueName)
@@ -189,9 +205,7 @@ export class Vendors extends React.Component<Props> {
     isMobileNoValid: false,
     isGroupDD: false,
     isPartyDD: false,
-    groupDropDown: Dropdown,
     partyPlaceHolder: '',
-    partyDialog: false,
     showForgeinBalance: true,
     activeCompanyCountryCode: '',
     isAccountNoValid: false,
@@ -770,10 +784,8 @@ export class Vendors extends React.Component<Props> {
       isEmailInvalid: false,
       isMobileNoValid: false,
       partyPlaceHolder: '',
-      groupDropDown: Dropdown,
       isGroupDD: false,
       isPartyDD: false,
-      partyDialog: false,
       activeCompanyCountryCode: '',
       isAccountNoValid: false,
       isSwiftCodeValid: false,
@@ -892,8 +904,8 @@ export class Vendors extends React.Component<Props> {
           onPress={() => {
             this.setState({ selectedCurrency: Currency.code, isCurrencyModalVisible: false })
           }}>
-          <Text style={{ fontSize: 15, color: '#1c1c1c' }}>{Currency.code}</Text>
-          <Text style={{ fontSize: 15, color: '#1c1c1c' }}>{Currency.symbol}</Text>
+          <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.code}</Text>
+          <Text style={{ fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}>{Currency.symbol}</Text>
         </TouchableOpacity>
         <View style={styles.borderInModal} />
       </View>
@@ -921,7 +933,7 @@ export class Vendors extends React.Component<Props> {
               }}
             />
           </View>
-          <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+          <View style={{ flex: 1 }}>
             <FlatList
               scrollEnabled
               data={this.state.filteredCallingCode}
@@ -941,20 +953,20 @@ export class Vendors extends React.Component<Props> {
         style={styles.modalMobileContainer}>
         <SafeAreaView style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
-            <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: false }) }} style={styles.cancelButtonTextModal}>
-              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
-            </TouchableOpacity>
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
               placeholder="Enter Currency e.g. INR"
               returnKeyType={"done"}
-              style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, color: '#1c1c1c' }}
+              style={{ height: 50, borderRadius: 5, width: "80%", fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
               onChangeText={(text) => {
                 this.searchCurrency(text);
               }}
             />
+            <TouchableOpacity onPress={() => { this.setState({ isCurrencyModalVisible: false }) }} style={styles.cancelButtonTextModal}>
+              <Fontisto name="close-a" size={18} color={'black'}/>
+            </TouchableOpacity>
           </View>
-          <View style={{ marginBottom: 40, flex: 1, marginTop: 5 }}>
+          <View style={{ flex: 1 }}>
             <FlatList
               scrollEnabled
               data={this.state.filteredCurrencyData}
@@ -967,6 +979,77 @@ export class Vendors extends React.Component<Props> {
     )
   }
 
+  allGroupsBottomSheet(){
+    const renderItem = ({name, uniqueName}: {name: string, uniqueName: string}) => {
+      return (
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => {
+            this.setState({ 
+              selectedGroup: name,
+              selectedGroupUniqueName: uniqueName
+            });
+            this.setBottomSheetVisible(this.showGroupBottomSheetRef, false);
+          }}
+        >
+          <Icon name={this.state.selectedGroup == name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+          <Text style={styles.buttonText}
+          >
+            {name}
+          </Text>
+        </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.showGroupBottomSheetRef}
+        headerText='Select Group'
+        headerTextColor='#864DD3'
+        onClose={() => {
+          this.setState({ isGroupDD: false });
+          Keyboard.dismiss();
+        }}
+      >
+        {this.state.AllGroups?.map(renderItem)}
+      </BottomSheet>
+    )
+  }
+
+  partyTypeBottomSheet(){
+    const renderItem = (item: any) => {
+      return (
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => {
+            this.setState({ partyType: item.item.label });
+            this.setBottomSheetVisible(this.partyTypeBottomSheetRef, false);
+          }}
+        >
+          <Icon name={this.state.partyType == item.item.label ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+          <Text style={styles.buttonText}
+          >
+            {item.item.label}
+          </Text>
+        </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.partyTypeBottomSheetRef}
+        headerText='Select Party Type'
+        headerTextColor='#864DD3'
+        onClose={() => {
+          this.setState({ isPartyDD: false });
+          Keyboard.dismiss();
+        }}
+        flatListProps={{
+          data: this.state.allPartyType,
+          renderItem: renderItem
+        }}
+      />
+    )
+  }
+
   render() {
     return (
       <View style={styles.customerMainContainer}>
@@ -976,32 +1059,6 @@ export class Vendors extends React.Component<Props> {
           contentContainerStyle={styles.scrollViewContainerStyle}
           bounces={true}
         >
-          <Dialog.Container
-            visible={this.state.partyDialog}
-            onBackdropPress={() => {
-              console.log('w');
-              this.setState({ partyDialog: false })
-            }}
-            onRequestClose={() => { this.setState({ partyDialog: false }) }}
-            contentStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center', maxHeight: '70%', marginTop: Platform.OS == "ios" ? 50 : undefined }}
-          >
-            <Text style={{ marginBottom: 10, fontSize: 16, fontFamily: FONT_FAMILY.bold }}>Select Party Type</Text>
-            <FlatList
-              style={{ flex: 1, width: '100%', height: '100%' }}
-              data={this.state.allPartyType}
-              renderItem={(item) => {
-                return (
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.setState({ partyType: item.item.label, partyDialog: false });
-                    }}
-                    key={item.item.value}
-                    style={{ flex: 1, alignItems: 'center', borderBottomColor: '#808080', borderBottomWidth: 0.55 }}>
-                    <Text style={{ flex: 1, padding: 20, fontSize: 13, fontFamily: 'AvenirLTStd-Book' }}>{item.item.label}</Text>
-                  </TouchableOpacity>);
-              }}
-            />
-          </Dialog.Container>
           {this.state.successDialog
             ? <Dialog.Container
               onRequestClose={() => { this.setState({ successDialog: false }) }}
@@ -1173,83 +1230,41 @@ export class Vendors extends React.Component<Props> {
                 style={styles.input} />
             </View>
             {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
-            <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 15 }}>
+            <TouchableOpacity 
+              style={{ ...styles.rowContainer, paddingVertical: 20 }}
+              onPress={() => {
+                this.setState({ isGroupDD: true });
+                this.setBottomSheetVisible(this.showGroupBottomSheetRef, true);
+              }}
+            >
               <MaterialCommunityIcons name="account-group" size={18} color="#864DD3" />
-              <Dropdown
-                ref={(ref) => this.state.groupDropDown = ref}
-                style={{ flex: 1, paddingLeft: 10 }}
-                textStyle={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14 }}
-                defaultValue={this.state.selectedGroup}
-                options={this.state.AllGroups}
-                renderButtonText={(text) => text.name}
-                renderSeparator={() => {
-                  return (<View></View>);
-                }}
-                onDropdownWillShow={() => this.setState({ isGroupDD: true })}
-                onDropdownWillHide={() => this.setState({ isGroupDD: false })}
-                dropdownStyle={{ marginLeft: 30, width: '75%', height: 50, marginTop: 10, borderRadius: 10 }}
-                dropdownTextStyle={{ color: '#1c1c1c', fontSize: 14, fontFamily: 'AvenirLTStd-Book' }}
-                renderRow={(options) => {
-                  return (<Text style={{ padding: 13, color: '#1c1c1c', fontSize: 14, backgroundColor:'white' }}>{options.name}</Text>);
-                }}
-                onSelect={(index, value) => { 
-                  this.setState({ selectedGroup: value.name }) 
-                  this.setState({ selectedGroupUniqueName: value.uniqueName}) 
-                }}
-
-              />
+              <Text style={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14, marginHorizontal: 10, flex: 1 }}>
+                {this.state.selectedGroup}
+              </Text>
               <Icon
                 style={{ transform: [{ rotate: this.state.isGroupDD ? '180deg' : '0deg' }] }}
                 name={'9'}
                 size={12}
                 color="#808080"
-                onPress={() => {
-                  this.setState({ isGroupDD: true });
-                  this.state.groupDropDown.show();
-                }}
               />
-            </View>
-            <View style={{ ...styles.rowContainer, marginTop: Platform.OS == "ios" ? 0 : 10, paddingVertical: 20, justifyContent: 'space-between' }}>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={{ ...styles.rowContainer, paddingVertical: 20 }}
+              onPress={() => {
+                this.setState({ isPartyDD: true });
+                this.setBottomSheetVisible(this.partyTypeBottomSheetRef, true)
+              }}
+            >
               <MaterialIcons name="hourglass-full" size={18} color="#864DD3" style={{ marginLeft: -1 }} />
-              <TouchableOpacity
-                onPress={() => {
-                  this.setState({ partyDialog: true })
-                }}
-                style={{ flexDirection: 'row', flex: 1, paddingLeft: 10 }}>
-                <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}</Text>
-                <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? '*' : ''}</Text>
-              </TouchableOpacity>
-              {/* <Dropdown
-                ref={(ref) => this.state.partyDropDown = ref}
-                style={{ flex: 1, paddingLeft: 10 }}
-                textStyle={{ color: '#808080' }}
-                defaultValue={this.state.partyType}
-                options={this.state.allPartyType}
-                renderSeparator={() => {
-                  return (<View></View>);
-                }}
-                onDropdownWillShow={() => this.setState({ isPartyDD: true })}
-                onDropdownWillHide={() => this.setState({ isPartyDD: false })}
-                dropdownStyle={{ marginLeft: 30, width: '75%', marginTop: 10, borderRadius: 10 }}
-                dropdownTextStyle={{ color: '#1C1C1C' }}
-                renderRow={(options) => {
-                  return (<Text style={{ padding: 13, color: '#1C1C1C' }}>{options.value}</Text>);
-                }}
-                renderButtonText={(text) => text.value}
-                onSelect={(index, value) => { this.setState({ partyType: value.value }) }}
-              /> */}
+                <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14, marginHorizontal: 10, flex: 1 }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}
+                <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? '*' : ''}</Text></Text>
               <Icon
                 style={{ transform: [{ rotate: this.state.isPartyDD ? '180deg' : '0deg' }] }}
                 name={'9'}
                 size={12}
                 color="#808080"
-                onPress={() => {
-                  this.setState({ partyDialog: true });
-                  // this.setState({ isPartyDD: true })
-                  // this.state.partyDropDown.show();
-                }}
               />
-            </View>
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 const BillingAddress = {
@@ -1377,16 +1392,16 @@ export class Vendors extends React.Component<Props> {
             </View>
           )}
         </KeyboardAwareScrollView>
-        {this.isCreateButtonVisible() &&<TouchableOpacity
-            style={styles.saveButton}
-            onPress={() => {
-              this.genrateCustomer();
-            }}>
-            <Text
-              style={styles.saveText}>
-              Save
-            </Text>
-          </TouchableOpacity>}
+        <TouchableOpacity
+          disabled={!this.isCreateButtonVisible()}
+          style={[styles.saveButton, (!this.isCreateButtonVisible() && { backgroundColor: '#CCCCCC'})]}
+          onPress={() => {
+            this.genrateCustomer();
+          }}>
+          <Text style={styles.saveText}>Save</Text>
+        </TouchableOpacity>
+        {this.allGroupsBottomSheet()}
+        {this.partyTypeBottomSheet()}
       </View>
     )
   }
