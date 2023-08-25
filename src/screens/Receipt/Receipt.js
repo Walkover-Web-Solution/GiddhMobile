@@ -37,6 +37,7 @@ import {FONT_FAMILY} from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
+import { formatAmount } from '@/utils/helper';
 
 const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
@@ -1512,13 +1513,13 @@ export class Receipt extends React.Component<any> {
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'Taxable Amount'}</Text>
-              <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + Number(this.state.balanceDetails.totalTaxableAmount).toFixed(2)}</Text>
+              <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.totalTaxableAmount))}</Text>
             </View>
             {(this.state.balanceDetails.mainTaxAmount > 0)
               ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'Tax'}</Text>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + Number(this.state.balanceDetails.mainTaxAmount).toFixed(2)}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.mainTaxAmount))}</Text>
                 </View>)
               : null}
             {(this.state.selectedArrayType.includes('tdspay') ||
@@ -1526,7 +1527,7 @@ export class Receipt extends React.Component<any> {
               ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'TDS'}</Text>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'- ' + this.state.currencySymbol + Number(this.state.balanceDetails.tdsOrTcsTaxAmount).toFixed(2)}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'- ' + this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.tdsOrTcsTaxAmount))}</Text>
                 </View>)
               : null}
             {
@@ -1535,7 +1536,7 @@ export class Receipt extends React.Component<any> {
                 ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'TCS'}</Text>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + Number(this.state.balanceDetails.tdsOrTcsTaxAmount).toFixed(2)}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.tdsOrTcsTaxAmount))}</Text>
                 </View>)
                 : null
             }
@@ -1546,7 +1547,7 @@ export class Receipt extends React.Component<any> {
                 ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'Total'}</Text>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + Number(this.state.amountForReceipt).toFixed(2)}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.amountForReceipt))}</Text>
                 </View>)
                 : null
             }

@@ -115,3 +115,47 @@ export const getExpireInTime = (expiresAt: string) => {
   console.log("Expiration Date from response " + expiresAt) 
   return expireDate
 }
+
+export let store;  // Redux store for non-component, non-saga uses.
+
+export const injectStore = _store => {
+  store = _store
+}
+
+enum BalanceDisplayFormats {
+  INT_COMMA_SEPARATED = 'INT_COMMA_SEPARATED',
+  IND_COMMA_SEPARATED = 'IND_COMMA_SEPARATED',
+  INT_SPACE_SEPARATED = 'INT_SPACE_SEPARATED',
+  INT_APOSTROPHE_SEPARATED = 'INT_APOSTROPHE_SEPARATED'
+}
+
+export const formatAmount = (amount: number) => {
+  const {balanceDecimalPlaces, balanceDisplayFormat} = store.getState().commonReducer?.companyDetails;
+
+  const options = {
+    minimumFractionDigits: balanceDecimalPlaces,
+    maximumFractionDigits: balanceDecimalPlaces,
+  }
+
+  let INT_COMMA_SEPARATED = new Intl.NumberFormat('en-US', options);
+  let INT_SPACE_SEPARATED = new Intl.NumberFormat('mfe', options);
+  let IND_COMMA_SEPARATED = new Intl.NumberFormat('en-IN', options);
+  let INT_APOSTROPHE_SEPARATED = new Intl.NumberFormat('en-CH', options);
+
+  if(balanceDisplayFormat == BalanceDisplayFormats.INT_COMMA_SEPARATED){
+    return INT_COMMA_SEPARATED.format(amount);
+  } else if(balanceDisplayFormat == BalanceDisplayFormats.INT_SPACE_SEPARATED){
+    return INT_SPACE_SEPARATED.format(amount);
+  } else if(balanceDisplayFormat == BalanceDisplayFormats.INT_APOSTROPHE_SEPARATED){
+    return INT_APOSTROPHE_SEPARATED.format(amount);
+  } else{
+    return IND_COMMA_SEPARATED.format(amount);
+  }
+}
+
+export const deformatNumber = (input: string) : number => {
+    // Remove commas, spaces, and apostrophes
+    const cleanedInput = input.replace(/[$€₹, ']/g, '');
+    const deformattedNumber = input.replace(/[$€₹, ']|\.0*$|(\.\d*?[1-9])0*$/g, '$1') //Done 
+    return parseFloat(deformattedNumber);
+}

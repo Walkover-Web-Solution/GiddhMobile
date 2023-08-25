@@ -24,15 +24,13 @@ export class PaymentServices {
    * @returns
    */
   static getAllPayor(uniqueName:any,amount:any) {
-    console.log("Get All payor API URL "+PaymentUrls.getAllPayor.replace(':uniqueName', `${uniqueName}`).replace(':amount',`${amount}`))
     return httpInstance
       .get(PaymentUrls.getAllPayor.replace(':uniqueName', `${uniqueName}`).replace(':amount',`${amount}`),{})
       .then((res) => {
         return res.data;
       })
       .catch((_err) => {
-        console.log(JSON.stringify(_err));
-        return _err;
+        return _err.data;
       });
   }
 

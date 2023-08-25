@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 
-import { getCompanyAndBranches } from '../../redux/CommonAction';
+import { getCompanyAndBranches, getCompanyDetails } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
@@ -102,6 +102,7 @@ export class ChangeCompany extends React.Component<Props> {
                       this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     this.props.getCompanyAndBranches();
+                    this.props.getCompanyDetails();
                     DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                     this.props.navigation.goBack();
                   }}>
@@ -171,7 +172,10 @@ function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
-    }
+    },
+    getCompanyDetails: () => {
+      dispatch(getCompanyDetails());
+    },
   };
 }
 

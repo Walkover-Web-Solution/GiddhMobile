@@ -10,6 +10,7 @@ import getSymbolFromCurrency from 'currency-symbol-map';
 import { Bars } from 'react-native-loader';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import ListEmptyComponent from './ListEmptyComponent';
+import { formatAmount } from '@/utils/helper';
 
 const amountColorStyle = (type: string) => {
   let bgColor = colors.TEXT_NORMAL;
@@ -114,13 +115,13 @@ export const Customers = (props) => {
                   {item.country.code === 'IN' && (
                     <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                       {getSymbolFromCurrency('INR')}
-                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                      {formatAmount(item.closingBalance.amount)}
                     </Text>
                   )}
                   {item.country.code !== 'IN' && (
                     <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                       {getSymbolFromCurrency(item.country.code)}
-                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                      {formatAmount(item.closingBalance.amount)}
                     </Text>
                   )}
                   <View style={{ width: 2 }} />

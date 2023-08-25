@@ -8,6 +8,26 @@ export function getCompanyAndBranches() {
   };
 }
 
+export function getCompanyDetails() {
+  return {
+    type: Actions.GET_COMPANY_DETAILS,
+  };
+}
+
+export function setCompanyDetails(payload: any) {
+  return {
+    type: Actions.SET_COMPANY_DETAILS,
+    payload: payload
+  };
+}
+
+export function setCompanyVoucherVersion(payload: number) {
+  return {
+    type: Actions.SET_COMPANY_VOUCHER_VERSION,
+    payload: payload
+  };
+}
+
 export function getCompanyAndBranchesFailure() {
   return {
     type: Actions.GET_COMPANY_BRANCH_LIST_FAILURE

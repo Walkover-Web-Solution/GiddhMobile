@@ -11,15 +11,13 @@ import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
+  yield takeLatest(ActionConstants.GET_COMPANY_DETAILS, getCompanyDeatils);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
 }
 
 export function* getCompanyAndBranches() {
   try {
     const listResponse = yield call(CommonService.getCompanyList);
-    // const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-    console.log('list response is' + listResponse.body);
-    console.log('list response is' + JSON.stringify(listResponse));
     const companyData = {};
     companyData.success = false;
     const activeCompany = yield AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
@@ -122,7 +120,8 @@ export function* getCompanyAndBranches() {
         });
         if (companyResults.voucherVersion) {
           console.log("company voucher version",(companyResults.voucherVersion))
-          yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber,JSON.stringify(companyResults.voucherVersion))
+          yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber,JSON.stringify(companyResults.voucherVersion));
+          yield put(CommonActions.setCompanyVoucherVersion(companyResults.voucherVersion));
         }
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
@@ -131,6 +130,17 @@ export function* getCompanyAndBranches() {
     }
   } catch (e) {
     yield put(CommonActions.getCompanyAndBranchesFailure());
+  }
+}
+
+export function* getCompanyDeatils() {
+  try {
+    const response = yield call(CommonService.getCompanyDetails);
+    if(response.status === 'success' && response.body){
+      yield put(CommonActions.setCompanyDetails(response.body));
+    }
+  } catch (e) {
+    console.log('---- CommonSaga ---- getCompanyDeatils ----', e);
   }
 }
 

@@ -55,6 +55,7 @@ import { PaymentServices } from '@/core/services/payment/payment';
 import TOAST from 'react-native-root-toast';
 import SMSUserConsent from '../../../SMSUserConsent';
 import BottomSheet from '@/components/BottomSheet';
+import { formatAmount } from '@/utils/helper';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -69,12 +70,16 @@ class PartiesTransactionScreen extends React.Component {
   private pdfBottomSheetRef: React.Ref<BottomSheet>;
   private moreBottomSheetRef: React.Ref<BottomSheet>;
   private reminderBottomSheetRef: React.Ref<BottomSheet>;
+  private payorBottomSheetRef: React.Ref<BottomSheet>;
+  private bankBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: Props) {
     super(props);
     this.voucherBottomSheetRef = createRef<BottomSheet>();
     this.pdfBottomSheetRef = createRef<BottomSheet>();
     this.moreBottomSheetRef = createRef<BottomSheet>();
     this.reminderBottomSheetRef = createRef<BottomSheet>();
+    this.payorBottomSheetRef = createRef<BottomSheet>();
+    this.bankBottomSheetRef = createRef<BottomSheet>();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       showLoader: true,
@@ -98,10 +103,9 @@ class PartiesTransactionScreen extends React.Component {
       iosLoaderToExport: false,
       payNowButtonPressed: false,
       payButtonPressed: false,
-      payorDropDown: Dropdown,
-      isPayorDD: false,
       selectedPayor: null,
-      totalAmount: "₹" + this.currencyFormat(this.props.route?.params?.item?.closingBalance?.amount, this.props.route?.params?.activeCompany?.balanceDisplayFormat),
+      selectedBank: null,
+      totalAmount: "₹" + formatAmount(this.props.route?.params?.item?.closingBalance?.amount),
       totalAmountPlaceHolder: 'a',
       review: '',
       reviewPlaceHolder: '',
@@ -157,6 +161,15 @@ class PartiesTransactionScreen extends React.Component {
 
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.selectedBank !== prevState.selectedBank || this.state.totalAmount !== prevState.totalAmount) {
+      const amount = (((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')).trim();
+      this.getAllPayorData(amount)
+    }
+  }
+
+  getAllPayorData = _.debounce(this.getAllPayor, 20);
+  
   retrieveVerificationCode = (sms: any, codeLength: any) => {
     const codeRegExp = new RegExp(`\\d{${codeLength}}`, 'm');
     const code = sms?.match(codeRegExp)?.[0];
@@ -183,20 +196,35 @@ class PartiesTransactionScreen extends React.Component {
     }
   }
 
+  async getAllPayor(amount: number) {
+      const response = await PaymentServices.getAllPayor(this.state.selectedBank?.uniqueName, amount);
+      if (response.status == "success" && response?.body) {
+        await this.setState({ 
+          selectPayorData: response.body,
+          payorErrorMessage: null
+        });
+        if (response.body.length > 0) {
+          await this.setState({ selectedPayor: response.body[0] });
+        }
+        return;
+      }
+
+      if(response?.status == 'error'){
+        this.setState({ 
+          selectedPayor: null, 
+          selectPayorData: [],
+          payorErrorMessage: response?.message ?? 'Something Went Wrong'
+        });
+      }
+
+  }
+
   async getBankAccountsData() {
     let allAccounts = await PaymentServices.getAccounts()
     if (allAccounts.body.length > 0) {
-      let allPayor = await PaymentServices.getAllPayor(allAccounts.body[0].uniqueName, 1);
       if (allAccounts.status == "success") {
         await this.setState({ bankAccounts: allAccounts.body })
         console.log(JSON.stringify("All bank Account " + JSON.stringify(this.state.bankAccounts)))
-      }
-      if (allPayor.status == "success") {
-        await this.setState({ selectPayorData: allPayor.body })
-        if (allPayor.body.length > 0) {
-          await this.setState({ selectedPayor: allPayor.body[0] })
-        }
-        console.log(JSON.stringify("All Payor " + JSON.stringify(this.state.selectPayorData)))
       }
     }
 
@@ -642,20 +670,22 @@ class PartiesTransactionScreen extends React.Component {
         this.state.vouchers,
       );
 
-      if (this.state.startDate == null || this.state.endDate == null) {
+      if(transactions.body){
+        if (this.state.startDate == null || this.state.endDate == null) {
         this.setState({
           startDate: transactions.body.fromDate,
           endDate: transactions.body.toDate
         })
+        }
+        this.setState({
+          transactionsData: transactions.body.entries,
+          showLoader: false,
+          transactionsLoader: false,
+          debitTotal: transactions.body.debitTotal,
+          creditTotal: transactions.body.creditTotal,
+          totalPages: transactions.body.totalPages,
+        });
       }
-      this.setState({
-        transactionsData: transactions.body.entries,
-        showLoader: false,
-        transactionsLoader: false,
-        debitTotal: transactions.body.debitTotal,
-        creditTotal: transactions.body.creditTotal,
-        totalPages: transactions.body.totalPages,
-      });
     } catch (e) {
       console.log(e);
       this.setState({
@@ -1034,9 +1064,9 @@ class PartiesTransactionScreen extends React.Component {
     try {
       await this.setState({ code: '', disableResendButton: true })
       const payload = {
-        bankName: this.state.bankAccounts[0].bankName,
-        urn: this.state.selectedPayor.urn,
-        uniqueName: this.state.bankAccounts[0].uniqueName,
+        bankName: this.state.selectedBank?.bankName,
+        urn: this.state.selectedPayor?.urn,
+        uniqueName: this.state.selectedBank?.uniqueName,
         totalAmount: (((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')).trim(),
         bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route?.params?.item?.uniqueName }]
       }
@@ -1111,8 +1141,9 @@ class PartiesTransactionScreen extends React.Component {
     await this.setState({ paymentProcessing: true })
     const payload = { requestId: this.state.requestIdOTP, otp: this.state.code }
     console.log("Payment payload " + JSON.stringify(payload))
-    const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor.urn, this.state.bankAccounts[0].uniqueName)
+    const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor.urn, this.state.selectedBank?.uniqueName)
     if (response.status == "success") {
+      await this.setState({ paymentProcessing: false })
       this.removeSmsListener()
       this.props.navigation.navigate("Parties")
       if (Platform.OS == "ios") {
@@ -1132,7 +1163,6 @@ class PartiesTransactionScreen extends React.Component {
       } else {
         ToastAndroid.show(response.body.Message, ToastAndroid.LONG)
       }
-      await this.setState({ paymentProcessing: false })
     } else {
       await this.setState({ paymentProcessing: false, code: '' })
       if (Platform.OS == "ios") {
@@ -1180,6 +1210,95 @@ class PartiesTransactionScreen extends React.Component {
     }
   }
 
+  bankBottomSheet(){
+    const ListEmptyComponent = () => {
+      return (
+        <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={style.regularText}>
+            No Bank Exist
+          </Text>
+        </View>
+      )
+    }
+    const renderItem = ({item}: {item: object}) => {
+      return (
+        <TouchableOpacity 
+          style={[style.button, {paddingVertical: 10}]}
+          onPress={() => {
+            this.setState({ selectedBank: item })
+            this.setBottomSheetVisible(this.bankBottomSheetRef, false);
+          }}
+        >
+          <Icon name={this.state.selectedBank?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={'#864DD3'} size={16} />
+          <View>
+            <Text style={style.buttonText}>
+              {item?.bankName}
+            </Text>
+            <Text style={style.buttonSmallText}>
+              {`A/c No: ${item?.accountNo}`}
+            </Text>
+            <Text style={style.buttonSmallText}>
+              {`Clo Bal: ${item?.effectiveBal} dr.`}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.bankBottomSheetRef}
+        headerText='Select Bank'
+        headerTextColor='#864DD3'
+        flatListProps={{
+          data: this.state.bankAccounts,
+          renderItem: renderItem,
+          ListEmptyComponent: <ListEmptyComponent/>
+        }}
+      />
+    )
+  }
+
+  payorBottomSheet(){
+    const ListEmptyComponent = () => {
+      return (
+        <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={style.regularText}>
+            No Payor Exist
+          </Text>
+        </View>
+      )
+    }
+    const renderItem = ({item}: {item: object}) => {
+      return (
+        <TouchableOpacity 
+          style={style.button}
+          onPress={() => {
+            this.setState({ selectedPayor: item })
+            this.setBottomSheetVisible(this.payorBottomSheetRef, false);
+          }}
+        >
+          <Icon name={this.state.selectedPayor?.user?.name == item?.user?.name ? 'radio-checked2' : 'radio-unchecked'} color={'#864DD3'} size={16} />
+          <Text style={style.buttonText}
+          >
+            {item?.user?.name}
+          </Text>
+        </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.payorBottomSheetRef}
+        headerText='Select Payor'
+        headerTextColor='#864DD3'
+        flatListProps={{
+          data: this.state.selectPayorData,
+          renderItem: renderItem,
+          ListEmptyComponent: <ListEmptyComponent/>
+        }}
+      />
+    )
+  }
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -1214,7 +1333,7 @@ class PartiesTransactionScreen extends React.Component {
                 <Text
                   numberOfLines={1}
                   style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, color: '#FFFFFF', width: "35%", textAlign: "right", paddingLeft: 2 }}>
-                  {this.state.currencySymbol + this.numberWithCommas(this.props.route?.params?.item?.closingBalance?.amount)}
+                  {this.state.currencySymbol + formatAmount(this.props.route?.params?.item?.closingBalance?.amount)}
                 </Text>
               </View>
               : <Text numberOfLines={1} style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
@@ -1239,7 +1358,7 @@ class PartiesTransactionScreen extends React.Component {
                   {this.props.route?.params?.item?.country?.code == 'IN'
                     ? '₹'
                     : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code)}
-                  {this.numberWithCommas(this.state.creditTotal)}
+                  {formatAmount(this.state.creditTotal)}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -1248,7 +1367,7 @@ class PartiesTransactionScreen extends React.Component {
                   {this.props.route?.params?.item?.country?.code == 'IN'
                     ? '₹'
                     : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code)}
-                  {this.numberWithCommas(this.state.debitTotal)}
+                  {formatAmount(this.state.debitTotal)}
                 </Text>
               </View>
             </View>
@@ -1340,65 +1459,64 @@ class PartiesTransactionScreen extends React.Component {
             </TouchableOpacity>
           </View> :
             <ScrollView style={{ paddingHorizontal: 20, }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null,
+                }}
+              >
+                <FontAwesome name={'bank'} size={20} color="#864DD3" />
+                <TouchableOpacity
+                  disabled={this.state.payButtonPressed}
+                  style={{ flexDirection: "row", flex: 1, minHeight: 50, justifyContent: 'space-between', alignItems: 'center' }}
+                  onPress={() => { 
+                    this.setBottomSheetVisible(this.bankBottomSheetRef, true) 
+                  }}
+                >
+                  <Text style={{ color: this.state.selectedBank == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book', marginLeft: 10 }}>
+                    {this.state.selectedBank == null ? 'Select Bank' : this.state.selectedBank.bankName}
+                    <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.selectedBank == null ? '*' : ''}</Text>
+                  </Text>
+                  <Icon name={'9'} size={12} color="#808080" style={{ padding: 5, marginLeft: 20 }}/>
+                </TouchableOpacity>
+              </View>
               <View style={{
                 flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null
+                backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null,
+                minHeight: 50,
               }}>
-                <Ionicons name="person" size={25} color="#864DD3" style={{ marginTop: 7 }} />
-                <Dropdown
-                  ref={(ref) => this.state.payorDropDown = ref}
-                  style={{ flex: 1, paddingLeft: 10 }}
-                  textStyle={{ color: 'black', fontSize: 15 }}
-                  options={this.state.selectPayorData.length > 0 ? this.state.selectPayorData : ["No results found"]}
-                  renderSeparator={() => {
-                    return (<View></View>);
-                  }}
-                  onDropdownWillShow={() => this.setState({ isPayorDD: true })}
+                <Ionicons name="person" size={25} color="#864DD3" style={{alignSelf: 'center'}}/>
+                <TouchableOpacity
                   disabled={this.state.payButtonPressed}
-                  onDropdownWillHide={() => this.setState({ isPayorDD: false })}
-                  dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 1 ? 100 : 50, marginTop: 5, borderRadius: 5 }}
-                  dropdownTextStyle={{ color: '#1C1C1C' }}
-                  renderRow={(options) => {
-                    return (
-                      <Text style={{ padding: 10, color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book', backgroundColor: "white" }}>{options == "No results found" ? options : options.user.name}</Text>)
-                  }}
-                  onSelect={(index, value) => {
-                    if (value != "No results found") {
-                      this.setState({ selectedPayor: value })
-                    }
-                  }}>
-                  <View style={{ flexDirection: "row" }}>
-                    <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>
-                      {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor.user.name}</Text>
-                    <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
+                  style={{ flex: 1 }}
+                  onPress={() => this.setBottomSheetVisible(this.payorBottomSheetRef, true)}
+                >
+                  <View  style={{ flexDirection: "row", flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book', marginLeft: 10 }}>
+                      {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor.user.name}
+                      <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
+                    </Text>
+                    <Icon
+                      style={{ padding: 5, marginLeft: 20 }}
+                      name={'9'}
+                      size={12}
+                      color="#808080"
+                    />
                   </View>
-                </Dropdown>
-                <Icon
-                  style={{ transform: [{ rotate: this.state.isPayorDD ? '180deg' : '0deg' }], padding: 5, marginLeft: 20 }}
-                  name={'9'}
-                  size={12}
-                  color="#808080"
-                  onPress={() => {
-                    if (!this.state.payButtonPressed) {
-                      this.setState({ isPayorDD: true });
-                      this.state.payorDropDown.show();
-                    }
-                  }}
-                />
+                  <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book', fontSize: 10, position: 'absolute', bottom: -5, marginLeft: 10 }}>{this.state?.payorErrorMessage}</Text>
+                </TouchableOpacity>
               </View>
-              {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 15, color: '#808080', fontSize: 12, marginBottom: 10, fontFamily: 'AvenirLTStd-Book' }}>
-                {`Bank Bal ${this.state.bankAccounts.length > 0 ? this.state.bankAccounts[0].effectiveBal : 0} dr`}</Text> : <View style={{ marginBottom: 0 }}></View>}
-              <View style={{ flexDirection: "row", marginTop: 15, backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null }}>
+              <View style={{ flexDirection: "row", alignItems: 'center', backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null, minHeight: 50 }}>
                 <View style={{ backgroundColor: '#864DD3', width: 25, height: 25, borderRadius: 15, alignItems: "center", justifyContent: "center", marginTop: 3 }}>
-                  <FontAwesome name={'dollar'} color="white" size={18} />
+                  <FontAwesome name={'dollar'} color="white" size={16} />
                 </View>
                 <TextInput
                   onBlur={async () => {
                     if (this.state.totalAmount == '') {
                       await this.setState({ totalAmountPlaceHolder: '' })
                     } else {
-                      let amount = await (this.currencyFormat(Number((this.state.totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '')), this.props.route.params.activeCompany?.balanceDisplayFormat))
+                      let amount = await (formatAmount(Number((this.state.totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, ''))))
                       console.log("Total Amount " + (this.state.totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '') + " currency symbol " + this.state.currencySymbol)
                       if (amount == "NaN") {
                         if (Platform.OS == "ios") {
@@ -1432,7 +1550,7 @@ class PartiesTransactionScreen extends React.Component {
                     console.log(text)
                     this.setState({ totalAmount: (text).replace(/[^0-9.₹]/g, '') })
                   }}
-                  style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, width: "90%", }}>
+                  style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, padding: 0, minHeight: 50, flex: 1 }}>
                   <Text style={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder != '' ? ((this.state.totalAmount.length > 1 || this.state.totalAmount == this.state.currencySymbol) && this.state.currencySymbol != "" ? (this.state.currencySymbol).substring(1)
                     : (this.state.currencySymbol)) : ''}</Text>
                   <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' &&
@@ -1442,8 +1560,16 @@ class PartiesTransactionScreen extends React.Component {
                   <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
-              <View style={{ flexDirection: "row", marginLeft: 0, marginTop: 20, backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null }}>
-                <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
+              <View style={{ flexDirection: "row", marginLeft: 0, minHeight: 50, backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : undefined }}>
+                <View 
+                  style={{
+                    height: 50,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
+                </View>
                 <TextInput
                   multiline={true}
                   editable={!this.state.payButtonPressed}
@@ -1457,11 +1583,10 @@ class PartiesTransactionScreen extends React.Component {
                     this.setState({ reviewPlaceHolder: 'a' })
                   }}
                   onChangeText={(text) => {
-                    console.log(text)
                     this.setState({ review: text })
                   }
                   }
-                  style={{ fontSize: 15, marginHorizontal: 8, textAlignVertical: "center", padding: 0, width: "90%", }}>
+                  style={{ fontSize: 15, marginHorizontal: 10, padding: 0, flex: 1, alignSelf: 'center' }}>
                   <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? 'Comments' : this.state.review}</Text>
                   <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
@@ -1576,6 +1701,8 @@ class PartiesTransactionScreen extends React.Component {
             onWhatsApp={this.onWhatsApp}
             onCall={this.onCall}
           />
+          {this.bankBottomSheet()}
+          {this.payorBottomSheet()}
           <BottomSheet
             bottomSheetRef={this.reminderBottomSheetRef}
             headerText='Set Reminder'

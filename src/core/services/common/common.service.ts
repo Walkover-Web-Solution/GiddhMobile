@@ -46,6 +46,10 @@ export class CommonService {
       )
       .then((res) => {
         return res.data;
+      })
+      .catch((error) => {
+        console.log('---- getTransactions ----', error);
+        return {}
       });
   }
 
@@ -72,7 +76,11 @@ export class CommonService {
         )
         .then((res) => {
           return res.data;
-        });
+        })
+        .catch((error) => {
+          console.log('---- getPartyTransactions ----', error);
+          return {}
+        });;
     } else {
       console.log("Get transcation api call with date - " + JSON.stringify(commonUrls.customer_transactions).replace(':startDate', startDate).replace(':endDate', endDate).replace('page=1', `page=${page}`))
       return httpInstance
@@ -90,14 +98,22 @@ export class CommonService {
         )
         .then((res) => {
           return res.data;
-        });
+        })
+        .catch((error) => {
+          console.log('---- getPartyTransactions ----', error);
+          return {}
+        });;
     }
   }
 
   static getPartiesSundryCreditors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
       return res.data;
-    });
+    })
+    .catch((error) => {
+      console.log('---- getPartiesSundryCreditors ----', error);
+      return {}
+    });;
   }
 
   /**
@@ -107,7 +123,10 @@ export class CommonService {
   static getPartiesSundryDebtors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_debtors, {}).then((res) => {
       return res.data;
-    });
+    })
+    .catch((error) => {
+      console.log('---- getPartiesSundryDebtors ----', error);
+    });;
   }
 
   static getPartiesMainSundryDebtors(
@@ -129,6 +148,9 @@ export class CommonService {
       )
       .then((res) => {
         return res.data;
+      })
+      .catch((error) => {
+        console.log('---- getPartiesMainSundryDebtors ----', error);
       });
   }
 

@@ -20,6 +20,11 @@ LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { injectStore } from '@/utils/helper';
+import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
+
+injectStore(store); // Provides store to formateAmount function
+injectStoreToInvoiceUrls(store); // Provides store to invoice urls
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;

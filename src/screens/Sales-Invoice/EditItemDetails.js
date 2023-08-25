@@ -19,6 +19,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import style from './style';
 import BottomSheet from '@/components/BottomSheet';
 import { FONT_FAMILY } from '@/utils/constants';
+import { formatAmount } from '@/utils/helper';
 const { SafeAreaOffsetHelper } = NativeModules;
 
 const { width, height } = Dimensions.get('window');
@@ -50,7 +51,7 @@ class EditItemDetails extends Component {
       itemDetails: this.props.itemDetails,
       selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
       fixedDiscountSelected: false,
-      unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates : [],
+      unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.variant ? this.props.itemDetails.stock.variant.unitRates : this.props.itemDetails.stock.unitRates : [],
       selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
       editItemDetails: {
         description: this.props.itemDetails.description,
@@ -58,7 +59,7 @@ class EditItemDetails extends Component {
         hsnNumber: this.props.itemDetails.hsnNumber,
         sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
-        unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock.unitRates[0].stockUnitCode : '',
+        unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock?.stockUnitCode : '',
         amountText: this.props.itemDetails.rate ? this.props.itemDetails.rate : '0',
         discountValueText: this.props.itemDetails.discountValue ? this.props.itemDetails.discountValue : '',
         discountPercentageText: this.props.itemDetails.discountPercentage
@@ -299,9 +300,8 @@ class EditItemDetails extends Component {
                 style={{paddingHorizontal: 20, paddingVertical: 10, flexDirection: 'row', alignItems: 'center'}}
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
-                  const itemDetails = this.state.editItemDetails;
-                  itemDetails.unitText = item.stockUnitCode;
-                  this.setState({ editItemDetails: itemDetails });
+                  this.onChangeTextBottomItemSheet(item.stockUnitCode, 'Unit');
+                  this.onChangeTextBottomItemSheet(item.rate, 'Rate');
                   this.setBottomSheetVisible(this.unitBottomSheetRef, false);
                 }}
               >
@@ -711,7 +711,7 @@ class EditItemDetails extends Component {
         <Text>Total Amount</Text>
         <Text style={style.finalItemAmount}>{`${(this.props.currencySymbol ? this.props.currencySymbol : '') +
           '' +
-          this.calculateFinalAmountToDisplay(this.state.editItemDetails).toFixed(2)
+          formatAmount(this.calculateFinalAmountToDisplay(this.state.editItemDetails))
           }`}</Text>
       </View>
     );
@@ -840,7 +840,7 @@ class EditItemDetails extends Component {
         {field2 == 'Unit' ? (
           <View style={{ marginHorizontal: 16, paddingVertical: 10, flex: 1 }}>
             <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', width: width * 0.5 }}
+              style={{ width: width * 0.5 }}
               onPress={() => {
                 if (this.state.unitArray.length > 1) {
                   this.setBottomSheetVisible(this.unitBottomSheetRef, true);
@@ -850,20 +850,27 @@ class EditItemDetails extends Component {
               }}
             // onPress={() => console.log(this.state.unitArray)}
             >
-              <Icon name={icon2} size={12} color="#808080" />
-              <Text style={{ marginLeft: 10 }}>{field2}</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center', 
+                }}
+              >
+                <Icon name={icon2} size={12} color="#808080" />
+                <Text style={{ marginLeft: 10 }}>{field2}</Text>
+              </View>
+              <TextInput
+                placeholder={field2}
+                placeholderTextColor={'#808080'}
+                value={field2Value}
+                keyboardType={keyboardType2}
+                style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, color: 'black' }}
+                editable={false}
+                onChangeText={(text) => {
+                  this.onChangeTextBottomItemSheet(text, field2);
+                }}
+              />
             </TouchableOpacity>
-            <TextInput
-              placeholder={field2}
-              placeholderTextColor={'#808080'}
-              value={field2Value}
-              keyboardType={keyboardType2}
-              style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
-              editable={false}
-              onChangeText={(text) => {
-                this.onChangeTextBottomItemSheet(text, field2);
-              }}
-            />
           </View>
         ) : (
             <View style={{ marginHorizontal: 16, paddingVertical: 10, flex: 1 }}>

@@ -41,6 +41,7 @@ import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
+import { formatAmount } from '@/utils/helper';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -789,11 +790,17 @@ export class PurchaseBill extends React.Component {
 
                 uniqueName: item.stock.uniqueName,
                 rate: {
-                  amountForAccount: Number(item.rate),
+                  rateForAccount: Number(item.rate)
                 },
                 stockUnit: {
-                  code: item.stock.stockUnitCode,
+                  code: item.stock.stockUnitCode
                 },
+                ...(item?.stock?.variant && {
+                  variant: {
+                  name: item.stock.variant.name,
+                  uniqueName: item.stock.variant.uniqueName
+                  }
+                })
               }
               : undefined,
           },
@@ -1167,7 +1174,7 @@ export class PurchaseBill extends React.Component {
   renderAmount() {
     return (
       <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
-        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
+        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + formatAmount(this.getTotalAmount())}</Text>
       </View>
     );
   }
@@ -1717,7 +1724,7 @@ export class PurchaseBill extends React.Component {
       }
     }
 
-    await this.setState({ addedItems: updateAmountToCurrentCurrency });
+    await this.setState({ addedItems: [...this.state.addedItems, ...updateAmountToCurrentCurrency] });
     await this.setState({
       totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2),
     });
@@ -1990,37 +1997,44 @@ export class PurchaseBill extends React.Component {
               },
             });
           }}>
-          <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 5 }}>
             <View style={{ flexDirection: 'row', width: "75%", }}>
               <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>{item.name}</Text>
               {item.stock && (
                 <Text numberOfLines={1} style={{ color: '#1C1C1C', flex: 1 }}>
-                  ( {item.stock.name} ) :
+                  ( {`${item.stock.name}`} ) {item?.stock?.isMultiVariant ? `- ${item?.stock?.variant?.name}` : ''}
                 </Text>
               )}
             </View>
-            <TouchableOpacity onPress={() => this.addItem({ ...item })} style={{ flexDirection: 'row', width: "25%", alignItems: "flex-end", justifyContent: "flex-end" }}>
-              <AntDesign name={'plus'} color={'#808080'} size={15} />
-              <Text style={{ color: '#808080' }}>Add again</Text>
-            </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View>
+            <View style={{width: '50%', flexWrap: 'wrap'}}>
               <Text style={{ color: '#808080' }}>
                 {String(item.quantity)} x {this.state.currencySymbol}
                 {String(item.rate)}
               </Text>
             </View>
+            <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignContent: 'flex-end', alignItems: 'center' }}>
+              <Text style={{ color: '#808080' }}>
+                Tax : {this.state.currencySymbol}
+                {formatAmount(this.calculatedTaxAmount(item, 'taxAmount'))}
+              </Text>
+            </View>
           </View>
-
-          <Text style={{ marginTop: 5, color: '#808080' }}>
-            Tax :{this.state.currencySymbol}
-            {this.calculatedTaxAmount(item, "taxAmount")}
-          </Text>
-          <Text style={{ marginTop: 5, color: '#808080' }}>
-            Discount : {this.state.currencySymbol}
-            {item.discountValue ? item.discountValue : 0}
-          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+            <View style={{width: '50%', flexWrap: 'wrap'}}>
+              <Text style={{ color: '#808080' }}>
+                Discount : {this.state.currencySymbol}
+                {formatAmount(item.discountValue ? item.discountValue : 0)}
+              </Text>
+            </View>
+            <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignItems: 'center'}}>
+              <Text style={{ color: '#808080' }}>
+                Total : {this.state.currencySymbol}
+                {formatAmount(this.getTotalAmountOfCard(item))}
+              </Text>
+            </View>
+          </View>
         </TouchableOpacity>
       </Swipeable>
     );
@@ -2252,6 +2266,14 @@ export class PurchaseBill extends React.Component {
     return total.toFixed(2);
   }
 
+  getTotalAmountOfCard(item){
+    const discount = item.discountValue ? item.discountValue : 0;
+    const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
+    const amount = Number(item.rate) * Number(item.quantity);
+    const total = amount - discount + tax;
+    return total;
+  }
+
   _renderOtherDetails() {
     return (
       <TouchableOpacity
@@ -2306,7 +2328,7 @@ export class PurchaseBill extends React.Component {
         {this.state.invoiceType == 'sales' && (
           <TextInput
             style={[style.regularText, { borderWidth: 0.5, borderColor: "#D9D9D9", borderRadius: 5, padding: 5, marginVertical: 10, marginHorizontal: 20, height: 40 }]}
-            value={this.state.tempAmountPaidNowText}
+            value={String(this.state.tempAmountPaidNowText)}
             keyboardType="number-pad"
             returnKeyType={'done'}
             placeholder="Enter Amount"
@@ -2374,7 +2396,7 @@ export class PurchaseBill extends React.Component {
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
-              <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + this.getTotalAmount()}</Text>
+              <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(this.getTotalAmount())}</Text>
             </View>
             {this.state.currency != this.state.companyCountryDetails.currency.code &&
               this.state.invoiceType != INVOICE_TYPE.cash ? (
@@ -2408,7 +2430,7 @@ export class PurchaseBill extends React.Component {
                     return (
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
                         <Text style={{ color: '#1C1C1C' }}>{item.name}</Text>
-                        <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + item.amount}</Text>
+                        <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(item.amount)}</Text>
                       </View>
                     )
                   }}
@@ -2439,7 +2461,7 @@ export class PurchaseBill extends React.Component {
                 </View>
               </TouchableOpacity>
               {this.state.invoiceType == 'cash' ? (
-                <Text style={{ color: '#1C1C1C' }}>{this.getInvoiceDueTotalAmount()}</Text>
+                <Text style={{ color: '#1C1C1C' }}>{formatAmount(this.getInvoiceDueTotalAmount())}</Text>
               ) : (
                 <TouchableOpacity
                   style={{ width: "50%", alignItems: "flex-end" }}
@@ -2448,7 +2470,7 @@ export class PurchaseBill extends React.Component {
                     this.setState({ tempSelectedPayMode: this.state.selectedPayMode, tempAmountPaidNowText: this.state.amountPaidNowText })
                   }}>
                   <Text style={{ color: '#1C1C1C' }}>
-                    {this.state.addedItems.length > 0 && this.state.currencySymbol + Number(this.state.amountPaidNowText).toFixed(2)}
+                    {this.state.addedItems.length > 0 && this.state.currencySymbol + formatAmount(Number(this.state.amountPaidNowText))}
                   </Text>
                   {/* <TextInput
                     style={{borderBottomWidth: 1, borderBottomColor: '#808080', padding: 5}}
@@ -2469,7 +2491,7 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#1C1C1C' }}>Balance Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {(String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2)}
+                {formatAmount((String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2))}
               </Text>
             </View>
           </View>
@@ -2600,6 +2622,11 @@ export class PurchaseBill extends React.Component {
     item.fixedDiscount = details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 };
     item.fixedDiscountUniqueName = details.fixedDiscountUniqueName ? details.fixedDiscountUniqueName : '';
     item.selectedArrayType = selectedArrayType;
+    if(item?.stock?.variant){
+      item.stock.variant.stockUnitCode = details.unitText;
+    } else if(item?.stock){
+      item.stock.stockUnitCode = details.unitText;
+    }
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
     this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
@@ -2680,21 +2707,15 @@ export class PurchaseBill extends React.Component {
           </View>
 
           {this.state.searchResults.length > 0 && this._renderSearchList()}
-          {this.state.loading && (
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                position: 'absolute',
-                backgroundColor: 'rgba(0,0,0,0.4)',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                top: 0,
-              }}>
+          <Modal
+            visible={this.state.loading}
+            transparent
+            statusBarTranslucent
+          >
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
               <Bars size={15} color={color.PRIMARY_NORMAL} />
             </View>
-          )}
+          </Modal>
         </Animated.ScrollView>
         {this.state.showItemDetails && (
           <PurchaseItemEdit

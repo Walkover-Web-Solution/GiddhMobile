@@ -8,7 +8,9 @@ const initialState = {
   comapnyList: undefined,
   branchList: undefined,
   isFetchingCompanyList: false,
-  isUnauth: false
+  isUnauth: false,
+  companyDetails: {},
+  companyVoucherVersion: 2
 };
 
 export default (state = initialState, action: Action) => {
@@ -54,6 +56,16 @@ export default (state = initialState, action: Action) => {
         ...state,
         isFetchingCompanyList: false,
         error: action.payload
+      };
+    case ActionConstants.SET_COMPANY_DETAILS:
+      return {
+        ...state,
+        companyDetails: action.payload,
+      };
+    case ActionConstants.SET_COMPANY_VOUCHER_VERSION:
+      return {
+        ...state,
+        companyVoucherVersion: action.payload,
       };
     default:
       return state;

@@ -18,6 +18,16 @@ export async function getCompanyList () {
   }
 }
 
+export async function getCompanyDetails () {
+  try {
+    const response = await CompanyService.getCompanyDetails();
+    return response
+  } catch (error) {
+    console.log('--- getCompanyDetails ---', error);
+    return error;
+  }
+}
+
 export async function getCompanyBranches (uniqueName) {
   try {
     const response = await CompanyService.getCompanyBranches(uniqueName);

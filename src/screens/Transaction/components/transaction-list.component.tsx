@@ -17,6 +17,7 @@ import moment from 'moment';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import TOAST from 'react-native-root-toast';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { formatAmount } from '@/utils/helper';
 
 class TransactionList extends React.Component {
   listData = [
@@ -358,8 +359,8 @@ class TransactionList extends React.Component {
             {this.props.transactionType != 'partyTransaction' && <Text numberOfLines={1} style={[styles.balStyle, , { width: "40%", textAlign: "right" }]}>
               {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
               {this.props.item.creditAmount
-                ? this.numberWithCommas(this.props.item.creditAmount)
-                : this.numberWithCommas(this.props.item.debitAmount)}
+                ? formatAmount(this.props.item.creditAmount)
+                : formatAmount(this.props.item.debitAmount)}
             </Text>}
           </View>
           <View style={styles.receiptData}>
@@ -407,8 +408,8 @@ class TransactionList extends React.Component {
               <Text style={styles.balStyle}>
                 {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
                 {this.props.item.creditAmount
-                  ? this.numberWithCommas(this.props.item.creditAmount)
-                  : this.numberWithCommas(this.props.item.debitAmount)}
+                  ? formatAmount(this.props.item.creditAmount)
+                  : formatAmount(this.props.item.debitAmount)}
               </Text>
             </View>}
             <View style={styles.iconPlacingStyle}>

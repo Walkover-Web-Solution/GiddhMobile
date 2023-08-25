@@ -4,8 +4,8 @@ buildscript {
     ext {
         buildToolsVersion = "31.0.0"
         minSdkVersion = 21
-        compileSdkVersion = 31
-        targetSdkVersion = 31
+        compileSdkVersion = 33
+        targetSdkVersion = 33
         googlePlayServicesAuthVersion = "18.0.0" // Google Sign in
 
         if (System.properties['os.arch'] == "aarch64") {
@@ -86,7 +86,7 @@ subprojects {
     afterEvaluate {
         project -> if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 31
+                compileSdkVersion 33
                 buildToolsVersion '31.0.0'
             }
         }

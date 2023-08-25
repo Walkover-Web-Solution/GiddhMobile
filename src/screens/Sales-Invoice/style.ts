@@ -183,9 +183,26 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.semibold,
     fontSize: 14,
   },
+  smallText: {
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 12,
+  },
   boldText: {
     color: '#1C1C1C',
     fontFamily: FONT_FAMILY.bold,
     fontSize: 14,
+  },
+  button: {
+    flexDirection: "row", 
+    alignItems: 'center',
+    justifyContent: "flex-start", 
+    paddingHorizontal: 20,
+    paddingVertical: 15
+  },
+  buttonText: {
+    color: '#1C1C1C', 
+    fontFamily: FONT_FAMILY.regular,
+    marginLeft: 10
   }
 });

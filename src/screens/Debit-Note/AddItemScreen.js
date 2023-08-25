@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ import color from '@/utils/colors';
 import _ from 'lodash';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import { APP_EVENTS } from '@/utils/constants';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import BottomSheet from '@/components/BottomSheet';
+import { formatAmount } from '@/utils/helper';
 const { SafeAreaOffsetHelper } = NativeModules;
 
 export const KEYBOARD_EVENTS = {
@@ -38,14 +41,17 @@ interface Props {
 class AddItemScreen extends React.Component<Props> {
   constructor (props) {
     super(props);
+    this.variantsBottomSheetRef = createRef();
     this.state = {
       loading: false,
       itemList: [],
       searchItemName: '',
       searchResults: [],
+      allStockVariants: {},
+      selectedStock: {},
+      addedItems: [],
       isSearchingParty: false,
       searchError: '',
-      addedItems: this.props.route.params.addedItems,
       bottomOffset: 0
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -84,6 +90,15 @@ class AddItemScreen extends React.Component<Props> {
     this.keyboardWillHideSub = undefined;
   }
 
+  setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
+
   renderHeader () {
     return (
       <View style={style.header}>
@@ -116,7 +131,7 @@ class AddItemScreen extends React.Component<Props> {
         </View>
         <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
         <View style={{ marginRight: 10 }}>
-          <Text style={style.footerItemsTotalText}>{this.props.route.params.currencySymbol+`${this.performCalulations()}`}</Text>
+          <Text style={style.footerItemsTotalText}>{this.props.route.params.currencySymbol+`${formatAmount(this.performCalulations())}`}</Text>
           <Text style={{ color: 'white' }}>{`Items: ${this.state.addedItems.length}`}</Text>
         </View>
       </View>
@@ -176,6 +191,49 @@ class AddItemScreen extends React.Component<Props> {
     this.setState({ addedItems: addedArray });
   }
 
+  _variantsBottomSheet (){
+    const renderItem = ({item}) => {
+      const filtered = this.state.addedItems.filter((obj) => obj?.stock?.uniqueName == this.state.selectedStock?.stock?.uniqueName);
+      const index = filtered.findIndex((itemObj) => itemObj?.stock?.variant?.uniqueName === item.uniqueName)
+
+      return (
+        <TouchableOpacity 
+          style={style.button}
+          onPress={() => {
+            if(index == -1){
+              this.addItem(this.state.selectedStock, item?.uniqueName);
+            } else{
+              this.updateQuantityOfItem(this.state.selectedStock, 'remove', item?.uniqueName);
+            }            
+          }}
+        >
+          { index !== -1
+            ?  <AntDesign name="checksquare" size={20} color={"#ff6961"} />
+            :  <Fontisto name="checkbox-passive" size={20} color={'#CCCCCC'} />
+          }
+          <Text style={style.buttonText}
+          >
+            {item.name}
+          </Text>
+        </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.variantsBottomSheetRef}
+        headerText={`Select Variants`}
+        headerTextColor='#ff6961'
+        onClose={() => {
+          this.setState({ selectedStock: {}});
+        }}
+        flatListProps={{
+          data: this.state.allStockVariants[this.state?.selectedStock?.stock?.uniqueName],
+          renderItem: renderItem
+        }}
+      />
+    )
+  }
+
   _renderStockView (item) {
     const filtered = _.filter(this.state.addedItems, function (o) {
       const ouniqueName = o.stock ? o.stock.uniqueName : o.uniqueName;
@@ -197,21 +255,107 @@ class AddItemScreen extends React.Component<Props> {
                 {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
               </Text>
               <TouchableOpacity
+              style={{ backgroundColor: 'rgba(255, 99, 71, 0.1)', height: 32, borderRadius: 16, justifyContent: 'center' }}
+              onPress={() => {
+                this.addItem(item);
+              }}>
+              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{'ADD'}</Text>
+            </TouchableOpacity>
+          </View>
+            )
+          : 
+            this.state.allStockVariants[filteredItem?.stock?.uniqueName]?.length > 1 
+            ? 
+            <View style={{flex: 1}}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1, paddingBottom: 5 }}>
+              <Text style={style.inventoryNameText} numberOfLines={2}>
+                {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
+              </Text>
+              <TouchableOpacity
                 style={{ backgroundColor: 'rgba(255, 99, 71, 0.1)', height: 32, borderRadius: 16, justifyContent: 'center' }}
                 onPress={() => {
-                  this.addItem(item);
+                  this.setState({selectedStock: item});
+                  this.setBottomSheetVisible(this.variantsBottomSheetRef, true);
                 }}>
-                <Text style={{ paddingHorizontal: 14, alignSelf: 'center' }}>{'ADD'}</Text>
+                <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{'Select Variants'}</Text>
               </TouchableOpacity>
             </View>
-            )
-          : (
+            {filtered.map((item) => {
+              return (
+                <View style={{flex: 1, paddingTop: 10}}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <View>
+                    <Text style={style.regularText}>                                      
+                      {item?.stock?.variant?.name}
+                    </Text>
+                    <Text style={style.smallText}>
+                    {item?.stock?.rate ? item?.stock?.rate : '0'}
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.updateQuantityOfItem(item, 'minus');
+                    }}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: '#ff6961',
+                      borderRadius: 12,
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}>
+                    <AntDesign name={'minus'} color={'white'} size={15} />
+                  </TouchableOpacity>
+                  <Text
+                    style={[{
+                      minWidth: 80,
+                      fontSize: 12,
+                      color: '#1C1C1C',
+                      borderWidth: 1,
+                      padding: 4,
+
+                      borderColor: '#D9D9D9',
+                      marginHorizontal: 6,
+                      textAlign: 'center'
+                    }, style.regularText
+                  ]}>
+                    {item?.quantity} {item?.stock?.stockUnitCode !== undefined ? item?.stock?.stockUnitCode : ''}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.updateQuantityOfItem(item, 'add');
+                    }}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: '#ff6961',
+                      borderRadius: 12,
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}>
+                    <AntDesign name={'plus'} color={'white'} size={15} />
+                  </TouchableOpacity>
+                  </View>
+                </View>
+                <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                </View>
+                </View>
+              )
+            })}
+            </View>
+            : 
+            (
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={style.inventoryNameText}>
-                  {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
-                </Text>
-                {/* <View style={{backgroundColor: 'pink', alignItems: 'center'}}> */}
+                <View style={{flex: 1}}>
+                  <Text style={style.inventoryNameText}>
+                    {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
+                  </Text>
+                  <Text style={style.smallText}>
+                  Rate: {filteredItem?.stock?.rate ? filteredItem?.stock?.rate : '0'}
+                  </Text>
+                </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <TouchableOpacity
                     onPress={() => {
@@ -228,7 +372,7 @@ class AddItemScreen extends React.Component<Props> {
                     <AntDesign name={'minus'} color={'white'} size={15} />
                   </TouchableOpacity>
                   <Text
-                    style={{
+                    style={[{
                       minWidth: 80,
                       fontSize: 12,
                       color: '#1C1C1C',
@@ -238,8 +382,8 @@ class AddItemScreen extends React.Component<Props> {
                       borderColor: '#D9D9D9',
                       marginHorizontal: 6,
                       textAlign: 'center'
-                    }}>
-                    {filteredItem.quantity}
+                    }, style.regularText]}>
+                    {filteredItem.quantity} {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
                   </Text>
                   <TouchableOpacity
                     onPress={() => {
@@ -256,64 +400,16 @@ class AddItemScreen extends React.Component<Props> {
                     <AntDesign name={'plus'} color={'white'} size={15} />
                   </TouchableOpacity>
                 </View>
-                {/* {filteredItem.stock && (
-                  // <View style={{flexDirection: 'row', width: '50%', justifyContent: 'center'}}>
-                  <Text style={{marginLeft: 10}}>
-                    Unit : {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
-                  </Text>
-                )} */}
-                {/* </View> */}
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flex: 1,
-                  // backgroundColor: 'pink',
-                  marginTop: 5
-                }}>
-                <View style={{ flexDirection: 'row', width: '50%' }}>
-                  <Text>Rate: </Text>
-                  <Text>{filteredItem.rate ? filteredItem.rate : '0'}</Text>
-                </View>
-                {filteredItem.stock && (
-                  <View style={{ flexDirection: 'row', width: '50%', justifyContent: 'center' }}>
-                    <Text style={{ marginLeft: 20 }}>
-                      {filteredItem.stock.stockUnitCode !== undefined ? filteredItem.stock.stockUnitCode : ''}
-                    </Text>
-                  </View>
-                )}
-                {/* <TouchableOpacity
-                style={{height: 30, width: 30, backgroundColor: 'pink'}}
-                onPress={() => console.log(filteredItem)}></TouchableOpacity> */}
-                {/* <TextInput
-                onChangeText={(text) => {
-                  this.serviceRateValueChange(filteredItem, text);
-                }}
-                // value={filteredItem.stock.rate}
-                placeholder={`${filteredItem.stock.rate}`}
-                keyboardType={'decimal-pad'}
-                returnKeyType={'done'}
-                style={{
-                  borderColor: '#D9D9D9',
-                  fontSize: 12,
-                  color: '#1C1C1C',
-                  borderWidth: 1,
-                  padding: 4,
-                  marginLeft: 6,
-                  minWidth: 100,
-                }}
-              /> */}
               </View>
             </View>
-            )}
+        )}
       </View>
     );
   }
 
   _renderServiceView (item) {
     const filtered = _.filter(this.state.addedItems, function (o) {
+      if(o?.stock) return;
       if (o.uniqueName == item.uniqueName) {
         return o;
       }
@@ -326,7 +422,7 @@ class AddItemScreen extends React.Component<Props> {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         {!this.checkIfItemIsSelcted(item)
           ? (
-          <View
+            <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -334,7 +430,7 @@ class AddItemScreen extends React.Component<Props> {
               // backgroundColor: 'pink',
               flex: 1
             }}>
-            <Text style={style.inventoryNameText}>
+            <Text style={style.inventoryNameText} numberOfLines={2}>
               {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
             </Text>
             <TouchableOpacity
@@ -349,69 +445,43 @@ class AddItemScreen extends React.Component<Props> {
               onPress={() => {
                 this.addItem(item);
               }}>
-              <Text style={{ paddingHorizontal: 14, alignSelf: 'center' }}>SELECT</Text>
+              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>SELECT</Text>
               {/* <Icon style={{marginLeft: 10}} name={'path-18'} size={10} color={'#1C1C1C'} /> */}
             </TouchableOpacity>
           </View>
-            )
+          ) 
           : (
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{flex: 1}}>
                 <Text style={style.inventoryNameText}>
                   {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
                 </Text>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: 'red',
-                    height: 32,
-                    borderRadius: 16,
-                    justifyContent: 'center',
-                    flexDirection: 'row',
-                    alignItems: 'center'
-                  }}
-                  onPress={() => {
-                    this.deleteItemFromList(item);
-                  }}>
-                  {this.checkIfItemIsSelcted(item) && (
-                    <Icon style={{ marginLeft: 10 }} name={'path-14'} size={10} color={'white'} />
-                  )}
-
-                  <Text style={{ paddingHorizontal: 14, alignSelf: 'center', color: 'white' }}>{'Remove'}</Text>
-                </TouchableOpacity>
+                <Text style={style.smallText}>
+                  Rate : {filteredItem.rate ? filteredItem.rate : '0'}
+                </Text>
               </View>
-              <View style={{ width: 100 }}>
-                {/* <Text style={{}}>{`SAC: ${item.sacNumber && item.sacNumber !== 'null' ? item.sacNumber : ''}`}</Text> */}
+              <TouchableOpacity
+                style={{
+                  backgroundColor: 'red',
+                  height: 32,
+                  borderRadius: 16,
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  alignItems: 'center'
+                }}
+                onPress={() => {
+                  this.deleteItemFromList(item);
+                }}>
+                {this.checkIfItemIsSelcted(item) && (
+                  <Icon style={{ marginLeft: 10 }} name={'path-14'} size={10} color={'white'} />
+                )}
 
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text>Rate : </Text>
-                  <Text>{filteredItem.rate ? filteredItem.rate : '0'}</Text>
-                  {/* <Text>{filteredItem.unit ? filteredItem.unit : '0'}</Text>
-                <TouchableOpacity
-                  style={{height: 30, width: 30, backgroundColor: 'pink'}}
-                  onPress={() => console.log(filteredItem)}></TouchableOpacity> */}
-                  {/* <Text>{filteredItem}</Text> */}
-                  {/* <TextInput
-                  placeholder={'Enter Rate'}
-                  onChangeText={(text) => {
-                    this.serviceRateValueChange(filteredItem, text);
-                  }}
-                  value={filteredItem.rate}
-                  keyboardType={'decimal-pad'}
-                  returnKeyType={'done'}
-                  style={{
-                    borderColor: '#D9D9D9',
-                    fontSize: 12,
-                    color: '#1C1C1C',
-                    borderWidth: 1,
-                    padding: 4,
-                    marginLeft: 6,
-                    minWidth: '100%',
-                  }}
-                /> */}
-                </View>
-              </View>
+                <Text style={[style.regularText, { paddingHorizontal: 14, alignSelf: 'center', color: 'white' }]}>{'Remove'}</Text>
+              </TouchableOpacity>
             </View>
-            )}
+          </View>
+        )}
       </View>
     );
   }
@@ -422,8 +492,7 @@ class AddItemScreen extends React.Component<Props> {
       const results = await InvoiceService.search(
         this.state.searchItemName,
         1,
-        'operatingcost%2C%20indirectexpenses',
-
+        this.props.companyVoucherVersion == 1 ? 'operatingcost%2C%20indirectexpenses' : 'operatingcost%2C%20indirectexpenses%2C%20fixedassets',
         true
       );
       if (results.body && results.body.results) {
@@ -439,20 +508,56 @@ class AddItemScreen extends React.Component<Props> {
     }
   }
 
-  async addItem (item) {
+  async addItem(item, variantUniqueName) {
     this.setState({ loading: true });
     try {
       if (item.stock) {
-        const results = await InvoiceService.getStockDetails(item.uniqueName, item.stock.uniqueName);
+        if(!this.state.allStockVariants[item.stock.uniqueName]){
+          const stockVariantsResult = await InvoiceService.getStockVariants(item.stock.uniqueName);
+          if(stockVariantsResult.status == 'success' && stockVariantsResult.body){
+            this.setState({
+              allStockVariants: {
+                ...this.state.allStockVariants,
+                [item.stock.uniqueName]: stockVariantsResult.body
+              }
+            });
+          }
+        }
+        const results = await InvoiceService.getStockDetails(item.uniqueName, item.stock.uniqueName, variantUniqueName ?? this.state.allStockVariants[item.stock.uniqueName][0].uniqueName);
         if (results && results.body) {
           const addedItems = this.state.addedItems;
-          if (!this.checkIfItemIsSelcted(results.body)) {
+          // if (!this.checkIfItemIsSelcted(results.body)) {
             const data = results.body;
+            if(data?.stock?.variant){
+              data.rate = data.stock.variant.unitRates[0].rate;
+              data.stock.rate = data.stock.variant.unitRates[0].rate;
+              data.stock.stockUnitCode = data.stock.variant.unitRates[0].stockUnitCode;
+              data.stock.stockUnitName = data.stock.variant.unitRates[0].stockUnitName;
+              data.stock.stockUnitUniqueName = data.stock.variant.unitRates[0].stockUnitUniqueName;
+            } else {
+              data.rate = data.stock.unitRates[0].rate;
+              data.stock.rate = data.stock.unitRates[0].rate;
+              data.stock.stockUnitCode = data.stock.unitRates[0].stockUnitCode;
+              data.stock.stockUnitName = data.stock.unitRates[0].stockUnitName;
+              data.stock.stockUnitUniqueName = data.stock.unitRates[0].stockUnitUniqueName;
+            }
             data.quantity = 1;
-            data.rate = results.body.stock.rate;
+            // data.rate = results.body.stock.rate;
+            if(this.props.companyVoucherVersion == 2){ 
+              const variantObj = this.state.allStockVariants[item.stock.uniqueName].find((variant) => variant.uniqueName == variantUniqueName); 
+              data.stock.variant.name = variantObj?.name ?? this.state.allStockVariants[item.stock.uniqueName][0].name;
+              data.stock.isMultiVariant = this.state.allStockVariants[item.stock.uniqueName]?.length > 1;
+            }
+            data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // Used to identify and Edit multiple same entries
             addedItems.push(this.createNewEntry(data));
-          }
+          // }
           this.setState({ addedItems, loading: false });
+          if(this.props.companyVoucherVersion == 2){ 
+            if(this.state.allStockVariants[item.stock.uniqueName]?.length > 1){
+              this.setState({selectedStock: item});
+              this.setBottomSheetVisible(this.variantsBottomSheetRef, true);
+            }
+          }
         } else {
           this.setState({ searchError: 'No Results', loading: false });
         }
@@ -464,6 +569,7 @@ class AddItemScreen extends React.Component<Props> {
             const data = results.body;
             data.quantity = 1;
             data.rate = 0;
+            data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // Used to identify and Edit multiple same entries
             addedItems.push(this.createNewEntry(data));
           }
           this.setState({ addedItems, loading: false });
@@ -494,14 +600,14 @@ class AddItemScreen extends React.Component<Props> {
     return filtered[0];
   }
 
-  updateQuantityOfItem (item, performedType) {
+  updateQuantityOfItem(item, performedType, variantUniqueName) {
     if (performedType == 'add') {
       const addedArray = this.state.addedItems;
       const index = _.findIndex(
         addedArray,
         (e) => {
-          const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
-          return ouniqueName == item.stock.uniqueName;
+          const ouniqueName = e.stock ? (e.stock?.variant ? e.stock?.variant.uniqueName : e.stock?.uniqueName) : e.uniqueName;
+          return ouniqueName == (item.stock?.variant ? item.stock?.variant.uniqueName : item.stock?.uniqueName);
         },
         0
       );
@@ -517,8 +623,8 @@ class AddItemScreen extends React.Component<Props> {
         const index = _.findIndex(
           addedArray,
           (e) => {
-            const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
-            return ouniqueName == item.stock.uniqueName;
+            const ouniqueName = e.stock ? (e.stock?.variant ? e.stock?.variant.uniqueName : e.stock?.uniqueName) : e.uniqueName;
+            return ouniqueName == (item.stock?.variant ? item.stock?.variant.uniqueName : item.stock?.uniqueName);
           },
           0
         ); // Replace item at index using native splice
@@ -530,8 +636,8 @@ class AddItemScreen extends React.Component<Props> {
         const index = _.findIndex(
           addedArray,
           (e) => {
-            const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
-            return ouniqueName == item.stock.uniqueName;
+            const ouniqueName = e.stock ? (e.stock?.variant ? e.stock?.variant.uniqueName : e.stock?.uniqueName) : e.uniqueName;
+            return ouniqueName == (item.stock?.variant ? item.stock?.variant.uniqueName : item.stock?.uniqueName);
           },
           0
         );
@@ -541,17 +647,29 @@ class AddItemScreen extends React.Component<Props> {
         addedArray.splice(index, 1, item);
         this.setState({ addedItems: addedArray }, () => { });
       }
+    } else if(performedType == 'remove'){
+      const addedArray = this.state.addedItems;
+      const index = _.findIndex(
+        addedArray,
+        (e) => {
+          const ouniqueName = e.stock ? e.stock.variant.uniqueName : e.uniqueName;
+          return ouniqueName == variantUniqueName;
+        },
+        0
+      ); // Replace item at index using native splice
+      addedArray.splice(index, 1);
+      this.setState({ addedItems: addedArray }, () => {});
+      // del the item form selected list
     }
   }
 
-  deleteItemFromList (item) {
-    const uniqueName = item.stock ? item.stock.uniqueName : item.uniqueName;
-
+  deleteItemFromList(item) {
+    const uniqueName = item.stock ? (e.stock?.variant ? e.stock?.variant.uniqueName : e.stock?.uniqueName) : item.uniqueName;
     const addedArray = this.state.addedItems;
     const index = _.findIndex(
       addedArray,
       (e) => {
-        const ouniqueName = e.stock ? e.stock.uniqueName : e.uniqueName;
+        const ouniqueName = e.stock ? (e.stock?.variant ? e.stock?.variant.uniqueName : e.stock?.uniqueName) : e.uniqueName;
         return ouniqueName == uniqueName;
       },
       0
@@ -656,6 +774,7 @@ class AddItemScreen extends React.Component<Props> {
           style={{height: 60, width: 60, backgroundColor: 'pink'}}
           onPress={() => console.log(JSON.stringify(this.state.itemList))}></TouchableOpacity> */}
         {this._renderSummaryFooter()}
+        {this._variantsBottomSheet()}
       </View>
     );
   }

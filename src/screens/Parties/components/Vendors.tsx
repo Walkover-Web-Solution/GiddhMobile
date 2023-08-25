@@ -14,6 +14,7 @@ import { APP_EVENTS,STORAGE_KEYS } from '@/utils/constants';
 import TOAST from 'react-native-root-toast';
 import AsyncStorage from '@react-native-community/async-storage';
 import ListEmptyComponent from './ListEmptyComponent';
+import { formatAmount } from '@/utils/helper';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -239,13 +240,13 @@ export const Vendors = (props) => {
                       {item.country.code === 'IN' && (
                         <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                           {getSymbolFromCurrency('INR')}
-                          {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                          {formatAmount(item.closingBalance.amount)}
                         </Text>
                       )}
                       {item.country.code !== 'IN' && (
                         <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>} numberOfLines={1}>
                           {getSymbolFromCurrency(item.country.code)}
-                          {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                          {formatAmount(item.closingBalance.amount)}
                         </Text>
                       )}
                       <View style={{ width: 2 }} />

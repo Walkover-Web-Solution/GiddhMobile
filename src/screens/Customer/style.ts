@@ -266,7 +266,7 @@ export default StyleSheet.create({
     fontSize: 20
   },
   scrollViewContainerStyle: {
-    paddingBottom: height * 0.08,
+    paddingBottom: height * 0.2,
   },
   button: {
     flexDirection: "row", 

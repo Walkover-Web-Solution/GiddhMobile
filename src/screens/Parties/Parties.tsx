@@ -110,11 +110,12 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
       // console.log('debtors called');
       const debtors = await CommonService.getPartiesSundryDebtors();
       // console.log('data is', ...debtors.body.results, ...creditors.body.results);
-      this.setState({
-        partiesDebtData: debtors.body.results
-      });
+      if(debtors?.body?.results){
+        this.setState({
+          partiesDebtData: debtors.body.results
+        });
+      }
     } catch (e) {
-      this.setState({ debtData: new PartiesPaginatedResponse() });
       console.log("Error in getPartiesSundryDebtors ", e);
     }
   }

@@ -1,6 +1,12 @@
 import httpInstance from '@/core/services/http/http.service';
-import { invoiceUrls } from '@/core/services/invoice/invoice.url';
+import { invoiceUrls, invoiceUrlsForV1 } from '@/core/services/invoice/invoice.url';
 import { Alert } from 'react-native';
+
+let store;
+
+export const injectStoreToInvoiceUrls = _store => {
+  store = _store;
+}
 
 export class InvoiceService {
   /**
@@ -10,7 +16,7 @@ export class InvoiceService {
   static search(query: string, page: number, group: string, withStocks: boolean) {
     return httpInstance
       .get(
-        invoiceUrls.search
+        (store?.getState()?.commonReducer?.companyVoucherVersion == 2 ? invoiceUrls.search : invoiceUrlsForV1.search)
           .replace('q=', `q=${query}`)
           .replace('page=', `page=${page}`)
           .replace('group=', `group=${group}`)
@@ -98,12 +104,29 @@ export class InvoiceService {
 
   //  stockDetailService: createEndpoint('v2/company/:companyUniqueName/particular/sales?stockUniqueName=&branchUniqueName=:branchUniqueName'),
   // serviceType - servicesales|sales
-  static getStockDetails(uniqueName: any, stockUniqueName: any) {
+  static getStockDetails(uniqueName: any, stockUniqueName: any, variantUniqueName: string) {
     return httpInstance
       .get(
-        invoiceUrls.stockDetailService
+        (store?.getState()?.commonReducer?.companyVoucherVersion == 2 ? invoiceUrls.stockDetailService : invoiceUrlsForV1.stockDetailService)
           .replace(':sales_type', `${uniqueName}`)
-          .replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`),
+          .replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`)
+          .replace('variantUniqueName=',  variantUniqueName ? `variantUniqueName=${variantUniqueName}` : ''),
+        {}
+      )
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err))
+        return null;
+      });
+  }
+
+  static getStockVariants(stockUniqueName: string) {
+    return httpInstance
+      .get(
+        invoiceUrls.getStockVariants
+          .replace(':stockUniqueName', `${stockUniqueName}`),
         {}
       )
       .then((res) => {
@@ -117,7 +140,9 @@ export class InvoiceService {
 
   static getSalesDetails(serviceType: any) {
     return httpInstance
-      .get(invoiceUrls.salesDetailService.replace(':sales_type', `${serviceType}`), {})
+      .get(
+        (store?.getState()?.commonReducer?.companyVoucherVersion == 2 ? invoiceUrls.salesDetailService : invoiceUrlsForV1.salesDetailService)
+        .replace(':sales_type', `${serviceType}`), {})
       .then((res) => {
         return res.data;
       })
@@ -286,7 +311,9 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
 
   static getBriefAccount() {
     return httpInstance
-      .get(invoiceUrls.getBriefAccount, {})
+      .get(
+        (store?.getState()?.commonReducer?.companyVoucherVersion == 2 ? invoiceUrls.getBriefAccount : invoiceUrlsForV1.getBriefAccount)
+        , {})
       .then((res) => {
         return res.data;
       })

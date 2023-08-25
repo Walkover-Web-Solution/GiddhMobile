@@ -215,7 +215,7 @@ export class PartiesMainScreen extends React.Component {
     );
   };
 
-  searchCalls = _.debounce(this.apiCalls, 200);
+  searchCalls = _.debounce(this.apiCalls, 500);
 
   handleSearch = (text: any) => {
     this.setState(
@@ -224,11 +224,9 @@ export class PartiesMainScreen extends React.Component {
         showLoader: true,
         customerPage: 1,
         VendorPage: 1
-      },
-      () => {
-        this.searchCalls();
       }
     );
+    this.searchCalls();
   };
 
   filter = async (filterType: string) => {
@@ -336,6 +334,69 @@ export class PartiesMainScreen extends React.Component {
       );
     });
     this.apiCalls();
+  }
+
+  private async getPartiesMainSundryDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
+    try {
+      const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
+      if(debtors?.body){  
+        this.setState(
+          {
+            customerData: debtors.body.results,
+            totalCustomerPages: debtors.body.totalPages
+          }
+        );
+      }
+    } catch (e) {
+      this.setState({ customerData: [] });
+      console.log('------ getPartiesMainSundryDebtors ------', e);
+    }
+  }
+
+  private async getPartiesMainSundryCreditors(query: any, sortBy: any, order: any, count: any, page: any) {
+    try {
+      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
+      if(creditors?.body){  
+        this.setState({
+          vendorData: creditors.body.results,
+          totalVendorPages: creditors.body.totalPages
+        });
+      }
+      this.setState({ showLoader: false });
+    } catch (e) {
+      this.setState({ showLoader: false });
+      console.log('------ getPartiesMainSundryCreditors ------', e);
+    }
+  }
+
+  private async loadDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
+    try {
+      const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
+      if(debtors?.body?.results){  
+        this.setState({
+          customerData: [...this.state.customerData, ...debtors.body.results]
+        });
+      }
+      this.setState({ customerLoadingMore: false });
+    } catch (e) {
+      this.setState({ customerLoadingMore: false });
+      console.log(e);
+    }
+  }
+
+  private async loadCreditors(query: any, sortBy: any, order: any, count: any, page: any) {
+    try {
+      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
+
+      if(creditors?.body){  
+        this.setState({
+          vendorData: [...this.state.vendorData, ...creditors.body.results]
+        });
+      } 
+      this.setState({ vendorLoadingMore: false});
+    } catch (e) {
+      this.setState({ vendorLoadingMore: false });
+    }
   }
 
   render() {
@@ -522,60 +583,6 @@ export class PartiesMainScreen extends React.Component {
         />
       </View>
     );
-  }
-
-  private async getPartiesMainSundryDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
-    try {
-      const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
-      this.setState(
-        {
-          customerData: debtors.body.results,
-          totalCustomerPages: debtors.body.totalPages
-        }
-      );
-    } catch (e) {
-      this.setState({ customerData: new PartiesPaginatedResponse() });
-      console.log(e);
-    }
-  }
-
-  private async getPartiesMainSundryCreditors(query: any, sortBy: any, order: any, count: any, page: any) {
-    try {
-      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
-      this.setState({
-        vendorData: creditors.body.results,
-        totalVendorPages: creditors.body.totalPages,
-        showLoader: false
-      });
-    } catch (e) {
-      this.setState({ vendorData: new PartiesPaginatedResponse(), showLoader: false });
-    }
-  }
-
-  private async loadDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
-    try {
-      const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
-      this.setState({
-        customerData: [...this.state.customerData, ...debtors.body.results],
-        customerLoadingMore: false
-      });
-    } catch (e) {
-      this.setState({ customerData: new PartiesPaginatedResponse(), customerLoadingMore: false });
-      console.log(e);
-    }
-  }
-
-  private async loadCreditors(query: any, sortBy: any, order: any, count: any, page: any) {
-    try {
-      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
-
-      this.setState({
-        vendorData: [...this.state.vendorData, ...creditors.body.results],
-        vendorLoadingMore: false
-      });
-    } catch (e) {
-      this.setState({ vendorData: new PartiesPaginatedResponse(), vendorLoadingMore: false });
-    }
   }
 }
 

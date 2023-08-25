@@ -1054,6 +1054,9 @@ export class Vendors extends React.Component<Props> {
     return (
       <View style={styles.customerMainContainer}>
         <KeyboardAwareScrollView
+          enableOnAndroid
+          extraHeight={100}
+          extraScrollHeight={100}
           keyboardShouldPersistTaps="handled"
           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollViewContainerStyle}

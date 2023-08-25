@@ -11,6 +11,7 @@ import getSymbolFromCurrency from 'currency-symbol-map';
 import { Company } from '@/models/interfaces/company';
 import { useNavigation } from '@react-navigation/native';
 import routes from '@/navigation/routes';
+import { formatAmount } from '@/utils/helper';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -134,7 +135,7 @@ export const PartiesList = (props: PartiesListProp) => {
                       }}
                       numberOfLines={1}>
                       {getSymbolFromCurrency('INR')}
-                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                      {formatAmount(item.closingBalance.amount)}
                     </Text>
                   )}
                   {item.country.code !== 'IN' && (
@@ -146,7 +147,7 @@ export const PartiesList = (props: PartiesListProp) => {
                       }}
                       numberOfLines={1}>
                       {getSymbolFromCurrency(item.country.code)}
-                      {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
+                      {formatAmount(item.closingBalance.amount)}
                     </Text>
                   )}
                   <View style={{ width: 2 }} />
