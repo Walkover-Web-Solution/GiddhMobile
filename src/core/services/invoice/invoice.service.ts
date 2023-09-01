@@ -268,8 +268,8 @@ console.log('services inside-=-',invoiceUrls.generateReceipt.replace(':accountUn
       .catch((err) => {
         // console.log('In Catch createReceipt', invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), JSON.stringify(payload));
 
-        console.log('catch block of reciekadmdandjndkdbk',JSON.stringify(err.response));
-        Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        console.log('--- createReceipt --- Error ---',JSON.stringify(err.data));
+        Alert.alert('Error', err?.data?.message ?? err?.data?.error ?? 'Something Went Wrong', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });
   }
@@ -288,8 +288,8 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       .catch((err) => {
         // console.log('In Catch createReceipt', invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), JSON.stringify(payload));
 
-        console.log('catch block of reciekadmdandjndkdbk',JSON.stringify(err.response));
-        Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+        console.log('--- createPayment --- Error ---',JSON.stringify(err.data));
+        Alert.alert('Error', err?.data?.message ?? err?.data?.error ?? 'Something Went Wrong', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });
   }

@@ -33,10 +33,10 @@ export const invoiceUrls = {
     'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
   ),
   generateReceipt: createEndpoint(
-    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2/?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
+    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
   ),
   generatePayment: createEndpoint(
-    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2/?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
+    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
   ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName'
@@ -107,10 +107,10 @@ export const invoiceUrlsForV1 = {
     'v4/company/:companyUniqueName/accounts/:accountUniqueName/vouchers/generate?branchUniqueName=:branchUniqueName'
   ),
   generateReceipt: createEndpoint(
-    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2/?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
+    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
   ),
   generatePayment: createEndpoint(
-    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2/?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
+    'company/:companyUniqueName/accounts/:accountUniqueName/ledgers-v2?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=:lang'
   ),
   getWarehouse: createEndpoint(
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName'
