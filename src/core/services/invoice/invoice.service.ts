@@ -324,17 +324,6 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       });
   }
 
-  static getBriefAccountForReceipt() {
-    return httpInstance
-      .get(invoiceUrls.getBriefAccountForReceipt, {})
-      .then((res) => {
-        return res.data;
-      })
-      .catch((_err) => {
-        return null;
-      });
-  }
-
   static getCountryDetails(code: any) {
     console.log(invoiceUrls.getCountryDetails.replace(':countryCode', `${code}`))
     return httpInstance

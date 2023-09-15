@@ -22,9 +22,11 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
+import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
+injectStoreToHttpInstance(store); // Provides store to HttpInstance
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;

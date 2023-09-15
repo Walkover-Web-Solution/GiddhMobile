@@ -11,7 +11,7 @@ import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 export default function* watcherFCMTokenSaga() {
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
-  yield takeLatest(ActionConstants.GET_COMPANY_DETAILS, getCompanyDeatils);
+  yield takeLatest(ActionConstants.GET_COMPANY_DETAILS, getCompanyDetails);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
 }
 
@@ -78,6 +78,7 @@ export function* getCompanyAndBranches() {
           }
         }
       }
+      yield put(CommonActions.getCompanyDetails());
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
     console.log('branches are', branchesResponse);
@@ -133,7 +134,7 @@ export function* getCompanyAndBranches() {
   }
 }
 
-export function* getCompanyDeatils() {
+export function* getCompanyDetails() {
   try {
     const response = yield call(CommonService.getCompanyDetails);
     if(response.status === 'success' && response.body){

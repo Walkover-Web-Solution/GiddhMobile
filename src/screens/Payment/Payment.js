@@ -497,7 +497,7 @@ export class Payment extends React.Component {
 
   async getAllPaymentModes() {
     try {
-      const results = await InvoiceService.getBriefAccountForReceipt();
+      const results = await InvoiceService.getBriefAccount();
       if (results.body && results.status == 'success') {
         this.setState({allPaymentModes: results.body.results});
       }

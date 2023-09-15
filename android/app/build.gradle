@@ -142,8 +142,8 @@ android {
         applicationId "com.app.Giddh"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 30029
-        versionName "3.0.29"
+        versionCode 30030
+        versionName "3.0.30"
         multiDexEnabled true
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         if (isNewArchitectureEnabled()) {

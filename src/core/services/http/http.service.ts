@@ -8,6 +8,12 @@ import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import TOAST from 'react-native-root-toast';
 
+let store;
+
+export const injectStoreToHttpInstance = _store => {
+  store = _store;
+}
+
 const httpInstance = axios.create({
   timeout: HTTP_REQUEST_TIME_OUT,
   headers: {
@@ -80,6 +86,11 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
       reqConfig.url = reqConfig.url?.replace(':branchUniqueName', activeBranch);
     }
   }
+  if (reqConfig?.url?.includes(':currency')) {
+    const currency = store?.getState()?.commonReducer?.companyDetails?.baseCurrency;
+    reqConfig.url = reqConfig.url?.replace(/:currency/g, currency);
+  }
+
   let headers = reqConfig.headers;
   // add token related info here..
   const token = await AsyncStorage.getItem(STORAGE_KEYS.token);

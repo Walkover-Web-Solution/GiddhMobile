@@ -16,7 +16,7 @@ export const invoiceUrls = {
     'v3/company/:companyUniqueName/particular/:sales_type?lang=:lang'
   ),
   getStockVariants: createEndpoint(
-    'company/:companyUniqueName/stock/:stockUniqueName/variants?lang=en'
+    'company/:companyUniqueName/stock/:stockUniqueName/variants?lang=lang'
   ),
   getDiscounts: createEndpoint('company/:companyUniqueName/discount?branchUniqueName=:branchUniqueName'),
   getTaxes: createEndpoint('company/:companyUniqueName/tax?branchUniqueName=:branchUniqueName'),
@@ -42,10 +42,7 @@ export const invoiceUrls = {
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName'
   ),
   getBriefAccount: createEndpoint(
-    'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts,%20loanandoverdraft&count=0&currency=IN,%20INR&lang=:lang'
-  ),
-  getBriefAccountForReceipt: createEndpoint(
-    'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts,%20loanandoverdraft&count=0&currency=IN,%20INR&lang=:lang'
+    'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts,%20loanandoverdraft&count=0&currency=:currency,%20:currency&lang=:lang'
   ),
   getVoucherInvoice: createEndpoint(
     'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName&voucherVersion=:voucherVersion'
@@ -116,10 +113,7 @@ export const invoiceUrlsForV1 = {
     'company/:companyUniqueName/warehouse?page=1&refresh=true&count=100&branchUniqueName=:branchUniqueName'
   ),
   getBriefAccount: createEndpoint(
-    'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts&count=0&currency=INR,%20INR&branchUniqueName=:branchUniqueName'
-  ),
-  getBriefAccountForReceipt: createEndpoint(
-    'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts,%20loanandoverdraft&count=0&currency=IN,%20INR&lang=en'
+    'company/:companyUniqueName/brief-accounts?group=cash,%20bankaccounts&count=0&currency=:currency,%20:currency&branchUniqueName=:branchUniqueName'
   ),
   getVoucherInvoice: createEndpoint(
     'company/:companyUniqueName/vouchers/invoice-list?voucherDate=:voucherDate&branchUniqueName=:branchUniqueName&voucherVersion=:voucherVersion'
