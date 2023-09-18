@@ -9,6 +9,7 @@ export default {
   createCompanyDetails:'createCompanyDetails',
   Dashboard: 'dashboard',
   Inventory: 'inventory',
+  Accounts: 'accounts',
   Add: 'add',
   Parties: 'parties',
   More: 'more',

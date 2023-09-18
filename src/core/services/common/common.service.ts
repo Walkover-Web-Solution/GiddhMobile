@@ -105,6 +105,41 @@ export class CommonService {
         });;
     }
   }
+  static getPartyBalance(
+    startDate: string,
+    endDate: string,
+    accountName: any,
+  ){
+    if (startDate == null || endDate == null) {
+      return httpInstance
+        .get(
+          commonUrls.parties_balance
+            .replace('&from=:startDate&to=:endDate', "")
+        )
+        .then((res) => {
+          return res.data;
+        })
+        .catch((error) => {
+          console.log('---- getPartyBalance ----', error);
+          return {}
+        });;
+    } else {
+      return httpInstance
+        .get(
+          commonUrls.parties_balance
+            .replace(':startDate', startDate)
+            .replace(':endDate', endDate)
+            .replace(':accountName', accountName)
+        )
+        .then((res) => {
+          return res.data;
+        })
+        .catch((error) => {
+          console.log('---- getPartyBalance ----', error);
+          return {}
+        });;
+    }
+  }
 
   static getPartiesSundryCreditors(): Promise<BaseResponse<PartiesPaginatedResponse>> {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {

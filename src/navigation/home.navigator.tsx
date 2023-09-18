@@ -7,6 +7,7 @@ import { InventoryMainScreen } from '@/screens/Inventory/Inventory-Main';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MoreStack from './more.navigator';
 import { PartiesStack } from './parties.navigator';
 import { DashPartyStack } from './dashboard.parties.navigator';
@@ -21,6 +22,7 @@ import { InventoryNavigator } from './inventory.navigator';
 import { useNavigation } from '@react-navigation/native';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
+import { AccountNavigator } from './account.navigator';
 
 
 const { Navigator, Screen } = createBottomTabNavigator();
@@ -199,6 +201,13 @@ export const HomeNavigator = () => {
                   <Icon name="Path-13016" size={19} color={isFocused ? '#5773FF' : '#808080'} />
                 </View>)
             }
+             else if (label == 'Accounts') {
+              return (
+                <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 8.0, borderRadius: 20 }}>
+                  <Text style={{ color: isFocused ? '#5773FF' : '#808080', fontSize: 12, fontFamily: 'AvenirLTStd-Black', lineHeight:20 }}>
+                    A/c</Text>
+                </View>)
+            }
           };
 
           return route.name == 'add' ? (
@@ -277,11 +286,10 @@ export const HomeNavigator = () => {
       })}
     /> */}
       <Screen
-        name={Routes.Inventory}
-        component={InventoryNavigator}
+        name={Routes.Accounts}
+        component={AccountNavigator}
         options={({ }) => ({
-          tabBarLabel: 'Inventory',
-
+          tabBarLabel: 'Accounts',
           tabBarIcon: ({ focused }) => (
             <View style={{ backgroundColor: focused ? '#e3e8ff' : '#eeeeee', padding: 8.5, borderRadius: 20 }}>
               <Icon name="inventory" size={19} color={focused ? '#5773FF' : '#808080'} />

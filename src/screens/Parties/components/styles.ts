@@ -6,12 +6,11 @@ import colors, { baseColor } from '@/utils/colors';
 export default StyleSheet.create({
   container: {},
   flatList: {
-    justifyContent: 'center',
-    paddingTop: 15
+    justifyContent: 'space-between',
+    paddingTop: 15,
   },
 
   viewWrap: {
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
