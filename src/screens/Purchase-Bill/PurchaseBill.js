@@ -821,17 +821,14 @@ export class PurchaseBill extends React.Component {
    */
   downloadFile = async (voucherName, voucherNo, partyUniqueName) => {
     try {
-      if (Platform.OS == "ios") {
-        await this.onShare(voucherName, voucherNo, partyUniqueName);
-      } else {
+      if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('yes its granted');
-          await this.onShare(voucherName, voucherNo, partyUniqueName);
-        } else {
+        if(granted !== PermissionsAndroid.RESULTS.GRANTED){
+          this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
       }
+      await this.onShare(voucherName, voucherNo, partyUniqueName);
     } catch (err) {
       console.warn(err);
     }

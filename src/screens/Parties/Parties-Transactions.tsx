@@ -837,18 +837,14 @@ class PartiesTransactionScreen extends React.Component {
   };
   permissonDownload = async () => {
     try {
-      if (Platform.OS == "ios") {
-        await this.exportFile();
-      } else {
+      if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('yes its granted');
-          await this.exportFile();
-        } else {
-          this.downloadModalVisible(false)
+        if(granted !== PermissionsAndroid.RESULTS.GRANTED){
+          this.downloadModalVisible(false);
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
       }
+      await this.exportFile();
     } catch (err) {
       this.downloadModalVisible(false)
       console.warn(err);
@@ -856,18 +852,14 @@ class PartiesTransactionScreen extends React.Component {
   };
   permissonShare = async () => {
     try {
-      if (Platform.OS == "ios") {
-        await this.onShare();
-      } else {
+      if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('yes its granted');
-          await this.onShare();
-        } else {
+        if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
       }
+      await this.onShare();
     } catch (err) {
       this.setState({ ShareModal: false });
       console.warn(err);
@@ -875,18 +867,14 @@ class PartiesTransactionScreen extends React.Component {
   };
   permissonWhatsapp = async () => {
     try {
-      if (Platform.OS == "ios") {
-        await this.onWhatsAppShare()
-      } else {
+      if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('yes its granted');
-          await this.onWhatsAppShare();
-        } else {
+        if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
       }
+      await this.onWhatsAppShare();
     } catch (err) {
       this.setState({ ShareModal: false });
       console.warn(err);
