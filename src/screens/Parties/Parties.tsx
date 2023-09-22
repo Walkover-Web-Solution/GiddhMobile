@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, DeviceEventEmitter, Text, Image } from 'react-native';
+import { View, DeviceEventEmitter, Text, Image, EmitterSubscription } from 'react-native';
 import style from '@/screens/Parties/style';
 import color from '@/utils/colors';
 import { PartiesList } from '@/screens/Parties/components/parties-list.component';
@@ -26,6 +26,8 @@ type PartiesScreenState = {
 };
 
 export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScreenState> {
+  private listener1!: EmitterSubscription;
+  private listener2!: EmitterSubscription;
   constructor(props: PartiesScreenProp) {
     super(props);
     this.state = {
@@ -66,13 +68,18 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
 
 
   componentDidMount() {
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
+    this.listener1 = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
       this.apiCalls();
     });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.apiCalls()
+    this.listener2 = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      this.apiCalls();
     });
     this.apiCalls();
+  }
+
+  componentWillUnmount(): void {
+    this.listener1.remove();
+    this.listener2.remove();
   }
 
   render() {
@@ -142,7 +149,7 @@ const mapStateToProps = () => {
     // activeCompany: state.company.activeCompany,
   };
 };
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: any) => {
   return {
     logout: () => {
       dispatch(CommonActions.logout());

@@ -15,6 +15,7 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import LogRocket from '@logrocket/react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 
+
 interface Props {
   navigation: any;
 }
@@ -102,8 +103,10 @@ export class ChangeCompany extends React.Component<Props> {
                       this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     this.props.getCompanyAndBranches();
-                    DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
-                    this.props.navigation.goBack();
+                    this.props.navigation.reset({
+                      index: 0,
+                      routes: [{ name: 'Home' }],
+                    });
                   }}>
                   <Text
                     numberOfLines={2}

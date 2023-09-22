@@ -242,7 +242,6 @@ class NewCompanyDetails extends React.Component<any, any> {
         this.props.navigation.navigate('Home');
       }
       await this.props.getCompanyAndBranches();
-      await DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
       await setTimeout(() => { this.setState({ loader: false, disbaleCreateButton: false }) }, 5000)
     } else {
       this.setState({ loader: false, disbaleCreateButton: false })

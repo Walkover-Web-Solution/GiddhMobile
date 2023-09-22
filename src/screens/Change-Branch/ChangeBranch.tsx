@@ -95,8 +95,10 @@ export class ChangeBranch extends React.Component<Props> {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
                     this.addUserDeatilsToLogRocket(item.name,item.alias)
                     this.props.getCompanyAndBranches();
-                    DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
-                    this.props.navigation.goBack();
+                    this.props.navigation.reset({
+                      index: 0,
+                      routes: [{ name: 'Home' }],
+                    });
                   }}>
                   <Text style={style.listItemName}>{item.alias}</Text>
                   {activeBranch && item.uniqueName == activeBranch.uniqueName && (

@@ -28,6 +28,7 @@ import Foundation from 'react-native-vector-icons/Foundation';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import VoucherModal from '../Parties/components/voucherModal'
 import BottomSheet from '@/components/BottomSheet';
+import { EmitterSubscription } from 'react-native';
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
 export let previousItem = null
@@ -35,8 +36,10 @@ export let previousItem = null
 export class TransactionScreen extends React.Component<Props, {}> {
   private stickyDayRef: React.RefObject<any>;
   private voucherBottomSheetRef: React.Ref<BottomSheet>;
+  private listenersArray! : Array<EmitterSubscription>
   constructor(props: Props) {
     super(props);
+    this.listenersArray = [];
     this.stickyDayRef = React.createRef();
     this.voucherBottomSheetRef = React.createRef<BottomSheet>();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
@@ -62,28 +65,33 @@ export class TransactionScreen extends React.Component<Props, {}> {
   }
 
   componentDidMount() {
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
+    this.listenersArray.push(DeviceEventEmitter.addListener(APP_EVENTS.CreditNoteCreated, () => {
       this.getTransactions()
-    });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
-      this.getTransactions();
-    });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, () => {
-      this.getTransactions();
-    });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
-      this.getTransactions();
-    });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.DebitNoteCreated, () => {
-      this.getTransactions();
-    });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.ReceiptCreated, () => {
-      this.getTransactions();
-    });
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.PaymentCreated, () => {
-      this.getTransactions();
-    });
+    }));
+    this.listenersArray.push(DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      this.getTransactions()
+    }));
+    this.listenersArray.push(DeviceEventEmitter.addListener(APP_EVENTS.InvoiceCreated, () => {
+      this.getTransactions()
+    }));
+    this.listenersArray.push(DeviceEventEmitter.addListener(APP_EVENTS.PurchaseBillCreated, () => {
+      this.getTransactions()
+    }));
+    this.listenersArray.push(DeviceEventEmitter.addListener(APP_EVENTS.DebitNoteCreated, () => {
+      this.getTransactions()
+    }));
+    this.listenersArray.push(DeviceEventEmitter.addListener(APP_EVENTS.ReceiptCreated, () => {
+      this.getTransactions()
+    }));
+    this.listenersArray.push(DeviceEventEmitter.addListener(APP_EVENTS.PaymentCreated, () => {
+      this.getTransactions()
+    }));
+
     this.getTransactions();
+  }
+
+  componentWillUnmount(): void {
+    this.listenersArray?.map((listener) => listener?.remove());
   }
 
   downloadModalVisible = (value) => {

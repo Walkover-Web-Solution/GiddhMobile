@@ -11,6 +11,7 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
 import { AccountsList } from './components/accounts-list.component';// import { catch } from 'metro.config';
 import styles from './styles';
+import Routes from '@/navigation/routes';
 import _ from 'lodash';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
@@ -20,12 +21,14 @@ type State = {
   showLoader: Boolean,
   dataLoadedTime: string,
   accounts: any[],
-  selectedGroup: string,
+  selectedGroup: { name: string, uniqueName: string },
   isSearchingModalVisible: Boolean,
   searchedText: string,
   selectedSearchOption: string,
   groupAccountNames: any[],
   showSearchLoader: Boolean,
+  startDate: string,
+  endDate: string,
   page: number,
   searchDataPage: number,
   searchDataTotalPages: number,
@@ -49,7 +52,10 @@ export class AccountScreen extends React.Component<Props, State> {
       searchDataTotalPages:0,
       loadingMore: false,
       loadingMoreSearch: false,
-      selectedGroup: 'operatingcost',
+      selectedGroup: {
+        name: 'Operating Cost',
+        uniqueName: 'operatingcost'
+      },
       accounts: [],
       groupAccountNames: [],
       isSearchingModalVisible: false,
@@ -66,14 +72,21 @@ export class AccountScreen extends React.Component<Props, State> {
           startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
           endDate: moment().format('DD-MM-YYYY'),
           page: 1,
+          totalPages: 0,
           searchDataPage:1,
+          searchDataTotalPages:0,
           loadingMore: false,
           loadingMoreSearch: false,
-          activeDateFilter: '',
-          isSearchingModalVisible: false,
+          selectedGroup: {
+            name: 'Operating Cost',
+            uniqueName: 'operatingcost'
+          },
+          accounts: [],
           groupAccountNames: [],
+          isSearchingModalVisible: false,
+          selectedSearchOption: 'groups',
           showSearchLoader: false,
-          searchedText: ''
+          searchedText: '',
         },
         () => this.getAccounts()
       );
@@ -85,7 +98,7 @@ export class AccountScreen extends React.Component<Props, State> {
       this.setState({
         showLoader: true
       });
-      const response = await AccountsService.getGroupAccounts(this.state.selectedGroup, this.state.page);
+      const response = await AccountsService.getGroupAccounts(this.state.selectedGroup.uniqueName, this.state.page);
       if (response?.body?.results) {
         this.setState({
           accounts: response.body.results,
@@ -100,7 +113,7 @@ export class AccountScreen extends React.Component<Props, State> {
       this.setState({ showLoader: false });
     }
   }
-  searchGroupAccountsData = _.debounce(this.searchGroupAccounts, 50);
+  searchGroupAccountsData = _.debounce(this.searchGroupAccounts, 500);
 
   private async searchGroupAccounts(text: string) {
     try {
@@ -179,11 +192,12 @@ export class AccountScreen extends React.Component<Props, State> {
       const { activeCompany }: any = this.props;
       const response = await AccountsService.getIndividualAccountData(item?.uniqueName);
       if(response?.status == 'success'){
-        this.setState({ showLoader:false , searchedText: ''  })
+        this.setState({ showLoader:false , searchedText: ''  });
         this.props.navigation.navigate("Account.PartiesTransactions", {
+          cameFromStack: Routes.Accounts,
           initial: false,
           item: response?.body,
-          type: (response?.body?.category === 'liabilities' ? 'Vendors' : 'Creditors'),
+          type: (response?.body?.accountType === 'Creditors' ? 'Vendors' : 'Creditors'),
           activeCompany: activeCompany
         });
       }else{
@@ -202,7 +216,7 @@ export class AccountScreen extends React.Component<Props, State> {
           if (this.state.selectedSearchOption == 'groups') {
             this.setState(
               {
-                selectedGroup: item?.uniqueName,
+                selectedGroup: { name: item?.name, uniqueName:  item?.uniqueName },
                 isSearchingModalVisible: false,
                 searchedText: ''
               }
@@ -293,7 +307,7 @@ export class AccountScreen extends React.Component<Props, State> {
             <View style={{ flex: 1 }}>
               <FlatList
                 scrollEnabled
-                keyboardShouldPersistTaps={true}
+                keyboardShouldPersistTaps={'handled'}
                 data={this.state.groupAccountNames}
                 renderItem={({ item }) => this.renderGroupAccountNames(item)}
                 onEndReached={() => this.handleLoadMoreSearchData()}
@@ -308,7 +322,7 @@ export class AccountScreen extends React.Component<Props, State> {
   }
   loadMoreAccounts = async () => {
     try {
-      const response = await AccountsService.getGroupAccounts(this.state.selectedGroup, this.state.page);
+      const response = await AccountsService.getGroupAccounts(this.state.selectedGroup.uniqueName, this.state.page);
       if (response?.body?.results) {
         this.setState({
           accounts: [...this.state.accounts, ...response.body.results],
@@ -422,7 +436,7 @@ export class AccountScreen extends React.Component<Props, State> {
               <View style={{ marginLeft: 10, flexDirection: 'row', alignItems: 'center' }}>
                 <AntDesign name={'search1'} size={20} color={'#000'} />
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
-                  {this.state.selectedGroup}
+                  {this.state.selectedGroup.name}
                 </Text>
               </View>
             </TouchableWithoutFeedback>
@@ -444,7 +458,6 @@ export class AccountScreen extends React.Component<Props, State> {
                 </View>
               )
               : (
-                (<ScrollView style={style.container}>
                   <FlatList
                     data={this.state.accounts}
                     renderItem={({ item }) => (
@@ -454,7 +467,6 @@ export class AccountScreen extends React.Component<Props, State> {
                     ListFooterComponent={this._renderFooter}
                     keyExtractor={(item) => item.uniqueName}
                   />
-                </ScrollView>)
               )}
           </View>
         }

@@ -13,5 +13,5 @@ export const commonUrls = {
   customer_transactions: createEndpoint(
     'company/:companyUniqueName/daybook?page=1&count=25&from=:startDate&to=:endDate&branchUniqueName=:branchUniqueName'
   ),
-  parties_balance : createEndpoint('v2/company/:companyUniqueName/accounts/:accountName/balance?from=:startDate&to=:endDate&accountCurrency=true&lang=en')
+  parties_balance : createEndpoint('v2/company/:companyUniqueName/accounts/:accountName/balance?from=:startDate&to=:endDate&accountCurrency=true&branchUniqueName=:branchUniqueName&lang=en')
 };

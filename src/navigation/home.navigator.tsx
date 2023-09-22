@@ -19,7 +19,7 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useSelector } from 'react-redux';
 import { InventoryNavigator } from './inventory.navigator';
-import { useNavigation } from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute, useNavigation } from '@react-navigation/native';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import { AccountNavigator } from './account.navigator';
@@ -246,9 +246,7 @@ export const HomeNavigator = () => {
     }
   };
   const getTabBarVisibility = (route) => {
-    console.log(route);
-    const routeName = route.state ? route.state.routes[route.state.index].name : '';
-
+    const routeName = getFocusedRouteNameFromRoute(route);
     if (routeName === 'SalesInvoiceScreen') {
       return false;
     } else if (routeName === 'AddInvoiceItemScreen') {

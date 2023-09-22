@@ -10,8 +10,6 @@ export class CompanyService {
    */
   static getCompanyDetails (): Promise<BaseResponse<Company>> {
     return httpInstance.get(companyUrls.companyDetails).then((res) => {
-      console.log('Company detaisl!!!!!!!!!!!!');
-      console.log(res.data);
       return res.data;
     });
   }

@@ -1081,11 +1081,7 @@ export class Vendors extends React.Component<Props> {
                 }}
                 onPress={() => {
                   this.setState({ successDialog: false });
-                  if (this.props.uniqueName != null) {
-                    this.props.navigation.navigate("Parties");
-                  } else {
-                    this.props.navigation.goBack();
-                  }
+                  this.props.navigation.goBack();
                 }}
               >
                 <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book',marginTop:Platform.OS =="ios"?5:0  }}>Done</Text>

@@ -56,6 +56,7 @@ import TOAST from 'react-native-root-toast';
 import SMSUserConsent from '../../../SMSUserConsent';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
+import { AccountsService } from '@/core/services/accounts/accounts.service';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -151,7 +152,8 @@ class PartiesTransactionScreen extends React.Component {
     // This listener calls API again when screen in focus.
     this.unsubscribe = this.props.navigation.addListener('focus', async () => {
       try {
-        await this.setState({showLoader: true})
+        await this.setState({showLoader: true});
+        if(this.props?.route?.params?.type == 'Vendors'){ await this.getAccountData(); }
         await this.getTransactions();
       } catch (error) {
         // handle errors here
@@ -718,6 +720,21 @@ class PartiesTransactionScreen extends React.Component {
       });
     }
   }
+
+  private async getAccountData(){
+    try{
+      const response = await AccountsService.getIndividualAccountData(this.props.route?.params?.item?.uniqueName);
+      if(response?.status == 'success'){
+        this.props.navigation.setParams({ 
+          item: { ...response?.body },
+          type: (response?.body?.accountType === 'Creditors' ? 'Vendors' : 'Creditors')
+        });
+      }
+    }catch(e){
+      console.log('----- Parties Transaction - getAccountData -----', e);
+    }
+  }
+
   async handleLoadMore() {
     try {
       const transactions = await CommonService.getPartyTransactions(
@@ -1866,7 +1883,7 @@ class PartiesTransactionScreen extends React.Component {
             </View>
           )}
           {this.props.route.params.type == 'Vendors' ? (
-            this.props.route?.params?.item?.bankPaymentDetails === false ?
+            !!!this.props.route?.params?.item?.bankPaymentDetails && (this.props.route?.params?.item?.accountBankDetails?.length == 0 || this.props.route?.params?.item?.accountBankDetails == null) ?
               <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                 <TouchableOpacity onPress={async () => {
                   await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route?.params?.item?.uniqueName } }),

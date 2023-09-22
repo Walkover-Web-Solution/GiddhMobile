@@ -71,7 +71,6 @@ class BaseContainer extends Component {
       let expirationTimeInMiliSecond = (expirationTime.getTime()) - new Date().getTime();
       await this.setLogoutTimer(expirationTimeInMiliSecond);
       await this.addUserDeatilsToLogRocket();
-      await this.props.getCompanyAndBranches();
     } else {
       await this.props.logout();
     }

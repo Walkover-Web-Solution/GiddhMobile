@@ -7,7 +7,7 @@ import PartiesTransactions from '@/screens/Parties/Parties-Transactions';
 const { Navigator, Screen } = createStackNavigator();
 
 export const AccountNavigator = () => (
-  <Navigator>
+  <Navigator initialRouteName={Routes.Accounts}>
     <Screen name={Routes.Accounts} component={AccountMain} options={{ headerShown: false }} />
     <Screen component={AppDatePicker} name={'AppDatePicker'} options={{ headerShown: false }} />
     <Screen component={PartiesTransactions} name={'Account.PartiesTransactions'} options={{ headerShown: false }} />

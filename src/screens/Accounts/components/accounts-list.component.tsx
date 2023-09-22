@@ -36,48 +36,8 @@ const amountColorStyle = (type: string) => {
 
 export const AccountsList = (props: PartiesListProp) => {
     const { item, activeCompany } = props;
-    const navigationRef = useNavigation()
+    const navigationRef = useNavigation();
 
-    // function currencyFormat(amount: number, currencyType: string | undefined) {
-    //     switch (currencyType) {
-    //         case 'IND_COMMA_SEPARATED':
-    //             // eslint-disable-next-line no-lone-blocks
-    //             {
-    //                 if (amount.toString().length > 4) {
-    //                     return amount
-    //                         .toFixed(1)
-    //                         .toString()
-    //                         .replace(/\B(?=(\d{2})+(?!\d))/g, ',');
-    //                 } else if (amount.toString().length === 3) {
-    //                     return amount.toFixed(1).toString();
-    //                 } else if (amount.toString().length === 4) {
-    //                     return amount
-    //                         .toFixed(1)
-    //                         .toString()
-    //                         .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    //                 }
-    //             }
-    //             break;
-    //         case 'INT_SPACE_SEPARATED': {
-    //             return amount
-    //                 .toFixed(1)
-    //                 .toString()
-    //                 .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    //         }
-    //         case 'INT_APOSTROPHE_SEPARATED': {
-    //             return amount
-    //                 .toFixed(1)
-    //                 .toString()
-    //                 .replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-    //         }
-    //         default: {
-    //             return amount
-    //                 .toFixed(1)
-    //                 .toString()
-    //                 .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    //         }
-    //     }
-    // }
     return (
         <TouchableOpacity
             onPress={() => {
@@ -86,7 +46,7 @@ export const AccountsList = (props: PartiesListProp) => {
                 navigationRef.navigate("Account.PartiesTransactions", {
                     initial: false,
                     item: item,
-                    type: (item.category === 'liabilities' ? 'Vendors' : 'Creditors'),
+                    type: (item.groupUniqueName === 'sundrycreditors' ? 'Vendors' : 'Creditors'),
                     activeCompany: activeCompany
                 });
             }}

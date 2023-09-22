@@ -70,7 +70,6 @@ class AddButton extends Component<Props> {
   };
 
   render() {
-    console.log('this.props.navigati----' + JSON.stringify(this.props.navigation));
     const rotation = this.mode.interpolate({
       inputRange: [0, 1],
       outputRange: ['0deg', '45deg']
