@@ -1026,10 +1026,10 @@ export class SalesInvoice extends React.Component<Props> {
         else if (type == 'share') {
           console.log('sharing');
           this.downloadFile(
-            results.body.entries[0].voucherType,
+            results.body?.uniqueName,
             this.state.companyVersionNumber == 1 ? results.body.entries[0].voucherNumber : results.body.number,
             partyUniqueName,
-            results.body.uniqueName
+            results.body?.type
           );
         }
       }
@@ -2060,7 +2060,7 @@ export class SalesInvoice extends React.Component<Props> {
     return total.toFixed(2);
   }
 
-  downloadFile = async (voucherName, voucherNo, partyUniqueName, voucherUniqueName) => {
+  downloadFile = async (voucherUniqueName, voucherNo, partyUniqueName, voucherType) => {
     try {
       if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
@@ -2069,13 +2069,13 @@ export class SalesInvoice extends React.Component<Props> {
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
       }
-      await this.onShare(voucherName, voucherNo, partyUniqueName);
+      await this.onShare(voucherUniqueName, voucherNo, partyUniqueName,voucherType);
     } catch (err) {
       console.warn(err);
     }
   };
 
-  onShare = async (voucherName, voucherNo, partyUniqueName, voucherUniqueName) => {
+  onShare = async (voucherUniqueName, voucherNo, partyUniqueName, voucherType) => {
     try {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
@@ -2088,8 +2088,7 @@ export class SalesInvoice extends React.Component<Props> {
           'Content-Type': 'application/json'
         },
         JSON.stringify({
-          voucherNumber: [`${voucherNo}`],
-          voucherType: `${voucherName}`,
+          voucherType: `${voucherType}`,
           uniqueName: voucherUniqueName,
         })
       )

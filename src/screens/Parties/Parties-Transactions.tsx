@@ -704,7 +704,7 @@ class PartiesTransactionScreen extends React.Component {
       );
       if (balance.body) {
         this.setState({
-          openingBalance: balance.body.convertedForwardedBalance,
+          openingBalance: balance.body.forwardedBalance,
           closingBalance: balance.body.closingBalance,
           totalAmount: "₹" + formatAmount(balance?.body?.closingBalance?.amount)
         });
@@ -1436,6 +1436,9 @@ class PartiesTransactionScreen extends React.Component {
                     ? '₹'
                     : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.closingBalance?.amount)}
+                  <Text style={{fontSize:10}} >
+                  {this.state.closingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+                  </Text>
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -1445,6 +1448,9 @@ class PartiesTransactionScreen extends React.Component {
                     ? '₹'
                     : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.openingBalance?.amount)}
+                  <Text style={{fontSize:10}}>
+                  {this.state.openingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+                  </Text>
                 </Text>
               </View>
             </View>
@@ -1723,7 +1729,7 @@ class PartiesTransactionScreen extends React.Component {
                       <TransactionList
                         item={item}
                         downloadModal={this.downloadModalVisible}
-                        transactionType={'partyTransaction'}
+                        transactionType={item?.uniqueName == this.props.route?.params?.item?.uniqueName ? 'partyTransaction' : 'Normaltransaction'}
                         phoneNo={this.props.route?.params?.item?.mobileNo}
                       />
                     )}

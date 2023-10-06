@@ -20,42 +20,6 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { formatAmount } from '@/utils/helper';
 
 class TransactionList extends React.Component {
-  listData = [
-    {
-      title: 'Walkover Web Solutions Private Limited',
-      type: 'Sales',
-      invoice: '9879',
-      date: '05 Jul 20',
-      total: '500000',
-      bal: '500000',
-      email: 'proxqima@appdividend.com'
-    },
-    {
-      title: 'Walkover Web Solutions Private Limited',
-      type: 'Purchase',
-      invoice: '9879',
-      date: '05 Jul 20',
-      total: '500000',
-      bal: '10000',
-      email: 'ebofny@appdividend.com'
-    },
-    {
-      title: 'Walkover Web Solutions Private Limited',
-      type: 'Contra',
-      invoice: '9879',
-      date: '05 Jul 20',
-      bal: '10000',
-      email: 'proxafaima@appdividend.com'
-    },
-    {
-      title: 'Shubhendra Agrawal',
-      type: 'Payment',
-      invoice: '9879',
-      date: '05 Jul 20',
-      bal: '10000',
-      email: 'ebsonyfa@appdividend.com'
-    }
-  ];
 
   constructor(props: any) {
     super(props);

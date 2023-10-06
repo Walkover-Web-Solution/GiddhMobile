@@ -151,7 +151,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       >
           <WebView
             containerStyle={style.modalView}
-            source={{ uri: 'https://calendly.com/d/cg6-6kx-924/schedule-demo?embed_domain=giddh.com&embed_type=PopupText' }}
+            source={{ uri: 'https://calendly.com/sales-accounting-software/talk-to-sale' }}
             originWhitelist={['*']}
             scrollEnabled={false}
             startInLoadingState={true}
