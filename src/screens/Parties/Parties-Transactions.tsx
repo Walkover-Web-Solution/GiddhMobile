@@ -138,6 +138,7 @@ class PartiesTransactionScreen extends React.Component {
   }
 
   async componentDidMount() {
+    console.log('totalAmounttotalAmount',this.state?.totalAmount)
     this.setState({
       countryCode:  this.props.route?.params?.item?.country?.countryCode ? this.props.route?.params?.item?.country?.countryCode : this.props.route?.params?.item?.country?.code ,
       currencySymbol: this.props.route?.params?.item?.currencySymbol ? this.props.route?.params?.item?.currencySymbol : 
@@ -691,8 +692,8 @@ class PartiesTransactionScreen extends React.Component {
           transactionsData: transactions.body.entries,
           showLoader: false,
           transactionsLoader: false,
-          debitTotal: transactions.body.debitTotal,
-          creditTotal: transactions.body.creditTotal,
+          // debitTotal: transactions.body.debitTotal, //commented as earlier company amount was showing now need to show the acount currency
+          // creditTotal: transactions.body.creditTotal,
           totalPages: transactions.body.totalPages,
         });
       }
@@ -706,6 +707,8 @@ class PartiesTransactionScreen extends React.Component {
         this.setState({
           openingBalance: balance.body.forwardedBalance,
           closingBalance: balance.body.closingBalance,
+          debitTotal: balance.body.debitTotal,
+          creditTotal: balance.body.creditTotal,
           totalAmount: "₹" + formatAmount(balance?.body?.closingBalance?.amount)
         });
       }
@@ -1729,7 +1732,7 @@ class PartiesTransactionScreen extends React.Component {
                       <TransactionList
                         item={item}
                         downloadModal={this.downloadModalVisible}
-                        transactionType={item?.uniqueName == this.props.route?.params?.item?.uniqueName ? 'partyTransaction' : 'Normaltransaction'}
+                        transactionType={item?.particular?.uniqueName == this.props.route?.params?.item?.uniqueName ? 'partyTransaction' : 'normalTransaction'}
                         phoneNo={this.props.route?.params?.item?.mobileNo}
                       />
                     )}

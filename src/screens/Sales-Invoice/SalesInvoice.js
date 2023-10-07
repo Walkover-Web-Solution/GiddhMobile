@@ -1025,6 +1025,7 @@ export class SalesInvoice extends React.Component<Props> {
         }
         else if (type == 'share') {
           console.log('sharing');
+          this.setState({ loading: true });
           this.downloadFile(
             results.body?.uniqueName,
             this.state.companyVersionNumber == 1 ? results.body.entries[0].voucherNumber : results.body.number,
