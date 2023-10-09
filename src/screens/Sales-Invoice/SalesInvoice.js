@@ -2101,7 +2101,7 @@ export class SalesInvoice extends React.Component<Props> {
           if (Platform.OS === "ios") {
             RNFetchBlob.ios.previewDocument(pdfLocation)
           }
-          this.setState({ loading: false });
+          // this.setState({ loading: false });
         })
         .then(() => {
           Share.open({
@@ -2112,8 +2112,10 @@ export class SalesInvoice extends React.Component<Props> {
           })
             .then((res) => {
               console.log(res);
+              this.setState({ loading: false });
             })
             .catch((err) => {
+              this.setState({ loading: false });
               // err && console.log(err);
             });
         });
