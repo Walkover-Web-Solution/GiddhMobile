@@ -82,5 +82,16 @@ export default StyleSheet.create({
     marginTop: 0,
     borderBottomColor: baseColor.BORDER_COLOR,
     borderBottomWidth: 1
+  },
+  addEntry:{
+    paddingHorizontal:10,
+    justifyContent:'center',
+    alignItems:'center',
+
+  },
+  addEntryText:{
+    color: colors.PRIMARY_BLACK,
+    fontFamily: 'AvenirLTStd-Black',
+    fontSize: 12
   }
 });

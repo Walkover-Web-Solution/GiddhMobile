@@ -91,6 +91,9 @@ export class AccountScreen extends React.Component<Props, State> {
         () => this.getAccounts()
       );
     });
+    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.NewEntryCreated, () => {
+        this.getAccounts()
+    });
     this.getAccounts();
   }
   private async getAccounts() {
@@ -132,7 +135,7 @@ export class AccountScreen extends React.Component<Props, State> {
         }
       }
       else {
-        const response = await AccountsService.getAccountNames(text,this.state.searchDataPage);
+        const response = await AccountsService.getAccountNames(text,'',this.state.searchDataPage,false);
         if (response?.body?.results) {
           this.setState({
             groupAccountNames: response.body.results,
@@ -167,7 +170,7 @@ export class AccountScreen extends React.Component<Props, State> {
         }
       }
       else {
-        const response = await AccountsService.getAccountNames(text,this.state.searchDataPage);
+        const response = await AccountsService.getAccountNames(text,'',this.state.searchDataPage,false);
         if (response?.body?.results) {
           this.setState({
             groupAccountNames: [...this.state.groupAccountNames,...response.body.results],

@@ -13,5 +13,9 @@ export const commonUrls = {
   customer_transactions: createEndpoint(
     'company/:companyUniqueName/daybook?page=1&count=25&from=:startDate&to=:endDate&branchUniqueName=:branchUniqueName'
   ),
-  parties_balance : createEndpoint('v2/company/:companyUniqueName/accounts/:accountName/balance?from=:startDate&to=:endDate&accountCurrency=true&branchUniqueName=:branchUniqueName&lang=en')
+  parties_balance : createEndpoint('v2/company/:companyUniqueName/accounts/:accountName/balance?from=:startDate&to=:endDate&accountCurrency=true&branchUniqueName=:branchUniqueName&lang=en'),
+  getCompanyTags : createEndpoint('company/:companyUniqueName/tags?branchUniqueName=:branchUniqueName&lang=en'),
+  getCompanyDiscounts : createEndpoint('company/:companyUniqueName/discount?branchUniqueName=:branchUniqueName&lang=en'),
+  uploadAttachment : createEndpoint('company/:companyUniqueName/ledger/upload?branchUniqueName=:branchUniqueName&lang=en'),
+  getCurrencyConversion : createEndpoint('currency/rate?from=:fromCurrency&to=:toCurrency&date=:date&lang=en'),
 };

@@ -31,7 +31,7 @@ export class CommonService {
    * get sundry debtors
    * @returns {Promise<BaseResponse<Country[]>>}
    */
-  static async getTransactions(startDate: string, endDate: string, page: any,vouchers = []): Promise<BaseResponse<PartiesPaginatedResponse>> {
+  static async getTransactions(startDate: string, endDate: string, page: any, vouchers = []): Promise<BaseResponse<PartiesPaginatedResponse>> {
     // const branchName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     return httpInstance
       .post(
@@ -109,7 +109,7 @@ export class CommonService {
     startDate: string,
     endDate: string,
     accountName: any,
-  ){
+  ) {
     if (startDate == null || endDate == null) {
       return httpInstance
         .get(
@@ -145,10 +145,10 @@ export class CommonService {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
       return res.data;
     })
-    .catch((error) => {
-      console.log('---- getPartiesSundryCreditors ----', error);
-      return {}
-    });;
+      .catch((error) => {
+        console.log('---- getPartiesSundryCreditors ----', error);
+        return {}
+      });;
   }
 
   /**
@@ -159,9 +159,9 @@ export class CommonService {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_debtors, {}).then((res) => {
       return res.data;
     })
-    .catch((error) => {
-      console.log('---- getPartiesSundryDebtors ----', error);
-    });;
+      .catch((error) => {
+        console.log('---- getPartiesSundryDebtors ----', error);
+      });;
   }
 
   static getPartiesMainSundryDebtors(
@@ -211,6 +211,23 @@ export class CommonService {
       });
   }
 
+  static getCompanyTags() {
+    return httpInstance.get(commonUrls.getCompanyTags).then((res) => {
+      return res.data;
+    })
+      .catch((error) => {
+        console.log('---- ERROR in company tags ----', error);
+      });;
+  }
+  static getCompanyDiscounts() {
+    return httpInstance.get(commonUrls.getCompanyDiscounts).then((res) => {
+      return res.data;
+    })
+      .catch((error) => {
+        console.log('---- ERROR in company disounts ----', error);
+      });;
+  }
+
   /**
    * get currencies
    * @returns {Promise<BaseResponse<Country[]>>}
@@ -219,5 +236,33 @@ export class CommonService {
     return httpInstance.put(commonUrls.refreshAccessToken).then((res) => {
       return res.data;
     });
+  }
+
+  static uploadAttachment(data: any) {
+    return httpInstance
+      .post(
+        commonUrls.uploadAttachment,
+        data,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+        }
+      )
+      .then((res) => {
+        return res.data;
+      })
+      .catch((error) => {
+        console.log('---- catch block of upload attachment ----', error);
+      });
+  }
+
+  static getCurrencyConversion(fromCurrency: string,toCurrency:string,date:any) {
+    return httpInstance.get(commonUrls.getCurrencyConversion.replace(':fromCurrency',fromCurrency).replace(':toCurrency',toCurrency).replace(':date',date)).then((res) => {
+      return res.data;
+    })
+      .catch((error) => {
+        console.log('---- ERROR in currency conversion ----', error);
+      });;
   }
 }

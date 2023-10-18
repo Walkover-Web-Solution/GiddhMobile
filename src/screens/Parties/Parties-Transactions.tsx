@@ -111,7 +111,7 @@ class PartiesTransactionScreen extends React.Component {
       review: '',
       reviewPlaceHolder: '',
       code: '',
-      countryCode:this.props.route.params?.item?.country?.code,
+      countryCode: this.props.route.params?.item?.country?.code,
       currencySymbol: this.props.route.params?.item?.country?.code == 'IN'
         ? '₹' : (getSymbolFromCurrency(this.props.route?.params?.item?.country?.code) == undefined ? "" : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code)),
       selectPayorData: [],
@@ -138,12 +138,12 @@ class PartiesTransactionScreen extends React.Component {
   }
 
   async componentDidMount() {
-    console.log('totalAmounttotalAmount',this.state?.totalAmount)
+    console.log('totalAmounttotalAmount', this.state?.totalAmount)
     this.setState({
-      countryCode:  this.props.route?.params?.item?.country?.countryCode ? this.props.route?.params?.item?.country?.countryCode : this.props.route?.params?.item?.country?.code ,
-      currencySymbol: this.props.route?.params?.item?.currencySymbol ? this.props.route?.params?.item?.currencySymbol : 
-      this.props.route.params?.item?.country?.code == 'IN'
-        ? '₹' : (getSymbolFromCurrency(this.props.route?.params?.item?.country?.code) == undefined ? "" : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code))
+      countryCode: this.props.route?.params?.item?.country?.countryCode ? this.props.route?.params?.item?.country?.countryCode : this.props.route?.params?.item?.country?.code,
+      currencySymbol: this.props.route?.params?.item?.currencySymbol ? this.props.route?.params?.item?.currencySymbol :
+        this.props.route.params?.item?.country?.code == 'IN'
+          ? '₹' : (getSymbolFromCurrency(this.props.route?.params?.item?.country?.code) == undefined ? "" : getSymbolFromCurrency(this.props.route?.params?.item?.country?.code))
     })
     this.getActiveCompany()
     if (this.props.route?.params?.item?.bankPaymentDetails && this.props.route?.params?.type == 'Vendors') {
@@ -153,8 +153,8 @@ class PartiesTransactionScreen extends React.Component {
     // This listener calls API again when screen in focus.
     this.unsubscribe = this.props.navigation.addListener('focus', async () => {
       try {
-        await this.setState({showLoader: true});
-        if(this.props?.route?.params?.type == 'Vendors'){ await this.getAccountData(); }
+        await this.setState({ showLoader: true });
+        if (this.props?.route?.params?.type == 'Vendors') { await this.getAccountData(); }
         await this.getTransactions();
       } catch (error) {
         // handle errors here
@@ -724,16 +724,16 @@ class PartiesTransactionScreen extends React.Component {
     }
   }
 
-  private async getAccountData(){
-    try{
+  private async getAccountData() {
+    try {
       const response = await AccountsService.getIndividualAccountData(this.props.route?.params?.item?.uniqueName);
-      if(response?.status == 'success'){
-        this.props.navigation.setParams({ 
+      if (response?.status == 'success') {
+        this.props.navigation.setParams({
           item: { ...response?.body },
           type: (response?.body?.accountType === 'Creditors' ? 'Vendors' : 'Creditors')
         });
       }
-    }catch(e){
+    } catch (e) {
       console.log('----- Parties Transaction - getAccountData -----', e);
     }
   }
@@ -859,7 +859,7 @@ class PartiesTransactionScreen extends React.Component {
     try {
       if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if(granted !== PermissionsAndroid.RESULTS.GRANTED){
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.downloadModalVisible(false);
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
@@ -874,7 +874,7 @@ class PartiesTransactionScreen extends React.Component {
     try {
       if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if(granted !== PermissionsAndroid.RESULTS.GRANTED){
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
@@ -889,7 +889,7 @@ class PartiesTransactionScreen extends React.Component {
     try {
       if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if(granted !== PermissionsAndroid.RESULTS.GRANTED){
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
         }
@@ -1347,54 +1347,72 @@ class PartiesTransactionScreen extends React.Component {
               flexDirection: 'row',
               alignItems: 'center',
               paddingLeft: 20,
-              paddingRight:10,
+              paddingRight: 10,
               justifyContent: "space-between"
             }}>
-            <View style={{    
+            <View style={{
               flexDirection: 'row',
               alignItems: 'center',
-              maxWidth:'65%',
-              }} >
+              maxWidth: '65%',
+            }} >
               <TouchableOpacity
                 hitSlop={{ right: 20, left: 20, top: 10, bottom: 10 }}
                 onPress={() => this.props.navigation.goBack()}
               >
                 <Icon name={'Backward-arrow'} color="#fff" size={18} />
               </TouchableOpacity>
-              <Text 
-              onPress={()=>{
-                if (Platform.OS == "ios") {
-                  TOAST.show(this.props.route?.params?.item?.name+'', {
-                    duration: TOAST.durations.LONG,
-                    position: -140,
-                    hideOnPress: true,
-                    backgroundColor: "#1E90FF",
-                    textColor: "white",
-                    opacity: 1,
-                    shadow: false,
-                    animation: true,
-                    containerStyle: { borderRadius: 10 }
-                  });
-                } else {
-                  ToastAndroid.show(this.props.route?.params?.item?.name+'', ToastAndroid.LONG);
-                }
-              }} numberOfLines={2} style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
+              <Text
+                onPress={() => {
+                  if (Platform.OS == "ios") {
+                    TOAST.show(this.props.route?.params?.item?.name + '', {
+                      duration: TOAST.durations.LONG,
+                      position: -140,
+                      hideOnPress: true,
+                      backgroundColor: "#1E90FF",
+                      textColor: "white",
+                      opacity: 1,
+                      shadow: false,
+                      animation: true,
+                      containerStyle: { borderRadius: 10 }
+                    });
+                  } else {
+                    ToastAndroid.show(this.props.route?.params?.item?.name + '', ToastAndroid.LONG);
+                  }
+                }} numberOfLines={2} style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
                 {this.props.route?.params?.item?.name}
               </Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity
+                onPress={async () => {
+                  await this.props.navigation.navigate("AddEntryStack", {
+                    screen: "AddEntryScreen",
+                    params: {
+                      item: this.props.route.params?.item,
+                    }
+                  })
+                  await DeviceEventEmitter.emit(APP_EVENTS.RefreshAddEntryPage, {})
+                }}
+                style={{ paddingHorizontal: 8 }}
+              >
+                <AntDesign
+                  name="plus"
+                  size={20}
+                  color={'#FFFFFF'}
+                />
+              </TouchableOpacity>
               {this.state.transactionsData.length == 0 ? null : (
-                <TouchableOpacity delayPressIn={0} style={{ padding: 5 }} onPress={() => this.setBottomSheetVisible(this.pdfBottomSheetRef, true)}>
+                <TouchableOpacity delayPressIn={0} style={{ paddingHorizontal: 8 }} onPress={() => this.setBottomSheetVisible(this.pdfBottomSheetRef, true)}>
                   <AntDesign name="pdffile1" size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
               )}
-              <TouchableOpacity style={{ marginLeft: 12,paddingRight:5 }} onPress={() => this.setBottomSheetVisible(this.reminderBottomSheetRef, true)}>
+              <TouchableOpacity style={{ paddingHorizontal: 8 }} onPress={() => this.setBottomSheetVisible(this.reminderBottomSheetRef, true)}>
                 <MaterialCommunityIcons name="bell-ring" size={20} color={"#FFFFFF"} />
               </TouchableOpacity>
               {this.props.route?.params?.item?.mobileNo ? (
                 <TouchableOpacity
                   delayPressIn={0}
-                  style={{ padding: 5 }}
+                  style={{ paddingHorizontal: 8 }}
                   onPress={() => this.setBottomSheetVisible(this.moreBottomSheetRef, true)}>
                   <Entypo name="dots-three-vertical" size={20} color={'#FFFFFF'} />
                 </TouchableOpacity>
@@ -1432,15 +1450,15 @@ class PartiesTransactionScreen extends React.Component {
               </View>
             </View>
             <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cl Bal :</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 5 }}>
                   {this.state.countryCode == 'IN'
                     ? '₹'
                     : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.closingBalance?.amount)}
-                  <Text style={{fontSize:10}} >
-                  {this.state.closingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+                  <Text style={{ fontSize: 10 }} >
+                    {this.state.closingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
                   </Text>
                 </Text>
               </View>
@@ -1451,8 +1469,8 @@ class PartiesTransactionScreen extends React.Component {
                     ? '₹'
                     : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.openingBalance?.amount)}
-                  <Text style={{fontSize:10}}>
-                  {this.state.openingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+                  <Text style={{ fontSize: 10 }}>
+                    {this.state.openingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
                   </Text>
                 </Text>
               </View>

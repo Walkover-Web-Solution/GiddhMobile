@@ -97,7 +97,9 @@ export const APP_EVENTS = {
   ReceiptCreated: 'RECEIPTCREATED',
   PaymentCreated: 'PAYMENTCREATED',
   CustomerCreated: 'CUSTOMERCREATED',
-  REFRESHPAGE: 'REFRESHPAGE'
+  REFRESHPAGE: 'REFRESHPAGE',
+  RefreshAddEntryPage: 'REFRESHADDENTRYPAGE',
+  NewEntryCreated: 'NEWENTRYCREATED'
 };
 
 export const FONT_FAMILY = {
