@@ -1003,7 +1003,7 @@ export class AddEntry extends React.Component<Props> {
       finalAdjustedInvoices: finalInvoices
     })
   };
-  handleAdjustVoucher(){
+  handleAdjustVoucher() {
     if (this.state?.amountForEntry == '') {
       alert("Please add amount.");
       return;
@@ -1693,7 +1693,7 @@ export class AddEntry extends React.Component<Props> {
                     margin: 10,
                     borderRadius: 5
                   }}>
-                  ◉ {item}
+                  {item}
                 </Text>
               </TouchableOpacity>
             );
@@ -1863,7 +1863,7 @@ export class AddEntry extends React.Component<Props> {
                     margin: 10,
                     borderRadius: 5
                   }}>
-                  ◉ {item?.stockUnitCode}
+                  {item?.stockUnitCode}
                 </Text>
               </TouchableOpacity>
             );
@@ -2042,7 +2042,7 @@ export class AddEntry extends React.Component<Props> {
                     margin: 10,
                     borderRadius: 5
                   }}>
-                  ◉ {item.name}
+                  {item.name}
                 </Text>
               </TouchableOpacity>
             );
@@ -2087,7 +2087,7 @@ export class AddEntry extends React.Component<Props> {
                     margin: 10,
                     borderRadius: 5
                   }}>
-                  ◉ {item.name}
+                  {item.name}
                 </Text>
               </TouchableOpacity>
             );
@@ -2276,7 +2276,7 @@ export class AddEntry extends React.Component<Props> {
           <TouchableOpacity style={style.adjustVoucherView}
             onPress={() => {
               this.handleAdjustVoucher();
-              
+
             }}
           >
             <CheckBox
@@ -2284,17 +2284,17 @@ export class AddEntry extends React.Component<Props> {
               uncheckedCheckBoxColor={'#229F5F'}
               style={{ marginLeft: -4 }}
               onClick={async () => {
-                if(this.state?.adjustedAmountOfLinkedInvoices){
+                if (this.state?.adjustedAmountOfLinkedInvoices) {
                   this.setState({
                     adjustedAmountOfLinkedInvoices: 0,
                   })
-                }else{
+                } else {
                   this.handleAdjustVoucher();
                 }
               }}
               isChecked={(this.state.adjustedAmountOfLinkedInvoices != null && this.state.adjustedAmountOfLinkedInvoices != 0) ? true : false}
-              
-           />
+
+            />
 
             <Text style={[style.addressHeaderText, { marginHorizontal: 5 }]}>Adjust {this.state?.selectedVoucherType}</Text>
             {this.state.adjustedAmountOfLinkedInvoices != null && this.state.adjustedAmountOfLinkedInvoices != 0 ? (

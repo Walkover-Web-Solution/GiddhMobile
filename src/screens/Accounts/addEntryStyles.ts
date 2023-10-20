@@ -341,6 +341,7 @@ export default StyleSheet.create({
     maxWidth: '50%',
     minWidth: 100,
     fontFamily: FONT_FAMILY.regular,
+    minHeight:40
   },
   discountOptions: {
     fontFamily: FONT_FAMILY.regular,
