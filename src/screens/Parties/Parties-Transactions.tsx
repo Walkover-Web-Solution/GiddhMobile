@@ -809,12 +809,32 @@ class PartiesTransactionScreen extends React.Component {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
-        'GET',
-        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
+        'POST',
+        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`,
         {
           'session-id': `${token}`,
+          'content-type': 'application/json'
         },
-      ).then((res) => {
+        JSON.stringify({
+          includeDescription: true,
+          description: null,
+          includeParticulars: true,
+          includeVouchers: true,
+          particulars: [
+            this.props.route.params?.item?.uniqueName
+          ],
+          ...(this.state.vouchers?.length > 0 && {vouchers: this.state.vouchers}),
+          inventory: {
+            includeInventory: false,
+            includeQuantity: true,
+            quantityEqualTo: true,
+            quantityGreaterThan: true,
+            includeItemValue: true,
+            itemValueLessThan: true,
+            itemValueEqualTo: true,
+          }
+        })
+      ) .then((res) => {
         if (res.respInfo.status != 200) {
           Platform.OS == "ios" ? this.setState({ iosLoaderToExport: false }) : this.downloadModalVisible(false)
           if (Platform.OS == "ios") {
@@ -908,12 +928,32 @@ class PartiesTransactionScreen extends React.Component {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       let pdfName = `${this.state.startDate} to ${this.state.endDate} - ${moment()}`
       RNFetchBlob.fetch(
-        'GET',
-        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
+        'POST',
+        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`,
         {
           'session-id': `${token}`,
+          'content-type': 'application/json'
         },
-      )
+        JSON.stringify({
+          includeDescription: true,
+          description: null,
+          includeParticulars: true,
+          includeVouchers: true,
+          particulars: [
+            this.props.route.params?.item?.uniqueName
+          ],
+          ...(this.state.vouchers?.length > 0 && {vouchers: this.state.vouchers}),
+          inventory: {
+            includeInventory: false,
+            includeQuantity: true,
+            quantityEqualTo: true,
+            quantityGreaterThan: true,
+            includeItemValue: true,
+            itemValueLessThan: true,
+            itemValueEqualTo: true,
+          }
+        })
+      ) 
         .then(async (res) => {
           let base64Str = await res.base64();
           let base69 = await base64.decode(base64Str);
@@ -959,22 +999,42 @@ class PartiesTransactionScreen extends React.Component {
             const shareOptions = {
               title: 'Share via',
               message: 'Transactions report',
-              url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`,
+              url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate}-${this.state.endDate}.pdf`,
               social: Share.Social.WHATSAPP,
               whatsAppNumber: this.props.route?.params?.item?.mobileNo.replace(/\D/g, ''),
               filename: 'Transactions report',
             };
             RNFetchBlob.fetch(
-              'GET',
-              `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=view-detailed&sort=asc`,
+              'POST',
+              `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`,
               {
                 'session-id': `${token}`,
+                'content-type': 'application/json'
               },
-            )
+              JSON.stringify({
+                includeDescription: true,
+                description: null,
+                includeParticulars: true,
+                includeVouchers: true,
+                particulars: [
+                  this.props.route.params?.item?.uniqueName
+                ],
+                ...(this.state.vouchers?.length > 0 && {vouchers: this.state.vouchers}),
+                inventory: {
+                  includeInventory: false,
+                  includeQuantity: true,
+                  quantityEqualTo: true,
+                  quantityGreaterThan: true,
+                  includeItemValue: true,
+                  itemValueLessThan: true,
+                  itemValueEqualTo: true,
+                }
+              })
+            ) 
               .then(async (res) => {
                 let base64Str = await res.base64();
                 let base69 = await base64.decode(base64Str);
-                let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate} to ${this.state.endDate}.pdf`;
+                let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate}-${this.state.endDate}.pdf`;
                 await this.setState({ ShareModal: false });
                 await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
                 if (Platform.OS === "ios") {

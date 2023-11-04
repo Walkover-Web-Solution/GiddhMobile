@@ -159,3 +159,17 @@ export const deformatNumber = (input: string) : number => {
     const deformattedNumber = input.replace(/[$€₹, ']|\.0*$|(\.\d*?[1-9])0*$/g, '$1') //Done 
     return parseFloat(deformattedNumber);
 }
+export const giddhRoundOff = (number: any) => {
+  const {balanceDecimalPlaces} = store.getState().commonReducer?.companyDetails;
+
+  if (!("" + number).includes("e")) {
+      return +(Math.round(Number(number + "e+" + balanceDecimalPlaces)) + "e-" + balanceDecimalPlaces);
+  } else {
+      var arr = ("" + number).split("e");
+      var sig = ""
+      if (+arr[1] + balanceDecimalPlaces > 0) {
+          sig = "+";
+      }
+      return +(Math.round(Number(+arr[0] + "e" + sig + (+arr[1] + balanceDecimalPlaces))) + "e-" + balanceDecimalPlaces);
+  }
+};

@@ -33,7 +33,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Bars } from 'react-native-loader';
 import DocumentPicker from 'react-native-document-picker';
 import color from '@/utils/colors';
-import _, { result } from 'lodash';
+import _, { find, result } from 'lodash';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -44,8 +44,9 @@ import { AccountsService } from '@/core/services/accounts/accounts.service';
 import { CommonService } from '@/core/services/common/common.service';
 import { localeData, voucherTypes, KEYBOARD_EVENTS, getAbbreviation } from './constants';
 import TOAST from 'react-native-root-toast';
-import { formatAmount } from '@/utils/helper';
+import {  formatAmount, giddhRoundOff } from '@/utils/helper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { getInvoiceListRequest } from './accountHelper';
 const { SafeAreaOffsetHelper } = NativeModules;
 const { width, height } = Dimensions.get('window');
 
@@ -76,7 +77,7 @@ export class AddEntry extends React.Component<Props> {
       particularAccountStockData: {},
       totalSearchPages: 0,
       searchPage: 1,
-      amountForEntry: '',
+      amountForEntry: 0,
       taxInclusiveAmount: 0,
       exchangeRate: 1,
       totalAmount: 0,
@@ -142,6 +143,8 @@ export class AddEntry extends React.Component<Props> {
       currency: '',
       uploadedAttachment: {},
       successDialog: false,
+      invoicePageCount: 1,
+      totalInvoicePageCount: 1
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -201,7 +204,7 @@ export class AddEntry extends React.Component<Props> {
       particularAccountStockData: {},
       totalSearchPages: 0,
       searchPage: 1,
-      amountForEntry: '',
+      amountForEntry: 0,
       taxInclusiveAmount: 0,
       exchangeRate: 1,
       totalAmount: 0,
@@ -267,6 +270,8 @@ export class AddEntry extends React.Component<Props> {
       currency: '',
       uploadedAttachment: {},
       successDialog: false,
+      invoicePageCount: 1,
+      totalInvoicePageCount: 1
     });
   };
   componentDidUpdate(prevProps, prevState) {
@@ -282,26 +287,55 @@ export class AddEntry extends React.Component<Props> {
     if (!this.state?.particularAccountStockData?.stock) {
       return;
     }
-    const { stockPrice, stockQuantity } = this.state;
-    let amountForEntry = Number(this.state?.amountForEntry);
-
-    if (amountForEntry != prevState?.amountForEntry) {
-      const price = amountForEntry !== 0 ? amountForEntry / stockQuantity : stockPrice;
-      this.setState({
-        stockPrice: price
-      })
-    } else if (stockPrice != prevState?.stockPrice) {
-      const amount = stockQuantity !== 0 ? stockQuantity * stockPrice : amountForEntry;
-      this.setState({
-        amountForEntry: amount + ''
-      })
-    } else if (stockQuantity != prevState?.stockQuantity) {
-      const amount = stockQuantity !== 0 ? stockQuantity * stockPrice : amountForEntry;
-      this.setState({
-        amountForEntry: amount + ''
-      })
-    }
+    // const { stockPrice, stockQuantity } = this.state;
+    // let amountForEntry = (this.state?.amountForEntry);
+    // console.log('amountForEntry00', amountForEntry)
+    // if (amountForEntry != prevState?.amountForEntry) {
+    //   const price = amountForEntry !== 0 ? amountForEntry / stockQuantity : stockPrice;
+    //   this.setState({
+    //     stockPrice: price
+    //   })
+    // } else if (stockPrice != prevState?.stockPrice) {
+    //   const amount = stockQuantity !== 0 ? stockQuantity * stockPrice : amountForEntry;
+    //   let convertedAmount = (amount / this.state?.exchangeRate).toFixed(3);
+    //   console.log('convertedAmount1', convertedAmount)
+    //   this.setState({
+    //     amountForEntry: convertedAmount
+    //   })
+    // } else if (stockQuantity != prevState?.stockQuantity) {
+    //   const amount = stockQuantity !== 0 ? stockQuantity * stockPrice : amountForEntry;
+    //   let convertedAmount = (amount / this.state?.exchangeRate).toFixed(3);
+    //   console.log('convertedAmount2', convertedAmount)
+    //   this.setState({
+    //     amountForEntry: convertedAmount
+    //   })
+    // }
   }
+// Functions to handle the price/amount/quantity change
+  async updateStockPrice() {
+    const { stockPrice, stockQuantity ,amountForEntry} = this.state;
+    const price = amountForEntry !== 0 ? amountForEntry / stockQuantity : stockPrice;
+    const formattedPrice = await giddhRoundOff(price);
+    this.setState({
+      stockPrice: formattedPrice
+    })
+  }
+  async updateAmountStk() {
+    const { stockPrice, stockQuantity, amountForEntry } = this.state;
+    const amount = stockQuantity !== 0 ? stockQuantity * stockPrice : amountForEntry;
+    const formattedAmount = await giddhRoundOff(amount);
+    this.setState({
+      amountForEntry: formattedAmount
+    })
+  }
+  updateAmountQty() {
+    const { stockPrice, stockQuantity, amountForEntry } = this.state;
+    const amount = stockQuantity !== 0 ? stockQuantity * stockPrice : amountForEntry;
+    this.setState({
+      amountForEntry: amount
+    })
+  }
+
 
   clearAll = async () => {
     this.resetState();
@@ -505,137 +539,7 @@ export class AddEntry extends React.Component<Props> {
 
 
   }
-  getInvoiceListRequest(data: any): any {
-    const debitNoteVoucher = "debit note";
-    const creditNoteVoucher = "credit note";
-    const salesParentGroups = ['revenuefromoperations', 'otherincome'];
-    const purchaseParentGroups = ['operatingcost', 'indirectexpenses'];
-    const debtorCreditorParentGroups = ['sundrydebtors', 'sundrycreditors'];
-    const cashBankParentGroups = ['cash', 'bankaccounts', 'loanandoverdraft'];
-    const fixedAssetsGroups = ['fixedassets'];
-    const journalVoucherTypes = ["jr", "journal"];
-    const journalVoucherType = "journal";
-    if (data?.particularAccount?.parentGroups?.length > 0) {
-      if (data?.particularAccount?.parentGroups[0]?.uniqueName) {
-        data.particularAccount.parentGroups = data?.particularAccount?.parentGroups?.map(group => group?.uniqueName);
-      }
-    }
-
-    let isSalesLedger = false;
-    let isPurchaseLedger = false;
-    let isDebtorCreditorLedger = false;
-    let isCashBankLedger = false;
-    let isFixedAssetsLedger = false;
-
-    data?.ledgerAccount?.parentGroups?.forEach(group => {
-      if (salesParentGroups.includes(group?.uniqueName)) {
-        isSalesLedger = true;
-      } else if (purchaseParentGroups.includes(group?.uniqueName)) {
-        isPurchaseLedger = true;
-      } else if (debtorCreditorParentGroups.includes(group?.uniqueName)) {
-        isDebtorCreditorLedger = true;
-      } else if (cashBankParentGroups.includes(group?.uniqueName)) {
-        isCashBankLedger = true;
-      } else if (fixedAssetsGroups.includes(group?.uniqueName)) {
-        isFixedAssetsLedger = true;
-      }
-    });
-
-    let isSalesAccount = false;
-    let isPurchaseAccount = false;
-    let isDebtorCreditorAccount = false;
-    let isCashBankAccount = false;
-    let isFixedAssetsAccount = false;
-
-    data?.particularAccount?.parentGroups?.forEach(groupUniqueName => {
-      if (salesParentGroups.includes(groupUniqueName)) {
-        isSalesAccount = true;
-      } else if (purchaseParentGroups.includes(groupUniqueName)) {
-        isPurchaseAccount = true;
-      } else if (debtorCreditorParentGroups.includes(groupUniqueName)) {
-        isDebtorCreditorAccount = true;
-      } else if (cashBankParentGroups.includes(groupUniqueName)) {
-        isCashBankAccount = true;
-      } else if (fixedAssetsGroups.includes(groupUniqueName)) {
-        isFixedAssetsAccount = true;
-      }
-    });
-
-    let request = {
-      accountUniqueName: undefined,
-      voucherType: undefined,
-      noteVoucherType: undefined
-    };
-
-    if (isSalesLedger || isPurchaseLedger) {
-      if (isDebtorCreditorAccount) {
-        request = {
-          accountUniqueName: data?.particularAccount?.uniqueName,
-          voucherType: data?.voucherType,
-          noteVoucherType: ((data?.voucherType === debitNoteVoucher || data?.voucherType === creditNoteVoucher) && isSalesLedger) ? "sales" : ((data?.voucherType === debitNoteVoucher || data?.voucherType === creditNoteVoucher) && isPurchaseLedger) ? "purchase" : undefined
-        };
-      } else if (journalVoucherTypes.includes(data?.voucherType)) {
-        request = {
-          accountUniqueName: data?.ledgerAccount?.uniqueName,
-          voucherType: journalVoucherType,
-          noteVoucherType: undefined
-        };
-      } else {
-        request = undefined;
-      }
-    } else if (isFixedAssetsLedger) {
-      if (isDebtorCreditorAccount) {
-        request = {
-          accountUniqueName: data?.particularAccount?.uniqueName,
-          voucherType: data?.voucherType,
-          noteVoucherType: (data?.voucherType === creditNoteVoucher) ? "sales" : (data?.voucherType === debitNoteVoucher) ? "purchase" : undefined
-        };
-      } else if (journalVoucherTypes.includes(data?.voucherType)) {
-        request = {
-          accountUniqueName: data?.ledgerAccount?.uniqueName,
-          voucherType: journalVoucherType,
-          noteVoucherType: undefined
-        };
-      } else {
-        request = undefined;
-      }
-    } else if (isDebtorCreditorLedger) {
-      request.accountUniqueName = data?.ledgerAccount?.uniqueName;
-      request.voucherType = data?.voucherType;
-
-      if (isSalesAccount) {
-        request.noteVoucherType = (data?.voucherType === debitNoteVoucher || data?.voucherType === creditNoteVoucher) ? "sales" : undefined;
-      } else if (isPurchaseAccount) {
-        request.noteVoucherType = (data?.voucherType === debitNoteVoucher || data?.voucherType === creditNoteVoucher) ? "purchase" : undefined;
-      } else if (isCashBankAccount) {
-        request.noteVoucherType = undefined;
-      } else if (isFixedAssetsAccount) {
-        request.noteVoucherType = (data?.voucherType === creditNoteVoucher) ? "sales" : (data?.voucherType === debitNoteVoucher) ? "purchase" : undefined;
-      } else if (journalVoucherTypes.includes(data?.voucherType)) {
-        request.voucherType = journalVoucherType;
-      } else {
-        request = undefined;
-      }
-    } else if (isCashBankLedger) {
-      if (isDebtorCreditorAccount) {
-        request = {
-          accountUniqueName: data?.particularAccount?.uniqueName,
-          voucherType: data?.voucherType,
-          noteVoucherType: undefined
-        };
-      } else if (journalVoucherTypes.includes(data?.voucherType)) {
-        request = {
-          accountUniqueName: data?.ledgerAccount?.uniqueName,
-          voucherType: journalVoucherType,
-          noteVoucherType: undefined
-        };
-      } else {
-        request = undefined;
-      }
-    }
-
-    return request;
-  }
+ 
   keyboardWillShow = (event) => {
     const value = event.endCoordinates.height - this.state.bottomOffset;
     Animated.timing(this.keyboardMargin, {
@@ -921,9 +825,9 @@ export class AddEntry extends React.Component<Props> {
   }
   calculateTotalAmount() {
     if (this.state?.selectedVoucherType == 'Advance Receipt') {
-      return parseFloat(this.state?.amountForEntry || "0");
+      return parseFloat(this.state?.amountForEntry || 0);
     }
-    let totalAmount = parseFloat(this.state?.amountForEntry || "0") - Number(this.calculateTotalDiscount()) + (this.state?.reverseCharge == false ? this.state?.totalTaxAmount : 0);
+    let totalAmount = parseFloat(this.state?.amountForEntry || 0) - Number(this.calculateTotalDiscount()) + (this.state?.reverseCharge == false ? this.state?.totalTaxAmount : 0);
 
     return totalAmount;
   }
@@ -973,8 +877,8 @@ export class AddEntry extends React.Component<Props> {
       });
     }
   };
-  getLinkedInvoicesAdjustedAmount = async (adjustedAmount, adjustmentInvoices) => {
-    this.setState({ adjustedAmountOfLinkedInvoices: adjustedAmount });
+  getLinkedInvoicesAdjustedAmount = async (adjustedAmount, adjustmentInvoices, invoicePageCount, totalInvoicePageCount) => {
+    this.setState({ adjustedAmountOfLinkedInvoices: adjustedAmount,invoicePageCount: invoicePageCount, totalInvoicePageCount: totalInvoicePageCount });
     this.setState({ adjustmentInvoices: adjustmentInvoices, navigatingAgain: true });
 
     let clonedAdjustedInvoices = _.cloneDeep(adjustmentInvoices);
@@ -982,7 +886,6 @@ export class AddEntry extends React.Component<Props> {
     const finalInvoices = await clonedAdjustedInvoices
       .filter(obj => obj.isSelect == true)
       .map(item => {
-        // Add or replace 'accountCurrency' with 'USD'
         item.accountCurrency = {
           code: this.state?.selectedAccountData?.currency,
           symbol: this.state?.selectedAccountData?.currencySymbol
@@ -1004,9 +907,22 @@ export class AddEntry extends React.Component<Props> {
     })
   };
   handleAdjustVoucher() {
-    if (this.state?.amountForEntry == '') {
+    if (this.state?.amountForEntry == 0) {
       alert("Please add amount.");
       return;
+    }
+    const particularAccountStockData = this.state?.particularAccountStockData?.stock ? {...this.state.particularAccountStockData, parentGroups : this.state.particularAccountStockData?.oppositeAccount?.parentGroups } : this.state.particularAccountStockData;
+      let data : any = {
+        oppositeAccountUniqueName: this.state?.oppositeAccountUniqueName,
+        particularAccount: particularAccountStockData,
+        ledgerAccount: this.state?.selectedAccountData,
+        voucherType: this.state?.selectedVoucherType == 'Advance Receipt' ? 'receipt' : this.state?.selectedVoucherType?.toLowerCase()
+      }
+    let apiPayloadData = {
+      selectedVoucherType: this.state?.selectedVoucherType,
+      currentEntryType: this.state?.currentEntryType,
+      companyVersionNumber : this.state.companyVersionNumber,
+      requestData: data
     }
     this.props.navigation.navigate('Account.LinkInvoice', {
       getLinkedInvoicesAdjustedAmount: this.getLinkedInvoicesAdjustedAmount.bind(this),
@@ -1016,9 +932,41 @@ export class AddEntry extends React.Component<Props> {
       currencySymbol: this.state.currencySymbol,
       partyAmount: this.state.amountForEntry,
       realVoucherInvoice: this.state.adjustmentInvoices,
+      paginationHelperData: apiPayloadData,
+      invoicePageCount: this.state?.invoicePageCount,
+      totalInvoicePageCount: this.state?.totalInvoicePageCount
     });
   }
-
+  getAccountCategory(account: any, accountName: string) {
+    let parent = account?.parentGroups ? account.parentGroups[0] : '';
+    if (parent) {
+        if (find(['shareholdersfunds', 'noncurrentliabilities', 'currentliabilities'], p => p === parent?.uniqueName)) {
+            return 'liabilities';
+        } else if (find(['fixedassets'], p => p === parent?.uniqueName)) {
+            return 'fixedassets';
+        } else if (find(['noncurrentassets', 'currentassets'], p => p === parent?.uniqueName)) {
+            return 'assets';
+        } else if (find(['revenuefromoperations', 'otherincome'], p => p === parent?.uniqueName)) {
+            return 'income';
+        } else if (find(['operatingcost', 'indirectexpenses'], p => p === parent?.uniqueName)) {
+            if (accountName === 'roundoff') {
+                return 'roundoff';
+            }
+            let subParent = account?.parentGroups[1];
+            if (subParent && subParent?.uniqueName === 'discount') {
+                return 'discount';
+            }
+            return 'expenses';
+        } else {
+            return '';
+        }
+    } else {
+        return '';
+    }
+}
+  getConvertedAmount(amount:any) {
+    return   amount / this.state?.exchangeRate;
+  }
 
 
   // ************************ BELOW ARE API CALLS AND HANDLING ************************
@@ -1105,10 +1053,13 @@ export class AddEntry extends React.Component<Props> {
         this.shouldShowTouristScheme(response?.body);
         this.setState({
           particularAccountStockData: response?.body,
-          stockPrice: response?.body?.stock?.variant?.unitRates[0]?.rate,
+          stockPrice: response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate,
           selectedStockUnit: response?.body?.stock?.variant?.unitRates[0],
           stockQuantity: 1
         })
+        this.updateAmountStk();
+        this.updateStockPrice();
+        this.updateAmountQty();
       } else {
         this.setState({
           particularAccountStockData: {}
@@ -1187,12 +1138,14 @@ export class AddEntry extends React.Component<Props> {
   getVoucherInvoiceList = async () => {
     try {
       const date = await moment(this.state.date);
+      const particularAccountStockData = this.state?.particularAccountStockData?.stock ? {...this.state.particularAccountStockData, parentGroups : this.state.particularAccountStockData?.oppositeAccount?.parentGroups } : this.state.particularAccountStockData;
       let data = {
-        particularAccount: this.state.particularAccountStockData,
+        oppositeAccountUniqueName: this.state?.oppositeAccountUniqueName,
+        particularAccount: particularAccountStockData,
         ledgerAccount: this.state?.selectedAccountData,
         voucherType: this.state?.selectedVoucherType?.toLowerCase()
       }
-      let request = await this.getInvoiceListRequest(data);
+      let request = await getInvoiceListRequest(data);
       const response = await InvoiceService.getVoucherInvoice(date, request, this.state.companyVersionNumber);
       if (response.body && response.status == 'success') {
         this.setState({ referenceInvoices: this.state.companyVersionNumber == 1 ? response.body.results : response.body.items });
@@ -1208,49 +1161,57 @@ export class AddEntry extends React.Component<Props> {
       console.log('er', e)
     }
   }
-  getVoucherAdjustmentInvoiceList = async () => {
-    try {
-      const date = await moment(this.state?.entryDate).format('DD-MM-YYYY');
-      let data = {
-        particularAccount: this.state.particularAccountStockData,
-        ledgerAccount: this.state?.selectedAccountData,
-        voucherType: this.state?.selectedVoucherType == 'Advance Receipt' ? 'receipt' : this.state?.selectedVoucherType?.toLowerCase()
-      }
+  // getVoucherAdjustmentInvoiceList = async () => {
+  //   try {
+  //     const date = await moment(this.state?.entryDate).format('DD-MM-YYYY');
+  //     //If the selected AccountData is of type Stock then we need to manage its opposite Account data.
+  //     const particularAccountStockData = this.state?.particularAccountStockData?.stock ? {...this.state.particularAccountStockData, parentGroups : this.state.particularAccountStockData?.oppositeAccount?.parentGroups } : this.state.particularAccountStockData;
+  //     let data : any = {
+  //       oppositeAccountUniqueName: this.state?.oppositeAccountUniqueName,
+  //       particularAccount: particularAccountStockData,
+  //       ledgerAccount: this.state?.selectedAccountData,
+  //       voucherType: this.state?.selectedVoucherType == 'Advance Receipt' ? 'receipt' : this.state?.selectedVoucherType?.toLowerCase()
+  //     }
 
-      let request = await this.getInvoiceListRequest(data);
-      let payloadData = {
-        accountUniqueName: request?.accountUniqueName,
-        voucherType: request?.voucherType,
-        number: "",
-        page: 1,
-        ...(this.state?.selectedVoucherType == 'Advance Receipt' && { subVoucher: "ADVANCE_RECEIPT" }),
-        ...((this.state?.selectedVoucherType == 'Credit Note' || this.state?.selectedVoucherType == 'Debit Note') && { noteVoucherType: request?.noteVoucherType }),
-        voucherBalanceType: this.state?.currentEntryType?.toLowerCase()
-      }
-      const response = await AccountsService.getAdjustmentInvoices(date, this.state.companyVersionNumber, 1, payloadData);
-      if (response.body && response.status == 'success') {
-        this.setState({ adjustmentInvoices: this.state.companyVersionNumber == 1 ? response.body.results : response.body.items });
-      } else {
-        this.setState({
-          adjustmentInvoices: []
-        });
-      }
-    } catch (e) {
-      this.setState({
-        adjustmentInvoices: []
-      });
-      console.log('ERROR in adjustment invoices', e)
-    }
-  }
+  //     let request = await getInvoiceListRequest(data);
+  //     // don't call api if it's invalid case
+  //     if (!request) {
+  //       return;
+  //     }
+  //     let payloadData = {
+  //       accountUniqueName: request?.accountUniqueName,
+  //       voucherType: request?.voucherType,
+  //       number: "",
+  //       page: 1,
+  //       ...(this.state?.selectedVoucherType == 'Advance Receipt' && { subVoucher: "ADVANCE_RECEIPT" }),
+  //       ...((this.state?.selectedVoucherType == 'Credit Note' || this.state?.selectedVoucherType == 'Debit Note') && { noteVoucherType: request?.noteVoucherType }),
+  //       voucherBalanceType: this.state?.currentEntryType?.toLowerCase()
+  //     }
+  //     const response = await AccountsService.getAdjustmentInvoices(date, this.state.companyVersionNumber, 1, payloadData);
+  //     if (response.body && response.status == 'success') {
+  //       this.setState({ adjustmentInvoices: this.state.companyVersionNumber == 1 ? response.body.results : response.body.items });
+  //     } else {
+  //       this.setState({
+  //         adjustmentInvoices: []
+  //       });
+  //     }
+  //   } catch (e) {
+  //     this.setState({
+  //       adjustmentInvoices: []
+  //     });
+  //     console.log('ERROR in adjustment invoices', e)
+  //   }
+  // }
 
   searchCalls = _.debounce(this.searchAccount, 200);
 
   async searchAccount() {
     this.setState({ isSearchingAccount: true });
     try {
+      let currentLedgerCategory = this.state?.selectedAccountData ? this.getAccountCategory(this.state?.selectedAccountData, this.state?.selectedAccountData?.uniqueName) : '';
       let stockAccountUniqueName =
-        (this.state?.selectedAccountData?.category == 'income' || this.state?.selectedAccountData?.category == 'expense') ? this.state?.selectedAccountData?.uniqueName : '';
-      const results = await AccountsService.getAccountNames(this.state.searchAccountName, stockAccountUniqueName, 1, true);
+        (currentLedgerCategory == 'income' || currentLedgerCategory == 'expenses' || currentLedgerCategory == 'fixedassets') ? this.state?.selectedAccountData?.uniqueName : '';
+        const results = await AccountsService.getAccountNames(this.state.searchAccountName, stockAccountUniqueName, 1, true);
       if (results.body && results.body.results) {
         this.setState({
           searchResults: results.body.results,
@@ -1297,8 +1258,9 @@ export class AddEntry extends React.Component<Props> {
   async loadMoreSearchAccount() {
     this.setState({ isSearchingAccount: true });
     try {
+      let currentLedgerCategory = this.state?.selectedAccountData ? this.getAccountCategory(this.state?.selectedAccountData, this.state?.selectedAccountData?.uniqueName) : '';
       let stockAccountUniqueName =
-        (this.state?.selectedAccountData?.category == 'income' || this.state?.selectedAccountData?.category == 'expense') ? this.state?.selectedAccountData?.uniqueName : '';
+        (currentLedgerCategory == 'income' || currentLedgerCategory == 'expenses' || currentLedgerCategory == 'fixedassets') ? this.state?.selectedAccountData?.uniqueName : '';
       const results = await AccountsService.getAccountNames(this.state.searchAccountName, stockAccountUniqueName, this.state.searchPage, true);
       if (results.body && results.body.results) {
         this.setState({
@@ -1678,9 +1640,10 @@ export class AddEntry extends React.Component<Props> {
                   if (item == 'Debit Note' || item == 'Credit Note') {
                     this.getVoucherInvoiceList();
                   }
-                  if (item !== 'Contra') {
-                    this.getVoucherAdjustmentInvoiceList();
-                  }
+                  //Now calling the Adjustmentinvoices api inside the adjustment screen with pagination.
+                  // if (item !== 'Contra') {
+                  //   this.getVoucherAdjustmentInvoiceList();
+                  // }
                 }}>
 
 
@@ -2153,7 +2116,7 @@ export class AddEntry extends React.Component<Props> {
             keyboardType="phone-pad"
             placeholder={'0.00'}
             placeholderTextColor={this.state.isAmountFieldInFocus ? '#c9c9c9' : 'white'}
-            value={this.state.amountForEntry}
+            value={this.state.amountForEntry+''}
             // ref={this.focusRef}
             onFocus={() => {
               this.setState({
@@ -2169,6 +2132,7 @@ export class AddEntry extends React.Component<Props> {
               await this.setState({
                 amountForEntry: text,
               });
+              this.updateStockPrice();
             }}>
           </TextInput>
         </View>
@@ -2287,6 +2251,9 @@ export class AddEntry extends React.Component<Props> {
                 if (this.state?.adjustedAmountOfLinkedInvoices) {
                   this.setState({
                     adjustedAmountOfLinkedInvoices: 0,
+                    adjustmentInvoices: [],
+                    invoicePageCount: 1,
+                    totalInvoicePageCount: 1
                   })
                 } else {
                   this.handleAdjustVoucher();
@@ -2424,11 +2391,12 @@ export class AddEntry extends React.Component<Props> {
               returnKeyType={'done'}
               keyboardType='numeric'
               // multiline={true}
-              onChangeText={(text) => {
+              onChangeText={async(text) => {
                 if (!this.state.searchAccountName) {
                   alert('Please select an account.');
                 } else {
-                  this.setState({ stockQuantity: text });
+                 await this.setState({ stockQuantity: text });
+                 this.updateAmountQty();
                 }
               }}
             />
@@ -2460,11 +2428,12 @@ export class AddEntry extends React.Component<Props> {
               placeholderTextColor={'#868686'}
               returnKeyType={'done'}
               // multiline={true}
-              onChangeText={(text) => {
+              onChangeText={async(text) => {
                 if (!this.state.searchAccountName) {
                   alert('Please select an account.');
                 } else {
-                  this.setState({ stockPrice: text });
+                  await this.setState({ stockPrice: text });
+                  this.updateAmountStk();
                 }
               }}
             />
@@ -2506,7 +2475,7 @@ export class AddEntry extends React.Component<Props> {
         <View style={style.voucherOptionsField} >
           {(this.state?.showDiscountAndTaxPopup) && <TouchableOpacity
             onPress={() => {
-              if (this.state?.amountForEntry == '') {
+              if (this.state?.amountForEntry == 0) {
                 alert('Add amount')
               } else {
                 this.setBottomSheetVisible(this.discountRef, true);
@@ -2532,7 +2501,7 @@ export class AddEntry extends React.Component<Props> {
           </TouchableOpacity>}
           {(this.state?.showDiscountAndTaxPopup) && <TouchableOpacity
             onPress={() => {
-              if (this.state?.amountForEntry == '') {
+              if (this.state?.amountForEntry == 0) {
                 alert('Add amount')
               } else {
                 this.setBottomSheetVisible(this.taxModalRef, true);
@@ -2594,7 +2563,7 @@ export class AddEntry extends React.Component<Props> {
           </View>
           <TouchableOpacity
             onPress={() => {
-              if (this.state?.amountForEntry == '') {
+              if (this.state?.amountForEntry == 0) {
                 alert('Add amount')
               } else {
                 this.setBottomSheetVisible(this.taxModalRef, true);
