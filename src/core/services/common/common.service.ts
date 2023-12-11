@@ -48,7 +48,7 @@ export class CommonService {
         return res.data;
       })
       .catch((error) => {
-        console.log('---- getTransactions ----', error);
+        console.log('---- Error in getTransactions ----', error?.data);
         return {}
       });
   }
@@ -145,10 +145,6 @@ export class CommonService {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_creditors, {}).then((res) => {
       return res.data;
     })
-      .catch((error) => {
-        console.log('---- getPartiesSundryCreditors ----', error);
-        return {}
-      });;
   }
 
   /**
@@ -159,9 +155,6 @@ export class CommonService {
     return httpInstance.post(commonUrls.customer_vendor_report_sundry_debtors, {}).then((res) => {
       return res.data;
     })
-      .catch((error) => {
-        console.log('---- getPartiesSundryDebtors ----', error);
-      });;
   }
 
   static getPartiesMainSundryDebtors(

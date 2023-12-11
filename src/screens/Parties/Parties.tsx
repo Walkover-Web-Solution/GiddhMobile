@@ -104,10 +104,10 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
             </View>
           )
           :
-          (<ScrollView style={style.container}>
+          (<View style={style.container}>
             {this.state.debtData.length > 1 ? <Text style={{ textAlign: "center",  fontFamily:'AvenirLTStd-Black' }}>TOP 20 Creditors and Debtors</Text> : null}
             <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
-          </ScrollView>)
+          </View>)
       );
     }
   }
@@ -122,8 +122,8 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
           partiesDebtData: debtors.body.results
         });
       }
-    } catch (e) {
-      console.log("Error in getPartiesSundryDebtors ", e);
+    } catch (error: any) {
+      console.log("----- Error in getPartiesSundryDebtors -----", error?.data);
     }
   }
 
@@ -136,9 +136,9 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
         // debtData: this.state.debtData.concat(creditors.body.results),
         partiesCredData: creditors.body.results
       });
-    } catch (e) {
+    } catch (error: any) {
+      console.log("----- Error in getPartiesSundryCreditors -----", error?.data);
       this.setState({ partiesCredData: new PartiesPaginatedResponse() });
-      console.log("Error in getPartiesSundryCreditors ", e);
       this.setState({ showLoader: false });
     }
   }

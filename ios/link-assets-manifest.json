@@ -1,0 +1,373 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/AvenirLTStd-Black.otf",
+      "sha1": "eb534ac4079db239cdd489df7a1aa2b874b5b599"
+    },
+    {
+      "path": "assets/fonts/AvenirLTStd-Book.otf",
+      "sha1": "db6bfde1c5f1f6d8129df5dce9484d88d3646f0d"
+    },
+    {
+      "path": "assets/fonts/AvenirLTStd-Roman.otf",
+      "sha1": "a614776d8ee6be9ed01ccc136ac5daed16ba604b"
+    },
+    {
+      "path": "assets/fonts/Opel-Sans-Bold.ttf",
+      "sha1": "f04dc23f887a60418c79009c949cf94ecfb0cd58"
+    },
+    {
+      "path": "assets/fonts/Opel-Sans-Regular.ttf",
+      "sha1": "b638d34023e31c2dd51c667d3044d60cd2d658ea"
+    },
+    {
+      "path": "assets/fonts/OpenSans-Bold.ttf",
+      "sha1": "c1691e8168b2596af8a00162bac60dbe605e9e36"
+    },
+    {
+      "path": "assets/fonts/OpenSans-BoldItalic.ttf",
+      "sha1": "cea7b25e625f8f42d09c3034aad8afd826e9941a"
+    },
+    {
+      "path": "assets/fonts/OpenSans-ExtraBold.ttf",
+      "sha1": "97d0bd44f1731a9d97fc29e2b2208835575b60b9"
+    },
+    {
+      "path": "assets/fonts/OpenSans-ExtraBoldItalic.ttf",
+      "sha1": "1d865d0a3e05f13ce91e3727e0cb97fdc1c4ca42"
+    },
+    {
+      "path": "assets/fonts/OpenSans-Italic.ttf",
+      "sha1": "f1692eac564e95023e4da341a1b89baae7a65155"
+    },
+    {
+      "path": "assets/fonts/OpenSans-Light.ttf",
+      "sha1": "40442c189568184b6e6c27a25d69f14d91b65039"
+    },
+    {
+      "path": "assets/fonts/OpenSans-LightItalic.ttf",
+      "sha1": "73c4730894c67900e0b7bd7a491c717d4a236b30"
+    },
+    {
+      "path": "assets/fonts/OpenSans-Regular.ttf",
+      "sha1": "3564ed0b5363df5cf277c16e0c6bedc5a682217f"
+    },
+    {
+      "path": "assets/fonts/OpenSans-Semibold.ttf",
+      "sha1": "f1ee7a9c6d13ee2d642a806c09e737275e613792"
+    },
+    {
+      "path": "assets/fonts/OpenSans-SemiboldItalic.ttf",
+      "sha1": "f577ce4322c761a10d093f11f077a48602d2c076"
+    },
+    {
+      "path": "src/assets/icomoon/icomoon.ttf",
+      "sha1": "d15200013a5df9e45bce698616176da7ca542565"
+    },
+    {
+      "path": "src/assets/icomoon/selection.json",
+      "sha1": "1ebbc222ad5aa31687f8d523944d9cf903e754d8"
+    },
+    {
+      "path": "src/assets/images/Group 5922.svg",
+      "sha1": "2e78fa02c3cb7f6095f7bba2842c9383d11b1855"
+    },
+    {
+      "path": "src/assets/images/books.png",
+      "sha1": "7ac6a4ab7bbc91053f9a50de247dd8280e556290"
+    },
+    {
+      "path": "src/assets/images/giddh.png",
+      "sha1": "2120ebed6d9cf76f71d42b6bcee269ec953978b2"
+    },
+    {
+      "path": "src/assets/images/giddh.svg",
+      "sha1": "4236c2b6b88ef990b1dd3d76eadf815db9af1801"
+    },
+    {
+      "path": "src/assets/images/icons/Backward.svg",
+      "sha1": "04ae51dc7bf165e029c0a4179ea5836319c2749e"
+    },
+    {
+      "path": "src/assets/images/icons/Lock.png",
+      "sha1": "6a7262ecf99609dbccf54c9574d26e91da58d56b"
+    },
+    {
+      "path": "src/assets/images/icons/Lock.svg",
+      "sha1": "21c7bc6ab4afcb4f4bfd7b29ca41b77ac11a0eb9"
+    },
+    {
+      "path": "src/assets/images/icons/Product.svg",
+      "sha1": "b09022f8cfff1e83bee072f35dce7f5ba49ec06b"
+    },
+    {
+      "path": "src/assets/images/icons/Profile.svg",
+      "sha1": "d21582938e5ffe7ceb0ac8263c41548ad15d0372"
+    },
+    {
+      "path": "src/assets/images/icons/address.svg",
+      "sha1": "0103ad0e3e27b4283b5bf7a17ae3d15516fade50"
+    },
+    {
+      "path": "src/assets/images/icons/apple.png",
+      "sha1": "abad6e168f553a643a824de8f937a1b5aa9263d2"
+    },
+    {
+      "path": "src/assets/images/icons/apple.svg",
+      "sha1": "bfb024243f24928b31921115a8a379d80812be7a"
+    },
+    {
+      "path": "src/assets/images/icons/arrowRight.svg",
+      "sha1": "149759eba7fcfbec8c161c66c94535790946529d"
+    },
+    {
+      "path": "src/assets/images/icons/calendar.png",
+      "sha1": "b0b9b0ffd340e2f3897288073087e4adc3e3560a"
+    },
+    {
+      "path": "src/assets/images/icons/calendar.svg",
+      "sha1": "2d42cb8197a5d4c721abc1b543e75520e1408603"
+    },
+    {
+      "path": "src/assets/images/icons/calendar2x.png",
+      "sha1": "502877b8314215868764fcc7c35b0bf63c24d2bd"
+    },
+    {
+      "path": "src/assets/images/icons/company.png",
+      "sha1": "dc752a18318caa0cabd2decbb0dc46d07e8c65da"
+    },
+    {
+      "path": "src/assets/images/icons/company.svg",
+      "sha1": "73b4074092d83becffa07e42a41f8eb374a58874"
+    },
+    {
+      "path": "src/assets/images/icons/compose.svg",
+      "sha1": "edf432296540b7c9eea804c65c91acb02fbb5262"
+    },
+    {
+      "path": "src/assets/images/icons/currency.svg",
+      "sha1": "2d8ccf83349016452455d9ec314cdb012169a4ae"
+    },
+    {
+      "path": "src/assets/images/icons/customer_faliure.svg",
+      "sha1": "96ef51cd1fa8e1242611a001a309d1a16a2d304a"
+    },
+    {
+      "path": "src/assets/images/icons/customer_success.svg",
+      "sha1": "6fcc94c8f0ca02f995a8c07fcda72b562b3a2052"
+    },
+    {
+      "path": "src/assets/images/icons/discount.svg",
+      "sha1": "10f4363ef0ecc2a937b9cb8839baa822ed588f1a"
+    },
+    {
+      "path": "src/assets/images/icons/download.png",
+      "sha1": "bbbb47f025596d5f69f2e060a4b89a53444ac87f"
+    },
+    {
+      "path": "src/assets/images/icons/download.svg",
+      "sha1": "3956ef24cc109750d70116a2b3a732b3693c85bb"
+    },
+    {
+      "path": "src/assets/images/icons/download2x.png",
+      "sha1": "328045c2a5f93baafe5eeff8e1c221d6d8eb3b4a"
+    },
+    {
+      "path": "src/assets/images/icons/email.png",
+      "sha1": "8f645eb00fd862eaecfe7a60c6af022f33c24a59"
+    },
+    {
+      "path": "src/assets/images/icons/email.svg",
+      "sha1": "b6a28d6c9ee50e58a412a4931efff2c4ca834bc7"
+    },
+    {
+      "path": "src/assets/images/icons/google.png",
+      "sha1": "a9daa5e0cde7a4ad84c2b7ef19d8462692cee017"
+    },
+    {
+      "path": "src/assets/images/icons/google.svg",
+      "sha1": "de3c5992de6f6e1f30b09ebf2297d2ea7817a3ea"
+    },
+    {
+      "path": "src/assets/images/icons/gstin.svg",
+      "sha1": "4347b688856f4a13625bb294bc8730badc269eb9"
+    },
+    {
+      "path": "src/assets/images/icons/gstr.svg",
+      "sha1": "5b65ae7806d4d092e861a02a50a711bc58b71086"
+    },
+    {
+      "path": "src/assets/images/icons/help.svg",
+      "sha1": "821d227118c07afa36a3f772692134f93b53904f"
+    },
+    {
+      "path": "src/assets/images/icons/incoming.svg",
+      "sha1": "139b0cf17a9a534a198f31f192422f7c86710c7b"
+    },
+    {
+      "path": "src/assets/images/icons/inventory.svg",
+      "sha1": "0ad066665812c55faf46f63bca0c4caf9a9dc63f"
+    },
+    {
+      "path": "src/assets/images/icons/more.png",
+      "sha1": "7c09fc8cde4b30bde3f12a982b02a96011cb8b3b"
+    },
+    {
+      "path": "src/assets/images/icons/more.svg",
+      "sha1": "8fc677097b5f60979fafdf3392880bb5168f3591"
+    },
+    {
+      "path": "src/assets/images/icons/more2x.png",
+      "sha1": "efab52c70550d170a2d6b7794eb29ae5a820de22"
+    },
+    {
+      "path": "src/assets/images/icons/msg91-white-icon.png",
+      "sha1": "9cbdc4643b587731b8a754c74b4a96f24c4e566f"
+    },
+    {
+      "path": "src/assets/images/icons/notifications.svg",
+      "sha1": "579e7b04019422f6ef82155491c3a856c0e241ce"
+    },
+    {
+      "path": "src/assets/images/icons/options/CreditNote.svg",
+      "sha1": "cac72a8506e34c8da1dcde6bd98da58cddb97aa0"
+    },
+    {
+      "path": "src/assets/images/icons/options/Customer.svg",
+      "sha1": "2f0876c8cc93fd5dd90d38f09286d8e4fdf8df7b"
+    },
+    {
+      "path": "src/assets/images/icons/options/DebitNote.svg",
+      "sha1": "de5b7494f8c62f23f1337b7408dfe66e28cc0ae3"
+    },
+    {
+      "path": "src/assets/images/icons/options/Payment.svg",
+      "sha1": "a40ec2c653fcfda015d2a36dfec2885c73600e32"
+    },
+    {
+      "path": "src/assets/images/icons/options/PurchaseBill.svg",
+      "sha1": "12568bc4e9042d5894296f2ba2c72c94bdd51afd"
+    },
+    {
+      "path": "src/assets/images/icons/options/Receipt.svg",
+      "sha1": "96d6b368d0ede5140bea5a28613375c83e938308"
+    },
+    {
+      "path": "src/assets/images/icons/options/SalesInvoice.svg",
+      "sha1": "b6e912a0780ac5491a0fc24c5a33fd47b74d3bea"
+    },
+    {
+      "path": "src/assets/images/icons/options/Vendor.svg",
+      "sha1": "10dd639878b10ff4f8b38cd7b912121b6f08cc01"
+    },
+    {
+      "path": "src/assets/images/icons/outgoing.svg",
+      "sha1": "d51a763005db0a1c12ef6fd27517634a053206af"
+    },
+    {
+      "path": "src/assets/images/icons/phone.svg",
+      "sha1": "c995b10e9f60b6ecc6ad9e9a7de326b1921b67f7"
+    },
+    {
+      "path": "src/assets/images/icons/plus.png",
+      "sha1": "c2428494b2f0d14a502ba0358389486334c51aa8"
+    },
+    {
+      "path": "src/assets/images/icons/plus.svg",
+      "sha1": "7f64813f951b0291197b95fa618b9c194c220183"
+    },
+    {
+      "path": "src/assets/images/icons/premium.svg",
+      "sha1": "a9b77de45e06d5cdc4fef503b30be879bcbae9b0"
+    },
+    {
+      "path": "src/assets/images/icons/purchase.svg",
+      "sha1": "17f55f14468ea0e57ebcad71f4323880eef5f42d"
+    },
+    {
+      "path": "src/assets/images/icons/report.svg",
+      "sha1": "f339c940b9e550d01965063fa220a4d08a487bb1"
+    },
+    {
+      "path": "src/assets/images/icons/search.svg",
+      "sha1": "95ef7fbdb9a45fd780dfd5171e1f6556bdce8f0c"
+    },
+    {
+      "path": "src/assets/images/icons/send.png",
+      "sha1": "a911fafbca8a3eda41025a45361d6127cf90f66a"
+    },
+    {
+      "path": "src/assets/images/icons/send.svg",
+      "sha1": "f85533ac7c780088ec88ebfa9749181b7e4f97f8"
+    },
+    {
+      "path": "src/assets/images/icons/send2x.png",
+      "sha1": "557d2393fc7014b3fee0859c2b641472acf7651f"
+    },
+    {
+      "path": "src/assets/images/icons/send_white.svg",
+      "sha1": "cfdd6273b14ef6115c3f5ca35c23c6b9130c3ad9"
+    },
+    {
+      "path": "src/assets/images/icons/settings.svg",
+      "sha1": "4afddf315e9f4b30eaa64328aed2f2556e534e97"
+    },
+    {
+      "path": "src/assets/images/icons/sort.png",
+      "sha1": "fe3d3fca9d13a328285513e40b45649f06d2c54e"
+    },
+    {
+      "path": "src/assets/images/icons/sort.svg",
+      "sha1": "f87460f0730b5f1714e98118ffeb68d6f24001f3"
+    },
+    {
+      "path": "src/assets/images/icons/sort2x.png",
+      "sha1": "85f54dc58769cd0e8ba15cc7992087bbfb895eb7"
+    },
+    {
+      "path": "src/assets/images/icons/trigger.svg",
+      "sha1": "258356d679474aa71c478518bd22d6d0ac865ad5"
+    },
+    {
+      "path": "src/assets/images/icons/voucher.png",
+      "sha1": "16894635141673d914935437efcef1bc8d594ae9"
+    },
+    {
+      "path": "src/assets/images/logo.png",
+      "sha1": "5a5e44329fbe88b5ef630984ef9b99e80f32a75a"
+    },
+    {
+      "path": "src/assets/images/logo2x.png",
+      "sha1": "473d66a589def7089d519d31f56d36eb6831306d"
+    },
+    {
+      "path": "src/assets/images/noInventory.png",
+      "sha1": "7ad6bf1dc7c72ae3ce50d60fb2b40cc9e91c7c13"
+    },
+    {
+      "path": "src/assets/images/noParty.png",
+      "sha1": "07150b19709c6f5d5c10498528cf9a9bc231ee3d"
+    },
+    {
+      "path": "src/assets/images/noTransactions.png",
+      "sha1": "0d734bdc9e9b41920834cb23884e267128c9f686"
+    },
+    {
+      "path": "src/assets/images/slider1.png",
+      "sha1": "1231ae9453549e74082ee3da179c6b8bcd7b64aa"
+    },
+    {
+      "path": "src/assets/images/slider2.png",
+      "sha1": "a5426679dd2d5e70dae3a4d77ccc25e0aabc2aa1"
+    },
+    {
+      "path": "src/assets/images/slider3.png",
+      "sha1": "0fa9cdfa3dfa28470cee88660ea1369bb14c0d98"
+    },
+    {
+      "path": "src/assets/images/slider4.png",
+      "sha1": "f6e12f51c71dbc9be573d8bd149944334b405b93"
+    }
+  ]
+}
