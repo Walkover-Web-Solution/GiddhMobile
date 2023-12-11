@@ -140,7 +140,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
       //await this.sort(transactions.body.entries);
       this.setState(
         {
-          transactionsData: transactions.body.entries,
+          transactionsData: transactions?.body?.entries,
           totalPages: transactions.body.totalPages,
           showLoader: false,
           totalItems : transactions.body.totalItems
@@ -162,7 +162,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
       );
     
       await this.setState({
-        transactionsData: [...this.state.transactionsData, ...transactions.body.entries],
+        transactionsData: [...this.state.transactionsData, ...transactions?.body?.entries],
         showLoader: false,
         loadingMore: false,
       })

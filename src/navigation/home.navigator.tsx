@@ -211,10 +211,11 @@ export const HomeNavigator = () => {
           };
 
           return route.name == 'add' ? (
-            branchSelected && <AddButton isDisabled={disableTabs} navigation={navigation} />
+            branchSelected && <AddButton key={index?.toString()} isDisabled={disableTabs} navigation={navigation} />
           )
             : (
               <TouchableOpacity
+                key={index?.toString()}
                 disabled={disableTabs}
                 // accessibilityRole="button"
                 // accessibilityStates={isFocused ? ['selected'] : []}

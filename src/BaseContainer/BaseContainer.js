@@ -55,23 +55,23 @@ class BaseContainer extends Component {
   };
 
   checkSessionExpiry = async () => {
-    console.log("Checking session-----")
+    console.log("----- Checking Session -----")
     timer ? this.clearLogoutTimer() : null;
     const expireAt = await AsyncStorage.getItem(STORAGE_KEYS.sessionEnd);
     if (expireAt) {
-      console.log('session end is present');
       let expirationTime = await getExpireInTime(expireAt);
       if (await expirationTime <= new Date()) {
         //session expired.
-        console.log('logging out session expired');
+        console.log('----- Logging out session expired -----');
         await this.props.logout();
         return;
       }
-      console.log("Alredy logged In --")
+      console.log("----- Already Logged In -----")
       let expirationTimeInMiliSecond = (expirationTime.getTime()) - new Date().getTime();
       await this.setLogoutTimer(expirationTimeInMiliSecond);
       await this.addUserDeatilsToLogRocket();
     } else {
+      console.log('----- Logging Out -----');
       await this.props.logout();
     }
   }

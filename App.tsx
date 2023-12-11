@@ -6,9 +6,7 @@ import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import {Provider} from 'react-redux';
 import '@/utils/i18n';
-import AsyncStorage from '@react-native-community/async-storage';
-import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
-import {DeviceEventEmitter, EmitterSubscription} from 'react-native';
+import {BackHandler, EmitterSubscription, Platform} from 'react-native';
 import {default as mapping} from './mappings.json';
 import {PersistGate} from 'redux-persist/integration/react';
 import BaseContainer from './src/BaseContainer/BaseContainer';
@@ -18,6 +16,8 @@ import SplashScreen from 'react-native-splash-screen';
 import {LogBox} from 'react-native';
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
+import DeviceInfo from 'react-native-device-info';
+import SpInAppUpdates, { IAUUpdateKind, StartUpdateOptions } from 'sp-react-native-in-app-updates';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { injectStore } from '@/utils/helper';
@@ -28,6 +28,50 @@ injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
 injectStoreToHttpInstance(store); // Provides store to HttpInstance
 
+const inAppUpdates = new SpInAppUpdates(
+  false // isDebug
+);
+const appVersion = DeviceInfo.getVersion();
+
+const onStatusUpdate = (event: any) => {
+  const { status } = event;
+
+  if (status == 11) {
+    inAppUpdates.installUpdate();
+  }
+
+  if (status === 3) {
+    BackHandler.exitApp();
+  }
+};
+
+const checkForAppUpdate = () => {
+  inAppUpdates.checkNeedsUpdate({ curVersion: appVersion }).then((result) => {
+    console.log(`-----*** Giddh V${appVersion} ***-----`);
+    console.log(`----- ShouldUpdate ${result.shouldUpdate} -----`);
+    if (result.shouldUpdate) {
+      let updateOptions: StartUpdateOptions = {};
+      if (Platform.OS === 'android') {
+        // android only, on iOS the user will be promped to go to your app store page
+        updateOptions = {
+          updateType: IAUUpdateKind.FLEXIBLE
+        };
+      } else {
+        updateOptions = {
+          title: 'Update Available',
+          message: "Giddh recommends that you update to the latest version.",
+          buttonUpgradeText: 'Update',
+          buttonCancelText: 'Cancel',
+        }
+      }
+      inAppUpdates.addStatusUpdateListener(onStatusUpdate);
+      inAppUpdates.startUpdate(updateOptions);
+    }
+  }).catch(error => {
+    console.log('----- Error in Checking Update -----', error);
+  });
+}
+
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
   static navigationOptions = {
@@ -35,25 +79,8 @@ export default class App extends React.Component<any> {
   };
 
   async componentDidMount() {
-    // get token and active company name
     SplashScreen.hide();
-
-    const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-
-    // check if token is present, means user is logged in
-    if (token) {
-      // get user's state details actions
-      // await store.dispatch.common.getStateDetailsAction();
-      // get active company details
-      // await store.dispatch.company.getCompanyDetailsAction();
-      // await store.dispatch.company.getCompanyListAndBranchAction();
-    }
-
-    // listen for invalid auth token event
-    this.listener = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken, () => {
-      // fire logout action
-      // store.dispatch.auth.logout();
-    });
+    checkForAppUpdate();
   }
 
   componentWillUnmount() {
@@ -69,13 +96,11 @@ export default class App extends React.Component<any> {
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
             <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
-                <SafeAreaProvider>
-                  <GestureHandlerRootView style={{ flex: 1 }}>
-                    <RootSiblingParent>
-                      <BaseContainer />
-                    </RootSiblingParent>
-                  </GestureHandlerRootView>
-                </SafeAreaProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <RootSiblingParent>
+                  <BaseContainer />
+                </RootSiblingParent>
+              </GestureHandlerRootView>
             </ApplicationProvider>
           </PersistGate>
         </Provider>
