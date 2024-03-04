@@ -14,7 +14,7 @@ const Screen_width = Dimensions.get('window').width;
 
 function ShareModal ({ modalVisible }) {
   return (
-    <Modal animationType="none" transparent={true} visible={modalVisible}>
+    <Modal animationType="none" transparent={true} visible={modalVisible} statusBarTranslucent>
       <TouchableOpacity style={styles.container}>
         <View style={styles.centeredView}>
         <Bars size={15} color={colors.PRIMARY_NORMAL} />
@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    // justifyContent: 'center',
-    // alignItems: 'center'
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   centeredView: {
     flexDirection: 'column',
@@ -49,10 +49,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
-    // alignItems: 'center',
     alignSelf: 'center',
     borderRadius: 15,
-    marginTop: Screen_height * 0.4,
     padding: 15,
     justifyContent: 'center',
     alignItems: 'center'

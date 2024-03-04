@@ -6,8 +6,6 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.BACKGROUND,
-    // backgroundColor: 'pink',
-    paddingTop: 5
   },
   filterStyle: {
     flexDirection: 'row',

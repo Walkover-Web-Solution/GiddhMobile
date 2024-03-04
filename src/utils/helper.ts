@@ -173,3 +173,30 @@ export const giddhRoundOff = (number: any) => {
       return +(Math.round(Number(+arr[0] + "e" + sig + (+arr[1] + balanceDecimalPlaces))) + "e-" + balanceDecimalPlaces);
   }
 };
+
+export const capitalizeName = (_name: string | null | undefined) => {
+  if (!_name) return null;
+
+  const name = _name.toLocaleLowerCase();
+  // If the name contains a hyphen, capitalize each part separated by hyphen
+  if (name.includes('-')) {
+    const parts = name.split('-');
+    const capitalizedParts = parts.map(part => {
+      if (part.length > 0) {
+        return part.charAt(0).toUpperCase() + part.slice(1);
+      }
+      return '';
+    });
+    return capitalizedParts.join('-');
+  }
+
+  // Otherwise, treat as usual by splitting into words and capitalizing each word
+  const words = name.split(' ');
+  const capitalizedWords = words.map(word => {
+    if (word.length > 0) {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }
+    return '';
+  });
+  return capitalizedWords.join(' ');
+};

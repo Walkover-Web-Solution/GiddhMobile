@@ -1,4 +1,6 @@
-export default {
+const Routes = {
+  BottomTabScreen1: 'BottomTabScreen1',
+  BottomTabScreen2: 'BottomTabScreen2',
   Home: 'home',
   Login: 'login',
   Password: 'Password',
@@ -19,3 +21,5 @@ export default {
   CompanyInfoOne: 'CompanyInfoOne',
   CompanyInfoTwo: 'CompanyInfoTwo'
 };
+
+export default Routes

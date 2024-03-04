@@ -445,7 +445,7 @@ export class Payment extends React.Component {
 
   renderHeader() {
     return (
-      <View style={[style.header, {paddingTop: 10}]}>
+      <View style={style.header}>
         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
           <TouchableOpacity
             style={{padding: 10}}
@@ -466,22 +466,22 @@ export class Payment extends React.Component {
     return (
       <View
         onLayout={this.onLayout}
-        style={{flexDirection: 'row', minHeight: 50, alignItems: 'center'}}
+        style={{flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 14}}
         onPress={() => {}}>
         <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-          <Icon name={'Profile'} color={'#fafafa'} style={{margin: 16}} size={16} />
+          <Icon name={'Profile'} color={'#084EAD'} style={{margin: 16}} size={16} />
           <TextInput
-            placeholderTextColor={'#fafafa'}
+            placeholderTextColor={'#808080'}
             placeholder={'Select Parties Name'}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
             onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
             style={style.searchTextInputStyle}
           />
-          <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
+          <ActivityIndicator color={'#5773FF'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{color: 'white', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
+          <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
         </TouchableOpacity>
       </View>
     );
@@ -527,7 +527,7 @@ export class Payment extends React.Component {
 
   _renderSearchList() {
     return (
-      <View style={[style.searchResultContainer, {top: height * 0.12}]}>
+      <View style={[style.searchResultContainer, {top: height * 0.15}]}>
         <FlatList
           nestedScrollEnabled={true}
           showsVerticalScrollIndicator={false}
@@ -558,7 +558,7 @@ export class Payment extends React.Component {
                   this.setState({isSearchingParty: false, searchResults: []});
                 }
               }}>
-              <Text style={{color: '#1C1C1C', paddingVertical: 10}}>{item.name ? item.name : 'Result Not found'}</Text>
+              <Text style={style.searchItemText}>{item.name ? item.name : "Result Not found"}</Text>
             </TouchableOpacity>
           )}
         />
@@ -976,7 +976,7 @@ export class Payment extends React.Component {
             style={[style.invoiceAmountText, {marginRight: 10, flex: 1}]}
             keyboardType="phone-pad"
             placeholder={'0.00'}
-            placeholderTextColor={this.state.isAmountFieldInFocus ? '#c9c9c9' : 'white'}
+            placeholderTextColor={this.state.isAmountFieldInFocus ? '#808080' : '#1C1C1C'}
             value={this.state.amountForReceipt}
             ref={this.focusRef}
             onFocus={() => {

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { FONT_FAMILY, GD_FONT_SIZE } from '../../utils/constants';
 export default StyleSheet.create({
   container: {
@@ -7,14 +7,16 @@ export default StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#229F5F',
+    height: Dimensions.get('window').height * 0.08, 
   },
   headerConatiner: {
-    backgroundColor: '#229F5F'
+    // backgroundColor: '#229F5F'
   },
   invoiceTypeTextRight: {
     fontFamily: FONT_FAMILY.regular,
-    fontSize: 12,
+    fontSize: 16,
     color: 'white'
   },
 
@@ -36,11 +38,18 @@ export default StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    // borderRadius: 10,
-    flexDirection:'row'
+    flexDirection:'row',
+    borderRadius: 10,
+    overflow: 'hidden'
+  },
+  searchItemText: { 
+    color: '#1C1C1C', 
+    paddingVertical: 10,
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 14, 
   },
   searchTextInputStyle: {
-    color: 'white',
+    color: '#1C1C1C',
     position: 'absolute',
     left: 40,
     fontFamily: FONT_FAMILY.bold,
@@ -49,7 +58,7 @@ export default StyleSheet.create({
   },
   invoiceAmountText: {
     fontFamily: FONT_FAMILY.bold,
-    color: 'white',
+    color: '#1C1C1C',
     fontSize: 18
   },
   senderAddress: {
@@ -74,10 +83,9 @@ export default StyleSheet.create({
   dateView: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    paddingTop: 14,
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 45
+    height: 50
   },
   dueDateView: {
     flexDirection: 'row',

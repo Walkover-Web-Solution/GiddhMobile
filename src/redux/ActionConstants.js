@@ -11,3 +11,4 @@ export const RESET = 'RESET';
 export const SHOW_ADD_BUTTON_SHEET = 'RESET';
 export const IS_UNAUTHORSIED = 'IS_UNAUTHORISED';
 export const IS_AUTHORSIED = 'IS_AUTHORISED';
+export const SET_VOUCHER_FOR_BOTTOM_TABS = 'IS_AUTHORSIED';

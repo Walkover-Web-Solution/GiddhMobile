@@ -99,7 +99,8 @@ export const APP_EVENTS = {
   CustomerCreated: 'CUSTOMERCREATED',
   REFRESHPAGE: 'REFRESHPAGE',
   RefreshAddEntryPage: 'REFRESHADDENTRYPAGE',
-  NewEntryCreated: 'NEWENTRYCREATED'
+  NewEntryCreated: 'NEWENTRYCREATED',
+  DownloadAlert: 'DOWNLOAD_ALERT'
 };
 
 export const FONT_FAMILY = {

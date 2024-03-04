@@ -12,6 +12,10 @@ import ReceiptStack from './receiptNavigator';
 import AddEntryStack from './createEntryNavigator';
 import PaymentStack from './paymentNavigator'; 
 import AdjustLinkInvoice from '@/screens/Accounts/AdjustLinkInvoice';
+import MoreStack from './more.navigator';
+import AppDatePicker from '@/screens/DatePicker/DatePicker';
+import AllVoucherScreen from '@/screens/AllVoucherScreen/AllVoucherScreen';
+import Routes from './routes';
 
 const Drawer = createDrawerNavigator();
 
@@ -30,6 +34,10 @@ export default function AppMainNav() {
       <Drawer.Screen name='ChangeCompanyBranch' component={ChangeCompanyBranchStack} />
       <Drawer.Screen name='AddEntryStack' component={AddEntryStack} />
       <Drawer.Screen name='Account.LinkInvoice' component={AdjustLinkInvoice} />
+      <Drawer.Screen name='Settings' component={MoreStack} />
+      <Drawer.Screen name={Routes.Add} component={DashboardStack}/>
+      <Drawer.Screen name={'AppDatePicker'} component={AppDatePicker}/>
+      <Drawer.Screen name={'VoucherScreen'} component={AllVoucherScreen}/>
     </Drawer.Navigator>
   );
 }

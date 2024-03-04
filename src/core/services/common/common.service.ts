@@ -28,6 +28,60 @@ export class CommonService {
   }
 
   /**
+   * Get All Vouchers
+   * @returns {Promise<BaseResponse<UserStateDetails[]>>}
+   */
+  static getAllVouchers(voucherType: string, startDate: string, endDate: string, page: number, count: number, companyVoucherVersion: number, payload: object) {
+    return httpInstance.post(
+      commonUrls.getAllVouchers
+        .replace(':startDate', startDate)
+        .replace(':endDate', endDate)
+        .replace(':voucherType', voucherType)
+        .replace(':page', String(page))
+        .replace(':count', String(count))
+        .replace(':voucherVersion', String(companyVoucherVersion)),
+        payload
+    )
+    .then((res) => {
+      return res.data;
+    })
+  }
+
+  /**
+   * Get All Vouchers
+   * @returns {Promise<BaseResponse<UserStateDetails[]>>}
+   */
+  static async deleteVoucher(accountUniqueName: string, companyVoucherVersion: number, payload: { uniqueName: string, voucherType: string }) {
+    return httpInstance.delete(
+      commonUrls.deleteVoucher
+        .replace(':accountName', accountUniqueName)
+        .replace(':voucherVersion', String(companyVoucherVersion)),
+        {
+          data: payload
+        }
+    )
+    .then((res) => {
+      return res.data;
+    })
+  }
+
+    /**
+   * Get All Vouchers
+   * @returns {Promise<BaseResponse<UserStateDetails[]>>}
+   */
+    static async deleteEntry(accountUniqueName: string, entryUniqueName: string, companyVoucherVersion: number) {
+      return httpInstance.delete(
+        commonUrls.deleteEntry
+          .replace(':accountName', accountUniqueName)
+          .replace(':entryUniqueName', entryUniqueName)
+          .replace(':voucherVersion', String(companyVoucherVersion))
+      )
+      .then((res) => {
+        return res.data;
+      })
+    }
+
+  /**
    * get sundry debtors
    * @returns {Promise<BaseResponse<Country[]>>}
    */

@@ -63,6 +63,10 @@ export default StyleSheet.create({
     borderRadius:5,
     color:"black"
   },
+  divider: {
+    borderTopWidth: 1,
+    borderTopColor: '#EDEDED',
+},
   regularText: {
     color: '#1C1C1C',
     fontFamily: FONT_FAMILY.semibold,

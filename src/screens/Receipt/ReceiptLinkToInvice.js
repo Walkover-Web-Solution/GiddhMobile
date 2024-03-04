@@ -128,7 +128,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
 
   renderHeader() {
     return (
-      <View style={[style.header, {backgroundColor: '#00B795'}]}>
+      <View style={style.header}>
         <View style={{flexDirection: 'row', paddingVertical: 10, alignItems: 'center'}}>
           <TouchableOpacity
             style={{padding: 10}}
@@ -146,10 +146,10 @@ class ReceiptLinkToInvice extends React.Component<Props> {
   renderPartyName() {
     return (
       <View
-        style={{backgroundColor: '#00B795', flexDirection: 'row', minHeight: 50, alignItems: 'center'}}
+        style={{flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 14}}
         onPress={() => {}}>
         <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-          <Icon name={'Profile'} color={'#fafafa'} style={{margin: 16}} size={16} />
+          <Icon name={'Profile'} color={'#1CB795'} style={{margin: 16}} size={16} />
           <Text style={style.searchTextInputStyle}>{this.state.partyName}</Text>
         </View>
       </View>
@@ -158,7 +158,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
 
   renderAmount() {
     return (
-        <View style={{paddingHorizontal: 15, flexDirection: 'row', backgroundColor: '#00B795'}}>
+        <View style={{paddingHorizontal: 15, flexDirection: 'row'}}>
           <Text style={[style.invoiceAmountText, {paddingVertical: 10}]}>
             {this.state.currencySymbol + ' ' + this.state.partyAmount}
           </Text>
@@ -328,20 +328,14 @@ class ReceiptLinkToInvice extends React.Component<Props> {
 
     const renderEmptyContainer = () => {
       return (
-        <View style={{flex: 1}}>
-          <Text
-            style={[
-              style.invoiceText,
-              {color: 'black', textAlign: 'center', margin: 10, flex: 1, alignSelf: 'center'},
-            ]}>
-            No Invoices Available
-          </Text>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={style.invoiceText}>No Invoices Available</Text>
         </View>
       );
     };
     return (
       <FlatList
-        contentContainerStyle={{ paddingBottom: 50 }}
+        contentContainerStyle={{ paddingBottom: 50, flexGrow: 1 }}
         data={this.state.allVoucherInvoice}
         showsVerticalScrollIndicator={false}
         renderItem={renderItems}
@@ -388,9 +382,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
           {this.renderPartyName()}
           {this.renderAmount()}
           {this.state.allVoucherInvoice.length == 0 ? null : this.renderAdjustedAmount()}
-          <KeyboardAwareScrollView style={{flex: 1, backgroundColor: 'white'}}>
-            {this.renderInvoice()}
-          </KeyboardAwareScrollView>
+          {this.renderInvoice()}
         {!this.state.keyboard && !this.state.allVoucherInvoice.length == 0 && (
           <TouchableOpacity
             style={{

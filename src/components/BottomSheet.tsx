@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Keyboard, StyleSheet, Text, View } from 'react-native'
 import { FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import { Modalize, ModalizeProps } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
@@ -28,6 +28,7 @@ const BottomSheet: React.FC<Props> = ({
       <Modalize
         ref={bottomSheetRef}
         adjustToContentHeight={true}
+        handlePosition='inside'
         HeaderComponent={<HeaderComponent/>}
         modalStyle={{ minHeight: '25%' }}
         {...props}
@@ -37,6 +38,15 @@ const BottomSheet: React.FC<Props> = ({
     </Portal>
   )
 }
+
+export const setBottomSheetVisible = (modalRef: React.Ref<Modalize>, visible: boolean) => {
+    if(visible){
+      Keyboard.dismiss();
+      modalRef?.current?.open();
+    } else {
+      modalRef?.current?.close();
+    }
+  };
 
 export default BottomSheet;
 

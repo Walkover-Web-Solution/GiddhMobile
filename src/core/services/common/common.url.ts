@@ -18,4 +18,7 @@ export const commonUrls = {
   getCompanyDiscounts : createEndpoint('company/:companyUniqueName/discount?branchUniqueName=:branchUniqueName&lang=en'),
   uploadAttachment : createEndpoint('company/:companyUniqueName/ledger/upload?branchUniqueName=:branchUniqueName&lang=en'),
   getCurrencyConversion : createEndpoint('currency/rate?from=:fromCurrency&to=:toCurrency&date=:date&lang=en'),
+  getAllVouchers : createEndpoint('company/:companyUniqueName/vouchers/get-all?from=:startDate&to=:endDate&page=:page&count=:count&type=:voucherType&voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en'),
+  deleteVoucher : createEndpoint('company/:companyUniqueName/accounts/:accountName/vouchers?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en'),
+  deleteEntry : createEndpoint('company/:companyUniqueName/accounts/:accountName/entries/:entryUniqueName?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en')
 };

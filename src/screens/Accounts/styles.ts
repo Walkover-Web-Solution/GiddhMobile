@@ -31,7 +31,8 @@ export default StyleSheet.create({
     switchView: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal:10
+        paddingHorizontal: 10,
+        paddingTop: 12
     },
     switchButton: {
         padding: 8,
@@ -57,3 +58,63 @@ export default StyleSheet.create({
         fontSize:14
     }
 });
+
+export const accountStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.WHITE,
+  },
+  filterStyle: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    marginTop: 0,
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  dateRangePickerStyle: {
+    width: '70%'
+  },
+  iconPlacingStyle: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    flexDirection: 'row'
+  },
+  alignLoader: {
+    alignItems: 'center',
+    marginTop: 150
+  },
+  iconCard: {
+    padding: 15,
+    borderRadius: 5,
+    backgroundColor: colors.WHITE,
+    borderWidth: 1,
+    borderColor: colors.BORDER_COLOR,
+    justifyContent: 'center',
+    alignItems: 'center',
+    maxHeight: 38,
+    maxWidth: 38
+  },
+  iconStyle: {
+    height: GD_ICON_SIZE.input_icon,
+    width: GD_ICON_SIZE.input_icon
+  },
+  searchText: { 
+    flex: 1,
+    fontSize: 16,
+    fontFamily: FONT_FAMILY.regular, 
+    marginLeft: 10, 
+    color: colors.WHITE 
+  },
+  regularText: { 
+    fontFamily: FONT_FAMILY.semibold, 
+    fontSize: 16,
+    color: '#1C1C1C',
+  },
+  smallText: { 
+    fontFamily: FONT_FAMILY.regular, 
+    fontSize: 12,
+    color: '#1C1C1C',
+  },
+});
+

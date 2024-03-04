@@ -1,28 +1,28 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, FlatList, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableWithoutFeedback, Alert, StatusBar, Platform, ScrollView, Modal, SafeAreaView, TextInput } from 'react-native';
-import style from '@/screens/Inventory/style';
-import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import { View, Text, FlatList, DeviceEventEmitter, Image, TouchableOpacity, StatusBar, Platform, Modal, SafeAreaView, TextInput } from 'react-native';
+import { APP_EVENTS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
 import moment from 'moment';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import Icon from '@/core/components/custom-icon/custom-icon';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
-import { AccountsList } from './components/accounts-list.component';// import { catch } from 'metro.config';
-import styles from './styles';
+import { AccountsList } from './components/accounts-list.component';
+import styles, { accountStyles as style } from './styles';
 import Routes from '@/navigation/routes';
 import _ from 'lodash';
+import Header from '@/components/Header';
+import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
-type Props = connectedProps;
+type Props = connectedProps & {
+  navigation: NavigationProp<ParamListBase>
+}
 type State = {
-  invalidAlertShown: Boolean,
   showLoader: Boolean,
-  dataLoadedTime: string,
   accounts: any[],
   selectedGroup: { name: string, uniqueName: string },
-  isSearchingModalVisible: Boolean,
+  isSearchingModalVisible: boolean,
   searchedText: string,
   selectedSearchOption: string,
   groupAccountNames: any[],
@@ -250,40 +250,33 @@ export class AccountScreen extends React.Component<Props, State> {
     return (
       <Modal visible={this.state.isSearchingModalVisible}
         onDismiss={() => { this.setState({ isSearchingModalVisible: false }) }}
-        onBackdropPress={() => { this.setState({ isSearchingModalVisible: false }) }}
-        onBackButtonPress={() => { this.setState({ isSearchingModalVisible: false }) }}
-        style={styles.modalMobileContainer}>
-
+        style={styles.modalMobileContainer}
+      >
         <SafeAreaView style={styles.modalViewContainer}>
-          <View style={styles.cancelButtonModal} >
-            <TouchableOpacity onPress={() => {
-              this.setState({ isSearchingModalVisible: false, searchedText: '' })
-            }}
-              style={styles.cancelButtonTextModal}>
-              <Icon name={'Backward-arrow'} size={18} color={'#000000'} />
-            </TouchableOpacity>
+          <Header backgroundColor='#084EAD'>
+            <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
             <TextInput
-              placeholderTextColor={'rgba(80,80,80,0.5)'}
               autoFocus={true}
               value={this.state.searchedText}
               placeholder={`Search ${this.state.selectedSearchOption == 'groups' ? 'Groups' : 'Accounts'}`}
+              placeholderTextColor={'#FFFFFF'}
               returnKeyType={"done"}
-              style={{ marginTop: 10, 
-                borderRadius: 5, 
-                width: "80%", 
-                marginHorizontal: 10, 
-                alignSelf: 'flex-start', 
-                fontSize: 15, 
-                color: '#1c1c1c',
-                paddingVertical:4,
-                fontFamily: 'AvenirLTStd-Book'
-              }}
+              style={style.searchText}
               onChangeText={(text) => {
                 this.setState({ searchedText: text });
                 this.searchGroupAccountsData(text);
               }}
             />
-          </View>
+            <TouchableOpacity
+              hitSlop={{right: 10, left: 10, top: 10, bottom: 10}}
+              onPress={() => {
+                this.setState({ isSearchingModalVisible: false, searchedText: '' })
+              }}
+            >
+              <AntDesign name={'close'} size={25} color={'#FFFFFF'} />
+            </TouchableOpacity>
+          </Header>
+
           <View style={styles.switchView} >
             <TouchableOpacity
               onPress={() => {
@@ -410,41 +403,27 @@ export class AccountScreen extends React.Component<Props, State> {
     return (
       <View style={style.container}>
         <StatusBar backgroundColor='#000080' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} />
-        <View
-          style={{
-            alignItems: 'center',
-            paddingHorizontal: 10,
-            marginTop: 15,
-          }}>
-          <View style={{
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: '#D9D9D9',
-            height: 40,
-            width: Dimensions.get('window').width * 0.9,
-            justifyContent: 'center'
-          }}>
-            <TouchableWithoutFeedback
-              style={{
-                alignItems: 'center',
-                flexDirection: 'row',
-                backgroundColor: 'red'
-              }}
-              onPress={() =>
-                this.setState({ isSearchingModalVisible: true }, () => {
-                  this.searchGroupAccountsData('');
-                })
-              }
-            >
-              <View style={{ marginLeft: 10, flexDirection: 'row', alignItems: 'center' }}>
-                <AntDesign name={'search1'} size={20} color={'#000'} />
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
-                  {this.state.selectedGroup.name}
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </View>
+        <Header 
+          header='Accounts' 
+          subHeader={this.state.selectedGroup.name}
+          backgroundColor='#084EAD' 
+          headerRightContent={
+            <>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10 }}
+                style={{ padding: 8 }}
+                onPress={() => {
+                  this.setState({ isSearchingModalVisible: true }, () => {
+                    this.searchGroupAccountsData('');
+                  })
+                }}
+              >
+                <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
+              </TouchableOpacity>
+            </>
+          }
+        />
         {this.state.showLoader
           ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Bars size={15} color={colors.PRIMARY_NORMAL} />
@@ -489,4 +468,12 @@ const mapDispatchToProps = () => {
 
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(AccountScreen);
+
+function Screen(props: any) {
+  const isFocused = useIsFocused();
+
+  return <AccountScreen {...props} isFocused={isFocused} />;
+}
+
+const Accounts = connect(mapStateToProps, mapDispatchToProps)(Screen);
+export default Accounts;

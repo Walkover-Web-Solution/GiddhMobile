@@ -57,22 +57,29 @@ import SMSUserConsent from '../../../SMSUserConsent';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
+import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
+import Toast from '@/components/Toast';
 
 interface SMSMessage {
   receivedOtpMessage: string
 }
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
-type Props = connectedProps;
+type Props = connectedProps
 
 const { width, height } = Dimensions.get('window');
 
-class PartiesTransactionScreen extends React.Component {
+type State = {
+  selectedItems: Array<any>
+  transactionsData: Array<any>
+}
+class PartiesTransactionScreen extends React.Component<Props, State> {
   private voucherBottomSheetRef: React.Ref<BottomSheet>;
   private pdfBottomSheetRef: React.Ref<BottomSheet>;
   private moreBottomSheetRef: React.Ref<BottomSheet>;
   private reminderBottomSheetRef: React.Ref<BottomSheet>;
   private payorBottomSheetRef: React.Ref<BottomSheet>;
   private bankBottomSheetRef: React.Ref<BottomSheet>;
+  private confirmationBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: Props) {
     super(props);
     this.voucherBottomSheetRef = createRef<BottomSheet>();
@@ -81,6 +88,7 @@ class PartiesTransactionScreen extends React.Component {
     this.reminderBottomSheetRef = createRef<BottomSheet>();
     this.payorBottomSheetRef = createRef<BottomSheet>();
     this.bankBottomSheetRef = createRef<BottomSheet>();
+    this.confirmationBottomSheetRef = createRef<BottomSheet>();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       showLoader: true,
@@ -121,7 +129,8 @@ class PartiesTransactionScreen extends React.Component {
       paymentProcessing: false,
       disableResendButton: false,
       openingBalance: {},
-      closingBalance: {}
+      closingBalance: {},
+      selectedItems: []
     };
 
   }
@@ -1388,6 +1397,34 @@ class PartiesTransactionScreen extends React.Component {
     )
   }
 
+  onPressDelete = (accountUniqueName: string, entryUniqueName: string) => {
+
+    this.setState({
+      selectedItems: [{ accountUniqueName, entryUniqueName }]
+    });
+
+    this.setBottomSheetVisible(this.confirmationBottomSheetRef, true);
+  }
+
+  async handleDelete () {
+    this.setBottomSheetVisible(this.confirmationBottomSheetRef, false);
+
+    const accountUniqueName = this.state.selectedItems[0]?.accountUniqueName;
+    const entryUniqueName = this.state.selectedItems[0]?.entryUniqueName;
+    
+    try {
+      const response = await CommonService.deleteEntry(accountUniqueName, entryUniqueName, this.props.companyVoucherVersion)
+      if (response?.status === 'success') {
+        this.setState((prevState) => ({ 
+          selectedItems: [],
+          transactionsData : prevState.transactionsData?.filter(item => item?.uniqueName !== entryUniqueName)
+        }))
+      }
+    } catch (error: any) {
+      Toast({ message: error?.data?.message });
+    }
+  }
+
   render() {
     if (this.state.showLoader) {
       return (
@@ -1812,12 +1849,14 @@ class PartiesTransactionScreen extends React.Component {
                         downloadModal={this.downloadModalVisible}
                         transactionType={item?.particular?.uniqueName == this.props.route?.params?.item?.uniqueName ? 'partyTransaction' : 'normalTransaction'}
                         phoneNo={this.props.route?.params?.item?.mobileNo}
+                        onPressDelete={this.onPressDelete}
                       />
                     )}
                     keyExtractor={(item) => item.uniqueName}
                     onEndReachedThreshold={0.2}
                     onEndReached={() => this.handleRefresh()}
                     ListFooterComponent={this._renderFooter}
+                    ItemSeparatorComponent={() => <View style={style?.divider}/>}
                   />
                 )}
               </>
@@ -1846,6 +1885,13 @@ class PartiesTransactionScreen extends React.Component {
             setBottomSheetVisible={this.setBottomSheetVisible}
             onWhatsApp={this.onWhatsApp}
             onCall={this.onCall}
+          />
+          <ConfirmationBottomSheet
+            bottomSheetRef={this.confirmationBottomSheetRef}
+            message={ConfirmationMessages.DELETE_ENTRY.message}
+            description={ConfirmationMessages.DELETE_ENTRY.description}
+            onConfirm={() => this.handleDelete()}
+            onReject={() => this.setBottomSheetVisible(this.confirmationBottomSheetRef, false)}
           />
           {this.bankBottomSheet()}
           {this.payorBottomSheet()}
@@ -2004,6 +2050,7 @@ class PartiesTransactionScreen extends React.Component {
 const mapStateToProps = (state) => {
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    companyVoucherVersion: state.commonReducer.companyVoucherVersion
   };
 };
 

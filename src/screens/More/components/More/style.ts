@@ -13,6 +13,12 @@ export default StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 80
   },
+  headerText: {
+    justifyContent: 'center',
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 16
+  },
   commonStyle: {
     marginBottom: 15
   },

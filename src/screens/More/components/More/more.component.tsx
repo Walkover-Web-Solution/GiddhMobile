@@ -216,6 +216,16 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     } else {
       return (
         <View style={{ flex: 1, backgroundColor: 'white' }} >
+          <View style={{flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity
+              style={{ padding: 20 }}
+              onPress={() => {
+                this.props.navigation.goBack();
+              }}>
+              <Icon name={'Backward-arrow'} size={18} color={'#1C1C1C'} />
+            </TouchableOpacity>
+            <Text style={style.headerText}>More</Text>
+          </View>
           {activeCompanyName && activeCompanyName.length > 1
             ? (
               <TouchableOpacity
