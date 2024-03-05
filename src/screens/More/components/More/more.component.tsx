@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import WebView from 'react-native-webview';
@@ -361,7 +361,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               flexDirection: "row",
               alignItems: "center", marginTop: 10
             }}>
-              <Ionicons name="ios-power" size={26} color={'#5773FF'} />
+              <Feather name="power" size={26} color={'#5773FF'} />
               <Text style={{ fontFamily: 'AvenirLTStd-Black', marginLeft: 20 }}>Logout</Text>
             </View>
             <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 41.5 }}> {this.state.activeUserEmail}  </Text>

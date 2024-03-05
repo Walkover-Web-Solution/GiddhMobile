@@ -41,7 +41,7 @@ type Props = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchT
 
 const _StatusBar = ({ statusBar }: { statusBar: string }) => {
     const isFocused = useIsFocused();
-    return isFocused ? <StatusBar backgroundColor={statusBar} barStyle="light-content" /> : null
+    return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/> : null
 }
 
 const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion, route }) => {
