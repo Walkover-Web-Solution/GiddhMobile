@@ -29,6 +29,7 @@
     "@logrocket/react-native": "^1.11.1",
     "@msg91comm/react-native-hello-sdk": "^2.0.0",
     "@msg91comm/react-native-sendotp": "^2.0.1",
+    "@notifee/react-native": "^7.8.2",
     "@react-native-community/art": "^1.2.0",
     "@react-native-community/async-storage": "^1.12.1",
     "@react-native-community/checkbox": "^0.5.14",

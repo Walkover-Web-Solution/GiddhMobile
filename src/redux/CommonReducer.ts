@@ -10,7 +10,8 @@ const initialState = {
   isFetchingCompanyList: false,
   isUnauth: false,
   companyDetails: {},
-  companyVoucherVersion: 2
+  companyVoucherVersion: 2,
+  selectedVouchersForBottomTabs: ['Sales', 'Purchase']
 };
 
 export default (state = initialState, action: Action) => {
@@ -67,6 +68,11 @@ export default (state = initialState, action: Action) => {
         ...state,
         companyVoucherVersion: action.payload,
       };
+    case ActionConstants.SET_VOUCHER_FOR_BOTTOM_TABS:
+      return {
+        ...state,
+        selectedVouchersForBottomTabs: action.payload
+      }
     default:
       return state;
   }

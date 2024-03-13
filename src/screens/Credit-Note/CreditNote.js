@@ -249,7 +249,7 @@ export class CreditNote extends React.Component<Props> {
 
   renderHeader() {
     return (
-      <View style={[style.header, { paddingTop: 10 }]}>
+      <View style={style.header}>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <TouchableOpacity
             style={{ padding: 10 }}
@@ -314,13 +314,13 @@ export class CreditNote extends React.Component<Props> {
     return (
       <View
         onLayout={this.onLayout}
-        style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center' }}
+        style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 10 }}
         onPress={() => { }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {/* <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}> */}
-          <Icon name={'Profile'} color={'#EBF4FA'} style={{ margin: 16 }} size={16} />
+          <Icon name={'Profile'} color={'#3497FD'} style={{ margin: 16 }} size={16} />
           <TextInput
-            placeholderTextColor={'white'}
+             placeholderTextColor={'#808080'}
             placeholder={'Search Company Name'}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
@@ -332,10 +332,10 @@ export class CreditNote extends React.Component<Props> {
             style={style.searchTextInputStyle}
           />
           {/* </View> */}
-          <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingParty} />
+          <ActivityIndicator color={'#5773FF'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{ color: 'white', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+          <Text style={{ color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
         </TouchableOpacity>
       </View>
     );
@@ -490,7 +490,7 @@ export class CreditNote extends React.Component<Props> {
       //         isSearchingParty: false,
       //       })
       //     }>
-      <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
+      <View style={[style.searchResultContainer, { top: height * 0.15 }]}>
        
         <FlatList
           nestedScrollEnabled={true}
@@ -522,7 +522,7 @@ export class CreditNote extends React.Component<Props> {
                   this.setState({ isSearchingParty: false, searchResults: [] })
                 }
               }}>
-              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}</Text>
+              <Text style={style.searchItemText}>{item.name ? item.name : "Result Not found"}</Text>
             </TouchableOpacity>
           )}
         />
@@ -978,7 +978,7 @@ export class CreditNote extends React.Component<Props> {
   renderAmount() {
     return (
       <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
-        <Text style={style.invoiceAmountText}>{this.state.currencySymbol + formatAmount(this.getTotalAmount())}</Text>
+        <Text style={style.invoiceAmountText}>{`${this.state.currencySymbol} ${formatAmount(this.getTotalAmount())}`}</Text>
       </View>
     );
   }

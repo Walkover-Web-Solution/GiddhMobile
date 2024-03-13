@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { FONT_FAMILY, GD_FONT_SIZE } from '../../utils/constants';
 export default StyleSheet.create({
   container: {
@@ -7,14 +7,16 @@ export default StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#FC8345',
+    height: Dimensions.get('window').height * 0.08, 
   },
   headerConatiner: {
-    backgroundColor: '#FC8345'
+    // backgroundColor: '#FC8345'
   },
   invoiceTypeTextRight: {
     fontFamily: FONT_FAMILY.regular,
-    fontSize: 12,
+    fontSize: 16,
     color: 'white'
   },
 
@@ -28,7 +30,7 @@ export default StyleSheet.create({
   searchResultContainer: {
     maxHeight: 300,
     width: '80%',
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     position: 'absolute',
     alignSelf: 'center',
     shadowColor: 'grey',
@@ -36,11 +38,18 @@ export default StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    flexDirection:'row'
-    //borderRadius: 10
+    flexDirection:'row',
+    borderRadius: 10,
+    overflow: 'hidden'
+  },
+  searchItemText: { 
+    color: '#1C1C1C', 
+    paddingVertical: 10,
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 14, 
   },
   searchTextInputStyle: {
-    color: 'white',
+    color: '#1C1C1C',
     position: 'absolute',
     left: 40,
     fontFamily: FONT_FAMILY.bold,
@@ -51,7 +60,7 @@ export default StyleSheet.create({
 
   invoiceAmountText: {
     fontFamily: FONT_FAMILY.bold,
-    color: 'white',
+    color: '#1C1C1C',
     fontSize: 18
   },
   senderAddress: {

@@ -24,8 +24,12 @@ export default StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: '5%'
   },
+  wrapper: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
   periodText: { fontFamily: 'AvenirLTStd-Book', fontSize: 16 },
-  periodDot: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#5773FF' },
+  periodDot: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#5773FF', marginLeft: 16 },
   customHeading: { fontSize: 18, fontFamily: 'AvenirLTStd-Book', marginTop: '5%' },
   customDatePicker: {
     height: 40,

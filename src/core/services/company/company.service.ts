@@ -50,4 +50,13 @@ export class CompanyService {
         return _err.data;
       });;
   }
+
+  /**
+   * Get Array of Financial Years
+   */
+    static getFinancialYear () {
+      return httpInstance.get(companyUrls.getFinancialYear).then((res) => {
+        return res.data;
+      });
+    }
 }

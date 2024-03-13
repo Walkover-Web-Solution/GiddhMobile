@@ -17,7 +17,6 @@ export default StyleSheet.create({
   },
 
   rowFront: {
-    backgroundColor: colors.BACKGROUND,
     width: '100%',
     paddingHorizontal: 10
   },

@@ -5,11 +5,12 @@ import colors, { baseColor } from '@/utils/colors';
 
 export default StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1, 
+    backgroundColor: '#FFFFFF'
   },
   flatList: {
-    marginBottom: 2,
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   listHeading: {
     color: colors.INPUT_COLOR,
@@ -50,7 +51,7 @@ export default StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   transactionTypeBanner: {
     backgroundColor: colors.TRANSACTION_PURCHASE,
@@ -84,7 +85,8 @@ export default StyleSheet.create({
   },
   iconPlacingStyle: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginRight: -10
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
@@ -96,5 +98,13 @@ export default StyleSheet.create({
     borderBottomColor: baseColor.GRAY_LIGHT,
     opacity: 0.2,
     borderBottomWidth: 1
+  },
+  deleteButton: {
+    backgroundColor: '#FFDFE0', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    borderTopLeftRadius: 50,
+    borderBottomLeftRadius: 50
   }
 });

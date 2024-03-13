@@ -1,6 +1,6 @@
 import { StyleSheet, Text } from 'react-native';
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
-import colors from '@/utils/colors';
+import { FONT_FAMILY } from '@/utils/constants';
 
 interface Props {
   stickyDayRef: React.Ref<any>,
@@ -30,16 +30,19 @@ export default forwardRef(StickyDay);
 
 const styles = StyleSheet.create({
   dayText: { 
+    fontFamily: FONT_FAMILY.regular,
     textAlign: "center", 
     borderRadius: 15, 
-    borderWidth: 0.3, 
+    borderWidth: 1, 
     paddingHorizontal: 5, 
-    paddingVertical: 3, 
-    borderColor: '#8E8E8E', 
+    paddingBottom: 2, 
+    paddingTop: 5,
+    borderColor: '#EDEDED', 
     width: "35%", 
-    backgroundColor: colors.BACKGROUND, 
+    backgroundColor: '#FFFFFF', 
     marginHorizontal: "32.5%", 
     position: 'absolute', 
+    top: 5,
     zIndex: 1
   }
 })

@@ -67,3 +67,10 @@ export function isAuth() {
     type: Actions.IS_AUTHORSIED
   };
 }
+
+export function setVoucherForBottomTabs(payload: Array<string>) {
+  return {
+    type: Actions.SET_VOUCHER_FOR_BOTTOM_TABS,
+    payload: payload
+  };
+}

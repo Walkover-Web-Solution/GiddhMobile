@@ -1,28 +1,30 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking, Platform, Dimensions, ToastAndroid } from 'react-native';
 import styles from '@/screens/Transaction/components/styles';
 import colors from '@/utils/colors';
-import { GdSVGIcons } from '@/utils/icons-pack';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import AsyncStorage from '@react-native-community/async-storage';
 import { STORAGE_KEYS } from '@/utils/constants';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import getSymbolFromCurrency from 'currency-symbol-map';
-import { Bars } from 'react-native-loader';
-import color from '@/utils/colors';
 import ShareModal from '../../Parties/components/sharingModal';
 import DownloadModal from '../../Parties/components/downloadingModal';
 import moment from 'moment';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import TOAST from 'react-native-root-toast';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { formatAmount } from '@/utils/helper';
+import { Swipeable } from 'react-native-gesture-handler';
 
-class TransactionList extends React.Component {
-
+type Props = {
+  item: any
+  onPressDelete: (accountUniqueName: string, entryUniqueName: string) => void
+}
+class TransactionList extends React.Component<Props> {
+  private swipeableRef: React.Ref<Swipeable>;
   constructor(props: any) {
     super(props);
+    this.swipeableRef = createRef<Swipeable>();
     this.state = {
       DownloadModal: false,
       iosShare: false,
@@ -294,129 +296,155 @@ class TransactionList extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        {this.props.showDate == false ? <View style={[styles.seperator, { marginBottom: 10, marginTop: -5 }]} /> : null}
-        {this.props.showDate &&
-          <View style={{ flexDirection: "row", flex: 1, alignItems: "center"}}>
-            <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
-            <Text style={{ textAlign: "center", borderRadius: 15, borderWidth: 0.3, paddingHorizontal: 5, paddingVertical: 3, borderColor: '#8E8E8E', width: "35%" }}>{moment(this.props.item.entryDate, 'DD-MM-YYYY').format('DD MMM YYYY')}</Text>
-            <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
-          </View>}
-        <View style={styles.flatList}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", flex: 1 }}>
-            <Text numberOfLines={1} style={[styles.listHeading, { width: this.props.transactionType != 'partyTransaction' ? "60%" : "100%" }]}>
-              {this.props.transactionType == 'partyTransaction'
-                ? this.max.particular.name
-                : this.props.item.particular.name}</Text>
-            {this.props.transactionType != 'partyTransaction' && <Text numberOfLines={1} style={[styles.balStyle, , { width: "40%", textAlign: "right" }]}>
-              {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
-              {this.props.item.creditAmount
-                ? formatAmount(this.props.item.creditAmount)
-                : formatAmount(this.props.item.debitAmount)}
-            </Text>}
-          </View>
-          <View style={styles.receiptData}>
-            <View style={styles.aboutSales}>
-              <View style={styles.leftcontent}>
-                <View style={this.bannerColorStyle(this.props.item.voucherName)}>
-                  <Text style={styles.bannerText}>{this.props.item.voucherName} </Text>
-                </View>
-                <Text style={styles.invoiceNumber}> {this.props.item.voucherNo == null ? "" : "#" + this.props.item.voucherNo}</Text>
-              </View>
-              {/* right content */}
-              {this.props.showDate == null || this.props.showDate == undefined ?
-                <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
-                : <View style={[styles.iconPlacingStyle, { alignItems: "flex-end", }]}>
-                  {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
-                    <TouchableOpacity
-                      delayPressIn={0}
-                      style={{ padding: 5, paddingRight: 5, paddingVertical: 10, }}
-                      onPress={() => {
-                        this.setState({ iosShare: true })
-                        this.shareFile();
-                      }}>
-                        <FontAwesome name="send" size={14} color={'#1C1C1C'} />
-                      {/* <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} /> */}
-                    </TouchableOpacity>
-                  )}
-                  {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
-                    <TouchableOpacity
-                      delayPressIn={0}
-                      style={{ padding: 5, paddingRight: 0, paddingLeft: 10, paddingVertical: 10, }}
-                      onPress={async () => {
-                        await Platform.OS != "ios" ? this.props.downloadModal(true) : null
-                        await this.downloadFile();
-                      }}>
-                      <AntDesign name="download" size={17} color={'#1C1C1C'} />
-                    </TouchableOpacity>
-                  )}
-                </View>}
-            </View>
-          </View>
-          {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
-          <View style={[styles.balData, { marginTop: this.props.item.otherTransactions[0].inventory ? 0 : 5 }]}>
-            {this.props.transactionType == 'partyTransaction' && <View style={styles.balanceText}>
-              <Text style={styles.balStyle}>Total: </Text>
-              <Text style={styles.balStyle}>
+      <Swipeable
+        ref={this.swipeableRef}
+        renderRightActions={(progress, dragX) => {
+          const trans = dragX.interpolate({
+            inputRange: [-200, -80, 0],
+            outputRange: [10, 0, 90],
+          });
+          return (
+            <TouchableOpacity
+              style={[styles.deleteButton, { transform: [{ translateX: trans }] }]}
+              onPress={() => {
+                const accountUniqueName = this.props.item.particular?.uniqueName;
+                const entryUniqueName = this.props.item.uniqueName;
+
+                this?.swipeableRef?.current?.close();
+                this.props.onPressDelete(accountUniqueName, entryUniqueName)
+              }}
+            >
+              <Feather name="trash-2" size={17} color={'#1C1C1C'} />
+            </TouchableOpacity>
+          )
+        }}
+      >
+        <View style={styles.container}>
+          {this.props.showDate == false ? <View style={[styles.seperator, { marginBottom: 10, marginTop: -5 }]} /> : null}
+          {this.props.showDate &&
+            <View style={{ flexDirection: "row", flex: 1, alignItems: "center"}}>
+              <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
+              <Text style={{ textAlign: "center", borderRadius: 15, borderWidth: 0.3, paddingHorizontal: 5, paddingVertical: 3, borderColor: '#8E8E8E', width: "35%" }}>{moment(this.props.item.entryDate, 'DD-MM-YYYY').format('DD MMM YYYY')}</Text>
+              <View style={{ borderBottomColor: '#8E8E8E', borderBottomWidth: 0.6, opacity: 0.5, width: "32.5%" }} />
+            </View>}
+          <View style={styles.flatList}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", flex: 1 }}>
+              <Text numberOfLines={1} style={[styles.listHeading, { width: this.props.transactionType != 'partyTransaction' ? "60%" : "100%" }]}>
+                {this.props.transactionType == 'partyTransaction'
+                  ? this.max.particular.name
+                  : this.props.item.particular.name}</Text>
+              {this.props.transactionType != 'partyTransaction' && <Text numberOfLines={1} style={[styles.balStyle, , { width: "40%", textAlign: "right" }]}>
                 {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
                 {this.props.item.creditAmount
                   ? formatAmount(this.props.item.creditAmount)
                   : formatAmount(this.props.item.debitAmount)}
-              </Text>
-            </View>}
-            <View style={styles.iconPlacingStyle}>
-              {this.props.transactionType == 'partyTransaction' &&
-                this.props.item.voucherNo && (
-                  <TouchableOpacity
-                    delayPressIn={0}
-                    style={{ padding: 5}}
-                    onPress={() => {
-                      this.setState({ iosShare: true })
-                      this.shareFile();
-                    }}>
-                    <FontAwesome name="send" size={14} color={'#1C1C1C'} />
-                    {/* <GdSVGIcons.send style={styles.iconStyle} width={19} height={18} /> */}
-                  </TouchableOpacity>
-                )}
-              {this.props.transactionType == 'partyTransaction' &&
-                this.props.item.voucherNo && (
-                  <TouchableOpacity
-                    delayPressIn={0}
-                    style={{ padding: 5, marginLeft: 4}}
-                    onPress={async () => {
-                      await Platform.OS != "ios" ? this.props.downloadModal(true) : null
-                      await this.downloadFile();
-                    }}>
-                    <AntDesign name="download" size={17} color={'#1C1C1C'} />
-                  </TouchableOpacity>
-                )}
-
-              <View style={{ width: 5 }} />
-              {this.props.transactionType == 'partyTransaction' && this.props.item.voucherNo && this.props.phoneNo ? (
-                <TouchableOpacity
-                  delayPressIn={0}
-                  style={{ padding: 3, marginLeft: 0}}
-                  // onPress={() => console.log(this.props.phoneNo ? this.props.phoneNo.replace(/\D/g, '') : 'no phono')}
-                  onPress={() => {
-                    this.permissonWhatsapp();
-                  }}>
-                  <MaterialCommunityIcons name="whatsapp" size={20} color={'#075e54'} />
-                </TouchableOpacity>
-              ) : null}
-              {/* <TouchableOpacity delayPressIn={0} onPress={() => console.log(this.props.item.otherTransactions)}>
-              <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
-            </TouchableOpacity> */}
-              {/* <TouchableOpacity
-              style={{height: 30, width: 40, backgroundColor: 'pink'}}
-              onPress={() => console.log(this.props.item)}></TouchableOpacity> */}
+              </Text>}
             </View>
-          </View>
+            <View style={styles.receiptData}>
+              <View style={styles.aboutSales}>
+                <View style={styles.leftcontent}>
+                  <View style={this.bannerColorStyle(this.props.item.voucherName)}>
+                    <Text style={styles.bannerText}>{this.props.item.voucherName} </Text>
+                  </View>
+                  <Text style={styles.invoiceNumber}> {this.props.item.voucherNo == null ? "" : "#" + this.props.item.voucherNo}</Text>
+                </View>
+                {/* right content */}
+                {this.props.showDate == null || this.props.showDate == undefined ?
+                  <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
+                  : <View style={[styles.iconPlacingStyle, { alignItems: "flex-end", }]}>
+                    {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
+                      <TouchableOpacity
+                        delayPressIn={0}
+                        style={{ padding: 5, paddingRight: 5, paddingVertical: 10, }}
+                        onPress={() => {
+                          this.setState({ iosShare: true })
+                          this.shareFile();
+                        }}>
+                          <Feather name="send" size={17} color={'#1C1C1C'} />
+                        {/* <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} /> */}
+                      </TouchableOpacity>
+                    )}
+                    {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
+                      <TouchableOpacity
+                        delayPressIn={0}
+                        style={{ padding: 5, paddingRight: 0, paddingLeft: 10, paddingVertical: 10, }}
+                        onPress={async () => {
+                          await Platform.OS != "ios" ? this.props.downloadModal(true) : null
+                          await this.downloadFile();
+                        }}>
+                        <Feather name="download" size={17} color={'#1C1C1C'} />
+                      </TouchableOpacity>
+                    )}
+                  </View>}
+              </View>
+            </View>
+            {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
+            <View style={[styles.balData, { marginTop: this.props.item.otherTransactions[0].inventory ? 0 : 5 }]}>
+              {this.props.transactionType == 'partyTransaction' && <View style={styles.balanceText}>
+                <Text style={styles.balStyle}>Total: </Text>
+                <Text style={styles.balStyle}>
+                  {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
+                  {this.props.item.creditAmount
+                    ? formatAmount(this.props.item.creditAmount)
+                    : formatAmount(this.props.item.debitAmount)}
+                </Text>
+              </View>}
+              <View style={styles.iconPlacingStyle}>
+                {this.props.transactionType == 'partyTransaction' &&
+                  this.props.item.voucherNo && (
+                    <TouchableOpacity
+                      delayPressIn={0}
+                      hitSlop={{ right: 5, left: 5, top: 5, bottom: 5}}
+                      style={{paddingHorizontal: 8}}
+                      onPress={() => {
+                        this.setState({ iosShare: true })
+                        this.shareFile();
+                      }}>
+                      <Feather name="send" size={17} color={'#1C1C1C'} />
+                      {/* <GdSVGIcons.send style={styles.iconStyle} width={19} height={18} /> */}
+                    </TouchableOpacity>
+                  )}
+                {this.props.transactionType == 'partyTransaction' &&
+                  this.props.item.voucherNo && (
+                    <TouchableOpacity
+                      delayPressIn={0}
+                      hitSlop={{ right: 5, left: 5, top: 5, bottom: 5}}
+                      style={{paddingHorizontal: 8}}
+                      onPress={async () => {
+                        await Platform.OS != "ios" ? this.props.downloadModal(true) : null
+                        await this.downloadFile();
+                      }}>
+                      <Feather name="download" size={17} color={'#1C1C1C'} />
+                    </TouchableOpacity>
+                  )}
 
-          {this.props.transactionType == 'partyTransaction' && <View style={styles.seperator} />}
+                <View style={{ width: 5 }} />
+                {this.props.transactionType == 'partyTransaction' && this.props.item.voucherNo && this.props.phoneNo ? (
+                  <TouchableOpacity
+                    delayPressIn={0}
+                    style={{ padding: 3, marginLeft: 0}}
+                    // onPress={() => console.log(this.props.phoneNo ? this.props.phoneNo.replace(/\D/g, '') : 'no phono')}
+                    onPress={() => {
+                      this.permissonWhatsapp();
+                    }}>
+                    <MaterialCommunityIcons name="whatsapp" size={20} color={'#075e54'} />
+                  </TouchableOpacity>
+                ) : null}
+                {/* <TouchableOpacity delayPressIn={0} onPress={() => console.log(this.props.item.otherTransactions)}>
+                <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
+              </TouchableOpacity> */}
+                {/* <TouchableOpacity
+                style={{height: 30, width: 40, backgroundColor: 'pink'}}
+                onPress={() => console.log(this.props.item)}></TouchableOpacity> */}
+              </View>
+            </View>
+
+            {/* {this.props.transactionType == 'partyTransaction' && <View style={styles.seperator} />} */}
+          </View>
+          <DownloadModal modalVisible={this.state.DownloadModal} />
+          <ShareModal modalVisible={this.state.iosShare} />
         </View>
-        <DownloadModal modalVisible={this.state.DownloadModal} />
-        <ShareModal modalVisible={this.state.iosShare} />
-      </View>
+      </Swipeable>
     );
   }
 
