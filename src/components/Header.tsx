@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from '@/core/components/custom-icon/custom-icon'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { useNavigation } from '@react-navigation/native'
@@ -9,74 +9,80 @@ type HeaderWithoutChildren = {
     header: string
     subHeader?: string
     backgroundColor: string
+    statusBarColor: string
     isBackButtonVisible?: boolean
     headerRightContent?: React.JSX.Element
     children?: never
 } 
 
 type HeaderWithChildren =  {
-    header?: never
+    header?: string | never
     subHeader?: never
     backgroundColor: string
+    statusBarColor: string
     isBackButtonVisible?: never
     headerRightContent?: never
-    children: React.ReactNode
+    children: React.ReactNode | boolean
 }
 
 type Props = HeaderWithoutChildren | HeaderWithChildren
     
-const Header : React.FC<Props> = ({ header, subHeader, backgroundColor = '#FFFFFF', isBackButtonVisible = false, headerRightContent, children }) => {
+const Header : React.FC<Props> = ({ header, subHeader, backgroundColor = '#FFFFFF', statusBarColor, isBackButtonVisible = false, headerRightContent, children }) => {
     const navigation = useNavigation();
 
     return (
-        <View style={[styles.mainContainer, { backgroundColor }]}>
-            {   children ??
-                <>
-                    <View>
-                        <View style={styles.screenNameContainer}>
-                            {isBackButtonVisible &&
-                                <TouchableOpacity
-                                    hitSlop={{ right: 20, left: 20, top: 10, bottom: 10 }}
-                                    style={styles.backButton}
-                                    onPress={() => navigation.goBack()}
+        <>
+            <StatusBar backgroundColor={statusBarColor} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/>
+            <View style={[styles.mainContainer, { backgroundColor }]}>
+                {   children ??
+                    <>
+                        <View>
+                            <View style={styles.screenNameContainer}>
+                                {isBackButtonVisible &&
+                                    <TouchableOpacity
+                                        hitSlop={{ right: 20, left: 20, top: 10, bottom: 10 }}
+                                        style={styles.backButton}
+                                        onPress={() => navigation.goBack()}
+                                    >
+                                        <Icon name={'Backward-arrow'} color="#fff" size={18} />
+                                    </TouchableOpacity>
+                                }
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.text}
                                 >
-                                    <Icon name={'Backward-arrow'} color="#fff" size={18} />
-                                </TouchableOpacity>
+                                    {header}
+                                </Text>
+                            </View>
+                            { !!subHeader &&
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.smallText}
+                                >
+                                    {subHeader}
+                                </Text>
                             }
-                            <Text
-                                numberOfLines={2}
-                                style={styles.text}
-                            >
-                                {header}
-                            </Text>
                         </View>
-                        { !!subHeader &&
-                            <Text
-                                numberOfLines={1}
-                                style={styles.smallText}
-                            >
-                                {subHeader}
-                            </Text>
-                        }
-                    </View>
 
-                    { !isBackButtonVisible &&
-                        <View style={styles.rightContainer}>
-                            {  headerRightContent && headerRightContent }
-                            <TouchableOpacity
-                                style={styles.rightButton}
-                                onPress={async () => {
-                                    navigation.navigate('Settings')
-                                }}
-                            >
-                                <Entypo name="dots-three-vertical" size={20} color={'#FFFFFF'} />
-                            </TouchableOpacity>
-                        </View>
-                    }
-                </>
-            }
 
-        </View>
+                            <View style={[styles.rightContainer, isBackButtonVisible && { marginRight: 0 }]}>
+                                {  headerRightContent && headerRightContent }
+                                { !isBackButtonVisible &&
+                                    <TouchableOpacity
+                                        style={styles.rightButton}
+                                        onPress={async () => {
+                                            navigation.navigate('Settings')
+                                        }}
+                                    >
+                                        <Entypo name="dots-three-vertical" size={20} color={'#FFFFFF'} />
+                                    </TouchableOpacity>
+                                }
+                            </View>
+                    </>
+                }
+
+            </View>
+        </>
     )
 }
 

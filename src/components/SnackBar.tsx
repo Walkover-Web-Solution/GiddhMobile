@@ -93,7 +93,7 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         borderRadius: 8,
     },
     overlay: {
-        paddingVertical: 14,
+        // paddingVertical: 14,
         paddingHorizontal: 10,
         alignItems: 'center',
         minHeight: 50,
