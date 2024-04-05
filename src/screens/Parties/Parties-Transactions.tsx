@@ -59,6 +59,7 @@ import { formatAmount } from '@/utils/helper';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import Toast from '@/components/Toast';
+import Notifee, { AndroidNotificationSetting } from '@notifee/react-native';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -1128,7 +1129,19 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     }
   }
 
-  scheduleNotification = () => {
+  scheduleNotification = async() => {
+    if (Platform.OS == "android" && Platform.Version >= 33) {
+      const settings = await Notifee.getNotificationSettings();
+      if (settings.android.alarm == AndroidNotificationSetting.DISABLED) {
+        Alert.alert("No permission to set Alarm/Reminder", "Please provide permission to set Alarm/Reminder",
+          [{
+            text: "OK", onPress: () => {
+              Notifee.openAlarmPermissionSettings()
+            }
+          }, { text: "Cancel", onPress: () => { } }])
+        return;
+      }
+    }
     const today = new Date(Date.now());
     const selected: Date = this.state.dateTime;
     if (today.getDate() == selected.getDate() && today.getMonth() == selected.getMonth() && today.getFullYear() == selected.getFullYear() && this.state.dateTime.getTime() <= new Date(Date.now()).getTime()) {

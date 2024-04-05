@@ -48,7 +48,7 @@ export class CommonService {
   }
 
   /**
-   * Get All Vouchers
+   * Delete Voucher Voucher
    * @returns {Promise<BaseResponse<UserStateDetails[]>>}
    */
   static async deleteVoucher(accountUniqueName: string, companyVoucherVersion: number, payload: { uniqueName: string, voucherType: string }) {
@@ -59,6 +59,38 @@ export class CommonService {
         {
           data: payload
         }
+    )
+    .then((res) => {
+      return res.data;
+    })
+  }
+
+  /**
+   * Get Voucher Voucher
+   * @returns {Promise<BaseResponse<UserStateDetails[]>>}
+   */
+  static async getVoucher(accountUniqueName: string, companyVoucherVersion: number, payload: { number: string, uniqueName: string, type: string }) {
+    return httpInstance.post(
+      commonUrls.getVoucher
+        .replace(':accountName', accountUniqueName)
+        .replace(':voucherVersion', String(companyVoucherVersion)),
+        payload
+    )
+    .then((res) => {
+      return res.data;
+    })
+  }
+  
+  /**
+   * Update Voucher Voucher
+   * @returns {Promise<BaseResponse<UserStateDetails[]>>}
+   */
+  static async updateVoucher(accountUniqueName: string, companyVoucherVersion: number, payload: any) {
+    return httpInstance.put(
+      commonUrls.getVoucher
+        .replace(':accountName', accountUniqueName)
+        .replace(':voucherVersion', String(companyVoucherVersion)),
+        payload
     )
     .then((res) => {
       return res.data;

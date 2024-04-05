@@ -2,11 +2,13 @@ import { capitalizeName, formatAmount } from '@/utils/helper'
 import useCustomTheme, { ThemeProps } from '@/utils/theme'
 import moment from 'moment'
 import React, { memo, useRef } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Feather from 'react-native-vector-icons/Feather'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { Swipeable } from 'react-native-gesture-handler'
 import DateChipSeparator from './DateChipSeparator'
+import { useNavigation } from '@react-navigation/native'
+import { APP_EVENTS } from '@/utils/constants'
 
 type Props = {
     name: string
@@ -22,6 +24,7 @@ type Props = {
     date: string | null
     voucherName : string
     showDivider: boolean
+    isSalesCashInvoice: boolean
     shareFile: (uniqueName: string, voucherNumber: string) => void
     downloadFile: (uniqueName: string, voucherNumber: string) => void
     onPressDelete: (accountUniqueName: string, voucherUniqueName: string, voucherType: string) => void
@@ -41,11 +44,13 @@ const _RenderVoucher : React.FC<Props> = ({
     date, 
     voucherName, 
     showDivider, 
+    isSalesCashInvoice,
     shareFile, 
     downloadFile,
     onPressDelete 
 }) => {
     const swipeableRef = useRef<Swipeable>(null);
+    const navigation = useNavigation();
     const { theme, styles } = useCustomTheme(getVoucherStyles)
     const overDueDays : number = moment().clone().startOf('day').diff(moment(dueDate, 'DD MM YYYY'), 'days')
     const isOverDue : boolean =(balanceStatus !== 'PAID' && balanceStatus !== 'HOLD' && balanceStatus !== 'CANCEL') && (!!dueDate && overDueDays >= 0)
@@ -62,6 +67,7 @@ const _RenderVoucher : React.FC<Props> = ({
                     });
                     return (
                         <TouchableOpacity
+                            activeOpacity={0.8}
                             style={[styles.deleteButton, { transform: [{ translateX: trans }] }]}
                             onPress={() => {
                                 swipeableRef?.current?.close();
@@ -70,6 +76,38 @@ const _RenderVoucher : React.FC<Props> = ({
 
                         >
                             <Feather name="trash-2" size={17} color={'#1C1C1C'} />
+                        </TouchableOpacity>
+                    )
+                }}
+                renderLeftActions={(progress, dragX) => {
+                    const trans = dragX.interpolate({
+                        inputRange: [0, 80, 200],
+                        outputRange: [-90, 0, -10],
+                    });
+                    return (
+                        <TouchableOpacity
+                            activeOpacity={0.8}
+                            style={[styles.editButton, { transform: [{ translateX: trans }] }]}
+                            onPress={() => {
+                                swipeableRef?.current?.close();
+                                if(voucherName.toLowerCase() !== 'sales'){
+                                    DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Currently we only support updating Sales Voucher.', open: null })
+                                    return;
+                                }
+
+                                const params = {
+                                    accountUniqueName: isSalesCashInvoice ? name : accountUniqueName, 
+                                    voucherUniqueName,
+                                    voucherNumber,
+                                    voucherName: voucherName.toLowerCase(),
+                                    isSalesCashInvoice,
+                                    refetchDataOnNavigation: Math.floor(Math.random() * 1000).toString().padStart(3, '0') // A random string to trigger data refresh on navigating update voucher screen
+                                }
+                                navigation.navigate('VoucherUpdateStack', { screen: 'VoucherUpdateScreen', params })
+                            }}
+
+                        >
+                            <Feather name="edit-3" size={17} color={'#1C1C1C'} />
                         </TouchableOpacity>
                     )
                 }}
@@ -207,6 +245,14 @@ const getVoucherStyles = (theme: ThemeProps) => StyleSheet.create({
         paddingHorizontal: 28,
         borderTopLeftRadius: 50,
         borderBottomLeftRadius: 50
+    },
+    editButton: {
+        backgroundColor: theme.colors.solids.green.light, 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        paddingHorizontal: 28,
+        borderTopRightRadius: 50,
+        borderBottomRightRadius: 50
     }
 })
 

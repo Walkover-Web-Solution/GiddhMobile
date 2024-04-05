@@ -704,6 +704,7 @@ class AddItemScreen extends React.Component<Props> {
         <TouchableOpacity
           onPress={() => {
             this.props.navigation.goBack();
+            console.log('--------- THIS IS THE ITEM ----------', JSON.stringify(this.state.addedItems))
             DeviceEventEmitter.emit(APP_EVENTS.updatedItemInInvoice, this.state.addedItems);
           }}
           style={{
