@@ -20,7 +20,7 @@ import Share from 'react-native-share'
 import ShareModal from '../Parties/components/sharingModal'
 import { Image } from 'react-native'
 import DateFilter from './components/DateFilter'
-import RenderVoucher from './components/VoucherCard'
+import VoucherCard from './components/VoucherCard'
 import Toast from '@/components/Toast'
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet'
 import { setBottomSheetVisible } from '@/components/BottomSheet'
@@ -75,6 +75,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
             page: ( page ?? pageCount.page ) + 1,
             count: pageCount.count
         }
+
+        console.log('-----GET ALL VOUCHERS-----', date.startDate, date.endDate)
         
         try {
             const response = await CommonService.getAllVouchers(voucherName.toLocaleLowerCase(), date.startDate, date.endDate, ( page ?? pageCount.page ) + 1, pageCount.count, companyVoucherVersion, payload)
@@ -314,6 +316,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 setVoucherToDelete({ accountUniqueName: '', voucherUniqueName: '', voucherType: '' })
             }
         } catch (error: any) {
+            console.error('----- Error in Delete Voucher -----', error)
             Toast({ message: error?.data?.message });
         }
     }
@@ -335,8 +338,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
     const renderItem = ({ item, index } : { item: any, index: number }) => {
         return (
-            <RenderVoucher
-                name={item?.account?.name}
+            <VoucherCard
+                name={item?.account?.uniqueName === 'cash' ? item?.account?.customerName : item?.account?.name}
                 accountUniqueName={item?.account?.uniqueName}
                 amount={item?.grandTotal?.amountForAccount}
                 currencySymbol={item?.accountCurrencySymbol}
@@ -346,6 +349,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 balanceStatus={item?.balanceStatus}
                 dueDate={item?.dueDate}
                 dueAmount={item?.balanceDue?.amountForAccount}
+                isSalesCashInvoice={item?.account?.uniqueName === 'cash'}
 
                 date={getVoucherGroupDate(item, index, voucherData)}
                 voucherName={voucherName}
@@ -359,19 +363,17 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
     useEffect(() => {
         refreshData();
-    }, [voucherName, date])
 
-    useEffect(() => {
         const listeners : Array<EmitterSubscription> = [];
         
         ListnerEvents.forEach((Event) => {
             listeners.push(DeviceEventEmitter.addListener(Event, refreshData))
         })
     
-      return () => {
-        listeners.forEach((listener) => listener?.remove());
-      }
-    }, [])
+        return () => {
+            listeners.forEach((listener) => listener?.remove());
+        }
+    }, [voucherName, date])
 
     return (
         <SafeAreaView style={styles.container}>

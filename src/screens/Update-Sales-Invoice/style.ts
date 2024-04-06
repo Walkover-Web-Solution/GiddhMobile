@@ -40,6 +40,7 @@ export default StyleSheet.create({
     elevation: 5,
     flexDirection:'row',
     borderRadius: 10,
+    overflow: 'hidden'
   },
   searchItemText: { 
     color: '#1C1C1C', 
