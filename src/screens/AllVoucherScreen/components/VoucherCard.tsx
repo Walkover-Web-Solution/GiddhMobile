@@ -90,8 +90,8 @@ const _RenderVoucher : React.FC<Props> = ({
                             style={[styles.editButton, { transform: [{ translateX: trans }] }]}
                             onPress={() => {
                                 swipeableRef?.current?.close();
-                                if(voucherName.toLowerCase() !== 'sales'){
-                                    DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Currently we only support updating Sales Voucher.', open: null })
+                                if(voucherName.toLowerCase() !== 'sales' && voucherName.toLowerCase() !== 'purchase'){
+                                    DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Currently we only support updating Sales & Purchase Vouchers.', open: null })
                                     return;
                                 }
 
@@ -103,7 +103,12 @@ const _RenderVoucher : React.FC<Props> = ({
                                     isSalesCashInvoice,
                                     refetchDataOnNavigation: Math.floor(Math.random() * 1000).toString().padStart(3, '0') // A random string to trigger data refresh on navigating update voucher screen
                                 }
-                                navigation.navigate('VoucherUpdateStack', { screen: 'VoucherUpdateScreen', params })
+                                if (voucherName.toLowerCase() === 'sales') {
+                                    navigation.navigate('VoucherUpdateStack', { screen: 'VoucherUpdateScreen', params })
+                                }
+                                if (voucherName.toLowerCase() === 'purchase') {
+                                    navigation.navigate('PurchaseVoucherUpdateStack', { screen: 'VoucherUpdateScreen', params })
+                                } 
                             }}
 
                         >
