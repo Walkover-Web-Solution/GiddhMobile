@@ -18,6 +18,7 @@ import AllVoucherScreen from '@/screens/AllVoucherScreen/AllVoucherScreen';
 import Routes from './routes';
 import VoucherUpdateStack from './voucher-update.navigator';
 import PurchaseVoucherUpdateStack from '@/navigation/voucher-update-navigator/purchase-update.navigator';
+import CreditNoteUpdateStack from '@/navigation/voucher-update-navigator/credit-note-update.navigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -42,6 +43,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'VoucherScreen'} component={AllVoucherScreen}/>
       <Drawer.Screen name={'VoucherUpdateStack'} component={VoucherUpdateStack}/>
       <Drawer.Screen name={'PurchaseVoucherUpdateStack'} component={PurchaseVoucherUpdateStack}/>
+      <Drawer.Screen name={'CreditNoteUpdateStack'} component={CreditNoteUpdateStack}/>
     </Drawer.Navigator>
   );
 }
