@@ -89,8 +89,9 @@ const _RenderVoucher : React.FC<Props> = ({
                             activeOpacity={0.8}
                             style={[styles.editButton, { transform: [{ translateX: trans }] }]}
                             onPress={() => {
+                                console.log(voucherName.toLowerCase())
                                 swipeableRef?.current?.close();
-                                if(voucherName.toLowerCase() !== 'sales' && voucherName.toLowerCase() !== 'purchase' && voucherName.toLowerCase() !== 'credit note'){
+                                if(voucherName.toLowerCase() !== 'sales' && voucherName.toLowerCase() !== 'purchase' && voucherName.toLowerCase() !== 'credit note' && voucherName.toLowerCase() !== 'debit note'){
                                     DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Currently we only support updating Sales, Purchase & Credit Note Vouchers.', open: null })
                                     return;
                                 }
@@ -111,6 +112,9 @@ const _RenderVoucher : React.FC<Props> = ({
                                 } 
                                 if (voucherName.toLowerCase() === 'credit note') {
                                     navigation.navigate('CreditNoteUpdateStack', { screen: 'VoucherUpdateScreen', params })
+                                } 
+                                if (voucherName.toLowerCase() === 'debit note') {
+                                    navigation.navigate('DebitNoteUpdateStack', { screen: 'VoucherUpdateScreen', params })
                                 } 
                             }}
 
