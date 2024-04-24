@@ -131,11 +131,12 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                 return (
                     <TouchableOpacity
                         key={index?.toString()}
+                        activeOpacity={0.7}
                         disabled={disableTabs}
                         accessibilityLabel={options.tabBarAccessibilityLabel}
                         onPress={onPress}
                         onLongPress={onLongPress}
-                        style={{ alignItems: 'center', width: Dimensions.get('window').width * 0.2 }}
+                        style={styles.button}
                     >
                         {renderIcon(label)}
                         <Text
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         backgroundColor: 'white',
-        height: height * 0.08,
+        // height: height * 0.08,
         justifyContent: 'space-between',
         alignItems: 'center',
         elevation: 3,
@@ -187,11 +188,10 @@ const styles = StyleSheet.create({
         color: '#1C1C1C',
         marginLeft: 8
     },
-    button: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        flexDirection: 'row',
-        alignItems: 'center'
+    button: { 
+        alignItems: 'center', 
+        paddingVertical: 8,
+        width: Dimensions.get('window').width * 0.2 
     },
     boldText: {
         color: '#FFFFFF',

@@ -402,7 +402,7 @@ export class AccountScreen extends React.Component<Props, State> {
 
     return (
       <View style={style.container}>
-        <StatusBar backgroundColor='#000080' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} />
+        <_StatusBar statusBar='#000080' />
         <Header 
           header='Accounts' 
           subHeader={this.state.selectedGroup.name}
@@ -458,22 +458,13 @@ export class AccountScreen extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = () => {
-  return {
-  };
-};
-
-const mapDispatchToProps = () => {
-  return {
-
-  };
-};
-
-function Screen(props: any) {
+const _StatusBar = ({ statusBar }: { statusBar: string }) => {
   const isFocused = useIsFocused();
-
-  return <AccountScreen {...props} isFocused={isFocused} />;
+  return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/> : null
 }
 
-const Accounts = connect(mapStateToProps, mapDispatchToProps)(Screen);
-export default Accounts;
+function Screen(props: any) {
+  return <AccountScreen {...props} />
+}
+
+export default Screen;
