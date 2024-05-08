@@ -81,8 +81,6 @@ export class CompanyService {
   //update last state of branch
     static updateBranchStateDetails (payload:any) {
       const {branchUniqueName, body} = payload;
-      console.log("branch and body",branchUniqueName,body);
-      
       let endPoint = companyUrls.updateBranchStateDetails;
       endPoint.replace(':branchUniqueName',branchUniqueName);
       return httpInstance.post(endPoint,body).then((res) => {
