@@ -7,10 +7,11 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 
-import { getCompanyAndBranches } from '../../redux/CommonAction';
+import { getCompanyAndBranches, updateBranchStateDetails } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import color from '@/utils/colors';
 import LogRocket from '@logrocket/react-native';
+import Loader from '@/components/Loader';
 
 interface Props {
   navigation: any;
@@ -26,6 +27,7 @@ export class ChangeBranch extends React.Component<Props> {
    * @param companyName 
    * @param BranchName 
    */
+
    addUserDeatilsToLogRocket = async (companyName: string, BranchName: string) => {
     var userName  = await AsyncStorage.getItem(STORAGE_KEYS.userName)
     var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
@@ -46,9 +48,10 @@ export class ChangeBranch extends React.Component<Props> {
   }
 
   render () {
-    const branches = this.props.route.params.branches.sort((a, b) =>
+    const branches = this.props?.branchList?.sort((a, b) =>
       a.alias.toUpperCase().split(' ')[0].localeCompare(b.alias.toUpperCase().split(' ')[0])
     );
+
     const activeBranch = this.props.route.params.activeBranch;
 
     return (
@@ -83,7 +86,8 @@ export class ChangeBranch extends React.Component<Props> {
               }}>
               <Text style={style.goToCompanyText}>Go To Company</Text>
             </TouchableOpacity>
-            <FlatList
+            
+            { !this.props.isFetchingCompanyList ? <FlatList
               data={branches}
               showsVerticalScrollIndicator={false}
               style={{ flex: 1 }}
@@ -92,9 +96,18 @@ export class ChangeBranch extends React.Component<Props> {
                   style={style.listItem}
                   delayPressIn={0}
                   onPress={async () => {
+                    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
+                    const payload = {
+                      body : {
+                        companyUniqueName: activeCompany,
+                        lastState: "pages/home"
+                      },
+                      branchUniqueName : item.uniqueName
+                    }
                     this.addUserDeatilsToLogRocket(item.name,item.alias)
                     this.props.getCompanyAndBranches();
+                    this.props.updateBranchStateDetails(payload);
                     this.props.navigation.reset({
                       index: 0,
                       routes: [{ name: 'Home' }],
@@ -109,6 +122,7 @@ export class ChangeBranch extends React.Component<Props> {
               )}
               keyExtractor={(item) => item.uniqueName}
             />
+            : <Loader isLoading={ this.props.isFetchingCompanyList }/>}
           </View>
         </View>
       </GDContainer>
@@ -116,13 +130,22 @@ export class ChangeBranch extends React.Component<Props> {
   }
 }
 
-function mapStateToProps (state) {
-  return {};
+function mapStateToProps (state:any) {
+  const { commonReducer } = state;
+  // console.log("state update",commonReducer);
+  return {
+    ...commonReducer
+    // branches : state.commonReducer.branchList
+  };
+  // return {}
 }
 function mapDispatchToProps (dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
+    },
+    updateBranchStateDetails : (payload:any) => {
+      dispatch(updateBranchStateDetails(payload));
     }
   };
 }
