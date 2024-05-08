@@ -2088,11 +2088,17 @@ export class SalesInvoice extends React.Component<Props, State> {
     editItemDetails.quantityText = editItemDetails.quantity
     editItemDetails.rateText = editItemDetails.rate
     editItemDetails.percentDiscountArray = discountDetailsArray
-    editItemDetails.unitText = editItemDetails.stock ? editItemDetails.stock.unitRates.stockUnitCode : ""
-    editItemDetails.amountText = editItemDetails.rate
+    editItemDetails.amountText = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
+    editItemDetails.amount = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
     editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
     editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
     editItemDetails.isNew = false
+    if(editItemDetails?.stock?.variant){
+      editItemDetails.unitText = editItemDetails?.stock?.variant?.stockUnitCode;
+    } else if(editItemDetails?.stock){
+      editItemDetails.unitText = editItemDetails?.stock?.stockUnitCode;
+    }
+    editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
 
     console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
   }
@@ -2406,7 +2412,7 @@ export class SalesInvoice extends React.Component<Props, State> {
         }
       }
     }
-    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+    else if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
       for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
         const item = itemDetails.stock.taxes[i];
         for (let j = 0; j < taxArr.length; j++) {

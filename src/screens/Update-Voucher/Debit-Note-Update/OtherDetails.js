@@ -450,7 +450,7 @@ class OtherDetails extends React.Component<Props> {
             }}
             onPress={() => {
               this.props.route.params.setOtherDetails(this.state.otherDetail);
-              this.props.navigation.navigate('DebiteNote');
+              this.props.navigation.goBack();
             }}>
             <Text
               style={{

@@ -235,7 +235,12 @@ export class CreditNote extends React.Component<Props, State> {
       currencySymbol: '',
       exchangeRate: 1,
       totalAmountInINR: 0.0,
-      companyCountryDetails: '',
+      companyCountryDetails: {
+        currency: {
+          code: "INR",
+          symbol: "₹"
+        }
+      },
       billSameAsShip: true,
       tdsOrTcsArray: [],
       defaultAccountTax: [],
@@ -587,7 +592,7 @@ export class CreditNote extends React.Component<Props, State> {
           billSameAsShip: partyBillingAddress.address === partyShippingAddress.address && partyBillingAddress.stateCode === partyShippingAddress.stateCode,
           addressArray,
           linkedInvoices: response?.body?.referenceVoucher ?? {},
-          selectedInvoice: response?.body?.adjustments?.[0]?.voucherNumber ?? '',
+          selectedInvoice: response?.body?.referenceVoucher?.number ?? '',
           otherDetails: {
             shipDate: response?.body?.templateDetails?.other?.shippingDate ?? '',
             shippedVia: response?.body?.templateDetails?.other?.shippedVia ?? null,
@@ -1722,7 +1727,7 @@ export class CreditNote extends React.Component<Props, State> {
       : address.selectedCountry.countryCode;
     await this.setState({
       partyBillingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code: countryCode },
+      countryDeatils: { countryName: address.selectedCountry.countryName, countryCode: countryCode },
       currency: countryCode,
     });
     if (this.state.billSameAsShip) {
@@ -1745,7 +1750,7 @@ export class CreditNote extends React.Component<Props, State> {
       : address.selectedCountry.countryCode;
     this.setState({
       partyShippingAddress: address,
-      countryDeatils: { countryName: address.selectedCountry.countryName, code: countryCode },
+      countryDeatils: { countryName: address.selectedCountry.countryName, countryCode: countryCode },
       currency: countryCode,
     });
   };
@@ -2073,11 +2078,17 @@ export class CreditNote extends React.Component<Props, State> {
     editItemDetails.quantityText = editItemDetails.quantity
     editItemDetails.rateText = editItemDetails.rate
     editItemDetails.percentDiscountArray = discountDetailsArray
-    editItemDetails.unitText = editItemDetails.stock ? editItemDetails.stock.unitRates.stockUnitCode : ""
-    editItemDetails.amountText = editItemDetails.rate
+    editItemDetails.amountText = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
+    editItemDetails.amount = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
     editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
     editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
     editItemDetails.isNew = false
+    if(editItemDetails?.stock?.variant){
+      editItemDetails.unitText = editItemDetails?.stock?.variant?.stockUnitCode;
+    } else if(editItemDetails?.stock){
+      editItemDetails.unitText = editItemDetails?.stock?.stockUnitCode;
+    }
+    editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
 
     console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
   }
@@ -2349,7 +2360,7 @@ export class CreditNote extends React.Component<Props, State> {
             : totalTax + taxAmount;
       }
     }
-    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+    else if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
       for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
         const item = itemDetails.stock.taxes[i];
         for (let j = 0; j < taxArr.length; j++) {
@@ -2595,30 +2606,6 @@ export class CreditNote extends React.Component<Props, State> {
               <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(Number(this.getTotalAmount()) + this.state.roundOffTotal)}</Text>
             </View>
-            {this.state.currency != this.state.companyCountryDetails.currency.code &&
-              this.state.invoiceType != INVOICE_TYPE.cash ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
-                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
-                </Text>
-                <TextInput
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#808080',
-                    color: '#1C1C1C',
-                    textAlign: 'center',
-                    marginRight: 0,
-                  }}
-                  placeholder={'Amount'}
-                  returnKeyType={'done'}
-                  keyboardType="number-pad"
-                  onChangeText={async (text) => {
-                    await this.setState({ totalAmountInINR: Number(text) });
-                  }}>
-                  {this.state.totalAmountInINR}
-                </TextInput>
-              </View>
-            ) : null}
           </View>
         )}
         {this.state.tdsOrTcsArray.length != 0 ? (
@@ -2795,10 +2782,13 @@ export class CreditNote extends React.Component<Props, State> {
           contentContainerStyle={{ paddingBottom: 70 }}
           bounces={false}
         >
-          <View style={[style.container, {paddingBottom: 80}]}>
+          {this.renderHeader()}
+          <View
+            pointerEvents={ this.state.isSearchingParty ? 'none' : 'auto' }
+            style={[style.container, {paddingBottom: 80}]}
+          >
           <_StatusBar statusBar='#2e80d1' />
             <View style={style.headerConatiner}>
-              {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
             </View>

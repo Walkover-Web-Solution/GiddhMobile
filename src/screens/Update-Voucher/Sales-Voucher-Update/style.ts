@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
-import { FONT_FAMILY, GD_FONT_SIZE } from '../../utils/constants';
+import { FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 export default StyleSheet.create({
   container: {
     flex: 1

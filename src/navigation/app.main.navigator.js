@@ -16,7 +16,7 @@ import MoreStack from './more.navigator';
 import AppDatePicker from '@/screens/DatePicker/DatePicker';
 import AllVoucherScreen from '@/screens/AllVoucherScreen/AllVoucherScreen';
 import Routes from './routes';
-import VoucherUpdateStack from './voucher-update.navigator';
+import SalesVoucherUpdateStack from '@/navigation/voucher-update-navigator/sales-update.navigator';
 import PurchaseVoucherUpdateStack from '@/navigation/voucher-update-navigator/purchase-update.navigator';
 import CreditNoteUpdateStack from '@/navigation/voucher-update-navigator/credit-note-update.navigator';
 import DebitNoteUpdateStack from '@/navigation/voucher-update-navigator/debit-note-update.navigator';
@@ -42,7 +42,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={Routes.Add} component={DashboardStack}/>
       <Drawer.Screen name={'AppDatePicker'} component={AppDatePicker}/>
       <Drawer.Screen name={'VoucherScreen'} component={AllVoucherScreen}/>
-      <Drawer.Screen name={'VoucherUpdateStack'} component={VoucherUpdateStack}/>
+      <Drawer.Screen name={'SalesVoucherUpdateStack'} component={SalesVoucherUpdateStack}/>
       <Drawer.Screen name={'PurchaseVoucherUpdateStack'} component={PurchaseVoucherUpdateStack}/>
       <Drawer.Screen name={'CreditNoteUpdateStack'} component={CreditNoteUpdateStack}/>
       <Drawer.Screen name={'DebitNoteUpdateStack'} component={DebitNoteUpdateStack}/>

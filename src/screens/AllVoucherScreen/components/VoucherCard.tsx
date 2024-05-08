@@ -106,7 +106,7 @@ const _RenderVoucher : React.FC<Props> = ({
                                         refetchDataOnNavigation: Math.floor(Math.random() * 1000).toString().padStart(3, '0') // A random string to trigger data refresh on navigating update voucher screen
                                     }
                                     if (voucherName.toLowerCase() === 'sales') {
-                                        navigation.navigate('VoucherUpdateStack', { screen: 'VoucherUpdateScreen', params })
+                                        navigation.navigate('SalesVoucherUpdateStack', { screen: 'VoucherUpdateScreen', params })
                                     }
                                     if (voucherName.toLowerCase() === 'purchase') {
                                         navigation.navigate('PurchaseVoucherUpdateStack', { screen: 'VoucherUpdateScreen', params })

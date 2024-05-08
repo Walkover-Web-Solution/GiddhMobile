@@ -170,7 +170,8 @@ type State = {
     customField1: null,
     customField2: null,
     customField3: null
-  }
+  },
+  selectedInvoice: string
 }
 
 const { width, height } = Dimensions.get('window');
@@ -731,6 +732,8 @@ export class PurchaseBill extends React.Component<Props, State> {
         if (results && results.body) {
           // const addedItems = this.state.addedItems;
           // if (!this.checkIfItemIsSelcted(results.body)) {
+
+          console.log('-------- Running for Stock with Variants ---------')
             const data = results.body;
             if(!!data?.stock?.variant){
               data.rate = data.stock.variant.unitRates[0].rate;
@@ -1470,7 +1473,7 @@ export class PurchaseBill extends React.Component<Props, State> {
       updateAccountDetails: false,
       adjustments: this.state.adjustments,
       uniqueName: this.props.route?.params.voucherUniqueName,
-      number: this.props.route?.params.voucherNumber
+      number: this.state.selectedInvoice
     }
     
     return paylaod;
@@ -2449,11 +2452,17 @@ export class PurchaseBill extends React.Component<Props, State> {
     editItemDetails.quantityText = editItemDetails.quantity
     editItemDetails.rateText = editItemDetails.rate
     editItemDetails.percentDiscountArray = discountDetailsArray
-    editItemDetails.unitText = editItemDetails.stock ? editItemDetails.stock.unitRates.stockUnitCode : ""
-    editItemDetails.amountText = editItemDetails.rate
+    editItemDetails.amountText = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
+    editItemDetails.amount = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
     editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
     editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
     editItemDetails.isNew = false
+    if(editItemDetails?.stock?.variant){
+      editItemDetails.unitText = editItemDetails?.stock?.variant?.stockUnitCode;
+    } else if(editItemDetails?.stock){
+      editItemDetails.unitText = editItemDetails?.stock?.stockUnitCode;
+    }
+    editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
 
     console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
   }
@@ -2463,7 +2472,7 @@ export class PurchaseBill extends React.Component<Props, State> {
       <TouchableOpacity
         onPress={() => {
           if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-            this.props.navigation.navigate('PurchaseAddItem', {
+            this.props.navigation.navigate('AddInvoiceItemScreen', {
               updateAddedItems: (this.updateAddedItems).bind(this),
               addedItems: this.state.addedItems,
               currencySymbol: this.state.currencySymbol
@@ -2508,7 +2517,7 @@ export class PurchaseBill extends React.Component<Props, State> {
               borderRadius:2
               }}
             onPress={() => {
-              this.props.navigation.navigate('PurchaseAddItem', {
+              this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
                 addedItems: this.state.addedItems,
                 currencySymbol: this.state.currencySymbol
@@ -2587,7 +2596,7 @@ export class PurchaseBill extends React.Component<Props, State> {
     );
   }
 
-  renderStockItem(item) {
+  renderStockItem(item, index) {
     return (
       <Swipeable
         onSwipeableRightOpen={() => console.log('Swiped right')}
@@ -2634,7 +2643,10 @@ export class PurchaseBill extends React.Component<Props, State> {
             <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignContent: 'flex-end', alignItems: 'center' }}>
               <Text style={{ color: '#808080' }}>
                 Tax : {this.state.currencySymbol}
-                {formatAmount(this.calculatedTaxAmount(item, 'taxAmount'))}
+                {formatAmount(
+                  this.calculatedTaxAmount(item, 'taxAmount')
+                  // item?.tax
+                )}
               </Text>
             </View>
           </View>
@@ -2742,7 +2754,7 @@ export class PurchaseBill extends React.Component<Props, State> {
 
       }
     }
-    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+    else if (!!itemDetails.stock && itemDetails.stock.taxes.length > 0) {
       for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
         const item = itemDetails.stock.taxes[i];
         for (let j = 0; j < taxArr.length; j++) {
@@ -2908,7 +2920,7 @@ export class PurchaseBill extends React.Component<Props, State> {
           if (!this.state.partyName) {
             alert('Please select a party.');
           } else {
-            this.props.navigation.navigate('PurchaseBillOtherDetails', {
+            this.props.navigation.navigate('InvoiceOtherDetailScreen', {
               warehouseArray: this.state.warehouseArray,
               setOtherDetails: this.setOtherDetails,
               otherDetails: this.state.otherDetails,
@@ -3018,30 +3030,6 @@ export class PurchaseBill extends React.Component<Props, State> {
               <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(Number(this.getTotalAmount()) + this.state.roundOffTotal)}</Text>
             </View>
-            {this.state.currency != this.state.companyCountryDetails.currency.code &&
-              this.state.invoiceType != INVOICE_TYPE.cash ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
-                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
-                </Text>
-                <TextInput
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#808080',
-                    color: '#1C1C1C',
-                    textAlign: 'center',
-                    marginRight: 0,
-                  }}
-                  placeholder={'Amount'}
-                  returnKeyType={'done'}
-                  keyboardType="number-pad"
-                  onChangeText={async (text) => {
-                    await this.setState({ totalAmountInINR: Number(text) });
-                  }}>
-                  {this.state.totalAmountInINR}
-                </TextInput>
-              </View>)
-              : null}
             {
               this.state.tdsOrTcsArray.length != 0 ?
                 <FlatList
@@ -3294,11 +3282,15 @@ export class PurchaseBill extends React.Component<Props, State> {
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           contentContainerStyle={{ paddingBottom: 70 }}
-          bounces={false}>
-          <View style={[style.container, {paddingBottom: 40}]}>
+          bounces={false}
+        >
+          {this.renderHeader()}
+          <View 
+            pointerEvents={ this.state.isSearchingParty ? 'none' : 'auto' }
+            style={[style.container, {paddingBottom: 40}]}
+          >
             <_StatusBar statusBar='#ef6c00' />
             <View style={style.headerConatiner}>
-              {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
             </View>

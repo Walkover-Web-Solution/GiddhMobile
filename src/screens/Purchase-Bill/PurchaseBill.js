@@ -1693,7 +1693,7 @@ export class PurchaseBill extends React.Component {
 
   updateAddedItems = async (addedItems) => {
     const updateAmountToCurrentCurrency = addedItems;
-    if (this.state.currency.toString() != this.state.companyCountryDetails.currency.code.toString()) {
+    if (this.state?.currency?.toString?.() != this.state.companyCountryDetails?.currency?.code?.toString?.()) {
       try {
         const results = await InvoiceService.getExchangeRate(
           moment().format('DD-MM-YYYY'),
@@ -1712,14 +1712,20 @@ export class PurchaseBill extends React.Component {
             }
           }
         }
-      } catch (e) { }
+      } catch (error) { 
+        console.log('---- Error in getExchangeRate ----', error)
+      }
     }
 
     for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
-      if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) {
-        this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
+      console.log('---- Testing ----')
+      if (updateAmountToCurrentCurrency[i]?.isNew == undefined || updateAmountToCurrentCurrency[i]?.isNew == true) {
+        await this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
+        console.log('Inside IF ----',JSON.stringify(updateAmountToCurrentCurrency[i]))
       }
     }
+
+    // console.log("FINAL ITEM " + JSON.stringify([...this.state.addedItems, ...updateAmountToCurrentCurrency]))
 
     await this.setState({ addedItems: [...this.state.addedItems, ...updateAmountToCurrentCurrency] });
     await this.setState({
@@ -1729,6 +1735,7 @@ export class PurchaseBill extends React.Component {
   };
 
   async DefaultStockAndAccountTax(itemDetails) {
+    try{
     let editItemDetails = itemDetails
     let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
     let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
@@ -1830,13 +1837,20 @@ export class PurchaseBill extends React.Component {
     editItemDetails.quantityText = editItemDetails.quantity
     editItemDetails.rateText = editItemDetails.rate
     editItemDetails.percentDiscountArray = discountDetailsArray
-    editItemDetails.unitText = editItemDetails.stock ? editItemDetails.stock.unitRates.stockUnitCode : ""
-    editItemDetails.amountText = editItemDetails.rate
+    editItemDetails.amountText = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
+    editItemDetails.amount = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
     editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
     editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
     editItemDetails.isNew = false
-
-    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
+    if(editItemDetails?.stock?.variant){
+      editItemDetails.unitText = editItemDetails?.stock?.variant?.stockUnitCode;
+    } else if(editItemDetails?.stock){
+      editItemDetails.unitText = editItemDetails?.stock?.stockUnitCode;
+    }
+    editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
+    } catch (error) {
+      console.log('----- This Fcuked up -----', error)
+    }
   }
 
   renderAddItemButton() {
@@ -2395,30 +2409,6 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(this.getTotalAmount())}</Text>
             </View>
-            {this.state.currency != this.state.companyCountryDetails.currency.code &&
-              this.state.invoiceType != INVOICE_TYPE.cash ? (
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
-                  {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
-                </Text>
-                <TextInput
-                  style={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#808080',
-                    color: '#1C1C1C',
-                    textAlign: 'center',
-                    marginRight: 0,
-                  }}
-                  placeholder={'Amount'}
-                  returnKeyType={'done'}
-                  keyboardType="number-pad"
-                  onChangeText={async (text) => {
-                    await this.setState({ totalAmountInINR: Number(text) });
-                  }}>
-                  {this.state.totalAmountInINR}
-                </TextInput>
-              </View>)
-              : null}
             {
               this.state.tdsOrTcsArray.length != 0 ?
                 <FlatList
@@ -2626,6 +2616,7 @@ export class PurchaseBill extends React.Component {
     }
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
+    console.log('------ This is EditedItem ------', JSON.stringify(addedArray))
     this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
 
     const totalAmount = this.getTotalAmount()

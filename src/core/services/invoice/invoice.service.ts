@@ -344,10 +344,6 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       .then((res) => {
         return res.data;
       })
-      .catch((err) => {
-        console.log(JSON.stringify(err));
-        return null;
-      });
   }
 
   static getVoucherInvoice(date: any, payload: any, voucherVersion: any) {
