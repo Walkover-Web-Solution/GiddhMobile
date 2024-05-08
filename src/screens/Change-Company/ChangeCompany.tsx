@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 
-import { getCompanyAndBranches } from '../../redux/CommonAction';
+import { getCompanyAndBranches, updateStateDetails } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
@@ -98,15 +98,33 @@ export class ChangeCompany extends React.Component<Props> {
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, item.subscription.country.countryCode);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, item.uniqueName);
                     await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyName, item.name);
+                    
+                    const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
                       this.addUserDeatilsToLogRocket(item.name, " ")
                     }
+                    
+                    const payload = {
+                      companyUniqueName : item.uniqueName,
+                      lastState : "pages/home?queryParams=[object Object]"
+                    }
                     this.props.getCompanyAndBranches();
-                    this.props.navigation.reset({
-                      index: 0,
-                      routes: [{ name: 'Home' }],
-                    });
+                    this.props.updateStateDetails(payload);
+
+                    item?.branchCount > 1 
+                    ? this.props.navigation.navigate('ChangeCompanyBranch', {
+                      screen: 'BranchChange',
+                      initial: false,
+                      params: {
+                        activeBranch: activeBranch,
+                        branches: this.props.branchList
+                      }
+                    })
+                    : this.props.navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'Home' }],
+                      });
                   }}>
                   <Text
                     numberOfLines={2}
@@ -174,6 +192,9 @@ function mapDispatchToProps(dispatch) {
   return {
     getCompanyAndBranches: () => {
       dispatch(getCompanyAndBranches());
+    },
+    updateStateDetails: (payload:any)=>{
+      dispatch(updateStateDetails(payload))
     }
   };
 }

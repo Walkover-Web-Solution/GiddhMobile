@@ -36,3 +36,31 @@ export async function getCompanyBranches (uniqueName) {
     return error;
   }
 }
+
+export async function getLastStateDetails () {
+  try {
+    const response = await CompanyService.getLastStateDetails();
+    return response?.body
+  } catch (error) {
+    console.warn(error);
+    return error;
+  }
+}
+
+export async function updateStateDetails (payload:any) {
+  try {
+    const response = await CompanyService.updateStateDetails(payload);
+    return response
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+export async function updateBranchStateDetails (payload:any) {
+  try {
+    const response = await CompanyService.updateBranchStateDetails(payload);
+    return response
+  } catch (error) {
+    console.warn(error);
+  }
+}

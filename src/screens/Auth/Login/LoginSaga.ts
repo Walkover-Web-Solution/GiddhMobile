@@ -10,6 +10,7 @@ import LogRocket from '@logrocket/react-native';
 import { STORAGE_KEYS } from '@/utils/constants';
 import { ToastAndroid, Platform } from 'react-native';
 import TOAST from 'react-native-root-toast';
+import * as CommonService from '../../../redux/CommonService';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -140,6 +141,10 @@ export function* verifyUserEmailPasswordLogin(action) {
       // get state details
       // TODO: await dispatch.common.getStateDetailsAction();
       // TODO:  await dispatch.company.getCompanyDetailsAction();
+      const activeCompany = yield call(CommonService.getLastStateDetails);
+      const { companyUniqueName,branchUniqueName } = activeCompany
+      yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
+      yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
       yield put(getCompanyAndBranches());
       yield put(
         LoginAction.loginUserSuccess({
@@ -213,6 +218,10 @@ export function* signupUsingEmailPassword(action) {
 
         yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
         yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+        const activeCompany = yield call(CommonService.getLastStateDetails);
+        const { companyUniqueName,branchUniqueName } = activeCompany
+        yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
+        yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
         yield put(getCompanyAndBranches());
         yield put(
           LoginAction.loginUserSuccess({
@@ -264,6 +273,10 @@ export function* verifySignupOTP(action) {
 
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body ? response.body.user.email : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+    const activeCompany = yield call(CommonService.getLastStateDetails);
+    const { companyUniqueName,branchUniqueName } = activeCompany
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
     yield put(getCompanyAndBranches());
     yield put(
       LoginAction.loginUserSuccess({
@@ -311,6 +324,11 @@ export function* googleLogin(action) {
     // TODO: await dispatch.common.getStateDetailsAction();
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
+
+    const activeCompany = yield call(CommonService.getLastStateDetails);
+    const { companyUniqueName,branchUniqueName } = activeCompany
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
     yield put(getCompanyAndBranches());
     yield put(
       LoginAction.googleLoginUserSuccess({
@@ -405,6 +423,10 @@ export function* appleLogin(action) {
     // TODO: await dispatch.common.getStateDetailsAction();
     // get company details
     // TODO:  await dispatch.company.getCompanyDetailsAction();
+    const activeCompany = yield call(CommonService.getLastStateDetails);
+    const { companyUniqueName,branchUniqueName } = activeCompany
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
     yield put(getCompanyAndBranches());
     yield put(
       LoginAction.googleLoginUserSuccess({
@@ -453,6 +475,10 @@ export function* loginWithOTP(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, response.body.user.email ? response.body.user.email : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+    const activeCompany = yield call(CommonService.getLastStateDetails);
+    const { companyUniqueName,branchUniqueName } = activeCompany
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
     yield put(getCompanyAndBranches());
     yield put(
       LoginAction.loginWithOtpSuccess({
