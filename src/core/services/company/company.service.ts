@@ -59,34 +59,4 @@ export class CompanyService {
         return res.data;
       });
     }
-
-
-  // fetch last state details
-    static getLastStateDetails () {
-      return httpInstance.get(companyUrls.getLastStateDetails).then((res) => {
-        return res.data;
-      })
-    }
-
-  //update last state details
-    static updateStateDetails (payload:any) {
-      return httpInstance.post(companyUrls.updateStateDetails,payload).then((res) => {
-        return res.data;
-      }).catch((err) => {
-        console.warn(err);
-        return err;        
-      })
-    }
-    
-  //update last state of branch
-    static updateBranchStateDetails (payload:any) {
-      const {branchUniqueName, body} = payload;
-      let endPoint = companyUrls.updateBranchStateDetails;
-      endPoint.replace(':branchUniqueName',branchUniqueName);
-      return httpInstance.post(endPoint,body).then((res) => {
-        return res.data;
-      }).catch((err) => {
-        console.warn(err);
-      })
-    }   
 }
