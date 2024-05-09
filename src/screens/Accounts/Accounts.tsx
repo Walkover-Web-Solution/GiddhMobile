@@ -398,11 +398,11 @@ export class AccountScreen extends React.Component<Props, State> {
     );
   };
   render() {
-    const { activeCompany }: any = this.props;
-
+    const { activeCompany, isFocused }: any = this.props;
+    
     return (
       <View style={style.container}>
-        <_StatusBar statusBar='#000080' />
+        {isFocused ? <StatusBar backgroundColor='#000080' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : <></>}
         <Header 
           header='Accounts' 
           subHeader={this.state.selectedGroup.name}

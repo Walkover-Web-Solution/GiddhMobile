@@ -74,3 +74,17 @@ export function setVoucherForBottomTabs(payload: Array<string>) {
     payload: payload
   };
 }
+
+export function updateStateDetails(payload: any){
+  return {
+    type: Actions.UPDATE_STATE_DETAILS,
+    payload: payload
+  }
+}
+
+export function updateBranchStateDetails(payload: any){
+  return {
+    type: Actions.UPDATE_BRANCH_STATE_DETAILS,
+    payload: payload
+  }
+}

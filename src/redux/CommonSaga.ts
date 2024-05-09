@@ -10,6 +10,8 @@ import { DeviceEventEmitter } from 'react-native';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 export default function* watcherFCMTokenSaga() {
+  yield takeLatest(ActionConstants.UPDATE_BRANCH_STATE_DETAILS,updateBranchStateDetails);
+  yield takeLatest(ActionConstants.UPDATE_STATE_DETAILS, updateStateDetails);
   yield takeLatest(ActionConstants.GET_COMPANY_BRANCH_LIST, getCompanyAndBranches);
   yield takeLatest(ActionConstants.GET_COMPANY_DETAILS, getCompanyDetails);
   yield takeLatest(ActionConstants.LOGOUT, logoutUser);
@@ -154,4 +156,20 @@ export function* logoutUser() {
   }
 
   yield put(CommonActions.reset());
+}
+
+export function* updateStateDetails(action:any) {
+  try {
+    const response = yield call(CommonService.updateStateDetails, action?.payload);
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
+export function* updateBranchStateDetails(action:any) {
+  try {
+    const response = yield call(CommonService.updateBranchStateDetails, action?.payload);
+  } catch (error) {
+    console.warn(error);
+  }
 }
