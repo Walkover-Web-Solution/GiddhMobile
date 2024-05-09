@@ -125,6 +125,8 @@ export function* getCompanyAndBranches() {
           yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber,JSON.stringify(companyResults.voucherVersion));
           yield put(CommonActions.setCompanyVoucherVersion(companyResults.voucherVersion));
         }
+
+      yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, companyResults?.subscription?.country?.countryCode);
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
     } else {

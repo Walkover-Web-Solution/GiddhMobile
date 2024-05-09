@@ -2753,7 +2753,7 @@ export class SalesInvoice extends React.Component<Props, State> {
               ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                   <Text style={{ color: '#1C1C1C', textAlignVertical: 'center' }}>
-                    {'Total Amount ' + this.state.companyCountryDetails.currency.symbol}
+                    {'Total Amount ' + this.state.companyCountryDetails?.currency?.symbol}
                   </Text>
                   <TextInput
                     style={{
