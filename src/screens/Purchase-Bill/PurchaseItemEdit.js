@@ -176,7 +176,6 @@ class PurchaseItemEdit extends Component {
                 style={{paddingHorizontal: 20}}
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
-                  // console.log('----- Faltu ------', selectedTaxTypeArr, JSON.stringify(selectedTaxArray), item)
                   if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.some(tax => tax.uniqueName === item.uniqueName)) ||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tcspay')||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tcspay')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdsrc')||
@@ -725,7 +724,6 @@ class PurchaseItemEdit extends Component {
   }
 
   render() {
-    {console.log('------EditItem-----', JSON.stringify(this.state.editItemDetails))}
     return (
       <View
         style={{

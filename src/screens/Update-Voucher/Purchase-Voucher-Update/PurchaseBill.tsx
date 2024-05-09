@@ -391,7 +391,7 @@ export class PurchaseBill extends React.Component<Props, State> {
         });
       }
     } catch (e) {
-      console.error(e)
+      console.error('---- Error in setActiveCompanyCountry ----', e)
     }
   }
 
@@ -414,7 +414,6 @@ export class PurchaseBill extends React.Component<Props, State> {
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInPurchaseBill, (data) => {
       this.updateAddedItems(data);
-      console.log('------------ ADD ITEM: ---------------' + JSON.stringify(data));
       // fire logout action
       // store.dispatch.auth.logout();
     });
@@ -730,34 +729,28 @@ export class PurchaseBill extends React.Component<Props, State> {
         }
         const results = await InvoiceService.getStockDetails(accountUniqueName, stockUniqueName, variantUniqueName ?? this.state.allStockVariants[stockUniqueName][0].uniqueName);
         if (results && results.body) {
-          // const addedItems = this.state.addedItems;
-          // if (!this.checkIfItemIsSelcted(results.body)) {
-
-          console.log('-------- Running for Stock with Variants ---------')
-            const data = results.body;
-            if(!!data?.stock?.variant){
-              data.rate = data.stock.variant.unitRates[0].rate;
-              data.stock.rate = data.stock.variant.unitRates[0].rate;
-              data.stock.stockUnitCode = data.stock.variant.unitRates[0].stockUnitCode;
-              data.stock.stockUnitName = data.stock.variant.unitRates[0].stockUnitName;
-              data.stock.stockUnitUniqueName = data.stock.variant.unitRates[0].stockUnitUniqueName;
-            } else {
-              data.rate = data.stock.unitRates[0].rate;
-              data.stock.rate = data.stock.unitRates[0].rate;
-              data.stock.stockUnitCode = data.stock.unitRates[0].stockUnitCode;
-              data.stock.stockUnitName = data.stock.unitRates[0].stockUnitName;
-              data.stock.stockUnitUniqueName = data.stock.unitRates[0].stockUnitUniqueName;
-            }
-            data.quantity = 1;
-            // data.rate = results.body.stock.rate;
-            if(this.state.companyVersionNumber == 2){ 
-              const variantObj = this.state.allStockVariants[stockUniqueName].find((variant) => variant?.uniqueName == variantUniqueName); 
-              data.stock.variant.name = variantObj?.name ?? this.state.allStockVariants[stockUniqueName][0].name;
-              data.stock.isMultiVariant = this.state.allStockVariants[stockUniqueName]?.length > 1;
-            }
-            data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // Used to identify and Edit multiple same entries
-            // addedItems.push(this.createNewEntry(data));
-          // }
+          const data = results.body;
+          if(!!data?.stock?.variant){
+            data.rate = data.stock.variant.unitRates[0].rate;
+            data.stock.rate = data.stock.variant.unitRates[0].rate;
+            data.stock.stockUnitCode = data.stock.variant.unitRates[0].stockUnitCode;
+            data.stock.stockUnitName = data.stock.variant.unitRates[0].stockUnitName;
+            data.stock.stockUnitUniqueName = data.stock.variant.unitRates[0].stockUnitUniqueName;
+          } else {
+            data.rate = data.stock.unitRates[0].rate;
+            data.stock.rate = data.stock.unitRates[0].rate;
+            data.stock.stockUnitCode = data.stock.unitRates[0].stockUnitCode;
+            data.stock.stockUnitName = data.stock.unitRates[0].stockUnitName;
+            data.stock.stockUnitUniqueName = data.stock.unitRates[0].stockUnitUniqueName;
+          }
+          data.quantity = 1;
+          if(this.state.companyVersionNumber == 2){ 
+            const variantObj = this.state.allStockVariants[stockUniqueName].find((variant) => variant?.uniqueName == variantUniqueName); 
+            data.stock.variant.name = variantObj?.name ?? this.state.allStockVariants[stockUniqueName][0].name;
+            data.stock.isMultiVariant = this.state.allStockVariants[stockUniqueName]?.length > 1;
+          }
+          data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // Used to identify and Edit multiple same entries
+          
           return data;
         }
 
@@ -1182,12 +1175,6 @@ export class PurchaseBill extends React.Component<Props, State> {
         searchPartyName: this.props.route?.params?.accountUniqueName
       })
     });
-
-    console.log('======= Reset States =========', {
-      invoiceType: this.props.route?.params?.isSalesCashInvoice ? INVOICE_TYPE.cash : INVOICE_TYPE.credit,
-      partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
-      searchPartyName: this.props.route?.params?.accountUniqueName
-    })
   };
 
   getDiscountForEntry(item) {
@@ -1372,7 +1359,6 @@ export class PurchaseBill extends React.Component<Props, State> {
     const paylaod = {
       account: {
         attentionTo: '',
-        // billingDetails: this.state.partyBillingAddress,
         billingDetails: {
           address: [this.state.BillFromAddress.address],
           taxNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
@@ -1397,7 +1383,6 @@ export class PurchaseBill extends React.Component<Props, State> {
         email: '',
         mobileNumber: '',
         name: this.state.partyName.name,
-        // shippingDetails: this.state.partyShippingAddress,
         shippingDetails: {
           address: [this.state.shipFromAddress.address],
           country: {
@@ -1449,13 +1434,6 @@ export class PurchaseBill extends React.Component<Props, State> {
       },
       date: moment(this.state.date).format('DD-MM-YYYY'),
       dueDate: this.state.dueDate ? moment(this.state.dueDate).format('DD-MM-YYYY') : null,
-      // ...(this.props.route?.params.isSalesCashInvoice && { 
-      //     deposit: {
-      //     type: 'DEBIT',
-      //     accountUniqueName: 'cash',
-      //     amountForCompany: 0
-      //   }
-      // }),
       entries: this.getEntries(),
       exchangeRate: this.state.exchangeRate,
       templateDetails: {
@@ -2463,8 +2441,6 @@ export class PurchaseBill extends React.Component<Props, State> {
       editItemDetails.unitText = editItemDetails?.stock?.stockUnitCode;
     }
     editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
-
-    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
   }
 
   renderAddItemButton() {
@@ -2596,7 +2572,7 @@ export class PurchaseBill extends React.Component<Props, State> {
     );
   }
 
-  renderStockItem(item, index) {
+  renderStockItem(item) {
     return (
       <Swipeable
         onSwipeableRightOpen={() => console.log('Swiped right')}
@@ -2643,10 +2619,7 @@ export class PurchaseBill extends React.Component<Props, State> {
             <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignContent: 'flex-end', alignItems: 'center' }}>
               <Text style={{ color: '#808080' }}>
                 Tax : {this.state.currencySymbol}
-                {formatAmount(
-                  this.calculatedTaxAmount(item, 'taxAmount')
-                  // item?.tax
-                )}
+                {formatAmount(this.calculatedTaxAmount(item, 'taxAmount'))}
               </Text>
             </View>
           </View>

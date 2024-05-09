@@ -1718,14 +1718,10 @@ export class PurchaseBill extends React.Component {
     }
 
     for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
-      console.log('---- Testing ----')
       if (updateAmountToCurrentCurrency[i]?.isNew == undefined || updateAmountToCurrentCurrency[i]?.isNew == true) {
         await this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
-        console.log('Inside IF ----',JSON.stringify(updateAmountToCurrentCurrency[i]))
       }
     }
-
-    // console.log("FINAL ITEM " + JSON.stringify([...this.state.addedItems, ...updateAmountToCurrentCurrency]))
 
     await this.setState({ addedItems: [...this.state.addedItems, ...updateAmountToCurrentCurrency] });
     await this.setState({
@@ -1735,7 +1731,6 @@ export class PurchaseBill extends React.Component {
   };
 
   async DefaultStockAndAccountTax(itemDetails) {
-    try{
     let editItemDetails = itemDetails
     let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
     let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
@@ -1848,9 +1843,8 @@ export class PurchaseBill extends React.Component {
       editItemDetails.unitText = editItemDetails?.stock?.stockUnitCode;
     }
     editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
-    } catch (error) {
-      console.log('----- This Fcuked up -----', error)
-    }
+
+    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
   }
 
   renderAddItemButton() {
@@ -2616,7 +2610,6 @@ export class PurchaseBill extends React.Component {
     }
     // Replace item at index using native splice
     addedArray.splice(index, 1, item);
-    console.log('------ This is EditedItem ------', JSON.stringify(addedArray))
     this.setState({ showItemDetails: false, addedItems: addedArray }, () => { });
 
     const totalAmount = this.getTotalAmount()

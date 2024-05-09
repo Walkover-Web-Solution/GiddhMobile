@@ -330,7 +330,6 @@ export class DebiteNote extends React.Component<Props, State> {
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updatedItemInInvoice, (data) => {
       this.updateAddedItems(data);
-      console.log('------------ ADD ITEM: ---------------' + JSON.stringify(data));
       // fire logout action
       // store.dispatch.auth.logout();
     });
@@ -357,7 +356,6 @@ export class DebiteNote extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
     if (prevProps?.route?.params?.refetchDataOnNavigation !== this.props?.route?.params?.refetchDataOnNavigation) {
-      console.log('---------- REFRESH VOUCHER DATA --------------')
       this.clearAll();
     }
   }
@@ -1119,12 +1117,6 @@ export class DebiteNote extends React.Component<Props, State> {
         searchPartyName: this.props.route?.params?.accountUniqueName
       })
     });
-
-    console.log('======= Reset States =========', {
-      invoiceType: this.props.route?.params?.isSalesCashInvoice ? INVOICE_TYPE.cash : INVOICE_TYPE.creditNote,
-      partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
-      searchPartyName: this.props.route?.params?.accountUniqueName
-    })
   };
 
   getDiscountForEntry(item) {
@@ -1232,7 +1224,6 @@ export class DebiteNote extends React.Component<Props, State> {
   }
 
   updateVoucherPayload() {
-    console.log('--------', this.state.partyBillingAddress.state, this.state.partyBillingAddress.state.code, this.state.partyBillingAddress.stateCode)
     const paylaod = {
       account: {
         billingDetails: {

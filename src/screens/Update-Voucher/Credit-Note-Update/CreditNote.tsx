@@ -302,7 +302,6 @@ export class CreditNote extends React.Component<Props, State> {
     // listen for invalid auth token event
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.updateItemInCreditNote, (data) => {
       this.updateAddedItems(data);
-      console.log('------------ ADD ITEM: ---------------' + JSON.stringify(data));
       // fire logout action
       // store.dispatch.auth.logout();
     });
@@ -1097,12 +1096,6 @@ export class CreditNote extends React.Component<Props, State> {
         searchPartyName: this.props.route?.params?.accountUniqueName
       })
     });
-
-    console.log('======= Reset States =========', {
-      invoiceType: this.props.route?.params?.isSalesCashInvoice ? INVOICE_TYPE.cash : INVOICE_TYPE.creditNote,
-      partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
-      searchPartyName: this.props.route?.params?.accountUniqueName
-    })
   };
 
   getDiscountForEntry(item) {
