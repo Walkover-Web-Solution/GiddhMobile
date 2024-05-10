@@ -13,10 +13,9 @@ const persistConfig = {
 };
 
 const sagaMiddleware = createSagaMiddleware();
-const createDebugger = require('redux-flipper').default;
 
 export default () => {
-  const enhancer = compose(applyMiddleware(sagaMiddleware, promise, createDebugger()));
+  const enhancer = compose(applyMiddleware(sagaMiddleware, promise));
   const persistedReducer = persistReducer(persistConfig, reducer);
   const store = createStore(persistedReducer, enhancer);
   const persistor = persistStore(store);

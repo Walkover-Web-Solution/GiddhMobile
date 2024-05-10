@@ -95,8 +95,8 @@ type State = {
   billSameAsShip: boolean
   addressArray: Array<any>
   allBillingToAddresses: [],
-  billFromSameAsShipFrom: false,
-  billToSameAsShipTo: false,
+  billFromSameAsShipFrom: boolean,
+  billToSameAsShipTo: boolean,
   BillFromAddress: {
     address: string,
     gstNumber: string,
@@ -750,7 +750,7 @@ export class PurchaseBill extends React.Component<Props, State> {
             data.stock.isMultiVariant = this.state.allStockVariants[stockUniqueName]?.length > 1;
           }
           data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // Used to identify and Edit multiple same entries
-          
+
           return data;
         }
 
@@ -969,6 +969,7 @@ export class PurchaseBill extends React.Component<Props, State> {
           BillToAddress,
           shipToAddress,
           billFromSameAsShipFrom: BillFromAddress.address === shipFromAddress.address && BillFromAddress.stateCode === shipFromAddress.stateCode,
+          billToSameAsShipTo: BillToAddress.address === shipToAddress.address && BillToAddress.stateCode === shipToAddress.stateCode,
           addressArray,
           selectedInvoice: response?.body?.number,
           otherDetails: {
