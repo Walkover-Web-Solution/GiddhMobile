@@ -52,7 +52,7 @@ class EditItemDetails extends Component {
       selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
       fixedDiscountSelected: false,
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.variant ? this.props.itemDetails.stock.variant.unitRates : this.props.itemDetails.stock.unitRates : [],
-      selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
+      selectedCode: !!this?.props?.itemDetails?.hsnNumber ? 'hsn' : 'sac',
       editItemDetails: {
         description: this.props.itemDetails.description,
         quantityText: this.props.itemDetails.quantity,
@@ -60,7 +60,7 @@ class EditItemDetails extends Component {
         sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
         unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock?.stockUnitCode : '',
-        amountText: this.props.itemDetails?.amountText,
+        amountText: this.props.itemDetails?.amountText ? this.props.itemDetails?.amountText : (this.props.itemDetails.rate ? this.props.itemDetails.rate : '0'),
         discountValueText: this.props.itemDetails.discountValue ? this.props.itemDetails.discountValue : '',
         discountPercentageText: this.props.itemDetails.discountPercentage
           ? this.props.itemDetails.discountPercentage
@@ -134,7 +134,7 @@ class EditItemDetails extends Component {
             flexDirection: 'row',
             paddingVertical: 10,
             alignItems: 'center',
-            backgroundColor: '#ff6961',
+            backgroundColor: '#3497FD',
             width: '100%',
           }}>
           <TouchableOpacity
@@ -174,7 +174,7 @@ class EditItemDetails extends Component {
       <BottomSheet
         bottomSheetRef={this.taxBottomSheetRef}
         headerText='Select Taxes'
-        headerTextColor='#ff6961'
+        headerTextColor='#084EAD'
         flatListProps={{
           data: this.props.taxArray,
           renderItem: ({ item }) => {
@@ -291,7 +291,7 @@ class EditItemDetails extends Component {
       <BottomSheet
         bottomSheetRef={this.unitBottomSheetRef}
         headerText='Select Unit'
-        headerTextColor='#ff6961'
+        headerTextColor='#084EAD'
         flatListProps={{
           data: this.state.unitArray,
           renderItem: ({ item }) => {
@@ -472,12 +472,39 @@ class EditItemDetails extends Component {
     return finalAmt;
   }
 
+  _renderDescriptionField() {
+    return (
+      <TextInput
+        placeholder='Add Description'
+        multiline={true}
+        numberOfLines={10}
+        value={this.state.editItemDetails.description}
+        onChangeText={(text) => {
+          this.setState({
+            editItemDetails: {
+              ...this.state.editItemDetails,
+              description:text
+            }
+          })
+        }}
+        style={{
+          marginHorizontal: 16,
+          borderWidth: 1,
+          borderRadius: 10,
+          borderColor: '#5773FF',
+          textAlignVertical: 'top',
+          padding: 8
+        }}
+      />
+    );
+  }
+
   _renderDiscounts() {
     return (
       <BottomSheet
         bottomSheetRef={this.discountBottomSheetRef}
         headerText='Select Discounts'
-        headerTextColor='#ff6961'
+        headerTextColor='#084EAD'
         flatListProps={{
           data: this.props.discountArray,
           renderItem: ({ item }) => {
@@ -589,14 +616,14 @@ class EditItemDetails extends Component {
                       <Text style={[{ color: '#808080', paddingTop: 4, fontSize: 12, fontFamily: FONT_FAMILY.regular }]}>
                         {(item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage') + ' -'}
                       </Text>
-                      <Text style={[{ color: '#808080', paddingTop: 4, fontSize: 12, fontFamily: FONT_FAMILY.regular }]}>
+                      <Text style={{ color: '#808080', paddingTop: 4, fontSize: 12, fontFamily: FONT_FAMILY.regular }}>
                         {item.discountValue}
                         {item.discountType !== 'FIX_AMOUNT' ? '%' : ''}
                       </Text>
                     </View>
                   </View>
                 </View>
-                </TouchableOpacity>
+              </TouchableOpacity>
             );
           },
           ListEmptyComponent: () => {
@@ -654,7 +681,7 @@ class EditItemDetails extends Component {
               }}
               onPress={() => this.setState({ selectedCode: 'hsn' })}>
               {this.state.selectedCode == 'hsn' && (
-                <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#ff6961' }} />
+                <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#3497FD' }} />
               )}
             </TouchableOpacity>
 
@@ -672,7 +699,7 @@ class EditItemDetails extends Component {
               }}
               onPress={() => this.setState({ selectedCode: 'sac' })}>
               {this.state.selectedCode == 'sac' && (
-                <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#ff6961' }} />
+                <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#3497FD' }} />
               )}
             </TouchableOpacity>
 
@@ -717,33 +744,6 @@ class EditItemDetails extends Component {
     );
   }
 
-  _renderDescriptionField() {
-    return (
-      <TextInput
-        placeholder='Add Description'
-        multiline={true}
-        numberOfLines={10}
-        value={this.state.editItemDetails.description}
-        onChangeText={(text) => {
-          this.setState({
-            editItemDetails: {
-              ...this.state.editItemDetails,
-              description:text
-            }
-          })
-        }}
-        style={{
-          marginHorizontal: 16,
-          borderWidth: 1,
-          borderRadius: 10,
-          borderColor: '#5773FF',
-          textAlignVertical: 'top',
-          padding: 8
-        }}
-      />
-    );
-  }
-
   render() {
     return (
       <View
@@ -758,7 +758,7 @@ class EditItemDetails extends Component {
           backgroundColor: 'white',
           flex: 1,
         }}>
-        <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
+        <StatusBar backgroundColor="#2e80d1" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} />
         {this.renderHeader()}
 
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>

@@ -21,7 +21,7 @@ import {
 // import style from './style';
 import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -31,26 +31,148 @@ import _, { isInteger } from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { useIsFocused } from '@react-navigation/native';
-import PurchaseItemEdit from './PurchaseItemEdit';
+import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
+import PurchaseItemEdit from './EditItemDetails';
 import style from './style';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
-import { FONT_FAMILY } from '../../utils/constants';
+import { FONT_FAMILY } from '@/utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
+import { CommonService } from '@/core/services/common/common.service';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
   credit: 'sales',
   cash: 'cash',
 };
-// interface Props {
-//   navigation: any;
-// }
+interface Props {
+  navigation: NavigationProp<ParamListBase>;
+  route: {
+    params: {
+      accountUniqueName: string, 
+      voucherUniqueName: string,
+      voucherNumber: string,
+      voucherName: string
+      isSalesCashInvoice: boolean
+      /**
+       * Used trigger componentDidMount to refresh page data when navigated from voucher screen 
+       */
+      refetchDataOnNavigation: string
+    }
+  } 
+}
+
+type State = {
+  isSearchingParty: boolean
+  loading: boolean
+  searchPartyName: string
+  partyName: any
+  searchResults: Array<any>
+  searchError: string
+  voucherUniqueName: string
+  companyVersionNumber: number
+  addedItems: Array<any>
+  countryDeatils: {
+    countryName: string,
+    countryCode: string
+  },
+  currency: string,
+  currencySymbol: string
+  companyCountryDetails: any
+  totalAmountInINR: number
+  amountPaidNowText: number
+  roundOffTotal: number
+  date: Moment
+  dueDate: Moment | null
+  taxArray: Array<any>
+  allStockVariants: { [index: string]: any }
+  exchangeRate: number
+  adjustments: Array<any>
+  billSameAsShip: boolean
+  addressArray: Array<any>
+  allBillingToAddresses: [],
+  billFromSameAsShipFrom: boolean,
+  billToSameAsShipTo: boolean,
+  BillFromAddress: {
+    address: string,
+    gstNumber: string,
+    state: {
+      code: string,
+      name: string
+    },
+    stateCode: string,
+    stateName: string,
+    pincode: string
+  },
+  shipFromAddress: {
+    address: string,
+    gstNumber: string,
+    state: {
+      code: string,
+      name: string
+    },
+    stateCode: string,
+    stateName: string,
+    pincode: string
+  },
+  BillToAddress: {
+    address: string,
+    gstNumber: string,
+    state: {
+      code: string,
+      name: string
+    },
+    stateCode: string,
+    stateName: string,
+    pincode: string
+  },
+  shipToAddress: {
+    address: string,
+    gstNumber: string,
+    state: {
+      code: string,
+      name: string
+    },
+    stateCode: string,
+    stateName: string,
+    pincode: string
+  }
+  partyBillingAddress: {
+    address: string,
+    gstNumber: string,
+    state: {
+      code: string,
+      name: string
+    },
+    stateCode: string,
+    stateName: string,
+    pincode: string
+  },
+  partyShippingAddress: {
+    address: string,
+    gstNumber: string,
+    state: {
+      code: string,
+      name: string
+    },
+    stateCode: string,
+    stateName: string,
+    pincode: string
+  },
+  otherDetails: {
+    shipDate: '',
+    shippedVia: null,
+    trackingNumber: null,
+    customField1: null,
+    customField2: null,
+    customField3: null
+  },
+  selectedInvoice: string
+}
 
 const { width, height } = Dimensions.get('window');
 
@@ -62,11 +184,14 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_SHOW: 'keyboardDidShow',
   KEYBOARD_DID_HIDE: 'keyboardDidHide',
 };
-export class PurchaseBill extends React.Component {
+export class PurchaseBill extends React.Component<Props, State> {
+  private isVoucherUpdate: boolean
   constructor(props) {
     super(props);
     this.paymentModeBottomSheetRef = React.createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
+    this.searchCalls = this.searchCalls.bind(this);
+    this.isVoucherUpdate = !!this.props.route?.params
     this.state = {
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
@@ -74,8 +199,7 @@ export class PurchaseBill extends React.Component {
 
       partyName: '',
       searchResults: [],
-      searchPartyName: '',
-      searchTop: height * 0.15,
+      searchPartyName: this.props.route?.params?.accountUniqueName ?? '',      searchTop: height * 0.15,
       isSearchingParty: false,
       searchError: '',
       invoiceAmount: 0,
@@ -85,15 +209,59 @@ export class PurchaseBill extends React.Component {
       date: moment(),
       displayedDate: moment(),
       showDatePicker: false,
-      BillToAddress: {},
-      BillFromAddress: {},
-      shipToAddress: {},
-      shipFromAddress: {},
       addressArray: [],
+      allBillingToAddresses: [],
+      billFromSameAsShipFrom: false,
+      billToSameAsShipTo: false,
+      BillFromAddress: {
+        address: '',
+        gstNumber: '',
+        state: {
+          code: '',
+          name: ''
+        },
+        stateCode: '',
+        stateName: '',
+        pincode: ''
+      },
+      shipFromAddress: {
+        address: '',
+        gstNumber: '',
+        state: {
+          code: '',
+          name: ''
+        },
+        stateCode: '',
+        stateName: '',
+        pincode: ''
+      },
+      BillToAddress: {
+        address: '',
+        gstNumber: '',
+        state: {
+          code: '',
+          name: ''
+        },
+        stateCode: '',
+        stateName: '',
+        pincode: ''
+      },
+      shipToAddress: {
+        address: '',
+        gstNumber: '',
+        state: {
+          code: '',
+          name: ''
+        },
+        stateCode: '',
+        stateName: '',
+        pincode: ''
+      },
       addedItems: [],
       showItemDetails: false,
       expandedBalance: true,
       amountPaidNowText: 0,
+      roundOffTotal: 0,
       tempAmountPaidNowText: 0,
       itemDetails: undefined,
       warehouseArray: [],
@@ -141,16 +309,14 @@ export class PurchaseBill extends React.Component {
       currencySymbol: '',
       exchangeRate: 1,
       totalAmountInINR: 0.0,
-      companyCountryDetails: '',
+      companyCountryDetails: {},
       selectedInvoice: '',
-      allBillingToAddresses: [],
-      billFromSameAsShipFrom: true,
-      billToSameAsShipTo: false,
       tdsOrTcsArray: [],
       partyType: undefined,
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      allStockVariants: {}
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -161,10 +327,6 @@ export class PurchaseBill extends React.Component {
     } else {
       modalRef?.current?.close();
     }
-  };
-
-  FocusAwareStatusBar = (isFocused) => {
-    return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> : null;
   };
 
   setOtherDetails = (data) => {
@@ -228,14 +390,21 @@ export class PurchaseBill extends React.Component {
           companyCountryDetails: results.body.country,
         });
       }
-    } catch (e) { }
+    } catch (e) {
+      console.error('---- Error in setActiveCompanyCountry ----', e)
+    }
   }
 
   componentDidMount() {
     this.setBottomSheetVisible(this.paymentModeBottomSheetRef, true);
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-    this.searchCalls();
+
+    if(this.isVoucherUpdate){
+      this.getPartyDataForUpdateVoucher(this.state.searchPartyName)
+    } else {
+      this.searchCalls();
+    }
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
@@ -272,6 +441,13 @@ export class PurchaseBill extends React.Component {
         const { bottomOffset } = offset;
         this.setState({ bottomOffset });
       });
+    }
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
+    if (prevProps?.route?.params?.refetchDataOnNavigation !== this.props?.route?.params?.refetchDataOnNavigation) {
+      console.log('---------- REFRESH VOUCHER DATA --------------')
+      this.clearAll();
     }
   }
 
@@ -342,7 +518,7 @@ export class PurchaseBill extends React.Component {
           <ActivityIndicator color={'#5773FF'} size="small" animating={this.state.isSearchingParty} />
           {/* </View> */}
         </View>
-        <TouchableOpacity onPress={() => this.clearAll()}>
+        <TouchableOpacity style={{ display: this.isVoucherUpdate ? 'none' : 'flex' }} onPress={() => this.clearAll()}>
           <Text style={{ color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
         </TouchableOpacity>
       </View>
@@ -497,7 +673,7 @@ export class PurchaseBill extends React.Component {
                       isSearchingParty: false,
                     },
                     () => {
-                      this.searchAccount();
+                      this.searchAccount(true);
                       this.getAllAccountsModes();
                       Keyboard.dismiss();
                     },
@@ -530,6 +706,290 @@ export class PurchaseBill extends React.Component {
       </View>
       // </Modal>
     );
+  }
+
+  async getParticularServiceStockVariants(
+    accountUniqueName: string,
+    stockUniqueName?: string,
+    variantUniqueName?: string
+    ) {
+    try {
+      // ----- If the item is a Stock -----
+      if (!!stockUniqueName) {
+        if(!this.state.allStockVariants[stockUniqueName]){
+          const stockVariantsResult = await InvoiceService.getStockVariants(stockUniqueName);
+          if(stockVariantsResult.status == 'success' && stockVariantsResult.body){
+            this.setState({
+              allStockVariants: {
+                ...this.state.allStockVariants,
+                [stockUniqueName]: stockVariantsResult.body
+              }
+            });
+          }
+        }
+        const results = await InvoiceService.getStockDetails(accountUniqueName, stockUniqueName, variantUniqueName ?? this.state.allStockVariants[stockUniqueName][0].uniqueName);
+        if (results && results.body) {
+          const data = results.body;
+          if(!!data?.stock?.variant){
+            data.rate = data.stock.variant.unitRates[0].rate;
+            data.stock.rate = data.stock.variant.unitRates[0].rate;
+            data.stock.stockUnitCode = data.stock.variant.unitRates[0].stockUnitCode;
+            data.stock.stockUnitName = data.stock.variant.unitRates[0].stockUnitName;
+            data.stock.stockUnitUniqueName = data.stock.variant.unitRates[0].stockUnitUniqueName;
+          } else {
+            data.rate = data.stock.unitRates[0].rate;
+            data.stock.rate = data.stock.unitRates[0].rate;
+            data.stock.stockUnitCode = data.stock.unitRates[0].stockUnitCode;
+            data.stock.stockUnitName = data.stock.unitRates[0].stockUnitName;
+            data.stock.stockUnitUniqueName = data.stock.unitRates[0].stockUnitUniqueName;
+          }
+          data.quantity = 1;
+          if(this.state.companyVersionNumber == 2){ 
+            const variantObj = this.state.allStockVariants[stockUniqueName].find((variant) => variant?.uniqueName == variantUniqueName); 
+            data.stock.variant.name = variantObj?.name ?? this.state.allStockVariants[stockUniqueName][0].name;
+            data.stock.isMultiVariant = this.state.allStockVariants[stockUniqueName]?.length > 1;
+          }
+          data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // Used to identify and Edit multiple same entries
+
+          return data;
+        }
+
+        // ----- If the item is a Service -----
+      } else {
+        const results = await InvoiceService.getSalesDetails(accountUniqueName);
+        if (results && results.body) {
+
+            const data = results.body;
+            data.quantity = 1;
+            data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // Used to identify and Edit multiple same entries
+
+            return data;
+        }
+      }
+    } catch (e) {
+      console.warn('----- Error in getParticularServiceStockVariants -----', e)
+    }
+  }
+
+  async mapEntriesToUIData (entries: Array<any>) {
+    let addedItems: Array<any> = [];
+
+    // Prepare the entries according to 'addedItems' existing data structure.
+    await Promise.all(entries.map(async (entry) => {
+
+      const accountUniqueName = entry.transactions[0].account?.uniqueName;
+      const stockUniqueName = entry.transactions[0].stock?.uniqueName;
+      const variantUniqueName = entry.transactions[0].stock?.variant?.uniqueName;
+
+      const particularData = await this.getParticularServiceStockVariants(accountUniqueName, stockUniqueName, variantUniqueName);
+
+      // Inserting Tax accoring to the tax present in voucher.
+      let taxDetailsArray : Array<any> = [];
+      // selectedArrayType container of tax types like ['gst', 'tds'] etc.
+      let selectedArrayType : Array<string> = [];
+
+      entry?.taxes?.forEach((entryTax: any) => { 
+        if(selectedArrayType.includes(entryTax?.taxType)){
+          return;
+        }
+
+        const tax = this.state.taxArray.find(tax => tax.uniqueName === entryTax.uniqueName);
+        if(tax) taxDetailsArray.push(tax);
+        if(!selectedArrayType.includes(entryTax?.taxType)) selectedArrayType.push(entryTax?.taxType);
+      })
+
+      const isStock = !!particularData?.stock;
+
+      // Prepare 'percentDiscountArray' from the discount present in voucher data.
+      let percentDiscountArray : Array<any> = [];
+      // Prepare 'fixedDiscount' from the discount present in voucher data.
+      let fixedDiscount = {
+        discountValue:  0,
+        discountType: '',
+        name: undefined,
+        uniqueName: undefined,
+        linkAccount: {
+          name: undefined,
+          uniqueName: undefined
+        }
+      };
+
+      entry?.discounts?.forEach((_discount: any) => {
+        const discount = {
+          name: _discount?.name,
+          uniqueName: _discount?.uniqueName,
+          discountValue: _discount?.discountValue,
+          discountType: _discount?.calculationMethod,
+          linkAccount: {
+            name: _discount?.accountName,
+            uniqueName: _discount?.accountUniqueName
+          }
+        }
+
+        if(_discount?.calculationMethod === 'FIX_AMOUNT'){
+          fixedDiscount = discount;
+        } else if (_discount?.calculationMethod === 'PERCENTAGE') {
+          percentDiscountArray.push(discount)
+        }
+      }) 
+
+      const modifiedEntryObj = {
+        ...particularData,
+        "hsnNumber": entry?.hsnNumber,
+        "sacNumber": entry?.sacNumber,
+        "quantity": isStock ? entry.transactions[0].stock.quantity : (entry?.usedQuantity !== 0 ? entry?.usedQuantity  : 1),
+        "quantityText": isStock ? entry.transactions[0].stock.quantity : (entry?.usedQuantity !== 0 ? entry?.usedQuantity  : 1),
+        "rate": isStock ? entry.transactions[0].stock.rate.rateForAccount : entry?.subTotal?.amountForAccount,
+        "rateText": isStock ? entry.transactions[0].stock.rate.rateForAccount : entry?.subTotal?.amountForAccount,
+        "taxDetailsArray": taxDetailsArray,
+        "selectedArrayType": selectedArrayType,
+        
+        "unitText": isStock ? entry.transactions[0].stock.quantity : '',
+        "amount": entry?.subTotal?.amountForAccount,
+        "amountText": entry?.subTotal?.amountForAccount,
+        "isNew": false,
+        "description": entry?.description,
+        "unit": isStock ? entry.transactions[0].stock.quantity : '',
+        "total": entry?.subTotal?.amountForAccount,
+        "taxType": 0,
+        "tax": entry?.taxTotal?.amountForAccount ?? 0,
+        "warehouse":0,
+        "discountDetails":{
+        },
+        "discountPercentage": percentDiscountArray[0]?.discountValue,
+        "discountPercentageText": percentDiscountArray[0]?.discountValue,
+        "percentDiscountArray": percentDiscountArray,
+        "discountValue": 0,
+        "discountType": null,
+        "fixedDiscount": fixedDiscount,
+        "fixedDiscountUniqueName": fixedDiscount?.uniqueName
+      }
+
+      modifiedEntryObj.discountValue = this.calculateDiscountedAmount(modifiedEntryObj)
+      addedItems.push(modifiedEntryObj);
+    }))
+
+    return addedItems;
+  }
+
+  mapAddressFromVoucherData(voucherBillingDetails: any, voucherShippingDetails: any) {
+    let partyBillingAddress = {
+      address: '',
+      gstNumber: '',
+      state: {
+        code: '',
+        name: ''
+      },
+      stateCode: '',
+      stateName: '',
+      pincode: ''
+    }
+
+    let partyShippingAddress = { ...partyBillingAddress }
+
+    const formateVoucherAddress = (details: any) => ({
+      address: details.address[0] ?? '',
+      gstNumber: details.gstNumber ?? '',
+      state: {
+        code: details.state.code ?? '',
+        name: details.state.name ?? ''
+      },
+      stateCode: details.state.code ?? '',
+      stateName: details.state.name ?? '',
+      pincode: details.pincode ?? ''
+    })
+
+    partyBillingAddress = formateVoucherAddress(voucherBillingDetails);
+    partyShippingAddress = formateVoucherAddress(voucherShippingDetails);
+
+    return { partyBillingAddress, partyShippingAddress } as const
+  }
+
+  async getPartyDataForUpdateVoucher(_name: string) {
+    const name = (_name ?? this.state.searchPartyName).toLocaleLowerCase()
+    this.setState({ isSearchingParty: true });
+    try {
+      let addressArray : any = []
+
+      // If it is Cash invoice, skip fetching account data and addresses
+      if(!this.props.route?.params.isSalesCashInvoice){
+
+        const results = await InvoiceService.search(name, 1, 'sundrycreditors', false);
+        if (results.body && results.body.results) {
+          const accountData = results.body.results.find((account: any) => account?.uniqueName === name);
+          this.setState({
+            partyName: accountData,
+            searchResults: [],
+            searchPartyName: accountData?.name,
+            searchError: '',
+            isSearchingParty: false,
+          },
+          () => {
+            // this.searchAccount();
+            this.getAllAccountsModes();
+            Keyboard.dismiss();
+          })
+  
+          // Get Addresses of the Accoount
+          addressArray = await this.searchAccount();
+        }
+      }
+
+      // Get the Voucher to Update
+      const accountUniqueName = this.props.route?.params.isSalesCashInvoice ? 'cash' : (this.props?.route?.params?.accountUniqueName ?? '');
+      const payload = {
+        number: this.props?.route?.params?.voucherNumber ?? '',
+        uniqueName: this.props?.route?.params?.voucherUniqueName ?? '',
+        type: this.props?.route?.params?.voucherName ?? ''
+      }
+
+      const response = await CommonService.getVoucher(accountUniqueName, this.state.companyVersionNumber, payload)
+
+      if(response?.status === 'success'){
+
+        const { partyBillingAddress: BillFromAddress, partyShippingAddress: shipFromAddress } = this.mapAddressFromVoucherData(response?.body?.account?.billingDetails, response?.body?.account?.shippingDetails); 
+        const { partyBillingAddress: BillToAddress, partyShippingAddress: shipToAddress } = this.mapAddressFromVoucherData(response?.body?.company?.billingDetails, response?.body?.company?.shippingDetails); 
+        await this.getBillToAndShipToAddress();
+
+        this.setState({
+          countryDeatils: {
+            countryName: response?.body?.account?.billingDetails?.country?.name,
+            countryCode: response?.body?.account?.billingDetails?.country?.code
+          },
+          currency: response.body.account?.currency?.code,
+          currencySymbol: response.body.account?.currency?.symbol,
+          totalAmountInINR : response?.body?.voucherTotal?.amountForAccount,
+          amountPaidNowText: response?.body?.voucherTotal?.amountForAccount - response?.body?.balanceTotal?.amountForAccount,
+          roundOffTotal: response?.body?.roundOffTotal?.amountForAccount ?? 0,
+          date: moment(response?.body?.date, 'DD-MM-YYYY'),
+          dueDate: response?.body?.dueDate ? moment(response?.body?.dueDate, 'DD-MM-YYYY') : null,
+          adjustments: response?.body?.adjustments,
+          BillFromAddress,
+          shipFromAddress,
+          BillToAddress,
+          shipToAddress,
+          billFromSameAsShipFrom: BillFromAddress.address === shipFromAddress.address && BillFromAddress.stateCode === shipFromAddress.stateCode,
+          billToSameAsShipTo: BillToAddress.address === shipToAddress.address && BillToAddress.stateCode === shipToAddress.stateCode,
+          addressArray,
+          selectedInvoice: response?.body?.number,
+          otherDetails: {
+            shipDate: response?.body?.templateDetails?.other?.shippingDate ?? '',
+            shippedVia: response?.body?.templateDetails?.other?.shippedVia ?? null,
+            trackingNumber: response?.body?.templateDetails?.other?.trackingNumber ?? null,
+            customField1: response?.body?.templateDetails?.other?.customField1 ?? null,
+            customField2: response?.body?.templateDetails?.other?.customField2 ?? null,
+            customField3: response?.body?.templateDetails?.other?.customField3 ?? null
+          }
+        })
+        
+        const addedItems = await this.mapEntriesToUIData(response.body.entries);
+        this.setState({ addedItems, loading: false });
+      }
+    } catch (e) {
+      console.warn('----- Error in Get Party Data ------', e)
+    } finally { 
+      this.setState({ isSearchingParty: false });
+    }
   }
 
   async searchUser() {
@@ -586,12 +1046,15 @@ export class PurchaseBill extends React.Component {
   }
 
 
-  async searchAccount() {
+  async searchAccount(isUpdateParty?: boolean) {
     this.setState({ isSearchingParty: true });
     try {
       const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
       console.log('cash account is ', results);
       if (results.body) {
+        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
+          return results.body.addresses.length < 1 ? [] : results.body.addresses
+        }
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
@@ -600,7 +1063,7 @@ export class PurchaseBill extends React.Component {
         this.getPartyTypeFromAddress(results.body.addresses)
         // console.log('address body', results.body);
         await this.setState({
-          addedItems: [],
+          ...(!isUpdateParty && { addedItems: [] }),
           partyDetails: results.body,
           isSearchingParty: false,
           searchError: '',
@@ -618,6 +1081,7 @@ export class PurchaseBill extends React.Component {
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
     }
+    return [];
   }
 
   resetState = () => {
@@ -694,7 +1158,7 @@ export class PurchaseBill extends React.Component {
       currencySymbol: '',
       exchangeRate: 1,
       totalAmountInINR: 0.0,
-      companyCountryDetails: '',
+      companyCountryDetails: {},
       selectedInvoice: '',
       allBillingToAddresses: [],
       billFromSameAsShipFrom: true,
@@ -706,6 +1170,11 @@ export class PurchaseBill extends React.Component {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      ...(this.isVoucherUpdate && {
+        invoiceType: this.props.route?.params?.isSalesCashInvoice ? INVOICE_TYPE.cash : INVOICE_TYPE.credit,
+        partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
+        searchPartyName: this.props.route?.params?.accountUniqueName
+      })
     });
   };
 
@@ -718,8 +1187,8 @@ export class PurchaseBill extends React.Component {
         uniqueName: item.fixedDiscount.uniqueName,
         amount: { type: 'DEBIT', amountForAccount: Number(item.fixedDiscount.discountValue) },
         discountValue: Number(item.fixedDiscount.discountValue),
-        name: '',
-        particular: '',
+        name: item.fixedDiscount?.name ?? '',
+        particular: item.fixedDiscount?.linkAccount?.uniqueName ?? ''
       };
       discountArr.push(discountItem);
     }
@@ -886,6 +1355,128 @@ export class PurchaseBill extends React.Component {
       console.log(e);
     }
   };
+
+  updateVoucherPayload() {
+    const paylaod = {
+      account: {
+        attentionTo: '',
+        billingDetails: {
+          address: [this.state.BillFromAddress.address],
+          taxNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
+          panNumber: '',
+          state: {
+            code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code :  this.state.BillFromAddress.stateCode,
+            name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : this.state.BillFromAddress.stateName,
+          },
+          country: {
+            code: this.state.countryDeatils.countryCode,
+            name: this.state.countryDeatils.countryName,
+          },
+          countryName: this.state.countryDeatils.countryName,
+          stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : this.state.BillFromAddress?.state?.code,
+          stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : this.state.BillFromAddress?.state?.name,
+          pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : '',
+        },
+        contactNumber: '',
+        country: this.state.countryDeatils,
+        currency: { code: this.state.currency, symbol: this.state.currencySymbol },
+        currencySymbol: this.state.currencySymbol,
+        email: '',
+        mobileNumber: '',
+        name: this.state.partyName.name,
+        shippingDetails: {
+          address: [this.state.shipFromAddress.address],
+          country: {
+            code: this.state.countryDeatils.countryCode,
+            name: this.state.countryDeatils.countryName,
+          },
+          countryName: this.state.countryDeatils.countryName,
+          taxNumber: this.state.shipFromAddress.gstNumber ? this.state.shipFromAddress.gstNumber : '',
+          panNumber: '',
+          state: {
+            code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : this.state.shipFromAddress.stateCode,
+            name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name :  this.state.shipFromAddress.stateName,
+          },
+          stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : this.state.shipFromAddress?.state?.code,
+          stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : this.state.shipFromAddress?.state?.name,
+          pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
+        },
+        uniqueName: this.state.partyName.uniqueName,
+      },
+      company: {
+        billingDetails: {
+          address: [this.state.BillToAddress.address],
+          countryName: this.state.companyCountryDetails.countryName,
+          gstNumber: this.state.BillToAddress.gstNumber,
+          taxNumber: this.state.BillToAddress.gstNumber,
+          panNumber: '',
+          state: {
+            code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : this.state.BillToAddress.stateCode,
+            name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : this.state.BillToAddress.stateName,
+          },
+          stateCode: this.state.BillToAddress.stateCode,
+          stateName: this.state.BillToAddress.stateName,
+          pincode: this.state.BillToAddress.pincode,
+        },
+        shippingDetails: {
+          address: [this.state.shipToAddress.address],
+          countryName: this.state.companyCountryDetails.countryName,
+          gstNumber: this.state.shipToAddress.gstNumber,
+          taxNumber: this.state.shipToAddress.gstNumber,
+          panNumber: '',
+          state: {
+            code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : this.state.shipToAddress.stateCode,
+            name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : this.state.shipToAddress.stateName,
+          },
+          stateCode: this.state.shipToAddress.stateCode,
+          stateName: this.state.shipToAddress.stateName,
+          pincode: this.state.shipToAddress.pincode,
+        },
+      },
+      date: moment(this.state.date).format('DD-MM-YYYY'),
+      dueDate: this.state.dueDate ? moment(this.state.dueDate).format('DD-MM-YYYY') : null,
+      entries: this.getEntries(),
+      exchangeRate: this.state.exchangeRate,
+      templateDetails: {
+        other: {
+          shippingDate: this.state.otherDetails.shipDate,
+          shippedVia: this.state.otherDetails.shippedVia,
+          trackingNumber: this.state.otherDetails.trackingNumber,
+          customField1: this.state.otherDetails.customField1,
+          customField2: this.state.otherDetails.customField2,
+          customField3: this.state.otherDetails.customField3
+        }
+      },
+      type: 'purchase',
+      roundOffApplicable: true,
+      updateAccountDetails: false,
+      adjustments: this.state.adjustments,
+      uniqueName: this.props.route?.params.voucherUniqueName,
+      number: this.state.selectedInvoice
+    }
+    
+    return paylaod;
+  }
+
+  async updateVoucher() {
+    this.setState({ loading: true });
+    try {
+      const updateVoucherPayload = this.updateVoucherPayload();
+      const accountUniqueName = this.props.route?.params?.accountUniqueName ?? '';
+      const response = await CommonService.updateVoucher(accountUniqueName, this.state.companyVersionNumber, updateVoucherPayload);
+
+      if(response?.status === 'success') {
+        this.setState({ loading: false });
+        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+        alert('Invoice updated successfully!');
+        this.props.navigation.goBack();
+      }
+    } catch (error) {
+      Alert.alert('Error', error?.data?.message ?? 'Something went wrong!');
+    } finally {
+      this.setState({ loading: false });
+    }
+  }
 
   async createPurchaseBill(type) {
     this.setState({ loading: true });
@@ -1159,7 +1750,12 @@ export class PurchaseBill extends React.Component {
 
   clearAll = () => {
     this.resetState();
-    this.searchCalls();
+    this.getCompanyVersionNumber()
+    if(this.isVoucherUpdate){
+      this.getPartyDataForUpdateVoucher(this.props?.route?.params?.accountUniqueName)
+    } else {
+      this.searchCalls();
+    }
     this.setActiveCompanyCountry();
     this.getAllTaxes();
     this.getAllDiscounts();
@@ -1171,7 +1767,7 @@ export class PurchaseBill extends React.Component {
   renderAmount() {
     return (
       <View style={{ paddingVertical: 10, paddingHorizontal: 15 }}>
-        <Text style={style.invoiceAmountText}>{`${this.state.currencySymbol} ${formatAmount(this.getTotalAmount())}`}</Text>
+        <Text style={style.invoiceAmountText}>{`${this.state.currencySymbol} ${formatAmount(this.state.isSearchingParty ? 0 : Number(this.getTotalAmount()) + this.state.roundOffTotal)}`}</Text>
       </View>
     );
   }
@@ -1251,18 +1847,23 @@ export class PurchaseBill extends React.Component {
       // </DateRangePicker>
 
       <View style={style.dateView}>
-        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => {
-          if (!this.state.partyName) {
-            alert('Please select a party.');
-          } else {
-            this.setState({ showDatePicker: true })
-          }
-        }}>
+        <TouchableOpacity
+            disabled={this.isVoucherUpdate}
+            style={{ flexDirection: 'row' }} 
+            onPress={() => {
+              if (!this.state.partyName) {
+                alert('Please select a party.');
+              } else {
+                this.setState({ showDatePicker: true })
+              }
+            }}
+          >
           <Icon name={'Calendar'} color={'#FC8345'} size={16} />
           <Text style={style.selectedDateText}>{this.formatDate()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={{ borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2 }}
+          disabled={this.isVoucherUpdate}
+          style={{ borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2, display: this.isVoucherUpdate ? 'none' : 'flex' }}
           onPress={() => {
             if (!this.state.partyName) {
               alert('Please select a party.');
@@ -1693,7 +2294,7 @@ export class PurchaseBill extends React.Component {
 
   updateAddedItems = async (addedItems) => {
     const updateAmountToCurrentCurrency = addedItems;
-    if (this.state?.currency?.toString?.() != this.state.companyCountryDetails?.currency?.code?.toString?.()) {
+    if (this.state.currency.toString() != this.state.companyCountryDetails.currency.code.toString()) {
       try {
         const results = await InvoiceService.getExchangeRate(
           moment().format('DD-MM-YYYY'),
@@ -1712,14 +2313,12 @@ export class PurchaseBill extends React.Component {
             }
           }
         }
-      } catch (error) { 
-        console.log('---- Error in getExchangeRate ----', error)
-      }
+      } catch (e) { }
     }
 
     for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
-      if (updateAmountToCurrentCurrency[i]?.isNew == undefined || updateAmountToCurrentCurrency[i]?.isNew == true) {
-        await this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
+      if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) {
+        this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
       }
     }
 
@@ -1843,8 +2442,6 @@ export class PurchaseBill extends React.Component {
       editItemDetails.unitText = editItemDetails?.stock?.stockUnitCode;
     }
     editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
-
-    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
   }
 
   renderAddItemButton() {
@@ -1852,7 +2449,7 @@ export class PurchaseBill extends React.Component {
       <TouchableOpacity
         onPress={() => {
           if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-            this.props.navigation.navigate('PurchaseAddItem', {
+            this.props.navigation.navigate('AddInvoiceItemScreen', {
               updateAddedItems: (this.updateAddedItems).bind(this),
               addedItems: this.state.addedItems,
               currencySymbol: this.state.currencySymbol
@@ -1897,7 +2494,7 @@ export class PurchaseBill extends React.Component {
               borderRadius:2
               }}
             onPress={() => {
-              this.props.navigation.navigate('PurchaseAddItem', {
+              this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
                 addedItems: this.state.addedItems,
                 currencySymbol: this.state.currencySymbol
@@ -1982,6 +2579,7 @@ export class PurchaseBill extends React.Component {
         onSwipeableRightOpen={() => console.log('Swiped right')}
         renderRightActions={() => this.renderRightAction(item)}>
         <TouchableOpacity
+          activeOpacity={0.8}
           style={{ backgroundColor: '#ffe0b2', padding: 10, borderRadius: 2, marginBottom: 10 }}
           onPress={() => {
             this.setState({
@@ -2086,6 +2684,9 @@ export class PurchaseBill extends React.Component {
   calculateDiscountedAmount(itemDetails) {
     let totalDiscount = 0;
     let percentDiscount = 0;
+    if (itemDetails?.fixedDiscount?.discountValue > 0) {
+      totalDiscount = totalDiscount + itemDetails.fixedDiscount.discountValue;
+    }
     if (itemDetails.percentDiscountArray && itemDetails.percentDiscountArray.length > 0) {
       for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
         percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
@@ -2127,7 +2728,7 @@ export class PurchaseBill extends React.Component {
 
       }
     }
-    if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
+    else if (!!itemDetails.stock && itemDetails.stock.taxes.length > 0) {
       for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
         const item = itemDetails.stock.taxes[i];
         for (let j = 0; j < taxArr.length; j++) {
@@ -2293,7 +2894,7 @@ export class PurchaseBill extends React.Component {
           if (!this.state.partyName) {
             alert('Please select a party.');
           } else {
-            this.props.navigation.navigate('PurchaseBillOtherDetails', {
+            this.props.navigation.navigate('InvoiceOtherDetailScreen', {
               warehouseArray: this.state.warehouseArray,
               setOtherDetails: this.setOtherDetails,
               otherDetails: this.state.otherDetails,
@@ -2401,7 +3002,7 @@ export class PurchaseBill extends React.Component {
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
-              <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(this.getTotalAmount())}</Text>
+              <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(Number(this.getTotalAmount()) + this.state.roundOffTotal)}</Text>
             </View>
             {
               this.state.tdsOrTcsArray.length != 0 ?
@@ -2418,7 +3019,7 @@ export class PurchaseBill extends React.Component {
                   keyExtractor={(item, index) => index.toString()} />
                 : null
             }
-            {this.state.partyDetails.accountType != "Asset" && <View
+            {this.state.partyDetails.accountType != "Asset" && !this.isVoucherUpdate && <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -2472,7 +3073,7 @@ export class PurchaseBill extends React.Component {
               <Text style={{ color: '#1C1C1C' }}>Balance Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {formatAmount((String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2))}
+                {formatAmount(Number(this.getInvoiceDueTotalAmount()) + this.state.roundOffTotal - this.state.amountPaidNowText)}
               </Text>
             </View>
           </View>
@@ -2485,6 +3086,7 @@ export class PurchaseBill extends React.Component {
             marginTop: 20,
             margin: 16,
             alignItems: 'center',
+            display: this.isVoucherUpdate ? 'none' : 'flex'
           }}>
           <View>
             <TouchableOpacity
@@ -2566,6 +3168,10 @@ export class PurchaseBill extends React.Component {
         { style: 'destructive', text: 'Okay' },
       ]);
     } else {
+      if(this.isVoucherUpdate){
+        this.updateVoucher();
+        return
+      }
       this.createPurchaseBill(type);
     }
   }
@@ -2649,11 +3255,16 @@ export class PurchaseBill extends React.Component {
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
-          bounces={false}>
-          <View style={[style.container, {paddingBottom: 40}]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
+          contentContainerStyle={{ paddingBottom: 70 }}
+          bounces={false}
+        >
+          {this.renderHeader()}
+          <View 
+            pointerEvents={ this.state.isSearchingParty ? 'none' : 'auto' }
+            style={[style.container, {paddingBottom: 40}]}
+          >
+            <_StatusBar statusBar='#ef6c00' />
             <View style={style.headerConatiner}>
-              {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
             </View>
@@ -2735,10 +3346,14 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-function Screen(props) {
+const _StatusBar = ({ statusBar }: { statusBar: string }) => {
   const isFocused = useIsFocused();
+  return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/> : null
+}
 
-  return <PurchaseBill {...props} isFocused={isFocused} />;
+function Screen(props) {
+
+  return <PurchaseBill {...props} />;
 }
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);

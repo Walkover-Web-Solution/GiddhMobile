@@ -2721,7 +2721,10 @@ export class EditAddress extends React.Component<any, any> {
             gstNumber: (this.state.gstNo).toUpperCase(),
             pincode: this.state.pinCode,
             selectedCountry: this.state.selectedCountry,
-            state: this.state.state_billing != '' ? this.state.state_billing : '',
+            state: {
+               code: this.state.stateCode,
+               name: this.state.selectedState
+            },
             stateCode: this.state.stateCode,
             stateName: this.state.state_billing.name
                ? this.state.state_billing.name

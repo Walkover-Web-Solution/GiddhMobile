@@ -60,7 +60,7 @@ class EditItemDetails extends Component {
         sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
         unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock?.stockUnitCode : '',
-        amountText: this.props.itemDetails?.amountText,
+        amountText: this.props.itemDetails?.amountText ? this.props.itemDetails?.amountText : (this.props.itemDetails.rate ? this.props.itemDetails.rate : '0'),
         discountValueText: this.props.itemDetails.discountValue ? this.props.itemDetails.discountValue : '',
         discountPercentageText: this.props.itemDetails.discountPercentage
           ? this.props.itemDetails.discountPercentage
