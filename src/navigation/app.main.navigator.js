@@ -17,6 +17,7 @@ import AppDatePicker from '@/screens/DatePicker/DatePicker';
 import AllVoucherScreen from '@/screens/AllVoucherScreen/AllVoucherScreen';
 import Routes from './routes';
 import VoucherUpdateStack from './voucher-update.navigator';
+import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -40,6 +41,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'AppDatePicker'} component={AppDatePicker}/>
       <Drawer.Screen name={'VoucherScreen'} component={AllVoucherScreen}/>
       <Drawer.Screen name={'VoucherUpdateStack'} component={VoucherUpdateStack}/>
+      <Drawer.Screen name={'PdfPreviewScreen'} component={PdfPreviewScreen}/>
     </Drawer.Navigator>
   );
 }

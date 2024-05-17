@@ -21,6 +21,7 @@ import PreviewIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 type Props = {
   item: any
   onPressDelete: (accountUniqueName: string, entryUniqueName: string) => void
+  navigation:any
 }
 class TransactionList extends React.Component<Props> {
   private swipeableRef: React.Ref<Swipeable>;
@@ -434,7 +435,15 @@ class TransactionList extends React.Component<Props> {
                       activeOpacity={0.7}
                       style={{paddingHorizontal: 8}}
                       onPress={() => {
-                        this.setState({pdfPreviewModal:true,isLoading:true})
+                        this.props.navigation.navigate('PdfPreviewScreen',{
+                          companyVersionNumber:this.state.companyVersionNumber,
+                          uniqueName:this.props.item.particular.uniqueName,
+                          voucherInfo:{
+                            voucherNumber: [`${this.props.item.voucherNo}`],
+                            uniqueName: this.props.item.voucherUniqueName,
+                            voucherType: `${this.props.item.voucherName}`,
+                          }
+                        })
                       }}>
                       <PreviewIcon name="file-eye-outline" size={17} color={'#000'} />
                     </TouchableOpacity>

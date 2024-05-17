@@ -20,7 +20,7 @@ import {
   Keyboard
 } from 'react-native';
 import style from '@/screens/Transaction/style';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
@@ -1863,6 +1863,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                         transactionType={item?.particular?.uniqueName == this.props.route?.params?.item?.uniqueName ? 'partyTransaction' : 'normalTransaction'}
                         phoneNo={this.props.route?.params?.item?.mobileNo}
                         onPressDelete={this.onPressDelete}
+                        navigation = {this.props.navigation}
                       />
                     )}
                     keyExtractor={(item) => item.uniqueName}
@@ -2076,7 +2077,7 @@ const mapDispatchToProps = () => {
 
 function Screen(props) {
   const isFocused = useIsFocused();
-
-  return <PartiesTransactionScreen {...props} isFocused={isFocused} />;
+  const navigation = useNavigation();
+  return <PartiesTransactionScreen {...props} isFocused={isFocused} navigation={navigation}/>;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Screen);
