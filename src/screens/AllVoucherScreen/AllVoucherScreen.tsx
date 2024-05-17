@@ -350,7 +350,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 dueDate={item?.dueDate}
                 dueAmount={item?.balanceDue?.amountForAccount}
                 isSalesCashInvoice={item?.account?.uniqueName === 'cash'}
-
+                companyVoucherVersion = {companyVoucherVersion}
                 date={getVoucherGroupDate(item, index, voucherData)}
                 voucherName={voucherName}
                 showDivider={index !== 0}
