@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 import { Modalize } from "react-native-modalize"
 import { Portal } from "react-native-portalize"
 import SalesInvoice from '@/assets/images/icons/options/SalesInvoice.svg'
+import { DefaultTheme } from "@/utils/theme";
 
 type Props = {
     navigation: any;
@@ -20,8 +21,8 @@ const productArr:any = {
     stock : {
         name: 'Create Stock', 
         navigateTo: 'ProductScreen', 
-        icon: <SalesInvoice color={'gray'} />, 
-        color: 'gray'   
+        icon: <SalesInvoice color={DefaultTheme.colors.secondary} />, 
+        color: DefaultTheme.colors.secondary   
     },
     group : {
         name: 'Create Group', 
@@ -97,6 +98,7 @@ const styles = StyleSheet.create({
     listTitle: {
         fontFamily: FONT_FAMILY.bold, 
         fontSize: GD_FONT_SIZE.medium, 
-        marginTop: 5 
+        marginTop: 5,
+        color:DefaultTheme.colors.secondary
     }
 });

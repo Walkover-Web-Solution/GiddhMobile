@@ -19,6 +19,7 @@ import Vendor from '@/assets/images/icons/options/Vendor.svg'
 import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
+import { DefaultTheme } from '@/utils/theme';
 
 const arrButtons = [
     { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: <SalesInvoice color={'#229F5F'} />, color: '#229F5F' },
@@ -43,8 +44,14 @@ const inventoryButtons:any = {
     product : {
         name: 'Product', 
         navigateTo: 'ProductScreen', 
-        icon: <SalesInvoice color={'#111111'} />, 
-        color: '#111111'   
+        icon: <SalesInvoice color={DefaultTheme.colors.secondary} />, 
+        color: DefaultTheme.colors.secondary   
+    },
+    item2 : {
+        name: 'Item2', 
+        navigateTo: 'ProductScreen', 
+        icon: <Vendor color={'green'} />, 
+        color: 'green'   
     }
 }
 const SIZE = 48;
@@ -75,6 +82,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                 >
                     <View style={{flex:1,padding:12}}>
                         <Text style={styles.listTitle}>Inventory</Text>
+                        <View style={styles.buttonContainer}>
                         {Object.keys(inventoryButtons).map((item)=>(
                             <TouchableOpacity
                             activeOpacity={0.7}
@@ -92,6 +100,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                 <Text style={styles.name}>{inventoryButtons?.[item]?.name}</Text>
                             </TouchableOpacity>
                         ))}
+                        </View>
                     </View>
                     <FlatList
                         numColumns={4}
@@ -133,6 +142,9 @@ class AddButtonOptions extends React.PureComponent<Props> {
 export default AddButtonOptions;
 
 const styles = StyleSheet.create({
+    buttonContainer : {
+        flexDirection:'row'
+    },
     button: {
         width: itemWidth,
         alignItems: 'center',
