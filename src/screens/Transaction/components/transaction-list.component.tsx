@@ -474,7 +474,7 @@ class TransactionList extends React.Component<Props> {
           </View>
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.iosShare} />
-          <PdfPreviewModal 
+          {/* <PdfPreviewModal 
             modalVisible={this.state.pdfPreviewModal} 
             setModalVisible={this.setPdfPreviewModalVisible} 
             setLoading = {this.setPdfLoading}
@@ -486,7 +486,7 @@ class TransactionList extends React.Component<Props> {
               uniqueName: this.props.item.voucherUniqueName,
               voucherType: `${this.props.item.voucherName}`,
             }}
-          />
+          /> */}
         </View>
       </Swipeable>
     );

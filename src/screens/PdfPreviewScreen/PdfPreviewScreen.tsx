@@ -1,6 +1,5 @@
-import { Dimensions, Platform, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 import Pdf from 'react-native-pdf';
-import  Modal  from "react-native-modal";
 import { Bars } from 'react-native-loader';
 import { useEffect, useState } from "react";
 import colors from "@/utils/colors";
@@ -8,11 +7,18 @@ import AsyncStorage from "@react-native-community/async-storage";
 import { STORAGE_KEYS } from "@/utils/constants";
 import RNFetchBlob from "rn-fetch-blob";
 import Toast from "react-native-root-toast";
+import SafeAreaView from "react-native-safe-area-view";
+import Header from "@/components/Header";
+import { useIsFocused } from "@react-navigation/native";
+import useCustomTheme, { ThemeProps } from "@/utils/theme";
 
 const Screen_width = Dimensions.get('window').width;
 const PdfPreviewScreen = ( route ) => {
-    console.log("props",route?.route?.params);
-    
+    const _StatusBar = ({ statusBar }: { statusBar: string }) => {
+        const isFocused = useIsFocused();
+        return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
+    }
+    const {statusBar,styles, voucherBackground} = useCustomTheme(getStyles, 'PdfPreview');
     const {companyVersionNumber,uniqueName,voucherInfo} = route?.route?.params 
     const [pdfBlobUri,setPdfBlobUri] = useState("");
     const [isLoading,setLoading] = useState(true);
@@ -51,12 +57,10 @@ const PdfPreviewScreen = ( route ) => {
             }
             let base64Str = res.base64();
             setPdfBlobUri("data:application/pdf;base64,"+base64Str);
-            // setModalVisible(false,false);
             setLoading(false);
           })
         } catch (e) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
-            // setModalVisible(false);
             setLoading(false);
         //   Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
             console.log(e);
@@ -67,77 +71,58 @@ const PdfPreviewScreen = ( route ) => {
         exportFile();
         return (()=>{
             setLoading(true);
+            setPdfBlobUri("");
         })
     },[route?.route])
     
     return ( 
-        // <Modal
-        //     isVisible={modalVisible}
-        //     backdropColor={'#000'}
-        //     backdropOpacity={0.7}
-        //     animationIn={'zoomIn'}
-        //     animationOut={'zoomOut'}
-        //     animationOutTiming={200}
-        //     deviceHeight={Dimensions.get('window').height+50}
-        //     onBackdropPress={() => {
-        //         setModalVisible(false);
-        //         setLoading(false);
-        //     }}
-        //     onBackButtonPress={()=>{
-        //         setModalVisible(false)
-        //         setLoading(false);
-        //     }}
-        // >
-        <View style={styles.container}>
-            {!isLoading ? <View style={styles.container}>
-                <Pdf
-                    source={{uri:pdfBlobUri}}
-                    trustAllCerts={false}
-                    onLoadComplete={(numberOfPages,filePath) => {
-                        console.log(`Number of pages: ${numberOfPages}`);
-                    }}
-                    onPageChanged={(page,numberOfPages) => {
-                        console.log(`Current page: ${page}`);
-                    }}
-                    onError={(error) => {
-                        ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
-                        // setModalVisible(false);
-                        setLoading(false);
-                    }}
-                    onPressLink={(uri) => {
-                        console.log(`Link pressed: ${uri}`);
-                    }}
-                    style={styles.pdf}
-                />
-            </View>
-            : 
-            <View style={styles.loadContainer}>
-                <View style={styles.centeredView}>
-                <Bars size={15} color={colors.PRIMARY_NORMAL} />
+        <SafeAreaView style={styles.container}>
+            <_StatusBar statusBar={statusBar}/>
+            <Header header={'Pdf Preview'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+            <View style={styles.container}>
+                {!isLoading ? <View style={styles.container}>
+                    <Pdf
+                        source={{uri:pdfBlobUri}}
+                        trustAllCerts={false}
+                        onLoadComplete={(numberOfPages,filePath) => {
+                            console.log(`Number of pages: ${numberOfPages}`);
+                        }}
+                        onPageChanged={(page,numberOfPages) => {
+                            console.log(`Current page: ${page}`);
+                        }}
+                        onError={(error) => {
+                            ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
+                            // setModalVisible(false);
+                            setLoading(false);
+                        }}
+                        onPressLink={(uri) => {
+                            console.log(`Link pressed: ${uri}`);
+                        }}
+                        style={styles.pdf}
+                    />
                 </View>
-            </View>}
-        </View>
-        // </Modal>
+                : 
+                <View style={styles.loadContainer}>
+                    <Bars size={15} color={colors.PRIMARY_NORMAL} />
+                </View>}
+            </View>
+        </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     modalStyle: { 
         backgroundColor:'red',borderWidth:2,
         borderColor:'red'
-        // overflow: 'hidden',
     },
     container : {
         flex:1,
-        margin:10,
-        // marginBottom: 50,
+        marginTop:0,
         borderRadius:7 
     },
     pdf: {
         flex:1,
         borderRadius:12
-        // width:Dimensions.get('window').width,
-        // height:Dimensions.get('window').height,
     },
     loadContainer: {
         position: 'absolute',

@@ -173,8 +173,15 @@ const _RenderVoucher : React.FC<Props> = ({
                                     style={{paddingHorizontal: 8}}
                                     hitSlop={{ top: 10, bottom: 10 }}
                                     onPress={() => {
-                                        setpdfModalVisible(true);
-                                        setpdfPreviewLoading(true);
+                                        navigation.navigate('PdfPreviewScreen',{
+                                            companyVersionNumber:companyVoucherVersion,
+                                            uniqueName:accountUniqueName,
+                                            voucherInfo:{
+                                              voucherNumber: [voucherNumber],
+                                              uniqueName: voucherUniqueName,
+                                              voucherType: voucherName.toLocaleLowerCase(),
+                                            }
+                                        })
                                     }}>
                                     <PreviewIcon name="file-eye-outline" size={17} color={'#000'} />
                                 </TouchableOpacity>
@@ -183,7 +190,7 @@ const _RenderVoucher : React.FC<Props> = ({
                     }
                 </TouchableOpacity>
             </Swipeable>
-            <PdfPreviewModal 
+            {/* <PdfPreviewModal 
                 modalVisible={pdfModalVisible} 
                 setModalVisible={setpdfModalVisible} 
                 setLoading = {setpdfPreviewLoading}
@@ -195,7 +202,7 @@ const _RenderVoucher : React.FC<Props> = ({
                 uniqueName: voucherUniqueName,
                 voucherType: voucherName.toLocaleLowerCase(),
             }}
-          />
+          /> */}
         </>
     )
 }
