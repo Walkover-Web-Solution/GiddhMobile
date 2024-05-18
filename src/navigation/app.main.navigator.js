@@ -21,6 +21,7 @@ import PurchaseVoucherUpdateStack from '@/navigation/voucher-update-navigator/pu
 import CreditNoteUpdateStack from '@/navigation/voucher-update-navigator/credit-note-update.navigator';
 import DebitNoteUpdateStack from '@/navigation/voucher-update-navigator/debit-note-update.navigator';
 import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
+import { ProductStack } from './product.navigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -48,6 +49,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'CreditNoteUpdateStack'} component={CreditNoteUpdateStack}/>
       <Drawer.Screen name={'DebitNoteUpdateStack'} component={DebitNoteUpdateStack}/>
       <Drawer.Screen name={'PdfPreviewScreen'} component={PdfPreviewScreen}/>
+      <Drawer.Screen name={'ProductScreen'} component={ProductStack} />
     </Drawer.Navigator>
   );
 }

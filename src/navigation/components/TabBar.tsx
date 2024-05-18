@@ -17,6 +17,7 @@ import DebitNote from '@/assets/images/icons/options/DebitNote.svg'
 import Payment from '@/assets/images/icons/options/Payment.svg'
 import Receipt from '@/assets/images/icons/options/Receipt.svg'
 import VoucherSVG from '@/assets/images/icons/options/Voucher.svg'
+import ProductOptions from './ProductOptions'
 
 const { height } = Dimensions.get('window');
 const SIZE = 48;
@@ -44,6 +45,7 @@ type Props = {
 const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelected, disableTabs, selectedVouchersForBottomTabs }) => {
     const moreOptionsRef = useRef(null);
     const plusButtonRef = useRef(null);
+    const productOptionRef = useRef(null);
 
     return (
         <View style={styles.container}>
@@ -161,7 +163,8 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                     <Entypo name="plus" size={24} color={'#fff'} />
                 </TouchableOpacity>
             }
-            <AddButtonOptions key={'add'} plusButtonRef={plusButtonRef} closeModal={() => setBottomSheetVisible(plusButtonRef, false)} isDisabled={disableTabs} navigation={navigation} />
+            <AddButtonOptions key={'add'} productOptionRef={productOptionRef} plusButtonRef={plusButtonRef} closeModal={() => setBottomSheetVisible(plusButtonRef, false)} isDisabled={disableTabs} navigation={navigation} />
+            <ProductOptions productOptionRef={productOptionRef} closeModal={() => setBottomSheetVisible(productOptionRef, false)} isDisabled={disableTabs} navigation={navigation} />
         </View>
     );
 }
