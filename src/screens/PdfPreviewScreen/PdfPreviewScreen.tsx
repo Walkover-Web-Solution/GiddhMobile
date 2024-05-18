@@ -83,6 +83,7 @@ const PdfPreviewScreen = ( route ) => {
                 {!isLoading ? <View style={styles.container}>
                     <Pdf
                         source={{uri:pdfBlobUri}}
+                        renderActivityIndicator={()=>(<></>)}
                         trustAllCerts={false}
                         onLoadComplete={(numberOfPages,filePath) => {
                             console.log(`Number of pages: ${numberOfPages}`);

@@ -69,7 +69,7 @@ export interface ThemeProps extends DefaultConfigProps {
         debitNote: { statusBar: '#ff5355', background: '#ff6961' },
         receipt: { statusBar: '#02836C', background: '#00B795' },
         payment: { statusBar: '#1A237E', background: '#084EAD' },
-        pdfPreview: { statusBar: '#000', background: '#000' },
+        pdfPreview: { statusBar: '#1A237E', background: '#084EAD' }
         stock: { statusBar: '#666666', background: '#808080' }
     }
     border: '#B3B3B3',
@@ -244,7 +244,7 @@ const DarkTheme: ThemeProps = {
         debitNote: { statusBar: '#ff5355', background: '#ff6961' },
         receipt: { statusBar: '#02836C', background: '#00B795' },
         payment: { statusBar: '#1A237E', background: '#084EAD' },
-        pdfPreview: { statusBar: '#000', background: '#000' },
+        pdfPreview: { statusBar: '#1A237E', background: '#084EAD' },
         stock: { statusBar: '#666666', background: '#808080' }
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
@@ -274,7 +274,7 @@ const LightTheme: ThemeProps = {
         debitNote: { statusBar: '#ff5355', background: '#ff6961' },
         receipt: { statusBar: '#02836C', background: '#00B795' },
         payment: { statusBar: '#1A237E', background: '#084EAD' },
-        pdfPreview: { statusBar: '#000', background: '#000' },
+        pdfPreview: { statusBar: '#1A237E', background: '#084EAD' },
         stock: { statusBar: '#666666', background: '#808080' }
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
