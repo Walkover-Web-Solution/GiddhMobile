@@ -1,7 +1,7 @@
 import { capitalizeName, formatAmount } from '@/utils/helper'
 import useCustomTheme, { ThemeProps } from '@/utils/theme'
 import moment from 'moment'
-import React, { memo, useRef } from 'react'
+import React, { memo, useRef, useState } from 'react'
 import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Feather from 'react-native-vector-icons/Feather'
 import AntDesign from 'react-native-vector-icons/AntDesign'
@@ -9,6 +9,8 @@ import { Swipeable } from 'react-native-gesture-handler'
 import DateChipSeparator from './DateChipSeparator'
 import { useNavigation } from '@react-navigation/native'
 import { APP_EVENTS } from '@/utils/constants'
+import PreviewIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import PdfPreviewModal from '@/screens/Parties/components/PdfPreviewModal'
 
 type Props = {
     name: string
@@ -25,6 +27,7 @@ type Props = {
     voucherName : string
     showDivider: boolean
     isSalesCashInvoice: boolean
+    companyVoucherVersion: number
     shareFile: (uniqueName: string, voucherNumber: string) => void
     downloadFile: (uniqueName: string, voucherNumber: string) => void
     onPressDelete: (accountUniqueName: string, voucherUniqueName: string, voucherType: string) => void
@@ -45,6 +48,7 @@ const _RenderVoucher : React.FC<Props> = ({
     voucherName, 
     showDivider, 
     isSalesCashInvoice,
+    companyVoucherVersion,
     shareFile, 
     downloadFile,
     onPressDelete 
@@ -53,6 +57,8 @@ const _RenderVoucher : React.FC<Props> = ({
     const navigation = useNavigation();
     const { theme, styles } = useCustomTheme(getVoucherStyles)
     const overDueDays : number = moment().clone().startOf('day').diff(moment(dueDate, 'DD MM YYYY'), 'days')
+    const [pdfPreviewLoading,setpdfPreviewLoading] = useState(false);
+    const [pdfModalVisible,setpdfModalVisible] = useState(false);
     const isOverDue : boolean =(balanceStatus !== 'PAID' && balanceStatus !== 'HOLD' && balanceStatus !== 'CANCEL') && (!!dueDate && overDueDays >= 0)
 
     return (
@@ -176,11 +182,41 @@ const _RenderVoucher : React.FC<Props> = ({
                                 >
                                     <Feather name="download" size={17} color={'#1C1C1C'} />
                                 </TouchableOpacity>
+                                <TouchableOpacity
+                                    activeOpacity={0.7}
+                                    style={{paddingHorizontal: 8}}
+                                    hitSlop={{ top: 10, bottom: 10 }}
+                                    onPress={() => {
+                                        navigation.navigate('PdfPreviewScreen',{
+                                            companyVersionNumber:companyVoucherVersion,
+                                            uniqueName:accountUniqueName,
+                                            voucherInfo:{
+                                              voucherNumber: [voucherNumber],
+                                              uniqueName: voucherUniqueName,
+                                              voucherType: voucherName.toLocaleLowerCase(),
+                                            }
+                                        })
+                                    }}>
+                                    <PreviewIcon name="file-eye-outline" size={17} color={'#000'} />
+                                </TouchableOpacity>
                             </View>
                         </View>
                     }
                 </TouchableOpacity>
             </Swipeable>
+            {/* <PdfPreviewModal 
+                modalVisible={pdfModalVisible} 
+                setModalVisible={setpdfModalVisible} 
+                setLoading = {setpdfPreviewLoading}
+                isLoading={pdfPreviewLoading}
+                companyVersionNumber={companyVoucherVersion}
+                uniqueName={accountUniqueName}
+                voucherInfo={{
+                voucherNumber: [voucherNumber],
+                uniqueName: voucherUniqueName,
+                voucherType: voucherName.toLocaleLowerCase(),
+            }}
+          /> */}
         </>
     )
 }

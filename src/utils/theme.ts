@@ -68,7 +68,8 @@ export interface ThemeProps extends DefaultConfigProps {
         creditNote: { statusBar: '#2e80d1', background: '#3497FD' },
         debitNote: { statusBar: '#ff5355', background: '#ff6961' },
         receipt: { statusBar: '#02836C', background: '#00B795' },
-        payment: { statusBar: '#1A237E', background: '#084EAD' }
+        payment: { statusBar: '#1A237E', background: '#084EAD' },
+        pdfPreview: { statusBar: '#1A237E', background: '#084EAD' }
     }
     border: '#B3B3B3',
     shadow: '#4D4D4D',
@@ -241,7 +242,8 @@ const DarkTheme: ThemeProps = {
         creditNote: { statusBar: '#2e80d1', background: '#3497FD' },
         debitNote: { statusBar: '#ff5355', background: '#ff6961' },
         receipt: { statusBar: '#02836C', background: '#00B795' },
-        payment: { statusBar: '#1A237E', background: '#084EAD' }
+        payment: { statusBar: '#1A237E', background: '#084EAD' },
+        pdfPreview: { statusBar: '#1A237E', background: '#084EAD' }
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
      
@@ -269,7 +271,8 @@ const LightTheme: ThemeProps = {
         creditNote: { statusBar: '#2e80d1', background: '#3497FD' },
         debitNote: { statusBar: '#ff5355', background: '#ff6961' },
         receipt: { statusBar: '#02836C', background: '#00B795' },
-        payment: { statusBar: '#1A237E', background: '#084EAD' }
+        payment: { statusBar: '#1A237E', background: '#084EAD' },
+        pdfPreview: { statusBar: '#1A237E', background: '#084EAD' }
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
   },
@@ -283,7 +286,8 @@ const VOUCHERS = {
     'Credit Note': 'creditNote',
     'Debit Note': 'debitNote',
     'Receipt': 'receipt',
-    'Payment': 'payment'
+    'Payment': 'payment',
+    'PdfPreview': 'pdfPreview'
 }
 
 /**

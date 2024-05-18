@@ -1,5 +1,5 @@
 import React, { createRef } from 'react';
-import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking, Platform, Dimensions, ToastAndroid } from 'react-native';
+import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking, Platform, ToastAndroid } from 'react-native';
 import styles from '@/screens/Transaction/components/styles';
 import colors from '@/utils/colors';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -15,10 +15,13 @@ import Feather from 'react-native-vector-icons/Feather';
 import TOAST from 'react-native-root-toast';
 import { formatAmount } from '@/utils/helper';
 import { Swipeable } from 'react-native-gesture-handler';
+import PdfPreviewModal from '@/screens/Parties/components/PdfPreviewModal';
+import PreviewIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type Props = {
   item: any
   onPressDelete: (accountUniqueName: string, entryUniqueName: string) => void
+  navigation:any
 }
 class TransactionList extends React.Component<Props> {
   private swipeableRef: React.Ref<Swipeable>;
@@ -28,7 +31,9 @@ class TransactionList extends React.Component<Props> {
     this.state = {
       DownloadModal: false,
       iosShare: false,
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      pdfPreviewModal: false,
+      isLoading:false
     };
   }
   getCompanyVersionNumber = async () => {
@@ -36,6 +41,13 @@ class TransactionList extends React.Component<Props> {
     if (companyVersionNumber != null || companyVersionNumber != undefined) {
       this.setState({ companyVersionNumber })
     }
+  }
+  setPdfPreviewModalVisible = (visible:boolean)=>{
+    this.setState({pdfPreviewModal:visible});
+  }
+  
+  setPdfLoading = (loading:boolean)=>{
+    this.setState({isLoading:loading});
   }
 
   componentDidMount() {
@@ -351,31 +363,33 @@ class TransactionList extends React.Component<Props> {
                 {/* right content */}
                 {this.props.showDate == null || this.props.showDate == undefined ?
                   <Text style={styles.invoiceDate}> {this.props.item.entryDate} </Text>
-                  : <View style={[styles.iconPlacingStyle, { alignItems: "flex-end", }]}>
-                    {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
-                      <TouchableOpacity
-                        delayPressIn={0}
-                        style={{ padding: 5, paddingRight: 5, paddingVertical: 10, }}
-                        onPress={() => {
-                          this.setState({ iosShare: true })
-                          this.shareFile();
-                        }}>
-                          <Feather name="send" size={17} color={'#1C1C1C'} />
-                        {/* <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} /> */}
-                      </TouchableOpacity>
-                    )}
-                    {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
-                      <TouchableOpacity
-                        delayPressIn={0}
-                        style={{ padding: 5, paddingRight: 0, paddingLeft: 10, paddingVertical: 10, }}
-                        onPress={async () => {
-                          await Platform.OS != "ios" ? this.props.downloadModal(true) : null
-                          await this.downloadFile();
-                        }}>
-                        <Feather name="download" size={17} color={'#1C1C1C'} />
-                      </TouchableOpacity>
-                    )}
-                  </View>}
+                  : <></> 
+                  // <View style={[styles.iconPlacingStyle, { alignItems: "flex-end", }]}>
+                  //   {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
+                  //     <TouchableOpacity
+                  //       delayPressIn={0}
+                  //       style={{ padding: 5, paddingRight: 5, paddingVertical: 10, }}
+                  //       onPress={() => {
+                  //         this.setState({ iosShare: true })
+                  //         this.shareFile();
+                  //       }}>
+                  //         <Feather name="send" size={17} color={'#1C1C1C'} />
+                  //       {/* <GdSVGIcons.send style={styles.iconStyle} width={18} height={18} /> */}
+                  //     </TouchableOpacity>
+                  //   )}
+                  //   {this.props.item.voucherNo && (this.state.companyVersionNumber == 1 ? (this.props.item.voucherName == "purchase" ? false : true) : true) && (
+                  //     <TouchableOpacity
+                  //       delayPressIn={0}
+                  //       style={{ padding: 5, paddingRight: 0, paddingLeft: 10, paddingVertical: 10, }}
+                  //       onPress={async () => {
+                  //         await Platform.OS != "ios" ? this.props.downloadModal(true) : null
+                  //         await this.downloadFile();
+                  //       }}>
+                  //       <Feather name="download" size={17} color={'#1C1C1C'} />
+                  //     </TouchableOpacity>
+                  //   )}
+                  // </View>
+                }
               </View>
             </View>
             {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
@@ -406,6 +420,7 @@ class TransactionList extends React.Component<Props> {
                   )}
                 {this.props.transactionType == 'partyTransaction' &&
                   this.props.item.voucherNo && (
+                  <>
                     <TouchableOpacity
                       delayPressIn={0}
                       hitSlop={{ right: 5, left: 5, top: 5, bottom: 5}}
@@ -416,8 +431,24 @@ class TransactionList extends React.Component<Props> {
                       }}>
                       <Feather name="download" size={17} color={'#1C1C1C'} />
                     </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      style={{paddingHorizontal: 8}}
+                      onPress={() => {
+                        this.props.navigation.navigate('PdfPreviewScreen',{
+                          companyVersionNumber:this.state.companyVersionNumber,
+                          uniqueName:this.props.item.particular.uniqueName,
+                          voucherInfo:{
+                            voucherNumber: [`${this.props.item.voucherNo}`],
+                            uniqueName: this.props.item.voucherUniqueName,
+                            voucherType: `${this.props.item.voucherName}`,
+                          }
+                        })
+                      }}>
+                      <PreviewIcon name="file-eye-outline" size={17} color={'#000'} />
+                    </TouchableOpacity>
+                  </>
                   )}
-
                 <View style={{ width: 5 }} />
                 {this.props.transactionType == 'partyTransaction' && this.props.item.voucherNo && this.props.phoneNo ? (
                   <TouchableOpacity
@@ -443,6 +474,19 @@ class TransactionList extends React.Component<Props> {
           </View>
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.iosShare} />
+          {/* <PdfPreviewModal 
+            modalVisible={this.state.pdfPreviewModal} 
+            setModalVisible={this.setPdfPreviewModalVisible} 
+            setLoading = {this.setPdfLoading}
+            isLoading={this.state.isLoading}
+            companyVersionNumber={this.state.companyVersionNumber}
+            uniqueName={this.props.item.particular.uniqueName}
+            voucherInfo={{
+              voucherNumber: [`${this.props.item.voucherNo}`],
+              uniqueName: this.props.item.voucherUniqueName,
+              voucherType: `${this.props.item.voucherName}`,
+            }}
+          /> */}
         </View>
       </Swipeable>
     );
