@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
-import { FONT_FAMILY, GD_FONT_SIZE } from '../../utils/constants';
+import { FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 export default StyleSheet.create({
   container: {
     flex: 1
@@ -8,11 +8,11 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#229F5F',
+    backgroundColor: '#ff6961',
     height: Dimensions.get('window').height * 0.08, 
   },
   headerConatiner: {
-    // backgroundColor: '#229F5F'
+    // backgroundColor: '#ff6961'
   },
   invoiceTypeTextRight: {
     fontFamily: FONT_FAMILY.regular,
@@ -56,14 +56,6 @@ export default StyleSheet.create({
     fontSize: 16,
     width: '60%'
   },
-  searchProductService: {
-    color: '#FFFFFF',
-    position: 'absolute',
-    left: 40,
-    fontFamily: FONT_FAMILY.bold,
-    fontSize: 16,
-    width: '60%'
-  },
   invoiceAmountText: {
     fontFamily: FONT_FAMILY.bold,
     color: '#1C1C1C',
@@ -91,22 +83,22 @@ export default StyleSheet.create({
   dateView: {
     flexDirection: 'row',
     paddingHorizontal: 16,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 50
-  },
-  dueDateView: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 45
   },
   selectedDateText: {
     fontFamily: FONT_FAMILY.regular,
     fontSize: 14,
     marginLeft: 10,
     alignSelf: 'center'
+  },
+  InvoiceHeading: {
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
+    alignSelf: 'center',
+    marginTop: -2
   },
   addressHeaderText: {
     fontFamily: FONT_FAMILY.regular,
@@ -184,7 +176,7 @@ export default StyleSheet.create({
   addItemMain: {
     fontFamily: FONT_FAMILY.bold,
     fontSize: 16,
-    color: '#229F5F',
+    color: '#ff6961',
     alignSelf: 'center'
   },
   text: {
@@ -203,11 +195,6 @@ export default StyleSheet.create({
     color: '#1C1C1C',
     fontFamily: FONT_FAMILY.semibold,
     fontSize: 12,
-  },
-  boldText: {
-    color: '#1C1C1C',
-    fontFamily: FONT_FAMILY.bold,
-    fontSize: 14,
   },
   button: {
     flexDirection: "row", 

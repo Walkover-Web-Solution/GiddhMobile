@@ -18,24 +18,36 @@ import Payment from '@/assets/images/icons/options/Payment.svg'
 import Receipt from '@/assets/images/icons/options/Receipt.svg'
 import VoucherSVG from '@/assets/images/icons/options/Voucher.svg'
 
-const Vouchers = {
-    'Sales' : (color: any) => <SalesInvoice color={color} height={20} width={20}/>,
-    'Purchase' : (color: any) => <PurchaseBill color={color} height={20} width={20}/>,
-    'Credit Note' : (color: any) => <CreditNote color={color} height={20} width={20}/>,
-    'Debit Note' : (color: any) => <DebitNote color={color} height={20} width={20}/>,
-    'Receipt' : (color: any) => <Receipt color={color} height={20} width={20}/>,
-    'Payment' : (color: any) => <Payment color={color} height={20} width={20}/>
-}
 const { height } = Dimensions.get('window');
 const SIZE = 48;
 
-const TabBar = ({ state, descriptors, navigation, branchSelected, disableTabs, selectedVouchersForBottomTabs }) => {
+type Voucher = { [key: string ]: (color: any) => React.ReactElement }
+
+const Vouchers : Voucher = {
+    'Sales' : (color: string) : React.ReactElement => <SalesInvoice color={color} height={20} width={20}/>,
+    'Purchase' : (color: string) : React.ReactElement => <PurchaseBill color={color} height={20} width={20}/>,
+    'Credit Note' : (color: string) : React.ReactElement => <CreditNote color={color} height={20} width={20}/>,
+    'Debit Note' : (color: string) : React.ReactElement => <DebitNote color={color} height={20} width={20}/>,
+    'Receipt' : (color: string) : React.ReactElement => <Receipt color={color} height={20} width={20}/>,
+    'Payment' : (color: string) : React.ReactElement => <Payment color={color} height={20} width={20}/>
+}
+
+type Props = {
+    state: any
+    descriptors: any
+    navigation: any
+    branchSelected: any
+    disableTabs: boolean
+    selectedVouchersForBottomTabs: Array<string>
+}
+
+const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelected, disableTabs, selectedVouchersForBottomTabs }) => {
     const moreOptionsRef = useRef(null);
     const plusButtonRef = useRef(null);
 
     return (
         <View style={styles.container}>
-            { state.routes.map((route, index) => {
+            { state.routes.map((route: any, index: number) => {
                 const { options } = descriptors[route.key];
                 const label =
                     options.tabBarLabel !== undefined
@@ -119,11 +131,12 @@ const TabBar = ({ state, descriptors, navigation, branchSelected, disableTabs, s
                 return (
                     <TouchableOpacity
                         key={index?.toString()}
+                        activeOpacity={0.7}
                         disabled={disableTabs}
                         accessibilityLabel={options.tabBarAccessibilityLabel}
                         onPress={onPress}
                         onLongPress={onLongPress}
-                        style={{ alignItems: 'center', width: Dimensions.get('window').width * 0.2 }}
+                        style={styles.button}
                     >
                         {renderIcon(label)}
                         <Text
@@ -157,7 +170,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         backgroundColor: 'white',
-        height: height * 0.08,
+        // height: height * 0.08,
         justifyContent: 'space-between',
         alignItems: 'center',
         elevation: 3,
@@ -175,11 +188,10 @@ const styles = StyleSheet.create({
         color: '#1C1C1C',
         marginLeft: 8
     },
-    button: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        flexDirection: 'row',
-        alignItems: 'center'
+    button: { 
+        alignItems: 'center', 
+        paddingVertical: 8,
+        width: Dimensions.get('window').width * 0.2 
     },
     boldText: {
         color: '#FFFFFF',

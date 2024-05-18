@@ -61,7 +61,7 @@ class PurchaseItemEdit extends Component {
         sacNumber: this.props.itemDetails.sacNumber,
         rateText: this.props.itemDetails.rate,
         unitText: this.props.itemDetails.stock ? this.props.itemDetails.stock?.stockUnitCode : '',
-        amountText: this.props.itemDetails.rate ? this.props.itemDetails.rate : '0',
+        amountText: this.props.itemDetails?.amountText,
         discountValueText: this.props.itemDetails.discountValue ? this.props.itemDetails.discountValue : '',
         discountPercentageText: this.props.itemDetails.discountPercentage
           ? this.props.itemDetails.discountPercentage
@@ -163,7 +163,7 @@ class PurchaseItemEdit extends Component {
         flatListProps={{
           data: this.props.taxArray,
           renderItem: ({ item }) => {
-            const selectedTaxArray = [...this.state.editItemDetails.taxDetailsArray];
+            const selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
             const selectedTaxTypeArr = [...this.state.selectedArrayType];
             const filtered = _.filter(selectedTaxArray, function (o) {
               if (o.uniqueName == item.uniqueName) {
@@ -176,7 +176,7 @@ class PurchaseItemEdit extends Component {
                 style={{paddingHorizontal: 20}}
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
-                  if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                  if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.some(tax => tax.uniqueName === item.uniqueName)) ||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tcspay')||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tcspay')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdsrc')||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcspay'))&& item.taxType == 'tcsrc')||
