@@ -17,9 +17,15 @@ import Receipt from '@/assets/images/icons/options/Receipt.svg'
 import Customer from '@/assets/images/icons/options/Customer.svg'
 import Vendor from '@/assets/images/icons/options/Vendor.svg'
 import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
+import Product from 'react-native-vector-icons/Ionicons'
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { DefaultTheme } from '@/utils/theme';
+
+const SIZE = 48;
+const padding = 10;
+const { height, width } = Dimensions.get('window');
+const itemWidth = (Dimensions.get('window').width - (SIZE + padding * 10)) / (width > 550 ? 5 : 4);
 
 const arrButtons = [
     { name: 'Sales Invoice', navigateTo: 'InvoiceScreens', icon: <SalesInvoice color={'#229F5F'} />, color: '#229F5F' },
@@ -42,22 +48,43 @@ const arrButtons = [
 
 const inventoryButtons:any = {
     product : {
-        name: 'Product', 
+        name: 'Product Stock', 
         navigateTo: 'ProductScreen', 
-        icon: <SalesInvoice color={DefaultTheme.colors.secondary} />, 
+        icon: <Product name="cube-outline" size={itemWidth/2} color={DefaultTheme.colors.secondary} />, 
         color: DefaultTheme.colors.secondary   
     },
     item2 : {
-        name: 'Item2', 
+        name: 'Prodoct Group', 
         navigateTo: 'ProductScreen', 
         icon: <Vendor color={'green'} />, 
         color: 'green'   
-    }
+    },
+    item3 : {
+        name: 'Prodoct Inventory', 
+        navigateTo: 'ProductScreen', 
+        icon: <Vendor color={'red'} />, 
+        color: 'red'   
+    },
+    item4 : {
+        name: 'Service Stock', 
+        navigateTo: 'ProductScreen', 
+        icon: <Vendor color={'blue'} />, 
+        color: 'red'   
+    },
+    item5 : {
+        name: 'Service Group', 
+        navigateTo: 'ProductScreen', 
+        icon: <Vendor color={'yellow'} />, 
+        color: 'red'   
+    },
+    item6 : {
+        name: 'Service Inventory', 
+        navigateTo: 'ProductScreen', 
+        icon: <Vendor color={'black'} />, 
+        color: 'red'   
+    },
 }
-const SIZE = 48;
-const padding = 10;
-const { height, width } = Dimensions.get('window');
-const itemWidth = (Dimensions.get('window').width - (SIZE + padding * 10)) / (width > 550 ? 5 : 4);
+
 type Props = {
     navigation: any;
     isDisabled: any;
@@ -72,6 +99,18 @@ class AddButtonOptions extends React.PureComponent<Props> {
     }
 
     render() {
+        const data = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
+
+        const getRows = (items:any, itemsPerRow:number) => {
+            const rows = [];
+            for (let i = 0; i < items.length; i += itemsPerRow) {
+              rows.push(items.slice(i, i + itemsPerRow));
+            }
+            return rows;
+        };
+
+
+        const rows = getRows(data, 4);
         return (
             <Portal>
                 <Modalize
@@ -82,25 +121,28 @@ class AddButtonOptions extends React.PureComponent<Props> {
                 >
                     <View style={{flex:1,padding:12}}>
                         <Text style={styles.listTitle}>Inventory</Text>
-                        <View style={styles.buttonContainer}>
-                        {Object.keys(inventoryButtons).map((item)=>(
-                            <TouchableOpacity
-                            activeOpacity={0.7}
-                            key={inventoryButtons?.[item]?.name}
-                            style={styles.button}
-                            onPress={async ()=>{
-                                this?.props?.closeModal();
-                                this?.props?.productOptionRef?.current?.open();
-                                // await this.props.navigation.navigate(inventoryButtons?.[item]?.navigateTo);
-                                await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                            }}>
+                        {rows.map((rowItems, rowIndex) => (
+                            <View style={styles.buttonContainer} key={rowIndex}>
+                            {rowItems.map((item) => (
+                                <TouchableOpacity
+                                key={item.name}
+                                activeOpacity={0.7}
+                                style={styles.button}
+                                onPress={async ()=>{
+                                    this?.props?.closeModal();
+                                    // this?.props?.productOptionRef?.current?.open();
+                                    await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                                    await this.props.navigation.navigate(item.navigateTo);
+                                }}
+                                >
                                 <View style={styles.iconContainer}>
-                                        {inventoryButtons?.[item]?.icon}
+                                    {item.icon}
                                 </View>
-                                <Text style={styles.name}>{inventoryButtons?.[item]?.name}</Text>
-                            </TouchableOpacity>
+                                <Text style={styles.name}>{item.name}</Text>
+                                </TouchableOpacity>
+                            ))}
+                            </View>
                         ))}
-                        </View>
                     </View>
                     <FlatList
                         numColumns={4}
@@ -178,6 +220,7 @@ const styles = StyleSheet.create({
     listTitle: {
         fontFamily: FONT_FAMILY.bold, 
         fontSize: GD_FONT_SIZE.medium, 
-        marginTop: 5 
+        marginTop: 5, 
+        color:DefaultTheme.colors.secondary
     }
 })

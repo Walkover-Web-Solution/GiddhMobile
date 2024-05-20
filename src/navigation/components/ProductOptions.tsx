@@ -4,7 +4,7 @@ import { Modalize } from "react-native-modalize"
 import { Portal } from "react-native-portalize"
 import SalesInvoice from '@/assets/images/icons/options/SalesInvoice.svg'
 import { DefaultTheme } from "@/utils/theme";
-
+import StockIcon from "react-native-vector-icons/FontAwesome5"
 type Props = {
     navigation: any;
     isDisabled: any;
@@ -21,13 +21,13 @@ const productArr:any = {
     stock : {
         name: 'Create Stock', 
         navigateTo: 'ProductScreen', 
-        icon: <SalesInvoice color={DefaultTheme.colors.secondary} />, 
+        icon: <StockIcon name = "box" size={itemWidth/2} color={DefaultTheme.colors.secondary} />, 
         color: DefaultTheme.colors.secondary   
     },
     group : {
         name: 'Create Group', 
         navigateTo: 'GroupScreen', 
-        icon: <SalesInvoice color={'blue'} />, 
+        icon: <StockIcon name="boxes" size={itemWidth/2} color={'blue'} />, 
         color: 'blue'   
     }
 }
