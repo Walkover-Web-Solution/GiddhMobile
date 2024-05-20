@@ -70,7 +70,8 @@ export interface ThemeProps extends DefaultConfigProps {
         receipt: { statusBar: '#02836C', background: '#00B795' },
         payment: { statusBar: '#1A237E', background: '#084EAD' },
         pdfPreview: { statusBar: '#1A237E', background: '#084EAD' }
-        stock: { statusBar: '#666666', background: '#808080' }
+        stock: { statusBar: '#1A237E', background: '#084EAD' },
+        group: { statusBar: '#1A237E', background: 'red' }
     }
     border: '#B3B3B3',
     shadow: '#4D4D4D',
@@ -245,7 +246,8 @@ const DarkTheme: ThemeProps = {
         receipt: { statusBar: '#02836C', background: '#00B795' },
         payment: { statusBar: '#1A237E', background: '#084EAD' },
         pdfPreview: { statusBar: '#1A237E', background: '#084EAD' },
-        stock: { statusBar: '#666666', background: '#808080' }
+        stock: { statusBar: '#1A237E', background: '#084EAD' },
+        group: { statusBar: '#1A237E', background: 'red' }
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
      
@@ -275,7 +277,8 @@ const LightTheme: ThemeProps = {
         receipt: { statusBar: '#02836C', background: '#00B795' },
         payment: { statusBar: '#1A237E', background: '#084EAD' },
         pdfPreview: { statusBar: '#1A237E', background: '#084EAD' },
-        stock: { statusBar: '#666666', background: '#808080' }
+        stock: { statusBar: '#1A237E', background: '#084EAD' },
+        group: { statusBar: '#1A237E', background: 'red' }
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
   },
@@ -291,7 +294,8 @@ const VOUCHERS = {
     'Receipt': 'receipt',
     'Payment': 'payment',
     'PdfPreview': 'pdfPreview',
-    'Stock':'stock'
+    'Stock':'stock',
+    'Group':'group'
 }
 
 /**

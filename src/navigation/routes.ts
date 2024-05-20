@@ -20,7 +20,8 @@ const Routes = {
   Welcome: 'Welcome',
   CompanyInfoOne: 'CompanyInfoOne',
   CompanyInfoTwo: 'CompanyInfoTwo',
-  ProductScreen: 'productScreen'
+  ProductScreen: 'productScreen',
+  ProductGroupScreen: 'productGroupScreen'
 };
 
 export default Routes

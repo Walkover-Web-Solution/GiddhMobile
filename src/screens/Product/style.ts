@@ -182,8 +182,8 @@ export default StyleSheet.create({
   },
   addItemMain: {
     fontFamily: FONT_FAMILY.bold,
-    fontSize: 16,
-    color: '#FC8345',
+    fontSize: 15,
+    color: 'blue',
     alignSelf: 'center'
   },
   InvoiceHeading: {
@@ -218,5 +218,13 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.regular, 
     padding: 5, 
     color: '#808080'
-  }
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // padding: Platform.OS=="ios"? 15:0,
+    paddingVertical: 10,
+    paddingHorizontal:20,
+  },
+  
 });

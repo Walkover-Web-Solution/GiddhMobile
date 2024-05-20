@@ -164,7 +164,7 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                 </TouchableOpacity>
             }
             <AddButtonOptions key={'add'} productOptionRef={productOptionRef} plusButtonRef={plusButtonRef} closeModal={() => setBottomSheetVisible(plusButtonRef, false)} isDisabled={disableTabs} navigation={navigation} />
-            <ProductOptions productOptionRef={productOptionRef} closeModal={() => setBottomSheetVisible(productOptionRef, false)} isDisabled={disableTabs} navigation={navigation} />
+            {/* <ProductOptions productOptionRef={productOptionRef} closeModal={() => setBottomSheetVisible(productOptionRef, false)} isDisabled={disableTabs} navigation={navigation} /> */}
         </View>
     );
 }

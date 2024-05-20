@@ -54,13 +54,13 @@ const inventoryButtons:any = {
         color: DefaultTheme.colors.secondary   
     },
     item2 : {
-        name: 'Prodoct Group', 
-        navigateTo: 'ProductScreen', 
+        name: 'Product Group', 
+        navigateTo: 'productGroupScreen', 
         icon: <Vendor color={'green'} />, 
         color: 'green'   
     },
     item3 : {
-        name: 'Prodoct Inventory', 
+        name: 'Product Inventory', 
         navigateTo: 'ProductScreen', 
         icon: <Vendor color={'red'} />, 
         color: 'red'   
