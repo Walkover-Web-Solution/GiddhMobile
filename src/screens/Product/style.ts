@@ -226,5 +226,15 @@ export default StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal:20,
   },
-  
+  button: {
+    flexDirection: "row", 
+    justifyContent: "flex-start", 
+    paddingHorizontal: 20,
+    paddingVertical: 15
+  },
+  radiobuttonText:{
+    color: '#1C1C1C', 
+    fontFamily: FONT_FAMILY.regular,
+    marginLeft: 10
+  }
 });

@@ -1,614 +1,367 @@
 import Header from "@/components/Header";
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme";
 import { useIsFocused } from "@react-navigation/native";
-import { Animated, Dimensions, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Animated, DeviceEventEmitter, Dimensions, Keyboard, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import style from './style';
 import color from '@/utils/colors';
-import { FONT_FAMILY } from "@/utils/constants";
+import { APP_EVENTS, FONT_FAMILY } from "@/utils/constants";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
+import RenderStockName from "./RenderStockName";
+import RenderUnitGroup from "./RenderUnitGroup";
+import RenderTaxes from "./RenderTaxes";
+import RenderGroups from "./RenderGroups";
+import RenderLinkedAcc from "./RenderLinkedAcc";
+import RenderVariants from "./RenderVariants";
+import RenderOtherInfo from "./RenderOtherInfo";
+import { InventoryService } from "@/core/services/inventory/inventory.service";
+import BottomSheet from "@/components/BottomSheet";
+import _ from "lodash";
 
 const ProductScreen = ()=>{
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
         return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
     }
+    const taxModalRef = useRef(null);
+    const groupModalRef = useRef(null);
+    const unitGroupModalRef = useRef(null);
+    const unitGroupMappingModalRef = useRef(null);
     const {statusBar,styles, voucherBackground} = useCustomTheme(getStyles, 'Stock');
     const {height, width} = Dimensions.get('window');
+    const [expandAcc, setExpandAcc] = useState(false);
+    const [selectedUniqueTax,setSelectedUniqueTax]:any = useState({});
+    const [stockName, setStockName] = useState('');
+    const [stockUniqueName, setStockUniqueName] = useState('');
+    const [selectedCode,setSelectedCode] = useState('hsn');
+    const [taxArr,setTaxArr] = useState([]);
+    const [parentGroupArr,setParentGroupArr] = useState([]);
+    const [unitGroupArr,setUnitGroupArr] = useState([]);
+    const [purchaseAccountArr,setPurchaseAccountArr] = useState([]);
+    const [salesAccountArr,setSalesAccountArr] = useState([]);
+    const [selectedGroup,setSelectedGroup] = useState('');
+    const [selectedGroupUniqueName,setSelectedGroupUniqueName] = useState('');
+    const [selectedUnitGroup,setSelectedUnitGroup] = useState('');
+    const [selectedUnitGroupUniqueName,setSelectedUnitGroupUniqueName] = useState('');
+    const [unitGroupMapping, setUnitGroupMapping] = useState([]);
+    const [unit,setUnit] = useState('');
 
-    const RenderStockName = ()=>{
-        return (
-            <View>
-                <View style={{flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 14}}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-                    <Icon name={'Sections'} color={DefaultTheme.colors.secondary} style={{margin: 16}} size={16} />
-                    <TextInput
-                        placeholderTextColor={'#808080'}
-                        placeholder={'Enter Stock'}
-                        returnKeyType={'done'}
-                        // value={stockName}
-                        // onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
-                        // style={style.searchTextInputStyle}
-                    />
-                    </View>
-                    <TouchableOpacity>
-                    <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
-                    </TouchableOpacity>
-                </View>
-                <View>
-                    <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-                    <Icon name={'Sections'} color={DefaultTheme.colors.secondary} style={{margin: 16}} size={16} />
-                    <TextInput
-                        placeholderTextColor={'#808080'}
-                        placeholder={'Unique Name'}
-                        returnKeyType={'done'}
-                        // value={stockName}
-                        // onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
-                        // style={style.searchTextInputStyle}
-                    />
-                    </View>
-                </View>
-            </View>
-        );
+
+    const fetchAllTaxes = async () => {
+        console.log("ye new wala");
+        
+        const result = await InventoryService.fetchAllTaxes();
+        if(result?.data && result?.data?.status == 'success'){
+            setTaxArr(result?.data?.body);
+        }
     }
 
-    const RenderUnitGroup = ()=>{
-        return (
-        <View style={style.fieldContainer}>
-            <View style={{flexDirection: 'row'}}>
-            <Icon name={'path-15'} color={DefaultTheme.colors.secondary} size={16} />
-            <Text style={style.fieldHeadingText}>{'Unit'}</Text>
-            </View>
-            <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
-            <View style={{flexDirection: 'row', }}>
-                <View
-                style={[
-                    style.buttonWrapper,
-                    {marginHorizontal: 20},
-                    {
-                    justifyContent: 'center',
-                    width: 140,
-                    height: 40,
-                    borderColor: false ? '#00B795' : '#d9d9d9',
-                    }
-                ]}>
-                <TextInput
-                    style={[
-                    style.chequeButtonText, {color: true ? '#00B795' : '#868686'}
-                    ]}
-                    autoCapitalize = {"characters"}
-                    // value={this.state.chequeNumber.toString()}
-                    placeholder={'Group'}
-                    placeholderTextColor={'#868686'}
-                    returnKeyType={"done"}
-                    multiline={true}
-                    // onFocus={() => {
-                    //   if (!this.state.partyName) {
-                    //     alert('Please select a party.');
-                    //   } else if (this.state.amountForReceipt == '') {
-                    //     alert('Please enter amount.');
-                    //   } else {
-                    //   }
-                    // }}
-                    // onChangeText={(text) => {
-                    // if (!this.state.partyName) {
-                    //     alert('Please select a party.');
-                    // } else if (this.state.amountForReceipt == '') {
-                    //     alert('Please enter amount.');
-                    // } else {
-                    //     this.setState({chequeNumber: text});
-                    // }
-                    // }}
-                />
-                </View>
-
-                <TouchableOpacity
-                // onPress={() => {
-                //     if (!this.state.partyName) {
-                //     alert('Please select a party.');
-                //     } else if (this.state.amountForReceipt == '') {
-                //     alert('Please enter amount.');
-                //     } else {
-                //     this.setState({showClearanceDatePicker: true});
-                //     this.setState({isClearanceDateSelelected: true});
-                //     }
-                // }}>
-                >
-                <View
-                    style={[
-                    style.buttonWrapper,
-                    {marginHorizontal:20,width:140,height:40,justifyContent:'center',borderColor: false ? '#00B795' : '#d9d9d9'},
-                    ]}>
-                    {false ? ( <></>
-                    // <Text style={[style.buttonText, { color: '#00B795' }]}>
-                    //     {this.formatClearanceDate()}
-                    // </Text>
-                    ) : (
-                    <Text
-                        style={[style.buttonText, { color: '#868686' }]}>
-                        Unit
-                    </Text>
-                    )}
-                </View>
-                </TouchableOpacity>
-            </View>
-            </View>
-        </View>
-        )
+    const fetchAllParentGroup = async () => {
+        const result = await InventoryService.fetchAllParentGroup();
+        if(result?.data && result?.data?.status == 'success'){
+          setParentGroupArr(result?.data?.body?.results);
+        }
     }
-
-    const RenderTaxes = ()=>{
-        return (
-        <View style={style.fieldContainer}>
-            <View style={{flexDirection: 'row'}}>
-            <Icon name={'Path-12190'} color={DefaultTheme.colors.secondary} size={16} />
-            <Text style={style.fieldHeadingText}>{'Tax'}</Text>
-            </View>
     
-            <View style={{paddingVertical: 6, marginTop: 10, width:140}}>
-            <View style={{flexDirection: 'row'}}>
-                <TouchableOpacity style={{flexDirection: 'row'}}
-                textColor={{color}}>
-                <View
-                    style={[
-                    style.buttonWrapper,
-                    {marginLeft: 20,width:140},
-                    {borderColor: false ? '#00B795' : '#d9d9d9'},
-                    ]}>
-                    <Text
-                    style={[
-                        style.buttonText,
-                        {
-                        color: false ? '#00B795' : '#868686',
-                        },
-                    ]}>
-                    Tax
-                    </Text>
-                </View>
-                </TouchableOpacity>
-                {/* <TouchableOpacity
-                style={{flexDirection: 'row'}}
-                //   onPress={() => {
-                //     if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-                //       this.setBottomSheetVisible(this.paymentModalRef, true);
-                //     } else {
-                //       alert('Please select a party.');
-                //     }
-                //   }}
-                textColor={{color}}>
-                <View
-                    style={[
-                    style.buttonWrapper,
-                    {marginLeft: 20,width:150},
-                    {borderColor: false ? '#00B795' : '#d9d9d9'},
-                    ]}>
-                    <Text
-                    style={[
-                        style.buttonText,
-                        {
-                        color: false ? '#00B795' : '#868686',
-                        },
-                    ]}>
-                        Select Group
-                    </Text>
-                </View>
-                </TouchableOpacity> */}
-            </View>
-            </View>
-        </View>
-        )
+    const fetchStockUnitGroup = async () => {
+        const result = await InventoryService.fetchStockUnitGroup();
+        if(result?.data && result?.data?.status == 'success'){
+            // console.log("print--->",result);
+            setUnitGroupArr(result?.data?.body);
+        }
     }
 
-    const RenderGroups = ()=>{
-        return (
-            <View style={style.fieldContainer}>
-            <View style={{flexDirection: 'row'}}>
-              <Icon name={'Path-12190'} color={DefaultTheme.colors.secondary} size={16} />
-              <Text style={style.fieldHeadingText}>{'Groups'}</Text>
-            </View>
-    
-            <View style={{paddingVertical: 6, marginTop: 10}}>
-              <View style={{flexDirection: 'row'}}>
+    const fetchPurchaseAccounts = async () => {
+        const result = await InventoryService.fetchPurchaseAccounts();
+        if(result?.data && result?.data?.status == 'success'){
+            setPurchaseAccountArr(result?.data?.body?.results);
+        }
+    }
+
+
+    const fetchSalesAccounts = async () => {
+        const result = await InventoryService.fetchSalesAccounts();
+        if(result?.data && result?.data?.status == 'success'){
+            setSalesAccountArr(result?.data?.body?.results);
+        }
+    }
+
+    const fetchUnitGroupMapping = async (uniqueName:string) => {
+        const result = await InventoryService.fetchUnitGroupMapping([uniqueName])
+        if(result?.data && result?.data?.status == 'success'){
+            // console.log("mapping api",result);
+            setUnitGroupMapping(result?.data?.body);
+        }
+    }
+
+    const fetchLinkedUnitMapping = async (unitUniqueName:string) =>{
+        const result = await InventoryService.fetchLinkedUnitMapping(unitUniqueName);
+        console.log("result of linked unit",result);
+        
+    }
+
+    const fetchUnitGroupMappingDebounce = _.debounce(fetchUnitGroupMapping,600);
+
+
+    const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+        if(visible){
+          Keyboard.dismiss();
+          modalRef?.current?.open();
+        } else {
+          modalRef?.current?.close();
+        }
+    };
+
+
+    const RenderTaxModal = (
+        <BottomSheet
+          bottomSheetRef={taxModalRef}
+          headerText='Select Taxes'
+          headerTextColor='#00B795'
+          // onClose={() => {
+          //   setSelectedUniqueTax()
+          // }}
+          flatListProps={{
+            data: taxArr,
+            renderItem: ({item}) => {
+              return (
                 <TouchableOpacity
-                  style={{flexDirection: 'row'}}
-                //   onPress={() => {
-                //     if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-                //       this.setBottomSheetVisible(this.paymentModalRef, true);
-                //     } else {
-                //       alert('Please select a party.');
-                //     }
-                //   }}
-                  textColor={{color}}>
-                  <View
-                    style={[
-                      style.buttonWrapper,
-                      {marginLeft: 20,width:140},
-                      {borderColor: false ? '#00B795' : '#d9d9d9'},
-                    ]}>
+                  style={{paddingHorizontal: 20}}
+                  onPress={()=>{
+                      let updatedSelectedUniqueTax = {...selectedUniqueTax};  
+                      if(Object.keys(updatedSelectedUniqueTax).length == 0 ){
+                          const Obj = {
+                              [item?.taxType] : item
+                          }
+                          // mapping = Obj;
+                          setSelectedUniqueTax(Obj);
+                      }else{
+                          if(updatedSelectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName){
+                              delete updatedSelectedUniqueTax?.[item?.taxType];
+                              setSelectedUniqueTax({...updatedSelectedUniqueTax});
+                          }
+                          else{
+                              if(updatedSelectedUniqueTax?.[item?.taxType]){
+                                  console.log("can't add this item");
+                                  
+                              }else{
+                                  updatedSelectedUniqueTax = { ...updatedSelectedUniqueTax, [item?.taxType]: item };
+                                  setSelectedUniqueTax({...updatedSelectedUniqueTax})
+                              }
+                          }
+                      }
+                  }}
+                  >
+                  <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                    <View
+                      style={{
+                        borderRadius: 1,
+                        borderWidth: 1,
+                        borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C',
+                        width: 18,
+                        height: 18,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      {selectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName && (
+                        <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
+                      )}
+                    </View>
                     <Text
-                      style={[
-                        style.buttonText,
-                        {
-                          color: false ? '#00B795' : '#868686',
-                        },
-                      ]}>
-                        Select Group
+                      style={{
+                        color: '#1C1C1C',
+                        paddingVertical: 4,
+                        fontFamily: FONT_FAMILY.semibold,
+                        fontSize: 14,
+                        textAlign: 'center',
+                        marginLeft: 20,
+                      }}>
+                      {item.name}
                     </Text>
                   </View>
                 </TouchableOpacity>
-              </View>
-            </View>
-            </View>
-        )
-    }
-
-    const GeneralLinkedAccComponent = ({
-        rateLabel = "Rate:",
-        initialRadioSelection = 1,
-        linkedAccountText = "Linked Purchase Accounts",
-        // onLinkedAccountPress,
-        textInputPlaceholder = "Rate",
-        textInputKeyboardType = "number-pad",
-        // textInputValue,
-        // onTextInputChange,
-        unitText = "Unit",
-        // onUnitPress
-    })=>{
-        const [radioBtn, setRadioBtn] = useState(initialRadioSelection);
-        const radio_props = [
-            { label: 'MRP (Inclusive)', value: 0 },
-            { label: 'Exclusive', value: 1 }
-          ];
-        return (
-            <View style={{ marginHorizontal: 15, marginVertical: 10, marginRight: 20, overflow: 'hidden' }}>
-                <View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'space-between' }}>
-                        <Text style={{ color: '#1c1c1c', paddingRight: 5, fontFamily: 'AvenirLTStd-Book' }} >{rateLabel}</Text>
-                        <RadioForm
-                        formHorizontal={true}
-                        initial={0}
-                        animation={true}
-                        style={{justifyContent:'space-between',width:'70%'}}
-                        >
-                        {
-                            radio_props.map((obj, i) => (
-                            <RadioButton labelHorizontal={true} key={i} style={{ alignItems: 'center' }} >
-                                <RadioButtonInput
-                                obj={obj}
-                                index={i}
-                                isSelected={radioBtn === i}
-                                onPress={(val) => { setRadioBtn(val) }}
-                                borderWidth={1}
-                                buttonInnerColor={'#864DD3'}
-                                buttonOuterColor={radioBtn === i ? '#864DD3' : '#808080'}
-                                buttonSize={8}
-                                buttonOuterSize={15}
-                                buttonStyle={{}}
-                                buttonWrapStyle={{ marginTop: 10 }}
-                                />
-                                <RadioButtonLabel
-                                obj={obj}
-                                index={i}
-                                labelHorizontal={true}
-                                onPress={() => { }}
-                                labelStyle={{ color: '#808080', fontFamily: 'AvenirLTStd-Book' }}
-                                labelWrapStyle={{ marginRight: 10, marginTop: 10 }}
-                                />
-                            </RadioButton>
-                            ))}
-                        </RadioForm>
-                    </View>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between',alignItems:'center' ,}}>
-                    <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >{linkedAccountText}</Text>
-                    <View style={{ ...style.rowContainer, ...style.buttonWrapper, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "45%", borderColor: '#d9d9d9', justifyContent: 'space-between' }}>
-                        <TouchableOpacity
-                        onPress={() => {
-                            // this.setState({
-                            // isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
-                            // filteredCurrencyData: this.state.allCurrency,
-                            // })
-                        }} style={{ padding: 2, flex: 1 }}><Text
-                            style={{ color: '#1C1C1C', fontSize: 15, marginTop: 3, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
-                        >None</Text></TouchableOpacity>
-                    </View>
-                </View> 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-                    <TextInput
-                        returnKeyType={'done'}
-                        keyboardType="number-pad"
-                        // onChangeText={(val) => {
-                        // this.setState({ openingBalance: val });
-                        // }}
-                        placeholderTextColor={'rgba(80,80,80,0.5)'}
-                        // value={this.state.openingBalance}
-                        placeholder="Rate"
-                        style={{ ...style.buttonWrapper, borderWidth: 1, width: '45%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5, fontFamily: 'AvenirLTStd-Book' }} />
-                    <View style={{ ...style.rowContainer, ...style.buttonWrapper, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "45%", borderColor: '#d9d9d9', justifyContent: 'space-between' }}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                // this.setState({
-                                // isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
-                                // filteredCurrencyData: this.state.allCurrency,
-                                // })
-                            }} style={{ padding: 2, flex: 1 }}>
-                            <Text
-                                style={{ color: '#1C1C1C', fontSize: 15, marginTop: 3, fontFamily: 'AvenirLTStd-Book', marginLeft: 10, paddingHorizontal: 5 }}
-                            >Unit</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>   
-            </View>
-        )
-    }
-
-    const RenderLinkedAcc = ()=>{
-        const [expandAcc, setExpandAcc] = useState(false);
-        // const radio_props = [
-        //     { label: 'MRP (Inclusive)', value: 0 },
-        //     { label: 'Exclusive', value: 1 }
-        //   ];
-        // const [radioBtn, setRadioBtn]= useState(1);
-        return (
-            <View>
-                <View
-                style={{
-                    backgroundColor: '#E6E6E6',
-                    flexDirection: 'row',
-                    paddingVertical: 9,
-                    paddingHorizontal: 16,
-                    justifyContent: 'space-between'
-                }}>
-                <View style={{ flexDirection: 'row' }}>
-                    <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
-                    <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Linked Account</Text>
-                </View>
-                <Icon
-                    style={{ transform: [{ rotate: expandAcc ? '180deg' : '0deg' }] }}
-                    name={'9'}
-                    size={16}
-                    color="#808080"
-                    onPress={() => {
-                    setExpandAcc(!expandAcc);
-                    }}
-                />
-                </View>
-                {
-                    expandAcc && (
-                    <View> 
-                        <GeneralLinkedAccComponent linkedAccountText = "Linked Purchase Accounts"/>
-                        <View style={{flex:1,borderBottomWidth:0.2,width:'95%',alignSelf:'center'}}></View>
-                        <GeneralLinkedAccComponent linkedAccountText = "Linked Sales Accounts"/>
-                    </View>
-                    )
-                }
-            </View>
-        );
-    }
-
-    const RenderOtherInfo = ()=>{
-        const [expandAcc, setExpandAcc] = useState(false);
-        const [selectedCode,setSelectedCode] = useState('hsn');
-        return (
-        <View style={{paddingBottom:0}}>
-            <View
-                style={{
-                    backgroundColor: '#E6E6E6',
-                    flexDirection: 'row',
-                    paddingVertical: 9,
-                    paddingHorizontal: 16,
-                    justifyContent: 'space-between'
-                }}>
-                <View style={{ flexDirection: 'row' }}>
-                    <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
-                    <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Other</Text>
-                </View>
-                <Icon
-                    style={{ transform: [{ rotate: expandAcc ? '180deg' : '0deg' }] }}
-                    name={'9'}
-                    size={16}
-                    color="#808080"
-                    onPress={() => {
-                    setExpandAcc(!expandAcc);
-                    }}
-                />
-            </View>
-            {expandAcc &&
-            <View> 
-                <View
+              );
+            },
+            ListEmptyComponent: () => {
+              return (
+                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                  <Text
                     style={{
-                    flexDirection: 'row',
-                    // backgroundColor: 'pink',
-                    justifyContent: 'space-between',
-                    marginTop: 10,
-                    width:'75%',
-                    alignSelf:'center'
-                    
+                      flex: 1,
+                      color: '#1C1C1C',
+                      paddingVertical: 4,
+                      fontFamily: FONT_FAMILY.semibold,
+                      fontSize: 14,
+                      textAlign: 'center',
+                      alignSelf: 'center'
                     }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 10 }}>
-                        <TouchableOpacity
-                        style={{
-                            height: 20,
-                            width: 20,
-                            borderRadius: 10,
-                            backgroundColor: '#c4c4c4',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                        onPress={() => setSelectedCode('hsn')}
-                        >
-                        {selectedCode == 'hsn' && (
-                            <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F' }} />
-                        )}
-                        </TouchableOpacity>
-                        <Text style={{ marginLeft: 10 }}>HSN Code</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 15 }}>
-                        <TouchableOpacity
-                        style={{
-                            height: 20,
-                            width: 20,
-                            borderRadius: 10,
-                            backgroundColor: '#c4c4c4',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                        onPress={() => setSelectedCode('sac')}
-                        >
-                        {selectedCode == 'sac' && (
-                            <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F' }} />
-                        )}
-                        </TouchableOpacity>
-
-                        <Text style={{ marginLeft: 10 }}>SAC Code</Text>
-                    </View>
+                    No Taxes Available
+                  </Text>
                 </View>
-                <View style={{ marginHorizontal: 15, marginVertical: 10, marginRight: 20, overflow: 'hidden' }}>
-                    <TextInput
-                        placeholder={ selectedCode=='hsn'?'Enter HSN Code':'Enter SAC Code'}
-                        placeholderTextColor={'#808080'}
-                        // value={
-                        //     this.state.selectedCode == 'hsn'
-                        //     ? this.state.editItemDetails.hsnNumber
-                        //     : this.state.editItemDetails.sacNumber
-                        // }
-                        // keyboardType={'number-pad'}
-                        style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
-                        // editable={false}
-                        // onChangeText={(text) => {
-                        //     const item = this.state.editItemDetails;
-                        //     if (this.state.selectedCode == 'hsn') {
-                        //     item.hsnNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     } else {
-                        //     item.sacNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     }
-                        // }}
-                    />
-                    <TextInput
-                        placeholder={'SKU Code'}
-                        placeholderTextColor={'#808080'}
-                        // value={
-                        //     this.state.selectedCode == 'hsn'
-                        //     ? this.state.editItemDetails.hsnNumber
-                        //     : this.state.editItemDetails.sacNumber
-                        // }
-                        // keyboardType={'number-pad'}
-                        style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
-                        // editable={false}
-                        // onChangeText={(text) => {
-                        //     const item = this.state.editItemDetails;
-                        //     if (this.state.selectedCode == 'hsn') {
-                        //     item.hsnNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     } else {
-                        //     item.sacNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     }
-                        // }}
-                    />
-                    <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-                        <TextInput
-                            placeholder={'Opening Quantity'}
-                            placeholderTextColor={'#808080'}
-                            // value={
-                            //     this.state.selectedCode == 'hsn'
-                            //     ? this.state.editItemDetails.hsnNumber
-                            //     : this.state.editItemDetails.sacNumber
-                            // }
-                            // keyboardType={'number-pad'}
-                            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width:'45%'}}
-                            // editable={false}
-                            // onChangeText={(text) => {
-                            //     const item = this.state.editItemDetails;
-                            //     if (this.state.selectedCode == 'hsn') {
-                            //     item.hsnNumber = text;
-                            //     this.setState({ editItemDetails: item });
-                            //     } else {
-                            //     item.sacNumber = text;
-                            //     this.setState({ editItemDetails: item });
-                            //     }
-                            // }}
-                        />
-                        <TextInput
-                            placeholder={'Closing Amount'}
-                            placeholderTextColor={'#808080'}
-                            // value={
-                            //     this.state.selectedCode == 'hsn'
-                            //     ? this.state.editItemDetails.hsnNumber
-                            //     : this.state.editItemDetails.sacNumber
-                            // }
-                            // keyboardType={'number-pad'}
-                            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width:'45%'}}
-                            // editable={false}
-                            // onChangeText={(text) => {
-                            //     const item = this.state.editItemDetails;
-                            //     if (this.state.selectedCode == 'hsn') {
-                            //     item.hsnNumber = text;
-                            //     this.setState({ editItemDetails: item });
-                            //     } else {
-                            //     item.sacNumber = text;
-                            //     this.setState({ editItemDetails: item });
-                            //     }
-                            // }}
-                        />
-                    </View>
-                    {/* <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold ,marginTop:17}}>Custom Field 1 :</Text> */}
-                    <TextInput
-                        placeholder={ 'Custom Field 1'}
-                        placeholderTextColor={'#808080'}
-                        // value={
-                        //     this.state.selectedCode == 'hsn'
-                        //     ? this.state.editItemDetails.hsnNumber
-                        //     : this.state.editItemDetails.sacNumber
-                        // }
-                        // keyboardType={'number-pad'}
-                        style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
-                        // editable={false}
-                        // onChangeText={(text) => {
-                        //     const item = this.state.editItemDetails;
-                        //     if (this.state.selectedCode == 'hsn') {
-                        //     item.hsnNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     } else {
-                        //     item.sacNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     }
-                        // }}
-                    />
-                    {/* <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold, marginTop:17 }}>Custom Field 2 :</Text> */}
-                    <TextInput
-                        placeholder={'Custom Field 2'}
-                        placeholderTextColor={'#808080'}
-                        // value={
-                        //     this.state.selectedCode == 'hsn'
-                        //     ? this.state.editItemDetails.hsnNumber
-                        //     : this.state.editItemDetails.sacNumber
-                        // }
-                        // keyboardType={'number-pad'}
-                        style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
-                        // editable={false}
-                        // onChangeText={(text) => {
-                        //     const item = this.state.editItemDetails;
-                        //     if (this.state.selectedCode == 'hsn') {
-                        //     item.hsnNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     } else {
-                        //     item.sacNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     }
-                        // }}
-                    />
-                </View>
-            </View>
+  
+              );
             }
-        </View>
-        )
-    }
+          }}
+        />
+    );
+
+    const RenderGroupModal = (
+        <BottomSheet
+        bottomSheetRef={groupModalRef}
+        headerText='Select Group'
+        headerTextColor='#00B795'
+        // onClose={() => {
+        //   setSelectedUniqueTax()
+        // }}
+        flatListProps={{
+            data: parentGroupArr,
+            renderItem: ({item}) => {
+            return (
+                <TouchableOpacity 
+                style={style.button}
+                onPress={() => {
+                    setSelectedGroup(item?.name)
+                    setSelectedGroupUniqueName(item?.uniqueName)
+                    setBottomSheetVisible(groupModalRef, false);
+                }}
+                >
+                <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Text style={style.radiobuttonText}
+                >
+                    {item?.name}
+                </Text>
+                </TouchableOpacity>
+            );
+            },
+            ListEmptyComponent: () => {
+            return (
+                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <Text
+                    style={{
+                    flex: 1,
+                    color: '#1C1C1C',
+                    paddingVertical: 4,
+                    fontFamily: FONT_FAMILY.semibold,
+                    fontSize: 14,
+                    textAlign: 'center',
+                    alignSelf: 'center'
+                    }}>
+                    No Group Available
+                </Text>
+                </View>
+
+            );
+            }
+        }}
+        />
+    );
+
+    const RenderUnitGroupModal = (
+        <BottomSheet
+        bottomSheetRef={unitGroupModalRef}
+        headerText='Select Unit Group'
+        headerTextColor='#00B795'
+        // onClose={() => {
+        //   setSelectedUniqueTax()
+        // }}
+        flatListProps={{
+            data: unitGroupArr,
+            renderItem: ({item}) => {
+            return (
+                <TouchableOpacity 
+                style={style.button}
+                onPress={() => {
+                    setSelectedUnitGroup(item?.name)
+                    setSelectedUnitGroupUniqueName(item?.uniqueName)
+                    setBottomSheetVisible(unitGroupModalRef, false);
+                    fetchUnitGroupMappingDebounce(item?.uniqueName)
+                }}
+                >
+                <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Text style={style.radiobuttonText}>
+                    {item?.name}
+                </Text>
+                </TouchableOpacity>
+            );
+            },
+            ListEmptyComponent: () => {
+            return (
+                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <Text
+                    style={{
+                    flex: 1,
+                    color: '#1C1C1C',
+                    paddingVertical: 4,
+                    fontFamily: FONT_FAMILY.semibold,
+                    fontSize: 14,
+                    textAlign: 'center',
+                    alignSelf: 'center'
+                    }}>
+                    No Group Available
+                </Text>
+                </View>
+
+            );
+            }
+        }}
+        />
+    );
+
+    const RenderUnitMappingModal = (
+        <BottomSheet
+        bottomSheetRef={unitGroupMappingModalRef}
+        headerText='Select Unit Group'
+        headerTextColor='#00B795'
+        // onClose={() => {
+        //   setSelectedUniqueTax()
+        // }}
+        flatListProps={{
+            data: unitGroupMapping,
+            renderItem: ({item}) => {
+            return (
+                <TouchableOpacity 
+                style={style.button}
+                onPress={() => {
+                    setUnit(item?.stockUnitX);
+                    // setSelectedUnitGroup(item?.name)
+                    // setSelectedUnitGroupUniqueName(item?.uniqueName)
+                    setBottomSheetVisible(unitGroupMappingModalRef, false);
+                    // fetchUnitGroupMappingDebounce(item?.uniqueName)
+                    fetchLinkedUnitMapping(item?.stockUnitX?.uniqueName)
+                }}
+                >
+                <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Text style={style.radiobuttonText}>
+                    {item?.stockUnitX?.name} ({item?.stockUnitX?.code})
+                </Text>
+                </TouchableOpacity>
+            );
+            },
+            ListEmptyComponent: () => {
+            return (
+                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <Text
+                    style={{
+                    flex: 1,
+                    color: '#1C1C1C',
+                    paddingVertical: 4,
+                    fontFamily: FONT_FAMILY.semibold,
+                    fontSize: 14,
+                    textAlign: 'center',
+                    alignSelf: 'center'
+                    }}>
+                    No Unit Available
+                </Text>
+                </View>
+
+            );
+            }
+        }}
+        />
+    )
 
     const CreateButton = ()=>{
         return (
@@ -639,51 +392,26 @@ const ProductScreen = ()=>{
         )
     }
 
-    const RenderVariants = ()=>{
-        const [expandAcc, setExpandAcc] = useState(false);
-        return (
-            <View>
-                <View
-                    style={{
-                        backgroundColor: '#E6E6E6',
-                        flexDirection: 'row',
-                        paddingVertical: 9,
-                        paddingHorizontal: 16,
-                        justifyContent: 'space-between'
-                    }}>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
-                        <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Variant</Text>
-                    </View>
-                    <Icon
-                        style={{ transform: [{ rotate: expandAcc ? '180deg' : '0deg' }] }}
-                        name={'9'}
-                        size={16}
-                        color="#808080"
-                        onPress={() => {
-                        setExpandAcc(!expandAcc);
-                        }}
-                    />
-                </View>
-                {
-                expandAcc && (
-                    <TouchableOpacity
-                        // onPress={() => console.log(this.state.partyShippingAddress)}
-                        style={{
-                        marginVertical: 16,
-                        paddingVertical: 10,
-                        flexDirection: 'row',
-                        alignSelf: 'center',
-                        justifyContent: 'center',
-                        }}>
-                        <AntDesign name={'plus'} color={'blue'} size={18} style={{ marginHorizontal: 8 }} />
-                        <Text numberOfLines={1} style={style.addItemMain}> Add options like multiple size or colours etc...</Text>
-                    </TouchableOpacity>
-                )
-                }
-            </View>
-        )
+    const clearAll = ()=>{
+
     }
+
+    useEffect(() => {
+        fetchAllTaxes();
+        fetchAllParentGroup();
+        fetchStockUnitGroup();
+        fetchPurchaseAccounts();
+        fetchSalesAccounts();
+        DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
+            fetchAllParentGroup();
+            fetchAllTaxes();
+            fetchStockUnitGroup();
+            fetchPurchaseAccounts();
+            fetchSalesAccounts();
+        });
+    }, []);
+    
+    console.log("purchase",unitGroupMapping);
     
     return (
         <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
@@ -694,16 +422,20 @@ const ProductScreen = ()=>{
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
-                    <RenderStockName />
-                    <RenderUnitGroup />
-                    <RenderTaxes />
-                    <RenderGroups />
-                    <RenderLinkedAcc />
+                    <RenderStockName stockName={stockName} setStockName={setStockName} stockUniqueName={stockUniqueName} setStockUniqueName={setStockUniqueName} clearAll={clearAll}/>
+                    <RenderUnitGroup unit ={unit} unitGroupName={selectedUnitGroup} unitGroupModalRef={unitGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} unitGroupMappingModalRef={unitGroupMappingModalRef}/>
+                    <RenderTaxes selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
+                    <RenderGroups groupName={selectedGroup} groupModalRef={groupModalRef} setBottomSheetVisible={setBottomSheetVisible} />
+                    <RenderLinkedAcc unit={unit} expandAcc={expandAcc} setExpandAcc={setExpandAcc}/>
                     <RenderVariants />
-                    <RenderOtherInfo />
+                    <RenderOtherInfo expandAcc={expandAcc} setExpandAcc={setExpandAcc} selectedCode={selectedCode} setSelectedCode={setSelectedCode}/>
                 </Animated.ScrollView>
             </View>
             <CreateButton />
+            {RenderTaxModal}
+            {RenderGroupModal}
+            {RenderUnitGroupModal}
+            {RenderUnitMappingModal}
         </SafeAreaView>
     )
 }

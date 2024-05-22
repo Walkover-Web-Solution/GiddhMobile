@@ -12,7 +12,7 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
             <Text style={style.fieldHeadingText}>{'Tax'}</Text>
         </View>
 
-        <View style={{paddingVertical: 6, marginTop: 10, width:Dimensions.get('window').width}}>
+        <View style={{paddingVertical: 6, marginTop: 10, width:Dimensions.get('window').width-100}}>
             <View style={{flexDirection: 'row'}}>
                 <TouchableOpacity style={{flexDirection: 'row'}}
                 onPress={()=>{

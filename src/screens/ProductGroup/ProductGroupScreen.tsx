@@ -276,7 +276,7 @@ const ProductGroupScreen = ()=>{
                       textAlign: 'center',
                       alignSelf: 'center'
                     }}>
-                    No Taxes Available
+                    No Group Available
                   </Text>
                 </View>
   

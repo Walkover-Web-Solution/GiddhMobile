@@ -65,4 +65,74 @@ export class InventoryService {
 
     })
   }
+
+  static fetchStockUnitGroup() {
+    return httpInstance.get(InventoryUrls.fetchStockUnitGroup)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }else{
+        return null;
+      }
+    }).catch((err)=>{
+      console.log("error while fetching unit grp",err);
+    })
+  }
+
+  static fetchPurchaseAccounts() {
+    return httpInstance.get(InventoryUrls.fetchPurchaseAccounts)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }else{
+        return null;
+      }
+    }).catch((err)=>{
+      console.log("error while fetching purchase grp",err);
+    })
+  }
+
+  static fetchSalesAccounts() {
+    return httpInstance.get(InventoryUrls.fetchSalesAccounts)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }else{
+        return null;
+      }
+    }).catch((err)=>{
+      console.log("error while fetching purchase grp",err);
+    })
+  }
+
+  static fetchUnitGroupMapping(payload:string[]) {
+    return httpInstance.post(InventoryUrls.fetchUnitGroupMapping,payload)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }
+      else{
+        return null;
+      }
+    }).catch((err)=>{
+      console.log("err while fetching mapping",err);
+      
+    })
+  }
+
+  static fetchLinkedUnitMapping(unitUniqueName:string){
+    return httpInstance.get(InventoryUrls.fetchLinkedUnitMapping
+      .replace(':unitUniqueName',unitUniqueName))
+      .then((res)=>{
+        if(res && res?.data){
+          return res;
+        }
+        else{
+          return null;
+        }
+      }).catch((err)=>{
+        console.log("error while fetching linked unit mapping",err);
+        
+      })
+  }
 }
