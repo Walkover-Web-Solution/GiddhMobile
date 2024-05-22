@@ -1,7 +1,7 @@
 import Header from "@/components/Header"
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
-import { Animated, DeviceEventEmitter, Keyboard, Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { Animated, DeviceEventEmitter, Keyboard, Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { Dimensions } from "react-native"
@@ -23,6 +23,7 @@ import RenderChildGroup from "./RenderChildGroup"
 
 
 const ProductGroupScreen = ()=>{
+    const navigation = useNavigation();
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
         return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
@@ -41,6 +42,7 @@ const ProductGroupScreen = ()=>{
     const [isChecked,setIsChecked] = useState(false);
     const [selectedGroup,setSelectedGroup] = useState('');
     const [selectedGroupUniqueName,setSelectedGroupUniqueName] = useState('');
+    const [isGroupUniqueNameEdited,setIsGroupUniqueNameEdited] = useState(false);
     const [selectedCode,setSelectedCode] = useState('hsn');
     const [groupName,setGroupName] = useState('');
     const [groupUniqueName,setGroupUniqueName] = useState('');
@@ -64,14 +66,64 @@ const ProductGroupScreen = ()=>{
     const fetchAllParentGroup = async () => {
         const result = await InventoryService.fetchAllParentGroup();
         if(result?.data && result?.data?.status == 'success'){
-            setParentGroupArr(result?.data?.body?.results);
+          setParentGroupArr(result?.data?.body?.results);
         }
     }
-    const resetState = ()=>{
 
+    const createStockGroup = async () => {
+      let taxesArr:string[] = [];
+      Object.keys(selectedUniqueTax).map((item)=>{
+        taxesArr.push(selectedUniqueTax?.[item]?.uniqueName);
+      })
+      const payload = {
+        hsnNumber : selectedCode === 'hsn' ? codeNumber : null,
+        isSubGroup : isChecked,
+        name : groupName, 
+        parentStockGroupUniqueName : selectedGroupUniqueName,
+        sacNumber : selectedCode === 'sac' ? codeNumber : null,
+        showCodeType : selectedCode,
+        taxes : taxesArr,
+        type : "PRODUCT",
+        uniqueName : groupUniqueName
+      }
+      const result = await InventoryService.createStockGroup(payload);
+      if(result?.data && result?.data?.status == 'success'){
+        // Toast.show('Stock Group Created Successfully!', {
+        //   duration: Toast.durations.SHORT,
+        //   position: -100,
+        //   hideOnPress: true,
+        //   backgroundColor: "#1E90FF",
+        //   textColor: "white",
+        //   opacity: 1,
+        //   shadow: false,
+        //   animation: true,
+        //   containerStyle: { borderRadius: 10 }
+        // })
+        ToastAndroid.show("Stock Group Created Successfully!", ToastAndroid.LONG)
+        navigation.goBack();
+        clearAll();
+      }else{
+        ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
+      }
+      
+    }
+    const resetState = ()=>{
+      setTaxArr([])
+      setParentGroupArr([])
+      setSelectedUniqueTax({})
+      setIsChecked(false)
+      setSelectedGroup('')
+      setSelectedGroupUniqueName('')
+      setSelectedCode('hsn')
+      setGroupName('')
+      setGroupUniqueName('')
+      setCodeNumber('')
+      setIsGroupUniqueNameEdited(false)
     }
     const clearAll = () => {
       resetState();
+      fetchAllTaxes();
+      fetchAllParentGroup();
       // this.resetState();
       // this.resetOnUncheckTax();
       // this.searchCalls();
@@ -244,8 +296,8 @@ const ProductGroupScreen = ()=>{
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
-                    <RenderGroupName setGroupName={setGroupName} setGroupUniqueName={setGroupUniqueName}/>
-                    <RenderRadioBtn selectedCode={selectedCode} setSelectedCode={setSelectedCode} setCodeNumber={setCodeNumber}/>
+                    <RenderGroupName isGroupUniqueNameEdited={isGroupUniqueNameEdited} setIsGroupUniqueNameEdited={setIsGroupUniqueNameEdited} groupName={groupName} groupUniqueName={groupUniqueName} setGroupName={setGroupName} setGroupUniqueName={setGroupUniqueName} clearAll={clearAll}/>
+                    <RenderRadioBtn codeNumber = {codeNumber} selectedCode={selectedCode} setSelectedCode={setSelectedCode} setCodeNumber={setCodeNumber}/>
                     <RenderTaxes selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
                     <RenderChildGroup groupName={selectedGroup} childGroupModalRef={childGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} isChecked={isChecked} setIsChecked={setIsChecked} />
                 </Animated.ScrollView>
@@ -263,7 +315,10 @@ const ProductGroupScreen = ()=>{
                 bottom: height * 0.01,
                 }}
                 onPress={ () => {
-                // this.linkInvoiceToReceipt()
+                  if(groupName && groupUniqueName)createStockGroup();
+                  else{
+                    ToastAndroid.show('Group Unique name can not be empty!',ToastAndroid.LONG)
+                  }
                 }}>
                 <Text
                 style={{

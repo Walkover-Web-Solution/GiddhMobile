@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
-const RenderRadioBtn = ({selectedCode,setSelectedCode,setCodeNumber})=>{
+const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})=>{
 
     return (
         <View
@@ -59,6 +59,7 @@ const RenderRadioBtn = ({selectedCode,setSelectedCode,setCodeNumber})=>{
             //     ? this.state.editItemDetails.hsnNumber
             //     : this.state.editItemDetails.sacNumber
             // }
+            value={codeNumber}
             keyboardType={'number-pad'}
             style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width: '55%', marginRight: 16 }}
             // editable={false}

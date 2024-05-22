@@ -50,4 +50,19 @@ export class InventoryService {
       
     })
   }
+
+  static createStockGroup (payload:any) {
+    return httpInstance.post(InventoryUrls.createStockGroup,payload)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }
+      else{
+        return null;
+      }
+    }).catch((err)=>{
+      console.log("error while creating group",err);
+
+    })
+  }
 }

@@ -34,7 +34,7 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                     <View
                         style={[
                         style.buttonWrapper,
-                        {marginLeft: 20,width:170},
+                        {marginLeft: 20,minWidth:170},
                         {borderColor: false ? '#00B795' : '#d9d9d9'},
                         ]}>
                         <Text

@@ -2,7 +2,7 @@ import { DefaultTheme } from "@/utils/theme";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 
-const RenderGroupName = ({setGroupName,setGroupUniqueName})=>{
+const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll})=>{
     return (
         <View>
             <View style={{flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 14}}>
@@ -13,14 +13,17 @@ const RenderGroupName = ({setGroupName,setGroupUniqueName})=>{
                     placeholder={'Enter Group Name*'}
                     returnKeyType={'done'}
                     required
-                    // value={stockName}
+                    value={groupName}
                     onChangeText={(text)=>{
                         setGroupName(text);
+                        if(!isGroupUniqueNameEdited){
+                            setGroupUniqueName(text);
+                        }
                     }}
                     // style={style.searchTextInputStyle}
                 />
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={clearAll}>
                 <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
                 </TouchableOpacity>
             </View>
@@ -33,8 +36,9 @@ const RenderGroupName = ({setGroupName,setGroupUniqueName})=>{
                     returnKeyType={'done'}
                     onChangeText={(text)=>{
                         setGroupUniqueName(text);
+                        setIsGroupUniqueNameEdited(true);
                     }}
-                    // value={stockName}
+                    value={groupUniqueName}
                     // onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
                     // style={style.searchTextInputStyle}
                 />
