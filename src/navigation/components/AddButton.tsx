@@ -51,13 +51,15 @@ const inventoryButtons:any = {
         name: 'Product Stock', 
         navigateTo: 'ProductScreen', 
         icon: <Product name="cube-outline" size={itemWidth/2} color={DefaultTheme.colors.secondary} />, 
-        color: DefaultTheme.colors.secondary   
+        color: DefaultTheme.colors.secondary,
+        event : 'ProductScreenRefresh'
     },
     item2 : {
         name: 'Product Group', 
         navigateTo: 'productGroupScreen', 
         icon: <Vendor color={'green'} />, 
-        color: 'green'   
+        color: 'green',
+        event : 'ProductGroupRefresh'   
     },
     item3 : {
         name: 'Product Inventory', 
@@ -131,7 +133,9 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                 onPress={async ()=>{
                                     this?.props?.closeModal();
                                     // this?.props?.productOptionRef?.current?.open();
-                                    await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                                    console.log("event emitted-->",APP_EVENTS?.[item?.event]);
+                                    
+                                    await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
                                     await this.props.navigation.navigate(item.navigateTo);
                                 }}
                                 >
