@@ -31,7 +31,7 @@ const RenderLinkedAcc = ({
     //   ];
     // const [radioBtn, setRadioBtn]= useState(1);
     return (
-        <View>
+        <View style={{maxHeight:400}}>
             <View
             style={{
                 backgroundColor: '#E6E6E6',

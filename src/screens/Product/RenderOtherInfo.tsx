@@ -8,7 +8,7 @@ const RenderOtherInfo = ({handleInputChange})=>{
     const [expandAcc, setExpandAcc] = useState(false);
     const [selectedCode,setSelectedCode] = useState('hsn');
     return (
-    <View style={{paddingBottom:0}}>
+    <View style={{paddingBottom:0,maxHeight:400}}>
         <View
             style={{
                 backgroundColor: '#E6E6E6',

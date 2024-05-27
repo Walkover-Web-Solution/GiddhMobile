@@ -5,7 +5,7 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 
 const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetVisible, unitGroupMappingModalRef})=>{
     return (
-    <View style={style.fieldContainer}>
+    <View style={[style.fieldContainer,{maxHeight:100}]}>
         <View style={{flexDirection: 'row'}}>
         <Icon name={'path-15'} color={DefaultTheme.colors.secondary} size={16} />
         <Text style={style.fieldHeadingText}>{'Unit'}</Text>

@@ -6,7 +6,7 @@ import colors from '@/utils/colors';
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
     return (
-    <View style={style.fieldContainer}>
+    <View style={[style.fieldContainer,{maxHeight:100}]}>
         <View style={{flexDirection: 'row'}}>
         <Icon name={'Path-12190'} color={DefaultTheme.colors.secondary} size={16} />
         <Text style={style.fieldHeadingText}>{'Tax'}</Text>

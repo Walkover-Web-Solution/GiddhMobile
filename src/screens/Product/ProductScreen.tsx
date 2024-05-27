@@ -187,6 +187,7 @@ const ProductScreen = ()=>{
     const [key4,setKey4] = useState(random(0,10,true));
     const [key5,setKey5] = useState(random(0,10,true));
     const [key6,setKey6] = useState(random(0,10,true));
+    const [key7,setKey7] = useState(random(0,10,true));
     console.log("random",key1);
     
     const {branchList} = useSelector((state)=>({
@@ -928,6 +929,7 @@ const ProductScreen = ()=>{
         setKey4(random(0,10,true));
         setKey5(random(0,10,true));
         setKey6(random(0,10,true));
+        setKey7(random(0,10,true));
         setOthersData(newObj)
         otherDataRef.current = {}
     }
@@ -968,7 +970,7 @@ const ProductScreen = ()=>{
         <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
             <View>
                 <Animated.ScrollView
-                    keyboardShouldPersistTaps="never"
+                    // keyboardShouldPersistTaps="never"
                     style={{ backgroundColor: 'white', marginBottom:70}}
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
@@ -1006,7 +1008,7 @@ const ProductScreen = ()=>{
                         // purchaseRadioBtn={purchaseRadioBtn}
                         // salesRadioBtn={salesRadioBtn}
                     />
-                    <RenderVariants />
+                    <RenderVariants key={key7}/>
                     <RenderOtherInfo key={key6} handleInputChange={handleInputChange} />
                 </Animated.ScrollView>
             </View>
