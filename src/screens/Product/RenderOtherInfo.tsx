@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 
-const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})=>{
-
+const RenderOtherInfo = ({handleInputChange})=>{
+    const [expandAcc, setExpandAcc] = useState(false);
+    const [selectedCode,setSelectedCode] = useState('hsn');
     return (
     <View style={{paddingBottom:0}}>
         <View
@@ -52,10 +53,15 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}
-                    onPress={() => setSelectedCode('hsn')}
+                    onPress={() => {
+                        setSelectedCode('hsn')
+                        handleInputChange('hsnChecked',true);
+                        handleInputChange('sacChecked',false);
+                        handleInputChange('sacChecked',"");
+                    }}
                     >
                     {selectedCode == 'hsn' && (
-                        <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F' }} />
+                        <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
                     )}
                     </TouchableOpacity>
                     <Text style={{ marginLeft: 10 }}>HSN Code</Text>
@@ -70,10 +76,15 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}
-                    onPress={() => setSelectedCode('sac')}
+                    onPress={() =>{
+                        setSelectedCode('sac')
+                        handleInputChange('hsnChecked',false);
+                        handleInputChange('sacChecked',true);
+                        handleInputChange('hsnNumber',"");
+                    }}
                     >
                     {selectedCode == 'sac' && (
-                        <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F' }} />
+                        <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
                     )}
                     </TouchableOpacity>
 
@@ -92,16 +103,17 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                     // keyboardType={'number-pad'}
                     style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
                     // editable={false}
-                    // onChangeText={(text) => {
-                    //     const item = this.state.editItemDetails;
-                    //     if (this.state.selectedCode == 'hsn') {
-                    //     item.hsnNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     } else {
-                    //     item.sacNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     }
-                    // }}
+                    onChangeText={(text)=>{
+                        selectedCode === 'hsn' 
+                        ? (
+                            handleInputChange('hsnNumber',text),
+                            handleInputChange('sacNumber',"")
+                        )
+                        : (
+                            handleInputChange('hsnNumber',""),
+                            handleInputChange('sacNumber',text)
+                        )
+                    }}
                 />
                 <TextInput
                     placeholder={'SKU Code'}
@@ -114,16 +126,9 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                     // keyboardType={'number-pad'}
                     style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
                     // editable={false}
-                    // onChangeText={(text) => {
-                    //     const item = this.state.editItemDetails;
-                    //     if (this.state.selectedCode == 'hsn') {
-                    //     item.hsnNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     } else {
-                    //     item.sacNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     }
-                    // }}
+                    onChangeText={(text)=>{
+                        handleInputChange('skuCode',text)
+                    }}
                 />
                 <View style={{flexDirection:'row',justifyContent:'space-between'}}>
                     <TextInput
@@ -137,16 +142,9 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                         // keyboardType={'number-pad'}
                         style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width:'45%'}}
                         // editable={false}
-                        // onChangeText={(text) => {
-                        //     const item = this.state.editItemDetails;
-                        //     if (this.state.selectedCode == 'hsn') {
-                        //     item.hsnNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     } else {
-                        //     item.sacNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     }
-                        // }}
+                        onChangeText={(text)=>{
+                            handleInputChange('openingQuantity',text)
+                        }}
                     />
                     <TextInput
                         placeholder={'Closing Amount'}
@@ -159,16 +157,9 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                         // keyboardType={'number-pad'}
                         style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width:'45%'}}
                         // editable={false}
-                        // onChangeText={(text) => {
-                        //     const item = this.state.editItemDetails;
-                        //     if (this.state.selectedCode == 'hsn') {
-                        //     item.hsnNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     } else {
-                        //     item.sacNumber = text;
-                        //     this.setState({ editItemDetails: item });
-                        //     }
-                        // }}
+                        onChangeText={(text)=>{
+                            handleInputChange('openingAmount',text)
+                        }}
                     />
                 </View>
                 {/* <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold ,marginTop:17}}>Custom Field 1 :</Text> */}
@@ -183,16 +174,11 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                     // keyboardType={'number-pad'}
                     style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
                     // editable={false}
-                    // onChangeText={(text) => {
-                    //     const item = this.state.editItemDetails;
-                    //     if (this.state.selectedCode == 'hsn') {
-                    //     item.hsnNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     } else {
-                    //     item.sacNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     }
-                    // }}
+                    onChangeText={(text)=>{
+                        handleInputChange('customField1Heading','Custom Field 1')
+                        handleInputChange('customField2Heading','Custom Field 2')
+                        handleInputChange('customField1Value',text)
+                    }}
                 />
                 {/* <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold, marginTop:17 }}>Custom Field 2 :</Text> */}
                 <TextInput
@@ -206,16 +192,11 @@ const RenderOtherInfo = ({expandAcc, setExpandAcc,selectedCode,setSelectedCode})
                     // keyboardType={'number-pad'}
                     style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
                     // editable={false}
-                    // onChangeText={(text) => {
-                    //     const item = this.state.editItemDetails;
-                    //     if (this.state.selectedCode == 'hsn') {
-                    //     item.hsnNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     } else {
-                    //     item.sacNumber = text;
-                    //     this.setState({ editItemDetails: item });
-                    //     }
-                    // }}
+                    onChangeText={(text)=>{
+                        handleInputChange('customField1Heading','Custom Field 1')
+                        handleInputChange('customField2Heading','Custom Field 2')
+                        handleInputChange('customField2Value',text)
+                    }}
                 />
             </View>
         </View>

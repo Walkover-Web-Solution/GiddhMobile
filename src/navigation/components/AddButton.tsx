@@ -61,30 +61,30 @@ const inventoryButtons:any = {
         color: 'green',
         event : 'ProductGroupRefresh'   
     },
-    item3 : {
-        name: 'Product Inventory', 
-        navigateTo: 'ProductScreen', 
-        icon: <Vendor color={'red'} />, 
-        color: 'red'   
-    },
-    item4 : {
-        name: 'Service Stock', 
-        navigateTo: 'ProductScreen', 
-        icon: <Vendor color={'blue'} />, 
-        color: 'red'   
-    },
-    item5 : {
-        name: 'Service Group', 
-        navigateTo: 'ProductScreen', 
-        icon: <Vendor color={'yellow'} />, 
-        color: 'red'   
-    },
-    item6 : {
-        name: 'Service Inventory', 
-        navigateTo: 'ProductScreen', 
-        icon: <Vendor color={'black'} />, 
-        color: 'red'   
-    },
+    // item3 : {
+    //     name: 'Product Inventory', 
+    //     navigateTo: 'ProductScreen', 
+    //     icon: <Vendor color={'red'} />, 
+    //     color: 'red'   
+    // },
+    // item4 : {
+    //     name: 'Service Stock', 
+    //     navigateTo: 'ProductScreen', 
+    //     icon: <Vendor color={'blue'} />, 
+    //     color: 'red'   
+    // },
+    // item5 : {
+    //     name: 'Service Group', 
+    //     navigateTo: 'ProductScreen', 
+    //     icon: <Vendor color={'yellow'} />, 
+    //     color: 'red'   
+    // },
+    // item6 : {
+    //     name: 'Service Inventory', 
+    //     navigateTo: 'ProductScreen', 
+    //     icon: <Vendor color={'black'} />, 
+    //     color: 'red'   
+    // },
 }
 
 type Props = {

@@ -2,7 +2,15 @@ import { DefaultTheme } from "@/utils/theme";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 
-const RenderStockName = ({stockName, setStockName, stockUniqueName, setStockUniqueName, clearAll})=>{
+const RenderStockName = ({
+    // stockName, 
+    // setStockName, 
+    // stockUniqueName, 
+    // setStockUniqueName, 
+    allData,
+    handleInputChange,
+    clearAll
+})=>{
     return (
         <View>
             <View style={{flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 14}}>
@@ -12,8 +20,11 @@ const RenderStockName = ({stockName, setStockName, stockUniqueName, setStockUniq
                     placeholderTextColor={'#808080'}
                     placeholder={'Enter Stock'}
                     returnKeyType={'done'}
-                    value={stockName}
-                    onChangeText={(text) => setStockName(text)}
+                    // value={allData?.current?.["name"]}
+                    onChangeText={(text) => 
+                        // setStockName(text)
+                        handleInputChange('name',text)
+                    }
                     // style={style.searchTextInputStyle}
                 />
                 </View>
@@ -28,8 +39,11 @@ const RenderStockName = ({stockName, setStockName, stockUniqueName, setStockUniq
                     placeholderTextColor={'#808080'}
                     placeholder={'Unique Name'}
                     returnKeyType={'done'}
-                    value={stockUniqueName}
-                    onChangeText={(text) => setStockUniqueName(text)}
+                    // value={allData?.current?.["uniqueName"]}
+                    onChangeText={(text) => 
+                        // setStockUniqueName(text)
+                        handleInputChange('uniqueName',text)
+                    }
                     // style={style.searchTextInputStyle}
                 />
                 </View>

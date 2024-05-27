@@ -135,4 +135,19 @@ export class InventoryService {
         
       })
   }
+
+  static createStockProduct(payload:any,selectedGroup:string){
+    return httpInstance.post(InventoryUrls.createStockProduct
+      .replace(':SelectedGroup',selectedGroup),payload)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }else{
+        return null;
+      }
+    }).catch((err)=>{
+      console.log("error while creating stock",err);
+      
+    })
+  }
 }

@@ -3,9 +3,28 @@ import { DefaultTheme } from "@/utils/theme";
 import { Text, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import GeneralLinkedAccComponent from "./GeneralLinkedAccComponent";
+import { useState } from "react";
 
-const RenderLinkedAcc = ({unit,expandAcc,setExpandAcc})=>{
-
+const RenderLinkedAcc = ({
+        unit,
+        purchaseSubUnitMappingModalRef,
+        salesSubUnitMappingModalRef,
+        setBottomSheetVisible,
+        purchaseSubUnits,
+        salesSubUnits,
+        salesAccModalRef,
+        purchaseAccModalRef,
+        purchaseAccount,
+        salesAccount,
+        // setPurchaseRate,
+        // setSalesRate,
+        handleRateChange,
+        // setPurchaseRadioBtn,
+        // setSalesRadioBtn,
+        // purchaseRadioBtn,
+        // salesRadioBtn
+    })=>{
+    const [expandAcc, setExpandAcc] = useState(true);
     // const radio_props = [
     //     { label: 'MRP (Inclusive)', value: 0 },
     //     { label: 'Exclusive', value: 1 }
@@ -38,9 +57,33 @@ const RenderLinkedAcc = ({unit,expandAcc,setExpandAcc})=>{
             {
                 expandAcc && (
                 <View> 
-                    <GeneralLinkedAccComponent linkedAccountText = "Linked Purchase Accounts" unitName={unit ? (''+unit?.name+'('+unit?.code+')'):'Unit'}/>
+                    <GeneralLinkedAccComponent 
+                        linkedAccountText = "Linked Purchase Accounts" 
+                        unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit' } 
+                        setBottomSheetVisible={setBottomSheetVisible} 
+                        unitModalRef={purchaseSubUnitMappingModalRef} 
+                        subUnits={purchaseSubUnits} 
+                        accountModalRef={purchaseAccModalRef}
+                        selectedAccount={purchaseAccount}
+                        // setRate={setPurchaseRate}
+                        handleRateChange={handleRateChange}
+                        // setRadioBtn={setPurchaseRadioBtn}
+                        // radioBtn={purchaseRadioBtn}
+                    />
                     <View style={{flex:1,borderBottomWidth:0.2,width:'95%',alignSelf:'center'}}></View>
-                    <GeneralLinkedAccComponent linkedAccountText = "Linked Sales Accounts" unitName={unit ? (''+unit?.name+'('+unit?.code+')'):'Unit'}/>
+                    <GeneralLinkedAccComponent 
+                        linkedAccountText = "Linked Sales Accounts" 
+                        unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit'} 
+                        setBottomSheetVisible={setBottomSheetVisible} 
+                        unitModalRef={salesSubUnitMappingModalRef} 
+                        subUnits={salesSubUnits}
+                        accountModalRef={salesAccModalRef}
+                        selectedAccount={salesAccount}
+                        // setRate={setSalesRate}
+                        handleRateChange={handleRateChange}
+                        // setRadioBtn={setSalesRadioBtn}
+                        // radioBtn={salesRadioBtn}
+                    />
                 </View>
                 )
             }

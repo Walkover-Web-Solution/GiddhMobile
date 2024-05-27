@@ -9,5 +9,6 @@ export const InventoryUrls = {
   fetchPurchaseAccounts: createEndpoint('company/:companyUniqueName/brief-accounts?group=operatingcost,%20indirectexpenses&count=0&branchUniqueName=:branchUniqueName&lang=en'),
   fetchSalesAccounts: createEndpoint('company/:companyUniqueName/brief-accounts?group=revenuefromoperations,%20otherincome&count=0&branchUniqueName=:branchUniqueName&lang=en'),
   fetchUnitGroupMapping: createEndpoint('company/:companyUniqueName/stock-unit/mappings?branchUniqueName=:branchUniqueName&lang=en'),
-  fetchLinkedUnitMapping: createEndpoint('company/:companyUniqueName/stock-unit/:unitUniqueName/linked-stock-units?branchUniqueName=:branchUniqueName&lang=en')
+  fetchLinkedUnitMapping: createEndpoint('company/:companyUniqueName/stock-unit/:unitUniqueName/linked-stock-units?branchUniqueName=:branchUniqueName&lang=en'),
+  createStockProduct: createEndpoint('v2/company/:companyUniqueName/stock-group/:SelectedGroup/stock?branchUniqueName=:branchUniqueName&lang=en')
 }

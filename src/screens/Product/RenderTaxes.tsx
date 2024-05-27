@@ -23,16 +23,16 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
                 style={[
                 style.buttonWrapper,
                 {marginLeft: 20,minWidth:140},
-                {borderColor: false ? '#00B795' : '#d9d9d9'},
+                {borderColor: Object.keys(selectedUniqueTax).length ? '#084EAD' : '#d9d9d9'},
                 ]}>
                 <Text
                 style={[
                     style.buttonText,
                     {
-                    color: false ? '#00B795' : '#868686',
+                    color: '#868686',
                     },
                 ]}>
-                {Object.keys(selectedUniqueTax).length > 0 ? Object.keys(selectedUniqueTax).map((item)=>(<Text key={item}>{selectedUniqueTax?.[item]?.name} </Text>)) : 'Tax'}
+                {Object.keys(selectedUniqueTax).length > 0 ? Object.keys(selectedUniqueTax).map((item)=>(<Text style={{color:'#084EAD'}} key={item}>{selectedUniqueTax?.[item]?.name}  </Text>)) : 'Tax'}
                 </Text>
             </View>
             </TouchableOpacity>

@@ -30,10 +30,10 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
             <View
                 style={[
                 style.buttonWrapper,
-                {marginHorizontal:20,width:140,height:40,justifyContent:'center',borderColor: false ? '#00B795' : '#d9d9d9'},
+                {marginHorizontal:20,width:140,height:40,justifyContent:'center',borderColor: unitGroupName ? '#084EAD' : '#d9d9d9'},
                 ]}>
                 {unitGroupName ? (
-                <Text style={[style.buttonText, { color: '#868686' }]}>
+                <Text style={[style.buttonText, { color: '#084EAD' }]}>
                     {unitGroupName}
                 </Text>
                 ) : (
@@ -63,10 +63,10 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
             <View
                 style={[
                 style.buttonWrapper,
-                {marginHorizontal:20,width:140,height:40,justifyContent:'center',borderColor: false ? '#00B795' : '#d9d9d9'},
+                {marginHorizontal:20,width:140,height:40,justifyContent:'center',borderColor: unit.uniqueName.length ? '#084EAD' : '#d9d9d9'},
                 ]}>
-                {unit ? ( 
-                <Text style={[style.buttonText, { color: '#00B795' }]}>
+                { unit.uniqueName.length > 0 ? ( 
+                <Text style={[style.buttonText, { color: '#084EAD' }]}>
                     {unit?.name} ({unit?.code})
                 </Text>
                 ) : (
