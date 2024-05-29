@@ -180,15 +180,15 @@ const ProductScreen = ()=>{
     });
 
     const otherDataRef : any = useRef(otherData);
-    // const [key1,setKey1]=useState(random);
-    const [key1,setKey1] = useState(random(0,10,true));
-    const [key2,setKey2] = useState(random(0,10,true));
-    const [key3,setKey3] = useState(random(0,10,true));
-    const [key4,setKey4] = useState(random(0,10,true));
-    const [key5,setKey5] = useState(random(0,10,true));
-    const [key6,setKey6] = useState(random(0,10,true));
-    const [key7,setKey7] = useState(random(0,10,true));
-    console.log("random",key1);
+    const [childKeys ,setChildKeys]  = useState({
+        key1:random(0,10,true),
+        key2:random(0,10,true),
+        key3:random(0,10,true),
+        key4:random(0,10,true),
+        key5:random(0,10,true),
+        key6:random(0,10,true),
+        key7:random(0,10,true)
+    })
     
     const {branchList} = useSelector((state)=>({
         branchList:state?.commonReducer?.branchList
@@ -909,6 +909,15 @@ const ProductScreen = ()=>{
             skuCode: '', 
             uniqueName: ''
         }
+        const newObjectKeys = {
+            key1:random(0,10,true),
+            key2:random(0,10,true),
+            key3:random(0,10,true),
+            key4:random(0,10,true),
+            key5:random(0,10,true),
+            key6:random(0,10,true),
+            key7:random(0,10,true)
+        }
         setSelectedUniqueTax({})
         setSelectedGroup('');
         setSelectedGroupUniqueName('');
@@ -923,13 +932,7 @@ const ProductScreen = ()=>{
         setSalesSubUnits({});
         setPurchaseAccount({});
         setSalesAccount({});
-        setKey1(random(0,10,true));
-        setKey2(random(0,10,true));
-        setKey3(random(0,10,true));
-        setKey4(random(0,10,true));
-        setKey5(random(0,10,true));
-        setKey6(random(0,10,true));
-        setKey7(random(0,10,true));
+        setChildKeys(newObjectKeys);
         setOthersData(newObj)
         otherDataRef.current = {}
     }
@@ -976,7 +979,7 @@ const ProductScreen = ()=>{
                     <_StatusBar statusBar={statusBar}/>
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
                     <RenderStockName
-                        key={key1}
+                        key={childKeys.key1}
                         handleInputChange={handleInputChange}
                         allData={otherDataRef}
                         // stockName={stockName} 
@@ -985,11 +988,11 @@ const ProductScreen = ()=>{
                         // setStockUniqueName={setStockUniqueName} 
                         clearAll={clearAll}
                     />
-                    <RenderUnitGroup key={key2} unit ={unit} unitGroupName={selectedUnitGroup} unitGroupModalRef={unitGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} unitGroupMappingModalRef={unitGroupMappingModalRef}/>
-                    <RenderTaxes key={key3} selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
-                    <RenderGroups key={key4} groupName={selectedGroup} groupModalRef={groupModalRef} setBottomSheetVisible={setBottomSheetVisible} />
+                    <RenderUnitGroup key={childKeys.key2} unit ={unit} unitGroupName={selectedUnitGroup} unitGroupModalRef={unitGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} unitGroupMappingModalRef={unitGroupMappingModalRef}/>
+                    <RenderTaxes key={childKeys.key3} selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
+                    <RenderGroups key={childKeys.key4} groupName={selectedGroup} groupModalRef={groupModalRef} setBottomSheetVisible={setBottomSheetVisible} />
                     <RenderLinkedAcc 
-                        key={key5}
+                        key={childKeys.key5}
                         unit={unit} 
                         purchaseSubUnitMappingModalRef={purchaseSubUnitMappingModalRef} 
                         salesSubUnitMappingModalRef={salesSubUnitMappingModalRef}
@@ -1008,8 +1011,8 @@ const ProductScreen = ()=>{
                         // purchaseRadioBtn={purchaseRadioBtn}
                         // salesRadioBtn={salesRadioBtn}
                     />
-                    <RenderVariants key={key7}/>
-                    <RenderOtherInfo key={key6} handleInputChange={handleInputChange} />
+                    <RenderVariants key={childKeys.key7}/>
+                    <RenderOtherInfo key={childKeys.key6} handleInputChange={handleInputChange} />
                 </Animated.ScrollView>
             </View>
             <Loader isLoading={isLoading}/>
