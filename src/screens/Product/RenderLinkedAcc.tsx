@@ -1,6 +1,6 @@
 import { FONT_FAMILY } from "@/utils/constants";
 import { DefaultTheme } from "@/utils/theme";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import GeneralLinkedAccComponent from "./GeneralLinkedAccComponent";
 import { useState } from "react";
@@ -44,15 +44,16 @@ const RenderLinkedAcc = ({
                 <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
                 <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Linked Account</Text>
             </View>
+            <Pressable onPress={() => {
+                setExpandAcc(!expandAcc);
+                }}>
             <Icon
                 style={{ transform: [{ rotate: expandAcc ? '180deg' : '0deg' }] }}
                 name={'9'}
                 size={16}
                 color="#808080"
-                onPress={() => {
-                setExpandAcc(!expandAcc);
-                }}
             />
+            </Pressable>
             </View>
             {
                 expandAcc && (

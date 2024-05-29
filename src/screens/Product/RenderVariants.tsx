@@ -1,7 +1,7 @@
 import { FONT_FAMILY } from "@/utils/constants";
 import { DefaultTheme } from "@/utils/theme";
 import { useEffect, useState } from "react";
-import { Dimensions, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Pressable, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import style from "./style";
@@ -62,9 +62,14 @@ const RenderVariants = ()=>{
     }
 
     const addOptionToMap = ()=>{
+        const removedEmptyFields = fields.filter((item)=>item.value !== "");
+        if(removedEmptyFields.length == 0){
+            ToastAndroid.show("No option field added!",ToastAndroid.LONG);
+            return ;
+        }
         const objectMapping = {
             ...optionAndDataMapping,
-            [optionName] : fields
+            [optionName] : removedEmptyFields
         }
         const optionIdArr = [...optionIds, optionName];
         setOptionIds(optionIdArr);
@@ -121,7 +126,7 @@ const RenderVariants = ()=>{
         };
 
         const handleDeleteField = (id: number) => {
-            if(localFields.length == 2){
+            if(localFields.length == 1){
                 handleDeleteOption(optionName);
             }else{
                 setLocalFields(localFields.filter(field => field.id !== id));
@@ -135,8 +140,12 @@ const RenderVariants = ()=>{
             //   ToastAndroid.show("Duplicate Value, One or more values are duplicated.",ToastAndroid.LONG);
             //   return;
             // }
-            
-            setFields(localFields);
+            const removedEmptyFields = localFields?.filter((item)=>item.value!== "");
+            if(removedEmptyFields.length == 0 ){
+                handleDeleteOption(optionName);
+            }
+            setFields(removedEmptyFields);
+
             if(optionName !== localOptionName){
                 const tempOptionIds = [...optionIds];
                 for(let i=0;i<tempOptionIds.length;i++){
@@ -147,13 +156,13 @@ const RenderVariants = ()=>{
                 }
                 setOptionIds(tempOptionIds);
                 const tempMapping = {...optionAndDataMapping,
-                    [localOptionName] : localFields
+                    [localOptionName] : removedEmptyFields
                 };
                 delete tempMapping?.[optionName];
                 setOptionAndDataMapping(tempMapping);
             }else{
                 const tempMapping  = {...optionAndDataMapping}
-                tempMapping[optionName] = localFields;
+                tempMapping[optionName] = removedEmptyFields;
                 setOptionAndDataMapping(tempMapping);
             }
             setAddOption(false);
@@ -184,7 +193,7 @@ const RenderVariants = ()=>{
                     </TouchableOpacity>
                 </View>
                 <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >Option Values</Text> 
-                {localFields.slice(0,localFields.length-1).map((field, index) => (
+                {localFields?.map((field, index) => (
                     <View key={localFields.value} style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
                         <TextInput
                             // style={styles.input}
@@ -238,19 +247,21 @@ const RenderVariants = ()=>{
             <View style={{backgroundColor: '#f2f8fb',flexDirection:'column', padding: 10, borderRadius: 2, marginVertical: 3,marginHorizontal:8 }}>
                 <View style={{flexDirection:'row',justifyContent: 'space-between',alignItems:'center',borderWidth:0,paddingHorizontal:7}}> 
                     <Text style={{ fontWeight:'bold' }}>{optionName}</Text>
-                    <Icon
-                    style={{ transform: [{ rotate: showDropDown ? '180deg' : '0deg' }] }}
-                    name={'9'}
-                    size={16}
-                    color="#808080"
-                    onPress={() => {
-                    setShowDropDown(!showDropDown);
-                    }}
-                />
+                    <Pressable onPress={() => {
+                        setShowDropDown(!showDropDown);
+                        }}
+                    >
+                        <Icon
+                        style={{ transform: [{ rotate: showDropDown ? '180deg' : '0deg' }] }}
+                        name={'9'}
+                        size={16}
+                        color="#808080"
+                        />
+                    </Pressable>
                 </View>
                 {showDropDown && <View 
                 style={{flexDirection:'row',flexWrap:'wrap'}}>
-                    {fields?.slice(0,fields?.length-1)?.map((item)=><View key={item?.id} style={{ backgroundColor: '#fff',margin: 5,borderColor: '#D9D9D9', borderRadius: 7,borderWidth: 1.2,padding: 5, paddingHorizontal:8, marginTop: 5 }} ><Text>{item?.value}</Text></View>
+                    {fields?.map((item)=><View key={item?.id} style={{ backgroundColor: '#fff',margin: 5,borderColor: '#D9D9D9', borderRadius: 7,borderWidth: 1.2,padding: 5, paddingHorizontal:8, marginTop: 5 }} ><Text>{item?.value}</Text></View>
                     )}
                 </View>}
                 {/* <View style={{width: '10%',alignItems:'center',justifyContent:'space-between' ,flexDirection:'column',paddingVertical:3 }}>
@@ -317,15 +328,16 @@ console.log("data",optionAndDataMapping);
                     <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
                     <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Variant</Text>
                 </View>
+                <Pressable onPress={() => {
+                    setExpandAcc(!expandAcc);
+                    }}>
                 <Icon
                     style={{ transform: [{ rotate: expandAcc ? '180deg' : '0deg' }] }}
                     name={'9'}
                     size={16}
                     color="#808080"
-                    onPress={() => {
-                    setExpandAcc(!expandAcc);
-                    }}
                 />
+                </Pressable>
             </View>
             {
             expandAcc && (
