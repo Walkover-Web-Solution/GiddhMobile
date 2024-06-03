@@ -2,6 +2,7 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import style from "./style";
 import { DefaultTheme } from "@/utils/theme";
 import Icon from '@/core/components/custom-icon/custom-icon';
+import React from "react";
 
 const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetVisible, unitGroupMappingModalRef})=>{
     return (
@@ -83,4 +84,4 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
     )
 }
 
-export default RenderUnitGroup;
+export default React.memo(RenderUnitGroup);

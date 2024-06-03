@@ -43,7 +43,10 @@ interface RefDataMap {
     salesMRPChecked: boolean, 
     salesRate: number, 
     skuCode: string, 
-    uniqueName: string
+    uniqueName: string,
+    variants:Object[],
+    options:Object[],
+    variantsCreated:boolean
 }
 
 interface UnitRate {
@@ -53,7 +56,7 @@ interface UnitRate {
     accountUniqueName: string
 }
 
-interface Warehouse {
+export interface Warehouse {
     warehouse: {
       name: string,
       uniqueName: string
@@ -65,7 +68,7 @@ interface Warehouse {
     openingQuantity: number,
     openingAmount: number
   }
-interface Variants {
+export interface Variants {
     name: string,
     archive: boolean,
     skuCode: string,
@@ -132,6 +135,7 @@ const ProductScreen = ()=>{
     const {height, width} = Dimensions.get('window');
     const [selectedUniqueTax,setSelectedUniqueTax]:any = useState({});
     const [isLoading,setIsLoading] = useState(false);
+    const [variantsChecked, setVariantsChecked] = useState(false);
     // const [stockName, setStockName] = useState('');
     // const [stockUniqueName, setStockUniqueName] = useState('');
     // const [selectedCode,setSelectedCode] = useState('hsn');
@@ -155,10 +159,6 @@ const ProductScreen = ()=>{
     const [salesSubUnits, setSalesSubUnits]:any = useState({});
     const [salesAccount,setSalesAccount]:any = useState({});
     const [purchaseAccount,setPurchaseAccount]:any = useState({});
-    const [purchaseRate,setPurchaseRate] = useState(0);
-    const [salesRate,setSalesRate] = useState(0);
-    const [purchaseRadioBtn, setPurchaseRadioBtn] = useState(1);
-    const [salesRadioBtn, setSalesRadioBtn] = useState(1);
     const [otherData,setOthersData] = useState<RefDataMap>({
         customField1Heading: '', 
         customField1Value: '', 
@@ -176,7 +176,10 @@ const ProductScreen = ()=>{
         salesMRPChecked: false, 
         salesRate: 0, 
         skuCode: '', 
-        uniqueName: ''
+        uniqueName: '',
+        variants: [],
+        options: [],
+        variantsCreated:false
     });
 
     const otherDataRef : any = useRef(otherData);
@@ -190,11 +193,7 @@ const ProductScreen = ()=>{
         key7:random(0,10,true)
     })
     
-    const {branchList} = useSelector((state)=>({
-        branchList:state?.commonReducer?.branchList
-    }))
-
-
+    const branchList = useSelector((state) => state?.commonReducer?.branchList);
 
 
     const handleInputChange = (name:string, value:string) => {
@@ -203,8 +202,6 @@ const ProductScreen = ()=>{
 
 
     const fetchAllTaxes = async () => {
-        console.log("ye new wala");
-        
         const result = await InventoryService.fetchAllTaxes();
         if(result?.data && result?.data?.status == 'success'){
             setTaxArr(result?.data?.body);
@@ -263,9 +260,12 @@ const ProductScreen = ()=>{
             setIsLoading(true);
             const result = await InventoryService.createStockProduct(payload,selectedGroup);
             if(result?.data && result?.data?.status == 'success'){
-                setIsLoading(false);
                 await clearAll();
+                setIsLoading(false);
                 ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
+            }else{
+                setIsLoading(false);
+                ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
             }
         }else{
             ToastAndroid.show("Please select group",ToastAndroid.SHORT);
@@ -300,7 +300,7 @@ const ProductScreen = ()=>{
         <BottomSheet
           bottomSheetRef={taxModalRef}
           headerText='Select Taxes'
-          headerTextColor='#00B795'
+          headerTextColor='#084EAD'
           // onClose={() => {
           //   setSelectedUniqueTax()
           // }}
@@ -392,7 +392,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={groupModalRef}
         headerText='Select Group'
-        headerTextColor='#00B795'
+        headerTextColor='#084EAD'
         // onClose={() => {
         //   setSelectedUniqueTax()
         // }}
@@ -408,7 +408,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(groupModalRef, false);
                 }}
                 >
-                <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={style.radiobuttonText}
                 >
                     {item?.name}
@@ -443,7 +443,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={unitGroupModalRef}
         headerText='Select Unit Group'
-        headerTextColor='#00B795'
+        headerTextColor='#084EAD'
         // onClose={() => {
         //   setSelectedUniqueTax()
         // }}
@@ -460,7 +460,7 @@ const ProductScreen = ()=>{
                     fetchUnitGroupMappingDebounce(item?.uniqueName)
                 }}
                 >
-                <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={style.radiobuttonText}>
                     {item?.name}
                 </Text>
@@ -494,7 +494,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={unitGroupMappingModalRef}
         headerText='Select Unit Group'
-        headerTextColor='#00B795'
+        headerTextColor='#084EAD'
         // onClose={() => {
         //   setSelectedUniqueTax()
         // }}
@@ -517,7 +517,7 @@ const ProductScreen = ()=>{
                     fetchLinkedUnitMapping(item?.stockUnitX?.uniqueName)
                 }}
                 >
-                <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={style.radiobuttonText}>
                     {item?.stockUnitX?.name} ({item?.stockUnitX?.code})
                 </Text>
@@ -551,7 +551,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={purchaseSubUnitMappingModalRef}
         headerText='Select Unit'
-        headerTextColor='#00B795'
+        headerTextColor='#084EAD'
         // onClose={() => {
         //   setSelectedUniqueTax()
         // }}
@@ -566,7 +566,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(purchaseSubUnitMappingModalRef, false);
                 }}
                 >
-                <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={style.radiobuttonText}>
                     {item?.code}
                 </Text>
@@ -600,7 +600,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={salesSubUnitMappingModalRef}
         headerText='Select Unit'
-        headerTextColor='#00B795'
+        headerTextColor='#084EAD'
         // onClose={() => {
         //   setSelectedUniqueTax()
         // }}
@@ -615,7 +615,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(salesSubUnitMappingModalRef, false);
                 }}
                 >
-                <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={style.radiobuttonText}>
                     {item?.code}
                 </Text>
@@ -649,7 +649,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={salesAccModalRef}
         headerText='Select Unit'
-        headerTextColor='#00B795'
+        headerTextColor='#084EAD'
         // onClose={() => {
         //   setSelectedUniqueTax()
         // }}
@@ -665,7 +665,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(salesAccModalRef, false);
                 }}
                 >
-                <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={style.radiobuttonText}>
                     {item?.name}
                 </Text>
@@ -699,7 +699,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={purchaseAccModalRef}
         headerText='Select Unit'
-        headerTextColor='#00B795'
+        headerTextColor='#084EAD'
         // onClose={() => {
         //   setSelectedUniqueTax()
         // }}
@@ -714,7 +714,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(purchaseAccModalRef, false);
                 }}
                 >
-                <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={style.radiobuttonText}>
                     {item?.name}
                 </Text>
@@ -820,21 +820,21 @@ const ProductScreen = ()=>{
             accountGroup: null,
             lowStockAlertCount: 0,
             outOfStockSelling: true,
-            variants: [variants],
-            options: [],
+            variants: otherDataRef?.current?.variantsCreated && otherDataRef?.current?.variants?.length > 0 ? otherDataRef?.current?.variants : [variants],
+            options: otherDataRef?.current?.variantsCreated && otherDataRef?.current?.options?.length > 0 ? otherDataRef?.current?.options : [],
             customFields: [],
             purchaseAccountUniqueNames: purchaseAccount?.uniqueName ? [purchaseAccount?.uniqueName]: [],
             salesAccountUniqueNames: salesAccount?.uniqueName ? [salesAccount?.uniqueName] : []
         }
-        console.log("units",variants?.unitRates);
-        console.log("units",variants?.warehouseBalance);
+        // console.log("payloaddddd-----finalaa> ",payload?.variants?.[0]?.warehouseBalance);
+        
         
         return payload;
     }
 
     const onClickCreateStock = async() => {
         const payload = await createPayload();
-        console.log("payload",payload);
+        console.log("payload *************",payload,'\n'," global data----------------->",otherDataRef?.current);
         if(payload?.name?.length > 0 ){
             if(payload?.stockUnitGroup?.uniqueName){
                 if(payload?.stockUnitUniqueName){
@@ -862,20 +862,19 @@ const ProductScreen = ()=>{
         }
     }
 
-    const CreateButton = ()=>{
-        return (
+    const CreateButton = (
             <TouchableOpacity
                 style={{
                 height: height * 0.06,
                 width: width * 0.9,
                 borderRadius: 25,
-                backgroundColor: '#5773FF',
+                backgroundColor: isLoading ? '#E6E6E6' :'#5773FF',
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignSelf: 'center',
-                position: 'absolute',
-                bottom: height * 0.01,
+                marginVertical:20
                 }}
+                disabled = {isLoading}
                 onPress={onClickCreateStock}>
                 <Text
                 style={{
@@ -886,8 +885,7 @@ const ProductScreen = ()=>{
                 Create
                 </Text>
             </TouchableOpacity>
-        )
-    }
+    )
 
     const resetState = ()=>{
         const newObj = {
@@ -907,7 +905,10 @@ const ProductScreen = ()=>{
             salesMRPChecked: false, 
             salesRate: 0, 
             skuCode: '', 
-            uniqueName: ''
+            uniqueName: '',
+            variants:[],
+            options:[],
+            variantsCreated:false
         }
         const newObjectKeys = {
             key1:random(0,10,true),
@@ -947,25 +948,25 @@ const ProductScreen = ()=>{
         fetchStockUnitGroup();
         fetchPurchaseAccounts();
         fetchSalesAccounts();
-        DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
-            fetchAllParentGroup();
-            fetchAllTaxes();
-            fetchStockUnitGroup();
-            fetchPurchaseAccounts();
-            fetchSalesAccounts();
-        });
+        // DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
+        //     fetchAllParentGroup();
+        //     fetchAllTaxes();
+        //     fetchStockUnitGroup();
+        //     fetchPurchaseAccounts();
+        //     fetchSalesAccounts();
+        // });
     }, []);
     
     // useEffect(()=>{
 
     // },[otherData])
-    console.log("purchase",unitGroupMapping);
-    console.log("subunits",subUnits);
-    console.log("purchase acc",purchaseAccountArr);
-    console.log("prate",purchaseRate);
-    console.log("srate",salesRate);
-    console.log("branch list",branchList);
-    console.log("unit group",selectedUnitGroup);
+    // console.log("purchase",unitGroupMapping);
+    // console.log("subunits",subUnits);
+    // console.log("purchase acc",purchaseAccountArr);
+    // console.log("prate",purchaseRate);
+    // console.log("srate",salesRate);
+    // console.log("branch list",branchList);
+    // console.log("unit group",selectedUnitGroup);
     
     
     
@@ -974,7 +975,7 @@ const ProductScreen = ()=>{
             <View>
                 <Animated.ScrollView
                     // keyboardShouldPersistTaps="never"
-                    style={{ backgroundColor: 'white', marginBottom:70}}
+                    style={{ backgroundColor: 'white', marginBottom:0}}
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
@@ -1006,17 +1007,18 @@ const ProductScreen = ()=>{
                         // setPurchaseRate={setPurchaseRate}
                         // setSalesRate={setSalesRate}
                         handleRateChange={handleInputChange}
+                        variantsChecked={variantsChecked}
                         // setPurchaseRadioBtn={setPurchaseRadioBtn}
                         // setSalesRadioBtn={setSalesRadioBtn}
                         // purchaseRadioBtn={purchaseRadioBtn}
                         // salesRadioBtn={salesRadioBtn}
                     />
-                    <RenderVariants key={childKeys.key7}/>
-                    <RenderOtherInfo key={childKeys.key6} handleInputChange={handleInputChange} />
+                    <RenderVariants key={childKeys.key7} setVariantsChecked={setVariantsChecked} handleGlobalInputChange={handleInputChange} unit={unit} globalData={otherDataRef?.current} subUnits={subUnits}/>
+                    <RenderOtherInfo key={childKeys.key6} handleInputChange={handleInputChange} variantsChecked={variantsChecked} />
+                    {CreateButton}
                 </Animated.ScrollView>
             </View>
             <Loader isLoading={isLoading}/>
-            <CreateButton />
             {RenderTaxModal}
             {RenderGroupModal}
             {RenderUnitGroupModal}

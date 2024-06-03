@@ -27,7 +27,7 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.regular,
     textAlign: 'center',
     minWidth: 100,
-    margin: 10,
+    paddingVertical:10,
     fontSize: 14,
   },
   chequeButtonText: {
@@ -183,7 +183,7 @@ export default StyleSheet.create({
   addItemMain: {
     fontFamily: FONT_FAMILY.bold,
     fontSize: 15,
-    color: 'blue',
+    color: '#084EAD',
     alignSelf: 'center'
   },
   InvoiceHeading: {

@@ -25,7 +25,7 @@ const RenderStockName = ({
                         // setStockName(text)
                         handleInputChange('name',text)
                     }
-                    // style={style.searchTextInputStyle}
+                    style={{flex:1}}
                 />
                 </View>
                 <TouchableOpacity onPress={()=>clearAll()}>
@@ -44,7 +44,7 @@ const RenderStockName = ({
                         // setStockUniqueName(text)
                         handleInputChange('uniqueName',text)
                     }
-                    // style={style.searchTextInputStyle}
+                    style={{flex:1}}
                 />
                 </View>
             </View>

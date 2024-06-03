@@ -10,8 +10,8 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
         <View style={[style.fieldContainer, {flex: 1}]} >
             <View style={{flexDirection: 'row', flex: 1, alignItems: 'center'}}>
                 <CheckBox
-                    checkBoxColor={'#1CB795'}
-                    uncheckedCheckBoxColor={'#1CB795'}
+                    checkBoxColor={'#084EAD'}
+                    uncheckedCheckBoxColor={'#084EAD'}
                     style={{marginLeft: -4}}
                     isChecked={isChecked}
                     onClick={()=>{
@@ -35,7 +35,7 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                         style={[
                         style.buttonWrapper,
                         {marginLeft: 20,minWidth:170},
-                        {borderColor: false ? '#00B795' : '#d9d9d9'},
+                        {borderColor: groupName.length > 0 ? '#084EAD' : '#d9d9d9'},
                         ]}>
                         <Text
                         style={[
@@ -44,7 +44,7 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                             color: false ? '#00B795' : '#868686',
                             },
                         ]}>
-                        {groupName.length > 0 ? <Text>{groupName}</Text> : 'Select Parent Group'}
+                        {groupName.length > 0 ? <Text style={{color:'#084EAD'}}>{groupName}</Text> : 'Select Parent Group'}
                         </Text>
                     </View>
                 </TouchableOpacity>

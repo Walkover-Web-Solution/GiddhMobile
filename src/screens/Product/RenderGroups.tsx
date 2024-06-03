@@ -3,6 +3,7 @@ import style from "./style";
 import { DefaultTheme } from "@/utils/theme";
 import colors from "@/utils/colors";
 import Icon from '@/core/components/custom-icon/custom-icon';
+import React from "react";
 
 const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible})=>{
     return (
@@ -23,7 +24,7 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible})=>{
               <View
                 style={[
                   style.buttonWrapper,
-                  {marginLeft: 20,minWidth:140},
+                  {marginLeft: 20,minWidth:140,height:40,justifyContent:'center'},
                   {borderColor: groupName.length ? '#084EAD' : '#d9d9d9'},
                 ]}>
                 <Text
@@ -44,4 +45,4 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible})=>{
 }
 
 
-export default RenderGroups;
+export default React.memo(RenderGroups);

@@ -147,7 +147,7 @@ const ProductGroupScreen = ()=>{
           <BottomSheet
             bottomSheetRef={taxModalRef}
             headerText='Select Taxes'
-            headerTextColor='#00B795'
+            headerTextColor='#084EAD'
             // onClose={() => {
             //   setSelectedUniqueTax()
             // }}
@@ -239,7 +239,7 @@ const ProductGroupScreen = ()=>{
         <BottomSheet
           bottomSheetRef={childGroupModalRef}
           headerText='Select Parent Group'
-          headerTextColor='#00B795'
+          headerTextColor='#084EAD'
           // onClose={() => {
           //   setSelectedUniqueTax()
           // }}
@@ -255,7 +255,7 @@ const ProductGroupScreen = ()=>{
                     setBottomSheetVisible(childGroupModalRef, false);
                   }}
                 >
-                  <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#864DD3"} size={16} />
+                  <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                   <Text style={style.radiobuttonText}
                   >
                     {item?.name}

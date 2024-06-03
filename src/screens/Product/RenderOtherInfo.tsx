@@ -1,10 +1,10 @@
 import { FONT_FAMILY } from "@/utils/constants";
 import { DefaultTheme } from "@/utils/theme";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 
-const RenderOtherInfo = ({handleInputChange})=>{
+const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
     const [expandAcc, setExpandAcc] = useState(false);
     const [selectedCode,setSelectedCode] = useState('hsn');
     return (
@@ -13,15 +13,14 @@ const RenderOtherInfo = ({handleInputChange})=>{
             style={{
                 backgroundColor: '#E6E6E6',
                 flexDirection: 'row',
-                paddingVertical: 9,
                 paddingHorizontal: 16,
                 justifyContent: 'space-between'
             }}>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row',paddingVertical: 9 }}>
                 <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
                 <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Other</Text>
             </View>
-            <Pressable onPress={() => {
+            <Pressable style={{padding: 9}} onPress={() => {
                 setExpandAcc(!expandAcc);
                 }}>
             <Icon
@@ -131,7 +130,7 @@ const RenderOtherInfo = ({handleInputChange})=>{
                         handleInputChange('skuCode',text)
                     }}
                 />
-                <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+                {!variantsChecked && <View style={{flexDirection:'row',justifyContent:'space-between'}}>
                     <TextInput
                         placeholder={'Opening Quantity'}
                         placeholderTextColor={'#808080'}
@@ -162,7 +161,7 @@ const RenderOtherInfo = ({handleInputChange})=>{
                             handleInputChange('openingAmount',text)
                         }}
                     />
-                </View>
+                </View>}
                 {/* <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold ,marginTop:17}}>Custom Field 1 :</Text> */}
                 <TextInput
                     placeholder={ 'Custom Field 1'}
@@ -207,4 +206,4 @@ const RenderOtherInfo = ({handleInputChange})=>{
 }
 
 
-export default RenderOtherInfo;
+export default React.memo(RenderOtherInfo);

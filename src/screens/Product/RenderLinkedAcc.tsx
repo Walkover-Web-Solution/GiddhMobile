@@ -3,7 +3,7 @@ import { DefaultTheme } from "@/utils/theme";
 import { Pressable, Text, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import GeneralLinkedAccComponent from "./GeneralLinkedAccComponent";
-import { useState } from "react";
+import React, { useState } from "react";
 
 const RenderLinkedAcc = ({
         unit,
@@ -19,6 +19,7 @@ const RenderLinkedAcc = ({
         // setPurchaseRate,
         // setSalesRate,
         handleRateChange,
+        variantsChecked
         // setPurchaseRadioBtn,
         // setSalesRadioBtn,
         // purchaseRadioBtn,
@@ -36,15 +37,14 @@ const RenderLinkedAcc = ({
             style={{
                 backgroundColor: '#E6E6E6',
                 flexDirection: 'row',
-                paddingVertical: 9,
                 paddingHorizontal: 16,
                 justifyContent: 'space-between'
             }}>
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row',paddingVertical:9 }}>
                 <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
                 <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Linked Account</Text>
             </View>
-            <Pressable onPress={() => {
+            <Pressable style={{padding:9}} onPress={() => {
                 setExpandAcc(!expandAcc);
                 }}>
             <Icon
@@ -68,6 +68,7 @@ const RenderLinkedAcc = ({
                         selectedAccount={purchaseAccount}
                         // setRate={setPurchaseRate}
                         handleRateChange={handleRateChange}
+                        variantsChecked={variantsChecked}
                         // setRadioBtn={setPurchaseRadioBtn}
                         // radioBtn={purchaseRadioBtn}
                     />
@@ -82,6 +83,7 @@ const RenderLinkedAcc = ({
                         selectedAccount={salesAccount}
                         // setRate={setSalesRate}
                         handleRateChange={handleRateChange}
+                        variantsChecked={variantsChecked}
                         // setRadioBtn={setSalesRadioBtn}
                         // radioBtn={salesRadioBtn}
                     />
@@ -92,4 +94,4 @@ const RenderLinkedAcc = ({
     );
 }
 
-export default RenderLinkedAcc;
+export default React.memo(RenderLinkedAcc);

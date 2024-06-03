@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
 import style from './style';
@@ -21,6 +21,7 @@ const GeneralLinkedAccComponent = ({
     selectedAccount,
     // setRate,
     handleRateChange,
+    variantsChecked
     // setRadioBtn,
     // radioBtn=1
     // onUnitPress
@@ -96,7 +97,7 @@ const GeneralLinkedAccComponent = ({
                     </TouchableOpacity>
                 </View>
             </View> 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+            {!variantsChecked && <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
                 <TextInput
                     returnKeyType={'done'}
                     keyboardType="number-pad"
@@ -107,8 +108,11 @@ const GeneralLinkedAccComponent = ({
                     placeholderTextColor={'rgba(80,80,80,0.5)'}
                     // value={this.state.openingBalance}
                     placeholder="Rate"
-                    style={{ ...style.buttonWrapper, borderWidth: 1, width: '45%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5, fontFamily: 'AvenirLTStd-Book' }} />
-                <View style={{ ...style.rowContainer, ...style.buttonWrapper, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "45%", borderColor:subUnits?.uniqueName ? '#084EAD' : '#d9d9d9', justifyContent: 'space-between' }}>
+                    style={{ ...style.rowContainer, ...style.buttonWrapper, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "45%", justifyContent: 'space-between' }} />
+                <View style={[
+                style.buttonWrapper,
+                {marginHorizontal:20,width:"45%",height:40,justifyContent:'center',borderColor: subUnits.uniqueName ? '#084EAD' : '#d9d9d9'},
+                ]}>
                     <TouchableOpacity
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
@@ -116,23 +120,23 @@ const GeneralLinkedAccComponent = ({
                             // isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
                             // filteredCurrencyData: this.state.allCurrency,
                             // })
-                        }} style={{ padding: 2, flex: 1 }}>
+                        }} style={{ padding: 2, flex: 1,justifyContent:'center' }}>
                         
                         {subUnits?.uniqueName ? ( 
-                        <Text style={[style.buttonText, { color: '#084EAD' }]}>
+                        <Text style={[style.buttonText, { color: '#084EAD',lineHeight:14 }]}>
                             {subUnits?.code}
                         </Text>
                         ) : (
                         <Text
-                            style={[style.buttonText, { color: '#868686' }]}>
+                            style={[style.buttonText, { color: '#868686',lineHeight:14}]}>
                             {unitName}
                         </Text>
                         )}
                     </TouchableOpacity>
                 </View>
-            </View>   
+            </View>}   
         </View>
     )
 }
 
-export default GeneralLinkedAccComponent;
+export default React.memo(GeneralLinkedAccComponent);

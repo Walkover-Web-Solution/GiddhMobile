@@ -3,6 +3,7 @@ import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import style from './style';
 import { DefaultTheme } from '@/utils/theme';
 import colors from '@/utils/colors';
+import React from 'react';
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
     return (
@@ -22,14 +23,14 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
             <View
                 style={[
                 style.buttonWrapper,
-                {marginLeft: 20,minWidth:140},
+                {marginLeft: 20,minWidth:140,height:40,justifyContent:'center'},
                 {borderColor: Object.keys(selectedUniqueTax).length ? '#084EAD' : '#d9d9d9'},
                 ]}>
                 <Text
                 style={[
                     style.buttonText,
                     {
-                    color: '#868686',
+                    color: '#868686',marginLeft:7
                     },
                 ]}>
                 {Object.keys(selectedUniqueTax).length > 0 ? Object.keys(selectedUniqueTax).map((item)=>(<Text style={{color:'#084EAD'}} key={item}>{selectedUniqueTax?.[item]?.name}  </Text>)) : 'Tax'}
@@ -70,4 +71,4 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
 }
 
 
-export default RenderTaxes;
+export default React.memo(RenderTaxes);

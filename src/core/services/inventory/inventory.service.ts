@@ -143,11 +143,11 @@ export class InventoryService {
       if(res && res?.data){
         return res;
       }else{
-        return null;
+        return res;
       }
     }).catch((err)=>{
       console.log("error while creating stock",err);
-      
+      return err;
     })
   }
 }

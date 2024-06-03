@@ -26,7 +26,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                 onPress={() => setSelectedCode('hsn')}
                 >
                 {selectedCode == 'hsn' && (
-                    <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F' }} />
+                    <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
                 )}
                 </TouchableOpacity>
 
@@ -44,7 +44,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                 }}
                 onPress={() => setSelectedCode('sac')}>
                 {selectedCode == 'sac' && (
-                    <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#229F5F' }} />
+                    <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
                 )}
                 </TouchableOpacity>
 
