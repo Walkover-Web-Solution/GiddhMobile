@@ -20,6 +20,8 @@ import RenderGroupName from "./RenderGroupName"
 import RenderRadioBtn from "./RenderRadioBtn"
 import RenderTaxes from "./RenderTaxes"
 import RenderChildGroup from "./RenderChildGroup"
+import makeStyle from "../ProductGroup/style"
+import Loader from "@/components/Loader"
 
 
 const ProductGroupScreen = ()=>{
@@ -31,13 +33,13 @@ const ProductGroupScreen = ()=>{
     // const { companyDetails } = useSelector((state)=>({
     //     companyDetails : state?.commonReducer?.companyDetails
     // }))
-
+    const [isLoading,setIsLoading] = useState(false);
     const taxModalRef = useRef(null);
     const childGroupModalRef = useRef(null);
     const [taxArr,setTaxArr] = useState([]);
     const [parentGroupArr,setParentGroupArr] = useState([]);
     const [selectedUniqueTax, setSelectedUniqueTax]:any = useState({});
-    const {statusBar,styles, voucherBackground} = useCustomTheme(getStyles, 'Group');
+    const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, 'Group');
     const {height, width} = Dimensions.get('window');
     const [isChecked,setIsChecked] = useState(false);
     const [selectedGroup,setSelectedGroup] = useState('');
@@ -71,6 +73,7 @@ const ProductGroupScreen = ()=>{
     }
 
     const createStockGroup = async () => {
+      setIsLoading(true);
       let taxesArr:string[] = [];
       Object.keys(selectedUniqueTax).map((item)=>{
         taxesArr.push(selectedUniqueTax?.[item]?.uniqueName);
@@ -88,22 +91,13 @@ const ProductGroupScreen = ()=>{
       }
       const result = await InventoryService.createStockGroup(payload);
       if(result?.data && result?.data?.status == 'success'){
-        // Toast.show('Stock Group Created Successfully!', {
-        //   duration: Toast.durations.SHORT,
-        //   position: -100,
-        //   hideOnPress: true,
-        //   backgroundColor: "#1E90FF",
-        //   textColor: "white",
-        //   opacity: 1,
-        //   shadow: false,
-        //   animation: true,
-        //   containerStyle: { borderRadius: 10 }
-        // })
+        setIsLoading(false);
         ToastAndroid.show("Stock Group Created Successfully!", ToastAndroid.LONG)
         navigation.goBack();
-        clearAll();
+        await clearAll();
       }else{
-        ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
+        setIsLoading(false);
+        ToastAndroid.show(result?.data?.message, ToastAndroid.LONG)
       }
       
     }
@@ -156,7 +150,7 @@ const ProductGroupScreen = ()=>{
               renderItem: ({item}) => {
                 return (
                   <TouchableOpacity
-                    style={{paddingHorizontal: 20}}
+                    style={styles.renderConatiner}
                     onPress={()=>{
                         let updatedSelectedUniqueTax = {...selectedUniqueTax};  
                         if(Object.keys(updatedSelectedUniqueTax).length == 0 ){
@@ -182,30 +176,15 @@ const ProductGroupScreen = ()=>{
                         }
                     }}
                     >
-                    <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                    <View style={styles.modalRenderItem}>
                       <View
-                        style={{
-                          borderRadius: 1,
-                          borderWidth: 1,
-                          borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C',
-                          width: 18,
-                          height: 18,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
+                        style={[styles.modalCheckBox,{ borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C'}]}>
                         {selectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName && (
                           <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
                         )}
                       </View>
                       <Text
-                        style={{
-                          color: '#1C1C1C',
-                          paddingVertical: 4,
-                          fontFamily: FONT_FAMILY.semibold,
-                          fontSize: 14,
-                          textAlign: 'center',
-                          marginLeft: 20,
-                        }}>
+                        style={styles.modalText}>
                         {item.name}
                       </Text>
                     </View>
@@ -214,17 +193,9 @@ const ProductGroupScreen = ()=>{
               },
               ListEmptyComponent: () => {
                 return (
-                  <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                  <View style={styles.modalCancelView}>
                     <Text
-                      style={{
-                        flex: 1,
-                        color: '#1C1C1C',
-                        paddingVertical: 4,
-                        fontFamily: FONT_FAMILY.semibold,
-                        fontSize: 14,
-                        textAlign: 'center',
-                        alignSelf: 'center'
-                      }}>
+                      style={styles.modalCancelText}>
                       No Taxes Available
                     </Text>
                   </View>
@@ -248,7 +219,7 @@ const ProductGroupScreen = ()=>{
             renderItem: ({item}) => {
               return (
                 <TouchableOpacity 
-                  style={style.button}
+                  style={styles.button}
                   onPress={() => {
                     setSelectedGroup(item?.name)
                     setSelectedGroupUniqueName(item?.uniqueName)
@@ -256,7 +227,7 @@ const ProductGroupScreen = ()=>{
                   }}
                 >
                   <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                  <Text style={style.radiobuttonText}
+                  <Text style={styles.radiobuttonText}
                   >
                     {item?.name}
                   </Text>
@@ -265,17 +236,9 @@ const ProductGroupScreen = ()=>{
             },
             ListEmptyComponent: () => {
               return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                   <Text
-                    style={{
-                      flex: 1,
-                      color: '#1C1C1C',
-                      paddingVertical: 4,
-                      fontFamily: FONT_FAMILY.semibold,
-                      fontSize: 14,
-                      textAlign: 'center',
-                      alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Group Available
                   </Text>
                 </View>
@@ -288,11 +251,11 @@ const ProductGroupScreen = ()=>{
 
       console.log("map--->",selectedUniqueTax);
     return (
-        <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
+        <SafeAreaView style={styles.containerView}>
             <View>
                 <Animated.ScrollView
                     keyboardShouldPersistTaps="never"
-                    style={{ backgroundColor: 'white', marginBottom:70}}
+                    style={styles.animatedView}
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
@@ -303,17 +266,8 @@ const ProductGroupScreen = ()=>{
                 </Animated.ScrollView>
             </View>
             <TouchableOpacity
-                style={{
-                height: height * 0.06,
-                width: width * 0.9,
-                borderRadius: 25,
-                backgroundColor: '#5773FF',
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-                position: 'absolute',
-                bottom: height * 0.01,
-                }}
+                style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
+                disabled = {isLoading}
                 onPress={ () => {
                   if(groupName && groupUniqueName)createStockGroup();
                   else{
@@ -321,23 +275,16 @@ const ProductGroupScreen = ()=>{
                   }
                 }}>
                 <Text
-                style={{
-                    fontFamily: 'AvenirLTStd-Black',
-                    color: '#fff',
-                    fontSize: 20,
-                }}>
+                style={styles.createButtonText}>
                 Create
                 </Text>
             </TouchableOpacity>
             {RenderTaxModal}
             {RenderChildGroupModal}
+            <Loader isLoading={isLoading}/>
         </SafeAreaView>
 
     )
 }
-
-const getStyles = (theme: ThemeProps)=> StyleSheet.create({
-
-})
 
 export default ProductGroupScreen;

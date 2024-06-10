@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
-import style from './style';
+import makeStyle from './style';
+import useCustomTheme from "@/utils/theme";
 
 const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
@@ -31,16 +32,17 @@ const GeneralLinkedAccComponent = ({
         { label: 'MRP (Inclusive)', value: 0 },
         { label: 'Exclusive', value: 1 }
       ];
+    const {theme,styles} = useCustomTheme(makeStyle);
     return (
-        <View style={{ marginHorizontal: 15, marginVertical: 10, marginRight: 20, overflow: 'hidden' }}>
+        <View style={styles.linkedAccContainer}>
             <View>
-                <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'space-between' }}>
-                    <Text style={{ color: '#1c1c1c', paddingRight: 5, fontFamily: 'AvenirLTStd-Book' }} >{rateLabel}</Text>
+                <View style={[styles.inputRow,,{marginBottom:10}]}>
+                    <Text style={[styles.optionTitle,{marginTop:5}]} >{rateLabel}</Text>
                     <RadioForm
                     formHorizontal={true}
                     initial={0}
                     animation={true}
-                    style={{justifyContent:'space-between',width:'70%'}}
+                    style={[styles.radioGroupContainer,{marginTop:5}]}
                     >
                     {
                         radio_props.map((obj, i) => (
@@ -68,8 +70,14 @@ const GeneralLinkedAccComponent = ({
                             obj={obj}
                             index={i}
                             labelHorizontal={true}
-                            onPress={() => { }}
-                            labelStyle={{ color: '#808080', fontFamily: 'AvenirLTStd-Book' }}
+                            onPress={(val) => { setRadioBtn(val),
+                                linkedAccountText == "Linked Purchase Accounts" ? (
+                                    val == 0 ? handleRateChange('purchaseMRPChecked',true) : handleRateChange('purchaseMRPChecked',false)
+                                ):(
+                                    val == 0 ? handleRateChange('salesMRPChecked',true) : handleRateChange('salesMRPChecked',false)
+                                )
+                             }}
+                            labelStyle={{ color: '#808080', fontFamily: theme.typography.fontFamily.regular }}
                             labelWrapStyle={{ marginRight: 10, marginTop: 10 }}
                             />
                         </RadioButton>
@@ -77,27 +85,27 @@ const GeneralLinkedAccComponent = ({
                     </RadioForm>
                 </View>
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between',alignItems:'center' ,}}>
-                <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >{linkedAccountText}</Text>
-                <View style={{ ...style.rowContainer, ...style.buttonWrapper, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "45%", borderColor: selectedAccount?.name ? '#084EAD' : '#d9d9d9', justifyContent: 'space-between' }}>
+            <View style={styles.inputRow}>
+                <Text style={[styles.optionTitle,{marginTop:0}]} >{linkedAccountText}</Text>
+                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: selectedAccount?.name ? '#084EAD' : '#d9d9d9'  }]}>
                     <TouchableOpacity
                     onPress={() => {
                         setBottomSheetVisible(accountModalRef,true);
-                    }} style={{ padding: 2, flex: 1 }}>
+                    }} style={{ flex: 1 }}>
                         {selectedAccount?.name ? ( 
-                        <Text style={[style.buttonText, { color: '#084EAD' }]}>
+                        <Text style={[styles.buttonText, { color: '#084EAD' }]}>
                             {selectedAccount?.name}
                         </Text>
                         ) : (
                         <Text
-                            style={[style.buttonText, { color: '#868686' }]}>
+                            style={[styles.buttonText, { color: '#868686' }]}>
                             None
                         </Text>
                         )}
                     </TouchableOpacity>
                 </View>
             </View> 
-            {!variantsChecked && <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+            {!variantsChecked && <View style={[styles.inputRow,{marginTop:5}]}>
                 <TextInput
                     returnKeyType={'done'}
                     keyboardType="number-pad"
@@ -108,11 +116,8 @@ const GeneralLinkedAccComponent = ({
                     placeholderTextColor={'rgba(80,80,80,0.5)'}
                     // value={this.state.openingBalance}
                     placeholder="Rate"
-                    style={{ ...style.rowContainer, ...style.buttonWrapper, marginTop: 5, paddingHorizontal: 10, paddingVertical: 0, height: 40, width: "45%", justifyContent: 'space-between' }} />
-                <View style={[
-                style.buttonWrapper,
-                {marginHorizontal:20,width:"45%",height:40,justifyContent:'center',borderColor: subUnits.uniqueName ? '#084EAD' : '#d9d9d9'},
-                ]}>
+                    style={[styles.rowContainer, styles.buttonWrapper,styles.linkedModalBtn ]} />
+                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName ? '#084EAD' : '#d9d9d9'}]}>
                     <TouchableOpacity
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
@@ -120,15 +125,15 @@ const GeneralLinkedAccComponent = ({
                             // isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
                             // filteredCurrencyData: this.state.allCurrency,
                             // })
-                        }} style={{ padding: 2, flex: 1,justifyContent:'center' }}>
+                        }} style={{ flex: 1 }}>
                         
                         {subUnits?.uniqueName ? ( 
-                        <Text style={[style.buttonText, { color: '#084EAD',lineHeight:14 }]}>
+                        <Text style={[styles.buttonText, { color: '#084EAD',lineHeight:14 }]}>
                             {subUnits?.code}
                         </Text>
                         ) : (
                         <Text
-                            style={[style.buttonText, { color: '#868686',lineHeight:14}]}>
+                            style={[styles.buttonText, { color: '#868686',lineHeight:14}]}>
                             {unitName}
                         </Text>
                         )}

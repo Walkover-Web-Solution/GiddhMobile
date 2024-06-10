@@ -50,15 +50,15 @@ const inventoryButtons:any = {
     product : {
         name: 'Product Stock', 
         navigateTo: 'ProductScreen', 
-        icon: <Product name="cube-outline" size={itemWidth/2} color={DefaultTheme.colors.secondary} />, 
+        icon: <Product name="cube-outline" size={itemWidth/2.3} color='black' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductScreenRefresh'
     },
     item2 : {
         name: 'Product Group', 
         navigateTo: 'productGroupScreen', 
-        icon: <Vendor color={'green'} />, 
-        color: 'green',
+        icon: <Product name="file-tray-stacked-outline" size={itemWidth/2.3} color='brown' />, 
+        color: 'red',
         event : 'ProductGroupRefresh'   
     },
     // item3 : {

@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused } from "@react-navigation/native";
 import  CheckBox  from "react-native-check-box";
-import { Dimensions, FlatList, Keyboard, Platform, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, FlatList, Keyboard, Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Variants } from "./ProductScreen";
 import React, { useRef, useState } from "react";
@@ -10,11 +10,12 @@ import BottomSheet from "@/components/BottomSheet";
 import { FONT_FAMILY } from "@/utils/constants";
 import Icon from '@/core/components/custom-icon/custom-icon';
 
-const Screen_width = Dimensions.get('window').width;
+const {height, width} = Dimensions.get('window');
 const VariantTableScreen = ({route})=>{
     const {variantCombination,handleGlobalInputChange,globalData,unit,subUnits} = route.params;
     console.log("variants",variantCombination);
-    const {height, width} = Dimensions.get('window');
+
+    const {theme}  = useCustomTheme(getStyles);
     const variantSubUnitModal = useRef(null);
     const {statusBar,styles, voucherBackground} = useCustomTheme(getStyles, 'PdfPreview');
     const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
@@ -116,17 +117,9 @@ const VariantTableScreen = ({route})=>{
                 },
                 ListEmptyComponent: () => {
                 return (
-                    <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                    <View style={styles.modalCancelView}>
                     <Text
-                        style={{
-                        flex: 1,
-                        color: '#1C1C1C',
-                        paddingVertical: 4,
-                        fontFamily: FONT_FAMILY.semibold,
-                        fontSize: 14,
-                        textAlign: 'center',
-                        alignSelf: 'center'
-                        }}>
+                        style={styles.modalCancelText}>
                         No Unit Available
                     </Text>
                     </View>
@@ -141,8 +134,29 @@ const VariantTableScreen = ({route})=>{
         return(
             <View style={styles.box}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.combinedValues}>{combinedValues}</Text>
-                    <View style={styles.checkboxContainer}>
+                    <Text numberOfLines={1} style={[styles.combinedValues,{width:'75%'}]}>{combinedValues}</Text>
+                    <Pressable 
+                        onPress={()=>{
+                            console.log("helw");
+                            
+                            toggleArchive(index);
+                            const updatedObj = [...globalData?.variants]
+                            updatedObj[index] = {
+                                ...updatedObj?.[index],
+                                archive: !updatedObj?.[index]?.archive
+                            }
+                            // {"archive": false, "customFields": [Array], "fixedAssetTaxInclusive": false, "name": "fasdf", "purchaseTaxInclusive": false, "salesTaxInclusive": false, "skuCode": "", "unitRates": [Array], "warehouseBalance": [Array]}
+                            // globalData.variants[index]={
+                            //     ...globalData?.variants?.[index],
+                            //     archive: !globalData?.variants?.[index]?.archive
+                            // }
+
+
+                            handleGlobalInputChange('variants',updatedObj);
+                            console.log("global data",globalData,"warehouse",globalData?.variants?.[index]?.warehouseBalance);
+                            
+                        }}
+                        style={styles.checkboxContainer}>
                         <CheckBox
                             checkBoxColor={'blue'}
                             uncheckedCheckBoxColor={'blue'}
@@ -168,7 +182,7 @@ const VariantTableScreen = ({route})=>{
                             }}
                         />
                         <Text style={styles.checkboxLabel}>Archive</Text>
-                    </View>
+                    </Pressable>
                 </View>
                 <View style={styles.row}>
                     <TouchableOpacity
@@ -192,11 +206,11 @@ const VariantTableScreen = ({route})=>{
                                 globalData?.variants?.[index]?.warehouseBalance?.[0]?.stockUnit?.name !== unit?.code 
                             } */}
                         { globalData?.variants?.[index]?.warehouseBalance?.[0]?.stockUnit?.uniqueName !== unit?.uniqueName   ? ( 
-                        <Text style={[styles.buttonText, { color: '#084EAD' }]}>
+                        <Text style={{fontFamily:theme.typography.fontFamily.semiBold,color: '#084EAD' }}>
                             {globalData?.variants?.[index]?.warehouseBalance?.[0]?.stockUnit?.name ?globalData?.variants?.[index]?.warehouseBalance?.[0]?.stockUnit?.name  : unit?.name + " ("+ unit?.code +")" }
                         </Text>
                         ) : (
-                        <Text>
+                        <Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>
                             {unit?.uniqueName ? unit?.name + " ("+ unit?.code +")" : 'Unit'}
                         </Text>
                         )}
@@ -224,6 +238,7 @@ const VariantTableScreen = ({route})=>{
                 <View style={styles.row}>
                     <TextInput
                         style={styles.input}
+                        keyboardType="number-pad"
                         placeholder={globalData?.variants?.[index]?.warehouseBalance[0]?.openingAmount ? globalData?.variants?.[index]?.warehouseBalance[0]?.openingAmount : "Opening Amount" }
                         // value={inputs[index]?.openingAmount || ''}
                         // onChangeText={text => handleInputChange(index, 'openingAmount', text)}
@@ -249,6 +264,7 @@ const VariantTableScreen = ({route})=>{
                     />
                     <TextInput
                         style={styles.input}
+                        keyboardType="number-pad"
                         placeholder={globalData?.variants?.[index]?.warehouseBalance[0]?.openingQuantity ? globalData?.variants?.[index]?.warehouseBalance[0]?.openingQuantity : "Opening Quantity" }
                         // value={inputs[index]?.openingQuantity || ''}
                         // onChangeText={text => handleInputChange(index, 'openingQuantity', text)}
@@ -322,7 +338,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     },
     combinedValues: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontFamily:theme.typography.fontFamily.bold
     },
     row: {
         flexDirection: 'row',
@@ -337,6 +353,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
         marginBottom: 10,
         paddingLeft: 8,
         marginRight: 5,
+        fontFamily:theme.typography.fontFamily.semiBold
     },
     checkboxContainer: {
         flexDirection: 'row',
@@ -344,6 +361,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     },
     checkboxLabel: {
         marginLeft: 8,
+        fontFamily:theme.typography.fontFamily.semiBold
     },
     item: {
         fontSize: 18,
@@ -356,8 +374,23 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     },
     radiobuttonText:{
         color: '#1C1C1C', 
-        fontFamily: FONT_FAMILY.regular,
+        fontFamily: theme.typography.fontFamily.regular,
         marginLeft: 10
+    },
+    modalCancelView :{
+        height: height * 0.3, 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        paddingVertical: 8
+    },
+    modalCancelText :{
+        flex: 1,
+        color: '#1C1C1C',
+        paddingVertical: 4,
+        fontFamily: theme.typography.fontFamily.semiBold,
+        fontSize: 14,
+        textAlign: 'center',
+        alignSelf: 'center'
     }
 })
 

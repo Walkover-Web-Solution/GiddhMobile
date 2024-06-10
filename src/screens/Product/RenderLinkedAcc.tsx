@@ -1,9 +1,11 @@
 import { FONT_FAMILY } from "@/utils/constants";
-import { DefaultTheme } from "@/utils/theme";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import { Pressable, Text, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import GeneralLinkedAccComponent from "./GeneralLinkedAccComponent";
+import LinkIcon from 'react-native-vector-icons/FontAwesome5';
 import React, { useState } from "react";
+import makeStyles from "./style";
 
 const RenderLinkedAcc = ({
         unit,
@@ -26,6 +28,7 @@ const RenderLinkedAcc = ({
         // salesRadioBtn
     })=>{
     const [expandAcc, setExpandAcc] = useState(true);
+    const {theme,styles} = useCustomTheme(makeStyles);
     // const radio_props = [
     //     { label: 'MRP (Inclusive)', value: 0 },
     //     { label: 'Exclusive', value: 1 }
@@ -33,16 +36,15 @@ const RenderLinkedAcc = ({
     // const [radioBtn, setRadioBtn]= useState(1);
     return (
         <View style={{maxHeight:400}}>
-            <View
-            style={{
-                backgroundColor: '#E6E6E6',
-                flexDirection: 'row',
-                paddingHorizontal: 16,
-                justifyContent: 'space-between'
-            }}>
-            <View style={{ flexDirection: 'row',paddingVertical:9 }}>
-                <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
-                <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Linked Account</Text>
+            <Pressable 
+            style={styles.dropDownView}
+            onPress={() => {
+                setExpandAcc(!expandAcc);
+            }}
+            >
+            <View style={styles.checkboxContainer}>
+                <LinkIcon name='link' size={16} color={DefaultTheme.colors.secondary} />
+                <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>Linked Account</Text>
             </View>
             <Pressable style={{padding:9}} onPress={() => {
                 setExpandAcc(!expandAcc);
@@ -54,7 +56,7 @@ const RenderLinkedAcc = ({
                 color="#808080"
             />
             </Pressable>
-            </View>
+            </Pressable>
             {
                 expandAcc && (
                 <View> 
@@ -72,7 +74,7 @@ const RenderLinkedAcc = ({
                         // setRadioBtn={setPurchaseRadioBtn}
                         // radioBtn={purchaseRadioBtn}
                     />
-                    <View style={{flex:1,borderBottomWidth:0.2,width:'95%',alignSelf:'center'}}></View>
+                    <View style={styles.lineView}></View>
                     <GeneralLinkedAccComponent 
                         linkedAccountText = "Linked Sales Accounts" 
                         unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit'} 

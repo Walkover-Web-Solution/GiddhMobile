@@ -1,39 +1,38 @@
 import { Dimensions, Text, TouchableOpacity, View } from "react-native";
-import style from "../Product/style"
+import style from "./style"
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { DefaultTheme } from "@/utils/theme";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import color from '@/utils/colors';
+import makeStyle from "./style";
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
+    const {styles, theme} = useCustomTheme(makeStyle);
+    const {height,width } = Dimensions.get('window');
     return (
-    <View style={style.fieldContainer}>
-        <View style={{flexDirection: 'row',marginTop:10}}>
+    <View style={styles.fieldContainer}>
+        <View style={styles.checkboxContainer}>
             <Icon name={'Path-12190'} color={DefaultTheme.colors.secondary} size={16} />
-            <Text style={style.fieldHeadingText}>{'Tax'}</Text>
+            <Text style={styles.fieldHeadingText}>{'Tax'}</Text>
         </View>
 
-        <View style={{paddingVertical: 6, marginTop: 10, width:Dimensions.get('window').width-100}}>
-            <View style={{flexDirection: 'row'}}>
+        <View style={styles.taxView}>
+            <View style={styles.checkboxContainer}>
                 <TouchableOpacity style={{flexDirection: 'row'}}
-                onPress={()=>{
-                    setBottomSheetVisible(taxModalRef,true);
-                }}
-                textColor={{color}}>
+                    onPress={()=>{
+                        setBottomSheetVisible(taxModalRef,true);
+                    }}
+                    textColor={{color}}>
                     <View
                         style={[
-                        style.buttonWrapper,
-                        {marginLeft: 20,minWidth:170},
+                        styles.buttonWrapper,
+                        styles.taxBtn,
                         {borderColor: Object.keys(selectedUniqueTax).length ? '#084EAD' : '#d9d9d9'},
                         ]}>
-                        <Text
-                        style={[
-                            style.buttonText,
-                            {
-                            color: false ? '#00B795' : '#868686',
-                            },
-                        ]}>
-                        {Object.keys(selectedUniqueTax).length > 0 ? Object.keys(selectedUniqueTax).map((item)=>(<Text style={{color:'#084EAD'}} key={item}>{selectedUniqueTax?.[item]?.name}  </Text>)) : 'Tax'}
-                        </Text>
+                        <View style={[styles.checkboxContainer,{justifyContent:'center'}]}>
+                        {Object.keys(selectedUniqueTax).length > 0 
+                        ? Object.keys(selectedUniqueTax).map((item)=>(<Text style={{ color:'#084EAD'}} key={item}>  {selectedUniqueTax?.[item]?.name}  </Text>)) 
+                        : <Text style={{color:'#868686'}}>Tax</Text>}
+                        </View>
                     </View>
                 </TouchableOpacity>
                 {/* <TouchableOpacity

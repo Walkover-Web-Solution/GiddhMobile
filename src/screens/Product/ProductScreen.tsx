@@ -1,12 +1,11 @@
 import Header from "@/components/Header";
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme";
-import { useIsFocused } from "@react-navigation/native";
-import { Animated, DeviceEventEmitter, Dimensions, Keyboard, Platform, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { Alert, Animated, DeviceEventEmitter, Dimensions, Keyboard, Platform, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { useCallback, useEffect, useRef, useState } from "react";
-import style from './style';
-import color from '@/utils/colors';
+import colžr from '@/utils/colors';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
@@ -23,6 +22,7 @@ import _, { random } from "lodash";
 import { useSelector } from "react-redux";
 import AsyncStorage from "@react-native-community/async-storage";
 import Loader from "@/components/Loader";
+import makeStyles from "./style";
 
 
 
@@ -119,6 +119,8 @@ interface Payload {
   }
   
 const ProductScreen = ()=>{
+    console.log("rendered--->");
+    
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
         return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
@@ -131,7 +133,7 @@ const ProductScreen = ()=>{
     const salesSubUnitMappingModalRef = useRef(null);
     const salesAccModalRef = useRef(null);
     const purchaseAccModalRef = useRef(null);
-    const {statusBar,styles, voucherBackground} = useCustomTheme(getStyles, 'Stock');
+    const {statusBar,styles, theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
     const {height, width} = Dimensions.get('window');
     const [selectedUniqueTax,setSelectedUniqueTax]:any = useState({});
     const [isLoading,setIsLoading] = useState(false);
@@ -195,6 +197,7 @@ const ProductScreen = ()=>{
     
     const branchList = useSelector((state) => state?.commonReducer?.branchList);
 
+    const navigation = useNavigation();
 
     const handleInputChange = (name:string, value:string) => {
         otherDataRef.current[name] = value;
@@ -263,6 +266,7 @@ const ProductScreen = ()=>{
                 await clearAll();
                 setIsLoading(false);
                 ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
+                navigation.goBack();
             }else{
                 setIsLoading(false);
                 ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
@@ -309,7 +313,7 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
               return (
                 <TouchableOpacity
-                  style={{paddingHorizontal: 20}}
+                  style={styles.renderConatiner}
                   onPress={()=>{
                       let updatedSelectedUniqueTax = {...selectedUniqueTax};  
                       if(Object.keys(updatedSelectedUniqueTax).length == 0 ){
@@ -335,30 +339,15 @@ const ProductScreen = ()=>{
                       }
                   }}
                   >
-                  <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                  <View style={styles.modalRenderItem}>
                     <View
-                      style={{
-                        borderRadius: 1,
-                        borderWidth: 1,
-                        borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C',
-                        width: 18,
-                        height: 18,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
+                      style={[styles.modalCheckBox,{ borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C'}]}>
                       {selectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName && (
                         <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
                       )}
                     </View>
                     <Text
-                      style={{
-                        color: '#1C1C1C',
-                        paddingVertical: 4,
-                        fontFamily: FONT_FAMILY.semibold,
-                        fontSize: 14,
-                        textAlign: 'center',
-                        marginLeft: 20,
-                      }}>
+                      style={styles.modalText}>
                       {item.name}
                     </Text>
                   </View>
@@ -367,17 +356,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
               return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                   <Text
-                    style={{
-                      flex: 1,
-                      color: '#1C1C1C',
-                      paddingVertical: 4,
-                      fontFamily: FONT_FAMILY.semibold,
-                      fontSize: 14,
-                      textAlign: 'center',
-                      alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Taxes Available
                   </Text>
                 </View>
@@ -401,7 +382,7 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
             return (
                 <TouchableOpacity 
-                style={style.button}
+                style={styles.button}
                 onPress={() => {
                     setSelectedGroup(item?.name)
                     setSelectedGroupUniqueName(item?.uniqueName)
@@ -409,7 +390,7 @@ const ProductScreen = ()=>{
                 }}
                 >
                 <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={style.radiobuttonText}
+                <Text style={styles.radiobuttonText}
                 >
                     {item?.name}
                 </Text>
@@ -418,17 +399,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
             return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                 <Text
-                    style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Group Available
                 </Text>
                 </View>
@@ -452,7 +425,7 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
             return (
                 <TouchableOpacity 
-                style={style.button}
+                style={styles.button}
                 onPress={() => {
                     setSelectedUnitGroup(item?.name)
                     setSelectedUnitGroupUniqueName(item?.uniqueName)
@@ -461,7 +434,7 @@ const ProductScreen = ()=>{
                 }}
                 >
                 <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={style.radiobuttonText}>
+                <Text style={styles.radiobuttonText}>
                     {item?.name}
                 </Text>
                 </TouchableOpacity>
@@ -469,17 +442,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
             return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                 <Text
-                    style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Group Available
                 </Text>
                 </View>
@@ -503,7 +468,7 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
             return (
                 <TouchableOpacity 
-                style={style.button}
+                style={styles.button}
                 onPress={() => {
                     setUnit({
                         code: item?.stockUnitX?.code, 
@@ -518,7 +483,7 @@ const ProductScreen = ()=>{
                 }}
                 >
                 <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={style.radiobuttonText}>
+                <Text style={styles.radiobuttonText}>
                     {item?.stockUnitX?.name} ({item?.stockUnitX?.code})
                 </Text>
                 </TouchableOpacity>
@@ -526,17 +491,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
             return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                 <Text
-                    style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Unit Available
                 </Text>
                 </View>
@@ -560,14 +517,14 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
             return (
                 <TouchableOpacity 
-                style={style.button}
+                style={styles.button}
                 onPress={() => {
                     setPurchaseSubUnits(item);
                     setBottomSheetVisible(purchaseSubUnitMappingModalRef, false);
                 }}
                 >
                 <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={style.radiobuttonText}>
+                <Text style={styles.radiobuttonText}>
                     {item?.code}
                 </Text>
                 </TouchableOpacity>
@@ -575,17 +532,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
             return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                 <Text
-                    style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Unit Available
                 </Text>
                 </View>
@@ -609,14 +558,14 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
             return (
                 <TouchableOpacity 
-                style={style.button}
+                style={styles.button}
                 onPress={() => {
                     setSalesSubUnits(item);
                     setBottomSheetVisible(salesSubUnitMappingModalRef, false);
                 }}
                 >
                 <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={style.radiobuttonText}>
+                <Text style={styles.radiobuttonText}>
                     {item?.code}
                 </Text>
                 </TouchableOpacity>
@@ -624,17 +573,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
             return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                 <Text
-                    style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Unit Available
                 </Text>
                 </View>
@@ -659,14 +600,14 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
             return (
                 <TouchableOpacity 
-                style={style.button}
+                style={styles.button}
                 onPress={() => {
                     setSalesAccount(item);
                     setBottomSheetVisible(salesAccModalRef, false);
                 }}
                 >
                 <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={style.radiobuttonText}>
+                <Text style={styles.radiobuttonText}>
                     {item?.name}
                 </Text>
                 </TouchableOpacity>
@@ -674,17 +615,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
             return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                 <Text
-                    style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Accounts Available
                 </Text>
                 </View>
@@ -708,14 +641,14 @@ const ProductScreen = ()=>{
             renderItem: ({item}) => {
             return (
                 <TouchableOpacity 
-                style={style.button}
+                style={styles.button}
                 onPress={() => {
                     setPurchaseAccount(item);
                     setBottomSheetVisible(purchaseAccModalRef, false);
                 }}
                 >
                 <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={style.radiobuttonText}>
+                <Text style={styles.radiobuttonText}>
                     {item?.name}
                 </Text>
                 </TouchableOpacity>
@@ -723,17 +656,9 @@ const ProductScreen = ()=>{
             },
             ListEmptyComponent: () => {
             return (
-                <View style={{height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+                <View style={styles.modalCancelView}>
                 <Text
-                    style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                    }}>
+                    style={styles.modalCancelText}>
                     No Accounts Available
                 </Text>
                 </View>
@@ -864,24 +789,11 @@ const ProductScreen = ()=>{
 
     const CreateButton = (
             <TouchableOpacity
-                style={{
-                height: height * 0.06,
-                width: width * 0.9,
-                borderRadius: 25,
-                backgroundColor: isLoading ? '#E6E6E6' :'#5773FF',
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-                marginVertical:20
-                }}
+                style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
                 disabled = {isLoading}
                 onPress={onClickCreateStock}>
                 <Text
-                style={{
-                    fontFamily: 'AvenirLTStd-Black',
-                    color: '#fff',
-                    fontSize: 20,
-                }}>
+                style={styles.createBtn}>
                 Create
                 </Text>
             </TouchableOpacity>
@@ -971,11 +883,11 @@ const ProductScreen = ()=>{
     
     
     return (
-        <SafeAreaView style={{flex:1,backgroundColor:'white'}}>
+        <SafeAreaView style={[styles.container,styles.backGround]}>
             <View>
                 <Animated.ScrollView
                     // keyboardShouldPersistTaps="never"
-                    style={{ backgroundColor: 'white', marginBottom:0}}
+                    style={styles.backGround}
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
@@ -1032,7 +944,3 @@ const ProductScreen = ()=>{
 }
 
 export default ProductScreen;
-
-const getStyles = (theme: ThemeProps)=> StyleSheet.create({
-
-})

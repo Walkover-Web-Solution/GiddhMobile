@@ -1,10 +1,9 @@
 import { FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants";
-import { DefaultTheme } from "@/utils/theme";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useEffect, useState } from "react";
 import { Dimensions, Pressable, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import style from "./style";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { element } from "prop-types";
@@ -13,8 +12,11 @@ import { useNavigation } from "@react-navigation/native";
 import Routes from "@/navigation/routes";
 import { Variants, Warehouse } from "./ProductScreen";
 import AsyncStorage from "@react-native-community/async-storage";
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSelector } from "react-redux";
+import makeStyles from "./style";
 const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalData,subUnits})=>{
+    const {theme,styles} = useCustomTheme(makeStyles);
     const [expandAcc, setExpandAcc] = useState(false);
     const [optionCount,setOptionCount] = useState(0);
     const [addOption,setAddOption] = useState(false);
@@ -214,9 +216,9 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         return (
           <TouchableOpacity
             onPress={() => {handleDeleteOption(item)}}
-            style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+            style={styles.animatedView}>
             <MaterialIcons name={'delete'} size={18} color={'red'} />
-            <Text style={{ color: '#E04646', marginLeft: 10 }}>Delete</Text>
+            <Text style={styles.deleteText}>Delete</Text>
           </TouchableOpacity>
         );
       }
@@ -225,9 +227,9 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         return (
             <TouchableOpacity
               onPress={() => {handleEditOptoins(item)}}
-              style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+              style={styles.animatedView}>
               <MaterialIcons name={'edit'} size={18} color={'green'} />
-              <Text style={{ color: 'green', marginLeft: 10 }}>Edit</Text>
+              <Text style={styles.editText}>Edit</Text>
             </TouchableOpacity>
           );
     }
@@ -342,7 +344,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         console.log("local fields",localFields);
         return (
             <View style={{padding:15, maxHeight:580*localFields?.length}}>
-                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                <View style={styles.inputRow}>
                     <TextInput
                         returnKeyType={'done'}
                         onChangeText={(val) => {
@@ -356,25 +358,25 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         // value={this.state.openingBalance}
                         placeholder="Option Name"
                         value={localOptionName}
-                        style={{ ...style.buttonWrapper, borderWidth: 1, borderColor: '#d9d9d9',width:'90%',padding: 10, marginTop: 5, fontFamily: 'AvenirLTStd-Book' }} 
+                        style={[styles.buttonWrapper ,styles.inputView ]} 
                     />
-                    <TouchableOpacity onPress={() =>{handleDeleteOption(optionName)}} >
+                    <TouchableOpacity style={{padding:10}} onPress={() =>{handleDeleteOption(optionName)}} >
                         <MaterialIcons name={'delete'} size={20} color={'#808080'} />
                     </TouchableOpacity>
                 </View>
-                <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >Option Values</Text> 
+                <Text style={styles.optionTitle} >Option Values</Text> 
                 {localFields?.map((field, index) => (
-                    <View key={localFields.value} style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                    <View key={localFields.value} style={styles.inputRow}>
                         <TextInput
                             // style={styles.input}
                             value={field.value}
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
                             onChangeText={(text) => handleInputChange(field.id, text)}
-                            style={{ ...style.buttonWrapper, borderWidth: 1, borderColor: '#d9d9d9',width:'90%',padding: 10, marginTop: 5, fontFamily: 'AvenirLTStd-Book' }} 
+                            style={[styles.buttonWrapper, styles.inputView] } 
                             placeholder={`Option ${index + 1}`}
                         />
                         {localFields.length > 1 && (
-                            <TouchableOpacity onPress={() => handleDeleteField(field.id)} >
+                            <TouchableOpacity style={{padding:10}} onPress={() => handleDeleteField(field.id)} >
                                 <MaterialIcons name={'delete'} size={18} color={'#808080'} />
                                 
                             </TouchableOpacity>
@@ -382,23 +384,11 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     </View>
                 ))}  
                 <TouchableOpacity
-                style={{
-                height: 40,
-                width: 80,
-                borderRadius: 16,
-                backgroundColor: '#084EAD',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop:10
-                }}
+                style={styles.doneBtn}
                 onPress={handleSave}
                 >
                 <Text
-                style={{
-                    fontFamily: 'AvenirLTStd-Black',
-                    color: '#fff',
-                    fontSize: 16,
-                }}>
+                style={styles.doneBtnText}>
                 Done
                 </Text>
             </TouchableOpacity>
@@ -414,9 +404,9 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             renderRightActions={()=>renderRightAction(optionName)}
             renderLeftActions={()=>renderLeftAction(optionName)}
             >
-            <View style={{backgroundColor: '#f2f8fb',flexDirection:'column', paddingHorizontal: 10, borderRadius: 2, marginVertical: 3,marginHorizontal:8 }}>
-                <View style={{flexDirection:'row',justifyContent: 'space-between',alignItems:'center',borderWidth:0,paddingHorizontal:0}}> 
-                    <Text style={{ fontWeight:'bold' }}>{optionName}</Text>
+            <View style={styles.optionCardContainer}>
+                <View style={styles.inputRow}> 
+                    <Text style={styles.optionHeadingText}>{optionName}</Text>
                     <Pressable style={{padding:10}} onPress={() => {
                         setShowDropDown(!showDropDown);
                         }}
@@ -430,8 +420,8 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     </Pressable>
                 </View>
                 {showDropDown && <View 
-                style={{flexDirection:'row',flexWrap:'wrap'}}>
-                    {fields?.map((item)=><View key={item?.id} style={{ backgroundColor: '#fff',margin: 5,borderColor: '#D9D9D9', borderRadius: 7,borderWidth: 1.2,padding: 5, paddingHorizontal:8, marginTop: 5 }} ><Text>{item?.value}</Text></View>
+                style={styles.variantCard}>
+                    {fields?.map((item)=><View key={item?.id} style={styles.variantCardText} ><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>{item?.value}</Text></View>
                     )}
                 </View>}
                 {/* <View style={{width: '10%',alignItems:'center',justifyContent:'space-between' ,flexDirection:'column',paddingVertical:3 }}>
@@ -452,15 +442,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
     const Button = ()=>{
         return (
             <TouchableOpacity
-                style={{
-                height: 40,
-                width: 80,
-                borderRadius: 16,
-                backgroundColor: '#084EAD',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop:10
-                }}
+                style={styles.doneBtn}
                 onPress={() => {
                     // const wareHouseObj:Warehouse = {
                     //     warehouse: {
@@ -495,11 +477,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 }}
                 >
                 <Text
-                style={{
-                    fontFamily: 'AvenirLTStd-Black',
-                    color: '#fff',
-                    fontSize: 16,
-                }}>
+                style={styles.doneBtnText}>
                 Done
                 </Text>
             </TouchableOpacity>
@@ -510,16 +488,12 @@ console.log("data",optionAndDataMapping);
 
     return (
         <View>
-            <View
-                style={{
-                    backgroundColor: '#E6E6E6',
-                    flexDirection: 'row',
-                    paddingHorizontal: 16,
-                    justifyContent: 'space-between'
+            <Pressable style={styles.dropDownView}  onPress={() => {
+                setExpandAcc(!expandAcc);
                 }}>
-                <View style={{ flexDirection: 'row',paddingVertical:9 }}>
-                    <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
-                    <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Variant</Text>
+                <View style={styles.checkboxContainer} >
+                    <Icons name='plus-circle-multiple' size={17} color={DefaultTheme.colors.secondary} />
+                    <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold}]}>Variant</Text>
                 </View>
                 <Pressable style={{padding:9}} onPress={() => {
                     setExpandAcc(!expandAcc);
@@ -531,7 +505,7 @@ console.log("data",optionAndDataMapping);
                     color="#808080"
                 />
                 </Pressable>
-            </View>
+            </Pressable>
             {
             expandAcc && (
                 <View style={{maxHeight:1200*fields.length}}>
@@ -554,7 +528,7 @@ console.log("data",optionAndDataMapping);
                     }
                     {addOption && 
                     <View style={{padding:15}}>
-                        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                        <View style={styles.inputRow}>
                             <TextInput
                                 returnKeyType={'done'}
                                 onChangeText={(val) => {
@@ -566,27 +540,26 @@ console.log("data",optionAndDataMapping);
                                 placeholderTextColor={'rgba(80,80,80,0.5)'}
                                 // value={this.state.openingBalance}
                                 placeholder="Option Name"
-                                style={{ ...style.buttonWrapper, borderWidth: 1, borderColor: '#d9d9d9',width:'90%',padding: 10, marginTop: 5, fontFamily: 'AvenirLTStd-Book' }} 
+                                style={[styles.buttonWrapper, styles.inputView] } 
                             />
-                            <TouchableOpacity onPress={() =>{setAddOption(false) ,setOptionCount(optionCount-1)}} >
+                            <TouchableOpacity style={{padding:10}} onPress={() =>{setAddOption(false) ,setOptionCount(optionCount-1)}} >
                                 <MaterialIcons name={'delete'} size={20} color={'#808080'} />
                             </TouchableOpacity>
                         </View>
-                        <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >Option Values</Text> 
+                        <Text style={styles.optionTitle} >Option Values</Text> 
                         {fields.map((field, index) => (
-                            <View key={field.id} style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                            <View key={field.id} style={styles.inputRow}>
                                 <TextInput
                                     // style={styles.input}
                                     value={field.value}
                                     placeholderTextColor={'rgba(80,80,80,0.5)'}
                                     onChangeText={(text) => handleInputChange(field.id, text)}
-                                    style={{ ...style.buttonWrapper, borderWidth: 1, borderColor: '#d9d9d9',width:'90%',padding: 10, marginTop: 5, fontFamily: 'AvenirLTStd-Book' }} 
+                                    style={[styles.buttonWrapper, styles.inputView]} 
                                     placeholder={`Option ${index + 1}`}
                                 />
                                 {fields.length > 1 && (
-                                    <TouchableOpacity onPress={() => handleDeleteField(field.id)} >
+                                    <TouchableOpacity style={{padding:10}} onPress={() => handleDeleteField(field.id)} >
                                         <MaterialIcons name={'delete'} size={18} color={'#808080'} />
-                                        
                                     </TouchableOpacity>
                                 )}
                             </View>
@@ -596,31 +569,21 @@ console.log("data",optionAndDataMapping);
                     }
                     {optionCount < 3 && <TouchableOpacity
                         onPress={() => optionCount < 3 && !addOption && (setOptionCount(optionCount+1),setAddOption(true),setVariantsChecked(true),handleGlobalInputChange('variantsCreated',true))}
-                        style={{
-                        marginVertical: 16,
-                        paddingVertical: 10,
-                        flexDirection: 'row',
-                        alignSelf: 'flex-start',
-                        justifyContent: 'center',
-                        }}>
+                        style={styles.variantHeading}>
                         <AntDesign name={'plus'} color={'#084EAD'} size={18} style={{ marginHorizontal: 8 }} />
                         {optionCount == 0 
-                        ? <Text numberOfLines={1} style={style.addItemMain}> Add options like multiple size or colours etc...</Text> 
-                        : optionCount == 3 ? <></> : <Text numberOfLines={1} style={style.addItemMain}> Another option</Text> }
+                        ? <Text numberOfLines={1} style={styles.addItemMain}> Add options like multiple size or colours etc...</Text> 
+                        : optionCount == 3 ? <></> : <Text numberOfLines={1} style={styles.addItemMain}> Another option</Text> }
                     </TouchableOpacity>}
-                    {optionIds.length > 0 && <View><TouchableOpacity
+                    {optionIds.length > 0 && <View>
+                    <TouchableOpacity
                         onPress={()=>{
                             navigation.navigate(Routes.VariantTableScreen,{variantCombination,handleGlobalInputChange,globalData,unit,subUnits});
                         }}
                         // onPress={() => optionCount < 3 && !addOption && (setOptionCount(optionCount+1),setAddOption(true))}
-                        style={{
-                        margin:15,
-                        flexDirection: 'row',
-                        alignSelf: 'flex-start',
-                        justifyContent: 'center',
-                        }}>
-                            <Text numberOfLines={1} style={style.addItemMain}>Look Table</Text> 
-                            <MaterialIcons name={'play-arrow'} size={18} color={'blue'} />
+                        style={styles.tableText}>
+                        <Text numberOfLines={1} style={styles.addItemMain}>Look Table</Text> 
+                        <MaterialIcons name={'play-arrow'} size={18} color={'blue'} />
                     </TouchableOpacity>
                     {/* <View style={{flexDirection:'column',borderWidth:2,height:300}}>
                     {variantCombination.map((box, boxIndex) => (

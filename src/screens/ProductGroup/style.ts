@@ -1,6 +1,8 @@
 import { Dimensions, StyleSheet } from 'react-native';
 import { FONT_FAMILY } from '../../utils/constants';
-export default StyleSheet.create({
+import { ThemeProps } from '@/utils/theme';
+const {height,width} = Dimensions.get('window')
+const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   container: {
     flex: 1
   },
@@ -11,7 +13,8 @@ export default StyleSheet.create({
     backgroundColor: '#00B795',
     height: Dimensions.get('window').height * 0.08,
   },
-  headerConatiner: {
+  renderConatiner: {
+    paddingHorizontal: 20
     // backgroundColor: '#00B795'
   },
   buttonWrapper: {
@@ -236,5 +239,131 @@ export default StyleSheet.create({
     color: '#1C1C1C', 
     fontFamily: FONT_FAMILY.regular,
     marginLeft: 10
+  },
+  modalRenderItem :{
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 8
+  },
+  modalCheckBox:{
+    borderRadius: 1,
+    borderWidth: 1,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalText:{
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontFamily: theme.typography.fontFamily.semiBold,
+    fontSize: 14,
+    textAlign: 'center',
+    marginLeft: 20,
+  },
+  modalCancelView:{
+    height: height * 0.3, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 8
+  },
+  modalCancelText :{
+    flex: 1,
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontFamily: theme.typography.fontFamily.semiBold,
+    fontSize: 14,
+    textAlign: 'center',
+    alignSelf: 'center'
+  },
+  containerView:{
+    flex:1,
+    backgroundColor:'white'
+  },
+  createButton:{
+    height: height * 0.06,
+    width: width * 0.9,
+    borderRadius: 25,
+    backgroundColor: '#5773FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    position: 'absolute',
+    bottom: height * 0.01,
+  },
+  createButtonText :{
+    fontFamily: theme.typography.fontFamily.bold,
+    color: '#fff',
+    fontSize: 20,
+  },
+  animatedView:{ 
+    backgroundColor: 'white', 
+    marginBottom:70
+  },
+  selectedText:{
+    color:'#084EAD',
+    fontFamily:theme.typography.fontFamily.semiBold
+  },
+  checkboxContainer:{
+    flexDirection: 'row', 
+    flex: 1,
+    alignItems:'center'
+  },
+  textInput:{
+    fontFamily:theme.typography.fontFamily.semiBold,
+    flex:1
+  },
+  clearnBtnText:{
+    color: '#1C1C1C', 
+    marginRight: 16, 
+    fontFamily: theme.typography.fontFamily.regular
+  },
+  radioBtnView:{
+    flexDirection: 'row',
+    // backgroundColor: 'pink',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  radioBtn:{
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    backgroundColor: '#c4c4c4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedRadioBtn:{ 
+    height: 14, 
+    width: 14, 
+    borderRadius: 7, 
+    backgroundColor: '#084EAD' 
+  },
+  radioText:{ 
+    marginLeft: 10,
+    fontFamily:theme.typography.fontFamily.semiBold 
+  },
+  codeInput:{ 
+    borderColor: '#D9D9D9', 
+    borderBottomWidth: 1,
+    width: '55%',
+    marginRight: 16,
+    fontFamily:theme.typography.fontFamily.regular 
+  },
+  taxView: {
+    paddingVertical: 6, 
+    marginTop: 10, 
+    width:Dimensions.get('window').width-100
+  },
+  taxBtn : {
+    marginLeft: 20,
+    minWidth:140,
+    minHeight:40,
+    maxWidth:width-20,
+    // justifyContent:'center',
+    paddingHorizontal:10,
+    // alignContent:'center'
   }
 });
+
+export default makeStyle;

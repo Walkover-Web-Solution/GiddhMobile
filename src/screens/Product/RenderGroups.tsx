@@ -1,40 +1,36 @@
 import { Text, TouchableOpacity, View } from "react-native";
-import style from "./style";
-import { DefaultTheme } from "@/utils/theme";
+import makeStyle from "./style";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import colors from "@/utils/colors";
-import Icon from '@/core/components/custom-icon/custom-icon';
+// import Icon from '@/core/components/custom-icon/custom-icon';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
 
 const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible})=>{
+  const {theme,styles} = useCustomTheme(makeStyle);
     return (
-        <View style={[style.fieldContainer,{maxHeight:100}]}>
-        <View style={{flexDirection: 'row'}}>
-          <Icon name={'Path-12190'} color={DefaultTheme.colors.secondary} size={16} />
-          <Text style={style.fieldHeadingText}>{'Groups'}</Text>
+        <View style={[styles.fieldContainer,{maxHeight:100}]}>
+        <View style={styles.rowView}>
+          <Icon name='arrange-bring-forward' color={DefaultTheme.colors.secondary} size={16} />
+          <Text style={styles.fieldHeadingText}>{'Groups'}</Text>
         </View>
 
-        <View style={{paddingVertical: 6, marginTop: 10}}>
-          <View style={{flexDirection: 'row'}}>
+        <View style={styles.unitGroupView}>
+          <View style={styles.rowView}>
             <TouchableOpacity
-              style={{flexDirection: 'row'}}
+              style={styles.rowView}
               onPress={()=>{
                 setBottomSheetVisible(groupModalRef,true);
               }}
               textColor={{colors}}>
               <View
                 style={[
-                  style.buttonWrapper,
-                  {marginLeft: 20,minWidth:140,height:40,justifyContent:'center'},
-                  {borderColor: groupName.length ? '#084EAD' : '#d9d9d9'},
+                  styles.buttonWrapper,
+                  styles.modalBtn,
+                  {borderColor: groupName.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
                 ]}>
-                <Text
-                  style={[
-                    style.buttonText,
-                    {
-                      color:'#868686',
-                    },
-                  ]}>
-                  {groupName.length > 0 ? <Text style={{color:'#084EAD'}}>{groupName}</Text> : 'Select Group'}
+                <Text style={[styles.buttonText,{ color:'#868686'}]}>
+                  {groupName.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
                 </Text>
               </View>
             </TouchableOpacity>

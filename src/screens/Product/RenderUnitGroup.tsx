@@ -1,18 +1,20 @@
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import style from "./style";
-import { DefaultTheme } from "@/utils/theme";
-import Icon from '@/core/components/custom-icon/custom-icon';
+import { Dimensions, Text, TextInput, TouchableOpacity, View } from "react-native";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
+// import Icon from '@/core/components/custom-icon/custom-icon';
 import React from "react";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import makeStyles from "./style";
 
 const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetVisible, unitGroupMappingModalRef})=>{
-    return (
-    <View style={[style.fieldContainer,{maxHeight:100}]}>
-        <View style={{flexDirection: 'row'}}>
-        <Icon name={'path-15'} color={DefaultTheme.colors.secondary} size={16} />
-        <Text style={style.fieldHeadingText}>{'Unit'}</Text>
+    const {theme,styles} = useCustomTheme(makeStyles);
+    return  (
+    <View style={[styles.fieldContainer,{maxHeight:100}]}>
+        <View style={styles.rowView}>
+            <Icon name='tag-multiple' color={DefaultTheme.colors.secondary} size={17} />
+            <Text style={styles.fieldHeadingText}>{'Unit'}</Text>
         </View>
-        <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
-        <View style={{flexDirection: 'row', }}>
+        <View style={styles.unitGroupView}>
+        <View style={styles.rowView}>
             <TouchableOpacity
                 onPress={()=>{
                     setBottomSheetVisible(unitGroupModalRef,true);
@@ -30,16 +32,17 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
             >
             <View
                 style={[
-                style.buttonWrapper,
-                {marginHorizontal:20,width:140,height:40,justifyContent:'center',borderColor: unitGroupName ? '#084EAD' : '#d9d9d9'},
+                styles.buttonWrapper,
+                styles.modalBtn,
+                {borderColor: unitGroupName ? '#084EAD' : '#d9d9d9'},
                 ]}>
                 {unitGroupName ? (
-                <Text style={[style.buttonText, { color: '#084EAD' }]}>
+                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
                     {unitGroupName}
                 </Text>
                 ) : (
                 <Text
-                    style={[style.buttonText, { color: '#868686' }]}>
+                    style={[styles.buttonText, { color: '#868686' }]}>
                     Group
                 </Text>
                 )}
@@ -63,16 +66,17 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
             >
             <View
                 style={[
-                style.buttonWrapper,
-                {marginHorizontal:20,width:140,height:40,justifyContent:'center',borderColor: unit.uniqueName.length ? '#084EAD' : '#d9d9d9'},
+                styles.buttonWrapper,
+                styles.modalBtn,
+                {borderColor: unit.uniqueName.length ? '#084EAD' : '#d9d9d9'},
                 ]}>
                 { unit.uniqueName.length > 0 ? ( 
-                <Text style={[style.buttonText, { color: '#084EAD' }]}>
+                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
                     {unit?.name} ({unit?.code})
                 </Text>
                 ) : (
                 <Text
-                    style={[style.buttonText, { color: '#868686' }]}>
+                    style={[styles.buttonText, { color: '#868686' }]}>
                     Unit
                 </Text>
                 )}

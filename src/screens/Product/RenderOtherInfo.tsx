@@ -1,24 +1,23 @@
 import { FONT_FAMILY } from "@/utils/constants";
-import { DefaultTheme } from "@/utils/theme";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useState } from "react";
 import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
+import MoreIcon from 'react-native-vector-icons/MaterialIcons';
+import makeStyles from "./style";
 
 const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
     const [expandAcc, setExpandAcc] = useState(false);
     const [selectedCode,setSelectedCode] = useState('hsn');
+    const {theme,styles} = useCustomTheme(makeStyles)
     return (
-    <View style={{paddingBottom:0,maxHeight:400}}>
-        <View
-            style={{
-                backgroundColor: '#E6E6E6',
-                flexDirection: 'row',
-                paddingHorizontal: 16,
-                justifyContent: 'space-between'
-            }}>
-            <View style={{ flexDirection: 'row',paddingVertical: 9 }}>
-                <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={DefaultTheme.colors.secondary} />
-                <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Other</Text>
+    <View style={{maxHeight:400}}>
+        <Pressable style={styles.dropDownView} onPress={() => {
+                setExpandAcc(!expandAcc);
+                }}>
+            <View style={styles.checkboxContainer}>
+                <MoreIcon name='more' size={16} color={DefaultTheme.colors.secondary} />
+                <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold }]}>Other</Text>
             </View>
             <Pressable style={{padding: 9}} onPress={() => {
                 setExpandAcc(!expandAcc);
@@ -30,29 +29,14 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                 color="#808080"
             />
             </Pressable>
-        </View>
+        </Pressable>
         {expandAcc &&
         <View> 
             <View
-                style={{
-                flexDirection: 'row',
-                // backgroundColor: 'pink',
-                justifyContent: 'space-between',
-                marginTop: 10,
-                width:'75%',
-                alignSelf:'center'
-                
-                }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 10 }}>
+                style={styles.radioGroupContainer}>
+                <View style={styles.radioBtnView}>
                     <TouchableOpacity
-                    style={{
-                        height: 20,
-                        width: 20,
-                        borderRadius: 10,
-                        backgroundColor: '#c4c4c4',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
+                    style={styles.radioBtn}
                     onPress={() => {
                         setSelectedCode('hsn')
                         handleInputChange('hsnChecked',true);
@@ -61,21 +45,21 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                     }}
                     >
                     {selectedCode == 'hsn' && (
-                        <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
+                        <View style={styles.selectedRadioBtn} />
                     )}
                     </TouchableOpacity>
-                    <Text style={{ marginLeft: 10 }}>HSN Code</Text>
+                    <Pressable onPress={() => {
+                        setSelectedCode('hsn')
+                        handleInputChange('hsnChecked',true);
+                        handleInputChange('sacChecked',false);
+                        handleInputChange('sacChecked',"");
+                    }}>
+                        <Text style={styles.radioBtnText}>HSN Code</Text>
+                    </Pressable>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 15 }}>
+                <View style={styles.radioBtnView}>
                     <TouchableOpacity
-                    style={{
-                        height: 20,
-                        width: 20,
-                        borderRadius: 10,
-                        backgroundColor: '#c4c4c4',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
+                    style={styles.radioBtn}
                     onPress={() =>{
                         setSelectedCode('sac')
                         handleInputChange('hsnChecked',false);
@@ -84,14 +68,20 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                     }}
                     >
                     {selectedCode == 'sac' && (
-                        <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
+                        <View style={styles.selectedRadioBtn} />
                     )}
                     </TouchableOpacity>
-
-                    <Text style={{ marginLeft: 10 }}>SAC Code</Text>
+                    <Pressable onPress={() =>{
+                        setSelectedCode('sac')
+                        handleInputChange('hsnChecked',false);
+                        handleInputChange('sacChecked',true);
+                        handleInputChange('hsnNumber',"");
+                    }}>
+                        <Text style={styles.radioBtnText}>SAC Code</Text>
+                    </Pressable>
                 </View>
             </View>
-            <View style={{ marginHorizontal: 15, marginVertical: 10, marginRight: 20, overflow: 'hidden' }}>
+            <View style={styles.inputContainer}>
                 <TextInput
                     placeholder={ selectedCode=='hsn'?'Enter HSN Code':'Enter SAC Code'}
                     placeholderTextColor={'#808080'}
@@ -101,7 +91,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                     //     : this.state.editItemDetails.sacNumber
                     // }
                     // keyboardType={'number-pad'}
-                    style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+                    style={styles.inputField}
                     // editable={false}
                     onChangeText={(text)=>{
                         selectedCode === 'hsn' 
@@ -124,15 +114,16 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                     //     : this.state.editItemDetails.sacNumber
                     // }
                     // keyboardType={'number-pad'}
-                    style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+                    style={styles.inputField}
                     // editable={false}
                     onChangeText={(text)=>{
                         handleInputChange('skuCode',text)
                     }}
                 />
-                {!variantsChecked && <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+                {!variantsChecked && <View style={styles.inputRow}>
                     <TextInput
                         placeholder={'Opening Quantity'}
+                        keyboardType='number-pad'
                         placeholderTextColor={'#808080'}
                         // value={
                         //     this.state.selectedCode == 'hsn'
@@ -140,7 +131,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                         //     : this.state.editItemDetails.sacNumber
                         // }
                         // keyboardType={'number-pad'}
-                        style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width:'45%'}}
+                        style={styles.unitInput}
                         // editable={false}
                         onChangeText={(text)=>{
                             handleInputChange('openingQuantity',text)
@@ -148,6 +139,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                     />
                     <TextInput
                         placeholder={'Closing Amount'}
+                        keyboardType='number-pad'
                         placeholderTextColor={'#808080'}
                         // value={
                         //     this.state.selectedCode == 'hsn'
@@ -155,7 +147,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                         //     : this.state.editItemDetails.sacNumber
                         // }
                         // keyboardType={'number-pad'}
-                        style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width:'45%'}}
+                        style={styles.unitInput}
                         // editable={false}
                         onChangeText={(text)=>{
                             handleInputChange('openingAmount',text)
@@ -172,7 +164,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                     //     : this.state.editItemDetails.sacNumber
                     // }
                     // keyboardType={'number-pad'}
-                    style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+                    style={styles.inputField}
                     // editable={false}
                     onChangeText={(text)=>{
                         handleInputChange('customField1Heading','Custom Field 1')
@@ -190,7 +182,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked})=>{
                     //     : this.state.editItemDetails.sacNumber
                     // }
                     // keyboardType={'number-pad'}
-                    style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+                    style={styles.inputField}
                     // editable={false}
                     onChangeText={(text)=>{
                         handleInputChange('customField1Heading','Custom Field 1')

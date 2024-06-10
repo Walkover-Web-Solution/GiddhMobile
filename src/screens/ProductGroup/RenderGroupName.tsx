@@ -1,18 +1,19 @@
-import { DefaultTheme } from "@/utils/theme";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
+import makeStyle from "./style";
 
 const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll})=>{
+    const {theme,styles} = useCustomTheme(makeStyle);
     return (
         <View>
-            <View style={{flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 14}}>
-                <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+            <View style={[styles.checkboxContainer, {paddingTop: 14}]}>
+                <View style={styles.checkboxContainer}>
                 <Icon name={'Sections'} color={DefaultTheme.colors.secondary} style={{margin: 16}} size={16} />
                 <TextInput
                     placeholderTextColor={'#808080'}
-                    placeholder={'Enter Group Name*'}
+                    placeholder={'Enter Group Name'}
                     returnKeyType={'done'}
-                    required
                     value={groupName}
                     onChangeText={(text)=>{
                         setGroupName(text);
@@ -20,15 +21,16 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
                             setGroupUniqueName(text);
                         }
                     }}
+                    style={styles.textInput}
                     // style={style.searchTextInputStyle}
                 />
                 </View>
                 <TouchableOpacity onPress={clearAll}>
-                <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
+                <Text style={styles.clearnBtnText}>Clear All</Text>
                 </TouchableOpacity>
             </View>
             <View>
-                <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+                <View style={styles.checkboxContainer}>
                 <Icon name={'Sections'} color={DefaultTheme.colors.secondary} style={{margin: 16}} size={16} />
                 <TextInput
                     placeholderTextColor={'#808080'}
@@ -39,6 +41,7 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
                         setIsGroupUniqueNameEdited(true);
                     }}
                     value={groupUniqueName}
+                    style={styles.textInput}
                     // onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
                     // style={style.searchTextInputStyle}
                 />

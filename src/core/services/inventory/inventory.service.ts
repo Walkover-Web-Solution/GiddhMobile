@@ -58,11 +58,11 @@ export class InventoryService {
         return res;
       }
       else{
-        return null;
+        return res;
       }
     }).catch((err)=>{
       console.log("error while creating group",err);
-
+      return err;
     })
   }
 

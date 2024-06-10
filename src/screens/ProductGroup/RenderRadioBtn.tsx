@@ -1,54 +1,37 @@
+import useCustomTheme from "@/utils/theme";
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import makeStyle from "./style";
 
 const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})=>{
-
+    const {theme,styles} = useCustomTheme(makeStyle)
     return (
-        <View
-            style={{
-            flexDirection: 'row',
-            // backgroundColor: 'pink',
-            justifyContent: 'space-between',
-            marginVertical: 10,
-            alignItems: 'center',
-            }}>
+        <View style={styles.radioBtnView}>
             <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 10 }}>
+            <View style={[styles.checkboxContainer ,{ margin: 16}]}>
                 <TouchableOpacity
-                style={{
-                    height: 20,
-                    width: 20,
-                    borderRadius: 10,
-                    backgroundColor: '#c4c4c4',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
+                style={styles.radioBtn}
                 onPress={() => setSelectedCode('hsn')}
                 >
                 {selectedCode == 'hsn' && (
-                    <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
+                    <View style={styles.selectedRadioBtn} />
                 )}
                 </TouchableOpacity>
-
-                <Text style={{ marginLeft: 10 }}>HSN Code</Text>
+                <Pressable onPress={() => setSelectedCode('hsn')}>
+                    <Text style={styles.radioText}>HSN Code</Text>
+                </Pressable>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 15 }}>
+            <View style={[styles.checkboxContainer ,{ margin: 16}]}>
                 <TouchableOpacity
-                style={{
-                    height: 20,
-                    width: 20,
-                    borderRadius: 10,
-                    backgroundColor: '#c4c4c4',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
+                style={styles.radioBtn}
                 onPress={() => setSelectedCode('sac')}>
                 {selectedCode == 'sac' && (
-                    <View style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: '#084EAD' }} />
+                    <View style={styles.selectedRadioBtn} />
                 )}
                 </TouchableOpacity>
-
-                <Text style={{ marginLeft: 10 }}>SAC Code</Text>
+                <Pressable onPress={() => setSelectedCode('sac')}>
+                    <Text style={styles.radioText}>SAC Code</Text>
+                </Pressable>
             </View>
             </View>
             <TextInput
@@ -61,7 +44,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
             // }
             value={codeNumber}
             keyboardType={'number-pad'}
-            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width: '55%', marginRight: 16 }}
+            style={styles.codeInput}
             // editable={false}
             onChangeText={(text)=>{
                 setCodeNumber(text);
