@@ -10,12 +10,12 @@ import { element } from "prop-types";
 import { values } from "lodash";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "@/navigation/routes";
-import { Variants, Warehouse } from "./ProductScreen";
+import { CustomFields, Variants, Warehouse } from "./ProductScreen";
 import AsyncStorage from "@react-native-community/async-storage";
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSelector } from "react-redux";
 import makeStyles from "./style";
-const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalData,subUnits})=>{
+const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalData,subUnits,purchaseAccount,salesAccount,variantCustomFields})=>{
     const {theme,styles} = useCustomTheme(makeStyles);
     const [expandAcc, setExpandAcc] = useState(false);
     const [optionCount,setOptionCount] = useState(0);
@@ -57,8 +57,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                   openingQuantity: 0,
                   openingAmount: 0
             } 
-            console.log("warehouse",wareHouseDetails)
-            
+            const customFieldsArr : CustomFields[] = globalData?.customFields ? globalData?.customFields : [] 
             const variantObj:Variants = {
                 name: name,
                 archive: false,
@@ -66,15 +65,14 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 salesTaxInclusive: globalData?.salesMRPChecked != undefined ? globalData?.salesMRPChecked : false,
                 purchaseTaxInclusive: globalData?.purchaseMRPChecked != undefined ? globalData?.purchaseMRPChecked : false,
                 fixedAssetTaxInclusive: false,
-                customFields: [],
+                customFields: customFieldsArr,
                 warehouseBalance: [wareHouseDetails],
                 unitRates: [],
             }
+
             return variantObj;
         })
-        console.log("keyss",allVariantsObjects);
         handleGlobalInputChange('variants',allVariantsObjects);
-        console.log("global data",globalData);
         
         setVariantCombination(combinations);
     },[optionIds])
@@ -109,15 +107,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         fetchWareHouseDetails();
     }, [branchList]);
 
-    // const getWareHouseDetails = async () => {
-    //     const activeBranchUniqueName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-    //     const selectedBranch = branchList.filter((item:any)=>item?.uniqueName === activeBranchUniqueName);
-    //     const { warehouseResource } = selectedBranch?.[0];
-    //     const defaultWareHouse = warehouseResource?.filter((item:any)=>item?.isDefault == true);
-    //     const { name:wareHouseName , uniqueName:wareHouseUniqueName } = defaultWareHouse?.[0];
-
-    //     return { wareHouseName, wareHouseUniqueName};
-    // }
 
     const handleUniqueName = (optionname) =>{
         setOptionName(optionname);
@@ -127,7 +116,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         setTypingTimeout(setTimeout(()=>{
             if(optionAndDataMapping?.[optionname]){
                 ToastAndroid.show("Duplicate option name found!.",ToastAndroid.LONG);
-                // setOptionName('');
             }
         },1000))
     }
@@ -162,7 +150,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         setOptionAndDataMapping(map);
         setAddOption(false);
         setOptionCount(optionCount-1);
-        console.log("global after delete",globalData);
         
     }
 
@@ -200,7 +187,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             order: optionIds.length + 1,
             values: valuesName
         }
-        console.log("opions",optionObj,globalData?.options);
         let tempOptionsArr :any = [];
         if(globalData?.options){
             tempOptionsArr = [...globalData?.options,optionObj]
@@ -208,7 +194,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             tempOptionsArr = [optionObj]
         }
         handleGlobalInputChange('options',tempOptionsArr);
-        console.log("global data",globalData);
         
     }
 
@@ -247,7 +232,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         if (boxes.length > 0) {
             combinations.push(...getCombinations(...boxes));
         }
-        console.log("combination",combinations);
         
         return combinations;
     }
@@ -301,11 +285,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         };
 
         const handleSave = () => {
-            // const valuesSet = new Set(localFields.map(field => field.value));
-            // if (valuesSet.size !== localFields.length) {
-            //   ToastAndroid.show("Duplicate Value, One or more values are duplicated.",ToastAndroid.LONG);
-            //   return;
-            // }
             const removedEmptyFields = localFields?.filter((item)=>item.value!== "");
             if(removedEmptyFields.length == 0 ){
                 handleDeleteOption(optionName);
@@ -341,21 +320,15 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             setEditingOptionId(null);
 
         };
-        console.log("local fields",localFields);
         return (
             <View style={{padding:15, maxHeight:580*localFields?.length}}>
                 <View style={styles.inputRow}>
                     <TextInput
                         returnKeyType={'done'}
                         onChangeText={(val) => {
-                            // setLocalOptionName(val)
                             handleUniqueName(val)
-                            // setOptionName(val);
-                            // setRate(val);
-                            // linkedAccountText === "Linked Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                         }}
                         placeholderTextColor={'rgba(80,80,80,0.5)'}
-                        // value={this.state.openingBalance}
                         placeholder="Option Name"
                         value={localOptionName}
                         style={[styles.buttonWrapper ,styles.inputView ]} 
@@ -368,7 +341,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 {localFields?.map((field, index) => (
                     <View key={localFields.value} style={styles.inputRow}>
                         <TextInput
-                            // style={styles.input}
                             value={field.value}
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
                             onChangeText={(text) => handleInputChange(field.id, text)}
@@ -397,7 +369,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
     }
 
     const RenderOptionCards = ({fields,optionName})=>{
-        console.log("option",optionName,"---->",fields);
         const [showDropDown, setShowDropDown] = useState(false);
         return (
             <Swipeable 
@@ -424,16 +395,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     {fields?.map((item)=><View key={item?.id} style={styles.variantCardText} ><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>{item?.value}</Text></View>
                     )}
                 </View>}
-                {/* <View style={{width: '10%',alignItems:'center',justifyContent:'space-between' ,flexDirection:'column',paddingVertical:3 }}>
-                    <TouchableOpacity onPress={()=>{
-                        handleEditOptoins(optionName);
-                    }}>
-                        <MaterialIcons name={'edit'} size={18} color={'#808080'} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>handleDeleteOption(optionName)}>
-                        <MaterialIcons name={'delete'} size={18} color={'#808080'} />
-                    </TouchableOpacity>
-                </View> */}
             </View>
             </Swipeable>
         );
@@ -444,33 +405,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             <TouchableOpacity
                 style={styles.doneBtn}
                 onPress={() => {
-                    // const wareHouseObj:Warehouse = {
-                    //     warehouse: {
-                    //         name: warehouseDetails?.wareHouseName,
-                    //         uniqueName: warehouseDetails?.wareHouseUniqueName
-                    //       },
-                    //     stockUnit: {
-                    //         name: unit?.name,
-                    //         uniqueName: unit?.uniqueName
-                    //     },
-                    //     openingQuantity: 0,
-                    //     openingAmount: 0
-                    // } 
-                    // const variantObj:Variants = {
-                    //     name: optionName,
-                    //     archive:false,
-                    //     skuCode:'',
-                    //     salesTaxInclusive: false,
-                    //     purchaseTaxInclusive: false,
-                    //     fixedAssetTaxInclusive: false,
-                    //     customFields: [],
-                    //     warehouseBalance: [wareHouseObj],
-                    //     unitRates: [],
-                    // } 
-
-
-                    // console.log("variant obj",variantObj?.warehouseBalance);
-                    
                     addOptionToMap(),
                     setAddOption(false),
                     setFields([{ id: Date.now(), value: '' }])
@@ -484,7 +418,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         )
     }
 
-console.log("data",optionAndDataMapping);
 
     return (
         <View>
@@ -532,13 +465,9 @@ console.log("data",optionAndDataMapping);
                             <TextInput
                                 returnKeyType={'done'}
                                 onChangeText={(val) => {
-                                    // setOptionName(val);
                                     handleUniqueName(val);
-                                    // setRate(val);
-                                    // linkedAccountText === "Linked Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                                 }}
                                 placeholderTextColor={'rgba(80,80,80,0.5)'}
-                                // value={this.state.openingBalance}
                                 placeholder="Option Name"
                                 style={[styles.buttonWrapper, styles.inputView] } 
                             />
@@ -550,7 +479,6 @@ console.log("data",optionAndDataMapping);
                         {fields.map((field, index) => (
                             <View key={field.id} style={styles.inputRow}>
                                 <TextInput
-                                    // style={styles.input}
                                     value={field.value}
                                     placeholderTextColor={'rgba(80,80,80,0.5)'}
                                     onChangeText={(text) => handleInputChange(field.id, text)}
@@ -578,24 +506,12 @@ console.log("data",optionAndDataMapping);
                     {optionIds.length > 0 && <View>
                     <TouchableOpacity
                         onPress={()=>{
-                            navigation.navigate(Routes.VariantTableScreen,{variantCombination,handleGlobalInputChange,globalData,unit,subUnits});
+                            navigation.navigate(Routes.VariantTableScreen,{variantCombination,handleGlobalInputChange,globalData,unit,subUnits,purchaseAccount,salesAccount,variantCustomFields});
                         }}
-                        // onPress={() => optionCount < 3 && !addOption && (setOptionCount(optionCount+1),setAddOption(true))}
                         style={styles.tableText}>
                         <Text numberOfLines={1} style={styles.addItemMain}>Look Table</Text> 
                         <MaterialIcons name={'play-arrow'} size={18} color={'blue'} />
                     </TouchableOpacity>
-                    {/* <View style={{flexDirection:'column',borderWidth:2,height:300}}>
-                    {variantCombination.map((box, boxIndex) => (
-                        <View key={boxIndex}>
-                            {box.map(item => (
-                                <Text key={item.id}>
-                                    {item.value}
-                                </Text>
-                            ))}
-                        </View>
-                    ))}
-                    </View> */}
                     </View>}
                 </View>
             )

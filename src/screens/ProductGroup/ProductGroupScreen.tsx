@@ -30,9 +30,6 @@ const ProductGroupScreen = ()=>{
         const isFocused = useIsFocused();
         return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
     }
-    // const { companyDetails } = useSelector((state)=>({
-    //     companyDetails : state?.commonReducer?.companyDetails
-    // }))
     const [isLoading,setIsLoading] = useState(false);
     const taxModalRef = useRef(null);
     const childGroupModalRef = useRef(null);
@@ -118,13 +115,6 @@ const ProductGroupScreen = ()=>{
       resetState();
       fetchAllTaxes();
       fetchAllParentGroup();
-      // this.resetState();
-      // this.resetOnUncheckTax();
-      // this.searchCalls();
-      // this.setActiveCompanyCountry();
-      // this.getAllTaxes();
-      // this.getAllPaymentModes();
-      // this.getCompanyVersionNumber();
     };
         
     useEffect(() => {
@@ -142,9 +132,6 @@ const ProductGroupScreen = ()=>{
             bottomSheetRef={taxModalRef}
             headerText='Select Taxes'
             headerTextColor='#084EAD'
-            // onClose={() => {
-            //   setSelectedUniqueTax()
-            // }}
             flatListProps={{
               data: taxArr,
               renderItem: ({item}) => {
@@ -157,7 +144,6 @@ const ProductGroupScreen = ()=>{
                             const Obj = {
                                 [item?.taxType] : item
                             }
-                            // mapping = Obj;
                             setSelectedUniqueTax(Obj);
                         }else{
                             if(updatedSelectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName){
@@ -211,9 +197,6 @@ const ProductGroupScreen = ()=>{
           bottomSheetRef={childGroupModalRef}
           headerText='Select Parent Group'
           headerTextColor='#084EAD'
-          // onClose={() => {
-          //   setSelectedUniqueTax()
-          // }}
           flatListProps={{
             data: parentGroupArr,
             renderItem: ({item}) => {
@@ -249,7 +232,6 @@ const ProductGroupScreen = ()=>{
         />
   );
 
-      console.log("map--->",selectedUniqueTax);
     return (
         <SafeAreaView style={styles.containerView}>
             <View>

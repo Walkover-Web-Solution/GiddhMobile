@@ -426,6 +426,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'flex-start',
     justifyContent: 'center',
+    padding:5
   },
   radioGroupContainer :{
     flexDirection: 'row',
@@ -492,7 +493,25 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   unitInput:{ 
     borderColor: '#D9D9D9', 
     borderBottomWidth: 1, 
-    width:'45%'
+    width:'45%',
+    fontFamily:theme.typography.fontFamily.regular
+  },
+  booleanCustomField :{
+    alignItems:'center',
+    width:'100%',
+    paddingVertical:10,
+    paddingHorizontal:5,
+    borderBottomWidth:1,
+    borderBottomColor:'#D9D9D9'
+  },
+  customFieldTitle: {
+    color:'#808080',
+    fontFamily:theme.typography.fontFamily.regular
+  },
+  customFieldContainer:{
+    flexDirection:'row',
+    width:'60%',
+    justifyContent:'space-between'
   }
 });
 

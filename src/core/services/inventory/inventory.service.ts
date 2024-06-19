@@ -150,4 +150,32 @@ export class InventoryService {
       return err;
     })
   }
+
+  static fetchVariantCustomfields(){
+    return httpInstance.get(InventoryUrls.fetchVariantCustomfields)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }else{
+        return res;
+      }
+    }).catch((err)=>{
+      console.log("error while fetching custom fields");
+      return err;
+    })
+  }
+
+  static addStockGroup(body:any){
+    return httpInstance.post(InventoryUrls.addStockGroup,body)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }else{
+        return res;
+      }
+    }).catch((err)=>{
+      console.log("error while adding stock group");
+      return err;
+    })
+  }
 }

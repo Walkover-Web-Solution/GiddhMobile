@@ -46,7 +46,8 @@ interface RefDataMap {
     uniqueName: string,
     variants:Object[],
     options:Object[],
-    variantsCreated:boolean
+    variantsCreated:boolean,
+    customFields:Object[]
 }
 
 interface UnitRate {
@@ -68,6 +69,11 @@ export interface Warehouse {
     openingQuantity: number,
     openingAmount: number
   }
+
+export interface CustomFields {
+    uniqueName: string,
+    value: string | number
+}
 export interface Variants {
     name: string,
     archive: boolean,
@@ -75,10 +81,12 @@ export interface Variants {
     salesTaxInclusive: boolean,
     purchaseTaxInclusive: boolean,
     fixedAssetTaxInclusive: boolean,
-    customFields: [],
+    customFields: CustomFields[],
     warehouseBalance: Warehouse[],
     unitRates: UnitRate[],
   }
+
+
 
 interface Unit {
     code: string, 
@@ -119,7 +127,6 @@ interface Payload {
   }
   
 const ProductScreen = ()=>{
-    console.log("rendered--->");
     
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
@@ -138,13 +145,12 @@ const ProductScreen = ()=>{
     const [selectedUniqueTax,setSelectedUniqueTax]:any = useState({});
     const [isLoading,setIsLoading] = useState(false);
     const [variantsChecked, setVariantsChecked] = useState(false);
-    // const [stockName, setStockName] = useState('');
-    // const [stockUniqueName, setStockUniqueName] = useState('');
-    // const [selectedCode,setSelectedCode] = useState('hsn');
     const [taxArr,setTaxArr] = useState([]);
     const [parentGroupArr,setParentGroupArr] = useState([]);
     const [unitGroupArr,setUnitGroupArr] = useState([]);
     const [purchaseAccountArr,setPurchaseAccountArr] = useState([]);
+    const [variantCustomFields,setVariantCustomFields] = useState([]);
+    const [requiredCustomFieldsUniqueName,setRequiredCustomFieldsUniqueName] = useState([]);
     const [salesAccountArr,setSalesAccountArr] = useState([]);
     const [selectedGroup,setSelectedGroup] = useState('');
     const [selectedGroupUniqueName,setSelectedGroupUniqueName] = useState('');
@@ -181,7 +187,8 @@ const ProductScreen = ()=>{
         uniqueName: '',
         variants: [],
         options: [],
-        variantsCreated:false
+        variantsCreated:false,
+        customFields: []
     });
 
     const otherDataRef : any = useRef(otherData);
@@ -199,7 +206,7 @@ const ProductScreen = ()=>{
 
     const navigation = useNavigation();
 
-    const handleInputChange = (name:string, value:string) => {
+    const handleInputChange = (name:string, value:any) => {
         otherDataRef.current[name] = value;
       };
 
@@ -221,7 +228,6 @@ const ProductScreen = ()=>{
     const fetchStockUnitGroup = async () => {
         const result = await InventoryService.fetchStockUnitGroup();
         if(result?.data && result?.data?.status == 'success'){
-            // console.log("print--->",result);
             setUnitGroupArr(result?.data?.body);
         }
     }
@@ -244,20 +250,51 @@ const ProductScreen = ()=>{
     const fetchUnitGroupMapping = async (uniqueName:string) => {
         const result = await InventoryService.fetchUnitGroupMapping([uniqueName])
         if(result?.data && result?.data?.status == 'success'){
-            // console.log("mapping api",result);
             setUnitGroupMapping(result?.data?.body);
         }
     }
 
     const fetchLinkedUnitMapping = async (unitUniqueName:string) =>{
         const result = await InventoryService.fetchLinkedUnitMapping(unitUniqueName);
-        console.log("result of linked unit",result);
         if(result?.data && result?.data?.status == 'success'){
             setSubUnits(result?.data?.body);
         }
         
     }
 
+    const fetchVariantCustomfields = async ()=>{
+        const result = await InventoryService.fetchVariantCustomfields();
+        if(result?.data && result?.data?.status == 'success'){
+            setVariantCustomFields(result?.data?.body);
+            const requiredFields = result?.data?.body?.results?.filter(field => field?.isMandatory);
+
+            const customFieldsUniqueNameArr = requiredFields.map(item=>item?.uniqueName);
+            setRequiredCustomFieldsUniqueName(customFieldsUniqueNameArr);
+            
+            const initialStateCustomFields:CustomFields[] = result?.data?.body?.results?.map((item)=>({
+                uniqueName: item?.uniqueName,
+                value: "" 
+            }));
+            
+            handleInputChange('customFields',initialStateCustomFields)
+        }
+        
+    }
+
+    const requiredFieldsCheck = (payload) =>{
+        if(requiredCustomFieldsUniqueName?.length == 0)return true;
+        for(let i=0; i<payload?.variants?.length; i++){
+            const tempCustomFields = payload?.variants?.[i]?.customFields;
+            if(tempCustomFields.length == 0 )return false;
+            const exists = requiredCustomFieldsUniqueName.some(uniqueName => 
+                tempCustomFields.some(item => item.uniqueName === uniqueName)
+            );
+            if(!exists){
+                return false;
+            }
+        }
+        return true;
+    }
     const createStockProduct = async (payload:any,selectedGroup:string) => {
         if(selectedGroup){
             setIsLoading(true);
@@ -272,7 +309,35 @@ const ProductScreen = ()=>{
                 ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
             }
         }else{
-            ToastAndroid.show("Please select group",ToastAndroid.SHORT);
+            if(parentGroupArr?.length == 0){
+                await fetchAllParentGroup();
+                const body = {
+                    name: selectedUnitGroup,
+                    uniqueName: selectedUnitGroupUniqueName,
+                    hsnNumber: "",
+                    sacNumber: "",
+                    type: "SERVICE"
+                }
+                const groupResponse = await InventoryService.addStockGroup(body);
+                if(groupResponse?.data && groupResponse?.data?.status == 'success'){
+                    setIsLoading(true);
+                    const result = await InventoryService.createStockProduct(payload,groupResponse?.data?.body?.uniqueName);
+                    if(result?.data && result?.data?.status == 'success'){
+                        await clearAll();
+                        setIsLoading(false);
+                        ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
+                        navigation.goBack();
+                    }else{
+                        setIsLoading(false);
+                        ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
+                    }
+                }else{
+                    setIsLoading(false);
+                    ToastAndroid.show(groupResponse?.data?.message, ToastAndroid.LONG);
+                }
+            }else{
+                ToastAndroid.show("Please select group",ToastAndroid.SHORT);
+            }
         }
         
     }
@@ -305,9 +370,6 @@ const ProductScreen = ()=>{
           bottomSheetRef={taxModalRef}
           headerText='Select Taxes'
           headerTextColor='#084EAD'
-          // onClose={() => {
-          //   setSelectedUniqueTax()
-          // }}
           flatListProps={{
             data: taxArr,
             renderItem: ({item}) => {
@@ -320,7 +382,6 @@ const ProductScreen = ()=>{
                           const Obj = {
                               [item?.taxType] : item
                           }
-                          // mapping = Obj;
                           setSelectedUniqueTax(Obj);
                       }else{
                           if(updatedSelectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName){
@@ -374,9 +435,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={groupModalRef}
         headerText='Select Group'
         headerTextColor='#084EAD'
-        // onClose={() => {
-        //   setSelectedUniqueTax()
-        // }}
         flatListProps={{
             data: parentGroupArr,
             renderItem: ({item}) => {
@@ -417,9 +475,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={unitGroupModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
-        // onClose={() => {
-        //   setSelectedUniqueTax()
-        // }}
         flatListProps={{
             data: unitGroupArr,
             renderItem: ({item}) => {
@@ -460,9 +515,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={unitGroupMappingModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
-        // onClose={() => {
-        //   setSelectedUniqueTax()
-        // }}
         flatListProps={{
             data: unitGroupMapping,
             renderItem: ({item}) => {
@@ -475,10 +527,7 @@ const ProductScreen = ()=>{
                         name: item?.stockUnitX?.name, 
                         uniqueName: item?.stockUnitX?.uniqueName
                     });
-                    // setSelectedUnitGroup(item?.name)
-                    // setSelectedUnitGroupUniqueName(item?.uniqueName)
                     setBottomSheetVisible(unitGroupMappingModalRef, false);
-                    // fetchUnitGroupMappingDebounce(item?.uniqueName)
                     fetchLinkedUnitMapping(item?.stockUnitX?.uniqueName)
                 }}
                 >
@@ -509,9 +558,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={purchaseSubUnitMappingModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        // onClose={() => {
-        //   setSelectedUniqueTax()
-        // }}
         flatListProps={{
             data: subUnits,
             renderItem: ({item}) => {
@@ -550,9 +596,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={salesSubUnitMappingModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        // onClose={() => {
-        //   setSelectedUniqueTax()
-        // }}
         flatListProps={{
             data: subUnits,
             renderItem: ({item}) => {
@@ -591,9 +634,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={salesAccModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        // onClose={() => {
-        //   setSelectedUniqueTax()
-        // }}
         adjustToContentHeight={false}
         flatListProps={{
             data: salesAccountArr,
@@ -633,9 +673,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={purchaseAccModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        // onClose={() => {
-        //   setSelectedUniqueTax()
-        // }}
         flatListProps={{
             data: purchaseAccountArr,
             renderItem: ({item}) => {
@@ -679,7 +716,6 @@ const ProductScreen = ()=>{
         
         
         const { wareHouseName, wareHouseUniqueName } = await getWareHouseDetails();
-        console.log("ware housr",wareHouseName,wareHouseUniqueName);
         
         const variants:Variants = {
             name: otherDataRef?.current?.name,
@@ -688,7 +724,7 @@ const ProductScreen = ()=>{
             salesTaxInclusive: otherDataRef?.current?.salesMRPChecked ? otherDataRef?.current?.salesMRPChecked : false,
             purchaseTaxInclusive: otherDataRef?.current?.purchaseMRPChecked ? otherDataRef?.current?.purchaseMRPChecked : false,
             fixedAssetTaxInclusive: false,
-            customFields: [],
+            customFields: otherDataRef?.current?.customFields?.filter(item => (item?.value !== "")) || [],
             unitRates: (otherDataRef?.current?.purchaseRate || otherDataRef?.current?.salesRate) ? [
                 {
                     rate: otherDataRef?.current?.purchaseRate,
@@ -719,6 +755,14 @@ const ProductScreen = ()=>{
             ]
         }
         
+        const updatedVariantsWithUnitRates = otherDataRef?.current?.variants?.map(variant => ({
+            ...variant,
+            salesTaxInclusive: otherDataRef?.current?.salesMRPChecked ? otherDataRef?.current?.salesMRPChecked : false,
+            purchaseTaxInclusive: otherDataRef?.current?.purchaseMRPChecked ? otherDataRef?.current?.purchaseMRPChecked : false,
+            customFields: variant.customFields.filter(item => (item?.value !== "")),
+            unitRates: variant.unitRates.filter(item => item.rate !== null && item.rate !== undefined)
+          }));
+          
         const payload = {
             type: "PRODUCT",
             name: otherDataRef?.current?.name,
@@ -745,27 +789,27 @@ const ProductScreen = ()=>{
             accountGroup: null,
             lowStockAlertCount: 0,
             outOfStockSelling: true,
-            variants: otherDataRef?.current?.variantsCreated && otherDataRef?.current?.variants?.length > 0 ? otherDataRef?.current?.variants : [variants],
+            variants: otherDataRef?.current?.variantsCreated && otherDataRef?.current?.variants?.length > 0 ? updatedVariantsWithUnitRates : [variants],
             options: otherDataRef?.current?.variantsCreated && otherDataRef?.current?.options?.length > 0 ? otherDataRef?.current?.options : [],
             customFields: [],
             purchaseAccountUniqueNames: purchaseAccount?.uniqueName ? [purchaseAccount?.uniqueName]: [],
             salesAccountUniqueNames: salesAccount?.uniqueName ? [salesAccount?.uniqueName] : []
         }
-        // console.log("payloaddddd-----finalaa> ",payload?.variants?.[0]?.warehouseBalance);
-        
-        
         return payload;
     }
 
     const onClickCreateStock = async() => {
         const payload = await createPayload();
-        console.log("payload *************",payload,'\n'," global data----------------->",otherDataRef?.current);
         if(payload?.name?.length > 0 ){
             if(payload?.stockUnitGroup?.uniqueName){
                 if(payload?.stockUnitUniqueName){
                     if(payload?.variants?.[0]?.unitRates?.length > 0){
                         if(payload?.variants?.[0]?.unitRates?.[0]?.accountUniqueName && payload?.variants?.[0]?.unitRates?.[1]?.accountUniqueName ){
                             if(payload?.variants?.[0]?.unitRates?.[0]?.rate && payload?.variants?.[0]?.unitRates?.[1]?.rate){
+                                if(!requiredFieldsCheck(payload)){
+                                    ToastAndroid.show("Required custom fields can't be empty",ToastAndroid.LONG);
+                                    return;
+                                }
                                 await createStockProduct(payload,selectedGroupUniqueName);
                             }else{
                                ToastAndroid.show("Specify rates for linked accounts.",ToastAndroid.LONG);
@@ -774,6 +818,10 @@ const ProductScreen = ()=>{
                             ToastAndroid.show("Linking account is mandatory if rates/unit is entered.",ToastAndroid.LONG);
                         }
                     }else{
+                        if(!requiredFieldsCheck(payload)){
+                            ToastAndroid.show("Required custom fields can't be empty",ToastAndroid.LONG);
+                            return;
+                        }
                         await createStockProduct(payload,selectedGroupUniqueName);
                     }
                 }else{
@@ -788,15 +836,15 @@ const ProductScreen = ()=>{
     }
 
     const CreateButton = (
-            <TouchableOpacity
-                style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
-                disabled = {isLoading}
-                onPress={onClickCreateStock}>
-                <Text
-                style={styles.createBtn}>
-                Create
-                </Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+            style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
+            disabled = {isLoading}
+            onPress={onClickCreateStock}>
+            <Text
+            style={styles.createBtn}>
+            Create
+            </Text>
+        </TouchableOpacity>
     )
 
     const resetState = ()=>{
@@ -820,7 +868,8 @@ const ProductScreen = ()=>{
             uniqueName: '',
             variants:[],
             options:[],
-            variantsCreated:false
+            variantsCreated:false,
+            customFields:[]
         }
         const newObjectKeys = {
             key1:random(0,10,true),
@@ -852,6 +901,12 @@ const ProductScreen = ()=>{
 
     const clearAll = ()=>{
         resetState();
+        // fetchAllTaxes();
+        // fetchAllParentGroup();
+        // fetchStockUnitGroup();
+        // fetchPurchaseAccounts();
+        // fetchSalesAccounts();
+        fetchVariantCustomfields();
     }
 
     useEffect(() => {
@@ -860,33 +915,22 @@ const ProductScreen = ()=>{
         fetchStockUnitGroup();
         fetchPurchaseAccounts();
         fetchSalesAccounts();
-        // DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
-        //     fetchAllParentGroup();
-        //     fetchAllTaxes();
-        //     fetchStockUnitGroup();
-        //     fetchPurchaseAccounts();
-        //     fetchSalesAccounts();
-        // });
+        fetchVariantCustomfields();
+        DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
+            // fetchAllParentGroup();
+            fetchAllTaxes();
+            fetchStockUnitGroup();
+            fetchPurchaseAccounts();
+            fetchSalesAccounts();
+            fetchVariantCustomfields();
+        });
     }, []);
-    
-    // useEffect(()=>{
-
-    // },[otherData])
-    // console.log("purchase",unitGroupMapping);
-    // console.log("subunits",subUnits);
-    // console.log("purchase acc",purchaseAccountArr);
-    // console.log("prate",purchaseRate);
-    // console.log("srate",salesRate);
-    // console.log("branch list",branchList);
-    // console.log("unit group",selectedUnitGroup);
-    
     
     
     return (
         <SafeAreaView style={[styles.container,styles.backGround]}>
             <View>
                 <Animated.ScrollView
-                    // keyboardShouldPersistTaps="never"
                     style={styles.backGround}
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
@@ -895,15 +939,11 @@ const ProductScreen = ()=>{
                         key={childKeys.key1}
                         handleInputChange={handleInputChange}
                         allData={otherDataRef}
-                        // stockName={stockName} 
-                        // setStockName={setStockName} 
-                        // stockUniqueName={stockUniqueName} 
-                        // setStockUniqueName={setStockUniqueName} 
                         clearAll={clearAll}
                     />
                     <RenderUnitGroup key={childKeys.key2} unit ={unit} unitGroupName={selectedUnitGroup} unitGroupModalRef={unitGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} unitGroupMappingModalRef={unitGroupMappingModalRef}/>
                     <RenderTaxes key={childKeys.key3} selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
-                    <RenderGroups key={childKeys.key4} groupName={selectedGroup} groupModalRef={groupModalRef} setBottomSheetVisible={setBottomSheetVisible} />
+                    <RenderGroups key={childKeys.key4} groupName={selectedGroup} groupModalRef={groupModalRef} setBottomSheetVisible={setBottomSheetVisible} fetchAllParentGroup={fetchAllParentGroup} />
                     <RenderLinkedAcc 
                         key={childKeys.key5}
                         unit={unit} 
@@ -916,17 +956,21 @@ const ProductScreen = ()=>{
                         purchaseAccModalRef={purchaseAccModalRef}
                         purchaseAccount={purchaseAccount}
                         salesAccount={salesAccount}
-                        // setPurchaseRate={setPurchaseRate}
-                        // setSalesRate={setSalesRate}
                         handleRateChange={handleInputChange}
                         variantsChecked={variantsChecked}
-                        // setPurchaseRadioBtn={setPurchaseRadioBtn}
-                        // setSalesRadioBtn={setSalesRadioBtn}
-                        // purchaseRadioBtn={purchaseRadioBtn}
-                        // salesRadioBtn={salesRadioBtn}
                     />
-                    <RenderVariants key={childKeys.key7} setVariantsChecked={setVariantsChecked} handleGlobalInputChange={handleInputChange} unit={unit} globalData={otherDataRef?.current} subUnits={subUnits}/>
-                    <RenderOtherInfo key={childKeys.key6} handleInputChange={handleInputChange} variantsChecked={variantsChecked} />
+                    <RenderVariants 
+                        key={childKeys.key7} 
+                        setVariantsChecked={setVariantsChecked} 
+                        handleGlobalInputChange={handleInputChange} 
+                        unit={unit} 
+                        globalData={otherDataRef?.current} 
+                        subUnits={subUnits} 
+                        purchaseAccount={purchaseAccount}
+                        salesAccount={salesAccount}
+                        variantCustomFields={variantCustomFields}
+                    />
+                    <RenderOtherInfo key={childKeys.key6} handleInputChange={handleInputChange} variantsChecked={variantsChecked} variantCustomFields={variantCustomFields} globalData={otherDataRef?.current}/>
                     {CreateButton}
                 </Animated.ScrollView>
             </View>

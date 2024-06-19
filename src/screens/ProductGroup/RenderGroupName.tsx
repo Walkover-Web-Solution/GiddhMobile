@@ -1,7 +1,7 @@
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import Icon from '@/core/components/custom-icon/custom-icon';
 import makeStyle from "./style";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll})=>{
     const {theme,styles} = useCustomTheme(makeStyle);
@@ -9,7 +9,7 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
         <View>
             <View style={[styles.checkboxContainer, {paddingTop: 14}]}>
                 <View style={styles.checkboxContainer}>
-                <Icon name={'Sections'} color={DefaultTheme.colors.secondary} style={{margin: 16}} size={16} />
+                <MaterialCommunityIcons name='alphabetical-variant' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={20} />
                 <TextInput
                     placeholderTextColor={'#808080'}
                     placeholder={'Enter Group Name'}
@@ -18,11 +18,10 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
                     onChangeText={(text)=>{
                         setGroupName(text);
                         if(!isGroupUniqueNameEdited){
-                            setGroupUniqueName(text);
+                            setGroupUniqueName(text.toLocaleLowerCase());
                         }
                     }}
                     style={styles.textInput}
-                    // style={style.searchTextInputStyle}
                 />
                 </View>
                 <TouchableOpacity onPress={clearAll}>
@@ -31,19 +30,17 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
             </View>
             <View>
                 <View style={styles.checkboxContainer}>
-                <Icon name={'Sections'} color={DefaultTheme.colors.secondary} style={{margin: 16}} size={16} />
+                <MaterialCommunityIcons name='alphabetical' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={20} />
                 <TextInput
                     placeholderTextColor={'#808080'}
                     placeholder={'Enter Unique Name'}
                     returnKeyType={'done'}
                     onChangeText={(text)=>{
-                        setGroupUniqueName(text);
+                        setGroupUniqueName(text.toLocaleLowerCase());
                         setIsGroupUniqueNameEdited(true);
                     }}
                     value={groupUniqueName}
                     style={styles.textInput}
-                    // onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
-                    // style={style.searchTextInputStyle}
                 />
                 </View>
             </View>

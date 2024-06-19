@@ -2,11 +2,10 @@ import { Text, TouchableOpacity, View } from "react-native";
 import makeStyle from "./style";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import colors from "@/utils/colors";
-// import Icon from '@/core/components/custom-icon/custom-icon';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
 
-const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible})=>{
+const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup})=>{
   const {theme,styles} = useCustomTheme(makeStyle);
     return (
         <View style={[styles.fieldContainer,{maxHeight:100}]}>
@@ -19,7 +18,8 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible})=>{
           <View style={styles.rowView}>
             <TouchableOpacity
               style={styles.rowView}
-              onPress={()=>{
+              onPress={async ()=>{
+                await fetchAllParentGroup()
                 setBottomSheetVisible(groupModalRef,true);
               }}
               textColor={{colors}}>
