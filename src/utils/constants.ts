@@ -102,7 +102,9 @@ export const APP_EVENTS = {
   NewEntryCreated: 'NEWENTRYCREATED',
   DownloadAlert: 'DOWNLOAD_ALERT',
   ProductScreenRefresh: 'PRODUCT_SCREEN_REFRESH',
-  ProductGroupRefresh: 'PRODUCT_GROUP_REFRESH'
+  ServiceScreenRefresh: 'SERVICE_SCREEN_REFRESH',
+  ProductGroupRefresh: 'PRODUCT_GROUP_REFRESH',
+  ServiceGroupRefresh: 'SERVICE_GROUP_REFRESH'
 };
 
 export const FONT_FAMILY = {

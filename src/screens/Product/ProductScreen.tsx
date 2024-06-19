@@ -219,7 +219,7 @@ const ProductScreen = ()=>{
     }
 
     const fetchAllParentGroup = async () => {
-        const result = await InventoryService.fetchAllParentGroup();
+        const result = await InventoryService.fetchAllParentGroup("PRODUCT");
         if(result?.data && result?.data?.status == 'success'){
           setParentGroupArr(result?.data?.body?.results);
         }
@@ -836,14 +836,20 @@ const ProductScreen = ()=>{
     }
 
     const CreateButton = (
+        // <TouchableOpacity
+            // style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
+        //     disabled = {isLoading}
+        //     onPress={onClickCreateStock}>
+        //     <Text
+        //     style={styles.createBtn}>
+        //     Create
+        //     </Text>
+        // </TouchableOpacity>
         <TouchableOpacity
-            style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
+            onPress={onClickCreateStock}
             disabled = {isLoading}
-            onPress={onClickCreateStock}>
-            <Text
-            style={styles.createBtn}>
-            Create
-            </Text>
+            style={[styles.updatedCreateBtn,{borderColor: voucherBackground}]}>
+            <Text style={[{color:voucherBackground},styles.updatedCreateBtnText]}> Create</Text>
         </TouchableOpacity>
     )
 

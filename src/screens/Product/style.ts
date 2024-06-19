@@ -512,6 +512,19 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     flexDirection:'row',
     width:'60%',
     justifyContent:'space-between'
+  },
+  updatedCreateBtn : {
+    borderWidth: 2,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    height: height * 0.06,
+    width: width * 0.9,
+    alignItems: 'center',
+    marginVertical:15
+  },
+  updatedCreateBtnText: {
+    fontFamily: theme.typography.fontFamily.bold,
+    fontSize: 18,
   }
 });
 
