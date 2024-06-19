@@ -37,8 +37,10 @@ export class InventoryService {
     })
   }
 
-  static fetchAllParentGroup () {
-    return httpInstance.get(InventoryUrls.fetchAllParentGroup)
+  static fetchAllParentGroup (type:string) {
+    return httpInstance.get(InventoryUrls.fetchAllParentGroup
+      .replace(':fetchType', type)
+    )
     .then((res)=>{
       if(res && res?.data){
         return res;

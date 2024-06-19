@@ -47,7 +47,7 @@ const arrButtons = [
 ];
 
 const inventoryButtons:any = {
-    product : {
+    item1 : {
         name: 'Product Stock', 
         navigateTo: 'ProductScreen', 
         icon: <Product name="cube-outline" size={24} color='black' />, 
@@ -61,23 +61,25 @@ const inventoryButtons:any = {
         color: DefaultTheme.colors.secondary,
         event : 'ProductGroupRefresh'   
     },
-    // item3 : {
-    //     name: 'Product Inventory', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'red'} />, 
-    //     color: 'red'   
-    // },
-    // item4 : {
-    //     name: 'Service Stock', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'blue'} />, 
-    //     color: 'red'   
-    // },
+    item3 : {   
+        name: 'Service Stock', 
+        navigateTo: 'ProductScreen', 
+        icon: <Vendor color={'blue'} />, 
+        color: 'red',
+        event : 'ServiceScreenRefresh'
+    },
+    item4 : {
+        name: 'Service Group', 
+        navigateTo: 'productGroupScreen', 
+        icon: <Vendor color={'orange'} />, 
+        color: 'red',
+        event: 'ServiceGroupRefresh'
+    },
     // item5 : {
-    //     name: 'Service Group', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'yellow'} />, 
-    //     color: 'red'   
+    // name: 'Product Inventory', 
+    // navigateTo: 'ProductScreen', 
+    // icon: <Vendor color={'red'} />, 
+    // color: 'red'   
     // },
     // item6 : {
     //     name: 'Service Inventory', 
@@ -136,7 +138,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                     console.log("event emitted-->",APP_EVENTS?.[item?.event]);
                                     
                                     await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
-                                    await this.props.navigation.navigate(item.navigateTo);
+                                    await this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
                                 }}
                                 >
                                 <View style={styles.iconContainer}>

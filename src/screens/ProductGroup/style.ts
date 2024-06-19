@@ -363,6 +363,21 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     // justifyContent:'center',
     paddingHorizontal:10,
     // alignContent:'center'
+  },
+  updatedCreateBtn : {
+    borderWidth: 2,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    height: height * 0.06,
+    width: width * 0.9,
+    position: 'absolute',
+    bottom: height * 0.01,
+    alignItems: 'center',
+    marginVertical:7
+  },
+  updatedCreateBtnText: {
+    fontFamily: theme.typography.fontFamily.bold,
+    fontSize: 18,
   }
 });
 

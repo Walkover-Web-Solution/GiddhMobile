@@ -24,7 +24,8 @@ import makeStyle from "../ProductGroup/style"
 import Loader from "@/components/Loader"
 
 
-const ProductGroupScreen = ()=>{
+const ProductGroupScreen = (props)=>{
+    const [name,setName] = useState(props?.route?.params?.params?.name);
     const navigation = useNavigation();
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
@@ -36,7 +37,7 @@ const ProductGroupScreen = ()=>{
     const [taxArr,setTaxArr] = useState([]);
     const [parentGroupArr,setParentGroupArr] = useState([]);
     const [selectedUniqueTax, setSelectedUniqueTax]:any = useState({});
-    const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, 'Group');
+    const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, props?.route?.params?.params?.name === 'Product Group' ? 'Group' : 'Receipt');
     const {height, width} = Dimensions.get('window');
     const [isChecked,setIsChecked] = useState(false);
     const [selectedGroup,setSelectedGroup] = useState('');
@@ -46,6 +47,10 @@ const ProductGroupScreen = ()=>{
     const [groupName,setGroupName] = useState('');
     const [groupUniqueName,setGroupUniqueName] = useState('');
     const [codeNumber,setCodeNumber] = useState('');
+
+    useEffect(()=>{
+      resetState();
+    },[props?.route?.params?.params?.name])
 
     const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
         if(visible){
@@ -62,8 +67,8 @@ const ProductGroupScreen = ()=>{
         }
     }
     
-    const fetchAllParentGroup = async () => {
-        const result = await InventoryService.fetchAllParentGroup();
+    const fetchAllParentGroup = async (type:string) => {
+        const result = await InventoryService.fetchAllParentGroup(type);
         if(result?.data && result?.data?.status == 'success'){
           setParentGroupArr(result?.data?.body?.results);
         }
@@ -75,6 +80,7 @@ const ProductGroupScreen = ()=>{
       Object.keys(selectedUniqueTax).map((item)=>{
         taxesArr.push(selectedUniqueTax?.[item]?.uniqueName);
       })
+      const type = props?.route?.params?.params?.name === 'Product Group' ? 'PRODUCT' : 'SERVICE'
       const payload = {
         hsnNumber : selectedCode === 'hsn' ? codeNumber : null,
         isSubGroup : isChecked,
@@ -83,13 +89,13 @@ const ProductGroupScreen = ()=>{
         sacNumber : selectedCode === 'sac' ? codeNumber : null,
         showCodeType : selectedCode,
         taxes : taxesArr,
-        type : "PRODUCT",
+        type : type,
         uniqueName : groupUniqueName
       }
       const result = await InventoryService.createStockGroup(payload);
       if(result?.data && result?.data?.status == 'success'){
         setIsLoading(false);
-        ToastAndroid.show("Stock Group Created Successfully!", ToastAndroid.LONG)
+        ToastAndroid.show(type == 'PRODUCT' ? "Product Group Created Successfully!" : "Service Group Created Successfully!", ToastAndroid.LONG)
         navigation.goBack();
         await clearAll();
       }else{
@@ -114,14 +120,24 @@ const ProductGroupScreen = ()=>{
     const clearAll = () => {
       resetState();
       fetchAllTaxes();
-      fetchAllParentGroup();
+      // fetchAllParentGroup();
+      fetchAllParentGroup(props?.route?.params?.params?.name === "Service Group" ? "SERVICE" : "PRODUCT");
     };
         
     useEffect(() => {
         fetchAllTaxes();
-        fetchAllParentGroup();
+        // fetchAllParentGroup();
+        console.log("on mount",props?.route?.params?.params?.name);
+        // const {name} = props?.route?.params?.params
+        fetchAllParentGroup(name === "Service Group" ? "SERVICE" : "PRODUCT");
         DeviceEventEmitter.addListener(APP_EVENTS.ProductGroupRefresh, async () => {
-            fetchAllParentGroup();
+            // fetchAllParentGroup();
+            fetchAllParentGroup("PRODUCT");
+            fetchAllTaxes();
+        });
+        DeviceEventEmitter.addListener(APP_EVENTS.ServiceGroupRefresh, async () => {
+            // fetchAllParentGroup();
+            fetchAllParentGroup("SERVICE");
             fetchAllTaxes();
         });
     }, []);
@@ -247,7 +263,8 @@ const ProductGroupScreen = ()=>{
                     <RenderChildGroup groupName={selectedGroup} childGroupModalRef={childGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} isChecked={isChecked} setIsChecked={setIsChecked} />
                 </Animated.ScrollView>
             </View>
-            <TouchableOpacity
+            {/* old btn */}
+            {/* <TouchableOpacity
                 style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
                 disabled = {isLoading}
                 onPress={ () => {
@@ -260,6 +277,17 @@ const ProductGroupScreen = ()=>{
                 style={styles.createButtonText}>
                 Create
                 </Text>
+            </TouchableOpacity> */}
+            <TouchableOpacity
+              onPress={() => {
+                if(groupName && groupUniqueName)createStockGroup();
+                else{
+                  ToastAndroid.show('Group Unique name can not be empty!',ToastAndroid.LONG)
+                }
+              }}
+              disabled = {isLoading}
+              style={[styles.updatedCreateBtn,{borderColor: voucherBackground}]}>
+              <Text style={[{color:voucherBackground},styles.updatedCreateBtnText]}> Create</Text>
             </TouchableOpacity>
             {RenderTaxModal}
             {RenderChildGroupModal}
