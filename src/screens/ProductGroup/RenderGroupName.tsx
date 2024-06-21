@@ -4,7 +4,7 @@ import makeStyle from "./style";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll})=>{
-    const {theme,styles} = useCustomTheme(makeStyle);
+    const {theme,styles,voucherBackground} = useCustomTheme(makeStyle,'Group');
     const cleanText = (text:string)=> {
         const pattern = /[^a-zA-Z0-9]/g;
         return text.replace(pattern, '');
@@ -13,7 +13,7 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
         <View>
             <View style={[styles.checkboxContainer, {paddingTop: 14}]}>
                 <View style={styles.checkboxContainer}>
-                <MaterialCommunityIcons name='alphabetical-variant' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={20} />
+                <MaterialCommunityIcons name='alphabetical-variant' color={voucherBackground} style={{margin: 16}} size={20} />
                 <TextInput
                     placeholderTextColor={'#808080'}
                     placeholder={'Enter Group Name'}
@@ -35,7 +35,7 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
             </View>
             <View>
                 <View style={styles.checkboxContainer}>
-                <MaterialCommunityIcons name='alphabetical' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={20} />
+                <MaterialCommunityIcons name='alphabetical' color={voucherBackground} style={{margin: 16}} size={20} />
                 <TextInput
                     placeholderTextColor={'#808080'}
                     placeholder={'Enter Unique Name'}

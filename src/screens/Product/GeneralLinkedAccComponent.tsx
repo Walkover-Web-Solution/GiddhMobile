@@ -32,7 +32,7 @@ const GeneralLinkedAccComponent = ({
         { label: 'MRP (Inclusive)', value: 0 },
         { label: 'Exclusive', value: 1 }
       ];
-    const {theme,styles} = useCustomTheme(makeStyle);
+    const {theme,styles,voucherBackground} = useCustomTheme(makeStyle,'Stock');
     return (
         <View style={styles.linkedAccContainer}>
             <View>
@@ -59,8 +59,8 @@ const GeneralLinkedAccComponent = ({
                                 )
                              }}
                             borderWidth={1}
-                            buttonInnerColor={'#084EAD'}
-                            buttonOuterColor={radioBtn === i ? '#084EAD' : '#808080'}
+                            buttonInnerColor={voucherBackground}
+                            buttonOuterColor={radioBtn === i ? voucherBackground : '#808080'}
                             buttonSize={8}
                             buttonOuterSize={15}
                             buttonStyle={{}}
@@ -87,13 +87,13 @@ const GeneralLinkedAccComponent = ({
             </View>
             <View style={styles.inputRow}>
                 <Text style={[styles.optionTitle,{marginTop:0}]} >{linkedAccountText}</Text>
-                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: selectedAccount?.name ? '#084EAD' : '#d9d9d9'  }]}>
+                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: selectedAccount?.name ? voucherBackground : '#d9d9d9'  }]}>
                     <TouchableOpacity
                     onPress={() => {
                         setBottomSheetVisible(accountModalRef,true);
                     }} style={{ flex: 1 }}>
                         {selectedAccount?.name ? ( 
-                        <Text style={[styles.buttonText, { color: '#084EAD' }]}>
+                        <Text style={[styles.buttonText, { color: voucherBackground }]}>
                             {selectedAccount?.name}
                         </Text>
                         ) : (
@@ -117,7 +117,7 @@ const GeneralLinkedAccComponent = ({
                     // value={this.state.openingBalance}
                     placeholder="Rate"
                     style={[styles.rowContainer, styles.buttonWrapper,styles.linkedModalBtn ]} />
-                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? '#084EAD' : '#d9d9d9'}]}>
+                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? voucherBackground : '#d9d9d9'}]}>
                     <TouchableOpacity
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
@@ -128,12 +128,12 @@ const GeneralLinkedAccComponent = ({
                         }} style={{ flex: 1 }}>
                         
                         {subUnits?.uniqueName ? ( 
-                        <Text style={[styles.buttonText, { color: '#084EAD',lineHeight:14 }]}>
+                        <Text style={[styles.buttonText, { color: voucherBackground,lineHeight:14 }]}>
                             {subUnits?.code}
                         </Text>
                         ) : (
                         <Text
-                            style={[styles.buttonText, { color: unitName!=='Unit' ? '#084EAD' :'#868686',lineHeight:14}]}>
+                            style={[styles.buttonText, { color: unitName!=='Unit' ? voucherBackground :'#868686',lineHeight:14}]}>
                             {unitName}
                         </Text>
                         )}

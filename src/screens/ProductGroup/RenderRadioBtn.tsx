@@ -4,7 +4,7 @@ import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native
 import makeStyle from "./style";
 
 const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})=>{
-    const {theme,styles} = useCustomTheme(makeStyle)
+    const {theme,styles,voucherBackground} = useCustomTheme(makeStyle,'Group');
     return (
         <View style={styles.radioBtnView}>
             <View>

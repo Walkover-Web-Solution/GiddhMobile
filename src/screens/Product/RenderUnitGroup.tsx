@@ -6,11 +6,11 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import makeStyles from "./style";
 
 const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetVisible, unitGroupMappingModalRef})=>{
-    const {theme,styles} = useCustomTheme(makeStyles);
+    const {theme,styles,voucherBackground} = useCustomTheme(makeStyles,'Stock');
     return  (
     <View style={[styles.fieldContainer,{maxHeight:100}]}>
         <View style={styles.rowView}>
-            <Icon name='tag-multiple' color={DefaultTheme.colors.secondary} size={17} />
+            <Icon name='tag-multiple' color={voucherBackground} size={17} />
             <Text style={styles.fieldHeadingText}>{'Unit'}</Text>
         </View>
         <View style={styles.unitGroupView}>
@@ -34,10 +34,10 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
                 style={[
                 styles.buttonWrapper,
                 styles.modalBtn,
-                {borderColor: unitGroupName ? '#084EAD' : '#d9d9d9'},
+                {borderColor: unitGroupName ? voucherBackground : '#d9d9d9'},
                 ]}>
                 {unitGroupName ? (
-                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
+                <Text style={[styles.buttonText, { color: voucherBackground }]}>
                     {unitGroupName}
                 </Text>
                 ) : (
@@ -68,10 +68,10 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
                 style={[
                 styles.buttonWrapper,
                 styles.modalBtn,
-                {borderColor: unit.uniqueName.length ? '#084EAD' : '#d9d9d9'},
+                {borderColor: unit.uniqueName.length ? voucherBackground : '#d9d9d9'},
                 ]}>
                 { unit.uniqueName.length > 0 ? ( 
-                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
+                <Text style={[styles.buttonText, { color: voucherBackground }]}>
                     {unit?.name} ({unit?.code})
                 </Text>
                 ) : (

@@ -28,7 +28,7 @@ const RenderLinkedAcc = ({
         // salesRadioBtn
     })=>{
     const [expandAcc, setExpandAcc] = useState(true);
-    const {theme,styles} = useCustomTheme(makeStyles);
+    const {theme,styles,voucherBackground} = useCustomTheme(makeStyles,'Stock');
     // const radio_props = [
     //     { label: 'MRP (Inclusive)', value: 0 },
     //     { label: 'Exclusive', value: 1 }
@@ -43,7 +43,7 @@ const RenderLinkedAcc = ({
             }}
             >
             <View style={styles.checkboxContainer}>
-                <LinkIcon name='link' size={16} color={DefaultTheme.colors.secondary} />
+                <LinkIcon name='link' size={16} color={voucherBackground} />
                 <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>Linked Account</Text>
             </View>
             <Pressable style={{padding:9}} onPress={() => {

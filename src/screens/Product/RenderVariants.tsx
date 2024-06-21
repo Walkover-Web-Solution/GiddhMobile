@@ -16,7 +16,7 @@ import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSelector } from "react-redux";
 import makeStyles from "./style";
 const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalData,subUnits,purchaseAccount,salesAccount,variantCustomFields})=>{
-    const {theme,styles} = useCustomTheme(makeStyles);
+    const {theme,styles,voucherBackground} = useCustomTheme(makeStyles,'Stock');
     const [expandAcc, setExpandAcc] = useState(false);
     const [optionCount,setOptionCount] = useState(0);
     const [addOption,setAddOption] = useState(false);
@@ -425,7 +425,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 setExpandAcc(!expandAcc);
                 }}>
                 <View style={styles.checkboxContainer} >
-                    <Icons name='plus-circle-multiple' size={17} color={DefaultTheme.colors.secondary} />
+                    <Icons name='plus-circle-multiple' size={17} color={voucherBackground} />
                     <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold}]}>Variant</Text>
                 </View>
                 <Pressable style={{padding:9}} onPress={() => {
@@ -498,7 +498,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     {optionCount < 3 && <TouchableOpacity
                         onPress={() => optionCount < 3 && !addOption && (setOptionCount(optionCount+1),setAddOption(true),setVariantsChecked(true),handleGlobalInputChange('variantsCreated',true))}
                         style={styles.variantHeading}>
-                        <AntDesign name={'plus'} color={'#084EAD'} size={18} style={{ marginHorizontal: 8 }} />
+                        <AntDesign name={'plus'} color={voucherBackground} size={18} style={{ marginHorizontal: 8 }} />
                         {optionCount == 0 
                         ? <Text numberOfLines={1} style={styles.addItemMain}> Add options like multiple size or colours etc...</Text> 
                         : optionCount == 3 ? <></> : <Text numberOfLines={1} style={styles.addItemMain}> Another option</Text> }
@@ -510,7 +510,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         }}
                         style={styles.tableText}>
                         <Text numberOfLines={1} style={styles.addItemMain}>Look Table</Text> 
-                        <MaterialIcons name={'play-arrow'} size={18} color={'blue'} />
+                        <MaterialIcons name={'play-arrow'} size={18} color={voucherBackground} />
                     </TouchableOpacity>
                     </View>}
                 </View>

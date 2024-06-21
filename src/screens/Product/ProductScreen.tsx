@@ -390,7 +390,7 @@ const ProductScreen = ()=>{
         <BottomSheet
           bottomSheetRef={taxModalRef}
           headerText='Select Taxes'
-          headerTextColor='#084EAD'
+          headerTextColor={voucherBackground}
           flatListProps={{
             data: taxArr,
             renderItem: ({item}) => {
@@ -455,7 +455,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={groupModalRef}
         headerText='Select Group'
-        headerTextColor='#084EAD'
+        headerTextColor={voucherBackground}
         adjustToContentHeight={false}
         flatListProps={{
             data: parentGroupArr,
@@ -469,7 +469,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(groupModalRef, false);
                 }}
                 >
-                <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
                 <Text style={styles.radiobuttonText}
                 >
                     {item?.name}
@@ -496,7 +496,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={unitGroupModalRef}
         headerText='Select Unit Group'
-        headerTextColor='#084EAD'
+        headerTextColor={voucherBackground}
         flatListProps={{
             data: unitGroupArr,
             renderItem: ({item}) => {
@@ -510,7 +510,7 @@ const ProductScreen = ()=>{
                     fetchUnitGroupMappingDebounce(item?.uniqueName)
                 }}
                 >
-                <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
                 <Text style={styles.radiobuttonText}>
                     {item?.name}
                 </Text>
@@ -536,7 +536,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={unitGroupMappingModalRef}
         headerText='Select Unit Group'
-        headerTextColor='#084EAD'
+        headerTextColor={voucherBackground}
         flatListProps={{
             data: unitGroupMapping,
             renderItem: ({item}) => {
@@ -553,7 +553,7 @@ const ProductScreen = ()=>{
                     fetchLinkedUnitMapping(item?.stockUnitX?.uniqueName)
                 }}
                 >
-                <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
                 <Text style={styles.radiobuttonText}>
                     {item?.stockUnitX?.name} ({item?.stockUnitX?.code})
                 </Text>
@@ -579,7 +579,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={purchaseSubUnitMappingModalRef}
         headerText='Select Unit'
-        headerTextColor='#084EAD'
+        headerTextColor={voucherBackground}
         flatListProps={{
             data: subUnits,
             renderItem: ({item}) => {
@@ -592,8 +592,8 @@ const ProductScreen = ()=>{
                 }}
                 >
                 {purchaseSubUnits?.uniqueName 
-                ? <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
+                ? <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
+                : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />}
                 
                 <Text style={styles.radiobuttonText}>
                     {item?.code}
@@ -620,7 +620,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={salesSubUnitMappingModalRef}
         headerText='Select Unit'
-        headerTextColor='#084EAD'
+        headerTextColor={voucherBackground}
         flatListProps={{
             data: subUnits,
             renderItem: ({item}) => {
@@ -632,8 +632,8 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(salesSubUnitMappingModalRef, false);
                 }}
                 >
-                {salesSubUnits?.uniqueName ? <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                :<Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
+                {salesSubUnits?.uniqueName ? <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
+                :<Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />}
                 <Text style={styles.radiobuttonText}>
                     {item?.code}
                 </Text>
@@ -659,7 +659,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={salesAccModalRef}
         headerText='Select Unit'
-        headerTextColor='#084EAD'
+        headerTextColor={voucherBackground}
         adjustToContentHeight={false}
         flatListProps={{
             data: salesAccountArr,
@@ -672,7 +672,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(salesAccModalRef, false);
                 }}
                 >
-                <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
                 <Text style={styles.radiobuttonText}>
                     {item?.name}
                 </Text>
@@ -698,7 +698,7 @@ const ProductScreen = ()=>{
         <BottomSheet
         bottomSheetRef={purchaseAccModalRef}
         headerText='Select Unit'
-        headerTextColor='#084EAD'
+        headerTextColor={voucherBackground}
         flatListProps={{
             data: purchaseAccountArr,
             renderItem: ({item}) => {
@@ -710,7 +710,7 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(purchaseAccModalRef, false);
                 }}
                 >
-                <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
                 <Text style={styles.radiobuttonText}>
                     {item?.name}
                 </Text>

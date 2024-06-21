@@ -7,7 +7,7 @@ import useCustomTheme from "@/utils/theme";
 import makeStyle from "./style";
 
 const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,isChecked,setIsChecked})=>{
-    const {styles,theme,voucherBackground} = useCustomTheme(makeStyle,'Payment');
+    const {styles,theme,voucherBackground} = useCustomTheme(makeStyle,'Group');
     return (
         <View style={[styles.fieldContainer, {flex: 1}]} >
             <View style={styles.checkboxContainer}>
@@ -43,7 +43,7 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                         style={[
                         styles.buttonWrapper,
                         {marginLeft: 20,minWidth:170},
-                        {borderColor: groupName.length > 0 ? '#084EAD' : '#d9d9d9'},
+                        {borderColor: groupName.length > 0 ? voucherBackground : '#d9d9d9'},
                         ]}>
                         <Text
                         style={[

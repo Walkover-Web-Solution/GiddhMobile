@@ -6,11 +6,11 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
 
 const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup})=>{
-  const {theme,styles} = useCustomTheme(makeStyle);
+  const {theme,styles,voucherBackground} = useCustomTheme(makeStyle,'Stock');
     return (
         <View style={[styles.fieldContainer,{maxHeight:100}]}>
         <View style={styles.rowView}>
-          <Icon name='arrange-bring-forward' color={DefaultTheme.colors.secondary} size={16} />
+          <Icon name='arrange-bring-forward' color={voucherBackground} size={16} />
           <Text style={styles.fieldHeadingText}>{'Groups'}</Text>
         </View>
 
@@ -27,10 +27,10 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
                 style={[
                   styles.buttonWrapper,
                   styles.modalBtn,
-                  {borderColor: groupName.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
+                  {borderColor: groupName.length ? voucherBackground : '#d9d9d9',paddingHorizontal:10},
                 ]}>
                 <Text style={[styles.buttonText,{ color:'#868686'}]}>
-                  {groupName.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
+                  {groupName.length > 0 ? <Text style={[{color:voucherBackground}]}>{groupName}</Text> : 'Select Group'}
                 </Text>
               </View>
             </TouchableOpacity>

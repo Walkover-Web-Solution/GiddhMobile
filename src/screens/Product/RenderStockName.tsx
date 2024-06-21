@@ -9,12 +9,12 @@ const RenderStockName = ({
     clearAll
 })=>{
 
-    const { theme, styles } = useCustomTheme(makeStyles)
+    const { theme, styles, voucherBackground } = useCustomTheme(makeStyles,'Stock')
     return (
         <View>
             <View style={[styles.checkboxContainer, {paddingTop: 14}]}>
                 <View style={styles.checkboxContainer}>
-                    <MaterialCommunityIcons name='alphabetical-variant' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={18} />
+                    <MaterialCommunityIcons name='alphabetical-variant' color={voucherBackground} style={{margin: 16}} size={18} />
                     <TextInput
                         placeholderTextColor={'#808080'}
                         placeholder={'Enter Stock'}
@@ -31,7 +31,7 @@ const RenderStockName = ({
             </View>
             <View>
                 <View style={styles.checkboxContainer}>
-                <MaterialCommunityIcons name='alphabetical' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={18} />
+                <MaterialCommunityIcons name='alphabetical' color={voucherBackground} style={{margin: 16}} size={18} />
                 <TextInput
                     placeholderTextColor={'#808080'}
                     placeholder={'Unique Name'}

@@ -6,12 +6,12 @@ import color from '@/utils/colors';
 import makeStyle from "./style";
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
-    const {styles, theme} = useCustomTheme(makeStyle);
+    const {styles, theme, voucherBackground} = useCustomTheme(makeStyle,'Group');
     const {height,width } = Dimensions.get('window');
     return (
     <View style={styles.fieldContainer}>
         <View style={styles.checkboxContainer}>
-            <Icon name={'Path-12190'} color={DefaultTheme.colors.secondary} size={16} />
+            <Icon name={'Path-12190'} color={voucherBackground} size={16} />
             <Text style={styles.fieldHeadingText}>{'Tax'}</Text>
         </View>
 
@@ -26,11 +26,11 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
                         style={[
                         styles.buttonWrapper,
                         styles.taxBtn,
-                        {borderColor: Object.keys(selectedUniqueTax).length ? '#084EAD' : '#d9d9d9'},
+                        {borderColor: Object.keys(selectedUniqueTax).length ? voucherBackground : '#d9d9d9'},
                         ]}>
                         <View style={[styles.checkboxContainer,{justifyContent:'center'}]}>
                         {Object.keys(selectedUniqueTax).length > 0 
-                        ? Object.keys(selectedUniqueTax).map((item)=>(<Text style={{ color:'#084EAD'}} key={item}>  {selectedUniqueTax?.[item]?.name}  </Text>)) 
+                        ? Object.keys(selectedUniqueTax).map((item)=>(<Text style={{ color:voucherBackground}} key={item}>  {selectedUniqueTax?.[item]?.name}  </Text>)) 
                         : <Text style={{color:'#868686'}}>Tax</Text>}
                         </View>
                     </View>

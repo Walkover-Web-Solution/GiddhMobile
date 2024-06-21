@@ -10,7 +10,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
     const [expandAcc, setExpandAcc] = useState(false);
     const [selectedCode,setSelectedCode] = useState('hsn');
     const [customFieldsData, setCustomFieldsData] = useState<any>({});
-    const {theme,styles} = useCustomTheme(makeStyles)
+    const {theme,styles,voucherBackground} = useCustomTheme(makeStyles,'Stock')
     const { results:customFields } = variantCustomFields;
     
     const handleCustomFieldsChange = (fieldUniqueName, value)=>{
@@ -38,7 +38,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 setExpandAcc(!expandAcc);
                 }}>
             <View style={styles.checkboxContainer}>
-                <MoreIcon name='more' size={16} color={DefaultTheme.colors.secondary} />
+                <MoreIcon name='more' size={16} color={voucherBackground} />
                 <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold }]}>Other</Text>
             </View>
             <Pressable style={{padding: 9}} onPress={() => {

@@ -140,7 +140,7 @@ const ProductGroupScreen = ()=>{
           <BottomSheet
             bottomSheetRef={taxModalRef}
             headerText='Select Taxes'
-            headerTextColor='#084EAD'
+            headerTextColor={voucherBackground}
             flatListProps={{
               data: taxArr,
               renderItem: ({item}) => {
@@ -205,7 +205,7 @@ const ProductGroupScreen = ()=>{
         <BottomSheet
           bottomSheetRef={childGroupModalRef}
           headerText='Select Parent Group'
-          headerTextColor='#084EAD'
+          headerTextColor={voucherBackground}
           adjustToContentHeight={false}
           flatListProps={{
             data: parentGroupArr,
@@ -219,7 +219,7 @@ const ProductGroupScreen = ()=>{
                     setBottomSheetVisible(childGroupModalRef, false);
                   }}
                 >
-                  <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                  <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={voucherBackground} size={16} />
                   <Text style={styles.radiobuttonText}
                   >
                     {item?.name}
