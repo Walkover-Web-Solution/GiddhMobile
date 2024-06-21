@@ -22,6 +22,9 @@ import RenderTaxes from "./RenderTaxes"
 import RenderChildGroup from "./RenderChildGroup"
 import makeStyle from "../ProductGroup/style"
 import Loader from "@/components/Loader"
+import Dialog from 'react-native-dialog';
+import Award from '../../assets/images/icons/customer_success.svg';
+import Faliure from '../../assets/images/icons/customer_faliure.svg';
 
 
 const ProductGroupScreen = ()=>{
@@ -31,6 +34,9 @@ const ProductGroupScreen = ()=>{
         return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
     }
     const [isLoading,setIsLoading] = useState(false);
+    const [successDialog,setSuccessDialog]=useState(false);
+    const [failureDialog,setFailureDialog]=useState(false);
+    const [failureMessage,setFailureMessage] = useState("");
     const taxModalRef = useRef(null);
     const childGroupModalRef = useRef(null);
     const [taxArr,setTaxArr] = useState([]);
@@ -89,12 +95,15 @@ const ProductGroupScreen = ()=>{
       const result = await InventoryService.createStockGroup(payload);
       if(result?.data && result?.data?.status == 'success'){
         setIsLoading(false);
-        ToastAndroid.show("Stock Group Created Successfully!", ToastAndroid.LONG)
-        navigation.goBack();
+        setSuccessDialog(true);
+        // ToastAndroid.show("Stock Group Created Successfully!", ToastAndroid.LONG)
+        // navigation.goBack();
         await clearAll();
       }else{
         setIsLoading(false);
-        ToastAndroid.show(result?.data?.message, ToastAndroid.LONG)
+        setFailureDialog(true);
+        setFailureMessage(result?.data?.message);
+        // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG)
       }
       
     }
@@ -197,6 +206,7 @@ const ProductGroupScreen = ()=>{
           bottomSheetRef={childGroupModalRef}
           headerText='Select Parent Group'
           headerTextColor='#084EAD'
+          adjustToContentHeight={false}
           flatListProps={{
             data: parentGroupArr,
             renderItem: ({item}) => {
@@ -232,6 +242,47 @@ const ProductGroupScreen = ()=>{
         />
   );
 
+  const successBox = (
+    successDialog
+      ? <Dialog.Container
+        onRequestClose={() => setSuccessDialog(false)}
+        visible={successDialog} onBackdropPress={() => setSuccessDialog(false)} contentStyle={styles.dialogContainer}>
+        <Award />
+        <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>Success</Text>
+        <Text style={styles.dialogMessage}>Stock Group created successfully.</Text>
+        <TouchableOpacity
+          style={[styles.dialogBtn,{backgroundColor: '#229F5F'}]}
+          onPress={() => {
+            setSuccessDialog(false);
+            navigation.goBack();
+          }}
+        >
+          <Text style={styles.dialogBtnText}>Done</Text>
+        </TouchableOpacity>
+      </Dialog.Container>
+      : null
+  );
+
+  const failureBox = (
+    failureDialog
+      ? <Dialog.Container
+          onRequestClose={() => { setFailureDialog(false) }}
+          visible={failureDialog} onBackdropPress={() => setFailureDialog(false)} contentStyle={styles.dialogContainer}>
+          <Faliure />
+          <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>Error!</Text>
+          <Text style={styles.dialogMessage}>{failureMessage}</Text>
+          <TouchableOpacity
+            style={[styles.dialogBtn,{backgroundColor: '#F2596F'}]}
+            onPress={() => {
+              setFailureDialog(false);
+            }}
+          >
+            <Text style={styles.dialogBtnText}>Try Again</Text>
+          </TouchableOpacity>
+        </Dialog.Container>
+      : null
+    );
+
     return (
         <SafeAreaView style={styles.containerView}>
             <View>
@@ -240,7 +291,7 @@ const ProductGroupScreen = ()=>{
                     style={styles.animatedView}
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
-                    <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+                    <Header header={'Create Group'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
                     <RenderGroupName isGroupUniqueNameEdited={isGroupUniqueNameEdited} setIsGroupUniqueNameEdited={setIsGroupUniqueNameEdited} groupName={groupName} groupUniqueName={groupUniqueName} setGroupName={setGroupName} setGroupUniqueName={setGroupUniqueName} clearAll={clearAll}/>
                     <RenderRadioBtn codeNumber = {codeNumber} selectedCode={selectedCode} setSelectedCode={setSelectedCode} setCodeNumber={setCodeNumber}/>
                     <RenderTaxes selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
@@ -248,21 +299,20 @@ const ProductGroupScreen = ()=>{
                 </Animated.ScrollView>
             </View>
             <TouchableOpacity
-                style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
-                disabled = {isLoading}
-                onPress={ () => {
-                  if(groupName && groupUniqueName)createStockGroup();
-                  else{
-                    ToastAndroid.show('Group Unique name can not be empty!',ToastAndroid.LONG)
-                  }
-                }}>
-                <Text
-                style={styles.createButtonText}>
-                Create
-                </Text>
+              onPress={() => {
+                if(groupName && groupUniqueName)createStockGroup();
+                else{
+                  ToastAndroid.show('Group Unique name can not be empty!',ToastAndroid.LONG)
+                }
+              }}
+              disabled = {isLoading}
+              style={[styles.updatedCreateBtn,{borderColor: voucherBackground}]}>
+              <Text style={[{color:voucherBackground},styles.updatedCreateBtnText]}> Create</Text>
             </TouchableOpacity>
             {RenderTaxModal}
             {RenderChildGroupModal}
+            {successBox}
+            {failureBox}
             <Loader isLoading={isLoading}/>
         </SafeAreaView>
 

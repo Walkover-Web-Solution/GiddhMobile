@@ -512,6 +512,43 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     flexDirection:'row',
     width:'60%',
     justifyContent:'space-between'
+  },
+  dialogContainer:{ 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    backgroundColor: '#fff'
+  },
+  dialogTypeText:{  
+    fontSize: 16, 
+    fontFamily: theme.typography.fontFamily.regular 
+  },
+  dialogMessage:{ 
+    fontSize: 14, 
+    marginTop: 10, 
+    textAlign: 'center', 
+    fontFamily: theme.typography.fontFamily.regular 
+  },
+  dialogBtn: {            
+    alignItems: 'center',
+    width: '70%',
+    borderRadius: 30,
+    justifyContent:'center',
+    marginTop: 30,
+    height: 50, marginBottom: 5,
+  },
+  dialogBtnText: { color: '#fff', fontSize: 20, alignSelf:'center', fontFamily: theme.typography.fontFamily.regular},
+  updatedCreateBtn : {
+    borderWidth: 2,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    height: height * 0.06,
+    width: width * 0.9,
+    alignItems: 'center',
+    marginVertical:15
+  },
+  updatedCreateBtnText: {
+    fontFamily: theme.typography.fontFamily.bold,
+    fontSize: 18,
   }
 });
 

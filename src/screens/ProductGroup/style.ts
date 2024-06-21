@@ -363,6 +363,62 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     // justifyContent:'center',
     paddingHorizontal:10,
     // alignContent:'center'
+  },
+  dialogContainer:{ 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    backgroundColor: '#fff'
+  },
+  dialogTypeText:{  
+    fontSize: 16, 
+    fontFamily: theme.typography.fontFamily.regular 
+  },
+  dialogMessage:{ 
+    fontSize: 14, 
+    marginTop: 10, 
+    textAlign: 'center', 
+    fontFamily: theme.typography.fontFamily.regular 
+  },
+  dialogBtn: {            
+    alignItems: 'center',
+    width: '70%',
+    borderRadius: 30,
+    justifyContent:'center',
+    marginTop: 30,
+    height: 50, marginBottom: 5,
+  },
+  dialogBtnText: { color: '#fff', fontSize: 20, alignSelf:'center', fontFamily: theme.typography.fontFamily.regular},
+  updatedCreateBtn : {
+    borderWidth: 2,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    height: height * 0.06,
+    width: width * 0.9,
+    position: 'absolute',
+    bottom: height * 0.01,
+    alignItems: 'center',
+    marginVertical:7
+  },
+  updatedCreateBtnText: {
+    fontFamily: theme.typography.fontFamily.bold,
+    fontSize: 18,
+  },
+  checkBoxView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkView:{
+      width: 16,
+      height: 16,
+      borderWidth: 1,
+      borderColor: 'blue',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 3,
+  },
+  tickBox:{
+      width: 10,
+      height: 10,
   }
 });
 
