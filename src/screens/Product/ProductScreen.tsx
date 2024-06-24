@@ -822,13 +822,28 @@ const ProductScreen = ()=>{
             ]
         }
         
-        const updatedVariantsWithUnitRates = otherDataRef?.current?.variants?.map(variant => ({
-            ...variant,
-            salesTaxInclusive: otherDataRef?.current?.salesMRPChecked ? otherDataRef?.current?.salesMRPChecked : false,
-            purchaseTaxInclusive: otherDataRef?.current?.purchaseMRPChecked ? otherDataRef?.current?.purchaseMRPChecked : false,
-            customFields: variant.customFields.filter(item => (item?.value !== "")),
-            unitRates: variant.unitRates.filter(item => item.rate !== null && item.rate !== undefined)
-          }));
+        const updatedVariantsWithUnitRates = otherDataRef?.current?.variants?.map(variant => {
+            const updatedWarehouseBalance = variant.warehouseBalance.map(warehouse => {
+                if (warehouse.stockUnit.name === "" && warehouse.stockUnit.name === "") {
+                  return {
+                    ...warehouse,
+                    stockUnit: {
+                      name: unit?.name,
+                      uniqueName: unit?.uniqueName
+                    }
+                  };
+                }
+                return warehouse;
+              });
+            return {
+                ...variant,
+                salesTaxInclusive: otherDataRef?.current?.salesMRPChecked ? otherDataRef?.current?.salesMRPChecked : false,
+                purchaseTaxInclusive: otherDataRef?.current?.purchaseMRPChecked ? otherDataRef?.current?.purchaseMRPChecked : false,
+                customFields: variant.customFields.filter(item => (item?.value !== "")),
+                unitRates: variant.unitRates.filter(item => item.rate !== null && item.rate !== undefined),
+                warehouseBalance:updatedWarehouseBalance
+            }}
+        );
           
         const payload = {
             type: "PRODUCT",
@@ -870,7 +885,7 @@ const ProductScreen = ()=>{
         if(payload?.name?.length > 0 ){
             if(payload?.stockUnitGroup?.uniqueName){
                 if(payload?.stockUnitUniqueName){
-                    if(payload?.variants?.[0]?.unitRates?.length > 0){
+                    if(payload?.variants?.length == 1 && payload?.variants?.[0]?.unitRates?.length > 0){
                         if(payload?.variants?.[0]?.unitRates?.[0]?.accountUniqueName && payload?.variants?.[0]?.unitRates?.[1]?.accountUniqueName ){
                             if(payload?.variants?.[0]?.unitRates?.[0]?.rate && payload?.variants?.[0]?.unitRates?.[1]?.rate){
                                 if(!requiredFieldsCheck(payload)){
