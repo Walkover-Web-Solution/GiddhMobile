@@ -198,15 +198,12 @@ const VariantTableScreen = ({route})=>{
                         handleUnitSelect({...item},'variantUnit')
                     }}
                     >
-                        {
-                        // variantUnit?.[selectedBoxIndex]?.uniqueName 
-                        // ? <Icon name={variantUnit?.[selectedBoxIndex]?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                        // :  
+                        {/* {
                         globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.warehouseBalance?.[0]?.stockUnit?.uniqueName 
                             ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.warehouseBalance?.[0]?.stockUnit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
-                            : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
-                        {/* {unit?.uniqueName ? <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                        : <Icon name={variantUnit?.[index]?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />} */}
+                            : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                        } */}
+                        <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -242,12 +239,12 @@ const VariantTableScreen = ({route})=>{
                         handleUnitSelect({...item},'variantPurchaseUnit')
                     }}
                     >
-                    {
+                    {/* {
                         globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.stockUnitUniqueName 
                         ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.stockUnitUniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                         : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                    }
-                    {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
+                    } */}
+                    <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -283,12 +280,12 @@ const VariantTableScreen = ({route})=>{
                         handleUnitSelect({...item},'variantSalesUnit')
                     }}
                     >
-                    {
+                    {/* {
                     globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.stockUnitName 
                     ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.stockUnitUniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                     : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                    }
-                    {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
+                    } */}
+                    <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -356,12 +353,19 @@ const VariantTableScreen = ({route})=>{
                             }} 
                             style={styles.checkBoxView}>
                             <View style={[styles.checkView,{borderColor:voucherBackground}]}>
-                            <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} 
+                            {/* <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} 
                             // archive[index] 
                             //     ? archive[index] && {backgroundColor: voucherBackground} 
                             //     : globalData?.variants?.[index]?.archive && {backgroundColor: voucherBackground}]
                             //     } 
-                                />
+                                /> */}
+                                {
+                                    archive[index] 
+                                    ? <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} />
+                                    : globalData?.variants?.[index]?.archive 
+                                        ? <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} />
+                                        : <></> 
+                                }
                             </View>
                             {/* <Text style={styles.label}>Checkbox Label</Text> */}
                             <Text style={styles.checkboxLabel}>Archive</Text>
