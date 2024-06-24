@@ -133,7 +133,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 ToastAndroid.show("Duplicate Value, This value already exists.",ToastAndroid.LONG);
                 setFields(fields.map(field => field.id === id ? { ...field, value: '' } : field));
             }
-        }, 1000));
+        }, 500));
     };
 
     const handleDeleteField = (id) => {
@@ -197,27 +197,29 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         
     }
 
-    const renderRightAction = (item)=> {
-        return (
-          <TouchableOpacity
-            onPress={() => {handleDeleteOption(item)}}
-            style={styles.animatedView}>
-            <MaterialIcons name={'delete'} size={18} color={'red'} />
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
-        );
-      }
 
-    const renderLeftAction = (item)=>{
-        return (
-            <TouchableOpacity
-              onPress={() => {handleEditOptoins(item)}}
-              style={styles.animatedView}>
-              <MaterialIcons name={'edit'} size={18} color={'green'} />
-              <Text style={styles.editText}>Edit</Text>
-            </TouchableOpacity>
-          );
-    }
+    //for gesture edit and delete options
+    // const renderRightAction = (item)=> {
+    //     return (
+    //       <TouchableOpacity
+    //         onPress={() => {handleDeleteOption(item)}}
+    //         style={styles.animatedView}>
+    //         <MaterialIcons name={'delete'} size={18} color={'red'} />
+    //         <Text style={styles.deleteText}>Delete</Text>
+    //       </TouchableOpacity>
+    //     );
+    //   }
+
+    // const renderLeftAction = (item)=>{
+    //     return (
+    //         <TouchableOpacity
+    //           onPress={() => {handleEditOptoins(item)}}
+    //           style={styles.animatedView}>
+    //           <MaterialIcons name={'edit'} size={18} color={'green'} />
+    //           <Text style={styles.editText}>Edit</Text>
+    //         </TouchableOpacity>
+    //       );
+    // }
 
     const generateCombinations =(boxes)=> {
         let combinations:any = [];
@@ -371,10 +373,10 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
     const RenderOptionCards = ({fields,optionName})=>{
         const [showDropDown, setShowDropDown] = useState(false);
         return (
-            <Swipeable 
-            renderRightActions={()=>renderRightAction(optionName)}
-            renderLeftActions={()=>renderLeftAction(optionName)}
-            >
+            // <Swipeable 
+            // renderRightActions={()=>renderRightAction(optionName)}
+            // renderLeftActions={()=>renderLeftAction(optionName)}
+            // >
             <View style={styles.optionCardContainer}>
                 <View style={styles.inputRow}> 
                     <Text style={styles.optionHeadingText}>{optionName}</Text>
@@ -392,11 +394,11 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 </View>
                 {showDropDown && <View 
                 style={styles.variantCard}>
-                    {fields?.map((item)=><View key={item?.id} style={styles.variantCardText} ><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>{item?.value}</Text></View>
+                    {fields?.map((item)=><TouchableOpacity onPress={()=>handleEditOptoins(optionName)} key={item?.id} style={styles.variantCardText} ><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>{item?.value}</Text></TouchableOpacity>
                     )}
                 </View>}
             </View>
-            </Swipeable>
+            // </Swipeable>
         );
     }
 
