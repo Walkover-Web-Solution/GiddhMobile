@@ -562,7 +562,7 @@ const VariantTableScreen = ({route})=>{
                             case "BOOLEAN":
                                 return (
                                 <View key={field.uniqueName} style={[styles.input,styles.booleanCustomField,{width:customFields?.length !==1 ? 250 :'auto'}]}>
-                                    <Text style={styles.fieldTitle}>{field?.fieldName}</Text>
+                                    <Text style={styles.fieldTitle}>{field?.isMandatory ? field?.fieldName+'*' : field?.fieldName}</Text>
                                     <View style={[styles.radioBtnView,{marginTop:0}]}>
                                         <TouchableOpacity
                                         style={styles.radioBtn}
@@ -792,7 +792,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     },
     fieldTitle:{
         color:'#000',
-        fontFamily:theme.typography.fontFamily.regular
+        fontFamily:theme.typography.fontFamily.semiBold
     },
     checkBoxView: {
         flexDirection: 'row',
