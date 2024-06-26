@@ -14,15 +14,11 @@ import Feather from 'react-native-vector-icons/Feather'
 
 const {height, width} = Dimensions.get('window');
 const VariantTableScreen = ({route})=>{
+    
     const {variantCombination,handleGlobalInputChange,globalData,unit,subUnits,purchaseAccount,salesAccount,variantCustomFields} = route.params;
     const navigation = useNavigation();
     const { results:customFields } = variantCustomFields;
-    const {theme}  = useCustomTheme(getStyles);
-    const variantSubUnitModal = useRef(null);
-    const variantPurchaseSubUnitModal = useRef(null);
-    const variantSalesSubUnitModal = useRef(null);
-    const {statusBar,styles, voucherBackground} = useCustomTheme(getStyles, 'PdfPreview');
-    const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
+    const {statusBar,styles, voucherBackground,theme} = useCustomTheme(getStyles, 'PdfPreview');
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
         return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
@@ -35,33 +31,6 @@ const VariantTableScreen = ({route})=>{
           modalRef?.current?.close();
         }
     };
-    const [archive, setArchive] = useState({});
-    const [variantUnit, setVaiantUnit]= useState({});
-    const [tempCustomFieldsArr, setTempCustomFieldsArr]:any = useState({});
-
-    const handleVariantUnitSelect = (boxIndex,unit)=>{
-        const stockUnitObj = {
-            ...globalData?.variants?.[boxIndex]?.warehouseBalance?.[0]?.stockUnit,
-            name : unit?.code,
-            uniqueName: unit?.uniqueName
-        } 
-        const updatedObj = [...globalData?.variants]
-        updatedObj[boxIndex]={
-            ...updatedObj?.[boxIndex],
-            warehouseBalance : [{
-                ...updatedObj?.[boxIndex]?.warehouseBalance?.[0],
-                stockUnit:stockUnitObj
-            }]
-        }
-        handleGlobalInputChange('variants',updatedObj);
-        
-        setVaiantUnit(prevUnits =>({
-            ...prevUnits,
-            [boxIndex] : unit
-        }))
-
-        
-    }
 
     const handleVariantPurchaseUnitSelect = (boxIndex,unit)=>{
         const updatedObj = [...globalData?.variants]
@@ -82,6 +51,7 @@ const VariantTableScreen = ({route})=>{
         
 
     }
+
     const handleVariantSalesUnitSelect = (boxIndex,unit)=>{
         const updatedObj = [...globalData?.variants]
         const tempUnitRates = updatedObj?.[boxIndex]?.unitRates?.filter((item)=>item?.accountUniqueName !== salesAccount?.uniqueName);
@@ -97,36 +67,6 @@ const VariantTableScreen = ({route})=>{
             unitRates : [...tempUnitRates]
         }
         handleGlobalInputChange('variants',updatedObj);
-    }
-
-
-    const handleTempCustomFields = (boxIndex,value,fieldUniqueName)=>{
-        const updatedObj = [...globalData?.variants]
-        const tempCustomFields:CustomFields[] = [...globalData?.variants?.[boxIndex]?.customFields];
-        
-        const updatedFieldObj:CustomFields[] = tempCustomFields?.map(item=>{
-            if(item?.uniqueName === fieldUniqueName){
-                return {
-                    ...item,
-                    value:value
-                }
-            }else{
-                return item
-            }
-        })
-        
-        updatedObj[boxIndex] = {
-            ...updatedObj?.[boxIndex],
-            customFields : [...updatedFieldObj]
-        }
-        handleGlobalInputChange('variants',updatedObj);
-        setTempCustomFieldsArr((prevState)=>({
-            ...prevState,
-            [boxIndex]:{
-                ...prevState?.[boxIndex],
-                [fieldUniqueName] : value
-            }
-        }));
     }
 
     const handleTextCustomFields = (boxIndex,value,fieldUniqueName)=>{
@@ -151,37 +91,96 @@ const VariantTableScreen = ({route})=>{
         handleGlobalInputChange('variants',updatedObj);
     }
 
-    const toggleArchive = (boxIndex) => {
-        setArchive(prevArchive => ({
-            ...prevArchive,
-            [boxIndex]: !prevArchive[boxIndex]
-        }));
-    };
-
-    const handleUnitFocus = (index,modalRef) => {
-        setSelectedBoxIndex(index);
-        setBottomSheetVisible(modalRef,true);
-    };
-
-    const handleUnitSelect = (unit,type) => {
-        if (selectedBoxIndex !== null) {
-            if(type === 'variantUnit'){
-                handleVariantUnitSelect(selectedBoxIndex, unit);
-                setBottomSheetVisible(variantSubUnitModal,false);
-            }else if(type === 'variantPurchaseUnit'){
-                handleVariantPurchaseUnitSelect(selectedBoxIndex, unit);
-                setBottomSheetVisible(variantPurchaseSubUnitModal,false);
-            }else if(type === 'variantSalesUnit'){
-                handleVariantSalesUnitSelect(selectedBoxIndex, unit);
-                setBottomSheetVisible(variantSalesSubUnitModal,false);
-            }
-        }
-        setSelectedBoxIndex(null);
-    };
-
-
-    const renderItem = ( {item ,index}) => {
+    const VariantCard = React.memo(({item,index}) => {
+        const variantSubUnitModal = useRef(null);
+        const variantPurchaseSubUnitModal = useRef(null);
+        const variantSalesSubUnitModal = useRef(null);
+        const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
         const combinedValues = item.map(subItem => subItem.value).join(' / ');
+        const [archive, setArchive] = useState({});
+        const [variantUnit, setVaiantUnit]= useState({});
+        const [tempCustomFieldsArr, setTempCustomFieldsArr]:any = useState({});
+
+        const handleVariantUnitSelect = (boxIndex,unit)=>{
+            const stockUnitObj = {
+                ...globalData?.variants?.[boxIndex]?.warehouseBalance?.[0]?.stockUnit,
+                name : unit?.code,
+                uniqueName: unit?.uniqueName
+            } 
+            const updatedObj = [...globalData?.variants]
+            updatedObj[boxIndex]={
+                ...updatedObj?.[boxIndex],
+                warehouseBalance : [{
+                    ...updatedObj?.[boxIndex]?.warehouseBalance?.[0],
+                    stockUnit:stockUnitObj
+                }]
+            }
+            handleGlobalInputChange('variants',updatedObj);
+            
+            setVaiantUnit(prevUnits =>({
+                ...prevUnits,
+                [boxIndex] : unit
+            }))
+    
+            
+        }
+    
+        const handleTempCustomFields = (boxIndex,value,fieldUniqueName)=>{
+            const updatedObj = [...globalData?.variants]
+            const tempCustomFields:CustomFields[] = [...globalData?.variants?.[boxIndex]?.customFields];
+            
+            const updatedFieldObj:CustomFields[] = tempCustomFields?.map(item=>{
+                if(item?.uniqueName === fieldUniqueName){
+                    return {
+                        ...item,
+                        value:value
+                    }
+                }else{
+                    return item
+                }
+            })
+            
+            updatedObj[boxIndex] = {
+                ...updatedObj?.[boxIndex],
+                customFields : [...updatedFieldObj]
+            }
+            handleGlobalInputChange('variants',updatedObj);
+            setTempCustomFieldsArr((prevState)=>({
+                ...prevState,
+                [boxIndex]:{
+                    ...prevState?.[boxIndex],
+                    [fieldUniqueName] : value
+                }
+            }));
+        }
+    
+        const toggleArchive = (boxIndex) => {
+            setArchive(prevArchive => ({
+                ...prevArchive,
+                [boxIndex]: !prevArchive[boxIndex]
+            }));
+        };
+    
+        const handleUnitFocus = (index,modalRef) => {
+            setSelectedBoxIndex(index);
+            setBottomSheetVisible(modalRef,true);
+        };
+    
+        const handleUnitSelect = (unit,type) => {
+            if (selectedBoxIndex !== null) {
+                if(type === 'variantUnit'){
+                    handleVariantUnitSelect(selectedBoxIndex, unit);
+                    setBottomSheetVisible(variantSubUnitModal,false);
+                }else if(type === 'variantPurchaseUnit'){
+                    handleVariantPurchaseUnitSelect(selectedBoxIndex, unit);
+                    setBottomSheetVisible(variantPurchaseSubUnitModal,false);
+                }else if(type === 'variantSalesUnit'){
+                    handleVariantSalesUnitSelect(selectedBoxIndex, unit);
+                    setBottomSheetVisible(variantSalesSubUnitModal,false);
+                }
+            }
+            setSelectedBoxIndex(null);
+        };
 
         const RenderVariantSubUnitModal = (
             <BottomSheet
@@ -224,6 +223,7 @@ const VariantTableScreen = ({route})=>{
             }}
             />
         )
+
         const RenderVariantPurchaseSubUnitModal = (
             <BottomSheet
             bottomSheetRef={variantPurchaseSubUnitModal}
@@ -265,6 +265,7 @@ const VariantTableScreen = ({route})=>{
             }}
             />
         )
+        
         const RenderVariantSalesSubUnitModal = (
             <BottomSheet
             bottomSheetRef={variantSalesSubUnitModal}
@@ -359,13 +360,13 @@ const VariantTableScreen = ({route})=>{
                             //     : globalData?.variants?.[index]?.archive && {backgroundColor: voucherBackground}]
                             //     } 
                                 /> */}
-                                {
-                                    archive[index] 
+                            {
+                                archive[index] 
+                                ? <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} />
+                                : globalData?.variants?.[index]?.archive 
                                     ? <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} />
-                                    : globalData?.variants?.[index]?.archive 
-                                        ? <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} />
-                                        : <></> 
-                                }
+                                    : <></> 
+                            }
                             </View>
                             {/* <Text style={styles.label}>Checkbox Label</Text> */}
                             <Text style={styles.checkboxLabel}>Archive</Text>
@@ -562,7 +563,7 @@ const VariantTableScreen = ({route})=>{
                             case "BOOLEAN":
                                 return (
                                 <View key={field.uniqueName} style={[styles.input,styles.booleanCustomField,{width:customFields?.length !==1 ? 250 :'auto'}]}>
-                                    <Text style={styles.fieldTitle}>{field?.fieldName}</Text>
+                                    <Text style={styles.fieldTitle}>{field?.isMandatory ? field?.fieldName+'*' : field?.fieldName}</Text>
                                     <View style={[styles.radioBtnView,{marginTop:0}]}>
                                         <TouchableOpacity
                                         style={styles.radioBtn}
@@ -625,8 +626,10 @@ const VariantTableScreen = ({route})=>{
                 {RenderVariantSalesSubUnitModal}
             </View>
         )
-    };
+    });
     
+
+    const renderItem = ({item ,index}) => <VariantCard item={item} index={index}/>
 
     return (
         <SafeAreaView style={styles.container}>
@@ -792,7 +795,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     },
     fieldTitle:{
         color:'#000',
-        fontFamily:theme.typography.fontFamily.regular
+        fontFamily:theme.typography.fontFamily.semiBold
     },
     checkBoxView: {
         flexDirection: 'row',
