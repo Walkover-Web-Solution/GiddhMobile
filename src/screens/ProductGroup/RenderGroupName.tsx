@@ -5,6 +5,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll})=>{
     const {theme,styles} = useCustomTheme(makeStyle);
+    const cleanText = (text:string)=> {
+        const pattern = /[^a-zA-Z0-9]/g;
+        return text.replace(pattern, '');
+    }
     return (
         <View>
             <View style={[styles.checkboxContainer, {paddingTop: 14}]}>
@@ -18,7 +22,8 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
                     onChangeText={(text)=>{
                         setGroupName(text);
                         if(!isGroupUniqueNameEdited){
-                            setGroupUniqueName(text.toLocaleLowerCase());
+                            const uniqueName = cleanText(text);
+                            setGroupUniqueName(uniqueName.toLowerCase());
                         }
                     }}
                     style={styles.textInput}
@@ -36,7 +41,7 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
                     placeholder={'Enter Unique Name'}
                     returnKeyType={'done'}
                     onChangeText={(text)=>{
-                        setGroupUniqueName(text.toLocaleLowerCase());
+                        setGroupUniqueName(text.toLowerCase());
                         setIsGroupUniqueNameEdited(true);
                     }}
                     value={groupUniqueName}

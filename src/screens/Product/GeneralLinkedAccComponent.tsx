@@ -99,7 +99,7 @@ const GeneralLinkedAccComponent = ({
                         ) : (
                         <Text
                             style={[styles.buttonText, { color: '#868686' }]}>
-                            None
+                            Select account
                         </Text>
                         )}
                     </TouchableOpacity>
@@ -117,7 +117,7 @@ const GeneralLinkedAccComponent = ({
                     // value={this.state.openingBalance}
                     placeholder="Rate"
                     style={[styles.rowContainer, styles.buttonWrapper,styles.linkedModalBtn ]} />
-                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName ? '#084EAD' : '#d9d9d9'}]}>
+                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? '#084EAD' : '#d9d9d9'}]}>
                     <TouchableOpacity
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
@@ -133,7 +133,7 @@ const GeneralLinkedAccComponent = ({
                         </Text>
                         ) : (
                         <Text
-                            style={[styles.buttonText, { color: '#868686',lineHeight:14}]}>
+                            style={[styles.buttonText, { color: unitName!=='Unit' ? '#084EAD' :'#868686',lineHeight:14}]}>
                             {unitName}
                         </Text>
                         )}

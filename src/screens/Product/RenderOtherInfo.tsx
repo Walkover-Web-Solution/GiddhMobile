@@ -111,23 +111,27 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                     onChangeText={(text)=>{
                         selectedCode === 'hsn' 
                         ? (
+                            handleInputChange('hsnChecked',true),
+                            handleInputChange('sacChecked',false),
                             handleInputChange('hsnNumber',text),
                             handleInputChange('sacNumber',"")
                         )
                         : (
+                            handleInputChange('hsnChecked',false),
+                            handleInputChange('sacChecked',true),
                             handleInputChange('hsnNumber',""),
                             handleInputChange('sacNumber',text)
                         )
                     }}
                 />
-                <TextInput
+                {!variantsChecked && <TextInput
                     placeholder={'SKU Code'}
                     placeholderTextColor={'#808080'}
                     style={styles.inputField}
                     onChangeText={(text)=>{
                         handleInputChange('skuCode',text)
                     }}
-                />
+                />}
                 {!variantsChecked && <View style={styles.inputRow}>
                     <TextInput
                         placeholder={'Opening Quantity'}

@@ -23,6 +23,9 @@ import { useSelector } from "react-redux";
 import AsyncStorage from "@react-native-community/async-storage";
 import Loader from "@/components/Loader";
 import makeStyles from "./style";
+import Dialog from 'react-native-dialog';
+import Award from '../../assets/images/icons/customer_success.svg';
+import Faliure from '../../assets/images/icons/customer_faliure.svg';
 
 
 
@@ -201,6 +204,9 @@ const ProductScreen = ()=>{
         key6:random(0,10,true),
         key7:random(0,10,true)
     })
+    const [successDialog,setSuccessDialog]=useState(false);
+    const [failureDialog,setFailureDialog]=useState(false);
+    const [failureMessage,setFailureMessage] = useState("");
     
     const branchList = useSelector((state) => state?.commonReducer?.branchList);
 
@@ -221,14 +227,23 @@ const ProductScreen = ()=>{
     const fetchAllParentGroup = async () => {
         const result = await InventoryService.fetchAllParentGroup("PRODUCT");
         if(result?.data && result?.data?.status == 'success'){
-          setParentGroupArr(result?.data?.body?.results);
+          const results = result?.data?.body?.results
+          setParentGroupArr(results);
+          if(selectedGroup == ''){
+            setSelectedGroup(results?.[0]?.name);
+            setSelectedGroupUniqueName(results?.[0]?.uniqueName)
+          }
         }
     }
     
     const fetchStockUnitGroup = async () => {
         const result = await InventoryService.fetchStockUnitGroup();
         if(result?.data && result?.data?.status == 'success'){
-            setUnitGroupArr(result?.data?.body);
+            const results = result?.data?.body
+            setUnitGroupArr(results);
+            setSelectedUnitGroup(results?.[0]?.name)
+            setSelectedUnitGroupUniqueName(results?.[0]?.uniqueName)
+            await fetchUnitGroupMappingDebounce(results?.[0]?.uniqueName)
         }
     }
 
@@ -300,13 +315,16 @@ const ProductScreen = ()=>{
             setIsLoading(true);
             const result = await InventoryService.createStockProduct(payload,selectedGroup);
             if(result?.data && result?.data?.status == 'success'){
-                await clearAll();
                 setIsLoading(false);
-                ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
-                navigation.goBack();
+                setSuccessDialog(true);
+                await clearAll();
+                // ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
+                // navigation.goBack();
             }else{
                 setIsLoading(false);
-                ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
+                setFailureDialog(true);
+                setFailureMessage(result?.data?.message)
+                // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
             }
         }else{
             if(parentGroupArr?.length == 0){
@@ -323,13 +341,16 @@ const ProductScreen = ()=>{
                     setIsLoading(true);
                     const result = await InventoryService.createStockProduct(payload,groupResponse?.data?.body?.uniqueName);
                     if(result?.data && result?.data?.status == 'success'){
-                        await clearAll();
                         setIsLoading(false);
-                        ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
-                        navigation.goBack();
+                        setSuccessDialog(true);
+                        await clearAll();
+                        // ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
+                        // navigation.goBack();
                     }else{
                         setIsLoading(false);
-                        ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
+                        setFailureDialog(true);
+                        setFailureMessage(result?.data?.message)
+                        // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
                     }
                 }else{
                     setIsLoading(false);
@@ -435,6 +456,7 @@ const ProductScreen = ()=>{
         bottomSheetRef={groupModalRef}
         headerText='Select Group'
         headerTextColor='#084EAD'
+        adjustToContentHeight={false}
         flatListProps={{
             data: parentGroupArr,
             renderItem: ({item}) => {
@@ -569,7 +591,10 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(purchaseSubUnitMappingModalRef, false);
                 }}
                 >
-                <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                {purchaseSubUnits?.uniqueName 
+                ? <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
+                
                 <Text style={styles.radiobuttonText}>
                     {item?.code}
                 </Text>
@@ -607,7 +632,8 @@ const ProductScreen = ()=>{
                     setBottomSheetVisible(salesSubUnitMappingModalRef, false);
                 }}
                 >
-                <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                {salesSubUnits?.uniqueName ? <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                :<Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
                 <Text style={styles.radiobuttonText}>
                     {item?.code}
                 </Text>
@@ -707,6 +733,47 @@ const ProductScreen = ()=>{
     )
 
 
+    const successBox = (
+        successDialog
+          ? <Dialog.Container
+            onRequestClose={() => setSuccessDialog(false)}
+            visible={successDialog} onBackdropPress={() => setSuccessDialog(false)} contentStyle={styles.dialogContainer}>
+            <Award />
+            <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>Success</Text>
+            <Text style={styles.dialogMessage}>Stock Group created successfully.</Text>
+            <TouchableOpacity
+              style={[styles.dialogBtn,{backgroundColor: '#229F5F'}]}
+              onPress={() => {
+                setSuccessDialog(false);
+                navigation.goBack();
+              }}
+            >
+              <Text style={styles.dialogBtnText}>Done</Text>
+            </TouchableOpacity>
+          </Dialog.Container>
+          : null
+      );
+    
+    const failureBox = (
+    failureDialog
+        ? <Dialog.Container
+            onRequestClose={() => { setFailureDialog(false) }}
+            visible={failureDialog} onBackdropPress={() => setFailureDialog(false)} contentStyle={styles.dialogContainer}>
+            <Faliure />
+            <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>Error!</Text>
+            <Text style={styles.dialogMessage}>{failureMessage}</Text>
+            <TouchableOpacity
+            style={[styles.dialogBtn,{backgroundColor: '#F2596F'}]}
+            onPress={() => {
+                setFailureDialog(false);
+            }}
+            >
+            <Text style={styles.dialogBtnText}>Try Again</Text>
+            </TouchableOpacity>
+        </Dialog.Container>
+        : null
+    );
+
 
     const createPayload = async() => {
         let taxesArr:string[] = [];
@@ -755,13 +822,28 @@ const ProductScreen = ()=>{
             ]
         }
         
-        const updatedVariantsWithUnitRates = otherDataRef?.current?.variants?.map(variant => ({
-            ...variant,
-            salesTaxInclusive: otherDataRef?.current?.salesMRPChecked ? otherDataRef?.current?.salesMRPChecked : false,
-            purchaseTaxInclusive: otherDataRef?.current?.purchaseMRPChecked ? otherDataRef?.current?.purchaseMRPChecked : false,
-            customFields: variant.customFields.filter(item => (item?.value !== "")),
-            unitRates: variant.unitRates.filter(item => item.rate !== null && item.rate !== undefined)
-          }));
+        const updatedVariantsWithUnitRates = otherDataRef?.current?.variants?.map(variant => {
+            const updatedWarehouseBalance = variant.warehouseBalance.map(warehouse => {
+                if (warehouse.stockUnit.name === "" && warehouse.stockUnit.name === "") {
+                  return {
+                    ...warehouse,
+                    stockUnit: {
+                      name: unit?.name,
+                      uniqueName: unit?.uniqueName
+                    }
+                  };
+                }
+                return warehouse;
+              });
+            return {
+                ...variant,
+                salesTaxInclusive: otherDataRef?.current?.salesMRPChecked ? otherDataRef?.current?.salesMRPChecked : false,
+                purchaseTaxInclusive: otherDataRef?.current?.purchaseMRPChecked ? otherDataRef?.current?.purchaseMRPChecked : false,
+                customFields: variant.customFields.filter(item => (item?.value !== "")),
+                unitRates: variant.unitRates.filter(item => item.rate !== null && item.rate !== undefined),
+                warehouseBalance:updatedWarehouseBalance
+            }}
+        );
           
         const payload = {
             type: "PRODUCT",
@@ -803,7 +885,7 @@ const ProductScreen = ()=>{
         if(payload?.name?.length > 0 ){
             if(payload?.stockUnitGroup?.uniqueName){
                 if(payload?.stockUnitUniqueName){
-                    if(payload?.variants?.[0]?.unitRates?.length > 0){
+                    if(payload?.variants?.length == 1 && payload?.variants?.[0]?.unitRates?.length > 0){
                         if(payload?.variants?.[0]?.unitRates?.[0]?.accountUniqueName && payload?.variants?.[0]?.unitRates?.[1]?.accountUniqueName ){
                             if(payload?.variants?.[0]?.unitRates?.[0]?.rate && payload?.variants?.[0]?.unitRates?.[1]?.rate){
                                 if(!requiredFieldsCheck(payload)){
@@ -837,7 +919,7 @@ const ProductScreen = ()=>{
 
     const CreateButton = (
         // <TouchableOpacity
-            // style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
+        //     style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
         //     disabled = {isLoading}
         //     onPress={onClickCreateStock}>
         //     <Text
@@ -923,7 +1005,7 @@ const ProductScreen = ()=>{
         fetchSalesAccounts();
         fetchVariantCustomfields();
         DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
-            // fetchAllParentGroup();
+            fetchAllParentGroup();
             fetchAllTaxes();
             fetchStockUnitGroup();
             fetchPurchaseAccounts();
@@ -989,6 +1071,8 @@ const ProductScreen = ()=>{
             {RenderSalesSubUnitMappingModal}
             {RenderSalesAccModal}
             {RenderPurchaseAccModal}
+            {successBox}
+            {failureBox}
         </SafeAreaView>
     )
 }

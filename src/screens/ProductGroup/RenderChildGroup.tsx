@@ -7,11 +7,11 @@ import useCustomTheme from "@/utils/theme";
 import makeStyle from "./style";
 
 const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,isChecked,setIsChecked})=>{
-    const {styles,theme} = useCustomTheme(makeStyle);
+    const {styles,theme,voucherBackground} = useCustomTheme(makeStyle,'Payment');
     return (
         <View style={[styles.fieldContainer, {flex: 1}]} >
             <View style={styles.checkboxContainer}>
-                <CheckBox
+                {/* <CheckBox
                     checkBoxColor={'#084EAD'}
                     uncheckedCheckBoxColor={'#084EAD'}
                     isChecked={isChecked}
@@ -19,7 +19,14 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                         setIsChecked(!isChecked);
                     }}
 
-                />
+                /> */}
+                <TouchableOpacity
+                    onPress={()=>setIsChecked(!isChecked)}
+                    style={styles.checkBoxView}>
+                    <View style={[styles.checkView,{borderColor:voucherBackground}]}>
+                    <View style={[styles.tickBox, isChecked && {backgroundColor:voucherBackground}]} />
+                    </View>
+                </TouchableOpacity>
                 <View style={styles.checkboxContainer}>
                     <Pressable style={styles.fieldHeadingText} onPress={()=>{setIsChecked(!isChecked)}}><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>Is it a child group?</Text></Pressable>
                 </View>
