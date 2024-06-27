@@ -4,10 +4,54 @@ import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import colors from "@/utils/colors";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
-
-const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup})=>{
+import BottomSheet from "@/components/BottomSheet";
+import Icons from '@/core/components/custom-icon/custom-icon';
+const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup,parentGroupArr,setSelectedGroup,setSelectedGroupUniqueName,selectedGroup})=>{
   const {theme,styles} = useCustomTheme(makeStyle);
+
+  const RenderGroupModal = (
+    <BottomSheet
+    bottomSheetRef={groupModalRef}
+    headerText='Select Group'
+    headerTextColor='#084EAD'
+    // adjustToContentHeight={false}
+    flatListProps={{
+        data: parentGroupArr,
+        renderItem: ({item}) => {
+        return (
+            <TouchableOpacity 
+            style={styles.button}
+            onPress={() => {
+                setSelectedGroup(item?.name)
+                setSelectedGroupUniqueName(item?.uniqueName)
+                setBottomSheetVisible(groupModalRef, false);
+            }}
+            >
+            <Icons name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+            <Text style={styles.radiobuttonText}
+            >
+                {item?.name}
+            </Text>
+            </TouchableOpacity>
+        );
+        },
+        ListEmptyComponent: () => {
+        return (
+            <View style={styles.modalCancelView}>
+            <Text
+                style={styles.modalCancelText}>
+                No Group Available
+            </Text>
+            </View>
+
+        );
+        }
+    }}
+    />
+);
+
     return (
+      <>
         <View style={[styles.fieldContainer,{maxHeight:100}]}>
         <View style={styles.rowView}>
           <Icon name='arrange-bring-forward' color={DefaultTheme.colors.secondary} size={16} />
@@ -19,7 +63,7 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
             <TouchableOpacity
               style={styles.rowView}
               onPress={async ()=>{
-                await fetchAllParentGroup()
+                await fetchAllParentGroup();
                 setBottomSheetVisible(groupModalRef,true);
               }}
               textColor={{colors}}>
@@ -37,6 +81,8 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
           </View>
         </View>
         </View>
+      {RenderGroupModal}
+      </>
     )
 }
 

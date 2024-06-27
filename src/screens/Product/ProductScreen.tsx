@@ -386,351 +386,351 @@ const ProductScreen = ()=>{
     };
 
 
-    const RenderTaxModal = (
-        <BottomSheet
-          bottomSheetRef={taxModalRef}
-          headerText='Select Taxes'
-          headerTextColor='#084EAD'
-          flatListProps={{
-            data: taxArr,
-            renderItem: ({item}) => {
-              return (
-                <TouchableOpacity
-                  style={styles.renderConatiner}
-                  onPress={()=>{
-                      let updatedSelectedUniqueTax = {...selectedUniqueTax};  
-                      if(Object.keys(updatedSelectedUniqueTax).length == 0 ){
-                          const Obj = {
-                              [item?.taxType] : item
-                          }
-                          setSelectedUniqueTax(Obj);
-                      }else{
-                          if(updatedSelectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName){
-                              delete updatedSelectedUniqueTax?.[item?.taxType];
-                              setSelectedUniqueTax({...updatedSelectedUniqueTax});
-                          }
-                          else{
-                              if(updatedSelectedUniqueTax?.[item?.taxType]){
-                                  console.log("can't add this item");
+    // const RenderTaxModal = (
+    //     <BottomSheet
+    //       bottomSheetRef={taxModalRef}
+    //       headerText='Select Taxes'
+    //       headerTextColor='#084EAD'
+    //       flatListProps={{
+    //         data: taxArr,
+    //         renderItem: ({item}) => {
+    //           return (
+    //             <TouchableOpacity
+    //               style={styles.renderConatiner}
+    //               onPress={()=>{
+    //                   let updatedSelectedUniqueTax = {...selectedUniqueTax};  
+    //                   if(Object.keys(updatedSelectedUniqueTax).length == 0 ){
+    //                       const Obj = {
+    //                           [item?.taxType] : item
+    //                       }
+    //                       setSelectedUniqueTax(Obj);
+    //                   }else{
+    //                       if(updatedSelectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName){
+    //                           delete updatedSelectedUniqueTax?.[item?.taxType];
+    //                           setSelectedUniqueTax({...updatedSelectedUniqueTax});
+    //                       }
+    //                       else{
+    //                           if(updatedSelectedUniqueTax?.[item?.taxType]){
+    //                               console.log("can't add this item");
                                   
-                              }else{
-                                  updatedSelectedUniqueTax = { ...updatedSelectedUniqueTax, [item?.taxType]: item };
-                                  setSelectedUniqueTax({...updatedSelectedUniqueTax})
-                              }
-                          }
-                      }
-                  }}
-                  >
-                  <View style={styles.modalRenderItem}>
-                    <View
-                      style={[styles.modalCheckBox,{ borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C'}]}>
-                      {selectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName && (
-                        <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
-                      )}
-                    </View>
-                    <Text
-                      style={styles.modalText}>
-                      {item.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            },
-            ListEmptyComponent: () => {
-              return (
-                <View style={styles.modalCancelView}>
-                  <Text
-                    style={styles.modalCancelText}>
-                    No Taxes Available
-                  </Text>
-                </View>
+    //                           }else{
+    //                               updatedSelectedUniqueTax = { ...updatedSelectedUniqueTax, [item?.taxType]: item };
+    //                               setSelectedUniqueTax({...updatedSelectedUniqueTax})
+    //                           }
+    //                       }
+    //                   }
+    //               }}
+    //               >
+    //               <View style={styles.modalRenderItem}>
+    //                 <View
+    //                   style={[styles.modalCheckBox,{ borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C'}]}>
+    //                   {selectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName && (
+    //                     <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
+    //                   )}
+    //                 </View>
+    //                 <Text
+    //                   style={styles.modalText}>
+    //                   {item.name}
+    //                 </Text>
+    //               </View>
+    //             </TouchableOpacity>
+    //           );
+    //         },
+    //         ListEmptyComponent: () => {
+    //           return (
+    //             <View style={styles.modalCancelView}>
+    //               <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Taxes Available
+    //               </Text>
+    //             </View>
   
-              );
-            }
-          }}
-        />
-    );
+    //           );
+    //         }
+    //       }}
+    //     />
+    // );
 
-    const RenderGroupModal = (
-        <BottomSheet
-        bottomSheetRef={groupModalRef}
-        headerText='Select Group'
-        headerTextColor='#084EAD'
-        adjustToContentHeight={false}
-        flatListProps={{
-            data: parentGroupArr,
-            renderItem: ({item}) => {
-            return (
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={() => {
-                    setSelectedGroup(item?.name)
-                    setSelectedGroupUniqueName(item?.uniqueName)
-                    setBottomSheetVisible(groupModalRef, false);
-                }}
-                >
-                <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={styles.radiobuttonText}
-                >
-                    {item?.name}
-                </Text>
-                </TouchableOpacity>
-            );
-            },
-            ListEmptyComponent: () => {
-            return (
-                <View style={styles.modalCancelView}>
-                <Text
-                    style={styles.modalCancelText}>
-                    No Group Available
-                </Text>
-                </View>
+    // const RenderGroupModal = (
+    //     <BottomSheet
+    //     bottomSheetRef={groupModalRef}
+    //     headerText='Select Group'
+    //     headerTextColor='#084EAD'
+    //     adjustToContentHeight={false}
+    //     flatListProps={{
+    //         data: parentGroupArr,
+    //         renderItem: ({item}) => {
+    //         return (
+    //             <TouchableOpacity 
+    //             style={styles.button}
+    //             onPress={() => {
+    //                 setSelectedGroup(item?.name)
+    //                 setSelectedGroupUniqueName(item?.uniqueName)
+    //                 setBottomSheetVisible(groupModalRef, false);
+    //             }}
+    //             >
+    //             <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+    //             <Text style={styles.radiobuttonText}
+    //             >
+    //                 {item?.name}
+    //             </Text>
+    //             </TouchableOpacity>
+    //         );
+    //         },
+    //         ListEmptyComponent: () => {
+    //         return (
+    //             <View style={styles.modalCancelView}>
+    //             <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Group Available
+    //             </Text>
+    //             </View>
 
-            );
-            }
-        }}
-        />
-    );
+    //         );
+    //         }
+    //     }}
+    //     />
+    // );
 
-    const RenderUnitGroupModal = (
-        <BottomSheet
-        bottomSheetRef={unitGroupModalRef}
-        headerText='Select Unit Group'
-        headerTextColor='#084EAD'
-        flatListProps={{
-            data: unitGroupArr,
-            renderItem: ({item}) => {
-            return (
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={() => {
-                    setSelectedUnitGroup(item?.name)
-                    setSelectedUnitGroupUniqueName(item?.uniqueName)
-                    setBottomSheetVisible(unitGroupModalRef, false);
-                    fetchUnitGroupMappingDebounce(item?.uniqueName)
-                }}
-                >
-                <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={styles.radiobuttonText}>
-                    {item?.name}
-                </Text>
-                </TouchableOpacity>
-            );
-            },
-            ListEmptyComponent: () => {
-            return (
-                <View style={styles.modalCancelView}>
-                <Text
-                    style={styles.modalCancelText}>
-                    No Group Available
-                </Text>
-                </View>
+    // const RenderUnitGroupModal = (
+    //     <BottomSheet
+    //     bottomSheetRef={unitGroupModalRef}
+    //     headerText='Select Unit Group'
+    //     headerTextColor='#084EAD'
+    //     flatListProps={{
+    //         data: unitGroupArr,
+    //         renderItem: ({item}) => {
+    //         return (
+    //             <TouchableOpacity 
+    //             style={styles.button}
+    //             onPress={() => {
+    //                 setSelectedUnitGroup(item?.name)
+    //                 setSelectedUnitGroupUniqueName(item?.uniqueName)
+    //                 setBottomSheetVisible(unitGroupModalRef, false);
+    //                 fetchUnitGroupMappingDebounce(item?.uniqueName)
+    //             }}
+    //             >
+    //             <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+    //             <Text style={styles.radiobuttonText}>
+    //                 {item?.name}
+    //             </Text>
+    //             </TouchableOpacity>
+    //         );
+    //         },
+    //         ListEmptyComponent: () => {
+    //         return (
+    //             <View style={styles.modalCancelView}>
+    //             <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Group Available
+    //             </Text>
+    //             </View>
 
-            );
-            }
-        }}
-        />
-    );
+    //         );
+    //         }
+    //     }}
+    //     />
+    // );
 
-    const RenderUnitMappingModal = (
-        <BottomSheet
-        bottomSheetRef={unitGroupMappingModalRef}
-        headerText='Select Unit Group'
-        headerTextColor='#084EAD'
-        flatListProps={{
-            data: unitGroupMapping,
-            renderItem: ({item}) => {
-            return (
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={() => {
-                    setUnit({
-                        code: item?.stockUnitX?.code, 
-                        name: item?.stockUnitX?.name, 
-                        uniqueName: item?.stockUnitX?.uniqueName
-                    });
-                    setBottomSheetVisible(unitGroupMappingModalRef, false);
-                    fetchLinkedUnitMapping(item?.stockUnitX?.uniqueName)
-                }}
-                >
-                <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={styles.radiobuttonText}>
-                    {item?.stockUnitX?.name} ({item?.stockUnitX?.code})
-                </Text>
-                </TouchableOpacity>
-            );
-            },
-            ListEmptyComponent: () => {
-            return (
-                <View style={styles.modalCancelView}>
-                <Text
-                    style={styles.modalCancelText}>
-                    No Unit Available
-                </Text>
-                </View>
+    // const RenderUnitMappingModal = (
+    //     <BottomSheet
+    //     bottomSheetRef={unitGroupMappingModalRef}
+    //     headerText='Select Unit Group'
+    //     headerTextColor='#084EAD'
+    //     flatListProps={{
+    //         data: unitGroupMapping,
+    //         renderItem: ({item}) => {
+    //         return (
+    //             <TouchableOpacity 
+    //             style={styles.button}
+    //             onPress={() => {
+    //                 setUnit({
+    //                     code: item?.stockUnitX?.code, 
+    //                     name: item?.stockUnitX?.name, 
+    //                     uniqueName: item?.stockUnitX?.uniqueName
+    //                 });
+    //                 setBottomSheetVisible(unitGroupMappingModalRef, false);
+    //                 fetchLinkedUnitMapping(item?.stockUnitX?.uniqueName)
+    //             }}
+    //             >
+    //             <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+    //             <Text style={styles.radiobuttonText}>
+    //                 {item?.stockUnitX?.name} ({item?.stockUnitX?.code})
+    //             </Text>
+    //             </TouchableOpacity>
+    //         );
+    //         },
+    //         ListEmptyComponent: () => {
+    //         return (
+    //             <View style={styles.modalCancelView}>
+    //             <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Unit Available
+    //             </Text>
+    //             </View>
 
-            );
-            }
-        }}
-        />
-    )
+    //         );
+    //         }
+    //     }}
+    //     />
+    // )
 
-    const RenderPurchaseSubUnitMappingModal = (
-        <BottomSheet
-        bottomSheetRef={purchaseSubUnitMappingModalRef}
-        headerText='Select Unit'
-        headerTextColor='#084EAD'
-        flatListProps={{
-            data: subUnits,
-            renderItem: ({item}) => {
-            return (
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={() => {
-                    setPurchaseSubUnits(item);
-                    setBottomSheetVisible(purchaseSubUnitMappingModalRef, false);
-                }}
-                >
-                {purchaseSubUnits?.uniqueName 
-                ? <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
+    // const RenderPurchaseSubUnitMappingModal = (
+    //     <BottomSheet
+    //     bottomSheetRef={purchaseSubUnitMappingModalRef}
+    //     headerText='Select Unit'
+    //     headerTextColor='#084EAD'
+    //     flatListProps={{
+    //         data: subUnits,
+    //         renderItem: ({item}) => {
+    //         return (
+    //             <TouchableOpacity 
+    //             style={styles.button}
+    //             onPress={() => {
+    //                 setPurchaseSubUnits(item);
+    //                 setBottomSheetVisible(purchaseSubUnitMappingModalRef, false);
+    //             }}
+    //             >
+    //             {purchaseSubUnits?.uniqueName 
+    //             ? <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+    //             : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
                 
-                <Text style={styles.radiobuttonText}>
-                    {item?.code}
-                </Text>
-                </TouchableOpacity>
-            );
-            },
-            ListEmptyComponent: () => {
-            return (
-                <View style={styles.modalCancelView}>
-                <Text
-                    style={styles.modalCancelText}>
-                    No Unit Available
-                </Text>
-                </View>
+    //             <Text style={styles.radiobuttonText}>
+    //                 {item?.code}
+    //             </Text>
+    //             </TouchableOpacity>
+    //         );
+    //         },
+    //         ListEmptyComponent: () => {
+    //         return (
+    //             <View style={styles.modalCancelView}>
+    //             <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Unit Available
+    //             </Text>
+    //             </View>
 
-            );
-            }
-        }}
-        />
-    )
+    //         );
+    //         }
+    //     }}
+    //     />
+    // )
 
-    const RenderSalesSubUnitMappingModal = (
-        <BottomSheet
-        bottomSheetRef={salesSubUnitMappingModalRef}
-        headerText='Select Unit'
-        headerTextColor='#084EAD'
-        flatListProps={{
-            data: subUnits,
-            renderItem: ({item}) => {
-            return (
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={() => {
-                    setSalesSubUnits(item);
-                    setBottomSheetVisible(salesSubUnitMappingModalRef, false);
-                }}
-                >
-                {salesSubUnits?.uniqueName ? <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                :<Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
-                <Text style={styles.radiobuttonText}>
-                    {item?.code}
-                </Text>
-                </TouchableOpacity>
-            );
-            },
-            ListEmptyComponent: () => {
-            return (
-                <View style={styles.modalCancelView}>
-                <Text
-                    style={styles.modalCancelText}>
-                    No Unit Available
-                </Text>
-                </View>
+    // const RenderSalesSubUnitMappingModal = (
+    //     <BottomSheet
+    //     bottomSheetRef={salesSubUnitMappingModalRef}
+    //     headerText='Select Unit'
+    //     headerTextColor='#084EAD'
+    //     flatListProps={{
+    //         data: subUnits,
+    //         renderItem: ({item}) => {
+    //         return (
+    //             <TouchableOpacity 
+    //             style={styles.button}
+    //             onPress={() => {
+    //                 setSalesSubUnits(item);
+    //                 setBottomSheetVisible(salesSubUnitMappingModalRef, false);
+    //             }}
+    //             >
+    //             {salesSubUnits?.uniqueName ? <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+    //             :<Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
+    //             <Text style={styles.radiobuttonText}>
+    //                 {item?.code}
+    //             </Text>
+    //             </TouchableOpacity>
+    //         );
+    //         },
+    //         ListEmptyComponent: () => {
+    //         return (
+    //             <View style={styles.modalCancelView}>
+    //             <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Unit Available
+    //             </Text>
+    //             </View>
 
-            );
-            }
-        }}
-        />
-    )
+    //         );
+    //         }
+    //     }}
+    //     />
+    // )
 
-    const RenderSalesAccModal = (
-        <BottomSheet
-        bottomSheetRef={salesAccModalRef}
-        headerText='Select Unit'
-        headerTextColor='#084EAD'
-        adjustToContentHeight={false}
-        flatListProps={{
-            data: salesAccountArr,
-            renderItem: ({item}) => {
-            return (
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={() => {
-                    setSalesAccount(item);
-                    setBottomSheetVisible(salesAccModalRef, false);
-                }}
-                >
-                <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={styles.radiobuttonText}>
-                    {item?.name}
-                </Text>
-                </TouchableOpacity>
-            );
-            },
-            ListEmptyComponent: () => {
-            return (
-                <View style={styles.modalCancelView}>
-                <Text
-                    style={styles.modalCancelText}>
-                    No Accounts Available
-                </Text>
-                </View>
+    // const RenderSalesAccModal = (
+    //     <BottomSheet
+    //     bottomSheetRef={salesAccModalRef}
+    //     headerText='Select Unit'
+    //     headerTextColor='#084EAD'
+    //     adjustToContentHeight={false}
+    //     flatListProps={{
+    //         data: salesAccountArr,
+    //         renderItem: ({item}) => {
+    //         return (
+    //             <TouchableOpacity 
+    //             style={styles.button}
+    //             onPress={() => {
+    //                 setSalesAccount(item);
+    //                 setBottomSheetVisible(salesAccModalRef, false);
+    //             }}
+    //             >
+    //             <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+    //             <Text style={styles.radiobuttonText}>
+    //                 {item?.name}
+    //             </Text>
+    //             </TouchableOpacity>
+    //         );
+    //         },
+    //         ListEmptyComponent: () => {
+    //         return (
+    //             <View style={styles.modalCancelView}>
+    //             <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Accounts Available
+    //             </Text>
+    //             </View>
 
-            );
-            }
-        }}
-        />
-    )
+    //         );
+    //         }
+    //     }}
+    //     />
+    // )
 
-    const RenderPurchaseAccModal = (
-        <BottomSheet
-        bottomSheetRef={purchaseAccModalRef}
-        headerText='Select Unit'
-        headerTextColor='#084EAD'
-        flatListProps={{
-            data: purchaseAccountArr,
-            renderItem: ({item}) => {
-            return (
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={() => {
-                    setPurchaseAccount(item);
-                    setBottomSheetVisible(purchaseAccModalRef, false);
-                }}
-                >
-                <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                <Text style={styles.radiobuttonText}>
-                    {item?.name}
-                </Text>
-                </TouchableOpacity>
-            );
-            },
-            ListEmptyComponent: () => {
-            return (
-                <View style={styles.modalCancelView}>
-                <Text
-                    style={styles.modalCancelText}>
-                    No Accounts Available
-                </Text>
-                </View>
+    // const RenderPurchaseAccModal = (
+    //     <BottomSheet
+    //     bottomSheetRef={purchaseAccModalRef}
+    //     headerText='Select Unit'
+    //     headerTextColor='#084EAD'
+    //     flatListProps={{
+    //         data: purchaseAccountArr,
+    //         renderItem: ({item}) => {
+    //         return (
+    //             <TouchableOpacity 
+    //             style={styles.button}
+    //             onPress={() => {
+    //                 setPurchaseAccount(item);
+    //                 setBottomSheetVisible(purchaseAccModalRef, false);
+    //             }}
+    //             >
+    //             <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+    //             <Text style={styles.radiobuttonText}>
+    //                 {item?.name}
+    //             </Text>
+    //             </TouchableOpacity>
+    //         );
+    //         },
+    //         ListEmptyComponent: () => {
+    //         return (
+    //             <View style={styles.modalCancelView}>
+    //             <Text
+    //                 style={styles.modalCancelText}>
+    //                 No Accounts Available
+    //             </Text>
+    //             </View>
 
-            );
-            }
-        }}
-        />
-    )
+    //         );
+    //         }
+    //     }}
+    //     />
+    // )
 
 
     const successBox = (
@@ -1029,9 +1029,40 @@ const ProductScreen = ()=>{
                         allData={otherDataRef}
                         clearAll={clearAll}
                     />
-                    <RenderUnitGroup key={childKeys.key2} unit ={unit} unitGroupName={selectedUnitGroup} unitGroupModalRef={unitGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} unitGroupMappingModalRef={unitGroupMappingModalRef}/>
-                    <RenderTaxes key={childKeys.key3} selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
-                    <RenderGroups key={childKeys.key4} groupName={selectedGroup} groupModalRef={groupModalRef} setBottomSheetVisible={setBottomSheetVisible} fetchAllParentGroup={fetchAllParentGroup} />
+                    <RenderUnitGroup 
+                        key={childKeys.key2} 
+                        unit ={unit} 
+                        unitGroupName={selectedUnitGroup} 
+                        unitGroupModalRef={unitGroupModalRef} 
+                        setBottomSheetVisible={setBottomSheetVisible} 
+                        unitGroupMappingModalRef={unitGroupMappingModalRef} 
+                        unitGroupArr={unitGroupArr} 
+                        setSelectedUnitGroup={setSelectedUnitGroup} 
+                        setSelectedUnitGroupUniqueName={setSelectedUnitGroupUniqueName} 
+                        fetchUnitGroupMappingDebounce={fetchUnitGroupMappingDebounce} 
+                        selectedUnitGroup={selectedUnitGroup} 
+                        unitGroupMapping={unitGroupMapping}
+                        setUnit={setUnit}
+                        fetchLinkedUnitMapping={fetchLinkedUnitMapping}/>
+                    <RenderTaxes 
+                        key={childKeys.key3} 
+                        selectedUniqueTax={selectedUniqueTax} 
+                        taxModalRef={taxModalRef} 
+                        setBottomSheetVisible={setBottomSheetVisible} 
+                        taxArr={taxArr} 
+                        setSelectedUniqueTax={setSelectedUniqueTax}
+                    />
+                    <RenderGroups 
+                        key={childKeys.key4} 
+                        groupName={selectedGroup}
+                        groupModalRef={groupModalRef} 
+                        setBottomSheetVisible={setBottomSheetVisible} 
+                        fetchAllParentGroup={fetchAllParentGroup} 
+                        parentGroupArr={parentGroupArr}
+                        setSelectedGroup={setSelectedGroup} 
+                        setSelectedGroupUniqueName={setSelectedGroupUniqueName} 
+                        selectedGroup={selectedGroup}
+                    />
                     <RenderLinkedAcc 
                         key={childKeys.key5}
                         unit={unit} 
@@ -1046,6 +1077,13 @@ const ProductScreen = ()=>{
                         salesAccount={salesAccount}
                         handleRateChange={handleInputChange}
                         variantsChecked={variantsChecked}
+                        setPurchaseSubUnits={setPurchaseSubUnits}
+                        setSalesSubUnits={setSalesSubUnits}
+                        subUnits={subUnits}
+                        salesAccountArr={salesAccountArr}
+                        purchaseAccountArr={purchaseAccountArr}
+                        setPurchaseAccount={setPurchaseAccount}
+                        setSalesAccount={setSalesAccount}
                     />
                     <RenderVariants 
                         key={childKeys.key7} 
@@ -1058,19 +1096,25 @@ const ProductScreen = ()=>{
                         salesAccount={salesAccount}
                         variantCustomFields={variantCustomFields}
                     />
-                    <RenderOtherInfo key={childKeys.key6} handleInputChange={handleInputChange} variantsChecked={variantsChecked} variantCustomFields={variantCustomFields} globalData={otherDataRef?.current}/>
+                    <RenderOtherInfo 
+                        key={childKeys.key6} 
+                        handleInputChange={handleInputChange} 
+                        variantsChecked={variantsChecked} 
+                        variantCustomFields={variantCustomFields} 
+                        globalData={otherDataRef?.current}
+                    />
                     {CreateButton}
                 </Animated.ScrollView>
             </View>
             <Loader isLoading={isLoading}/>
-            {RenderTaxModal}
-            {RenderGroupModal}
-            {RenderUnitGroupModal}
-            {RenderUnitMappingModal}
-            {RenderPurchaseSubUnitMappingModal}
-            {RenderSalesSubUnitMappingModal}
-            {RenderSalesAccModal}
-            {RenderPurchaseAccModal}
+            {/* {RenderTaxModal} */}
+            {/* {RenderGroupModal} */}
+            {/* {RenderUnitGroupModal} */}
+            {/* {RenderUnitMappingModal} */}
+            {/* {RenderPurchaseSubUnitMappingModal} */}
+            {/* {RenderSalesSubUnitMappingModal} */}
+            {/* {RenderSalesAccModal} */}
+            {/* {RenderPurchaseAccModal} */}
             {successBox}
             {failureBox}
         </SafeAreaView>

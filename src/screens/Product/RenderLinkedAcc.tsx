@@ -21,7 +21,14 @@ const RenderLinkedAcc = ({
         // setPurchaseRate,
         // setSalesRate,
         handleRateChange,
-        variantsChecked
+        variantsChecked,
+        setPurchaseSubUnits,
+        setSalesSubUnits,
+        subUnits,
+        salesAccountArr,
+        purchaseAccountArr,
+        setPurchaseAccount,
+        setSalesAccount
         // setPurchaseRadioBtn,
         // setSalesRadioBtn,
         // purchaseRadioBtn,
@@ -71,6 +78,11 @@ const RenderLinkedAcc = ({
                         // setRate={setPurchaseRate}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
+                        setSubUnits={setPurchaseSubUnits}
+                        unit={unit}
+                        subUnitData={subUnits}
+                        accountData={purchaseAccountArr}
+                        setAccount={setPurchaseAccount}
                         // setRadioBtn={setPurchaseRadioBtn}
                         // radioBtn={purchaseRadioBtn}
                     />
@@ -86,6 +98,11 @@ const RenderLinkedAcc = ({
                         // setRate={setSalesRate}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
+                        setSubUnits={setSalesSubUnits}
+                        unit={unit}
+                        subUnitData={subUnits}
+                        accountData={salesAccountArr}
+                        setAccount={setSalesAccount}
                         // setRadioBtn={setSalesRadioBtn}
                         // radioBtn={salesRadioBtn}
                     />

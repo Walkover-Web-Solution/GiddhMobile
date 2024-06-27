@@ -3,6 +3,8 @@ import { Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-nat
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
 import makeStyle from './style';
 import useCustomTheme from "@/utils/theme";
+import BottomSheet from "@/components/BottomSheet";
+import Icon from '@/core/components/custom-icon/custom-icon';
 
 const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
@@ -22,7 +24,12 @@ const GeneralLinkedAccComponent = ({
     selectedAccount,
     // setRate,
     handleRateChange,
-    variantsChecked
+    variantsChecked,
+    setSubUnits,
+    unit,
+    subUnitData,
+    accountData,
+    setAccount
     // setRadioBtn,
     // radioBtn=1
     // onUnitPress
@@ -33,7 +40,89 @@ const GeneralLinkedAccComponent = ({
         { label: 'Exclusive', value: 1 }
       ];
     const {theme,styles} = useCustomTheme(makeStyle);
+
+    const RenderSubUnitMappingModal = (
+        <BottomSheet
+        bottomSheetRef={unitModalRef}
+        headerText='Select Unit'
+        headerTextColor='#084EAD'
+        flatListProps={{
+            data: subUnitData,
+            renderItem: ({item}) => {
+            return (
+                <TouchableOpacity 
+                style={styles.button}
+                onPress={() => {
+                    setSubUnits(item);
+                    setBottomSheetVisible(unitModalRef, false);
+                }}
+                >
+                {subUnits?.uniqueName 
+                ? <Icon name={subUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
+                
+                <Text style={styles.radiobuttonText}>
+                    {item?.code}
+                </Text>
+                </TouchableOpacity>
+            );
+            },
+            ListEmptyComponent: () => {
+            return (
+                <View style={styles.modalCancelView}>
+                <Text
+                    style={styles.modalCancelText}>
+                    No Unit Available
+                </Text>
+                </View>
+
+            );
+            }
+        }}
+        />
+    )
+
+    const RenderAccountModal = (
+        <BottomSheet
+        bottomSheetRef={accountModalRef}
+        headerText='Select Unit'
+        headerTextColor='#084EAD'
+        adjustToContentHeight={false}
+        flatListProps={{
+            data: accountData,
+            renderItem: ({item}) => {
+            return (
+                <TouchableOpacity 
+                style={styles.button}
+                onPress={() => {
+                    setAccount(item);
+                    setBottomSheetVisible(accountModalRef, false);
+                }}
+                >
+                <Icon name={selectedAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                <Text style={styles.radiobuttonText}>
+                    {item?.name}
+                </Text>
+                </TouchableOpacity>
+            );
+            },
+            ListEmptyComponent: () => {
+            return (
+                <View style={styles.modalCancelView}>
+                <Text
+                    style={styles.modalCancelText}>
+                    No Accounts Available
+                </Text>
+                </View>
+
+            );
+            }
+        }}
+        />
+    )
+
     return (
+        <>
         <View style={styles.linkedAccContainer}>
             <View>
                 <View style={[styles.inputRow,,{marginBottom:10}]}>
@@ -141,6 +230,9 @@ const GeneralLinkedAccComponent = ({
                 </View>
             </View>}   
         </View>
+        {RenderSubUnitMappingModal}
+        {RenderAccountModal}
+        </>
     )
 }
 

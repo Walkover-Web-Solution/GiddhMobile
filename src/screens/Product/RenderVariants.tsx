@@ -75,7 +75,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         handleGlobalInputChange('variants',allVariantsObjects);
         
         setVariantCombination(combinations);
-    },[optionIds])
+    },[optionIds,optionAndDataMapping,unit])
 
     useEffect(()=>{
         if(optionCount == 0 ){
