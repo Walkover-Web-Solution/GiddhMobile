@@ -391,6 +391,7 @@ const ProductScreen = ()=>{
           bottomSheetRef={taxModalRef}
           headerText='Select Taxes'
           headerTextColor='#084EAD'
+          adjustToContentHeight={((taxArr.length*47) > (height-100)) ?false : true}
           flatListProps={{
             data: taxArr,
             renderItem: ({item}) => {
@@ -456,7 +457,8 @@ const ProductScreen = ()=>{
         bottomSheetRef={groupModalRef}
         headerText='Select Group'
         headerTextColor='#084EAD'
-        adjustToContentHeight={false}
+        // adjustToContentHeight={false}
+        adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: parentGroupArr,
             renderItem: ({item}) => {
@@ -497,6 +499,7 @@ const ProductScreen = ()=>{
         bottomSheetRef={unitGroupModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
+        adjustToContentHeight={((unitGroupArr.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: unitGroupArr,
             renderItem: ({item}) => {
@@ -506,6 +509,11 @@ const ProductScreen = ()=>{
                 onPress={() => {
                     setSelectedUnitGroup(item?.name)
                     setSelectedUnitGroupUniqueName(item?.uniqueName)
+                    setUnit({
+                        code: "", 
+                        name: "", 
+                        uniqueName: ""
+                    });
                     setBottomSheetVisible(unitGroupModalRef, false);
                     fetchUnitGroupMappingDebounce(item?.uniqueName)
                 }}
@@ -537,6 +545,7 @@ const ProductScreen = ()=>{
         bottomSheetRef={unitGroupMappingModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
+        adjustToContentHeight={((unitGroupMapping.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: unitGroupMapping,
             renderItem: ({item}) => {
@@ -580,6 +589,7 @@ const ProductScreen = ()=>{
         bottomSheetRef={purchaseSubUnitMappingModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
+        adjustToContentHeight={((subUnits.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: subUnits,
             renderItem: ({item}) => {
@@ -621,6 +631,7 @@ const ProductScreen = ()=>{
         bottomSheetRef={salesSubUnitMappingModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
+        adjustToContentHeight={((subUnits.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: subUnits,
             renderItem: ({item}) => {
@@ -660,7 +671,8 @@ const ProductScreen = ()=>{
         bottomSheetRef={salesAccModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        adjustToContentHeight={false}
+        // adjustToContentHeight={false}
+        adjustToContentHeight={((salesAccountArr.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: salesAccountArr,
             renderItem: ({item}) => {
@@ -699,6 +711,8 @@ const ProductScreen = ()=>{
         bottomSheetRef={purchaseAccModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
+        // adjustToContentHeight={false}
+        adjustToContentHeight={((purchaseAccountArr.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: purchaseAccountArr,
             renderItem: ({item}) => {
