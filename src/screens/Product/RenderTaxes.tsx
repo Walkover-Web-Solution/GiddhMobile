@@ -16,6 +16,7 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr
           bottomSheetRef={taxModalRef}
           headerText='Select Taxes'
           headerTextColor='#084EAD'
+          adjustToContentHeight={((taxArr.length*47) > (height-100)) ? false : true}
           flatListProps={{
             data: taxArr,
             renderItem: ({item}) => {
@@ -87,7 +88,7 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr
 
         <View style={styles.taxView}>
         <View style={styles.rowView}>
-            <TouchableOpacity style={{flexDirection: 'row'}}
+          <TouchableOpacity style={{flexDirection: 'row'}}
             onPress={()=>{
                 setBottomSheetVisible(taxModalRef,true);
             }}
@@ -107,34 +108,7 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr
                 : <Text style={{color:'#868686'}}>Tax</Text>}
                 </View>
             </View>
-            </TouchableOpacity>
-            {/* <TouchableOpacity
-            style={{flexDirection: 'row'}}
-            //   onPress={() => {
-            //     if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-            //       this.setBottomSheetVisible(this.paymentModalRef, true);
-            //     } else {
-            //       alert('Please select a party.');
-            //     }
-            //   }}
-            textColor={{color}}>
-            <View
-                style={[
-                style.buttonWrapper,
-                {marginLeft: 20,width:150},
-                {borderColor: false ? '#00B795' : '#d9d9d9'},
-                ]}>
-                <Text
-                style={[
-                    style.buttonText,
-                    {
-                    color: false ? '#00B795' : '#868686',
-                    },
-                ]}>
-                    Select Group
-                </Text>
-            </View>
-            </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
         </View>
     </View>

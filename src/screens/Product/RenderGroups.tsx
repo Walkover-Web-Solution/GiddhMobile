@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import makeStyle from "./style";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import colors from "@/utils/colors";
@@ -8,12 +8,14 @@ import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';
 const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup,parentGroupArr,setSelectedGroup,setSelectedGroupUniqueName,selectedGroup})=>{
   const {theme,styles} = useCustomTheme(makeStyle);
+  const {height,width} = Dimensions.get('window');
 
   const RenderGroupModal = (
     <BottomSheet
     bottomSheetRef={groupModalRef}
     headerText='Select Group'
     headerTextColor='#084EAD'
+    adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
     // adjustToContentHeight={false}
     flatListProps={{
         data: parentGroupArr,
@@ -22,9 +24,9 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
             <TouchableOpacity 
             style={styles.button}
             onPress={() => {
-                setSelectedGroup(item?.name)
-                setSelectedGroupUniqueName(item?.uniqueName)
-                setBottomSheetVisible(groupModalRef, false);
+              setSelectedGroup(item?.name)
+              setSelectedGroupUniqueName(item?.uniqueName)
+              setBottomSheetVisible(groupModalRef, false);
             }}
             >
             <Icons name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />

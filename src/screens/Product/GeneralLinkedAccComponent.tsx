@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
 import makeStyle from './style';
 import useCustomTheme from "@/utils/theme";
@@ -40,12 +40,14 @@ const GeneralLinkedAccComponent = ({
         { label: 'Exclusive', value: 1 }
       ];
     const {theme,styles} = useCustomTheme(makeStyle);
+    const {height,width} = Dimensions.get('window')
 
     const RenderSubUnitMappingModal = (
         <BottomSheet
         bottomSheetRef={unitModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
+        adjustToContentHeight={((subUnitData.length*47) > (height-100)) ? false : true}
         flatListProps={{
             data: subUnitData,
             renderItem: ({item}) => {
@@ -87,7 +89,8 @@ const GeneralLinkedAccComponent = ({
         bottomSheetRef={accountModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        adjustToContentHeight={false}
+        // adjustToContentHeight={false}
+        adjustToContentHeight={((accountData.length*47) > (height-100)) ? false : true}
         flatListProps={{
             data: accountData,
             renderItem: ({item}) => {
@@ -203,17 +206,12 @@ const GeneralLinkedAccComponent = ({
                         linkedAccountText === "Linked Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                     }}
                     placeholderTextColor={'rgba(80,80,80,0.5)'}
-                    // value={this.state.openingBalance}
                     placeholder="Rate"
                     style={[styles.rowContainer, styles.buttonWrapper,styles.linkedModalBtn ]} />
                 <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? '#084EAD' : '#d9d9d9'}]}>
                     <TouchableOpacity
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
-                            // this.setState({
-                            // isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
-                            // filteredCurrencyData: this.state.allCurrency,
-                            // })
                         }} style={{ flex: 1 }}>
                         
                         {subUnits?.uniqueName ? ( 

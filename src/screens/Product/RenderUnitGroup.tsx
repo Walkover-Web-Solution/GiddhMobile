@@ -23,13 +23,14 @@ const RenderUnitGroup = ({
     fetchLinkedUnitMapping
     })=>{
     const {theme,styles} = useCustomTheme(makeStyles);
+    const {height, width} = Dimensions.get('window')
 
     const RenderUnitMappingModal = (
         <BottomSheet
         bottomSheetRef={unitGroupMappingModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
-        adjustToContentHeight={false}
+        adjustToContentHeight={((unitGroupMapping.length*47) > (height-100)) ? false : true}
         flatListProps={{
             data: unitGroupMapping,
             renderItem: ({item}) => {
@@ -73,6 +74,7 @@ const RenderUnitGroup = ({
         bottomSheetRef={unitGroupModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
+        adjustToContentHeight={((unitGroupArr.length*47) > (height-100)) ? false : true}
         flatListProps={{
             data: unitGroupArr,
             renderItem: ({item}) => {
@@ -82,6 +84,11 @@ const RenderUnitGroup = ({
                 onPress={() => {
                     setSelectedUnitGroup(item?.name)
                     setSelectedUnitGroupUniqueName(item?.uniqueName)
+                    setUnit({
+                        code: "", 
+                        name: "", 
+                        uniqueName: ""
+                    });
                     setBottomSheetVisible(unitGroupModalRef, false);
                     fetchUnitGroupMappingDebounce(item?.uniqueName)
                 }}
@@ -122,16 +129,6 @@ const RenderUnitGroup = ({
                 onPress={()=>{
                     setBottomSheetVisible(unitGroupModalRef,true);
                 }}
-            // onPress={() => {
-            //     if (!this.state.partyName) {
-            //     alert('Please select a party.');
-            //     } else if (this.state.amountForReceipt == '') {
-            //     alert('Please enter amount.');
-            //     } else {
-            //     this.setState({showClearanceDatePicker: true});
-            //     this.setState({isClearanceDateSelelected: true});
-            //     }
-            // }}>
             >
             <View
                 style={[
@@ -153,19 +150,9 @@ const RenderUnitGroup = ({
             </TouchableOpacity>
 
             <TouchableOpacity
-            onPress={()=>{
-                setBottomSheetVisible(unitGroupMappingModalRef,true)
-            }}
-            // onPress={() => {
-            //     if (!this.state.partyName) {
-            //     alert('Please select a party.');
-            //     } else if (this.state.amountForReceipt == '') {
-            //     alert('Please enter amount.');
-            //     } else {
-            //     this.setState({showClearanceDatePicker: true});
-            //     this.setState({isClearanceDateSelelected: true});
-            //     }
-            // }}>
+                onPress={()=>{
+                    setBottomSheetVisible(unitGroupMappingModalRef,true)
+                }}
             >
             <View
                 style={[
