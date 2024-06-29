@@ -40,7 +40,7 @@ const ProductGroupScreen = ()=>{
     const taxModalRef = useRef(null);
     const childGroupModalRef = useRef(null);
     const [taxArr,setTaxArr] = useState([]);
-    const [parentGroupArr,setParentGroupArr] = useState([]);
+    const [parentGroupArr,setParentGroupArr]:any[] = useState([]);
     const [selectedUniqueTax, setSelectedUniqueTax]:any = useState({});
     const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, 'Group');
     const {height, width} = Dimensions.get('window');
@@ -61,6 +61,22 @@ const ProductGroupScreen = ()=>{
           modalRef?.current?.close();
         }
       };
+
+    const flattenStockGroups = (stockGroups:any[]):any[] => {
+      const result:any = [];
+      const flatten = (groups) => {
+        groups.forEach(group => {
+          result.push(group);
+          if (group.childStockGroups && group.childStockGroups.length > 0) {
+            flatten(group.childStockGroups);
+          }
+        });
+      };
+    
+      flatten(stockGroups);
+      return result;
+    };
+      
     const fetchAllTaxes = async () => {
         const result = await InventoryService.fetchAllTaxes();
         if(result?.data && result?.data?.status == 'success'){
@@ -71,7 +87,9 @@ const ProductGroupScreen = ()=>{
     const fetchAllParentGroup = async () => {
         const result = await InventoryService.fetchAllParentGroup();
         if(result?.data && result?.data?.status == 'success'){
-          setParentGroupArr(result?.data?.body?.results);
+          const flattenParentGroupArr = flattenStockGroups(result?.data?.body?.results)
+          setParentGroupArr(flattenParentGroupArr);
+          
         }
     }
 
@@ -85,12 +103,15 @@ const ProductGroupScreen = ()=>{
         hsnNumber : selectedCode === 'hsn' ? codeNumber : null,
         isSubGroup : isChecked,
         name : groupName, 
-        parentStockGroupUniqueName : selectedGroupUniqueName,
+        parentStockGroupUniqueName : isChecked ? selectedGroupUniqueName: "",
         sacNumber : selectedCode === 'sac' ? codeNumber : null,
         showCodeType : selectedCode,
         taxes : taxesArr,
         type : "PRODUCT",
         uniqueName : groupUniqueName
+      }
+      if(!payload?.isSubGroup){
+        delete payload?.parentStockGroupUniqueName
       }
       const result = await InventoryService.createStockGroup(payload);
       if(result?.data && result?.data?.status == 'success'){
