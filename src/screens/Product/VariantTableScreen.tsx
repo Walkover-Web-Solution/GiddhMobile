@@ -36,7 +36,9 @@ const VariantTableScreen = ({route})=>{
         const updatedObj = [...globalData?.variants]
         const tempUnitRates = updatedObj?.[boxIndex]?.unitRates?.filter((item)=>item?.accountUniqueName !== purchaseAccount?.uniqueName);
         tempUnitRates.push({
-            rate: null,
+            rate: globalData?.variants?.[boxIndex]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.rate 
+                ? globalData?.variants?.[boxIndex]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.rate
+                : null,
             stockUnitName: unit?.code ,
             stockUnitUniqueName: unit?.uniqueName,
             accountUniqueName: purchaseAccount?.uniqueName
@@ -56,7 +58,9 @@ const VariantTableScreen = ({route})=>{
         const updatedObj = [...globalData?.variants]
         const tempUnitRates = updatedObj?.[boxIndex]?.unitRates?.filter((item)=>item?.accountUniqueName !== salesAccount?.uniqueName);
         tempUnitRates.push({
-            rate: null,
+            rate: globalData?.variants?.[boxIndex]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.rate 
+                ? globalData?.variants?.[boxIndex]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.rate
+                : null ,
             stockUnitName: unit?.code ,
             stockUnitUniqueName: unit?.uniqueName,
             accountUniqueName: salesAccount?.uniqueName
@@ -197,12 +201,12 @@ const VariantTableScreen = ({route})=>{
                         handleUnitSelect({...item},'variantUnit')
                     }}
                     >
-                        {/* {
+                        {
                         globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.warehouseBalance?.[0]?.stockUnit?.uniqueName 
                             ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.warehouseBalance?.[0]?.stockUnit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                             : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                        } */}
-                        <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                        }
+                        {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -239,12 +243,12 @@ const VariantTableScreen = ({route})=>{
                         handleUnitSelect({...item},'variantPurchaseUnit')
                     }}
                     >
-                    {/* {
+                    {
                         globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.stockUnitUniqueName 
                         ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.stockUnitUniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                         : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                    } */}
-                    <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                    }
+                    {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -281,12 +285,12 @@ const VariantTableScreen = ({route})=>{
                         handleUnitSelect({...item},'variantSalesUnit')
                     }}
                     >
-                    {/* {
+                    {
                     globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.stockUnitName 
                     ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.stockUnitUniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                     : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-                    } */}
-                    <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                    }
+                    {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>

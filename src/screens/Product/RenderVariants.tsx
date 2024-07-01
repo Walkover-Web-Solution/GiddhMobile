@@ -1,7 +1,7 @@
 import { FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useEffect, useState } from "react";
-import { Dimensions, Pressable, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Alert, Dimensions, Pressable, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -240,14 +240,16 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
 
 
     const RenderEditOptionFields = ({fields,optionName,setFields,setOptionIds,optionIds,setOptionAndDataMapping,optionAndDataMapping,setAddOption,setEditingOptionId})=>{
-        const [localFields, setLocalFields] = useState(fields);
+        const [localFields, setLocalFields] = useState([...fields,{ id: Date.now(), value: '' }]);
         const [localOptionName,setLocalOptionName] = useState(optionName);
         const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
         useEffect(() => {
-            setLocalFields(fields);
-          }, [fields]);
+            if (localFields.length === 0 || localFields[localFields.length - 1].value !== '') {
+                setLocalFields([...localFields, { id: Date.now(), value: '' }]);
+            }
+          }, [localFields]);
 
-          const handleUniqueName = (optionname) =>{
+        const handleUniqueName = (optionname) =>{
             setLocalOptionName(optionname);
             if(typingTimeout){
                 clearTimeout(typingTimeout);
@@ -273,7 +275,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     ToastAndroid.show("Duplicate Value, This value already exists.",ToastAndroid.LONG);
                     setLocalFields(localFields.map(field => field.id === id ? { ...field, value: '' } : field));
                 }
-            }, 1000));
+            }, 500));
             
         };
 
@@ -285,6 +287,27 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             }
 
         };
+
+        const updateGlobalOptions = () => {
+            const removedEmptyFields = localFields.filter((item)=>item.value !== "");
+            let valuesName :string[] = [];
+            removedEmptyFields.map((item)=>{
+                valuesName.push(item?.value);
+            })
+            const optionObj = globalData?.options
+            const updatedOptionObj = optionObj.map(item =>{
+                if(item?.name === optionName){
+                    return {
+                        ...item,
+                        name:localOptionName,
+                        values: valuesName
+                    }
+                }else{
+                    return item
+                }
+            })
+            handleGlobalInputChange('options',updatedOptionObj);
+        }
 
         const handleSave = () => {
             const removedEmptyFields = localFields?.filter((item)=>item.value!== "");
@@ -317,11 +340,12 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 tempMapping[optionName] = removedEmptyFields;
                 setOptionAndDataMapping(tempMapping);
             }
+            updateGlobalOptions();
             setAddOption(false);
             setFields([{ id: Date.now(), value: '' }])
             setEditingOptionId(null);
-
         };
+        
         return (
             <View style={{padding:15, maxHeight:580*localFields?.length}}>
                 <View style={styles.inputRow}>
@@ -335,13 +359,28 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         value={localOptionName}
                         style={[styles.buttonWrapper ,styles.inputView ]} 
                     />
-                    <TouchableOpacity style={{padding:10}} onPress={() =>{handleDeleteOption(optionName)}} >
+                    <TouchableOpacity style={{padding:10}} 
+                    onPress={() =>{
+                        Alert.alert(
+                        'Confirmation',
+                        'Deleting the option will also remove all the variants of the option. Do you still want to delete the option?',
+                        [
+                        {
+                            text: 'No',
+                            style: 'cancel'
+                        },
+                        {
+                            text: 'Yes',
+                            onPress: () => handleDeleteOption(optionName)
+                        }
+                        ])}
+                    }>
                         <MaterialIcons name={'delete'} size={20} color={'#808080'} />
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.optionTitle} >Option Values</Text> 
                 {localFields?.map((field, index) => (
-                    <View key={localFields.value} style={styles.inputRow}>
+                    <View key={index} style={styles.inputRow}>
                         <TextInput
                             value={field.value}
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
@@ -358,14 +397,14 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     </View>
                 ))}  
                 <TouchableOpacity
-                style={styles.doneBtn}
-                onPress={handleSave}
-                >
-                <Text
-                style={styles.doneBtnText}>
-                Done
-                </Text>
-            </TouchableOpacity>
+                    style={styles.doneBtn}
+                    onPress={handleSave}
+                    >
+                    <Text
+                    style={styles.doneBtnText}>
+                    Done
+                    </Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -377,7 +416,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             // renderRightActions={()=>renderRightAction(optionName)}
             // renderLeftActions={()=>renderLeftAction(optionName)}
             // >
-            <View style={styles.optionCardContainer}>
+            <Pressable style={styles.optionCardContainer} onPress={()=>setShowDropDown(!showDropDown)}>
                 <View style={styles.inputRow}> 
                     <Text style={styles.optionHeadingText}>{optionName}</Text>
                     <Pressable style={{padding:10}} onPress={() => {
@@ -397,7 +436,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     {fields?.map((item)=><TouchableOpacity onPress={()=>handleEditOptoins(optionName)} key={item?.id} style={styles.variantCardText} ><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>{item?.value}</Text></TouchableOpacity>
                     )}
                 </View>}
-            </View>
+            </Pressable>
             // </Swipeable>
         );
     }
@@ -473,7 +512,25 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                                 placeholder="Option Name"
                                 style={[styles.buttonWrapper, styles.inputView] } 
                             />
-                            <TouchableOpacity style={{padding:10}} onPress={() =>{setAddOption(false) ,setOptionCount(optionCount-1)}} >
+                            <TouchableOpacity style={{padding:10}} onPress={() =>{
+                                Alert.alert(
+                                'Confirmation',
+                                'Deleting the option will also remove all the variants of the option. Do you still want to delete the option?',
+                                [
+                                {
+                                    text: 'No',
+                                    style: 'cancel'
+                                },
+                                {
+                                    text: 'Yes',
+                                    onPress: () => {
+                                        setAddOption(false) ,
+                                        setOptionCount(optionCount-1),
+                                        setFields([{ id: Date.now(), value: '' }])
+                                    }
+                                }
+                                ]
+                            )}} >
                                 <MaterialIcons name={'delete'} size={20} color={'#808080'} />
                             </TouchableOpacity>
                         </View>
