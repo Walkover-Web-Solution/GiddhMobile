@@ -70,7 +70,7 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
                 styles.modalBtn,
                 {borderColor: unit.uniqueName.length ? '#084EAD' : '#d9d9d9'},
                 ]}>
-                { unit.uniqueName.length > 0 ? ( 
+                { unit?.uniqueName?.length > 0 ? ( 
                 <Text style={[styles.buttonText, { color: '#084EAD' }]}>
                     {unit?.name} ({unit?.code})
                 </Text>

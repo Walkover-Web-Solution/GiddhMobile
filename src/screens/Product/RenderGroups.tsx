@@ -30,7 +30,7 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
                   {borderColor: groupName.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
                 ]}>
                 <Text style={[styles.buttonText,{ color:'#868686'}]}>
-                  {groupName.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
+                  {groupName?.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
                 </Text>
               </View>
             </TouchableOpacity>
