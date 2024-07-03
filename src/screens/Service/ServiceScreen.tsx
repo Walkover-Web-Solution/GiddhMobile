@@ -740,7 +740,7 @@ const ServiceScreen = ()=>{
             visible={successDialog} onBackdropPress={() => setSuccessDialog(false)} contentStyle={styles.dialogContainer}>
             <Award />
             <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>Success</Text>
-            <Text style={styles.dialogMessage}>Stock Group created successfully.</Text>
+            <Text style={styles.dialogMessage}>Stock created successfully.</Text>
             <TouchableOpacity
               style={[styles.dialogBtn,{backgroundColor: '#229F5F'}]}
               onPress={() => {
@@ -846,7 +846,7 @@ const ServiceScreen = ()=>{
         );
           
         const payload = {
-            type: "PRODUCT",
+            type: "SERVICE",
             name: otherDataRef?.current?.name,
             uniqueName: otherDataRef?.current?.uniqueName ? otherDataRef?.current?.uniqueName : "",
             stockUnitGroup: {
@@ -1004,7 +1004,7 @@ const ServiceScreen = ()=>{
         fetchPurchaseAccounts();
         fetchSalesAccounts();
         fetchVariantCustomfields();
-        DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
+        DeviceEventEmitter.addListener(APP_EVENTS.ServiceScreenRefresh, async () => {
             fetchAllParentGroup();
             fetchAllTaxes();
             fetchStockUnitGroup();
@@ -1061,8 +1061,7 @@ const ServiceScreen = ()=>{
                         fetchAllParentGroup={fetchAllParentGroup} 
                         parentGroupArr={parentGroupArr}
                         setSelectedGroup={setSelectedGroup} 
-                        setSelectedGroupUniqueName={setSelectedGroupUniqueName} 
-                        selectedGroup={selectedGroup}
+                        setSelectedGroupUniqueName={setSelectedGroupUniqueName}
                     />
                     <RenderLinkedAcc 
                         key={childKeys.key5}

@@ -804,6 +804,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     checkBoxView: {
         flexDirection: 'row',
         alignItems: 'center',
+        padding:5
     },
     checkView:{
         width: 16,

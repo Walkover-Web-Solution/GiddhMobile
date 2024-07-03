@@ -16,8 +16,14 @@ import Payment from '@/assets/images/icons/options/Payment.svg'
 import Receipt from '@/assets/images/icons/options/Receipt.svg'
 import Customer from '@/assets/images/icons/options/Customer.svg'
 import Vendor from '@/assets/images/icons/options/Vendor.svg'
+import Service from '@/assets/images/icons/options/service.svg'
+import Group from '@/assets/images/icons/options/group-wise.svg'
+import Stock from '@/assets/images/icons/options/stock.svg'
+import Variant from '@/assets/images/icons/options/varient-wise.svg'
 import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import Product from 'react-native-vector-icons/Ionicons'
+// import Service from 'react-native-vector-icons/MaterialIcons'
+import Service2 from 'react-native-vector-icons/FontAwesome'
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { DefaultTheme } from '@/utils/theme';
@@ -50,28 +56,30 @@ const inventoryButtons:any = {
     item1 : {
         name: 'Product Stock', 
         navigateTo: 'ProductScreen', 
-        icon: <Product name="cube-outline" size={24} color='black' />, 
+        // icon: <Product name="cube-outline" size={24} color='black' />, 
+        icon: <Stock color='#000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductScreenRefresh'
     },
     item2 : {
         name: 'Product Group', 
         navigateTo: 'productGroupScreen', 
-        icon: <Product name="file-tray-stacked-outline" size={24} color='brown' />, 
+        // icon: <Product name="file-tray-stacked-outline" size={24} color='brown' />, 
+        icon: <Variant color='#008000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductGroupRefresh'   
     },
     item3 : {   
         name: 'Service Stock', 
-        navigateTo: 'ProductScreen', 
-        icon: <Vendor color={'blue'} />, 
+        navigateTo: 'ServiceScreen', 
+        icon: <Service color={'#A52A2A'}/>, 
         color: 'red',
         event : 'ServiceScreenRefresh'
     },
     item4 : {
         name: 'Service Group', 
         navigateTo: 'productGroupScreen', 
-        icon: <Vendor color={'orange'} />, 
+        icon: <Group color={'#FFA500'} />, 
         color: 'red',
         event: 'ServiceGroupRefresh'
     },

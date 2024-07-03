@@ -24,7 +24,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     backgroundColor: '#fff',
     margin: 5,
     borderColor: '#D9D9D9',
-    borderRadius: 20,
+    borderRadius: 25,
     borderBottomRightRadius: 0,
     borderWidth: 1.2,
   },

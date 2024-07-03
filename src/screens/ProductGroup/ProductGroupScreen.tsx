@@ -43,7 +43,7 @@ const ProductGroupScreen = (props)=>{
     const [taxArr,setTaxArr] = useState([]);
     const [parentGroupArr,setParentGroupArr]:any[] = useState([]);
     const [selectedUniqueTax, setSelectedUniqueTax]:any = useState({});
-    const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, props?.route?.params?.params?.name === 'Product Group' ? 'Group' : 'Receipt');
+    const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, props?.route?.params?.params?.name === 'Product Group' ? 'Group' : 'Stock');
     const {height, width} = Dimensions.get('window');
     const [isChecked,setIsChecked] = useState(false);
     const [selectedGroup,setSelectedGroup] = useState('');
@@ -178,6 +178,7 @@ const ProductGroupScreen = (props)=>{
             bottomSheetRef={taxModalRef}
             headerText='Select Taxes'
             headerTextColor='#084EAD'
+            adjustToContentHeight={((taxArr.length*47) > (height-100)) ? false : true}
             flatListProps={{
               data: taxArr,
               renderItem: ({item}) => {
@@ -243,7 +244,8 @@ const ProductGroupScreen = (props)=>{
           bottomSheetRef={childGroupModalRef}
           headerText='Select Parent Group'
           headerTextColor='#084EAD'
-          adjustToContentHeight={false}
+          // adjustToContentHeight={false}
+          adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
           flatListProps={{
             data: parentGroupArr,
             renderItem: ({item}) => {

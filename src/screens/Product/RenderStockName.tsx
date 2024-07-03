@@ -6,7 +6,8 @@ import makeStyles from "./style";
 const RenderStockName = ({
     allData,
     handleInputChange,
-    clearAll
+    clearAll,
+    type
 })=>{
 
     const { theme, styles } = useCustomTheme(makeStyles)
@@ -17,7 +18,7 @@ const RenderStockName = ({
                     <MaterialCommunityIcons name='alphabetical-variant' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={18} />
                     <TextInput
                         placeholderTextColor={'#808080'}
-                        placeholder={'Enter Stock'}
+                        placeholder={'Enter '+ (type === 'PRODUCT'? 'Stock' : 'Service')}
                         returnKeyType={'done'}
                         onChangeText={(text) => 
                             handleInputChange('name',text)

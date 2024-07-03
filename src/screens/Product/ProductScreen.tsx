@@ -334,7 +334,7 @@ const ProductScreen = ()=>{
                     uniqueName: selectedUnitGroupUniqueName,
                     hsnNumber: "",
                     sacNumber: "",
-                    type: "SERVICE"
+                    type: "PRODUCT"
                 }
                 const groupResponse = await InventoryService.addStockGroup(body);
                 if(groupResponse?.data && groupResponse?.data?.status == 'success'){
@@ -1028,6 +1028,7 @@ const ProductScreen = ()=>{
                         handleInputChange={handleInputChange}
                         allData={otherDataRef}
                         clearAll={clearAll}
+                        type="PRODUCT"
                     />
                     <RenderUnitGroup 
                         key={childKeys.key2} 
@@ -1060,8 +1061,7 @@ const ProductScreen = ()=>{
                         fetchAllParentGroup={fetchAllParentGroup} 
                         parentGroupArr={parentGroupArr}
                         setSelectedGroup={setSelectedGroup} 
-                        setSelectedGroupUniqueName={setSelectedGroupUniqueName} 
-                        selectedGroup={selectedGroup}
+                        setSelectedGroupUniqueName={setSelectedGroupUniqueName}
                     />
                     <RenderLinkedAcc 
                         key={childKeys.key5}

@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
 import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';
-const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup,parentGroupArr,setSelectedGroup,setSelectedGroupUniqueName,selectedGroup})=>{
+const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup,parentGroupArr,setSelectedGroup,setSelectedGroupUniqueName})=>{
   const {theme,styles} = useCustomTheme(makeStyle);
   const {height,width} = Dimensions.get('window');
 
@@ -29,7 +29,7 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
               setBottomSheetVisible(groupModalRef, false);
             }}
             >
-            <Icons name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+            <Icons name={groupName == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
             <Text style={styles.radiobuttonText}
             >
                 {item?.name}
@@ -73,10 +73,10 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
                 style={[
                   styles.buttonWrapper,
                   styles.modalBtn,
-                  {borderColor: groupName.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
+                  {borderColor: groupName?.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
                 ]}>
                 <Text style={[styles.buttonText,{ color:'#868686'}]}>
-                  {groupName.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
+                  {groupName?.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
                 </Text>
               </View>
             </TouchableOpacity>
