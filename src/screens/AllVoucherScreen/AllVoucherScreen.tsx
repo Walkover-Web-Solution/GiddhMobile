@@ -15,7 +15,7 @@ import colors from '@/utils/colors'
 import _ from 'lodash'
 import AsyncStorage from '@react-native-community/async-storage'
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants'
-import RNFetchBlob from 'rn-fetch-blob'
+import RNFetchBlob from 'react-native-blob-util'
 import Share from 'react-native-share'
 import ShareModal from '../Parties/components/sharingModal'
 import { Image } from 'react-native'
@@ -237,11 +237,12 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                         await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
                     } catch (e) {
                         console.log("Error", e)
+                        setIsSharing(false);
                         return
                     }
+                    setIsSharing(false);
                 }).then(async () => {
                     setTimeout(async () => {
-                        setIsSharing(false);
                         await Share.open({
                             title: 'This is the report',
                             url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`,
