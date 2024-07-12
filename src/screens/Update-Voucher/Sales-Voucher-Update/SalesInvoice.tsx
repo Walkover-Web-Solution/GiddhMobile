@@ -34,7 +34,7 @@ import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/n
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import EditItemDetail from './EditItemDetails';
 import routes from '@/navigation/routes';
-import RNFetchBlob from 'rn-fetch-blob';
+import RNFetchBlob from 'react-native-blob-util';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';

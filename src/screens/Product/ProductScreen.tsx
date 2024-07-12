@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { Alert, Animated, DeviceEventEmitter, Dimensions, Keyboard, Platform, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Alert, Animated, DeviceEventEmitter, Dimensions, Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,6 +26,7 @@ import makeStyles from "./style";
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
+import Toast from "@/components/Toast";
 
 
 
@@ -354,10 +355,10 @@ const ProductScreen = ()=>{
                     }
                 }else{
                     setIsLoading(false);
-                    ToastAndroid.show(groupResponse?.data?.message, ToastAndroid.LONG);
+                    Toast({message: groupResponse?.data?.message, position:'BOTTOM',duration:'LONG'}) 
                 }
             }else{
-                ToastAndroid.show("Please select group",ToastAndroid.SHORT);
+                Toast({message: "Please select group", position:'BOTTOM',duration:'SHORT'})
             }
         }
         
@@ -889,50 +890,50 @@ const ProductScreen = ()=>{
                         if(payload?.variants?.[0]?.unitRates?.[0]?.accountUniqueName && payload?.variants?.[0]?.unitRates?.[1]?.accountUniqueName ){
                             if(payload?.variants?.[0]?.unitRates?.[0]?.rate && payload?.variants?.[0]?.unitRates?.[1]?.rate){
                                 if(!requiredFieldsCheck(payload)){
-                                    ToastAndroid.show("Required custom fields can't be empty",ToastAndroid.LONG);
+                                    Toast({message: "Required custom fields can't be empty", position:'BOTTOM',duration:'LONG'})
                                     return;
                                 }
                                 await createStockProduct(payload,selectedGroupUniqueName);
                             }else{
-                               ToastAndroid.show("Specify rates for linked accounts.",ToastAndroid.LONG);
+                                Toast({message:"Specify rates for linked accounts.", position:'BOTTOM',duration:'LONG'})
                             }
                         }else{
-                            ToastAndroid.show("Linking account is mandatory if rates/unit is entered.",ToastAndroid.LONG);
+                            Toast({message: "Linking account is mandatory if rates/unit is entered.", position:'BOTTOM',duration:'LONG'})
                         }
                     }else{
                         if(!requiredFieldsCheck(payload)){
-                            ToastAndroid.show("Required custom fields can't be empty",ToastAndroid.LONG);
+                            Toast({message: "Required custom fields can't be empty", position:'BOTTOM',duration:'LONG'})
                             return;
                         }
                         await createStockProduct(payload,selectedGroupUniqueName);
                     }
                 }else{
-                    ToastAndroid.show("No unit selected!",ToastAndroid.SHORT);
+                    Toast({message: "No unit selected!", position:'BOTTOM',duration:'SHORT'})
                 }
             }else{
-                ToastAndroid.show("Select Unit group!",ToastAndroid.SHORT);
+                Toast({message: "Select Unit group!", position:'BOTTOM',duration:'SHORT'})
             }
         }else{
-            ToastAndroid.show("Enter stock name!",ToastAndroid.SHORT);
+            Toast({message: "Enter stock name!", position:'BOTTOM',duration:'SHORT'})
         }
     }
 
     const CreateButton = (
-        // <TouchableOpacity
-        //     style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
-        //     disabled = {isLoading}
-        //     onPress={onClickCreateStock}>
-        //     <Text
-        //     style={styles.createBtn}>
-        //     Create
-        //     </Text>
-        // </TouchableOpacity>
         <TouchableOpacity
-            onPress={onClickCreateStock}
+            style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
             disabled = {isLoading}
-            style={[styles.updatedCreateBtn,{borderColor: voucherBackground}]}>
-            <Text style={[{color:voucherBackground},styles.updatedCreateBtnText]}> Create</Text>
+            onPress={onClickCreateStock}>
+            <Text
+            style={styles.createBtn}>
+            Create
+            </Text>
         </TouchableOpacity>
+        // <TouchableOpacity
+        //     onPress={onClickCreateStock}
+        //     disabled = {isLoading}
+        //     style={[styles.updatedCreateBtn,{borderColor: voucherBackground}]}>
+        //     <Text style={[{color:voucherBackground},styles.updatedCreateBtnText]}> Create</Text>
+        // </TouchableOpacity>
     )
 
     const resetState = ()=>{
@@ -1016,7 +1017,8 @@ const ProductScreen = ()=>{
     
     
     return (
-        <SafeAreaView style={[styles.container,styles.backGround]}>
+        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={[styles.container,styles.backGround]}>
+        {/* <View style={[styles.container,styles.backGround]}> */}
             <View>
                 <Animated.ScrollView
                     style={styles.backGround}
@@ -1117,7 +1119,8 @@ const ProductScreen = ()=>{
             {/* {RenderPurchaseAccModal} */}
             {successBox}
             {failureBox}
-        </SafeAreaView>
+        {/* </View> */}
+        </KeyboardAvoidingView>
     )
 }
 

@@ -70,7 +70,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         <View style={styles.selectedRadioBtn} />
                     )}
                     </TouchableOpacity>
-                    <Pressable onPress={() => {
+                    <Pressable style={{paddingVertical:5}} onPress={() => {
                         setSelectedCode('hsn')
                         handleInputChange('hsnChecked',true);
                         handleInputChange('sacChecked',false);
@@ -93,7 +93,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         <View style={styles.selectedRadioBtn} />
                     )}
                     </TouchableOpacity>
-                    <Pressable onPress={() =>{
+                    <Pressable style={{paddingVertical:5}} onPress={() =>{
                         setSelectedCode('sac')
                         handleInputChange('hsnChecked',false);
                         handleInputChange('sacChecked',true);

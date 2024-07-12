@@ -28,7 +28,7 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                     </View>
                 </TouchableOpacity>
                 <View style={styles.checkboxContainer}>
-                    <Pressable style={styles.fieldHeadingText} onPress={()=>{setIsChecked(!isChecked)}}><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>Is it a child group?</Text></Pressable>
+                    <Pressable style={[styles.fieldHeadingText,{paddingVertical:5}]} onPress={()=>{setIsChecked(!isChecked)}}><Text style={{fontFamily:theme.typography.fontFamily.semiBold}}>Is it a child group?</Text></Pressable>
                 </View>
             </View>
             <View>

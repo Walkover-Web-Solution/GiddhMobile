@@ -1,7 +1,7 @@
 import { FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useEffect, useState } from "react";
-import { Alert, Dimensions, Pressable, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Alert, Dimensions, Platform, Pressable, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSelector } from "react-redux";
 import makeStyles from "./style";
+import Toast from "@/components/Toast";
 const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalData,subUnits,purchaseAccount,salesAccount,variantCustomFields})=>{
     const {theme,styles} = useCustomTheme(makeStyles);
     const [expandAcc, setExpandAcc] = useState(false);
@@ -115,7 +116,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         }
         setTypingTimeout(setTimeout(()=>{
             if(optionAndDataMapping?.[optionname]){
-                ToastAndroid.show("Duplicate option name found!.",ToastAndroid.LONG);
+                Toast({message: "Duplicate option name found!", position:'CENTER',duration:'LONG'})
             }
         },1000))
     }
@@ -130,7 +131,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         setTypingTimeout(setTimeout(() => {
             const isDuplicate = fields.some(field => field.value === value && field.id !== id);
             if (isDuplicate) {
-                ToastAndroid.show("Duplicate Value, This value already exists.",ToastAndroid.LONG);
+                Toast({message: "Duplicate Value, This value already exists.", position:'CENTER',duration:'LONG'})
                 setFields(fields.map(field => field.id === id ? { ...field, value: '' } : field));
             }
         }, 500));
@@ -160,13 +161,13 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
     const addOptionToMap = ()=>{
         const removedEmptyFields = fields.filter((item)=>item.value !== "");
         if(removedEmptyFields.length == 0){
-            ToastAndroid.show("No option field added!",ToastAndroid.LONG);
+            Toast({message: "No option field added!", position:'BOTTOM',duration:'LONG'})
             setAddOption(false);
             setOptionCount(optionCount-1);
             return ;
         }
         if(optionAndDataMapping?.[optionName]){
-            ToastAndroid.show("Option name must be unique",ToastAndroid.LONG);
+            Toast({message: "Option name must be unique!", position:'BOTTOM',duration:'LONG'})
             setAddOption(false);
             setOptionCount(optionCount-1);
             return ;
@@ -256,7 +257,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             }
             setTypingTimeout(setTimeout(()=>{
                 if(optionAndDataMapping?.[optionname]){
-                    ToastAndroid.show("Option already exists found!.",ToastAndroid.LONG);
+                    Toast({message: "Option already exists!", position:'CENTER',duration:'LONG'})
                     setLocalOptionName(optionName);
                 }
             },1000))
@@ -272,7 +273,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             setTypingTimeout(setTimeout(() => {
                 const isDuplicate = localFields.some(field => field.value === value && field.id !== id);
                 if (isDuplicate) {
-                    ToastAndroid.show("Duplicate Value, This value already exists.",ToastAndroid.LONG);
+                    Toast({message: "Duplicate Value, This value already exists.", position:'CENTER',duration:'LONG'})
                     setLocalFields(localFields.map(field => field.id === id ? { ...field, value: '' } : field));
                 }
             }, 500));
@@ -317,7 +318,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             setFields(removedEmptyFields);
 
             if(localOptionName.length == 0 ){
-                ToastAndroid.show("Option name can't be empty",ToastAndroid.LONG);
+                Toast({message: "Option name can't be empty!", position:'BOTTOM',duration:'LONG'})
                 return ;
             }
             
@@ -559,7 +560,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         style={styles.variantHeading}>
                         <AntDesign name={'plus'} color={'#084EAD'} size={18} style={{ marginHorizontal: 8 }} />
                         {optionCount == 0 
-                        ? <Text numberOfLines={1} style={styles.addItemMain}> Add options like multiple size or colours etc...</Text> 
+                        ? <Text numberOfLines={1} style={[styles.addItemMain,{paddingVertical:5}]}> Add options like multiple size or colours etc...</Text> 
                         : optionCount == 3 ? <></> : <Text numberOfLines={1} style={styles.addItemMain}> Another option</Text> }
                     </TouchableOpacity>}
                     {optionIds.length > 0 && <View>

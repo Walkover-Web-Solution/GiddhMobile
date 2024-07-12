@@ -17,7 +17,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                     <View style={styles.selectedRadioBtn} />
                 )}
                 </TouchableOpacity>
-                <Pressable onPress={() => setSelectedCode('hsn')}>
+                <Pressable style={{padding:5}} onPress={() => setSelectedCode('hsn')}>
                     <Text style={styles.radioText}>HSN Code</Text>
                 </Pressable>
             </View>
@@ -29,7 +29,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                     <View style={styles.selectedRadioBtn} />
                 )}
                 </TouchableOpacity>
-                <Pressable onPress={() => setSelectedCode('sac')}>
+                <Pressable style={{padding:5}} onPress={() => setSelectedCode('sac')}>
                     <Text style={styles.radioText}>SAC Code</Text>
                 </Pressable>
             </View>

@@ -36,7 +36,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import VoucherModal from './components/voucherModal';
 import PDFModal from './components/pdfModal';
 import DownloadModal from './components/downloadingModal';
-import RNFetchBlob from 'rn-fetch-blob';
+import RNFetchBlob from 'react-native-blob-util';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
@@ -932,7 +932,9 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
   };
 
   onShare = async () => {
+    
     try {
+      console.log("yehihe");
       await Platform.OS == "ios" ? this.setState({ ShareModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);

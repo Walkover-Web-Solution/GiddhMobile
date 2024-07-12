@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Dimensions, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
 import makeStyle from './style';
 import useCustomTheme from "@/utils/theme";
 import BottomSheet from "@/components/BottomSheet";
 import Icon from '@/core/components/custom-icon/custom-icon';
+import Toast from "@/components/Toast";
 
 const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
@@ -211,7 +212,7 @@ const GeneralLinkedAccComponent = ({
                 <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? '#084EAD' : '#d9d9d9'}]}>
                     <TouchableOpacity
                         onPress={() => {
-                            unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
+                            unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : Toast({message: "Please select unit group", position:'BOTTOM',duration:'SHORT'});
                         }} style={{ flex: 1 }}>
                         
                         {subUnits?.uniqueName ? ( 

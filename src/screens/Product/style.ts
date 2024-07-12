@@ -463,13 +463,15 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   inputContainer:{ 
     marginHorizontal: 15, 
     marginVertical: 10, 
-    marginRight: 20, 
     overflow: 'hidden' 
   },
   inputField:{ 
     borderColor: '#D9D9D9', 
     borderBottomWidth: 1,
-    fontFamily:theme.typography.fontFamily.regular 
+    fontFamily:theme.typography.fontFamily.regular,
+    marginVertical:3,
+    paddingVertical:10,
+    paddingHorizontal:3
   },
   linkedAccContainer:{ 
     marginHorizontal: 15, 
@@ -494,6 +496,9 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     borderColor: '#D9D9D9', 
     borderBottomWidth: 1, 
     width:'45%',
+    marginVertical:3,
+    paddingVertical:10,
+    paddingHorizontal:3,
     fontFamily:theme.typography.fontFamily.regular
   },
   booleanCustomField :{

@@ -291,6 +291,11 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     position: 'absolute',
     bottom: height * 0.01,
   },
+  createBtn:{
+    fontFamily: theme.typography.fontFamily.bold ,
+    color: '#fff',
+    fontSize: 20,
+  },
   createButtonText :{
     fontFamily: theme.typography.fontFamily.bold,
     color: '#fff',
@@ -316,6 +321,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   clearnBtnText:{
     color: '#1C1C1C', 
     marginRight: 16, 
+    padding:5,
     fontFamily: theme.typography.fontFamily.regular
   },
   radioBtnView:{
@@ -348,6 +354,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     borderBottomWidth: 1,
     width: '55%',
     marginRight: 16,
+    paddingVertical:10,
     fontFamily:theme.typography.fontFamily.regular 
   },
   taxView: {
@@ -406,6 +413,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   checkBoxView: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical:5
   },
   checkView:{
       width: 16,

@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import  CheckBox  from "react-native-check-box";
-import { Dimensions, FlatList, Keyboard, Platform, Pressable, ScrollViewComponent, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollViewComponent, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomFields, Variants } from "./ProductScreen";
 import React, { useRef, useState } from "react";
@@ -11,6 +11,7 @@ import { FONT_FAMILY } from "@/utils/constants";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView } from "react-native-gesture-handler";
 import Feather from 'react-native-vector-icons/Feather'
+import Toast from "@/components/Toast";
 
 const {height, width} = Dimensions.get('window');
 const VariantTableScreen = ({route})=>{
@@ -383,7 +384,7 @@ const VariantTableScreen = ({route})=>{
                     <TouchableOpacity
                         onPress={()=>{
                             if(!unit?.uniqueName){
-                                ToastAndroid.show('Please select unit',ToastAndroid.SHORT)
+                                Toast({message: "Please select unit", position:'BOTTOM',duration:'SHORT'})
 
                             }else
                             handleUnitFocus(index,variantSubUnitModal);
@@ -458,7 +459,7 @@ const VariantTableScreen = ({route})=>{
                         <TouchableOpacity
                             onPress={()=>{
                                 if(!unit?.uniqueName){
-                                    ToastAndroid.show('Please select unit',ToastAndroid.SHORT)
+                                    Toast({message: "Please select unit", position:'BOTTOM',duration:'SHORT'})
 
                                 }else
                                 handleUnitFocus(index,variantPurchaseSubUnitModal);
@@ -509,7 +510,7 @@ const VariantTableScreen = ({route})=>{
                     <TouchableOpacity
                         onPress={()=>{
                             if(!unit?.uniqueName){
-                                ToastAndroid.show('Please select unit',ToastAndroid.SHORT)
+                                Toast({message: "Please select unit", position:'BOTTOM',duration:'SHORT'})
 
                             }else
                             handleUnitFocus(index,variantSalesSubUnitModal);
@@ -636,7 +637,8 @@ const VariantTableScreen = ({route})=>{
     const renderItem = ({item ,index}) => <VariantCard item={item} index={index}/>
 
     return (
-        <SafeAreaView style={styles.container}>
+        // <View style={styles.container}>
+        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container}>
             <_StatusBar statusBar={statusBar}/>
             <Header header={'Variants'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
             headerRightContent={
@@ -661,7 +663,8 @@ const VariantTableScreen = ({route})=>{
                     keyExtractor={(item, index) => index.toString()}
                 />
             </View>
-        </SafeAreaView>
+        </KeyboardAvoidingView>
+        // </View>
     )
 }
 

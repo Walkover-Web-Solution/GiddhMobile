@@ -36,7 +36,7 @@ import PurchaseItemEdit from './EditItemDetails';
 import style from './style';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Share from 'react-native-share';
-import RNFetchBlob from 'rn-fetch-blob';
+import RNFetchBlob from 'react-native-blob-util';
 import { FONT_FAMILY } from '@/utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';

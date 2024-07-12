@@ -2,7 +2,7 @@ import React, { createRef } from 'react';
 import { Alert, Text, View, PermissionsAndroid, TouchableOpacity, Linking, Platform, ToastAndroid } from 'react-native';
 import styles from '@/screens/Transaction/components/styles';
 import colors from '@/utils/colors';
-import RNFetchBlob from 'rn-fetch-blob';
+import RNFetchBlob from 'react-native-blob-util';
 import Share from 'react-native-share';
 import AsyncStorage from '@react-native-community/async-storage';
 import { STORAGE_KEYS } from '@/utils/constants';
