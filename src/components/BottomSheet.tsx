@@ -3,6 +3,7 @@ import { Keyboard, StyleSheet, Text, View } from 'react-native'
 import { FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import { Modalize, ModalizeProps } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   bottomSheetRef: React.Ref<any>;
@@ -14,6 +15,7 @@ type Props = {
 const BottomSheet: React.FC<Props> = ({
   children, headerText, headerTextColor, bottomSheetRef, ...props
 }) => {
+  const insets = useSafeAreaInsets();
   const HeaderComponent = () => (
     <View style={{ marginTop: 20 }}>
       <Text style={[styles.headerText, { color: headerTextColor ?? '#000000'}]}>
@@ -31,6 +33,7 @@ const BottomSheet: React.FC<Props> = ({
         handlePosition='inside'
         HeaderComponent={<HeaderComponent/>}
         modalStyle={{ minHeight: '25%' }}
+        modalTopOffset={insets.top}
         {...props}
       >
         {children}
