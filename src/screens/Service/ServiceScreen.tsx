@@ -1046,25 +1046,32 @@ const ServiceScreen = ()=>{
                         selectedUnitGroup={selectedUnitGroup} 
                         unitGroupMapping={unitGroupMapping}
                         setUnit={setUnit}
+                        setUnitGroupMapping={setUnitGroupMapping}
                         fetchLinkedUnitMapping={fetchLinkedUnitMapping}/>
-                    <RenderTaxes 
-                        key={childKeys.key3} 
-                        selectedUniqueTax={selectedUniqueTax} 
-                        taxModalRef={taxModalRef} 
-                        setBottomSheetVisible={setBottomSheetVisible} 
-                        taxArr={taxArr} 
-                        setSelectedUniqueTax={setSelectedUniqueTax}
-                    />
-                    <RenderGroups 
-                        key={childKeys.key4} 
-                        groupName={selectedGroup}
-                        groupModalRef={groupModalRef} 
-                        setBottomSheetVisible={setBottomSheetVisible} 
-                        fetchAllParentGroup={fetchAllParentGroup} 
-                        parentGroupArr={parentGroupArr}
-                        setSelectedGroup={setSelectedGroup} 
-                        setSelectedGroupUniqueName={setSelectedGroupUniqueName}
-                    />
+                    <View style={{flexDirection:'row',width:'100%',marginBottom:10}}>
+                        <View style={{width:'50%'}}>
+                            <RenderTaxes 
+                                key={childKeys.key3} 
+                                selectedUniqueTax={selectedUniqueTax} 
+                                taxModalRef={taxModalRef} 
+                                setBottomSheetVisible={setBottomSheetVisible} 
+                                taxArr={taxArr} 
+                                setSelectedUniqueTax={setSelectedUniqueTax}
+                            />
+                        </View>
+                        <View>
+                            <RenderGroups 
+                                key={childKeys.key4} 
+                                groupName={selectedGroup}
+                                groupModalRef={groupModalRef} 
+                                setBottomSheetVisible={setBottomSheetVisible} 
+                                fetchAllParentGroup={fetchAllParentGroup} 
+                                parentGroupArr={parentGroupArr}
+                                setSelectedGroup={setSelectedGroup} 
+                                setSelectedGroupUniqueName={setSelectedGroupUniqueName}
+                            />
+                        </View>
+                    </View>
                     <RenderLinkedAcc 
                         key={childKeys.key5}
                         unit={unit} 

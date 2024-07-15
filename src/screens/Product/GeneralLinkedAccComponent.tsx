@@ -10,7 +10,7 @@ import Toast from "@/components/Toast";
 const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
     initialRadioSelection = 1,
-    linkedAccountText = "Linked Purchase Accounts",
+    linkedAccountText = "Purchase Accounts",
     // onLinkedAccountPress,
     textInputPlaceholder = "Rate",
     textInputKeyboardType = "number-pad",
@@ -129,13 +129,13 @@ const GeneralLinkedAccComponent = ({
         <>
         <View style={styles.linkedAccContainer}>
             <View>
-                <View style={[styles.inputRow,,{marginBottom:10}]}>
-                    <Text style={[styles.optionTitle,{marginTop:5}]} >{rateLabel}</Text>
+                <View style={[styles.inputRow,{marginBottom:10}]}>
+                    {/* <Text style={[styles.optionTitle,{marginTop:5}]} >{rateLabel}</Text> */}
                     <RadioForm
                     formHorizontal={true}
                     initial={0}
                     animation={true}
-                    style={[styles.radioGroupContainer,{marginTop:5}]}
+                    style={[styles.radioGroupContainer,{marginTop:5,flex:1,paddingHorizontal:5}]}
                     >
                     {
                         radio_props.map((obj, i) => (
@@ -145,7 +145,7 @@ const GeneralLinkedAccComponent = ({
                             index={i}
                             isSelected={radioBtn === i}
                             onPress={(val) => { setRadioBtn(val),
-                                linkedAccountText == "Linked Purchase Accounts" ? (
+                                linkedAccountText == "Purchase Accounts" ? (
                                     val == 0 ? handleRateChange('purchaseMRPChecked',true) : handleRateChange('purchaseMRPChecked',false)
                                 ):(
                                     val == 0 ? handleRateChange('salesMRPChecked',true) : handleRateChange('salesMRPChecked',false)
@@ -164,7 +164,7 @@ const GeneralLinkedAccComponent = ({
                             index={i}
                             labelHorizontal={true}
                             onPress={(val) => { setRadioBtn(val),
-                                linkedAccountText == "Linked Purchase Accounts" ? (
+                                linkedAccountText == "Purchase Accounts" ? (
                                     val == 0 ? handleRateChange('purchaseMRPChecked',true) : handleRateChange('purchaseMRPChecked',false)
                                 ):(
                                     val == 0 ? handleRateChange('salesMRPChecked',true) : handleRateChange('salesMRPChecked',false)
@@ -179,7 +179,7 @@ const GeneralLinkedAccComponent = ({
                 </View>
             </View>
             <View style={styles.inputRow}>
-                <Text style={[styles.optionTitle,{marginTop:0}]} >{linkedAccountText}</Text>
+                <Text style={[styles.optionTitle,{marginTop:0,marginLeft:5}]} >{linkedAccountText === "Purchase Accounts" ?'Purchase' :'Sales'}</Text>
                 <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: selectedAccount?.name ? '#084EAD' : '#d9d9d9'  }]}>
                     <TouchableOpacity
                     onPress={() => {
@@ -192,7 +192,7 @@ const GeneralLinkedAccComponent = ({
                         ) : (
                         <Text
                             style={[styles.buttonText, { color: '#868686' }]}>
-                            Select account
+                            {linkedAccountText === "Purchase Accounts" ?'Purchase Accounts' :'Sales Accounts'}
                         </Text>
                         )}
                     </TouchableOpacity>
@@ -204,7 +204,7 @@ const GeneralLinkedAccComponent = ({
                     keyboardType="number-pad"
                     onChangeText={(val) => {
                         // setRate(val);
-                        linkedAccountText === "Linked Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
+                        linkedAccountText === "Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                     }}
                     placeholderTextColor={'rgba(80,80,80,0.5)'}
                     placeholder="Rate"

@@ -31,7 +31,7 @@ const RenderStockName = ({
                 </TouchableOpacity>
             </View>
             <View>
-                <View style={styles.checkboxContainer}>
+                {/* <View style={styles.checkboxContainer}>
                 <MaterialCommunityIcons name='alphabetical' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={18} />
                 <TextInput
                     placeholderTextColor={'#808080'}
@@ -42,7 +42,7 @@ const RenderStockName = ({
                     }
                     style={styles.textInput}
                 />
-                </View>
+                </View> */}
             </View>
         </View>
     );

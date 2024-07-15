@@ -132,6 +132,15 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         handleInputChange('skuCode',text)
                     }}
                 />}
+                <TextInput
+                    placeholderTextColor={'#808080'}
+                    placeholder={'Unique Name'}
+                    returnKeyType={'done'}
+                    onChangeText={(text) => 
+                        handleInputChange('uniqueName',text)
+                    }
+                    style={styles.inputField}
+                />
                 {!variantsChecked && <View style={styles.inputRow}>
                     <TextInput
                         placeholder={'Opening Quantity'}

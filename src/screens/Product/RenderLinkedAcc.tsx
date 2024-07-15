@@ -51,7 +51,7 @@ const RenderLinkedAcc = ({
             >
             <View style={styles.checkboxContainer}>
                 <LinkIcon name='link' size={16} color={DefaultTheme.colors.secondary} />
-                <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>Linked Account</Text>
+                <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>Rate</Text>
             </View>
             <Pressable style={{padding:9}} onPress={() => {
                 setExpandAcc(!expandAcc);
@@ -68,7 +68,7 @@ const RenderLinkedAcc = ({
                 expandAcc && (
                 <View> 
                     <GeneralLinkedAccComponent 
-                        linkedAccountText = "Linked Purchase Accounts" 
+                        linkedAccountText = "Purchase Accounts" 
                         unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit' } 
                         setBottomSheetVisible={setBottomSheetVisible} 
                         unitModalRef={purchaseSubUnitMappingModalRef} 
@@ -88,7 +88,7 @@ const RenderLinkedAcc = ({
                     />
                     <View style={styles.lineView}></View>
                     <GeneralLinkedAccComponent 
-                        linkedAccountText = "Linked Sales Accounts" 
+                        linkedAccountText = "Sales Accounts" 
                         unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit'} 
                         setBottomSheetVisible={setBottomSheetVisible} 
                         unitModalRef={salesSubUnitMappingModalRef} 

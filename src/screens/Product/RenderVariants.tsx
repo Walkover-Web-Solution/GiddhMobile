@@ -558,7 +558,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     {optionCount < 3 && <TouchableOpacity
                         onPress={() => optionCount < 3 && !addOption && (setOptionCount(optionCount+1),setAddOption(true),setVariantsChecked(true),handleGlobalInputChange('variantsCreated',true))}
                         style={styles.variantHeading}>
-                        <AntDesign name={'plus'} color={'#084EAD'} size={18} style={{ marginHorizontal: 8 }} />
+                        <AntDesign name={'plus'} color={'#084EAD'} size={18} style={{ marginHorizontal: 8,paddingVertical:5 }} />
                         {optionCount == 0 
                         ? <Text numberOfLines={1} style={[styles.addItemMain,{paddingVertical:5}]}> Add options like multiple size or colours etc...</Text> 
                         : optionCount == 3 ? <></> : <Text numberOfLines={1} style={styles.addItemMain}> Another option</Text> }

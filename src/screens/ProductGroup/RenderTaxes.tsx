@@ -28,11 +28,11 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
                         styles.taxBtn,
                         {borderColor: Object.keys(selectedUniqueTax).length ? '#084EAD' : '#d9d9d9'},
                         ]}>
-                        <View style={[styles.checkboxContainer,{justifyContent:'center'}]}>
+                        <View style={[styles.checkboxContainer]}>
                         {Object.keys(selectedUniqueTax).length > 0 
                         ? (<>
-                            {Object.keys(selectedUniqueTax).slice(0,2).map((item)=>(<Text style={{ color:'#084EAD'}} key={item}>  {selectedUniqueTax?.[item]?.name}  </Text>))}
-                            {Object.keys(selectedUniqueTax)?.length > 2 && <Text style={{ color:'#084EAD'}}>  +more</Text>}
+                            {Object.keys(selectedUniqueTax).slice(0,2).map((item)=>(<Text style={{ color:'#084EAD', fontFamily:theme.typography.fontFamily.regular}} key={item}>{selectedUniqueTax?.[item]?.name}   </Text>))}
+                            {Object.keys(selectedUniqueTax)?.length > 2 && <Text style={{ color:'#084EAD',fontFamily:theme.typography.fontFamily.regular}}> +more</Text>}
                         </> )
                         : <Text style={{color:'#868686'}}>Tax</Text>}
                         </View>

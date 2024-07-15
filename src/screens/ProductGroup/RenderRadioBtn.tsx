@@ -44,7 +44,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
             // }
             value={codeNumber}
             keyboardType={'number-pad'}
-            style={styles.codeInput}
+            style={[styles.codeInput,{paddingHorizontal:10}]}
             // editable={false}
             onChangeText={(text)=>{
                 setCodeNumber(text);
