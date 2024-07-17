@@ -10,6 +10,7 @@ import makeStyles from "./style";
 const RenderLinkedAcc = ({
         unit,
         purchaseSubUnitMappingModalRef,
+        type,
         salesSubUnitMappingModalRef,
         setBottomSheetVisible,
         purchaseSubUnits,
@@ -51,7 +52,7 @@ const RenderLinkedAcc = ({
             >
             <View style={styles.checkboxContainer}>
                 <LinkIcon name='link' size={16} color={DefaultTheme.colors.secondary} />
-                <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>Rate</Text>
+                <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>{type === "purchase"?"Purchase Rate" : "Sales Rate"}</Text>
             </View>
             <Pressable style={{padding:9}} onPress={() => {
                 setExpandAcc(!expandAcc);
@@ -67,6 +68,7 @@ const RenderLinkedAcc = ({
             {
                 expandAcc && (
                 <View> 
+                    {type === "purchase" ?
                     <GeneralLinkedAccComponent 
                         linkedAccountText = "Purchase Accounts" 
                         unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit' } 
@@ -86,8 +88,7 @@ const RenderLinkedAcc = ({
                         // setRadioBtn={setPurchaseRadioBtn}
                         // radioBtn={purchaseRadioBtn}
                     />
-                    <View style={styles.lineView}></View>
-                    <GeneralLinkedAccComponent 
+                    :<GeneralLinkedAccComponent 
                         linkedAccountText = "Sales Accounts" 
                         unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit'} 
                         setBottomSheetVisible={setBottomSheetVisible} 
@@ -105,7 +106,7 @@ const RenderLinkedAcc = ({
                         setAccount={setSalesAccount}
                         // setRadioBtn={setSalesRadioBtn}
                         // radioBtn={salesRadioBtn}
-                    />
+                    />}
                 </View>
                 )
             }

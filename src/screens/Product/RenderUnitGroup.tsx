@@ -7,6 +7,7 @@ import makeStyles from "./style";
 import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';
 import Loader from "@/components/Loader";
+import MatButton from "@/components/OutlinedButton";
 
 const RenderUnitGroup = ({
     unit,
@@ -57,7 +58,7 @@ const RenderUnitGroup = ({
     };
 
     const Item = memo(({ active, name, uniqueName, onPress }) => (
-      <TouchableOpacity style={styles.item} onPress={onPress} activeOpacity={0.75}>
+      <TouchableOpacity style={styles.item} onPress={onPress} activeOpacity={0.5}>
         <Text style={[styles.item__emoji,{ fontFamily : active? theme.typography.fontFamily.bold : theme.typography.fontFamily.regular }]}>{name}</Text>
         {active && <View style={styles.item__line} />}
       </TouchableOpacity>
@@ -114,7 +115,9 @@ const RenderUnitGroup = ({
         bottomSheetRef={unitGroupMappingModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
-        adjustToContentHeight={((unitGroupMapping.length*47) > (height-100)) ? false : true}
+        // adjustToContentHeight={((unitGroupMapping.length*47) > (height-100)) ? false : true}
+        adjustToContentHeight={false}
+        modalTopOffset={(height-(width+100))}
         HeaderComponent={renderGroupBar}
         flatListProps={{
             data: unitGroupMapping,
@@ -156,111 +159,22 @@ const RenderUnitGroup = ({
         />
     )
 
-    // const RenderUnitGroupModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={unitGroupModalRef}
-    //     headerText='Select Unit Group'
-    //     headerTextColor='#084EAD'
-    //     adjustToContentHeight={((unitGroupArr.length*47) > (height-100)) ? false : true}
-    //     flatListProps={{
-    //         data: unitGroupArr,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setSelectedUnitGroup(item?.name)
-    //                 setSelectedUnitGroupUniqueName(item?.uniqueName)
-    //                 setUnit({
-    //                     code: "", 
-    //                     name: "", 
-    //                     uniqueName: ""
-    //                 });
-    //                 setBottomSheetVisible(unitGroupModalRef, false);
-    //                 fetchUnitGroupMappingDebounce(item?.uniqueName)
-    //             }}
-    //             >
-    //             <Icons name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             <Text style={styles.radiobuttonText}>
-    //                 {item?.name}
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Group Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // );
-
-
     return  (
     <>    
-    <View style={[styles.fieldContainer,{maxHeight:100}]}>
-        {/* <View style={styles.rowView}>
-            <Icon name='tag-multiple' color={DefaultTheme.colors.secondary} size={17} />
-            <Text style={styles.fieldHeadingText}>{'Unit'}</Text>
-        </View> */}
-        <View style={styles.unitGroupView}>
-        <View style={styles.rowView}>
-            {/* <TouchableOpacity
-                onPress={()=>{
-                    setBottomSheetVisible(unitGroupModalRef,true);
-                }}
-            >
-            <View
-                style={[
-                styles.buttonWrapper,
-                styles.modalBtn,
-                {borderColor: unitGroupName ? '#084EAD' : '#d9d9d9'},
-                ]}>
-                {unitGroupName ? (
-                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
-                    {unitGroupName}
-                </Text>
-                ) : (
-                <Text
-                    style={[styles.buttonText, { color: '#868686' }]}>
-                    Group
-                </Text>
-                )}
-            </View>
-            </TouchableOpacity> */}
-
-            <TouchableOpacity
-                onPress={()=>{
-                    setBottomSheetVisible(unitGroupMappingModalRef,true)
-                }}
-            >
-            <View
-                style={[
-                styles.buttonWrapper,
-                styles.modalBtn,
-                {borderColor: unit.uniqueName.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
-                ]}>
-                { unit?.uniqueName?.length > 0 ? ( 
-                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
-                    {unit?.name} ({unit?.code})
-                </Text>
-                ) : (
-                <Text
-                    style={[styles.buttonText, { color: '#868686' }]}>
-                    Select Unit
-                </Text>
-                )}
-            </View>
-            </TouchableOpacity>
+    <View style={[styles.fieldContainer,{maxHeight:100,marginHorizontal:16}]}>
+      <View style={styles.unitGroupView}>
+        <View style={[styles.rowView,{width:'48%'}]}>
+          <View style={{flex:1}}>
+            <MatButton 
+              lable="Select Unit"
+              value={unit?.uniqueName?.length > 0 && unit?.name+" "+"("+unit?.code+")"}
+              onPress={()=>{
+                setBottomSheetVisible(unitGroupMappingModalRef,true)
+            }}
+            />
+          </View>
         </View>
-        </View>
+      </View>
     </View>
     {/* {RenderUnitGroupModal} */}
     {RenderUnitMappingModal}

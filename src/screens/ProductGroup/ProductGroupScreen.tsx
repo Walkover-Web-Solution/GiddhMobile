@@ -355,17 +355,57 @@ const ProductGroupScreen = (props)=>{
         // <View style={styles.containerView}>
       <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.containerView}>
         <View>
-            <Animated.ScrollView
-                keyboardShouldPersistTaps="never"
-                style={styles.animatedView}
-                bounces={false}>
-                <_StatusBar statusBar={statusBar}/>
-                <Header header={'Create Group'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
-                <RenderGroupName isGroupUniqueNameEdited={isGroupUniqueNameEdited} setIsGroupUniqueNameEdited={setIsGroupUniqueNameEdited} groupName={groupName} groupUniqueName={groupUniqueName} setGroupName={setGroupName} setGroupUniqueName={setGroupUniqueName} clearAll={clearAll}/>
-                <RenderRadioBtn codeNumber = {codeNumber} selectedCode={selectedCode} setSelectedCode={setSelectedCode} setCodeNumber={setCodeNumber}/>
-                <RenderTaxes selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
-                <RenderChildGroup groupName={selectedGroup} childGroupModalRef={childGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} isChecked={isChecked} setIsChecked={setIsChecked} />
-            </Animated.ScrollView>
+          <Animated.ScrollView
+            keyboardShouldPersistTaps="never"
+            style={styles.animatedView}
+            bounces={false}>
+            <_StatusBar statusBar={statusBar}/>
+            <Header 
+              header={'Create Group'} 
+              isBackButtonVisible={true} 
+              backgroundColor={voucherBackground} 
+              headerRightContent={<>
+                <TouchableOpacity
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10 }}
+                    style={{ padding: 8 }}
+                    onPress={() => {
+                        clearAll();
+                    }}
+                >
+                    {/* <Feather name="save" size={22} color={'#FFFFFF'} /> */}
+                    <Text style={styles.smallText}>Clear</Text>
+                </TouchableOpacity>
+                </>}
+              />
+            <RenderGroupName 
+              isGroupUniqueNameEdited={isGroupUniqueNameEdited} 
+              setIsGroupUniqueNameEdited={setIsGroupUniqueNameEdited} 
+              groupName={groupName} 
+              groupUniqueName={groupUniqueName} 
+              setGroupName={setGroupName} 
+              setGroupUniqueName={setGroupUniqueName} 
+              clearAll={clearAll}
+              />
+            <RenderRadioBtn 
+              codeNumber = {codeNumber} 
+              selectedCode={selectedCode} 
+              setSelectedCode={setSelectedCode}
+              setCodeNumber={setCodeNumber}
+              />
+            <RenderTaxes 
+              selectedUniqueTax={selectedUniqueTax} 
+              taxModalRef={taxModalRef} 
+              setBottomSheetVisible={setBottomSheetVisible}
+              />
+            <RenderChildGroup 
+              groupName={selectedGroup} 
+              childGroupModalRef={childGroupModalRef} 
+              setBottomSheetVisible={setBottomSheetVisible} 
+              isChecked={isChecked} 
+              setIsChecked={setIsChecked} 
+              />
+          </Animated.ScrollView>
         </View>
         {CreateButton}
         {RenderTaxModal}

@@ -6,6 +6,7 @@ import React from 'react';
 import makeStyles from './style';
 import BottomSheet from '@/components/BottomSheet';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import MatButton from '@/components/OutlinedButton';
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr,setSelectedUniqueTax})=>{
     const {styles,theme} = useCustomTheme(makeStyles);
@@ -80,38 +81,15 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr
 
     return (
     <>
-    <View style={[styles.fieldContainer,{maxHeight:100}]}>
-        <View style={styles.rowView}>
-            <Icon name={'Path-12190'} color={DefaultTheme.colors.secondary} size={16} />
-            <Text style={styles.fieldHeadingText}>{'Tax'}</Text>
-        </View>
-
-        <View style={styles.taxView}>
-        <View style={styles.rowView}>
-          <TouchableOpacity style={{flexDirection: 'row'}}
+      <View style={[styles.fieldContainer,{maxHeight:100}]}>
+        <MatButton 
+            lable="Tax"
+            value={Object.keys(selectedUniqueTax).length > 0 && Object.keys(selectedUniqueTax).map((item)=> selectedUniqueTax?.[item]?.name)+"  " }
             onPress={()=>{
-                setBottomSheetVisible(taxModalRef,true);
-            }}
-            textColor={{colors}}>
-            <View
-                style={[
-                styles.buttonWrapper,
-                styles.taxBtn,
-                {borderColor: Object.keys(selectedUniqueTax).length ? '#084EAD' : '#d9d9d9'},
-                ]}>
-                <View style={[styles.checkboxContainer,{justifyContent:'flex-start'}]}>
-                {Object.keys(selectedUniqueTax).length > 0 
-                ? (<>
-                    {Object.keys(selectedUniqueTax).slice(0,1).map((item)=>(<Text style={{ color:'#084EAD',fontFamily:theme.typography.fontFamily.regular}} key={item}>{selectedUniqueTax?.[item]?.name}   </Text>))}
-                    {Object.keys(selectedUniqueTax)?.length > 1 && <Text style={{ color:'#084EAD',fontFamily:theme.typography.fontFamily.regular}}> +</Text>}
-                </> )
-                : <Text style={{color:'#868686'}}>Tax</Text>}
-                </View>
-            </View>
-          </TouchableOpacity>
-        </View>
-        </View>
-    </View>
+              setBottomSheetVisible(taxModalRef,true);
+          }}
+        />
+      </View>
     {RenderTaxModal}
     </>
     )

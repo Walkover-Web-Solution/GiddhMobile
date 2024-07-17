@@ -5,21 +5,13 @@ import CheckBox from 'react-native-check-box';
 import { useState } from "react";
 import useCustomTheme from "@/utils/theme";
 import makeStyle from "./style";
+import MatButton from "@/components/OutlinedButton";
 
 const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,isChecked,setIsChecked})=>{
     const {styles,theme,voucherBackground} = useCustomTheme(makeStyle,'Payment');
     return (
-        <View style={[styles.fieldContainer, {flex: 1}]} >
-            <View style={styles.checkboxContainer}>
-                {/* <CheckBox
-                    checkBoxColor={'#084EAD'}
-                    uncheckedCheckBoxColor={'#084EAD'}
-                    isChecked={isChecked}
-                    onClick={()=>{
-                        setIsChecked(!isChecked);
-                    }}
-
-                /> */}
+        <View style={[styles.fieldContainer, {flex: 1,marginTop:10,}]} >
+            <View style={[styles.checkboxContainer,{marginLeft:10}]}>
                 <TouchableOpacity
                     onPress={()=>setIsChecked(!isChecked)}
                     style={styles.checkBoxView}>
@@ -32,29 +24,13 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                 </View>
             </View>
             <View>
-            {/* <Entypo name="edit" size={16} color={'#00B795'} style={{ paddingRight: 10}}/> */}
-            {isChecked && <View style={{marginTop:20}}>
-                <TouchableOpacity style={styles.checkboxContainer} onPress={()=>{
-                    // setIsChecked(false);
-                    setBottomSheetVisible(childGroupModalRef,true);
-                }}
-                textColor={{colors}}>
-                    <View
-                        style={[
-                        styles.buttonWrapper,
-                        {marginLeft: 20,minWidth:170},
-                        {borderColor: groupName.length > 0 ? '#084EAD' : '#d9d9d9'},
-                        ]}>
-                        <Text
-                        style={[
-                            styles.buttonText,
-                            {color: '#868686'},
-                        ]}>
-                        {groupName.length > 0 ? <Text style={styles.selectedText}>{groupName}</Text> : 'Select Parent Group'}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-            </View>}
+            {isChecked && <MatButton 
+              lable="Select Parent Group"
+              value={groupName.length > 0 && groupName}
+              onPress={()=>{
+                setBottomSheetVisible(childGroupModalRef,true);
+              }}
+            />}
             </View>
         </View>
     )

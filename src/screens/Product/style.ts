@@ -100,8 +100,8 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     fontSize: 18
   },
   fieldContainer: {
-    marginTop: 5,
-    marginHorizontal: 16
+    marginTop: 0,
+    marginHorizontal: 0
   },
   dateView: {
     flexDirection: 'row',
@@ -318,7 +318,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     flexDirection: 'row'
   },
   unitGroupView:{
-    paddingVertical: 6, 
+    paddingVertical: 0, 
     marginTop: 0, 
     justifyContent: 'space-between'
   },
@@ -380,7 +380,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   optionTitle : { 
     color: '#1c1c1c', 
     paddingRight: 5, 
-    marginTop: 10, 
+    marginTop: 5, 
     fontFamily: theme.typography.fontFamily.regular 
   },
   doneBtn:{
@@ -390,7 +390,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     backgroundColor: '#084EAD',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop:10
+    marginTop:5
   },
   doneBtnText : {
     fontFamily: theme.typography.fontFamily.bold,
@@ -421,14 +421,15 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     marginTop: 5 
   },
   variantHeading :{
-    marginVertical: 16,
-    paddingVertical: 10,
+    marginVertical: 3,
+    paddingVertical: 5,
     flexDirection: 'row',
     alignSelf: 'flex-start',
     justifyContent: 'center',
   },
   tableText: {
-    margin:15,
+    marginHorizontal:10,
+    marginVertical:5,
     flexDirection: 'row',
     alignSelf: 'flex-start',
     justifyContent: 'center',
@@ -438,7 +439,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     flexDirection: 'row',
     // backgroundColor: 'pink',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 0,
     width:'75%',
     alignSelf:'center' 
   },
@@ -468,7 +469,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   inputContainer:{ 
     marginHorizontal: 15, 
-    marginVertical: 10, 
+    marginVertical: 5, 
     overflow: 'hidden' 
   },
   inputField:{ 
@@ -481,7 +482,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   linkedAccContainer:{ 
     marginHorizontal: 15, 
-    marginVertical: 10, 
+    marginVertical: 0, 
     marginRight: 20, 
     overflow: 'hidden' 
   },
@@ -511,9 +512,10 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     alignItems:'center',
     width:'100%',
     paddingVertical:10,
-    paddingHorizontal:5,
-    borderBottomWidth:1,
-    borderBottomColor:'#D9D9D9'
+    paddingHorizontal:15,
+    borderWidth:1,
+    borderColor:theme.colors.solids.grey.light,
+    borderRadius:3
   },
   customFieldTitle: {
     color:'#808080',

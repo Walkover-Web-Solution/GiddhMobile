@@ -5,6 +5,7 @@ import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MoreIcon from 'react-native-vector-icons/MaterialIcons';
 import makeStyles from "./style";
+import InputField from "@/components/InputField";
 
 const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,globalData})=>{
     const [expandAcc, setExpandAcc] = useState(false);
@@ -104,10 +105,11 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 </View>
             </View>
             <View style={styles.inputContainer}>
-                <TextInput
-                    placeholder={ selectedCode=='hsn'?'Enter HSN Code':'Enter SAC Code'}
+                <InputField
+                    lable={ selectedCode=='hsn'?'Enter HSN Code':'Enter SAC Code'}
+                    // value=""
+                    isRequired={false}
                     placeholderTextColor={'#808080'}
-                    style={styles.inputField}
                     onChangeText={(text)=>{
                         selectedCode === 'hsn' 
                         ? (
@@ -124,57 +126,62 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         )
                     }}
                 />
-                {!variantsChecked && <TextInput
-                    placeholder={'SKU Code'}
+                {!variantsChecked && 
+                <InputField 
+                    lable="SKU Code"
+                    isRequired={false}
                     placeholderTextColor={'#808080'}
-                    style={styles.inputField}
                     onChangeText={(text)=>{
                         handleInputChange('skuCode',text)
                     }}
-                />}
-                <TextInput
+                />
+                }
+                <InputField 
+                    lable="Unique Name"
+                    isRequired={false}
                     placeholderTextColor={'#808080'}
-                    placeholder={'Unique Name'}
-                    returnKeyType={'done'}
                     onChangeText={(text) => 
                         handleInputChange('uniqueName',text)
                     }
-                    style={styles.inputField}
                 />
                 {!variantsChecked && <View style={styles.inputRow}>
-                    <TextInput
-                        placeholder={'Opening Quantity'}
-                        keyboardType='number-pad'
+                    <View style={{width:'48%'}}>
+                    <InputField 
+                        lable="Opening Quantity"
+                        isRequired={false}
+                        keyboardType="numeric"
                         placeholderTextColor={'#808080'}
-                        style={styles.unitInput}
                         onChangeText={(text)=>{
                             handleInputChange('openingQuantity',text)
                         }}
                     />
-                    <TextInput
-                        placeholder={'Closing Amount'}
-                        keyboardType='number-pad'
+                    </View>
+                    <View style={{width:'48%'}}>
+                    <InputField 
+                        lable="Closing Amount"
+                        isRequired={false}
+                        keyboardType="numeric"
                         placeholderTextColor={'#808080'}
-                        style={styles.unitInput}
                         onChangeText={(text)=>{
                             handleInputChange('openingAmount',text)
                         }}
                     />
+                    </View>
                 </View>}
-                <TextInput
-                    placeholder={ 'Custom Field 1'}
+                <InputField 
+                    lable="Custom Field 1"
+                    isRequired={false}
                     placeholderTextColor={'#808080'}
-                    style={styles.inputField}
                     onChangeText={(text)=>{
                         handleInputChange('customField1Heading','Custom Field 1')
                         handleInputChange('customField2Heading','Custom Field 2')
                         handleInputChange('customField1Value',text)
                     }}
                 />
-                <TextInput
-                    placeholder={'Custom Field 2'}
+                <InputField 
+                    lable="Custom Field 2"
+                    isRequired={false}
                     placeholderTextColor={'#808080'}
-                    style={styles.inputField}
                     onChangeText={(text)=>{
                         handleInputChange('customField1Heading','Custom Field 1')
                         handleInputChange('customField2Heading','Custom Field 2')
@@ -186,8 +193,11 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                     switch (field?.fieldType?.type) {
                         case "BOOLEAN":
                             return (
-                            <View key={field.uniqueName} style={[styles.radioGroupContainer,styles.booleanCustomField]}>
-                                <Text style={styles.customFieldTitle}>{field?.isMandatory ? field?.fieldName+'*' : field?.fieldName}</Text>
+                            <View key={field.uniqueName} style={[styles.radioGroupContainer,styles.booleanCustomField,{marginTop:10}]}>
+                                <View style={{flexDirection:'row'}}>
+                                    <Text style={[styles.customFieldTitle]}>{field?.fieldName}</Text>
+                                    {field?.isMandatory && <Text style={{color: theme.colors.solids.red.dark}}>  *</Text>}
+                                </View>
                                 <View style={styles.customFieldContainer}>
                                 <View style={[styles.radioBtnView,{marginTop:0}]}>
                                     <TouchableOpacity
@@ -227,12 +237,12 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                             )
                         default:
                             return (
-                                <TextInput
+                                <InputField 
                                     key={field.uniqueName}
-                                    placeholder={field?.isMandatory ? field?.fieldName+'(Required*)' : field?.fieldName}
-                                    keyboardType={field?.fieldType?.type == 'NUMBER' ? 'number-pad' : 'default'}
+                                    lable={field?.fieldName}
+                                    isRequired={field?.isMandatory}
+                                    keyboardType={field?.fieldType?.type == 'NUMBER' ? "numeric": ""}
                                     placeholderTextColor={'#808080'}
-                                    style={styles.inputField}
                                     onChangeText={(text)=>{
                                         handleCustomFieldsChange(field?.uniqueName,text)
                                     }}

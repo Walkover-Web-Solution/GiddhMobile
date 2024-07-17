@@ -89,7 +89,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     fontSize: 18
   },
   fieldContainer: {
-    marginTop: 14,
+    marginTop: 0,
     marginHorizontal: 16
   },
   dateView: {
@@ -325,10 +325,10 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     fontFamily: theme.typography.fontFamily.regular
   },
   radioBtnView:{
-    flexDirection: 'row',
+    // flexDirection: 'row',
     // backgroundColor: 'pink',
     justifyContent: 'space-between',
-    marginVertical: 10,
+    marginTop: 10,
     alignItems: 'center',
   },
   radioBtn:{
@@ -427,6 +427,11 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   tickBox:{
       width: 10,
       height: 10,
+  },
+  smallText: {
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 16,
+    color: '#FFFFFF'
   }
 });
 

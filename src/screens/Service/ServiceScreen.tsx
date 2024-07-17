@@ -203,7 +203,8 @@ const ServiceScreen = ()=>{
         key4:random(0,10,true),
         key5:random(0,10,true),
         key6:random(0,10,true),
-        key7:random(0,10,true)
+        key7:random(0,10,true),
+        key8:random(0,10,true)
     })
     const [successDialog,setSuccessDialog]=useState(false);
     const [failureDialog,setFailureDialog]=useState(false);
@@ -385,353 +386,6 @@ const ServiceScreen = ()=>{
           modalRef?.current?.close();
         }
     };
-
-
-    // const RenderTaxModal = (
-    //     <BottomSheet
-    //       bottomSheetRef={taxModalRef}
-    //       headerText='Select Taxes'
-    //       headerTextColor='#084EAD'
-    //       flatListProps={{
-    //         data: taxArr,
-    //         renderItem: ({item}) => {
-    //           return (
-    //             <TouchableOpacity
-    //               style={styles.renderConatiner}
-    //               onPress={()=>{
-    //                   let updatedSelectedUniqueTax = {...selectedUniqueTax};  
-    //                   if(Object.keys(updatedSelectedUniqueTax).length == 0 ){
-    //                       const Obj = {
-    //                           [item?.taxType] : item
-    //                       }
-    //                       setSelectedUniqueTax(Obj);
-    //                   }else{
-    //                       if(updatedSelectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName){
-    //                           delete updatedSelectedUniqueTax?.[item?.taxType];
-    //                           setSelectedUniqueTax({...updatedSelectedUniqueTax});
-    //                       }
-    //                       else{
-    //                           if(updatedSelectedUniqueTax?.[item?.taxType]){
-    //                               console.log("can't add this item");
-                                  
-    //                           }else{
-    //                               updatedSelectedUniqueTax = { ...updatedSelectedUniqueTax, [item?.taxType]: item };
-    //                               setSelectedUniqueTax({...updatedSelectedUniqueTax})
-    //                           }
-    //                       }
-    //                   }
-    //               }}
-    //               >
-    //               <View style={styles.modalRenderItem}>
-    //                 <View
-    //                   style={[styles.modalCheckBox,{ borderColor: selectedUniqueTax?.[item?.taxType] ? '#CCCCCC' : '#1C1C1C'}]}>
-    //                   {selectedUniqueTax?.[item?.taxType]?.uniqueName === item?.uniqueName && (
-    //                     <AntDesign name={'check'} size={10} color={'#1C1C1C'} />
-    //                   )}
-    //                 </View>
-    //                 <Text
-    //                   style={styles.modalText}>
-    //                   {item.name}
-    //                 </Text>
-    //               </View>
-    //             </TouchableOpacity>
-    //           );
-    //         },
-    //         ListEmptyComponent: () => {
-    //           return (
-    //             <View style={styles.modalCancelView}>
-    //               <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Taxes Available
-    //               </Text>
-    //             </View>
-  
-    //           );
-    //         }
-    //       }}
-    //     />
-    // );
-
-    // const RenderGroupModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={groupModalRef}
-    //     headerText='Select Group'
-    //     headerTextColor='#084EAD'
-    //     adjustToContentHeight={false}
-    //     flatListProps={{
-    //         data: parentGroupArr,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setSelectedGroup(item?.name)
-    //                 setSelectedGroupUniqueName(item?.uniqueName)
-    //                 setBottomSheetVisible(groupModalRef, false);
-    //             }}
-    //             >
-    //             <Icon name={selectedGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             <Text style={styles.radiobuttonText}
-    //             >
-    //                 {item?.name}
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Group Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // );
-
-    // const RenderUnitGroupModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={unitGroupModalRef}
-    //     headerText='Select Unit Group'
-    //     headerTextColor='#084EAD'
-    //     flatListProps={{
-    //         data: unitGroupArr,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setSelectedUnitGroup(item?.name)
-    //                 setSelectedUnitGroupUniqueName(item?.uniqueName)
-    //                 setBottomSheetVisible(unitGroupModalRef, false);
-    //                 fetchUnitGroupMappingDebounce(item?.uniqueName)
-    //             }}
-    //             >
-    //             <Icon name={selectedUnitGroup == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             <Text style={styles.radiobuttonText}>
-    //                 {item?.name}
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Group Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // );
-
-    // const RenderUnitMappingModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={unitGroupMappingModalRef}
-    //     headerText='Select Unit Group'
-    //     headerTextColor='#084EAD'
-    //     flatListProps={{
-    //         data: unitGroupMapping,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setUnit({
-    //                     code: item?.stockUnitX?.code, 
-    //                     name: item?.stockUnitX?.name, 
-    //                     uniqueName: item?.stockUnitX?.uniqueName
-    //                 });
-    //                 setBottomSheetVisible(unitGroupMappingModalRef, false);
-    //                 fetchLinkedUnitMapping(item?.stockUnitX?.uniqueName)
-    //             }}
-    //             >
-    //             <Icon name={unit?.name == item?.stockUnitX?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             <Text style={styles.radiobuttonText}>
-    //                 {item?.stockUnitX?.name} ({item?.stockUnitX?.code})
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Unit Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // )
-
-    // const RenderPurchaseSubUnitMappingModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={purchaseSubUnitMappingModalRef}
-    //     headerText='Select Unit'
-    //     headerTextColor='#084EAD'
-    //     flatListProps={{
-    //         data: subUnits,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setPurchaseSubUnits(item);
-    //                 setBottomSheetVisible(purchaseSubUnitMappingModalRef, false);
-    //             }}
-    //             >
-    //             {purchaseSubUnits?.uniqueName 
-    //             ? <Icon name={purchaseSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
-                
-    //             <Text style={styles.radiobuttonText}>
-    //                 {item?.code}
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Unit Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // )
-
-    // const RenderSalesSubUnitMappingModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={salesSubUnitMappingModalRef}
-    //     headerText='Select Unit'
-    //     headerTextColor='#084EAD'
-    //     flatListProps={{
-    //         data: subUnits,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setSalesSubUnits(item);
-    //                 setBottomSheetVisible(salesSubUnitMappingModalRef, false);
-    //             }}
-    //             >
-    //             {salesSubUnits?.uniqueName ? <Icon name={salesSubUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             :<Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
-    //             <Text style={styles.radiobuttonText}>
-    //                 {item?.code}
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Unit Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // )
-
-    // const RenderSalesAccModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={salesAccModalRef}
-    //     headerText='Select Unit'
-    //     headerTextColor='#084EAD'
-    //     adjustToContentHeight={false}
-    //     flatListProps={{
-    //         data: salesAccountArr,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setSalesAccount(item);
-    //                 setBottomSheetVisible(salesAccModalRef, false);
-    //             }}
-    //             >
-    //             <Icon name={salesAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             <Text style={styles.radiobuttonText}>
-    //                 {item?.name}
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Accounts Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // )
-
-    // const RenderPurchaseAccModal = (
-    //     <BottomSheet
-    //     bottomSheetRef={purchaseAccModalRef}
-    //     headerText='Select Unit'
-    //     headerTextColor='#084EAD'
-    //     flatListProps={{
-    //         data: purchaseAccountArr,
-    //         renderItem: ({item}) => {
-    //         return (
-    //             <TouchableOpacity 
-    //             style={styles.button}
-    //             onPress={() => {
-    //                 setPurchaseAccount(item);
-    //                 setBottomSheetVisible(purchaseAccModalRef, false);
-    //             }}
-    //             >
-    //             <Icon name={purchaseAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
-    //             <Text style={styles.radiobuttonText}>
-    //                 {item?.name}
-    //             </Text>
-    //             </TouchableOpacity>
-    //         );
-    //         },
-    //         ListEmptyComponent: () => {
-    //         return (
-    //             <View style={styles.modalCancelView}>
-    //             <Text
-    //                 style={styles.modalCancelText}>
-    //                 No Accounts Available
-    //             </Text>
-    //             </View>
-
-    //         );
-    //         }
-    //     }}
-    //     />
-    // )
 
 
     const successBox = (
@@ -967,7 +621,8 @@ const ServiceScreen = ()=>{
             key4:random(0,10,true),
             key5:random(0,10,true),
             key6:random(0,10,true),
-            key7:random(0,10,true)
+            key7:random(0,10,true),
+            key8:random(0,10,true)
         }
         setSelectedUniqueTax({})
         setSelectedGroup('');
@@ -1024,7 +679,23 @@ const ServiceScreen = ()=>{
                     style={styles.backGround}
                     bounces={false}>
                     <_StatusBar statusBar={statusBar}/>
-                    <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+                    <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
+                        headerRightContent={
+                            <>
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                hitSlop={{ top: 10, bottom: 10 }}
+                                style={{ padding: 8 }}
+                                onPress={() => {
+                                    clearAll();
+                                }}
+                            >
+                                {/* <Feather name="save" size={22} color={'#FFFFFF'} /> */}
+                                <Text style={styles.smallText}>Clear</Text>
+                            </TouchableOpacity>
+                            </>
+                        }
+                    />
                     <RenderStockName
                         key={childKeys.key1}
                         handleInputChange={handleInputChange}
@@ -1048,8 +719,8 @@ const ServiceScreen = ()=>{
                         setUnit={setUnit}
                         setUnitGroupMapping={setUnitGroupMapping}
                         fetchLinkedUnitMapping={fetchLinkedUnitMapping}/>
-                    <View style={{flexDirection:'row',width:'100%',marginBottom:10}}>
-                        <View style={{width:'50%'}}>
+                    <View style={{flexDirection:'row',width:'100%',marginBottom:5,paddingHorizontal:16,justifyContent:'space-between'}}>
+                        <View style={{width:'48%'}}>
                             <RenderTaxes 
                                 key={childKeys.key3} 
                                 selectedUniqueTax={selectedUniqueTax} 
@@ -1059,7 +730,7 @@ const ServiceScreen = ()=>{
                                 setSelectedUniqueTax={setSelectedUniqueTax}
                             />
                         </View>
-                        <View>
+                        <View style={{width:'48%'}}>
                             <RenderGroups 
                                 key={childKeys.key4} 
                                 groupName={selectedGroup}
@@ -1075,6 +746,30 @@ const ServiceScreen = ()=>{
                     <RenderLinkedAcc 
                         key={childKeys.key5}
                         unit={unit} 
+                        type="purchase"
+                        purchaseSubUnitMappingModalRef={purchaseSubUnitMappingModalRef} 
+                        salesSubUnitMappingModalRef={salesSubUnitMappingModalRef}
+                        setBottomSheetVisible={setBottomSheetVisible} 
+                        purchaseSubUnits={purchaseSubUnits} 
+                        salesSubUnits={salesSubUnits}
+                        salesAccModalRef={salesAccModalRef}
+                        purchaseAccModalRef={purchaseAccModalRef}
+                        purchaseAccount={purchaseAccount}
+                        salesAccount={salesAccount}
+                        handleRateChange={handleInputChange}
+                        variantsChecked={variantsChecked}
+                        setPurchaseSubUnits={setPurchaseSubUnits}
+                        setSalesSubUnits={setSalesSubUnits}
+                        subUnits={subUnits}
+                        salesAccountArr={salesAccountArr}
+                        purchaseAccountArr={purchaseAccountArr}
+                        setPurchaseAccount={setPurchaseAccount}
+                        setSalesAccount={setSalesAccount}
+                    />
+                    <RenderLinkedAcc 
+                        key={childKeys.key8}
+                        unit={unit} 
+                        type="sales"
                         purchaseSubUnitMappingModalRef={purchaseSubUnitMappingModalRef} 
                         salesSubUnitMappingModalRef={salesSubUnitMappingModalRef}
                         setBottomSheetVisible={setBottomSheetVisible} 
@@ -1116,14 +811,6 @@ const ServiceScreen = ()=>{
                 </Animated.ScrollView>
             </View>
             <Loader isLoading={isLoading}/>
-            {/* {RenderTaxModal} */}
-            {/* {RenderGroupModal} */}
-            {/* {RenderUnitGroupModal} */}
-            {/* {RenderUnitMappingModal} */}
-            {/* {RenderPurchaseSubUnitMappingModal} */}
-            {/* {RenderSalesSubUnitMappingModal} */}
-            {/* {RenderSalesAccModal} */}
-            {/* {RenderPurchaseAccModal} */}
             {successBox}
             {failureBox}
         </KeyboardAvoidingView>

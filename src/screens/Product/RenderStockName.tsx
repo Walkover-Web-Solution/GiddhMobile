@@ -1,7 +1,9 @@
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import makeStyles from "./style";
+import InputField from "@/components/InputField";
+import { TextInput } from "react-native-paper";
 
 const RenderStockName = ({
     allData,
@@ -12,38 +14,13 @@ const RenderStockName = ({
 
     const { theme, styles } = useCustomTheme(makeStyles)
     return (
-        <View>
-            <View style={[styles.checkboxContainer, {paddingTop: 14}]}>
-                <View style={styles.checkboxContainer}>
-                    <MaterialCommunityIcons name='alphabetical-variant' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={18} />
-                    <TextInput
-                        placeholderTextColor={'#808080'}
-                        placeholder={'Enter '+ (type === 'PRODUCT'? 'Stock' : 'Service')}
-                        returnKeyType={'done'}
-                        onChangeText={(text) => 
-                            handleInputChange('name',text)
-                        }
-                        style={styles.textInput}
-                    />
-                </View>
-                <TouchableOpacity style={{padding:5}} onPress={()=>clearAll()}>
-                    <Text style={styles.clearnBtnText}>Clear All</Text>
-                </TouchableOpacity>
-            </View>
-            <View>
-                {/* <View style={styles.checkboxContainer}>
-                <MaterialCommunityIcons name='alphabetical' color={DefaultTheme.colors.secondary} style={{margin: 16}} size={18} />
-                <TextInput
-                    placeholderTextColor={'#808080'}
-                    placeholder={'Unique Name'}
-                    returnKeyType={'done'}
-                    onChangeText={(text) => 
-                        handleInputChange('uniqueName',text)
-                    }
-                    style={styles.textInput}
-                />
-                </View> */}
-            </View>
+        <View style={{marginHorizontal:16,paddingTop:5}}>
+            <InputField
+                lable={'Enter '+ (type === 'PRODUCT'? 'Stock' : 'Service')}
+                onChangeText={(text) => 
+                    handleInputChange('name',text)
+                }
+            />
         </View>
     );
 }

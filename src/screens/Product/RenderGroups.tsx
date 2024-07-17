@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
 import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';
+import MatButton from "@/components/OutlinedButton";
 const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup,parentGroupArr,setSelectedGroup,setSelectedGroupUniqueName})=>{
   const {theme,styles} = useCustomTheme(makeStyle);
   const {height,width} = Dimensions.get('window');
@@ -55,33 +56,14 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
     return (
       <>
         <View style={[styles.fieldContainer,{maxHeight:100}]}>
-        <View style={styles.rowView}>
-          <Icon name='arrange-bring-forward' color={DefaultTheme.colors.secondary} size={16} />
-          <Text style={styles.fieldHeadingText}>{'Groups'}</Text>
-        </View>
-
-        <View style={styles.unitGroupView}>
-          <View style={styles.rowView}>
-            <TouchableOpacity
-              style={styles.rowView}
-              onPress={async ()=>{
-                await fetchAllParentGroup();
-                setBottomSheetVisible(groupModalRef,true);
-              }}
-              textColor={{colors}}>
-              <View
-                style={[
-                  styles.buttonWrapper,
-                  styles.modalBtn,
-                  {borderColor: groupName?.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
-                ]}>
-                <Text style={[styles.buttonText,{ color:'#868686'}]}>
-                  {groupName?.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
+          <MatButton 
+            lable="Select Group"
+            value={groupName?.length > 0 ? groupName :""}
+            onPress={async ()=>{
+              await fetchAllParentGroup();
+              setBottomSheetVisible(groupModalRef,true);
+            }}
+          />
         </View>
       {RenderGroupModal}
       </>

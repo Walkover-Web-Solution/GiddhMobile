@@ -6,6 +6,8 @@ import useCustomTheme from "@/utils/theme";
 import BottomSheet from "@/components/BottomSheet";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import Toast from "@/components/Toast";
+import InputField from "@/components/InputField";
+import MatButton from "@/components/OutlinedButton";
 
 const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
@@ -129,7 +131,7 @@ const GeneralLinkedAccComponent = ({
         <>
         <View style={styles.linkedAccContainer}>
             <View>
-                <View style={[styles.inputRow,{marginBottom:10}]}>
+                <View style={[styles.inputRow,{marginBottom:0,paddingHorizontal:15}]}>
                     {/* <Text style={[styles.optionTitle,{marginTop:5}]} >{rateLabel}</Text> */}
                     <RadioForm
                     formHorizontal={true}
@@ -177,57 +179,45 @@ const GeneralLinkedAccComponent = ({
                         ))}
                     </RadioForm>
                 </View>
-            </View>
-            <View style={styles.inputRow}>
-                <Text style={[styles.optionTitle,{marginTop:0,marginLeft:5}]} >{linkedAccountText === "Purchase Accounts" ?'Purchase' :'Sales'}</Text>
-                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: selectedAccount?.name ? '#084EAD' : '#d9d9d9'  }]}>
-                    <TouchableOpacity
-                    onPress={() => {
-                        setBottomSheetVisible(accountModalRef,true);
-                    }} style={{ flex: 1 }}>
-                        {selectedAccount?.name ? ( 
-                        <Text style={[styles.buttonText, { color: '#084EAD' }]}>
-                            {selectedAccount?.name}
-                        </Text>
-                        ) : (
-                        <Text
-                            style={[styles.buttonText, { color: '#868686' }]}>
-                            {linkedAccountText === "Purchase Accounts" ?'Purchase Accounts' :'Sales Accounts'}
-                        </Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
             </View> 
-            {!variantsChecked && <View style={[styles.inputRow,{marginTop:5}]}>
-                <TextInput
-                    returnKeyType={'done'}
-                    keyboardType="number-pad"
-                    onChangeText={(val) => {
-                        // setRate(val);
-                        linkedAccountText === "Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
-                    }}
-                    placeholderTextColor={'rgba(80,80,80,0.5)'}
-                    placeholder="Rate"
-                    style={[styles.rowContainer, styles.buttonWrapper,styles.linkedModalBtn ]} />
-                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? '#084EAD' : '#d9d9d9'}]}>
-                    <TouchableOpacity
+            {!variantsChecked && <View style={[styles.inputRow,{marginTop:0}]}>
+                <View style={{width:'48%'}}>
+                    <InputField 
+                        lable="Rate"
+                        keyboardType="numeric"
+                        // value={localOptionName}
+                        isRequired={false}
+                        placeholderTextColor={'#808080'}
+                        onChangeText={(val) => {
+                            // setRate(val);
+                            linkedAccountText === "Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
+                        }}
+                    />    
+                </View>
+                <View style={{width:'48%'}}>
+                    <MatButton 
+                        lable="Unit"
+                        value={subUnits?.uniqueName ? subUnits?.code : unitName==='Unit' ? "":unitName}
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : Toast({message: "Please select unit group", position:'BOTTOM',duration:'SHORT'});
-                        }} style={{ flex: 1 }}>
-                        
-                        {subUnits?.uniqueName ? ( 
-                        <Text style={[styles.buttonText, { color: '#084EAD',lineHeight:14 }]}>
-                            {subUnits?.code}
-                        </Text>
-                        ) : (
-                        <Text
-                            style={[styles.buttonText, { color: unitName!=='Unit' ? '#084EAD' :'#868686',lineHeight:14}]}>
-                            {unitName}
-                        </Text>
-                        )}
-                    </TouchableOpacity>
+                        }}
+                    />
                 </View>
-            </View>}   
+            </View>}  
+            <View style={[styles.inputRow,{marginBottom:5}]}>
+                <View style={{width:'100%'}}>
+                    <MatButton 
+                        lable={linkedAccountText === "Purchase Accounts" ?'Purchase Accounts' :'Sales Accounts'}
+                        value={selectedAccount?.name 
+                            ? selectedAccount?.name 
+                            : ""
+                        }
+                        onPress={() => {
+                            setBottomSheetVisible(accountModalRef,true);
+                        }}
+                    />
+                </View>
+            </View> 
         </View>
         {RenderSubUnitMappingModal}
         {RenderAccountModal}
