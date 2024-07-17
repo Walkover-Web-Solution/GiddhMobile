@@ -1,6 +1,5 @@
 import useCustomTheme from "@/utils/theme";
-import { useState } from "react";
-import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import makeStyle from "./style";
 import InputField from "@/components/InputField";
 

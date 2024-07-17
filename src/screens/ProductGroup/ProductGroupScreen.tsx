@@ -1,19 +1,12 @@
 import Header from "@/components/Header"
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
-import { Animated, DeviceEventEmitter, Keyboard, KeyboardAvoidingView, Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { Animated, DeviceEventEmitter, Keyboard, KeyboardAvoidingView, Platform, StatusBar, Text, TouchableOpacity, View } from "react-native"
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { Dimensions } from "react-native"
 import { useEffect, useRef, useState } from "react"
-import style from "../ProductGroup/style"
-import color from '@/utils/colors';
-
-import Entypo from 'react-native-vector-icons/Entypo'
 import { InventoryService } from "@/core/services/inventory/inventory.service"
-import { useSelector } from "react-redux"
-import AsyncStorage from "@react-native-community/async-storage"
-import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants"
+import { APP_EVENTS } from "@/utils/constants"
 import BottomSheet from "@/components/BottomSheet"
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RenderGroupName from "./RenderGroupName"

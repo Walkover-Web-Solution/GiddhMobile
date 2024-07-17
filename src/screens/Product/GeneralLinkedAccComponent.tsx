@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dimensions, Platform, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
 import makeStyle from './style';
 import useCustomTheme from "@/utils/theme";

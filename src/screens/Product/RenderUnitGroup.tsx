@@ -1,8 +1,6 @@
-import { Animated, Dimensions, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Animated, Dimensions, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
-// import Icon from '@/core/components/custom-icon/custom-icon';
-import React, { memo, useEffect, useRef, useState } from "react";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { memo, useRef, useState } from "react";
 import makeStyles from "./style";
 import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';

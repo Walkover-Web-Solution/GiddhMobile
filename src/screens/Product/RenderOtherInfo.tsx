@@ -1,7 +1,6 @@
-import { FONT_FAMILY } from "@/utils/constants";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useState } from "react";
-import { Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MoreIcon from 'react-native-vector-icons/MaterialIcons';
 import makeStyles from "./style";

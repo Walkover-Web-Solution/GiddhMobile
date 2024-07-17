@@ -1,9 +1,7 @@
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import { View } from "react-native";
 import makeStyles from "./style";
 import InputField from "@/components/InputField";
-import { TextInput } from "react-native-paper";
 
 const RenderStockName = ({
     allData,

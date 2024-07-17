@@ -1,7 +1,5 @@
-import Icon from '@/core/components/custom-icon/custom-icon';
 import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import useCustomTheme, { DefaultTheme } from '@/utils/theme';
-import colors from '@/utils/colors';
 import React from 'react';
 import makeStyles from './style';
 import BottomSheet from '@/components/BottomSheet';

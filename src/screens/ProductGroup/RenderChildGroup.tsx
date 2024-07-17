@@ -1,8 +1,4 @@
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
-import style from "./style";
-import colors from "@/utils/colors";
-import CheckBox from 'react-native-check-box';
-import { useState } from "react";
 import useCustomTheme from "@/utils/theme";
 import makeStyle from "./style";
 import MatButton from "@/components/OutlinedButton";

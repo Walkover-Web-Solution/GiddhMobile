@@ -1,14 +1,10 @@
-import { Dimensions, Text, TouchableOpacity, View } from "react-native";
-import style from "./style"
-import Icon from '@/core/components/custom-icon/custom-icon';
+import { View } from "react-native";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
-import color from '@/utils/colors';
 import makeStyle from "./style";
 import MatButton from "@/components/OutlinedButton";
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
     const {styles, theme} = useCustomTheme(makeStyle);
-    const {height,width } = Dimensions.get('window');
     return (
     <View style={styles.fieldContainer}>
         <MatButton 

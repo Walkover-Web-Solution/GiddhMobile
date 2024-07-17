@@ -1,13 +1,10 @@
-import { FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants";
+import { STORAGE_KEYS } from "@/utils/constants";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useEffect, useState } from "react";
-import { Alert, Dimensions, Platform, Pressable, ScrollView, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { element } from "prop-types";
-import { values } from "lodash";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "@/navigation/routes";
 import { CustomFields, Variants, Warehouse } from "./ProductScreen";
@@ -25,7 +22,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
     const [fields, setFields] = useState([{ id: Date.now(), value: '' }]);
     const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
     const [optionName,setOptionName] = useState('');
-    const {height,width} = Dimensions.get('window')
     const [optionIds,setOptionIds]= useState<string[]>([]);
     const [optionAndDataMapping,setOptionAndDataMapping]:any = useState({});
     const [editingOptionId,setEditingOptionId] = useState<string | null>(null); 

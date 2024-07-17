@@ -1,16 +1,13 @@
 import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import  CheckBox  from "react-native-check-box";
-import { Dimensions, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollViewComponent, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { CustomFields, Variants } from "./ProductScreen";
+import { Dimensions, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { CustomFields} from "./ProductScreen";
 import React, { useRef, useState } from "react";
 import BottomSheet from "@/components/BottomSheet";
 import { FONT_FAMILY } from "@/utils/constants";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView } from "react-native-gesture-handler";
-import Feather from 'react-native-vector-icons/Feather'
 import Toast from "@/components/Toast";
 
 const {height, width} = Dimensions.get('window');

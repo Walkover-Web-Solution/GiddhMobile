@@ -1,11 +1,7 @@
-import useCustomTheme, { DefaultTheme } from "@/utils/theme";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import makeStyle from "./style";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import { View } from "react-native";
 import InputField from "@/components/InputField";
 
 const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll})=>{
-    const {theme,styles} = useCustomTheme(makeStyle);
     const cleanText = (text:string)=> {
         const pattern = /[^a-zA-Z0-9]/g;
         return text.replace(pattern, '');

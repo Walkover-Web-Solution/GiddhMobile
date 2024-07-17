@@ -1,4 +1,3 @@
-import { FONT_FAMILY } from "@/utils/constants";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import { Pressable, Text, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -37,11 +36,6 @@ const RenderLinkedAcc = ({
     })=>{
     const [expandAcc, setExpandAcc] = useState(true);
     const {theme,styles} = useCustomTheme(makeStyles);
-    // const radio_props = [
-    //     { label: 'MRP (Inclusive)', value: 0 },
-    //     { label: 'Exclusive', value: 1 }
-    //   ];
-    // const [radioBtn, setRadioBtn]= useState(1);
     return (
         <View style={{maxHeight:400}}>
             <Pressable 

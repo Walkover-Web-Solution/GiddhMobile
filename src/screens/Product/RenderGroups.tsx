@@ -1,8 +1,6 @@
 import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import makeStyle from "./style";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
-import colors from "@/utils/colors";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
 import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';
