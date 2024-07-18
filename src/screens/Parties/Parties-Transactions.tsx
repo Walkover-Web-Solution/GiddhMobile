@@ -934,7 +934,6 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
   onShare = async () => {
     
     try {
-      console.log("yehihe");
       await Platform.OS == "ios" ? this.setState({ ShareModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
