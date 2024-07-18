@@ -1,5 +1,4 @@
-import { Dimensions, Text, TouchableOpacity, View } from "react-native";
-import style from "./style"
+import { Text, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import color from '@/utils/colors';
@@ -7,7 +6,6 @@ import makeStyle from "./style";
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
     const {styles, theme} = useCustomTheme(makeStyle);
-    const {height,width } = Dimensions.get('window');
     return (
     <View style={styles.fieldContainer}>
         <View style={styles.checkboxContainer}>
@@ -38,33 +36,6 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef})=>{
                         </View>
                     </View>
                 </TouchableOpacity>
-                {/* <TouchableOpacity
-                style={{flexDirection: 'row'}}
-                //   onPress={() => {
-                //     if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-                //       this.setBottomSheetVisible(this.paymentModalRef, true);
-                //     } else {
-                //       alert('Please select a party.');
-                //     }
-                //   }}
-                textColor={{color}}>
-                <View
-                    style={[
-                    style.buttonWrapper,
-                    {marginLeft: 20,width:150},
-                    {borderColor: false ? '#00B795' : '#d9d9d9'},
-                    ]}>
-                    <Text
-                    style={[
-                        style.buttonText,
-                        {
-                        color: false ? '#00B795' : '#868686',
-                        },
-                    ]}>
-                        Select Group
-                    </Text>
-                </View>
-                </TouchableOpacity> */}
             </View>
         </View>
     </View>

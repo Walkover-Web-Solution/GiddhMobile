@@ -1,8 +1,5 @@
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
-import style from "./style";
 import colors from "@/utils/colors";
-import CheckBox from 'react-native-check-box';
-import { useState } from "react";
 import useCustomTheme from "@/utils/theme";
 import makeStyle from "./style";
 
@@ -11,15 +8,6 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
     return (
         <View style={[styles.fieldContainer, {flex: 1}]} >
             <View style={styles.checkboxContainer}>
-                {/* <CheckBox
-                    checkBoxColor={'#084EAD'}
-                    uncheckedCheckBoxColor={'#084EAD'}
-                    isChecked={isChecked}
-                    onClick={()=>{
-                        setIsChecked(!isChecked);
-                    }}
-
-                /> */}
                 <TouchableOpacity
                     onPress={()=>setIsChecked(!isChecked)}
                     style={styles.checkBoxView}>
@@ -32,10 +20,8 @@ const RenderChildGroup = ({groupName,childGroupModalRef,setBottomSheetVisible,is
                 </View>
             </View>
             <View>
-            {/* <Entypo name="edit" size={16} color={'#00B795'} style={{ paddingRight: 10}}/> */}
             {isChecked && <View style={{marginTop:20}}>
                 <TouchableOpacity style={styles.checkboxContainer} onPress={()=>{
-                    // setIsChecked(false);
                     setBottomSheetVisible(childGroupModalRef,true);
                 }}
                 textColor={{colors}}>

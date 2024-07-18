@@ -1,6 +1,5 @@
 import { Dimensions, Text, TextInput, TouchableOpacity, View } from "react-native";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
-// import Icon from '@/core/components/custom-icon/custom-icon';
 import React from "react";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import makeStyles from "./style";
@@ -19,16 +18,6 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
                 onPress={()=>{
                     setBottomSheetVisible(unitGroupModalRef,true);
                 }}
-            // onPress={() => {
-            //     if (!this.state.partyName) {
-            //     alert('Please select a party.');
-            //     } else if (this.state.amountForReceipt == '') {
-            //     alert('Please enter amount.');
-            //     } else {
-            //     this.setState({showClearanceDatePicker: true});
-            //     this.setState({isClearanceDateSelelected: true});
-            //     }
-            // }}>
             >
             <View
                 style={[
@@ -53,16 +42,6 @@ const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetV
             onPress={()=>{
                 setBottomSheetVisible(unitGroupMappingModalRef,true)
             }}
-            // onPress={() => {
-            //     if (!this.state.partyName) {
-            //     alert('Please select a party.');
-            //     } else if (this.state.amountForReceipt == '') {
-            //     alert('Please enter amount.');
-            //     } else {
-            //     this.setState({showClearanceDatePicker: true});
-            //     this.setState({isClearanceDateSelelected: true});
-            //     }
-            // }}>
             >
             <View
                 style={[

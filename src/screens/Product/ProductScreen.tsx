@@ -318,13 +318,10 @@ const ProductScreen = ()=>{
                 setIsLoading(false);
                 setSuccessDialog(true);
                 await clearAll();
-                // ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
-                // navigation.goBack();
             }else{
                 setIsLoading(false);
                 setFailureDialog(true);
                 setFailureMessage(result?.data?.message)
-                // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
             }
         }else{
             if(parentGroupArr?.length == 0){
@@ -344,13 +341,10 @@ const ProductScreen = ()=>{
                         setIsLoading(false);
                         setSuccessDialog(true);
                         await clearAll();
-                        // ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
-                        // navigation.goBack();
                     }else{
                         setIsLoading(false);
                         setFailureDialog(true);
                         setFailureMessage(result?.data?.message)
-                        // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
                     }
                 }else{
                     setIsLoading(false);
@@ -457,7 +451,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={groupModalRef}
         headerText='Select Group'
         headerTextColor='#084EAD'
-        // adjustToContentHeight={false}
         adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: parentGroupArr,
@@ -671,7 +664,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={salesAccModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        // adjustToContentHeight={false}
         adjustToContentHeight={((salesAccountArr.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: salesAccountArr,
@@ -711,7 +703,6 @@ const ProductScreen = ()=>{
         bottomSheetRef={purchaseAccModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        // adjustToContentHeight={false}
         adjustToContentHeight={((purchaseAccountArr.length*47) > (height-100)) ?false : true}
         flatListProps={{
             data: purchaseAccountArr,
@@ -932,6 +923,7 @@ const ProductScreen = ()=>{
     }
 
     const CreateButton = (
+        // diff btn design
         // <TouchableOpacity
         //     style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
         //     disabled = {isLoading}
@@ -1003,11 +995,6 @@ const ProductScreen = ()=>{
 
     const clearAll = ()=>{
         resetState();
-        // fetchAllTaxes();
-        // fetchAllParentGroup();
-        // fetchStockUnitGroup();
-        // fetchPurchaseAccounts();
-        // fetchSalesAccounts();
         fetchVariantCustomfields();
     }
 

@@ -15,7 +15,6 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   },
   renderConatiner: {
     paddingHorizontal: 20
-    // backgroundColor: '#00B795'
   },
   buttonWrapper: {
     backgroundColor: '#fff',
@@ -225,7 +224,6 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // padding: Platform.OS=="ios"? 15:0,
     paddingVertical: 10,
     paddingHorizontal:20,
   },
@@ -320,7 +318,6 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   },
   radioBtnView:{
     flexDirection: 'row',
-    // backgroundColor: 'pink',
     justifyContent: 'space-between',
     marginVertical: 10,
     alignItems: 'center',
@@ -360,9 +357,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     minWidth:140,
     minHeight:40,
     maxWidth:width-20,
-    // justifyContent:'center',
     paddingHorizontal:10,
-    // alignContent:'center'
   },
   dialogContainer:{ 
     justifyContent: 'center', 

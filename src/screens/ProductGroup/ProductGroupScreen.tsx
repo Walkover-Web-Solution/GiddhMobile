@@ -6,13 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { Dimensions } from "react-native"
 import { useEffect, useRef, useState } from "react"
-import style from "../ProductGroup/style"
-import color from '@/utils/colors';
-
-import Entypo from 'react-native-vector-icons/Entypo'
 import { InventoryService } from "@/core/services/inventory/inventory.service"
-import { useSelector } from "react-redux"
-import AsyncStorage from "@react-native-community/async-storage"
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants"
 import BottomSheet from "@/components/BottomSheet"
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -117,14 +111,11 @@ const ProductGroupScreen = ()=>{
       if(result?.data && result?.data?.status == 'success'){
         setIsLoading(false);
         setSuccessDialog(true);
-        // ToastAndroid.show("Stock Group Created Successfully!", ToastAndroid.LONG)
-        // navigation.goBack();
         await clearAll();
       }else{
         setIsLoading(false);
         setFailureDialog(true);
         setFailureMessage(result?.data?.message);
-        // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG)
       }
       
     }

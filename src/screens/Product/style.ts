@@ -18,7 +18,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   renderConatiner: {
     paddingHorizontal: 20
-    // backgroundColor: '#00B795'
   },
   buttonWrapper: {
     backgroundColor: '#fff',
@@ -230,7 +229,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // padding: Platform.OS=="ios"? 15:0,
     paddingVertical: 10,
     paddingHorizontal:20,
   },
@@ -430,7 +428,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   radioGroupContainer :{
     flexDirection: 'row',
-    // backgroundColor: 'pink',
     justifyContent: 'space-between',
     marginTop: 10,
     width:'75%',

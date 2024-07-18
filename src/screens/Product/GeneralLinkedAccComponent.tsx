@@ -8,11 +8,8 @@ const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
     initialRadioSelection = 1,
     linkedAccountText = "Linked Purchase Accounts",
-    // onLinkedAccountPress,
     textInputPlaceholder = "Rate",
     textInputKeyboardType = "number-pad",
-    // textInputValue,
-    // onTextInputChange,
     unitText = "Unit",
     unitName = "Unit",
     setBottomSheetVisible,
@@ -20,12 +17,8 @@ const GeneralLinkedAccComponent = ({
     subUnits,
     accountModalRef,
     selectedAccount,
-    // setRate,
     handleRateChange,
     variantsChecked
-    // setRadioBtn,
-    // radioBtn=1
-    // onUnitPress
 })=>{
     const [radioBtn,setRadioBtn] = useState(1);
     const radio_props = [
@@ -110,21 +103,15 @@ const GeneralLinkedAccComponent = ({
                     returnKeyType={'done'}
                     keyboardType="number-pad"
                     onChangeText={(val) => {
-                        // setRate(val);
                         linkedAccountText === "Linked Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                     }}
                     placeholderTextColor={'rgba(80,80,80,0.5)'}
-                    // value={this.state.openingBalance}
                     placeholder="Rate"
                     style={[styles.rowContainer, styles.buttonWrapper,styles.linkedModalBtn ]} />
                 <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? '#084EAD' : '#d9d9d9'}]}>
                     <TouchableOpacity
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
-                            // this.setState({
-                            // isCurrencyModalVisible: !this.state.isCurrencyModalVisible,
-                            // filteredCurrencyData: this.state.allCurrency,
-                            // })
                         }} style={{ flex: 1 }}>
                         
                         {subUnits?.uniqueName ? ( 

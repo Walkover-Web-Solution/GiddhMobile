@@ -18,22 +18,11 @@ const RenderLinkedAcc = ({
         purchaseAccModalRef,
         purchaseAccount,
         salesAccount,
-        // setPurchaseRate,
-        // setSalesRate,
         handleRateChange,
         variantsChecked
-        // setPurchaseRadioBtn,
-        // setSalesRadioBtn,
-        // purchaseRadioBtn,
-        // salesRadioBtn
     })=>{
     const [expandAcc, setExpandAcc] = useState(true);
     const {theme,styles} = useCustomTheme(makeStyles);
-    // const radio_props = [
-    //     { label: 'MRP (Inclusive)', value: 0 },
-    //     { label: 'Exclusive', value: 1 }
-    //   ];
-    // const [radioBtn, setRadioBtn]= useState(1);
     return (
         <View style={{maxHeight:400}}>
             <Pressable 
@@ -68,11 +57,8 @@ const RenderLinkedAcc = ({
                         subUnits={purchaseSubUnits} 
                         accountModalRef={purchaseAccModalRef}
                         selectedAccount={purchaseAccount}
-                        // setRate={setPurchaseRate}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
-                        // setRadioBtn={setPurchaseRadioBtn}
-                        // radioBtn={purchaseRadioBtn}
                     />
                     <View style={styles.lineView}></View>
                     <GeneralLinkedAccComponent 
@@ -83,11 +69,8 @@ const RenderLinkedAcc = ({
                         subUnits={salesSubUnits}
                         accountModalRef={salesAccModalRef}
                         selectedAccount={salesAccount}
-                        // setRate={setSalesRate}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
-                        // setRadioBtn={setSalesRadioBtn}
-                        // radioBtn={salesRadioBtn}
                     />
                 </View>
                 )

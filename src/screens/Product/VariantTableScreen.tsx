@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import  CheckBox  from "react-native-check-box";
 import { Dimensions, FlatList, Keyboard, Platform, Pressable, ScrollViewComponent, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomFields, Variants } from "./ProductScreen";
@@ -10,7 +9,6 @@ import BottomSheet from "@/components/BottomSheet";
 import { FONT_FAMILY } from "@/utils/constants";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView } from "react-native-gesture-handler";
-import Feather from 'react-native-vector-icons/Feather'
 
 const {height, width} = Dimensions.get('window');
 const VariantTableScreen = ({route})=>{
@@ -206,7 +204,6 @@ const VariantTableScreen = ({route})=>{
                             ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.warehouseBalance?.[0]?.stockUnit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                             : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                         }
-                        {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -248,7 +245,6 @@ const VariantTableScreen = ({route})=>{
                         ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.stockUnitUniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                         : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                     }
-                    {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -290,7 +286,6 @@ const VariantTableScreen = ({route})=>{
                     ? <Icon name={globalData?.variants?.[selectedBoxIndex ? selectedBoxIndex : 0]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.stockUnitUniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> 
                     : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                     }
-                    {/* <Icon name={false ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} /> */}
                     <Text style={styles.radiobuttonText}>
                         {item?.code}
                     </Text>
@@ -316,36 +311,6 @@ const VariantTableScreen = ({route})=>{
             <View style={styles.box}>
                 <View style={styles.titleContainer}>
                     <Text numberOfLines={1} style={[styles.combinedValues,{width:'75%'}]}>{combinedValues}</Text>
-                    {/* <Pressable 
-                        onPress={()=>{
-                            
-                            toggleArchive(index);
-                            const updatedObj = [...globalData?.variants]
-                            updatedObj[index] = {
-                                ...updatedObj?.[index],
-                                archive: !updatedObj?.[index]?.archive
-                            }
-
-                            handleGlobalInputChange('variants',updatedObj);
-                            
-                        }}
-                        style={styles.checkboxContainer}> */}
-                        {/* <CheckBox
-                            checkBoxColor={'blue'}
-                            uncheckedCheckBoxColor={'blue'}
-                            style={{marginLeft: -4}}
-                            isChecked={globalData?.variants?.[index]?.archive ? globalData?.variants?.[index]?.archive : archive[index]}
-                            onClick={()=>{
-                                toggleArchive(index);
-                                const updatedObj = [...globalData?.variants]
-                                updatedObj[index] = {
-                                    ...updatedObj?.[index],
-                                    archive: !updatedObj?.[index]?.archive
-                                }
-                                handleGlobalInputChange('variants',updatedObj);
-                                
-                            }}
-                        />     */}
                         <TouchableOpacity 
                             onPress={()=>{    
                                 toggleArchive(index);
@@ -358,12 +323,6 @@ const VariantTableScreen = ({route})=>{
                             }} 
                             style={styles.checkBoxView}>
                             <View style={[styles.checkView,{borderColor:voucherBackground}]}>
-                            {/* <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} 
-                            // archive[index] 
-                            //     ? archive[index] && {backgroundColor: voucherBackground} 
-                            //     : globalData?.variants?.[index]?.archive && {backgroundColor: voucherBackground}]
-                            //     } 
-                                /> */}
                             {
                                 archive[index] 
                                 ? <View style={[styles.tickBox, globalData?.variants?.[index]?.archive && {backgroundColor:voucherBackground}]} />
@@ -372,12 +331,8 @@ const VariantTableScreen = ({route})=>{
                                     : <></> 
                             }
                             </View>
-                            {/* <Text style={styles.label}>Checkbox Label</Text> */}
                             <Text style={styles.checkboxLabel}>Archive</Text>
                         </TouchableOpacity>
-
-                        {/* <Text style={styles.checkboxLabel}>Archive</Text> */}
-                    {/* </Pressable> */}
                 </View>
                 <View style={styles.row}>
                     <TouchableOpacity
@@ -649,7 +604,6 @@ const VariantTableScreen = ({route})=>{
                         navigation.goBack();
                     }}
                   >
-                    {/* <Feather name="save" size={22} color={'#FFFFFF'} /> */}
                     <Text style={styles.smallText}>Done</Text>
                   </TouchableOpacity>
                 </>
@@ -759,7 +713,6 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     },
     radioGroupContainer :{
         flexDirection: 'row',
-        // backgroundColor: 'pink',
         justifyContent: 'space-between',
         marginTop: 10,
         width:'75%',

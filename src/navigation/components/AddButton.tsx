@@ -60,31 +60,7 @@ const inventoryButtons:any = {
         icon: <Product name="file-tray-stacked-outline" size={24} color='brown' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductGroupRefresh'   
-    },
-    // item3 : {
-    //     name: 'Product Inventory', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'red'} />, 
-    //     color: 'red'   
-    // },
-    // item4 : {
-    //     name: 'Service Stock', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'blue'} />, 
-    //     color: 'red'   
-    // },
-    // item5 : {
-    //     name: 'Service Group', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'yellow'} />, 
-    //     color: 'red'   
-    // },
-    // item6 : {
-    //     name: 'Service Inventory', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'black'} />, 
-    //     color: 'red'   
-    // },
+    }
 }
 
 type Props = {
@@ -132,7 +108,6 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                 style={styles.button}
                                 onPress={async ()=>{
                                     this?.props?.closeModal();
-                                    // this?.props?.productOptionRef?.current?.open();
                                     console.log("event emitted-->",APP_EVENTS?.[item?.event]);
                                     
                                     await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});

@@ -14,7 +14,6 @@ export const ProductStack = () => {
       }}>
       <Screen name={routes.ProductScreen} component={ProductScreen} />
       <Screen name={routes.VariantTableScreen} component={VariantTableScreen} />
-      {/* <Screen name={routes.createCompanyDetails} component={CreateCompanyDetails} /> */}
     </Navigator>
   );
 };
