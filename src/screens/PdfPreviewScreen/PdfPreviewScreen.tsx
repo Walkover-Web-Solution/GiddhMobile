@@ -37,7 +37,6 @@ const PdfPreviewScreen = ( route ) => {
             JSON.stringify(voucherInfo)
           ).then(async (res) => {
             if (res.respInfo.status != 200) {
-            //   Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
               if (Platform.OS == "ios") {
                 Toast.show(JSON.parse(res.data).message, {
                   duration: Toast.durations.LONG,
@@ -62,7 +61,6 @@ const PdfPreviewScreen = ( route ) => {
         } catch (e) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
             setLoading(false);
-        //   Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
             console.log(e);
         }
       };

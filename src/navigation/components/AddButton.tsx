@@ -22,7 +22,6 @@ import Stock from '@/assets/images/icons/options/stock.svg'
 import Variant from '@/assets/images/icons/options/varient-wise.svg'
 import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import Product from 'react-native-vector-icons/Ionicons'
-// import Service from 'react-native-vector-icons/MaterialIcons'
 import Service2 from 'react-native-vector-icons/FontAwesome'
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
@@ -56,7 +55,6 @@ const inventoryButtons:any = {
     item1 : {
         name: 'Product Stock', 
         navigateTo: 'ProductScreen', 
-        // icon: <Product name="cube-outline" size={24} color='black' />, 
         icon: <Stock color='#000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductScreenRefresh'
@@ -64,7 +62,6 @@ const inventoryButtons:any = {
     item2 : {
         name: 'Product Group', 
         navigateTo: 'productGroupScreen', 
-        // icon: <Product name="file-tray-stacked-outline" size={24} color='brown' />, 
         icon: <Variant color='#008000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductGroupRefresh'   
@@ -82,19 +79,7 @@ const inventoryButtons:any = {
         icon: <Group color={'#FFA500'} />, 
         color: 'red',
         event: 'ServiceGroupRefresh'
-    },
-    // item5 : {
-    // name: 'Product Inventory', 
-    // navigateTo: 'ProductScreen', 
-    // icon: <Vendor color={'red'} />, 
-    // color: 'red'   
-    // },
-    // item6 : {
-    //     name: 'Service Inventory', 
-    //     navigateTo: 'ProductScreen', 
-    //     icon: <Vendor color={'black'} />, 
-    //     color: 'red'   
-    // },
+    }
 }
 
 type Props = {
@@ -142,7 +127,6 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                 style={styles.button}
                                 onPress={async ()=>{
                                     this?.props?.closeModal();
-                                    // this?.props?.productOptionRef?.current?.open();
                                     console.log("event emitted-->",APP_EVENTS?.[item?.event]);
                                     
                                     await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
