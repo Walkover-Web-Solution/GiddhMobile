@@ -18,8 +18,6 @@ const RenderLinkedAcc = ({
         purchaseAccModalRef,
         purchaseAccount,
         salesAccount,
-        // setPurchaseRate,
-        // setSalesRate,
         handleRateChange,
         variantsChecked,
         setPurchaseSubUnits,
@@ -29,10 +27,6 @@ const RenderLinkedAcc = ({
         purchaseAccountArr,
         setPurchaseAccount,
         setSalesAccount
-        // setPurchaseRadioBtn,
-        // setSalesRadioBtn,
-        // purchaseRadioBtn,
-        // salesRadioBtn
     })=>{
     const [expandAcc, setExpandAcc] = useState(true);
     const {theme,styles} = useCustomTheme(makeStyles);
@@ -71,7 +65,6 @@ const RenderLinkedAcc = ({
                         subUnits={purchaseSubUnits} 
                         accountModalRef={purchaseAccModalRef}
                         selectedAccount={purchaseAccount}
-                        // setRate={setPurchaseRate}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
                         setSubUnits={setPurchaseSubUnits}
@@ -79,8 +72,6 @@ const RenderLinkedAcc = ({
                         subUnitData={subUnits}
                         accountData={purchaseAccountArr}
                         setAccount={setPurchaseAccount}
-                        // setRadioBtn={setPurchaseRadioBtn}
-                        // radioBtn={purchaseRadioBtn}
                     />
                     :<GeneralLinkedAccComponent 
                         linkedAccountText = "Sales Accounts" 
@@ -90,7 +81,6 @@ const RenderLinkedAcc = ({
                         subUnits={salesSubUnits}
                         accountModalRef={salesAccModalRef}
                         selectedAccount={salesAccount}
-                        // setRate={setSalesRate}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
                         setSubUnits={setSalesSubUnits}
@@ -98,8 +88,6 @@ const RenderLinkedAcc = ({
                         subUnitData={subUnits}
                         accountData={salesAccountArr}
                         setAccount={setSalesAccount}
-                        // setRadioBtn={setSalesRadioBtn}
-                        // radioBtn={salesRadioBtn}
                     />}
                 </View>
                 )

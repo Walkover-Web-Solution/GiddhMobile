@@ -82,7 +82,6 @@ const RenderUnitGroup = ({
         >
           <View style={{ marginTop: 20 }}>
               <Text style={styles.headerText}>Select Unit</Text>
-              {/* <View style={styles.divider}/> */}
           </View>
   
           <ScrollView
@@ -102,7 +101,6 @@ const RenderUnitGroup = ({
               />
             ))}
           </ScrollView>
-          {/* <View style={[{marginTop:2},styles.divider]}/> */}
         </Animated.View>
       </View>
       );
@@ -113,6 +111,7 @@ const RenderUnitGroup = ({
         bottomSheetRef={unitGroupMappingModalRef}
         headerText='Select Unit Group'
         headerTextColor='#084EAD'
+        //can be usefull
         // adjustToContentHeight={((unitGroupMapping.length*47) > (height-100)) ? false : true}
         adjustToContentHeight={false}
         modalTopOffset={(height-(width+100))}
@@ -174,7 +173,6 @@ const RenderUnitGroup = ({
         </View>
       </View>
     </View>
-    {/* {RenderUnitGroupModal} */}
     {RenderUnitMappingModal}
     </>
     )

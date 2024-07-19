@@ -106,7 +106,6 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
             <View style={styles.inputContainer}>
                 <InputField
                     lable={ selectedCode=='hsn'?'Enter HSN Code':'Enter SAC Code'}
-                    // value=""
                     isRequired={false}
                     placeholderTextColor={'#808080'}
                     onChangeText={(text)=>{

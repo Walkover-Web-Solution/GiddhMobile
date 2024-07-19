@@ -314,13 +314,10 @@ const ServiceScreen = ()=>{
                 setIsLoading(false);
                 setSuccessDialog(true);
                 await clearAll();
-                // ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
-                // navigation.goBack();
             }else{
                 setIsLoading(false);
                 setFailureDialog(true);
                 setFailureMessage(result?.data?.message)
-                // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
             }
         }else{
             if(parentGroupArr?.length == 0){
@@ -340,13 +337,10 @@ const ServiceScreen = ()=>{
                         setIsLoading(false);
                         setSuccessDialog(true);
                         await clearAll();
-                        // ToastAndroid.show("Stock created successfully!",ToastAndroid.LONG);
-                        // navigation.goBack();
                     }else{
                         setIsLoading(false);
                         setFailureDialog(true);
                         setFailureMessage(result?.data?.message)
-                        // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG);                
                     }
                 }else{
                     setIsLoading(false);
@@ -639,11 +633,6 @@ const ServiceScreen = ()=>{
 
     const clearAll = ()=>{
         resetState();
-        // fetchAllTaxes();
-        // fetchAllParentGroup();
-        // fetchStockUnitGroup();
-        // fetchPurchaseAccounts();
-        // fetchSalesAccounts();
         fetchVariantCustomfields();
     }
 
@@ -666,7 +655,6 @@ const ServiceScreen = ()=>{
     
     
     return (
-        // <View style={[styles.container,styles.backGround]}>
         <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={[styles.container,styles.backGround]}>
             <View>
                 <Animated.ScrollView
@@ -684,7 +672,6 @@ const ServiceScreen = ()=>{
                                     clearAll();
                                 }}
                             >
-                                {/* <Feather name="save" size={22} color={'#FFFFFF'} /> */}
                                 <Text style={styles.smallText}>Clear</Text>
                             </TouchableOpacity>
                             </>
@@ -808,7 +795,6 @@ const ServiceScreen = ()=>{
             {successBox}
             {failureBox}
         </KeyboardAvoidingView>
-        // </View>
     )
 }
 

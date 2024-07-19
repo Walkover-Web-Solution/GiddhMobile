@@ -15,7 +15,6 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
     headerText='Select Group'
     headerTextColor='#084EAD'
     adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
-    // adjustToContentHeight={false}
     flatListProps={{
         data: parentGroupArr,
         renderItem: ({item}) => {

@@ -15,20 +15,16 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   },
   renderConatiner: {
     paddingHorizontal: 20
-    // backgroundColor: '#00B795'
   },
   buttonWrapper: {
     backgroundColor: '#fff',
     margin: 5,
     borderColor: '#D9D9D9',
-    // borderRadius: 20,
-    // borderBottomRightRadius: 0,
     borderBottomWidth: 1.2,
   },
   buttonText: {
     color: '#808080',
     fontFamily: FONT_FAMILY.regular,
-    // textAlign: 'center',
     minWidth: 100,
     margin: 10,
     fontSize: 14,
@@ -225,7 +221,6 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // padding: Platform.OS=="ios"? 15:0,
     paddingVertical: 10,
     paddingHorizontal:20,
   },
@@ -325,8 +320,6 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     fontFamily: theme.typography.fontFamily.regular
   },
   radioBtnView:{
-    // flexDirection: 'row',
-    // backgroundColor: 'pink',
     justifyContent: 'space-between',
     marginTop: 10,
     alignItems: 'center',
@@ -367,9 +360,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     minWidth:140,
     minHeight:40,
     maxWidth:width-20,
-    // justifyContent:'center',
     paddingHorizontal:10,
-    // alignContent:'center'
   },
   dialogContainer:{ 
     justifyContent: 'center', 

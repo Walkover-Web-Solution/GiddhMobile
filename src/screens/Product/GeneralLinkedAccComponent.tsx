@@ -13,11 +13,8 @@ const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
     initialRadioSelection = 1,
     linkedAccountText = "Purchase Accounts",
-    // onLinkedAccountPress,
     textInputPlaceholder = "Rate",
     textInputKeyboardType = "number-pad",
-    // textInputValue,
-    // onTextInputChange,
     unitText = "Unit",
     unitName = "Unit",
     setBottomSheetVisible,
@@ -25,7 +22,6 @@ const GeneralLinkedAccComponent = ({
     subUnits,
     accountModalRef,
     selectedAccount,
-    // setRate,
     handleRateChange,
     variantsChecked,
     setSubUnits,
@@ -33,9 +29,6 @@ const GeneralLinkedAccComponent = ({
     subUnitData,
     accountData,
     setAccount
-    // setRadioBtn,
-    // radioBtn=1
-    // onUnitPress
 })=>{
     const [radioBtn,setRadioBtn] = useState(1);
     const radio_props = [
@@ -92,7 +85,6 @@ const GeneralLinkedAccComponent = ({
         bottomSheetRef={accountModalRef}
         headerText='Select Unit'
         headerTextColor='#084EAD'
-        // adjustToContentHeight={false}
         adjustToContentHeight={((accountData.length*47) > (height-100)) ? false : true}
         flatListProps={{
             data: accountData,
@@ -132,7 +124,6 @@ const GeneralLinkedAccComponent = ({
         <View style={styles.linkedAccContainer}>
             <View>
                 <View style={[styles.inputRow,{marginBottom:0,paddingHorizontal:15}]}>
-                    {/* <Text style={[styles.optionTitle,{marginTop:5}]} >{rateLabel}</Text> */}
                     <RadioForm
                     formHorizontal={true}
                     initial={0}
@@ -185,11 +176,9 @@ const GeneralLinkedAccComponent = ({
                     <InputField 
                         lable="Rate"
                         keyboardType="numeric"
-                        // value={localOptionName}
                         isRequired={false}
                         placeholderTextColor={'#808080'}
                         onChangeText={(val) => {
-                            // setRate(val);
                             linkedAccountText === "Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                         }}
                     />    

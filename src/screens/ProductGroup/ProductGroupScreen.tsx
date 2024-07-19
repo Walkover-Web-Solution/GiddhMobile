@@ -117,14 +117,11 @@ const ProductGroupScreen = (props)=>{
       if(result?.data && result?.data?.status == 'success'){
         setIsLoading(false);
         setSuccessDialog(true);
-        // ToastAndroid.show("Stock Group Created Successfully!", ToastAndroid.LONG)
-        // navigation.goBack();
         await clearAll();
       }else{
         setIsLoading(false);
         setFailureDialog(true);
         setFailureMessage(result?.data?.message);
-        // ToastAndroid.show(result?.data?.message, ToastAndroid.LONG)
       }
       
     }
@@ -144,23 +141,18 @@ const ProductGroupScreen = (props)=>{
     const clearAll = () => {
       resetState();
       fetchAllTaxes();
-      // fetchAllParentGroup();
       fetchAllParentGroup(props?.route?.params?.params?.name === "Service Group" ? "SERVICE" : "PRODUCT");
     };
         
     useEffect(() => {
         fetchAllTaxes();
-        // fetchAllParentGroup();
         console.log("on mount",props?.route?.params?.params?.name);
-        // const {name} = props?.route?.params?.params
         fetchAllParentGroup(name === "Service Group" ? "SERVICE" : "PRODUCT");
         DeviceEventEmitter.addListener(APP_EVENTS.ProductGroupRefresh, async () => {
-            // fetchAllParentGroup();
             fetchAllParentGroup("PRODUCT");
             fetchAllTaxes();
         });
         DeviceEventEmitter.addListener(APP_EVENTS.ServiceGroupRefresh, async () => {
-            // fetchAllParentGroup();
             fetchAllParentGroup("SERVICE");
             fetchAllTaxes();
         });
@@ -266,7 +258,6 @@ const ProductGroupScreen = (props)=>{
           bottomSheetRef={childGroupModalRef}
           headerText='Select Parent Group'
           headerTextColor='#084EAD'
-          // adjustToContentHeight={false}
           adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
           flatListProps={{
             data: parentGroupArr,
@@ -345,7 +336,6 @@ const ProductGroupScreen = (props)=>{
     );
 
     return (
-        // <View style={styles.containerView}>
       <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.containerView}>
         <View>
           <Animated.ScrollView
@@ -366,7 +356,6 @@ const ProductGroupScreen = (props)=>{
                         clearAll();
                     }}
                 >
-                    {/* <Feather name="save" size={22} color={'#FFFFFF'} /> */}
                     <Text style={styles.smallText}>Clear</Text>
                 </TouchableOpacity>
                 </>}
@@ -407,7 +396,6 @@ const ProductGroupScreen = (props)=>{
         {failureBox}
         <Loader isLoading={isLoading}/>
       </KeyboardAvoidingView>        
-            // </View>
     )
 }
 

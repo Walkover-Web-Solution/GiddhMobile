@@ -506,9 +506,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         <View style={styles.inputRow}>
                             <View style={{width:'93%'}}>
                             <InputField 
-                                // key={field.uniqueName}
                                 lable="Option Name"
-                                // value={field.value}
                                 isRequired={false}
                                 placeholderTextColor={'#808080'}
                                 onChangeText={(val) => {
@@ -543,7 +541,6 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                             <View key={field.id} style={styles.inputRow}>
                                 <View style={{width:'93%'}}>
                                 <InputField 
-                                    // key={field.uniqueName}
                                     lable={`Option ${index + 1}`}
                                     value={field.value}
                                     isRequired={false}

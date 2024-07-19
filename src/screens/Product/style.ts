@@ -22,21 +22,16 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   renderConatiner: {
     paddingHorizontal: 20
-    // backgroundColor: '#00B795'
   },
   buttonWrapper: {
     backgroundColor: '#fff',
     margin: 5,
     borderColor: '#D9D9D9',
-    // borderRadius: 25,
-    // borderBottomRightRadius: 0,
     borderBottomWidth:1.2
-    // borderWidth: 1.2,
   },
   buttonText: {
     color: '#808080',
     fontFamily: theme.typography.fontFamily.regular,
-    // textAlign: 'center',
     minWidth: 100,
     paddingVertical:10,
     fontSize: 14,
@@ -235,7 +230,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // padding: Platform.OS=="ios"? 15:0,
     paddingVertical: 10,
     paddingHorizontal:20,
   },
@@ -437,7 +431,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   radioGroupContainer :{
     flexDirection: 'row',
-    // backgroundColor: 'pink',
     justifyContent: 'space-between',
     marginTop: 0,
     width:'75%',
@@ -564,7 +557,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     fontSize: 18,
   },
   tabbar: {
-    // position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
@@ -590,7 +582,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
 
     height: HEADER_COLLAPSE,
 
-    // backgroundColor: '#212428',
   },
 
   tabbar__headingText: {
@@ -606,12 +597,6 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   tabbar__list: {
     height: HEADER_LIST,
 
-    // borderTopColor: '#313437',
-    // borderTopWidth: 1,
-    // borderBottomColor: '#313437',
-    // borderBottomWidth: 1,
-
-    // backgroundColor: '#1a1d21',
   },
 
   tabbar__listContent: {
