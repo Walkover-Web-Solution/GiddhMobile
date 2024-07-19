@@ -1,42 +1,69 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import makeStyle from "./style";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
-import colors from "@/utils/colors";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from "react";
-
-const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup})=>{
+import BottomSheet from "@/components/BottomSheet";
+import Icons from '@/core/components/custom-icon/custom-icon';
+import MatButton from "@/components/OutlinedButton";
+const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup,parentGroupArr,setSelectedGroup,setSelectedGroupUniqueName})=>{
   const {theme,styles} = useCustomTheme(makeStyle);
-    return (
-        <View style={[styles.fieldContainer,{maxHeight:100}]}>
-        <View style={styles.rowView}>
-          <Icon name='arrange-bring-forward' color={DefaultTheme.colors.secondary} size={16} />
-          <Text style={styles.fieldHeadingText}>{'Groups'}</Text>
-        </View>
+  const {height,width} = Dimensions.get('window');
 
-        <View style={styles.unitGroupView}>
-          <View style={styles.rowView}>
-            <TouchableOpacity
-              style={styles.rowView}
-              onPress={async ()=>{
-                await fetchAllParentGroup()
-                setBottomSheetVisible(groupModalRef,true);
-              }}
-              textColor={{colors}}>
-              <View
-                style={[
-                  styles.buttonWrapper,
-                  styles.modalBtn,
-                  {borderColor: groupName?.length ? '#084EAD' : '#d9d9d9',paddingHorizontal:10},
-                ]}>
-                <Text style={[styles.buttonText,{ color:'#868686'}]}>
-                  {groupName?.length > 0 ? <Text style={[{color:'#084EAD'}]}>{groupName}</Text> : 'Select Group'}
-                </Text>
-              </View>
+  const RenderGroupModal = (
+    <BottomSheet
+    bottomSheetRef={groupModalRef}
+    headerText='Select Group'
+    headerTextColor='#084EAD'
+    adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
+    flatListProps={{
+        data: parentGroupArr,
+        renderItem: ({item}) => {
+        return (
+            <TouchableOpacity 
+            style={styles.button}
+            onPress={() => {
+              setSelectedGroup(item?.name)
+              setSelectedGroupUniqueName(item?.uniqueName)
+              setBottomSheetVisible(groupModalRef, false);
+            }}
+            >
+            <Icons name={groupName == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+            <Text style={styles.radiobuttonText}
+            >
+                {item?.name}
+            </Text>
             </TouchableOpacity>
-          </View>
+        );
+        },
+        ListEmptyComponent: () => {
+        return (
+            <View style={styles.modalCancelView}>
+            <Text
+                style={styles.modalCancelText}>
+                No Group Available
+            </Text>
+            </View>
+
+        );
+        }
+    }}
+    />
+);
+
+    return (
+      <>
+        <View style={[styles.fieldContainer,{maxHeight:100}]}>
+          <MatButton 
+            lable="Select Group"
+            value={groupName?.length > 0 ? groupName :""}
+            onPress={async ()=>{
+              await fetchAllParentGroup();
+              setBottomSheetVisible(groupModalRef,true);
+            }}
+          />
         </View>
-        </View>
+      {RenderGroupModal}
+      </>
     )
 }
 

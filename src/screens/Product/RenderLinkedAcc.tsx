@@ -1,4 +1,3 @@
-import { FONT_FAMILY } from "@/utils/constants";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import { Pressable, Text, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -10,6 +9,7 @@ import makeStyles from "./style";
 const RenderLinkedAcc = ({
         unit,
         purchaseSubUnitMappingModalRef,
+        type,
         salesSubUnitMappingModalRef,
         setBottomSheetVisible,
         purchaseSubUnits,
@@ -19,7 +19,14 @@ const RenderLinkedAcc = ({
         purchaseAccount,
         salesAccount,
         handleRateChange,
-        variantsChecked
+        variantsChecked,
+        setPurchaseSubUnits,
+        setSalesSubUnits,
+        subUnits,
+        salesAccountArr,
+        purchaseAccountArr,
+        setPurchaseAccount,
+        setSalesAccount
     })=>{
     const [expandAcc, setExpandAcc] = useState(true);
     const {theme,styles} = useCustomTheme(makeStyles);
@@ -33,7 +40,7 @@ const RenderLinkedAcc = ({
             >
             <View style={styles.checkboxContainer}>
                 <LinkIcon name='link' size={16} color={DefaultTheme.colors.secondary} />
-                <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>Linked Account</Text>
+                <Text style={[styles.radiobuttonText,{fontFamily:theme.typography.fontFamily.semiBold}]}>{type === "purchase"?"Purchase Rate" : "Sales Rate"}</Text>
             </View>
             <Pressable style={{padding:9}} onPress={() => {
                 setExpandAcc(!expandAcc);
@@ -49,8 +56,9 @@ const RenderLinkedAcc = ({
             {
                 expandAcc && (
                 <View> 
+                    {type === "purchase" ?
                     <GeneralLinkedAccComponent 
-                        linkedAccountText = "Linked Purchase Accounts" 
+                        linkedAccountText = "Purchase Accounts" 
                         unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit' } 
                         setBottomSheetVisible={setBottomSheetVisible} 
                         unitModalRef={purchaseSubUnitMappingModalRef} 
@@ -59,10 +67,14 @@ const RenderLinkedAcc = ({
                         selectedAccount={purchaseAccount}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
+                        setSubUnits={setPurchaseSubUnits}
+                        unit={unit}
+                        subUnitData={subUnits}
+                        accountData={purchaseAccountArr}
+                        setAccount={setPurchaseAccount}
                     />
-                    <View style={styles.lineView}></View>
-                    <GeneralLinkedAccComponent 
-                        linkedAccountText = "Linked Sales Accounts" 
+                    :<GeneralLinkedAccComponent 
+                        linkedAccountText = "Sales Accounts" 
                         unitName={unit.uniqueName.length > 0 ? (''+unit?.name+' '+'('+unit?.code+')') : 'Unit'} 
                         setBottomSheetVisible={setBottomSheetVisible} 
                         unitModalRef={salesSubUnitMappingModalRef} 
@@ -71,7 +83,12 @@ const RenderLinkedAcc = ({
                         selectedAccount={salesAccount}
                         handleRateChange={handleRateChange}
                         variantsChecked={variantsChecked}
-                    />
+                        setSubUnits={setSalesSubUnits}
+                        unit={unit}
+                        subUnitData={subUnits}
+                        accountData={salesAccountArr}
+                        setAccount={setSalesAccount}
+                    />}
                 </View>
                 )
             }

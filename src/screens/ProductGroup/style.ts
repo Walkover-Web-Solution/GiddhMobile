@@ -20,14 +20,11 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     backgroundColor: '#fff',
     margin: 5,
     borderColor: '#D9D9D9',
-    borderRadius: 20,
-    borderBottomRightRadius: 0,
-    borderWidth: 1.2,
+    borderBottomWidth: 1.2,
   },
   buttonText: {
     color: '#808080',
     fontFamily: FONT_FAMILY.regular,
-    textAlign: 'center',
     minWidth: 100,
     margin: 10,
     fontSize: 14,
@@ -88,7 +85,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     fontSize: 18
   },
   fieldContainer: {
-    marginTop: 14,
+    marginTop: 0,
     marginHorizontal: 16
   },
   dateView: {
@@ -289,6 +286,11 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     position: 'absolute',
     bottom: height * 0.01,
   },
+  createBtn:{
+    fontFamily: theme.typography.fontFamily.bold ,
+    color: '#fff',
+    fontSize: 20,
+  },
   createButtonText :{
     fontFamily: theme.typography.fontFamily.bold,
     color: '#fff',
@@ -314,12 +316,12 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   clearnBtnText:{
     color: '#1C1C1C', 
     marginRight: 16, 
+    padding:5,
     fontFamily: theme.typography.fontFamily.regular
   },
   radioBtnView:{
-    flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 10,
+    marginTop: 10,
     alignItems: 'center',
   },
   radioBtn:{
@@ -345,6 +347,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
     borderBottomWidth: 1,
     width: '55%',
     marginRight: 16,
+    paddingVertical:10,
     fontFamily:theme.typography.fontFamily.regular 
   },
   taxView: {
@@ -401,6 +404,7 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   checkBoxView: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical:5
   },
   checkView:{
       width: 16,
@@ -414,6 +418,11 @@ const makeStyle = (theme:ThemeProps)=> StyleSheet.create({
   tickBox:{
       width: 10,
       height: 10,
+  },
+  smallText: {
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 16,
+    color: '#FFFFFF'
   }
 });
 

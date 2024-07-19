@@ -1,13 +1,18 @@
 import React, { useState } from "react";
-import { Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
 import makeStyle from './style';
 import useCustomTheme from "@/utils/theme";
+import BottomSheet from "@/components/BottomSheet";
+import Icon from '@/core/components/custom-icon/custom-icon';
+import Toast from "@/components/Toast";
+import InputField from "@/components/InputField";
+import MatButton from "@/components/OutlinedButton";
 
 const GeneralLinkedAccComponent = ({
     rateLabel = "Rate:",
     initialRadioSelection = 1,
-    linkedAccountText = "Linked Purchase Accounts",
+    linkedAccountText = "Purchase Accounts",
     textInputPlaceholder = "Rate",
     textInputKeyboardType = "number-pad",
     unitText = "Unit",
@@ -18,7 +23,12 @@ const GeneralLinkedAccComponent = ({
     accountModalRef,
     selectedAccount,
     handleRateChange,
-    variantsChecked
+    variantsChecked,
+    setSubUnits,
+    unit,
+    subUnitData,
+    accountData,
+    setAccount
 })=>{
     const [radioBtn,setRadioBtn] = useState(1);
     const radio_props = [
@@ -26,16 +36,99 @@ const GeneralLinkedAccComponent = ({
         { label: 'Exclusive', value: 1 }
       ];
     const {theme,styles} = useCustomTheme(makeStyle);
+    const {height,width} = Dimensions.get('window')
+
+    const RenderSubUnitMappingModal = (
+        <BottomSheet
+        bottomSheetRef={unitModalRef}
+        headerText='Select Unit'
+        headerTextColor='#084EAD'
+        adjustToContentHeight={((subUnitData.length*47) > (height-100)) ? false : true}
+        flatListProps={{
+            data: subUnitData,
+            renderItem: ({item}) => {
+            return (
+                <TouchableOpacity 
+                style={styles.button}
+                onPress={() => {
+                    setSubUnits(item);
+                    setBottomSheetVisible(unitModalRef, false);
+                }}
+                >
+                {subUnits?.uniqueName 
+                ? <Icon name={subUnits?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                : <Icon name={unit?.uniqueName == item?.uniqueName ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />}
+                
+                <Text style={styles.radiobuttonText}>
+                    {item?.code}
+                </Text>
+                </TouchableOpacity>
+            );
+            },
+            ListEmptyComponent: () => {
+            return (
+                <View style={styles.modalCancelView}>
+                <Text
+                    style={styles.modalCancelText}>
+                    No Unit Available
+                </Text>
+                </View>
+
+            );
+            }
+        }}
+        />
+    )
+
+    const RenderAccountModal = (
+        <BottomSheet
+        bottomSheetRef={accountModalRef}
+        headerText='Select Unit'
+        headerTextColor='#084EAD'
+        adjustToContentHeight={((accountData.length*47) > (height-100)) ? false : true}
+        flatListProps={{
+            data: accountData,
+            renderItem: ({item}) => {
+            return (
+                <TouchableOpacity 
+                style={styles.button}
+                onPress={() => {
+                    setAccount(item);
+                    setBottomSheetVisible(accountModalRef, false);
+                }}
+                >
+                <Icon name={selectedAccount?.name == item?.name ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
+                <Text style={styles.radiobuttonText}>
+                    {item?.name}
+                </Text>
+                </TouchableOpacity>
+            );
+            },
+            ListEmptyComponent: () => {
+            return (
+                <View style={styles.modalCancelView}>
+                <Text
+                    style={styles.modalCancelText}>
+                    No Accounts Available
+                </Text>
+                </View>
+
+            );
+            }
+        }}
+        />
+    )
+
     return (
+        <>
         <View style={styles.linkedAccContainer}>
             <View>
-                <View style={[styles.inputRow,,{marginBottom:10}]}>
-                    <Text style={[styles.optionTitle,{marginTop:5}]} >{rateLabel}</Text>
+                <View style={[styles.inputRow,{marginBottom:0,paddingHorizontal:15}]}>
                     <RadioForm
                     formHorizontal={true}
                     initial={0}
                     animation={true}
-                    style={[styles.radioGroupContainer,{marginTop:5}]}
+                    style={[styles.radioGroupContainer,{marginTop:5,flex:1,paddingHorizontal:5}]}
                     >
                     {
                         radio_props.map((obj, i) => (
@@ -45,7 +138,7 @@ const GeneralLinkedAccComponent = ({
                             index={i}
                             isSelected={radioBtn === i}
                             onPress={(val) => { setRadioBtn(val),
-                                linkedAccountText == "Linked Purchase Accounts" ? (
+                                linkedAccountText == "Purchase Accounts" ? (
                                     val == 0 ? handleRateChange('purchaseMRPChecked',true) : handleRateChange('purchaseMRPChecked',false)
                                 ):(
                                     val == 0 ? handleRateChange('salesMRPChecked',true) : handleRateChange('salesMRPChecked',false)
@@ -64,7 +157,7 @@ const GeneralLinkedAccComponent = ({
                             index={i}
                             labelHorizontal={true}
                             onPress={(val) => { setRadioBtn(val),
-                                linkedAccountText == "Linked Purchase Accounts" ? (
+                                linkedAccountText == "Purchase Accounts" ? (
                                     val == 0 ? handleRateChange('purchaseMRPChecked',true) : handleRateChange('purchaseMRPChecked',false)
                                 ):(
                                     val == 0 ? handleRateChange('salesMRPChecked',true) : handleRateChange('salesMRPChecked',false)
@@ -77,57 +170,47 @@ const GeneralLinkedAccComponent = ({
                         ))}
                     </RadioForm>
                 </View>
-            </View>
-            <View style={styles.inputRow}>
-                <Text style={[styles.optionTitle,{marginTop:0}]} >{linkedAccountText}</Text>
-                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: selectedAccount?.name ? '#084EAD' : '#d9d9d9'  }]}>
-                    <TouchableOpacity
-                    onPress={() => {
-                        setBottomSheetVisible(accountModalRef,true);
-                    }} style={{ flex: 1 }}>
-                        {selectedAccount?.name ? ( 
-                        <Text style={[styles.buttonText, { color: '#084EAD' }]}>
-                            {selectedAccount?.name}
-                        </Text>
-                        ) : (
-                        <Text
-                            style={[styles.buttonText, { color: '#868686' }]}>
-                            Select account
-                        </Text>
-                        )}
-                    </TouchableOpacity>
+            </View> 
+            {!variantsChecked && <View style={[styles.inputRow,{marginTop:0}]}>
+                <View style={{width:'48%'}}>
+                    <InputField 
+                        lable="Rate"
+                        keyboardType="numeric"
+                        isRequired={false}
+                        placeholderTextColor={'#808080'}
+                        onChangeText={(val) => {
+                            linkedAccountText === "Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
+                        }}
+                    />    
+                </View>
+                <View style={{width:'48%'}}>
+                    <MatButton 
+                        lable="Unit"
+                        value={subUnits?.uniqueName ? subUnits?.code : unitName==='Unit' ? "":unitName}
+                        onPress={() => {
+                            unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : Toast({message: "Please select unit group", position:'BOTTOM',duration:'SHORT'});
+                        }}
+                    />
+                </View>
+            </View>}  
+            <View style={[styles.inputRow,{marginBottom:5}]}>
+                <View style={{width:'100%'}}>
+                    <MatButton 
+                        lable={linkedAccountText === "Purchase Accounts" ?'Purchase Accounts' :'Sales Accounts'}
+                        value={selectedAccount?.name 
+                            ? selectedAccount?.name 
+                            : ""
+                        }
+                        onPress={() => {
+                            setBottomSheetVisible(accountModalRef,true);
+                        }}
+                    />
                 </View>
             </View> 
-            {!variantsChecked && <View style={[styles.inputRow,{marginTop:5}]}>
-                <TextInput
-                    returnKeyType={'done'}
-                    keyboardType="number-pad"
-                    onChangeText={(val) => {
-                        linkedAccountText === "Linked Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
-                    }}
-                    placeholderTextColor={'rgba(80,80,80,0.5)'}
-                    placeholder="Rate"
-                    style={[styles.rowContainer, styles.buttonWrapper,styles.linkedModalBtn ]} />
-                <View style={[styles.rowContainer,styles.buttonWrapper,styles.linkedModalBtn,{borderColor: subUnits.uniqueName || unitName !=='Unit' ? '#084EAD' : '#d9d9d9'}]}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : ToastAndroid.show("Please select unit group",ToastAndroid.SHORT);
-                        }} style={{ flex: 1 }}>
-                        
-                        {subUnits?.uniqueName ? ( 
-                        <Text style={[styles.buttonText, { color: '#084EAD',lineHeight:14 }]}>
-                            {subUnits?.code}
-                        </Text>
-                        ) : (
-                        <Text
-                            style={[styles.buttonText, { color: unitName!=='Unit' ? '#084EAD' :'#868686',lineHeight:14}]}>
-                            {unitName}
-                        </Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </View>}   
         </View>
+        {RenderSubUnitMappingModal}
+        {RenderAccountModal}
+        </>
     )
 }
 

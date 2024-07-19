@@ -22,7 +22,8 @@ const Routes = {
   CompanyInfoTwo: 'CompanyInfoTwo',
   ProductScreen: 'productScreen',
   ProductGroupScreen: 'productGroupScreen',
-  VariantTableScreen: 'variantTableScreen'
+  VariantTableScreen: 'variantTableScreen',
+  ServiceScreen : 'serviceScreen'
 };
 
 export default Routes

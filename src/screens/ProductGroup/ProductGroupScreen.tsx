@@ -1,13 +1,12 @@
 import Header from "@/components/Header"
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
-import { Animated, DeviceEventEmitter, Keyboard, Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { Animated, DeviceEventEmitter, Keyboard, KeyboardAvoidingView, Platform, StatusBar, Text, TouchableOpacity, View } from "react-native"
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { Dimensions } from "react-native"
 import { useEffect, useRef, useState } from "react"
 import { InventoryService } from "@/core/services/inventory/inventory.service"
-import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from "@/utils/constants"
+import { APP_EVENTS } from "@/utils/constants"
 import BottomSheet from "@/components/BottomSheet"
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RenderGroupName from "./RenderGroupName"
@@ -19,9 +18,11 @@ import Loader from "@/components/Loader"
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
+import Toast from "@/components/Toast"
 
 
-const ProductGroupScreen = ()=>{
+const ProductGroupScreen = (props)=>{
+    const [name,setName] = useState(props?.route?.params?.params?.name);
     const navigation = useNavigation();
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
@@ -36,7 +37,7 @@ const ProductGroupScreen = ()=>{
     const [taxArr,setTaxArr] = useState([]);
     const [parentGroupArr,setParentGroupArr]:any[] = useState([]);
     const [selectedUniqueTax, setSelectedUniqueTax]:any = useState({});
-    const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, 'Group');
+    const {statusBar,styles, theme, voucherBackground} = useCustomTheme(makeStyle, props?.route?.params?.params?.name === 'Product Group' ? 'Group' : 'Stock');
     const {height, width} = Dimensions.get('window');
     const [isChecked,setIsChecked] = useState(false);
     const [selectedGroup,setSelectedGroup] = useState('');
@@ -46,6 +47,10 @@ const ProductGroupScreen = ()=>{
     const [groupName,setGroupName] = useState('');
     const [groupUniqueName,setGroupUniqueName] = useState('');
     const [codeNumber,setCodeNumber] = useState('');
+
+    useEffect(()=>{
+      resetState();
+    },[props?.route?.params?.params?.name])
 
     const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
         if(visible){
@@ -78,8 +83,8 @@ const ProductGroupScreen = ()=>{
         }
     }
     
-    const fetchAllParentGroup = async () => {
-        const result = await InventoryService.fetchAllParentGroup();
+    const fetchAllParentGroup = async (type:string) => {
+        const result = await InventoryService.fetchAllParentGroup(type);
         if(result?.data && result?.data?.status == 'success'){
           const flattenParentGroupArr = flattenStockGroups(result?.data?.body?.results)
           setParentGroupArr(flattenParentGroupArr);
@@ -93,6 +98,7 @@ const ProductGroupScreen = ()=>{
       Object.keys(selectedUniqueTax).map((item)=>{
         taxesArr.push(selectedUniqueTax?.[item]?.uniqueName);
       })
+      const type = props?.route?.params?.params?.name === 'Product Group' ? 'PRODUCT' : 'SERVICE'
       const payload = {
         hsnNumber : selectedCode === 'hsn' ? codeNumber : null,
         isSubGroup : isChecked,
@@ -101,7 +107,7 @@ const ProductGroupScreen = ()=>{
         sacNumber : selectedCode === 'sac' ? codeNumber : null,
         showCodeType : selectedCode,
         taxes : taxesArr,
-        type : "PRODUCT",
+        type : type,
         uniqueName : groupUniqueName
       }
       if(!payload?.isSubGroup){
@@ -135,17 +141,50 @@ const ProductGroupScreen = ()=>{
     const clearAll = () => {
       resetState();
       fetchAllTaxes();
-      fetchAllParentGroup();
+      fetchAllParentGroup(props?.route?.params?.params?.name === "Service Group" ? "SERVICE" : "PRODUCT");
     };
         
     useEffect(() => {
         fetchAllTaxes();
-        fetchAllParentGroup();
+        console.log("on mount",props?.route?.params?.params?.name);
+        fetchAllParentGroup(name === "Service Group" ? "SERVICE" : "PRODUCT");
         DeviceEventEmitter.addListener(APP_EVENTS.ProductGroupRefresh, async () => {
-            fetchAllParentGroup();
+            fetchAllParentGroup("PRODUCT");
+            fetchAllTaxes();
+        });
+        DeviceEventEmitter.addListener(APP_EVENTS.ServiceGroupRefresh, async () => {
+            fetchAllParentGroup("SERVICE");
             fetchAllTaxes();
         });
     }, []);
+
+    const CreateButton = (
+      <TouchableOpacity
+          style={[styles.createButton,{backgroundColor: isLoading ? '#E6E6E6' :'#5773FF'}]}
+          disabled = {isLoading}
+          onPress={() => {
+            if(groupName && groupUniqueName)createStockGroup();
+            else{
+              Toast({message: "Group Unique name can not be empty!", position:'BOTTOM',duration:'LONG'})
+            }
+          }}>
+          <Text
+          style={styles.createBtn}>
+          Create
+          </Text>
+      </TouchableOpacity>
+    //   <TouchableOpacity
+      // onPress={() => {
+      //   if(groupName && groupUniqueName)createStockGroup();
+      //   else{
+      //     Toast({message: "Group Unique name can not be empty!", position:'BOTTOM',duration:'LONG'})
+      //   }
+      // }}
+    //   disabled = {isLoading}
+    //   style={[styles.updatedCreateBtn,{borderColor: voucherBackground}]}>
+    //   <Text style={[{color:voucherBackground},styles.updatedCreateBtnText]}> Create</Text>
+    // </TouchableOpacity>
+    )
 
 
     const RenderTaxModal = (
@@ -153,6 +192,7 @@ const ProductGroupScreen = ()=>{
             bottomSheetRef={taxModalRef}
             headerText='Select Taxes'
             headerTextColor='#084EAD'
+            adjustToContentHeight={((taxArr.length*47) > (height-100)) ? false : true}
             flatListProps={{
               data: taxArr,
               renderItem: ({item}) => {
@@ -218,7 +258,7 @@ const ProductGroupScreen = ()=>{
           bottomSheetRef={childGroupModalRef}
           headerText='Select Parent Group'
           headerTextColor='#084EAD'
-          adjustToContentHeight={false}
+          adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
           flatListProps={{
             data: parentGroupArr,
             renderItem: ({item}) => {
@@ -296,38 +336,66 @@ const ProductGroupScreen = ()=>{
     );
 
     return (
-        <SafeAreaView style={styles.containerView}>
-            <View>
-                <Animated.ScrollView
-                    keyboardShouldPersistTaps="never"
-                    style={styles.animatedView}
-                    bounces={false}>
-                    <_StatusBar statusBar={statusBar}/>
-                    <Header header={'Create Group'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
-                    <RenderGroupName isGroupUniqueNameEdited={isGroupUniqueNameEdited} setIsGroupUniqueNameEdited={setIsGroupUniqueNameEdited} groupName={groupName} groupUniqueName={groupUniqueName} setGroupName={setGroupName} setGroupUniqueName={setGroupUniqueName} clearAll={clearAll}/>
-                    <RenderRadioBtn codeNumber = {codeNumber} selectedCode={selectedCode} setSelectedCode={setSelectedCode} setCodeNumber={setCodeNumber}/>
-                    <RenderTaxes selectedUniqueTax={selectedUniqueTax} taxModalRef={taxModalRef} setBottomSheetVisible={setBottomSheetVisible}/>
-                    <RenderChildGroup groupName={selectedGroup} childGroupModalRef={childGroupModalRef} setBottomSheetVisible={setBottomSheetVisible} isChecked={isChecked} setIsChecked={setIsChecked} />
-                </Animated.ScrollView>
-            </View>
-            <TouchableOpacity
-              onPress={() => {
-                if(groupName && groupUniqueName)createStockGroup();
-                else{
-                  ToastAndroid.show('Group Unique name can not be empty!',ToastAndroid.LONG)
-                }
-              }}
-              disabled = {isLoading}
-              style={[styles.updatedCreateBtn,{borderColor: voucherBackground}]}>
-              <Text style={[{color:voucherBackground},styles.updatedCreateBtnText]}> Create</Text>
-            </TouchableOpacity>
-            {RenderTaxModal}
-            {RenderChildGroupModal}
-            {successBox}
-            {failureBox}
-            <Loader isLoading={isLoading}/>
-        </SafeAreaView>
-
+      <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.containerView}>
+        <View>
+          <Animated.ScrollView
+            keyboardShouldPersistTaps="never"
+            style={styles.animatedView}
+            bounces={false}>
+            <_StatusBar statusBar={statusBar}/>
+            <Header 
+              header={'Create Group'} 
+              isBackButtonVisible={true} 
+              backgroundColor={voucherBackground} 
+              headerRightContent={<>
+                <TouchableOpacity
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10 }}
+                    style={{ padding: 8 }}
+                    onPress={() => {
+                        clearAll();
+                    }}
+                >
+                    <Text style={styles.smallText}>Clear</Text>
+                </TouchableOpacity>
+                </>}
+              />
+            <RenderGroupName 
+              isGroupUniqueNameEdited={isGroupUniqueNameEdited} 
+              setIsGroupUniqueNameEdited={setIsGroupUniqueNameEdited} 
+              groupName={groupName} 
+              groupUniqueName={groupUniqueName} 
+              setGroupName={setGroupName} 
+              setGroupUniqueName={setGroupUniqueName} 
+              clearAll={clearAll}
+              />
+            <RenderRadioBtn 
+              codeNumber = {codeNumber} 
+              selectedCode={selectedCode} 
+              setSelectedCode={setSelectedCode}
+              setCodeNumber={setCodeNumber}
+              />
+            <RenderTaxes 
+              selectedUniqueTax={selectedUniqueTax} 
+              taxModalRef={taxModalRef} 
+              setBottomSheetVisible={setBottomSheetVisible}
+              />
+            <RenderChildGroup 
+              groupName={selectedGroup} 
+              childGroupModalRef={childGroupModalRef} 
+              setBottomSheetVisible={setBottomSheetVisible} 
+              isChecked={isChecked} 
+              setIsChecked={setIsChecked} 
+              />
+          </Animated.ScrollView>
+        </View>
+        {CreateButton}
+        {RenderTaxModal}
+        {RenderChildGroupModal}
+        {successBox}
+        {failureBox}
+        <Loader isLoading={isLoading}/>
+      </KeyboardAvoidingView>        
     )
 }
 

@@ -1,7 +1,11 @@
-import { Dimensions, StyleSheet } from 'react-native';
-import { FONT_FAMILY } from '../../utils/constants';
+import { Dimensions, Platform, StyleSheet } from 'react-native';
+import { FONT_FAMILY, GD_FONT_SIZE } from '../../utils/constants';
 import { ThemeProps } from '@/utils/theme';
 const {height,width} = Dimensions.get('window')
+const HEADER_COLLAPSE = 32;
+const HEADER_LIST = 60;
+const HEADER_HEIGHT = HEADER_LIST + HEADER_COLLAPSE;
+const isAndroid = Platform.OS === 'android';
 const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   container: {
     flex: 1
@@ -23,14 +27,11 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     backgroundColor: '#fff',
     margin: 5,
     borderColor: '#D9D9D9',
-    borderRadius: 20,
-    borderBottomRightRadius: 0,
-    borderWidth: 1.2,
+    borderBottomWidth:1.2
   },
   buttonText: {
     color: '#808080',
     fontFamily: theme.typography.fontFamily.regular,
-    textAlign: 'center',
     minWidth: 100,
     paddingVertical:10,
     fontSize: 14,
@@ -94,8 +95,8 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     fontSize: 18
   },
   fieldContainer: {
-    marginTop: 14,
-    marginHorizontal: 16
+    marginTop: 0,
+    marginHorizontal: 0
   },
   dateView: {
     flexDirection: 'row',
@@ -311,8 +312,8 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     flexDirection: 'row'
   },
   unitGroupView:{
-    paddingVertical: 6, 
-    marginTop: 10, 
+    paddingVertical: 0, 
+    marginTop: 0, 
     justifyContent: 'space-between'
   },
   modalBtn:{
@@ -344,9 +345,10 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   lineView : {
     flex:1,
-    borderBottomWidth:0.2,
+    borderBottomWidth:0.5,
     width:'95%',
-    alignSelf:'center'
+    alignSelf:'center',
+    borderBottomColor:'rgba(80,80,80,0.5)'
   },
   animatedView:{ 
     flexDirection: 'row', 
@@ -362,7 +364,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     justifyContent:'space-between'
   },
   inputView:{
-    borderWidth: 1, 
+    borderBottomWidth: 1, 
     borderColor: '#d9d9d9',
     width:'90%',
     padding: 10, 
@@ -372,7 +374,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   optionTitle : { 
     color: '#1c1c1c', 
     paddingRight: 5, 
-    marginTop: 10, 
+    marginTop: 5, 
     fontFamily: theme.typography.fontFamily.regular 
   },
   doneBtn:{
@@ -382,7 +384,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     backgroundColor: '#084EAD',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop:10
+    marginTop:5
   },
   doneBtnText : {
     fontFamily: theme.typography.fontFamily.bold,
@@ -413,14 +415,15 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     marginTop: 5 
   },
   variantHeading :{
-    marginVertical: 16,
-    paddingVertical: 10,
+    marginVertical: 3,
+    paddingVertical: 5,
     flexDirection: 'row',
     alignSelf: 'flex-start',
     justifyContent: 'center',
   },
   tableText: {
-    margin:15,
+    marginHorizontal:10,
+    marginVertical:5,
     flexDirection: 'row',
     alignSelf: 'flex-start',
     justifyContent: 'center',
@@ -429,7 +432,7 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   radioGroupContainer :{
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 0,
     width:'75%',
     alignSelf:'center' 
   },
@@ -459,18 +462,20 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   },
   inputContainer:{ 
     marginHorizontal: 15, 
-    marginVertical: 10, 
-    marginRight: 20, 
+    marginVertical: 5, 
     overflow: 'hidden' 
   },
   inputField:{ 
     borderColor: '#D9D9D9', 
     borderBottomWidth: 1,
-    fontFamily:theme.typography.fontFamily.regular 
+    fontFamily:theme.typography.fontFamily.regular,
+    marginVertical:3,
+    paddingVertical:10,
+    paddingHorizontal:3
   },
   linkedAccContainer:{ 
     marginHorizontal: 15, 
-    marginVertical: 10, 
+    marginVertical: 0, 
     marginRight: 20, 
     overflow: 'hidden' 
   },
@@ -491,15 +496,19 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     borderColor: '#D9D9D9', 
     borderBottomWidth: 1, 
     width:'45%',
+    marginVertical:3,
+    paddingVertical:10,
+    paddingHorizontal:3,
     fontFamily:theme.typography.fontFamily.regular
   },
   booleanCustomField :{
     alignItems:'center',
     width:'100%',
     paddingVertical:10,
-    paddingHorizontal:5,
-    borderBottomWidth:1,
-    borderBottomColor:'#D9D9D9'
+    paddingHorizontal:15,
+    borderWidth:1,
+    borderColor:theme.colors.solids.grey.light,
+    borderRadius:3
   },
   customFieldTitle: {
     color:'#808080',
@@ -546,6 +555,148 @@ const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
   updatedCreateBtnText: {
     fontFamily: theme.typography.fontFamily.bold,
     fontSize: 18,
+  },
+  tabbar: {
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9000,
+
+    height: HEADER_HEIGHT,
+
+    overflow: 'hidden',
+
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+
+  tabbar__wrapper: {
+    position: 'absolute',
+
+    width: '100%',
+    height: '100%',
+  },
+
+  tabbar__heading: {
+    paddingTop: 9,
+
+    height: HEADER_COLLAPSE,
+
+  },
+
+  tabbar__headingText: {
+    marginLeft: 20,
+
+    fontSize: 12,
+    letterSpacing: 0.25,
+    textTransform: 'uppercase',
+
+    color: '#084EAD',
+  },
+
+  tabbar__list: {
+    height: HEADER_LIST,
+
+  },
+
+  tabbar__listContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    paddingLeft: 20,
+  },
+
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    marginRight: 25,
+
+    height: '100%',
+  },
+
+  item__emoji: {
+    fontSize: 16,
+    fontFamily: theme.typography.fontFamily.semiBold
+  },
+
+  item__copy: {
+    marginLeft: 4,
+
+    fontSize: 14,
+
+    color: '#d1d2d2',
+  },
+
+  item__line: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+
+    height: 3,
+
+    backgroundColor: '#084EAD',
+  },
+
+  route: {
+    flex: 1,
+
+    paddingTop: 12,
+    paddingBottom: isAndroid ? 100 : 40,
+
+    backgroundColor: '#1a1d21',
+  },
+
+  row: {
+    flexDirection: 'row',
+
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+
+  row__avatar: {
+    width: 36,
+    height: 36,
+
+    borderRadius: 8,
+    backgroundColor: '#3b4149',
+  },
+
+  row__info: {
+    marginLeft: 20,
+  },
+
+  row__name: {
+    marginBottom: 2,
+
+    fontSize: 16,
+    fontWeight: '500',
+
+    color: '#d1d2d2',
+  },
+
+  row__position: {
+    fontSize: 14,
+
+    color: '#9a9c9d',
+  },
+  headerText: {
+    fontFamily: FONT_FAMILY.bold, 
+    paddingHorizontal: 20, 
+    paddingBottom: 10, 
+    fontSize: GD_FONT_SIZE.large,
+    color: '#084EAD'
+  },
+  divider: {
+    borderTopWidth: 1, 
+    borderTopColor: '#D9D9D9', 
+    marginHorizontal: 10
+  },    
+  smallText: {
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 16,
+    color: '#FFFFFF'
   }
 });
 

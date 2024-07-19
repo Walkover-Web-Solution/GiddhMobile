@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import colors from "@/utils/colors";
 import AsyncStorage from "@react-native-community/async-storage";
 import { STORAGE_KEYS } from "@/utils/constants";
-import RNFetchBlob from "rn-fetch-blob";
+import RNFetchBlob from 'react-native-blob-util';
 import Toast from "react-native-root-toast";
 import SafeAreaView from "react-native-safe-area-view";
 import Header from "@/components/Header";
@@ -37,7 +37,6 @@ const PdfPreviewScreen = ( route ) => {
             JSON.stringify(voucherInfo)
           ).then(async (res) => {
             if (res.respInfo.status != 200) {
-            //   Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
               if (Platform.OS == "ios") {
                 Toast.show(JSON.parse(res.data).message, {
                   duration: Toast.durations.LONG,
@@ -62,7 +61,6 @@ const PdfPreviewScreen = ( route ) => {
         } catch (e) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
             setLoading(false);
-        //   Platform.OS == "ios" ? this.setState({ DownloadModal: false }) : this.props.downloadModal(false)
             console.log(e);
         }
       };

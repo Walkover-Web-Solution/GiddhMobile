@@ -4,22 +4,22 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Animated, DeviceEventEmitter, Dimensions, Keyboard, KeyboardAvoidingView, Platform, StatusBar, Text, TouchableOpacity, View } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { APP_EVENTS, STORAGE_KEYS } from "@/utils/constants";
-import RenderStockName from "./RenderStockName";
-import RenderUnitGroup from "./RenderUnitGroup";
-import RenderTaxes from "./RenderTaxes";
-import RenderGroups from "./RenderGroups";
-import RenderLinkedAcc from "./RenderLinkedAcc";
-import RenderVariants from "./RenderVariants";
-import RenderOtherInfo from "./RenderOtherInfo";
 import { InventoryService } from "@/core/services/inventory/inventory.service";
 import _, { random } from "lodash";
 import { useSelector } from "react-redux";
 import AsyncStorage from "@react-native-community/async-storage";
 import Loader from "@/components/Loader";
-import makeStyles from "./style";
+import makeStyles from "../Product/style";
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
+import RenderStockName from "../Product/RenderStockName";
+import RenderUnitGroup from "../Product/RenderUnitGroup";
+import RenderTaxes from "../Product/RenderTaxes";
+import RenderGroups from "../Product/RenderGroups";
+import RenderLinkedAcc from "../Product/RenderLinkedAcc";
+import RenderVariants from "../Product/RenderVariants";
+import RenderOtherInfo from "../Product/RenderOtherInfo";
 import Toast from "@/components/Toast";
 
 
@@ -124,7 +124,7 @@ interface Payload {
     salesAccountUniqueNames: string[]
   }
   
-const ProductScreen = ()=>{
+const ServiceScreen = ()=>{
     
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
@@ -221,7 +221,7 @@ const ProductScreen = ()=>{
     }
 
     const fetchAllParentGroup = async () => {
-        const result = await InventoryService.fetchAllParentGroup("PRODUCT");
+        const result = await InventoryService.fetchAllParentGroup("SERVICE");
         if(result?.data && result?.data?.status == 'success'){
           const results = result?.data?.body?.results
           setParentGroupArr(results);
@@ -327,7 +327,7 @@ const ProductScreen = ()=>{
                     uniqueName: selectedUnitGroupUniqueName,
                     hsnNumber: "",
                     sacNumber: "",
-                    type: "PRODUCT"
+                    type: "SERVICE"
                 }
                 const groupResponse = await InventoryService.addStockGroup(body);
                 if(groupResponse?.data && groupResponse?.data?.status == 'success'){
@@ -383,7 +383,7 @@ const ProductScreen = ()=>{
             visible={successDialog} onBackdropPress={() => setSuccessDialog(false)} contentStyle={styles.dialogContainer}>
             <Award />
             <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>Success</Text>
-            <Text style={styles.dialogMessage}>Stock Group created successfully.</Text>
+            <Text style={styles.dialogMessage}>Stock created successfully.</Text>
             <TouchableOpacity
               style={[styles.dialogBtn,{backgroundColor: '#229F5F'}]}
               onPress={() => {
@@ -489,7 +489,7 @@ const ProductScreen = ()=>{
         );
           
         const payload = {
-            type: "PRODUCT",
+            type: "SERVICE",
             name: otherDataRef?.current?.name,
             uniqueName: otherDataRef?.current?.uniqueName ? otherDataRef?.current?.uniqueName : "",
             stockUnitGroup: {
@@ -626,7 +626,6 @@ const ProductScreen = ()=>{
         setSalesSubUnits({});
         setPurchaseAccount({});
         setSalesAccount({});
-        setUnitGroupMapping([]);
         setChildKeys(newObjectKeys);
         setOthersData(newObj)
         otherDataRef.current = {}
@@ -644,7 +643,7 @@ const ProductScreen = ()=>{
         fetchPurchaseAccounts();
         fetchSalesAccounts();
         fetchVariantCustomfields();
-        DeviceEventEmitter.addListener(APP_EVENTS.ProductScreenRefresh, async () => {
+        DeviceEventEmitter.addListener(APP_EVENTS.ServiceScreenRefresh, async () => {
             fetchAllParentGroup();
             fetchAllTaxes();
             fetchStockUnitGroup();
@@ -675,14 +674,15 @@ const ProductScreen = ()=>{
                             >
                                 <Text style={styles.smallText}>Clear</Text>
                             </TouchableOpacity>
-                            </>}
-                        />
+                            </>
+                        }
+                    />
                     <RenderStockName
                         key={childKeys.key1}
                         handleInputChange={handleInputChange}
                         allData={otherDataRef}
                         clearAll={clearAll}
-                        type="PRODUCT"
+                        type="SERVICE"
                     />
                     <RenderUnitGroup 
                         key={childKeys.key2} 
@@ -798,4 +798,4 @@ const ProductScreen = ()=>{
     )
 }
 
-export default ProductScreen;
+export default ServiceScreen;

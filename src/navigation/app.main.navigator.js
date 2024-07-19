@@ -23,6 +23,7 @@ import DebitNoteUpdateStack from '@/navigation/voucher-update-navigator/debit-no
 import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
 import { ProductStack } from './product.navigator';
 import ProductGroupScreen from '@/screens/ProductGroup/ProductGroupScreen';
+import { ServiceStack } from './components/service.navigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -52,6 +53,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'PdfPreviewScreen'} component={PdfPreviewScreen}/>
       <Drawer.Screen name={'ProductScreen'} component={ProductStack} />
       <Drawer.Screen name={'productGroupScreen'} component={ProductGroupScreen} />
+      <Drawer.Screen name={'ServiceScreen'} component={ServiceStack} />
     </Drawer.Navigator>
   );
 }
