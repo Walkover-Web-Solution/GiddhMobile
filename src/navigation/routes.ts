@@ -19,7 +19,10 @@ const Routes = {
   BigButton: 'bigButton',
   Welcome: 'Welcome',
   CompanyInfoOne: 'CompanyInfoOne',
-  CompanyInfoTwo: 'CompanyInfoTwo'
+  CompanyInfoTwo: 'CompanyInfoTwo',
+  ProductScreen: 'productScreen',
+  ProductGroupScreen: 'productGroupScreen',
+  VariantTableScreen: 'variantTableScreen'
 };
 
 export default Routes

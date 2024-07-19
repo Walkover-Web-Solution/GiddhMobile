@@ -1,0 +1,70 @@
+import { Dimensions, Text, TextInput, TouchableOpacity, View } from "react-native";
+import useCustomTheme, { DefaultTheme } from "@/utils/theme";
+import React from "react";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import makeStyles from "./style";
+
+const RenderUnitGroup = ({unit,unitGroupName, unitGroupModalRef, setBottomSheetVisible, unitGroupMappingModalRef})=>{
+    const {theme,styles} = useCustomTheme(makeStyles);
+    return  (
+    <View style={[styles.fieldContainer,{maxHeight:100}]}>
+        <View style={styles.rowView}>
+            <Icon name='tag-multiple' color={DefaultTheme.colors.secondary} size={17} />
+            <Text style={styles.fieldHeadingText}>{'Unit'}</Text>
+        </View>
+        <View style={styles.unitGroupView}>
+        <View style={styles.rowView}>
+            <TouchableOpacity
+                onPress={()=>{
+                    setBottomSheetVisible(unitGroupModalRef,true);
+                }}
+            >
+            <View
+                style={[
+                styles.buttonWrapper,
+                styles.modalBtn,
+                {borderColor: unitGroupName ? '#084EAD' : '#d9d9d9'},
+                ]}>
+                {unitGroupName ? (
+                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
+                    {unitGroupName}
+                </Text>
+                ) : (
+                <Text
+                    style={[styles.buttonText, { color: '#868686' }]}>
+                    Group
+                </Text>
+                )}
+            </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+            onPress={()=>{
+                setBottomSheetVisible(unitGroupMappingModalRef,true)
+            }}
+            >
+            <View
+                style={[
+                styles.buttonWrapper,
+                styles.modalBtn,
+                {borderColor: unit.uniqueName.length ? '#084EAD' : '#d9d9d9'},
+                ]}>
+                { unit?.uniqueName?.length > 0 ? ( 
+                <Text style={[styles.buttonText, { color: '#084EAD' }]}>
+                    {unit?.name} ({unit?.code})
+                </Text>
+                ) : (
+                <Text
+                    style={[styles.buttonText, { color: '#868686' }]}>
+                    Unit
+                </Text>
+                )}
+            </View>
+            </TouchableOpacity>
+        </View>
+        </View>
+    </View>
+    )
+}
+
+export default React.memo(RenderUnitGroup);
