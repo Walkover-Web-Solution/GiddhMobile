@@ -38,12 +38,12 @@
 		6836F618F100492B8D30AB04 /* Customer.svg in Resources */ = {isa = PBXBuildFile; fileRef = D8EC0DA0071648F088B7E326 /* Customer.svg */; };
 		7C129B742668B03E00CC92FB /* AvenirLTStd-Book.otf in Resources */ = {isa = PBXBuildFile; fileRef = 7C129B732668B03E00CC92FB /* AvenirLTStd-Book.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		8A6E9081467F45E6A5AC420D /* msg91-white-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = EC11E24BF5294882B7D73DE4 /* msg91-white-icon.png */; };
 		8C2A2664C2C84B53A298F970 /* DebitNote.svg in Resources */ = {isa = PBXBuildFile; fileRef = 566649DB888E4CE9B57D5E27 /* DebitNote.svg */; };
 		9111FE605D2CDBFA13BB22EF /* libPods-giddh.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7772D41DDF498C7B6B169791 /* libPods-giddh.a */; };
 		95E942682B39657451290F28 /* libPods-giddh-giddhTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DA410979509FA2FE1CE95C4 /* libPods-giddh-giddhTests.a */; };
 		971672C010684C3F8A028B2B /* PurchaseBill.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3A25392113DE4202A9C40325 /* PurchaseBill.svg */; };
-		A6C27C1E2C3E5DDC0002D2F6 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 008F07F21AC5B25A0029DE68 /* main.jsbundle */; };
+		A6E745902C4B8C5D0023EC9D /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 008F07F21AC5B25A0029DE68 /* main.jsbundle */; };
+		A6E745912C4B8C670023EC9D /* assets in Resources */ = {isa = PBXBuildFile; fileRef = A61011992C4B84E100C094B1 /* assets */; };
 		ADFC7C97B9504DFFA496F553 /* SalesInvoice.svg in Resources */ = {isa = PBXBuildFile; fileRef = D6343F78E8154A5D99CA042D /* SalesInvoice.svg */; };
 		C91487F6D60248A781DC01FB /* OpenSans-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BD4B0B1129A245D99F866AF4 /* OpenSans-ExtraBoldItalic.ttf */; };
 		DE119A1056694656AFB026EF /* customer_faliure.svg in Resources */ = {isa = PBXBuildFile; fileRef = 21DD958D5E6C454981DF22F8 /* customer_faliure.svg */; };
@@ -159,6 +159,7 @@
 		A3CE96A2194E4AFD85E0F262 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-Regular.ttf"; path = "../assets/fonts/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
 		A5B736BF6FC444B1BCF42CC1 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		A5E123916D1547588B5CD721 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
+		A61011992C4B84E100C094B1 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
 		AB35E6D167FD4F99AA87CE91 /* AvenirLTStd-Book.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "AvenirLTStd-Book.otf"; path = "../assets/fonts/AvenirLTStd-Book.otf"; sourceTree = "<group>"; };
 		B04962DE37A743C7AD712853 /* arrowRight.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = arrowRight.svg; path = ../src/assets/images/icons/arrowRight.svg; sourceTree = "<group>"; };
 		B230F0229E264DE4A6ED782D /* giddh.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = giddh.svg; path = ../src/assets/images/giddh.svg; sourceTree = "<group>"; };
@@ -312,6 +313,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				A61011992C4B84E100C094B1 /* assets */,
 				7C129B712668AF9B00CC92FB /* AvenirLTStd-Book.otf */,
 				7C129B732668B03E00CC92FB /* AvenirLTStd-Book.otf */,
 				13B07FAE1A68108700A75B9A /* giddh */,
@@ -599,7 +601,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6C27C1E2C3E5DDC0002D2F6 /* main.jsbundle in Resources */,
+				A6E745912C4B8C670023EC9D /* assets in Resources */,
+				A6E745902C4B8C5D0023EC9D /* main.jsbundle in Resources */,
 				7C129B742668B03E00CC92FB /* AvenirLTStd-Book.otf in Resources */,
 				6673A8F0256E89E30078658D /* GoogleService-Info.plist in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
@@ -624,7 +627,6 @@
 				0577EB6227ED481A99848F4B /* customer_success.svg in Resources */,
 				65EA6EAA84F740CDA968AE6D /* noParty.png in Resources */,
 				33969DFE45E84BCC95F861F5 /* selection.json in Resources */,
-				8A6E9081467F45E6A5AC420D /* msg91-white-icon.png in Resources */,
 				3780138B876C4754B00D6502 /* voucher.png in Resources */,
 				586F18C471FE46C086376605 /* CreditNote.svg in Resources */,
 				6836F618F100492B8D30AB04 /* Customer.svg in Resources */,
@@ -1064,14 +1066,14 @@
 				CODE_SIGN_ENTITLEMENTS = giddh/giddhDebug.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = F3U6Z5L2EJ;
 				DRIVERKIT_DEPLOYMENT_TARGET = 21.2;
 				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = giddh/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.4.2;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1097,13 +1099,13 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = F3U6Z5L2EJ;
 				DRIVERKIT_DEPLOYMENT_TARGET = 21.2;
 				INFOPLIST_FILE = giddh/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.4.2;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
