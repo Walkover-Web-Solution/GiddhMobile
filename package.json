@@ -72,7 +72,7 @@
     "react": "18.1.0",
     "react-devtools": "^4.9.0",
     "react-i18next": "^11.7.2",
-    "react-native": "^0.70.6",
+    "react-native": "^0.74.3",
     "react-native-base64": "^0.2.1",
     "react-native-blob-util": "^0.19.9",
     "react-native-calendars": "1.403.0",
