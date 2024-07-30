@@ -1,17 +1,18 @@
-import {StyleSheet} from 'react-native';
-import {GD_ICON_SIZE} from '@/utils/constants';
+import { StyleSheet } from 'react-native';
+import { FONT_FAMILY, GD_ICON_SIZE } from '@/utils/constants';
 import colors from '@/utils/colors';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+
     backgroundColor: colors.BACKGROUND,
-    paddingTop: 5,
+    //justifyContent: 'flex-start'
   },
   alignLoader: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: 150,
+    justifyContent: 'center'
   },
 
   filterStyle: {
@@ -20,15 +21,15 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginTop: 0,
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   dateRangePickerStyle: {
-    width: '70%',
+    width: '70%'
   },
   iconPlacingStyle: {
     display: 'flex',
     justifyContent: 'flex-end',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   iconCard: {
     padding: 15,
@@ -39,10 +40,21 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     maxHeight: 38,
-    maxWidth: 38,
+    maxWidth: 38
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
-    width: GD_ICON_SIZE.input_icon,
+    width: GD_ICON_SIZE.input_icon
   },
+  dataLoadedTime:{
+    paddingHorizontal:10,
+    fontSize:12
+  },
+  searchText: { 
+    flex: 1,
+    fontSize: 16,
+    fontFamily: FONT_FAMILY.regular, 
+    marginLeft: 10, 
+    color: colors.WHITE 
+  }
 });

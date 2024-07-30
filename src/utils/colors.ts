@@ -2,7 +2,7 @@ export const baseColor = {
   GRAY_LIGHT: '#8E8E8E',
   PRIMARY_RED: '#E04646',
   PRIMARY_GREEN: '#229F5F',
-  BORDER_COLOR: '#D9D9D9',
+  BORDER_COLOR: '#D9D9D9'
 };
 
 export default {
@@ -13,13 +13,14 @@ export default {
   PRIMARY_PRESSED: '#3553E6',
   PRIMARY_DISABLED: '#ACBAFF',
   PRIMARY_BASIC: '#3E82F7',
+  LOGIN_OPT: '#156BB3',
 
   SECONDARY: '#1A237E',
   SECONDARY_NORMAL: '#1A237E',
   SECONDARY_PRESSED: '#111865',
   SECONDARY_DISABLED: '#9C9FC8',
 
-  PRIMARY_BLACK: '#465165', //this color to be used as a default theme black color
+  PRIMARY_BLACK: '#465165', // this color to be used as a default theme black color
   LABEL_COLOR: '#808080',
   INPUT_COLOR: '#1C1C1C',
 
@@ -37,5 +38,5 @@ export default {
   TRANSACTION_CONTRA: baseColor.GRAY_LIGHT,
 
   SWIPE_RIGHT: '#41BDFF',
-  SWIPE_LEFT: '#864DD3',
+  SWIPE_LEFT: '#864DD3'
 };

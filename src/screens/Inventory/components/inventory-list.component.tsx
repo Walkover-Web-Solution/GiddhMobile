@@ -1,8 +1,7 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {FlatList, SafeAreaView, Text, View} from 'react-native';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { Text, View } from 'react-native';
 import styles from '@/screens/Inventory/components/styles';
-import {GdSVGIcons} from '@/utils/icons-pack';
 
 type InventoryListProp = WithTranslation & WithTranslationProps & {};
 
@@ -16,7 +15,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'proxqima@appdividend.com',
+      email: 'proxqima@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -24,7 +23,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'ebofny@appdividend.com',
+      email: 'ebofny@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -32,7 +31,7 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'proxafaima@appdividend.com',
+      email: 'proxafaima@appdividend.com'
     },
     {
       product_name: 'Product Name',
@@ -40,67 +39,54 @@ class InventoryList extends React.Component<InventoryListProp, InventoryListStat
       inward: '140 nos.',
       closing_stock: '130 nos.',
       outward: '40 nos.',
-      email: 'ebsonyfa@appdividend.com',
-    },
+      email: 'ebsonyfa@appdividend.com'
+    }
   ];
 
-  constructor(props: InventoryListProp) {
+  constructor (props: InventoryListProp) {
     super(props);
   }
 
-  render() {
+  render () {
     return (
-      <SafeAreaView style={{flex: 1}}>
-        <View style={styles.container}>
-          <FlatList
-            data={this.listData}
-            showsVerticalScrollIndicator={false}
-            renderItem={({item}) => (
-              <View style={styles.flatList}>
-                <View style={styles.balData}>
-                  <Text style={styles.listHeading}>{item.product_name}</Text>
-                  <View style={styles.iconPlacingStyle}>
-                    <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
-                  </View>
-                </View>
-
-                <View style={styles.stockWrap}>
-                  <View style={styles.stockRow1}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Opening Stock</Text>
-                      <Text style={styles.stockSubTitle}>{item.opening_stock}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.stockRow2}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Inward</Text>
-                      <Text style={styles.stockSubTitle}>{item.inward}</Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={{height: 10}} />
-
-                <View style={styles.stockWrap}>
-                  <View style={styles.stockRow1}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Closing stock</Text>
-                      <Text style={styles.stockSubTitle}>{item.closing_stock}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.stockRow2}>
-                    <View style={styles.stockDataWrap}>
-                      <Text style={styles.stockTitle}>Outward</Text>
-                      <Text style={styles.stockSubTitle}>{item.outward}</Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.seperator} />
-              </View>
-            )}
-            keyExtractor={(item) => item.email}
-          />
+      <View style={styles.flatList}>
+        <View style={styles.balData}>
+          <Text numberOfLines={1} style={styles.listHeading}>{this.props.item.stockName}</Text>
+          {/* <View style={styles.iconPlacingStyle}>
+            <GdSVGIcons.more style={styles.iconStyle} width={18} height={18} />
+          </View> */}
         </View>
-      </SafeAreaView>
+
+        <View style={styles.stockWrap}>
+          <View style={styles.stockRow1}>
+            <View style={styles.stockDataWrap}>
+              <Text style={styles.stockTitle}>Inward</Text>
+              <View style={{ height: 5 }} />
+              <Text style={styles.stockSubTitle}>
+                {this.props.item.inwards.quantity == 0
+                  ? '-'
+                  : this.props.item.inwards.quantity + ' ' + this.props.item.inwards.stockUnit}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.stockRow2}>
+            <View style={styles.stockDataWrap}>
+              <Text style={styles.stockTitle}>Outward</Text>
+              <View style={{ marginTop: 5 }} />
+              <Text style={styles.stockSubTitle}>
+                {this.props.item.outwards.quantity == 0
+                  ? '-'
+                  : this.props.item.outwards.quantity + ' ' + this.props.item.outwards.stockUnit}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.seperator} />
+        {/* <TouchableOpacity
+            style={{height: 50, width: 150, backgroundColor: 'pink'}}
+            onPress={() => console.log(this.props.item.outwards.stockUnit)}></TouchableOpacity> */}
+      </View>
     );
   }
 }

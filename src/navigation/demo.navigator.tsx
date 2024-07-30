@@ -1,16 +1,16 @@
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomNavigation, BottomNavigationTab, Icon } from '@ui-kitten/components';
 import Routes from './routes';
-import {DemoScreen} from '@/screens/Demo/Demo';
+import { DemoScreen } from '@/screens/Demo/Demo';
 
-const {Navigator, Screen} = createBottomTabNavigator();
+const { Navigator, Screen } = createBottomTabNavigator();
 
 const HomeIcon = (props: any) => <Icon {...props} name="home-outline" />;
 const PersonIcon = (props: any) => <Icon {...props} name="person-outline" />;
 const MoreIcon = (props: any) => <Icon {...props} name="more-vertical-outline" />;
 
-const BottomTabBar = ({navigation, state}: {navigation: any; state: any}) => (
+const BottomTabBar = ({ navigation, state }: {navigation: any; state: any}) => (
   <BottomNavigation
     selectedIndex={state.index}
     onSelect={(index) => navigation.navigate(state.routeNames[index])}

@@ -1,15 +1,15 @@
 import React from 'react';
-import {WithTranslation, withTranslation, WithTranslationProps} from 'react-i18next';
-import {Divider, Layout, TopNavigation} from '@ui-kitten/components';
-import {ScrollView, View} from 'react-native';
-import {GDButton} from '@/core/components/button/button.component';
-import {ButtonShape, ButtonSize, ButtonType} from '@/models/enums/button';
-import {Country} from '@/models/interfaces/country';
-import {GDInput} from '@/core/components/input/input.component';
-import {GDRoundedInput} from '@/core/components/input/rounded-input.component';
-import {BadgeButton} from '@/core/components/badge-button/badge-button.component';
-import {TopCard} from '@/core/components/top-card/top-card.component';
-import {BadgeTab} from '@/models/interfaces/badge-tabs';
+import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
+import { Divider, Layout, TopNavigation } from '@ui-kitten/components';
+import { ScrollView, View } from 'react-native';
+import { GDButton } from '@/core/components/button/button.component';
+import { ButtonShape, ButtonSize, ButtonType } from '@/models/enums/button';
+import { Country } from '@/models/interfaces/country';
+import { GDInput } from '@/core/components/input/input.component';
+import { GDRoundedInput } from '@/core/components/input/rounded-input.component';
+import { BadgeButton } from '@/core/components/badge-button/badge-button.component';
+import { TopCard } from '@/core/components/top-card/top-card.component';
+import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
 
 type DemoComponentProp = WithTranslation &
@@ -26,22 +26,22 @@ type DemoComponentState = {
 const BadgeTabs: BadgeTab[] = [
   {
     label: 'Parties',
-    isActive: false,
+    isActive: false
   },
   {
     label: 'Transactions',
-    isActive: true,
+    isActive: true
   },
   {
     label: 'Inventory',
-    isActive: false,
-  },
+    isActive: false
+  }
 ];
 
 class DemoComponent extends React.Component<DemoComponentProp, DemoComponentState> {
-  constructor(props: DemoComponentProp) {
+  constructor (props: DemoComponentProp) {
     super(props);
-    this.state = {badgeTabs: BadgeTabs};
+    this.state = { badgeTabs: BadgeTabs };
   }
 
   changeLanguage = () => {
@@ -55,11 +55,11 @@ class DemoComponent extends React.Component<DemoComponentProp, DemoComponentStat
     });
     tab.isActive = !tab.isActive;
     this.state.badgeTabs[index] = tab;
-    this.setState({badgeTabs: this.state.badgeTabs});
+    this.setState({ badgeTabs: this.state.badgeTabs });
   };
 
-  render() {
-    const {getCountriesAction, t, logoutAction} = this.props;
+  render () {
+    const { getCountriesAction, t, logoutAction } = this.props;
     return (
       <>
         <TopNavigation title="Giddh" alignment="center" />
@@ -75,11 +75,11 @@ class DemoComponent extends React.Component<DemoComponentProp, DemoComponentStat
             </Layout>
           </ScrollView>
         </View>
-        {/*<View style={style.countriesContainer}>*/}
-        {/*  <Text>{t('DEMO.TOTAL_COUNTRIES')} : </Text>*/}
-        {/*  {isCountriesLoading && <Spinner />}*/}
-        {/*  {!isCountriesLoading && <Text>{countries.length}</Text>}*/}
-        {/*</View>*/}
+        {/* <View style={style.countriesContainer}> */}
+        {/*  <Text>{t('DEMO.TOTAL_COUNTRIES')} : </Text> */}
+        {/*  {isCountriesLoading && <Spinner />} */}
+        {/*  {!isCountriesLoading && <Text>{countries.length}</Text>} */}
+        {/* </View> */}
 
         <Layout style={style.exampleContainer}>
           <View style={style.commonStyle}>
@@ -109,7 +109,7 @@ class DemoComponent extends React.Component<DemoComponentProp, DemoComponentStat
             <GDButton label={'Change to Hindi'} onPress={this.changeLanguage} />
           </View>
 
-          <View style={{margin: 15, display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
+          <View style={{ margin: 15, display: 'flex', justifyContent: 'space-between', flexDirection: 'row' }}>
             {this.state.badgeTabs.map((tab: BadgeTab, index: number) => (
               <BadgeButton label={tab.label} onPress={() => this.selectedTab(tab, index)} isActive={tab.isActive} />
             ))}

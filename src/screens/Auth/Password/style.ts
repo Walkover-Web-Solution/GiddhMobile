@@ -1,53 +1,61 @@
-import {StyleSheet, Platform} from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 import colors from '@/utils/colors';
-import {GD_FONT_SIZE} from '@/utils/constants';
+import { GD_FONT_SIZE } from '@/utils/constants';
+
+const { width, height } = Dimensions.get('window');
 
 export default StyleSheet.create({
   backgroundContainer: {
     flex: 1,
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.WHITE
   },
   loginContainer: {
     flex: 1,
     display: 'flex',
     paddingHorizontal: 30,
-    alignContent: 'space-around',
+    alignContent: 'space-around'
   },
   socialLoginContainer: {
     flexDirection: 'column',
     display: 'flex',
     paddingVertical: 10,
     justifyContent: 'center',
-    flex: 1.8,
+    flex: 1.8
   },
-
+  upperContainer: {
+    backgroundColor: '#e0e0e0',
+    width: width,
+    height: height * 0.1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute'
+  },
   logoStyle: {
     resizeMode: 'contain',
     height: 16,
     width: 139,
     alignSelf: 'center',
-    paddingVertical: 50,
+    paddingVertical: 50
   },
   titleContainer: {
     flexDirection: 'row',
-    display: 'flex',
+    display: 'flex'
   },
   loginTextStyle: {
     fontSize: 26,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
-    fontWeight: 'bold',
+    fontFamily: 'AvenirLTStd-Black',
     marginBottom: 30,
-    color: colors.TEXT_HEADING,
+    color: colors.TEXT_HEADING
   },
   socialButton: {
     marginBottom: 20,
-    marginRight: 80,
+    marginRight: 80
   },
 
   seperator: {
     flexDirection: 'row',
     alignItems: 'center',
-    display: 'flex',
+    display: 'flex'
   },
   horizontalRule: {
     borderBottomColor: colors.INPUT_COLOR,
@@ -55,53 +63,51 @@ export default StyleSheet.create({
     marginLeft: 10,
     marginTop: 5,
     marginRight: 25,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth
   },
 
   loginFormContainer: {
     flex: 2,
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
 
   registerStyle: {
     fontSize: 18,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
-    fontWeight: 'bold',
-    color: colors.TEXT_NORMAL,
+    fontFamily: 'AvenirLTStd-Black',
+    color: colors.TEXT_NORMAL
   },
   formInput: {
     marginTop: 20,
-    borderRadius: 20,
+    borderRadius: 20
   },
   loginButtonContainer: {
-    display: 'flex',
     flexDirection: 'row',
     marginTop: 20,
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'center'
   },
 
   requestButtonStyle: {
-    width: 150,
+    width: 150
   },
   loginStyle: {
     fontSize: GD_FONT_SIZE.medium,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
-    color: colors.TEXT_NORMAL,
+    fontFamily: 'AvenirLTStd-Book',
+    color: colors.TEXT_NORMAL
   },
   troubleLoginContainer: {
     display: 'flex',
     justifyContent: 'center',
 
-    flex: 1,
+    flex: 1
   },
   bottomTextStyle: {
     marginBottom: 5,
     marginRight: 10,
     fontSize: 14,
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
-    color: colors.TEXT_NORMAL,
+    fontFamily: 'AvenirLTStd-Book',
+    color: colors.TEXT_NORMAL
   },
 
   bottomTextStyleLink: {
@@ -109,20 +115,20 @@ export default StyleSheet.create({
     color: colors.TEXT_LINK,
     fontSize: GD_FONT_SIZE.normal,
     textDecorationLine: 'underline',
-    fontFamily: Platform.OS === 'ios' ? 'OpelSans-Regular' : 'Opel-Sans-Regular',
+    fontFamily: 'AvenirLTStd-Book'
   },
 
   resetHead: {
     fontSize: GD_FONT_SIZE.xlarge,
-    fontWeight: 'bold',
+    fontFamily: 'AvenirLTStd-Black',
     textAlign: 'center',
-    paddingBottom: 20,
+    paddingBottom: 20
   },
 
   resetBody: {
     fontSize: GD_FONT_SIZE.medium,
     color: colors.LABEL_COLOR,
     textAlign: 'center',
-    paddingBottom: 40,
-  },
+    paddingBottom: 40
+  }
 });

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {GestureResponderEvent, StyleProp, TextInput, TextStyle, View, ViewStyle} from 'react-native';
-import {InputSize} from '@/models/enums/input';
-import {Noop} from '@/utils/helper';
-import {Icon} from '@ui-kitten/components';
+import { Component } from 'react';
+import { GestureResponderEvent, StyleProp, TextInput, TextStyle, View, ViewStyle } from 'react-native';
+import { InputSize } from '@/models/enums/input';
+import { Noop } from '@/utils/helper';
+import { Icon } from '@ui-kitten/components';
 
 import styles from '@/core/components/input/styles';
 
@@ -37,14 +37,14 @@ export class GDRoundedInput extends Component<GDRoundedInputProps, GDRoundedInpu
     onFocus: Noop,
     onChange: Noop,
     onBlur: Noop,
-    color: 'string',
+    color: 'string'
   };
 
-  constructor(props: GDRoundedInputProps) {
+  constructor (props: GDRoundedInputProps) {
     super(props);
   }
 
-  render() {
+  render () {
     const CustomTag = this.props.svg;
     let checkTag = 1;
     if (this.props.svg === '') {
@@ -52,13 +52,14 @@ export class GDRoundedInput extends Component<GDRoundedInputProps, GDRoundedInpu
     }
 
     return (
-      <View style={styles.roundedViewAreaForInput}>
+      <View style={styles.roundedViewAreaForTextInput}>
         <View style={styles.roundedIconBox}>
           {checkTag === 1 && <CustomTag width={this.props.svgWidth} height={this.props.svgHeight} />}
           {this.props.icon && <Icon pack="Gd" name={this.props.icon} />}
         </View>
         <View style={styles.flexGrow}>
           <TextInput
+            placeholderTextColor={'rgba(80,80,80,0.5)'}
             style={styles.roundedInputTextStyle}
             editable={this.props.enable}
             placeholder={this.props.placeholder}
@@ -66,6 +67,7 @@ export class GDRoundedInput extends Component<GDRoundedInputProps, GDRoundedInpu
             onBlur={this.props.onBlur}
             onFocus={this.props.onFocus}
             onChangeText={this.props.onChange}
+            secureTextEntry={this.props.secureTextEntry}
           />
         </View>
       </View>

@@ -1,48 +1,74 @@
 import React from 'react';
-import {Dispatch, RootState} from '@/core/store';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
-import {CommonService} from '@/core/services/common/common.service';
+import { StatusBar,Platform } from 'react-native';
+import { connect } from 'react-redux';
+import { GDContainer } from '@/core/components/container/container.component';
+import { CommonService } from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
+import * as CommonActions from '@/redux/CommonAction';
+import { useIsFocused } from '@react-navigation/native';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
-type Props = connectedProps;
+type Props = connectedProps & {navigation: any};
 
 export class MoreScreen extends React.Component<Props, {}> {
-  constructor(props: Props) {
+  constructor (props: Props) {
     super(props);
   }
+
+  FocusAwareStatusBar = (isFocused) => {
+    return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
+  };
 
   getData = async () => {
     await CommonService.getCurrencies();
   };
 
-  render() {
+  render () {
     return (
       <GDContainer>
+        {this.FocusAwareStatusBar(this.props.isFocused)}
         <MoreComponent
+          navigation={this.props.navigation}
           countries={this.props.countries}
           getCountriesAction={this.props.getCountriesAction}
           isCountriesLoading={this.props.isCountriesLoading}
-          logoutAction={this.props.logoutAction}
+          logout={this.props.logout}
+          companyList={this.props.comapnyList}
+          branchList={this.props.branchList}
+          isFetchingCompanyList={this.props.isFetchingCompanyList}
         />
       </GDContainer>
     );
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state) => {
+  const { commonReducer } = state;
+
   return {
-    isLoginInProcess: state.auth.isLoginInProcess,
-    countries: state.common.countries,
-    isCountriesLoading: state.common.isCountriesLoading,
+    isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
+    ...commonReducer
+    // countries: state.common.countries,
+    // isCountriesLoading: state.common.isCountriesLoading,
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    getCountriesAction: dispatch.common.getCountriesAction,
-    logoutAction: dispatch.auth.logoutAction,
+    logout: () => {
+      dispatch(CommonActions.logout());
+    }
+    // getCountriesAction: dispatch.common.getCountriesAction,
+    // logoutAction: dispatch.auth.logoutAction,
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(MoreScreen);
+
+function Screen (props) {
+  const isFocused = useIsFocused();
+
+  return <MoreScreen {...props} isFocused={isFocused} />;
+}
+
+// export default connect(mapStateToProps)(Screen);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Screen);

@@ -1,14 +1,17 @@
 import React from 'react';
-import {SafeAreaView, StyleProp, Text, TouchableOpacity, View, ViewStyle} from 'react-native';
+import { StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import styles from '@/screens/Parties/components/styles';
-import {GdSVGIcons} from '@/utils/icons-pack';
-import {SwipeListView} from 'react-native-swipe-list-view';
-import colors, {baseColor} from '@/utils/colors';
+import { GdSVGIcons } from '@/utils/icons-pack';
+import { SwipeListView } from 'react-native-swipe-list-view';
+import colors, { baseColor } from '@/utils/colors';
 import * as constants from '@/utils/constants';
-import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
+import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
-import {Company} from '@/models/interfaces/company';
+import { Company } from '@/models/interfaces/company';
+import { useNavigation } from '@react-navigation/native';
+import routes from '@/navigation/routes';
+import { formatAmount } from '@/utils/helper';
 
 type PartiesListProp = {
   partiesData: PartiesPaginatedResponse;
@@ -19,12 +22,12 @@ const renderHiddenItem = () => (
   <View style={styles.rowBack}>
     <TouchableOpacity style={styles.swipeRight}>
       <GdSVGIcons.compose style={styles.iconStyle} width={14} height={14} />
-      <View style={{width: 10}} />
+      <View style={{ width: 10 }} />
       <Text style={styles.swipeText}>Edit</Text>
     </TouchableOpacity>
     <TouchableOpacity style={styles.swipeLeft}>
       <Text style={styles.swipeText}>Send</Text>
-      <View style={{width: 10}} />
+      <View style={{ width: 10 }} />
       <GdSVGIcons.send_white style={styles.iconStyle} width={14} height={14} />
     </TouchableOpacity>
   </View>
@@ -32,107 +35,141 @@ const renderHiddenItem = () => (
 
 const amountColorStyle = (type: string) => {
   let bgColor = colors.TEXT_NORMAL;
-  if (type === 'liabilities') {
+  if (type === 'CREDIT') {
     bgColor = baseColor.PRIMARY_RED;
-  } else if (type === 'assets') {
+  } else if (type === 'DEBIT') {
     bgColor = baseColor.PRIMARY_GREEN;
-  } else if (type === 'neutral') {
+  } else {
     bgColor = colors.INPUT_COLOR;
   }
   return {
-    color: bgColor,
-    fontWeight: 'bold',
-    fontSize: constants.GD_FONT_SIZE.medium,
+    color: '#000',
+    fontFamily: 'AvenirLTStd-Black',
+    fontSize: constants.GD_FONT_SIZE.medium
   };
 };
 
 export const PartiesList = (props: PartiesListProp) => {
-  const {partiesData, activeCompany} = props;
+  const { partiesData, activeCompany } = props;
+  const navigationRef = useNavigation()
 
-  function currencyFormat(amount: number, currencyType: string | undefined) {
+  function currencyFormat (amount: number, currencyType: string | undefined) {
     switch (currencyType) {
       case 'IND_COMMA_SEPARATED':
         // eslint-disable-next-line no-lone-blocks
         {
           if (amount.toString().length > 4) {
-            return amount.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+            return amount
+              .toFixed(1)
+              .toString()
+              .replace(/\B(?=(\d{2})+(?!\d))/g, ',');
           } else if (amount.toString().length === 3) {
-            return amount.toString();
+            return amount.toFixed(1).toString();
           } else if (amount.toString().length === 4) {
-            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return amount
+              .toFixed(1)
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
           }
         }
         break;
       case 'INT_SPACE_SEPARATED': {
-        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
       }
       case 'INT_APOSTROPHE_SEPARATED': {
-        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, "'");
       }
       default: {
-        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return amount
+          .toFixed(1)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       }
     }
   }
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <View style={styles.container}>
-        <SwipeListView
-          data={partiesData.results}
-          showsVerticalScrollIndicator={false}
-          leftOpenValue={100}
-          rightOpenValue={-100}
-          renderHiddenItem={renderHiddenItem}
-          renderItem={({item}) => (
-            <View style={styles.rowFront}>
-              <View style={styles.flatList}>
-                <View style={styles.viewWrap}>
-                  <Text style={styles.partiesName}>{item.name}</Text>
-
-                  {item.closingBalance.amount !== 0 && (
-                    <View style={styles.amountWrap}>
-                      {item.country.code === 'IN' && (
-                        <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
-                          {getSymbolFromCurrency('INR')}
-
-                          {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
-                        </Text>
-                      )}
-
-                      {item.country.code !== 'IN' && (
-                        <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>
-                          {getSymbolFromCurrency(item.country.code)}
-                          {currencyFormat(item.closingBalance.amount, activeCompany?.balanceDisplayFormat)}
-                        </Text>
-                      )}
-                      <View style={{width: 2}} />
-                      {item.category === 'liabilities' && (
-                        <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
-                      )}
-                      {item.category === 'assets' && (
-                        <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
-                      )}
-                    </View>
+    <SwipeListView
+      data={partiesData}
+      // showsVerticalScrollIndicator={false}
+      // leftOpenValue={100}
+      // rightOpenValue={-100}
+      // renderHiddenItem={renderHiddenItem}
+      renderItem={({ item }) => (
+        <TouchableOpacity 
+        onPress={() => {
+          navigationRef.navigate("Dash.PartiesTransactions", {
+            initial: false,
+            item:item,
+            type: (item.category === 'liabilities'?'Vendors':'Creditors'),
+            activeCompany:activeCompany
+          });}}
+          style={styles.rowFront}>
+          <View style={styles.flatList}>
+            <View style={styles.viewWrap}>
+              <Text style={styles.partiesName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              
+            </View>
+            <View style={{flexDirection:'row',
+            justifyContent:'space-between',
+           alignItems:'center'
+            }} >
+            {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
+            {item.category === 'assets' && <Text style={styles.subheading}>Customer</Text>}
+            {item.closingBalance.amount !== 0 && (
+                <View style={styles.amountWrap}>
+                  {item.country.code === 'IN' && (
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontFamily: 'AvenirLTStd-Book',
+                        fontSize: constants.GD_FONT_SIZE.medium
+                      }}
+                      numberOfLines={1}>
+                      {getSymbolFromCurrency('INR')}
+                      {formatAmount(item.closingBalance.amount)}
+                    </Text>
                   )}
-
-                  {item.closingBalance.amount === 0 && (
-                    <View style={styles.amountWrap}>
-                      <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
-                    </View>
+                  {item.country.code !== 'IN' && (
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontFamily: 'AvenirLTStd-Book',
+                        fontSize: constants.GD_FONT_SIZE.medium
+                      }}
+                      numberOfLines={1}>
+                      {getSymbolFromCurrency(item.country.code)}
+                      {formatAmount(item.closingBalance.amount)}
+                    </Text>
+                  )}
+                  <View style={{ width: 2 }} />
+                  {item.closingBalance.type == 'CREDIT' && (
+                    <GdSVGIcons.outgoing style={styles.iconStyle} width={10} height={10} />
+                  )}
+                  {item.closingBalance.type == 'DEBIT' && (
+                    <GdSVGIcons.incoming style={styles.iconStyle} width={10} height={10} />
                   )}
                 </View>
-
-                {item.category === 'liabilities' && <Text style={styles.subheading}>Vendor</Text>}
-                {item.category === 'assets' && <Text style={styles.subheading}> Customer</Text>}
-
-                <View style={styles.seperator} />
-              </View>
+              )}
+              {item.closingBalance.amount === 0 && (
+                <View style={styles.amountWrap}>
+                  <Text style={amountColorStyle(item.category) as StyleProp<ViewStyle>}>-</Text>
+                </View>
+              )}
             </View>
-          )}
-          keyExtractor={(item) => item.uniqueName}
-        />
-      </View>
-    </SafeAreaView>
+            <View style={styles.seperator} />
+          </View>
+        </TouchableOpacity>
+      )}
+      keyExtractor={(item) => item.uniqueName}
+    />
   );
 };

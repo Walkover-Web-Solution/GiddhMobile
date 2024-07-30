@@ -1,54 +1,56 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 import * as constants from '@/utils/constants';
-import {GD_ICON_SIZE} from '@/utils/constants';
-import colors, {baseColor} from '@/utils/colors';
+import { GD_ICON_SIZE } from '@/utils/constants';
+import colors, { baseColor } from '@/utils/colors';
 
 export default StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1, 
+    backgroundColor: '#FFFFFF'
   },
   flatList: {
-    marginBottom: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   listHeading: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.medium,
-    fontWeight: constants.GD_FONT_WEIGHT.bold,
+    fontFamily: 'AvenirLTStd-Book',
+   
   },
   aboutSales: {
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'row',
     width: '100%',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   leftcontent: {
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   receiptData: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 10,
+    marginBottom: 5
   },
   totalData: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   balanceText: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'row'
   },
   balData: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
     justifyContent: 'space-between',
   },
   transactionTypeBanner: {
@@ -57,42 +59,52 @@ export default StyleSheet.create({
     paddingRight: 10,
     height: 25,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   bannerText: {
     fontSize: constants.GD_FONT_SIZE.small,
-    color: colors.WHITE,
+    color: colors.WHITE
   },
   invoiceNumber: {
     color: baseColor.GRAY_LIGHT,
     marginLeft: 10,
-    fontSize: constants.GD_FONT_SIZE.small,
+    fontSize: constants.GD_FONT_SIZE.small
   },
   invoiceDate: {
     color: baseColor.GRAY_LIGHT,
-    fontSize: constants.GD_FONT_SIZE.small,
+    fontSize: constants.GD_FONT_SIZE.small
   },
   totalStyle: {
     color: baseColor.GRAY_LIGHT,
-    fontSize: constants.GD_FONT_SIZE.small,
+    fontSize: constants.GD_FONT_SIZE.small
   },
   balStyle: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.normal,
+    fontFamily: 'AvenirLTStd-Book'
   },
   iconPlacingStyle: {
-    display: 'flex',
-    justifyContent: 'flex-end',
     flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: -10
   },
   iconStyle: {
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
   },
+  inventoryData: { marginBottom: 5, color: baseColor.GRAY_LIGHT },
   seperator: {
-    marginTop: 5,
+    marginBottom: 5,
     borderBottomColor: baseColor.GRAY_LIGHT,
     opacity: 0.2,
-    borderBottomWidth: 1,
+    borderBottomWidth: 1
   },
+  deleteButton: {
+    backgroundColor: '#FFDFE0', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    borderTopLeftRadius: 50,
+    borderBottomLeftRadius: 50
+  }
 });

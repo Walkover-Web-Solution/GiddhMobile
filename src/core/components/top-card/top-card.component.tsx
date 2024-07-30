@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {View} from 'react-native';
-//import styles from './styles';
-import {Card, Icon, Text} from '@ui-kitten/components';
+import { Component } from 'react';
+import { View } from 'react-native';
+// import styles from './styles';
+import { Card, Icon, Text } from '@ui-kitten/components';
 import styles from '@/core/components/top-card/styles';
 
 type TopCardProps = {
@@ -15,12 +15,12 @@ type TopCardProps = {
 type TopCardStat = {};
 
 export class TopCard extends Component<TopCardProps, TopCardStat> {
-  constructor(props: TopCardProps) {
+  constructor (props: TopCardProps) {
     super(props);
   }
 
-  render() {
-    //Button style pushed into style based on condition
+  render () {
+    // Button style pushed into style based on condition
 
     return (
       <Card style={styles.cardBox}>

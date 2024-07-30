@@ -1,30 +1,19 @@
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {BottomNavigation, BottomNavigationTab, Icon} from '@ui-kitten/components';
-import Routes from './routes';
-import Parties from '@/screens/Parties/Parties';
+import { createStackNavigator } from '@react-navigation/stack';
+import PartiesMain from '@/screens/Parties/PartiesMain';
+import PartiesTransactions from '@/screens/Parties/Parties-Transactions';
+import BulkPayment from '@/screens/Parties/components/BulkPayment';
+import BulkPaymentOTP from '@/screens/Parties/components/BulkPaymentOTP';
+import AppDatePicker from '@/screens/DatePicker/DatePicker';
 
-const {Navigator, Screen} = createBottomTabNavigator();
+const { Navigator, Screen } = createStackNavigator();
 
-const HomeIcon = (props: any) => <Icon {...props} name="home-outline" />;
-const PersonIcon = (props: any) => <Icon {...props} name="person-outline" />;
-const MoreIcon = (props: any) => <Icon {...props} name="more-vertical-outline" />;
-
-const BottomTabBar = ({navigation, state}: {navigation: any; state: any}) => (
-  <BottomNavigation
-    selectedIndex={state.index}
-    onSelect={(index) => navigation.navigate(state.routeNames[index])}
-    appearance={'noIndicator'}>
-    <BottomNavigationTab title="Dashboard" icon={HomeIcon} />
-    <BottomNavigationTab title="Inventory" icon={PersonIcon} />
-    <BottomNavigationTab title="More" icon={MoreIcon} />
-  </BottomNavigation>
-);
-
-export const PartiesNavigator = () => (
-  <Navigator tabBar={(props) => <BottomTabBar {...props} />}>
-    <Screen name={Routes.Dashboard} component={Parties} />
-    <Screen name={Routes.Inventory} component={Parties} />
-    <Screen name={Routes.Add} component={Parties} />
+export const PartiesStack = () => (
+  <Navigator initialRouteName={'PartiesMain'}>
+    <Screen component={PartiesMain} name={'Parties'} options={{ headerShown: false }} />
+    <Screen component={PartiesTransactions} name={'PartiesTransactions'} options={{ headerShown: false }} />
+    <Screen component={BulkPayment} name={'BulkPayment'} options={{ headerShown: false }} />
+    <Screen component={BulkPaymentOTP} name={'BulkPaymentOTP'} options={{ headerShown: false }} />
+    <Screen component={AppDatePicker} name={'AppDatePicker'} options={{ headerShown: false }} />
   </Navigator>
 );

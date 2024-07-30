@@ -1,12 +1,29 @@
-export default {
+const Routes = {
+  BottomTabScreen1: 'BottomTabScreen1',
+  BottomTabScreen2: 'BottomTabScreen2',
   Home: 'home',
   Login: 'login',
+  Password: 'Password',
+  ResetPassword: 'ResetPassword',
+  Otp: 'Otp',
+  Signup: 'Signup',
+  createCompany:'createCompany',
+  createCompanyDetails:'createCompanyDetails',
   Dashboard: 'dashboard',
   Inventory: 'inventory',
+  Accounts: 'accounts',
   Add: 'add',
   Parties: 'parties',
   More: 'more',
   Transaction: 'transaction',
   BigButton: 'bigButton',
-  
+  Welcome: 'Welcome',
+  CompanyInfoOne: 'CompanyInfoOne',
+  CompanyInfoTwo: 'CompanyInfoTwo',
+  ProductScreen: 'productScreen',
+  ProductGroupScreen: 'productGroupScreen',
+  VariantTableScreen: 'variantTableScreen',
+  ServiceScreen : 'serviceScreen'
 };
+
+export default Routes

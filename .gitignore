@@ -28,6 +28,7 @@ build/
 .gradle
 local.properties
 *.iml
+*.hprof
 
 #Google service json
 /android/app/google-services.json
@@ -60,6 +61,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+/ios/Podfile.lock
 /environments/*
 /src/env.json
 .DS_Store

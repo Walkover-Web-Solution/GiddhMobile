@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {GestureResponderEvent, StyleProp, Text, TextInput, TextStyle, View, ViewStyle} from 'react-native';
-import {InputSize} from '@/models/enums/input';
-import {Noop} from '@/utils/helper';
-import {Icon} from '@ui-kitten/components';
+import { Component } from 'react';
+import { GestureResponderEvent, StyleProp, Text, TextInput, TextStyle, View, ViewStyle } from 'react-native';
+import { InputSize } from '@/models/enums/input';
+import { Noop } from '@/utils/helper';
+import { Icon } from '@ui-kitten/components';
 
 import styles from '@/core/components/input/styles';
 
@@ -31,18 +31,18 @@ export class GDInput extends Component<GDInputProps, GDInputStat> {
     required: false,
     onFocus: Noop,
     onChange: Noop,
-    onBlur: Noop,
+    onBlur: Noop
   };
 
-  constructor(props: GDInputProps) {
+  constructor (props: GDInputProps) {
     super(props);
   }
 
-  render() {
-    //Input style pushed into style based on condition
-    let labelStyle: StyleProp<TextStyle> =
+  render () {
+    // Input style pushed into style based on condition
+    const labelStyle: StyleProp<TextStyle> =
       this.props.size === InputSize.medium ? styles.labelStyle : styles.labelStyleSmall;
-    let inputTextStyle: StyleProp<TextStyle> =
+    const inputTextStyle: StyleProp<TextStyle> =
       this.props.size === InputSize.medium ? styles.inputTextStyle : styles.inputTextStyleSmall;
 
     return (

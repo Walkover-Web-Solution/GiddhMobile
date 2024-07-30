@@ -1,116 +1,159 @@
 import React from 'react';
-import {RootState} from '@/core/store';
-import {connect} from 'react-redux';
-import {GDContainer} from '@/core/components/container/container.component';
-import {View} from 'react-native';
+import { connect } from 'react-redux';
+import { View, DeviceEventEmitter, Text, Image, EmitterSubscription } from 'react-native';
 import style from '@/screens/Parties/style';
-import StatusBarComponent from '@/core/components/status-bar/status-bar.component';
 import color from '@/utils/colors';
-import {PartiesList} from '@/screens/Parties/components/parties-list.component';
-import {CommonService} from '@/core/services/common/common.service';
-import {CompanyService} from '@/core/services/company/company.service';
-
-import {PartiesPaginatedResponse} from '@/models/interfaces/parties';
+import { PartiesList } from '@/screens/Parties/components/parties-list.component';
+import { CommonService } from '@/core/services/common/common.service';
+import * as CommonActions from '@/redux/CommonAction';
+import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
-import {Bars} from 'react-native-loader';
+import { Bars } from 'react-native-loader';
+import { APP_EVENTS } from '@/utils/constants';
+import { ScrollView } from 'react-native-gesture-handler';
 
-type connectedProps = ReturnType<typeof mapStateToProps>;
-type PartiesScreenProp = connectedProps;
+type PartiesScreenProp = {
+  logout: Function;
+};
 
 type PartiesScreenState = {
   showLoader: boolean;
-  partiesDebtData: PartiesPaginatedResponse;
-  partiesCredData: PartiesPaginatedResponse;
+  partiesDebtData: any;
+  partiesCredData: any;
+  debtData: any;
+  creditors: boolean;
+  dataLoadedTime: string
 };
 
 export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScreenState> {
+  private listener1!: EmitterSubscription;
+  private listener2!: EmitterSubscription;
   constructor(props: PartiesScreenProp) {
     super(props);
     this.state = {
-      showLoader: true,
-      partiesDebtData: new PartiesPaginatedResponse(),
-      partiesCredData: new PartiesPaginatedResponse(),
+      showLoader: false,
+      partiesDebtData: [],
+      partiesCredData: [],
+      debtData: [],
+      creditors: false,
+      dataLoadedTime: ''
     };
   }
 
+  arrangeAZ = () => {
+    this.setState({
+      // debtData: this.state.debtData.sort((a, b) =>
+      //   a.name.toUpperCase().split(' ')[0].localeCompare(b.name.toUpperCase().split(' ')[0])
+      // ),
+      showLoader: false
+    });
+  };
+
+  apiCalls = async () => {
+      this.setState({
+        showLoader: true
+      });
+    await this.getPartiesSundryDebtors();
+    await this.getPartiesSundryCreditors();
+    this.setState(
+      {
+        debtData: [...this.state.partiesDebtData, ...this.state.partiesCredData]
+      }
+      , () => {
+        this.arrangeAZ();
+      }
+    );
+  };
+
+
+
   componentDidMount() {
-    //get parties data
-    this.getPartiesSundryDebtors();
-    this.getPartiesSundryCreditors();
+    this.listener1 = DeviceEventEmitter.addListener(APP_EVENTS.CustomerCreated, () => {
+      this.apiCalls();
+    });
+    this.listener2 = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
+      this.apiCalls();
+    });
+    this.apiCalls();
+  }
+
+  componentWillUnmount(): void {
+    this.listener1.remove();
+    this.listener2.remove();
   }
 
   render() {
-    const {activeCompany} = this.props;
+    const { activeCompany }: any = this.props;
 
     if (this.state.showLoader) {
       return (
-        <GDContainer>
-          <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
-          <View style={style.alignLoader}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
-          </View>
-        </GDContainer>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Bars size={15} color={color.PRIMARY_NORMAL} />
+        </View>
       );
     } else {
       return (
-        <GDContainer>
-          <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
-
-          <View style={style.container}>
-            <View style={style.filterStyle}>
-              {/*<View style={style.dateRangePickerStyle}>*/}
-              {/*  <GDRoundedInput*/}
-              {/*    svg={GdSVGIcons.search}*/}
-              {/*    label="Search Name or Phone No."*/}
-              {/*    svgWidth={14}*/}
-              {/*    svgHeight={14}*/}
-              {/*    value=""*/}
-              {/*    placeholder="Search Name or Phone No."*/}
-              {/*  />*/}
-              {/*</View>*/}
-              {/*<View style={styles.iconPlacingStyle}>*/}
-              {/*  <GDButton label="+ Add New" type={ButtonType.secondary} shape={ButtonShape.rounded} />*/}
-              {/*</View>*/}
+        this.state.debtData.length == 0
+          ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAFBFF' }}>
+              <Image
+                source={require('@/assets/images/noParty.png')}
+                style={{ resizeMode: 'contain', height: 230, width: 300 }}
+              />
+              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 0 }}>No Parties</Text>
             </View>
-            <View style={{marginTop: 10}} />
-            <PartiesList partiesData={this.state.partiesDebtData} activeCompany={activeCompany} />
-            <PartiesList partiesData={this.state.partiesCredData} activeCompany={activeCompany} />
-          </View>
-        </GDContainer>
+          )
+          :
+          (<View style={style.container}>
+            {this.state.debtData.length > 1 ? <Text style={{ textAlign: "center",  fontFamily:'AvenirLTStd-Black' }}>TOP 20 Creditors and Debtors</Text> : null}
+            <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
+          </View>)
       );
     }
   }
 
   private async getPartiesSundryDebtors() {
     try {
-      const parties = await CommonService.getPartiesSundryDebtors();
-
-      this.setState({
-        partiesDebtData: parties.body,
-      });
-    } catch (e) {
-      this.setState({partiesDebtData: new PartiesPaginatedResponse()});
-      console.log(e);
+      // console.log('debtors called');
+      const debtors = await CommonService.getPartiesSundryDebtors();
+      // console.log('data is', ...debtors.body.results, ...creditors.body.results);
+      if(debtors?.body?.results){
+        this.setState({
+          partiesDebtData: debtors.body.results
+        });
+      }
+    } catch (error: any) {
+      console.log("----- Error in getPartiesSundryDebtors -----", error?.data);
     }
   }
+
   private async getPartiesSundryCreditors() {
     try {
-      const parties = await CommonService.getPartiesSundryCreditors();
+      // console.log('Creditors called');
+      const creditors = await CommonService.getPartiesSundryCreditors();
+      // console.log('creditors are', creditors.body.results);
       this.setState({
-        partiesCredData: parties.body,
+        // debtData: this.state.debtData.concat(creditors.body.results),
+        partiesCredData: creditors.body.results
       });
-      this.setState({showLoader: false});
-    } catch (e) {
-      this.setState({partiesCredData: new PartiesPaginatedResponse()});
-      console.log(e);
-      this.setState({showLoader: false});
+    } catch (error: any) {
+      console.log("----- Error in getPartiesSundryCreditors -----", error?.data);
+      this.setState({ partiesCredData: new PartiesPaginatedResponse() });
+      this.setState({ showLoader: false });
     }
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = () => {
   return {
-    activeCompany: state.company.activeCompany,
+    // activeCompany: state.company.activeCompany,
   };
 };
-export default connect(mapStateToProps)(PartiesScreen);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    logout: () => {
+      dispatch(CommonActions.logout());
+    }
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(PartiesScreen);
