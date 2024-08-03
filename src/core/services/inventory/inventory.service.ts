@@ -180,4 +180,20 @@ export class InventoryService {
       return err;
     })
   }
+  
+  static fetchAllVariants(type:string,page:number,body:any){
+    return httpInstance.post(InventoryUrls.fetchAllVariants
+      .replace(':type',type)
+      .replace(':page',''+page),body)
+    .then((res)=>{
+      if(res && res?.data){
+        return res;
+      }else{
+        return res;
+      }
+    }).catch((err)=>{
+      console.log("error while fetching inventory list",err);
+      return err;
+    })
+  }
 }
