@@ -87,7 +87,8 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
     marginVertical: 5,
     backgroundColor: theme.colors.background,
     fontSize: theme.typography.fontSize.regular.size,
-    lineHeight : theme.typography.fontSize.regular.lineHeight
+    lineHeight : theme.typography.fontSize.regular.lineHeight,
+    fontFamily: theme.typography.fontFamily.regular,
   },
   inputContentStyle: {
     fontFamily: theme.typography.fontFamily.regular,
