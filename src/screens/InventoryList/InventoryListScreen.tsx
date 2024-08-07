@@ -1,4 +1,3 @@
-// App.js
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, KeyboardAvoidingView, DeviceEventEmitter, RefreshControl, Keyboard, Dimensions } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
@@ -60,7 +59,7 @@ const Card = React.memo(_Card)
 
 const InventoryListScreen = (props) => {
     const [dataArr,setDataArr] = useState<any[]>([]);
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItem, setSelectedItem]:any = useState(null);
     const [page, setPage] = useState(1);
     const [refresh,setRefresh] = useState(true);
     const [loading, setLoading] = useState(false);
