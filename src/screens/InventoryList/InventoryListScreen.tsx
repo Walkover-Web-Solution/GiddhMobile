@@ -1093,7 +1093,7 @@ const style = (theme:ThemeProps)=> StyleSheet.create({
         maxWidth: '70%',
     },
     columnTitle:{
-        fontFamily:theme.typography.fontFamily.medium,
+        fontFamily:theme.typography.fontFamily.semiBold,
         // fontWeight:'700',
         fontSize:theme.typography.fontSize.regular.size,
         color:theme.colors.text,
