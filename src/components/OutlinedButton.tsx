@@ -46,7 +46,7 @@ const MatButton : React.FC<ButtonProps> = ({ lable, value, disabled,isRequired=f
           activeOutlineColor={theme.colors.darkPalette}
           outlineColor={theme.colors.solids.grey.light}          
           style={styles.input}
-        //   contentStyle={styles.inputContentStyle}
+          contentStyle={styles.inputContentStyle}
           right={
             <TextInput.Icon
               icon={() => <Feather name={'chevron-down'} size={18} color={theme.colors.primary}/>}
@@ -86,7 +86,7 @@ const MatButton : React.FC<ButtonProps> = ({ lable, value, disabled,isRequired=f
       fontFamily: theme.typography.fontFamily.regular,
       fontSize: theme.typography.fontSize.regular.size,
       lineHeight: theme.typography.fontSize.regular.lineHeight,
-      color: theme.colors.text
+      color: theme.colors.primary
     },
     outlineStyle: {
       borderRadius: 8,

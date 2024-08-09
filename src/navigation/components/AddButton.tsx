@@ -20,6 +20,7 @@ import Service from '@/assets/images/icons/options/service.svg'
 import Group from '@/assets/images/icons/options/group-wise.svg'
 import Stock from '@/assets/images/icons/options/stock.svg'
 import Variant from '@/assets/images/icons/options/varient-wise.svg'
+import Inventory from '@/assets/images/icons/options/home-icon-black.svg'
 import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import Product from 'react-native-vector-icons/Ionicons'
 import Service2 from 'react-native-vector-icons/FontAwesome'
@@ -66,19 +67,33 @@ const inventoryButtons:any = {
         color: DefaultTheme.colors.secondary,
         event : 'ProductGroupRefresh'   
     },
-    item3 : {   
+    item3 : {
+        name: 'Product Inventory', 
+        navigateTo: 'InventoryListScreen', 
+        icon: <Inventory color='#800080' />, 
+        color: DefaultTheme.colors.secondary,
+        event : 'ProductInventoryListRefresh'   
+    },
+    item4 : {   
         name: 'Service Stock', 
         navigateTo: 'ServiceScreen', 
         icon: <Service color={'#A52A2A'}/>, 
         color: 'red',
         event : 'ServiceScreenRefresh'
     },
-    item4 : {
+    item5 : {
         name: 'Service Group', 
         navigateTo: 'productGroupScreen', 
         icon: <Group color={'#FFA500'} />, 
         color: 'red',
         event: 'ServiceGroupRefresh'
+    },
+    item6 : {
+        name: 'Service Inventory', 
+        navigateTo: 'InventoryListScreen', 
+        icon: <Inventory color='#800080' />, 
+        color: DefaultTheme.colors.secondary,
+        event : 'ServiceInventoryListRefresh'   
     }
 }
 
