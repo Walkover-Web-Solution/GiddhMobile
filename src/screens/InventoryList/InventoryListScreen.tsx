@@ -129,13 +129,18 @@ const InventoryListScreen = (props) => {
         setFilterFlag(false);
     }
 
-    const loadMore = () => {
+    const throttleLoadMore = _.debounce(() => {
         if (hasMore) {
             setPage(prevPage => prevPage + 1);
         }else{
             setLoading(false);
         }
+    },2000);
+
+    const loadMore = () => {
+        throttleLoadMore();
     };
+
 
     const renderFooter = () => {
         if (!loading) return null;
@@ -155,6 +160,7 @@ const InventoryListScreen = (props) => {
     const fetchAllVariants = async (type:string,flag:boolean) => {
         
         if (!flag && !hasMore) return;
+        setLoading(true);
         const body = {
             search: filterObject?.search,
             searchBy: filterObject?.searchBy,
@@ -164,12 +170,11 @@ const InventoryListScreen = (props) => {
             expression: filterObject?.expression ? filterObject?.expression : "GREATER_THAN" ,
             rate: filterObject?.rate > 0 ? filterObject?.rate : 0
         }
-        setLoading(true);
         
         const result = await InventoryService.fetchAllVariants(type, flag ? 1 : page, body);
         if(result?.data && result?.data?.status == 'success'){
+            setLoading(false);
             const newData = result?.data?.body?.results;
-            setRefresh(false);
             setDataArr(prevData => [...prevData, ...newData]);
             setHasMore(((flag ? 1: page) * result?.data?.body?.count) < result?.data?.body?.totalItems);
         } else{
