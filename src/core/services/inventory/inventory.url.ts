@@ -12,5 +12,6 @@ export const InventoryUrls = {
   fetchLinkedUnitMapping: createEndpoint('company/:companyUniqueName/stock-unit/:unitUniqueName/linked-stock-units?branchUniqueName=:branchUniqueName&lang=en'),
   createStockProduct: createEndpoint('v2/company/:companyUniqueName/stock-group/:SelectedGroup/stock?branchUniqueName=:branchUniqueName&lang=en'),
   fetchVariantCustomfields: createEndpoint('company/:companyUniqueName/customfield/module/variant?page=0&count=0&lang=en'),
-  addStockGroup: createEndpoint('company/:companyUniqueName/stock-group?lang=en')
+  addStockGroup: createEndpoint('company/:companyUniqueName/stock-group?lang=en'),
+  fetchAllVariants: createEndpoint('v2/company/:companyUniqueName/stock?page=:page&count=50&inventoryType=:type&branchUniqueName=:branchUniqueName&lang=en')
 }

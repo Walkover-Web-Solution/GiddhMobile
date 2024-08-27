@@ -104,7 +104,9 @@ export const APP_EVENTS = {
   ProductScreenRefresh: 'PRODUCT_SCREEN_REFRESH',
   ServiceScreenRefresh: 'SERVICE_SCREEN_REFRESH',
   ProductGroupRefresh: 'PRODUCT_GROUP_REFRESH',
-  ServiceGroupRefresh: 'SERVICE_GROUP_REFRESH'
+  ServiceGroupRefresh: 'SERVICE_GROUP_REFRESH',
+  ServiceInventoryListRefresh : 'SERVICE_INVENTORY_LIST_REFRESH',   
+  ProductInventoryListRefresh : 'PRODUCT_INVENTORY_LIST_REFRESH'
 };
 
 export const FONT_FAMILY = {
