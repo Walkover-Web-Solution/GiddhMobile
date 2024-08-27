@@ -177,6 +177,9 @@ const InventoryListScreen = (props) => {
             const newData = result?.data?.body?.results;
             setDataArr(prevData => [...prevData, ...newData]);
             setHasMore(((flag ? 1: page) * result?.data?.body?.count) < result?.data?.body?.totalItems);
+            if(!hasMore){
+                setRefresh(false);
+            }
         } else{
             setLoading(false);
             console.error("error");
@@ -294,6 +297,7 @@ const InventoryListScreen = (props) => {
                             keyboardType="numeric"
                             value={filterObject?.rate > 0 ? filterObject?.rate : ""}
                             isRequired={false}
+                            containerStyle={{marginVertical:5}}
                             placeholderTextColor={'#808080'}
                             onChangeText={(val:number) => {
                                 const tempObj:FilterObject = {
