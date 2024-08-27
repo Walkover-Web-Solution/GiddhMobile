@@ -10,6 +10,14 @@
       "sha1": "db6bfde1c5f1f6d8129df5dce9484d88d3646f0d"
     },
     {
+      "path": "assets/fonts/AvenirLTStd-Heavy.otf",
+      "sha1": "bf135f69c60771d3e70ac6fe0d608994ec43b1a2"
+    },
+    {
+      "path": "assets/fonts/AvenirLTStd-Medium.otf",
+      "sha1": "4bb358bdce457d097bb6c36b10c0532f850ce942"
+    },
+    {
       "path": "assets/fonts/AvenirLTStd-Roman.otf",
       "sha1": "a614776d8ee6be9ed01ccc136ac5daed16ba604b"
     },
@@ -182,6 +190,10 @@
       "sha1": "b6a28d6c9ee50e58a412a4931efff2c4ca834bc7"
     },
     {
+      "path": "src/assets/images/icons/globe.svg",
+      "sha1": "4871e66529c4829648c62894d00e304e9e962609"
+    },
+    {
       "path": "src/assets/images/icons/google.png",
       "sha1": "a9daa5e0cde7a4ad84c2b7ef19d8462692cee017"
     },
@@ -231,35 +243,55 @@
     },
     {
       "path": "src/assets/images/icons/options/CreditNote.svg",
-      "sha1": "cac72a8506e34c8da1dcde6bd98da58cddb97aa0"
+      "sha1": "b4237ed28318d63ddb4bcbcd669d9627c060a2d1"
     },
     {
       "path": "src/assets/images/icons/options/Customer.svg",
-      "sha1": "2f0876c8cc93fd5dd90d38f09286d8e4fdf8df7b"
+      "sha1": "cdb22217f865aaf19fa7b82396375d627430c80a"
     },
     {
       "path": "src/assets/images/icons/options/DebitNote.svg",
-      "sha1": "de5b7494f8c62f23f1337b7408dfe66e28cc0ae3"
+      "sha1": "1c837064f012ef919263ec9fa8f97457f612164c"
     },
     {
       "path": "src/assets/images/icons/options/Payment.svg",
-      "sha1": "a40ec2c653fcfda015d2a36dfec2885c73600e32"
+      "sha1": "74fb0ec282923824978a72dedcc938adb2ae2861"
     },
     {
       "path": "src/assets/images/icons/options/PurchaseBill.svg",
-      "sha1": "12568bc4e9042d5894296f2ba2c72c94bdd51afd"
+      "sha1": "5a1d8bb2a5fb910966cb556f12f372de1c8a253f"
     },
     {
       "path": "src/assets/images/icons/options/Receipt.svg",
-      "sha1": "96d6b368d0ede5140bea5a28613375c83e938308"
+      "sha1": "3f66a31a9d564546ae6c70bad0b35eb4a0217a26"
     },
     {
       "path": "src/assets/images/icons/options/SalesInvoice.svg",
-      "sha1": "b6e912a0780ac5491a0fc24c5a33fd47b74d3bea"
+      "sha1": "5703069a014640c9292c8459eb5199cc471d7461"
     },
     {
       "path": "src/assets/images/icons/options/Vendor.svg",
-      "sha1": "10dd639878b10ff4f8b38cd7b912121b6f08cc01"
+      "sha1": "b6c570801a6daec0402337a4d74d21e8656ff6be"
+    },
+    {
+      "path": "src/assets/images/icons/options/Voucher.svg",
+      "sha1": "013ffd72be6d901d5d1a46d45784509bf441eaef"
+    },
+    {
+      "path": "src/assets/images/icons/options/group-wise.svg",
+      "sha1": "ea7992e350275f4b5d17a1927140223a7b32ca1a"
+    },
+    {
+      "path": "src/assets/images/icons/options/service.svg",
+      "sha1": "61951665e2402dc65cc383fab8748ea804099376"
+    },
+    {
+      "path": "src/assets/images/icons/options/stock.svg",
+      "sha1": "d4a7e4dfe3cb8d77db9fe8a4347c8e72fa186859"
+    },
+    {
+      "path": "src/assets/images/icons/options/varient-wise.svg",
+      "sha1": "425a0b39831fb5018cfebd470b8b4cc11cba0880"
     },
     {
       "path": "src/assets/images/icons/outgoing.svg",

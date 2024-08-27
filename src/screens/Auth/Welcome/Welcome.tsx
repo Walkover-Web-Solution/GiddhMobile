@@ -198,6 +198,12 @@ class Welcome extends React.Component<any, any> {
             onPress={() => this.props.navigation.navigate(routes.Login)}>
             <Text style={style.login}>Login</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[style.loginButton, { width: this.state.screenWidth * 0.9 }]}
+            delayPressIn={0}
+            onPress={() => this.props.navigation.navigate(routes.Signup)}>
+            <Text style={style.login}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );

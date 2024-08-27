@@ -129,12 +129,12 @@ enum BalanceDisplayFormats {
   INT_APOSTROPHE_SEPARATED = 'INT_APOSTROPHE_SEPARATED'
 }
 
-export const formatAmount = (amount: number) => {
+export const formatAmount = (amount: number, fractionDigits = true) => {
   const {balanceDecimalPlaces, balanceDisplayFormat} = store.getState().commonReducer?.companyDetails;
 
   const options = {
-    minimumFractionDigits: balanceDecimalPlaces,
-    maximumFractionDigits: balanceDecimalPlaces,
+    minimumFractionDigits: fractionDigits ? balanceDecimalPlaces : 0,
+    maximumFractionDigits: fractionDigits ? balanceDecimalPlaces : 0,
   }
 
   let INT_COMMA_SEPARATED = new Intl.NumberFormat('en-US', options);
@@ -200,3 +200,28 @@ export const capitalizeName = (_name: string | null | undefined) => {
   });
   return capitalizedWords.join(' ');
 };
+
+export const validateEmail = (email: string) => {
+  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+export const validatePhoneNumber = (phoneNumber: string) => {
+  const re = /^[1-9]\d{9,11}$/;
+  return re.test(String(phoneNumber));
+}
+
+export const validateGST = (gstNumber: string) => {
+  // Regular expression to validate the GST number format
+  const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/;
+
+  // Check if GST number matches the regex pattern
+  if (!gstRegex.test(gstNumber)) {
+    return { isValid: false, stateCode: null };
+  }
+
+  // Extract the state code (first two digits)
+  const stateCode = gstNumber.substring(0, 2);
+
+  return { isValid: true, stateCode };
+}

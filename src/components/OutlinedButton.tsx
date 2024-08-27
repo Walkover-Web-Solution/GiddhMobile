@@ -10,8 +10,10 @@ type ButtonProps = {
     disabled?: boolean,
     isRequired?: boolean,
     onPress: () => void
+    containerStyle?: any
+    outlineStyle?: any
   }
-const MatButton : React.FC<ButtonProps> = ({ lable, value, disabled,isRequired=false, onPress }) => {
+const MatButton : React.FC<ButtonProps> = ({ lable, value, disabled,isRequired=false, containerStyle, outlineStyle, onPress }) => {
     const { theme, styles } = useCustomTheme(getButtonStyles);
   
     return (
@@ -22,34 +24,36 @@ const MatButton : React.FC<ButtonProps> = ({ lable, value, disabled,isRequired=f
       >
         <TextInput
           value={value?.length > 30 ? value.slice(0, 30) + '...' : value}
-        //   theme={{
-        //     colors: {
-        //       primary: theme.colors.primary,
-        //       background: theme.colors.background,
-        //       onSurface: theme.colors.background,
-        //       text: theme.colors.text,
-        //       placeholder: theme.colors.text
-        //     },
-        //     fonts: {
-        //       regular: {
-        //         fontFamily: theme.typography.fontFamily.regular,
+          theme={{
+            // colors: {
+            //   primary: theme.colors.primary,
+            //   background: theme.colors.background,
+            //   onSurface: theme.colors.background,
+            //   text: theme.colors.text,
+            //   placeholder: theme.colors.text
+            // },
+            // fonts: {
+            //   regular: {
+            //     fontFamily: theme.typography.fontFamily.regular,
                 
-        //       }
-        //     }
-        //   }}
+            //   }
+            // },
+            roundness: 6
+          }}
           
           editable={false}
           mode={'outlined'}
           selection={{ start: 0, end: 0 }}
           label={<Text style={styles.labelText}>{lable}{isRequired && <Text style={{color: theme.colors.solids.red.dark}}>*</Text>}</Text>}
-        //   outlineStyle={styles.outlineStyle}
+          outlineStyle={[styles.outlineStyle, outlineStyle ? outlineStyle : undefined]}
           activeOutlineColor={theme.colors.darkPalette}
           outlineColor={theme.colors.solids.grey.light}          
-          style={styles.input}
+          style={[styles.input, containerStyle ? containerStyle : undefined]}
           contentStyle={styles.inputContentStyle}
           right={
             <TextInput.Icon
-              icon={() => <Feather name={'chevron-down'} size={18} color={theme.colors.primary}/>}
+              style={{ paddingTop: 6 }}
+              icon={() => <Feather name={'chevron-down'} size={18} color={theme.colors.secondary}/>}
               disabled={true}
             />
           }
@@ -85,12 +89,11 @@ const MatButton : React.FC<ButtonProps> = ({ lable, value, disabled,isRequired=f
     inputContentStyle: {
       fontFamily: theme.typography.fontFamily.regular,
       fontSize: theme.typography.fontSize.regular.size,
-      lineHeight: theme.typography.fontSize.regular.lineHeight,
-      color: theme.colors.primary
+      color: theme.colors.text
     },
     outlineStyle: {
-      borderRadius: 8,
-      backgroundColor: theme.colors.background
+      // borderRadius: 8,
+      // backgroundColor: theme.colors.background
     },
     labelText: {
       fontFamily: theme.typography.fontFamily.regular,

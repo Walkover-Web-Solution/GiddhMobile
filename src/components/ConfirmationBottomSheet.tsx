@@ -12,9 +12,13 @@ export const ConfirmationMessages = {
       message: 'Do you want to delete the voucher/invoice?',
       description: 'It will be deleted permanently and will no longer be accessible from any other module.'
     },
+    LOGOUT: {
+        message: 'Are you sure you want to logout?',
+        description: 'You will lose all of your entries.'
+    }
 }
 
-const ConfirmationBottomSheet = ({ bottomSheetRef, message, description, onConfirm, onReject }) => {
+const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', onConfirm, onReject }) => {
     return (
         <BottomSheet
             bottomSheetRef={bottomSheetRef}
@@ -46,6 +50,8 @@ const ConfirmationBottomSheet = ({ bottomSheetRef, message, description, onConfi
         </BottomSheet>
     )
 }
+
+ConfirmationBottomSheet.ConfirmationMessages = ConfirmationMessages;
 
 export default ConfirmationBottomSheet
 

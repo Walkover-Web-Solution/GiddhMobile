@@ -12,6 +12,7 @@ type HeaderWithoutChildren = {
     statusBarColor: string
     isBackButtonVisible?: boolean
     headerRightContent?: React.JSX.Element
+    onBackButtonPress?: () => void
     children?: never
 } 
 
@@ -22,12 +23,13 @@ type HeaderWithChildren =  {
     statusBarColor: string
     isBackButtonVisible?: never
     headerRightContent?: never
+    onBackButtonPress?: () => void
     children: React.ReactNode | boolean
 }
 
 type Props = HeaderWithoutChildren | HeaderWithChildren
     
-const Header : React.FC<Props> = ({ header, subHeader, backgroundColor = '#FFFFFF', statusBarColor, isBackButtonVisible = false, headerRightContent, children }) => {
+const Header : React.FC<Props> = ({ header, onBackButtonPress, subHeader, backgroundColor = '#FFFFFF', statusBarColor, isBackButtonVisible = false, headerRightContent, children }) => {
     const navigation = useNavigation();
 
     return (
@@ -42,7 +44,7 @@ const Header : React.FC<Props> = ({ header, subHeader, backgroundColor = '#FFFFF
                                     <TouchableOpacity
                                         hitSlop={{ right: 20, left: 20, top: 10, bottom: 10 }}
                                         style={styles.backButton}
-                                        onPress={() => navigation.goBack()}
+                                        onPress={() => !!onBackButtonPress ? onBackButtonPress() : navigation.goBack()}
                                     >
                                         <Icon name={'Backward-arrow'} color="#fff" size={18} />
                                     </TouchableOpacity>
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     backButton: {
-        paddingRight: 10
+        paddingRight: 16
     },
     text: {
         fontFamily: FONT_FAMILY.bold,

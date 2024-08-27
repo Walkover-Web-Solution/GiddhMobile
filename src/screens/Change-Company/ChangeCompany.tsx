@@ -145,7 +145,8 @@ export class ChangeCompany extends React.Component<Props> {
               style={{height: 50, width: 100, backgroundColor: 'pink'}}
               onPress={() => console.log(companyList)}></TouchableOpacity> */}
           </View>
-          <View style={{ alignItems: "flex-end", paddingBottom: 20, paddingHorizontal: 15 }}>
+          {/* ------------ Create Company Button ----------- */}
+          {/* <View style={{ alignItems: "flex-end", paddingBottom: 20, paddingHorizontal: 15 }}>
             <TouchableOpacity
               onPress={() => this.props.navigation.navigate('createCompany', { oldUser: true })}
               style={{
@@ -159,7 +160,7 @@ export class ChangeCompany extends React.Component<Props> {
               }}>
               <Entypo name="plus" size={24} color={'#fff'} />
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
 
         {this.state.loading && (

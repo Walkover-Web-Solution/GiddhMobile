@@ -15,8 +15,9 @@ export default StyleSheet.create({
     color: 'white'
   },
   login: {
-    fontSize: 20,
-    color: colors.PRIMARY_BASIC
+    fontSize: 18,
+    color: colors.PRIMARY_BASIC,
+    fontFamily: 'AvenirLTStd-Medium'
   },
   createAccountButton: {
     height: 50,

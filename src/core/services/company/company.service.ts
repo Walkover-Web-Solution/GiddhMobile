@@ -88,5 +88,37 @@ export class CompanyService {
       }).catch((err) => {
         console.warn(err);
       })
-    }   
+    }
+
+  static getCountryList () {
+    return httpInstance.get(companyUrls.countryList);
+  }
+
+  static getSubscriptionPlans (regionCode: string) {
+    return httpInstance.get(companyUrls.subscriptionPlans.replace(':regionCode', regionCode));
+  }
+
+  static getAllCountries () {
+    return httpInstance.get(companyUrls.allCountries);
+  }
+
+  static getCountryStates (countryCode: string) {
+    return httpInstance.get(companyUrls.allCountryStates.replace(':countryCode', countryCode));
+  }
+
+  static applyPromocode (payload: any) {
+    return httpInstance.post(companyUrls.promocode, payload);
+  }
+  
+  static getAmount (payload: any) {
+    return httpInstance.post(companyUrls.getAmount, payload);
+  }
+
+  static planSubscribe (payload: any) {
+    return httpInstance.post(companyUrls.planSubscribe, payload);
+  }
+
+  static createCompanyCountryList (subscriptionId: string) {
+    return httpInstance.get(companyUrls.createCompanyCountryList.replace(':subscriptionId', subscriptionId));
+  }
 }
