@@ -96,7 +96,7 @@ export interface ThemeProps extends DefaultConfigProps {
         darkest: '#008000'
       },
       blue: {
-        light: '#C6DBF7',
+        light: '#C6DBF766',
         fbLight: '#B7CCF7',
         dark: '#5D9DF4',
         fbDark: '#4267B2',
@@ -159,10 +159,10 @@ const solids : ThemeProps['colors']['solids'] = {
 
 export enum Font {
   PlusJakartaSansLight = "PlusJakartaSans-Light",
-  PlusJakartaSansMedium = "PlusJakartaSans-Medium",
+  PlusJakartaSansMedium = "AvenirLTStd-Medium",
   PlusJakartaSansBold = 'AvenirLTStd-Black',
   PlusJakartaSansSemiBold = 'AvenirLTStd-Roman',
-  PlusJakartaSansExtraBold = "PlusJakartaSans-ExtraBold",
+  PlusJakartaSansExtraBold = "AvenirLTStd-Heavy",
   PlusJakartaSansRegular = 'AvenirLTStd-Book',
   PlusJakartaSansItalic = "PlusJakartaSans-Italic",
 }
@@ -305,7 +305,7 @@ const VOUCHERS = {
  */
 const useCustomTheme = <T extends {}>(
   getStyles?: (theme: ThemeProps) => T,
-  voucherName?: keyof ThemeProps['colors']['vouchers']
+  voucherName?: keyof typeof VOUCHERS
 )  => {
   const colorScheme = useColorScheme();
 

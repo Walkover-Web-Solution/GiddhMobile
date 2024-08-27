@@ -22,6 +22,7 @@ import OTPInputView from '@twotalltotems/react-native-otp-input';
 import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
+import Routes from '@/navigation/routes';
 
 class Signup extends React.Component<any, any> {
   constructor(props: any) {
@@ -168,7 +169,11 @@ class Signup extends React.Component<any, any> {
     //   );
     // } else {
     return (
-      <ScrollView style={style.loginContainer} contentContainerStyle={style.verticalCenter}>
+      <ScrollView
+        keyboardShouldPersistTaps
+        style={style.loginContainer}
+        contentContainerStyle={style.verticalCenter}
+      >
         <View style={[style.socialLoginContainer, { marginTop: this.state.keyboard ? 10 : 50 }]}>
           <View style={style.titleContainer}>
             <Text style={style.loginTextStyle}>Signup to </Text>
@@ -288,7 +293,7 @@ class Signup extends React.Component<any, any> {
         <View style={[style.loginButtonContainer, { flexDirection: "row", marginTop: 40, justifyContent: "flex-start" }]}>
           <Text style={{ fontFamily: 'AvenirLTStd-Book' }}>Already have an account?  </Text>
           <TouchableOpacity style={{}} onPress={() => {
-            this.props.navigation.goBack();
+            this.props.navigation.navigate(Routes.Login);
           }}>
             <Text
               style={{

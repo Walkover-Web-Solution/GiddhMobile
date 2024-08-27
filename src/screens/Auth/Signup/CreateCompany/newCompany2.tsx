@@ -204,8 +204,8 @@ class NewCompanyDetails extends React.Component<any, any> {
       uniqueName: compnayUniquename,
       isBranch: false,
       subscriptionRequest: {
-        planUniqueName: "e6v1566224240273",// For Production, In testing we use xoh1591185630174 uniquename
-        subscriptionId: "",
+        planUniqueName: "",// For Production, In testing we use xoh1591185630174 uniquename
+        subscriptionId: this.props.subscriptionData?.subscriptionId ?? '',
         userUniqueName: userEmail,
         licenceKey: ""
       },
@@ -741,7 +741,9 @@ class NewCompanyDetails extends React.Component<any, any> {
 }
 
 const mapStateToProps = (state: RootState) => {
-  return {}
+  return {
+    subscriptionData: state.subscriptionReducer?.subscriptionData
+  }
 };
 
 function mapDispatchToProps(dispatch) {

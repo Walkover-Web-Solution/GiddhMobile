@@ -10,14 +10,31 @@ type InputProps = {
   isRequired?: boolean,
   keyboardType?: 'numeric', 
   editable?: boolean,
+  containerStyle?: any,
+  errorStyle?: any,
   onblur?: () => void,
   customErrorMessage?: string,
   validate?: (text: string) => boolean,
   onChangeText: (text: string) => void,
   onfocus?: () => void
+  leftIcon?: React.ReactNode
 }
 
-const InputField : React.FC<InputProps> = ({ lable, placeholder, value, keyboardType,onblur, onfocus,isRequired=true, editable = true, validate, onChangeText,customErrorMessage }) => {
+const InputField : React.FC<InputProps> = ({ 
+  lable,
+  placeholder,
+  value,keyboardType,
+  onblur,
+  onfocus,
+  isRequired=true,
+  editable = true,
+  validate,
+  onChangeText,
+  customErrorMessage,
+  containerStyle,
+  errorStyle,
+  leftIcon
+}) => {
   const { theme, styles } = useCustomTheme(getInputStyles, 'Stock');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -25,32 +42,40 @@ const InputField : React.FC<InputProps> = ({ lable, placeholder, value, keyboard
     <View>
       <TextInput
         value={value}
-        // theme={{
-        //   colors: {
-        //     primary: theme.colors.primary,
-        //     background: theme.colors.background,
-        //     onSurface: theme.colors.background,
-        //     text: theme.colors.text,
-        //     placeholder: theme.colors.text
-        //   },
-        //   fonts: {
-        //     regular: {
-        //       fontFamily: theme.typography.fontFamily.regular,
-        //     }
-        //   }
-        // }}
+        left={leftIcon 
+          ? <TextInput.Icon
+              icon={() => leftIcon}
+              onPress={()=> {}}
+            />
+          : undefined
+        }
+        theme={{
+          // colors: {
+          //   primary: theme.colors.primary,
+          //   background: theme.colors.background,
+          //   onSurface: theme.colors.background,
+          //   text: theme.colors.text,
+          //   placeholder: theme.colors.text
+          // },
+          // fonts: {
+          //   regular: {
+          //     fontFamily: theme.typography.fontFamily.regular,
+          //   }
+          // },
+          roundness: 6
+        }}
         onFocus={()=> onfocus ? onfocus() : {}}
         mode={'outlined'}
         editable={editable}
         label={<Text style={styles.labelText}>{lable}{isRequired && <Text style={{color: theme.colors.solids.red.dark }}>  *</Text>}</Text>}
         placeholder={placeholder}
         placeholderTextColor={theme.colors.secondaryText}
-        // outlineStyle={styles.outlineStyle}
+        outlineStyle={styles.outlineStyle}
         activeOutlineColor={theme.colors.vouchers.stock.background}
         outlineColor={theme.colors.solids.grey.light}          
-        style={styles.input}
+        style={[styles.input, containerStyle ? containerStyle : undefined]}
+        contentStyle={styles.inputTextStyle}
         onBlur={() => onblur ? onblur() : {}}
-        // contentStyle={styles.inputContentStyle}
         keyboardType={keyboardType}
         onChangeText={(text) => {
           if(typeof validate === "function"){
@@ -68,7 +93,7 @@ const InputField : React.FC<InputProps> = ({ lable, placeholder, value, keyboard
         }}
       />
       { errorMessage.length > 0 && 
-        <Text style={styles.inputValidationError}>
+        <Text style={[styles.inputValidationError, errorStyle ? errorStyle : undefined]}>
           {errorMessage}
         </Text>
       }
@@ -80,14 +105,13 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
   labelText: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.regular.size,
-    lineHeight: theme.typography.fontSize.regular.lineHeight,
   },
   input: {
     height: 40,
-    marginVertical: 5,
     backgroundColor: theme.colors.background,
+    fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.regular.size,
-    lineHeight : theme.typography.fontSize.regular.lineHeight
+    lineHeight : theme.typography.fontSize.regular.lineHeight +2
   },
   inputContentStyle: {
     fontFamily: theme.typography.fontFamily.regular,
@@ -96,8 +120,7 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
     color: theme.colors.text,
   },
   outlineStyle: {
-    borderRadius: 8,
-    backgroundColor: theme.colors.background
+    borderWidth: 1.4
   },
   inputValidationError: {
     fontFamily: theme.typography.fontFamily.regular,
@@ -107,6 +130,10 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
     position: 'absolute',
     bottom: 8,
     left: 15
+  },
+  inputTextStyle: {
+    fontFamily: theme.typography.fontFamily.regular,
+    fontSize: theme.typography.fontSize.regular.size
   }
 });
 

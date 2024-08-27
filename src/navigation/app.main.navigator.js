@@ -24,6 +24,7 @@ import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
 import { ProductStack } from './product.navigator';
 import ProductGroupScreen from '@/screens/ProductGroup/ProductGroupScreen';
 import { ServiceStack } from './components/service.navigator';
+// import SubscriptionStack from './subscription.navigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -54,6 +55,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'ProductScreen'} component={ProductStack} />
       <Drawer.Screen name={'productGroupScreen'} component={ProductGroupScreen} />
       <Drawer.Screen name={'ServiceScreen'} component={ServiceStack} />
+      {/* <Drawer.Screen name={'SubscriptionStack'} component={SubscriptionStack} /> */}
     </Drawer.Navigator>
   );
 }
