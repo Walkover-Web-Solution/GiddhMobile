@@ -177,11 +177,12 @@ const InventoryListScreen = (props) => {
             const newData = result?.data?.body?.results;
             setDataArr(prevData => [...prevData, ...newData]);
             setHasMore(((flag ? 1: page) * result?.data?.body?.count) < result?.data?.body?.totalItems);
-            if(!hasMore){
+            if(!hasMore || result?.data?.body?.totalItems == 0){
                 setRefresh(false);
             }
         } else{
             setLoading(false);
+            setRefresh(false);
             console.error("error");
         }
     }
