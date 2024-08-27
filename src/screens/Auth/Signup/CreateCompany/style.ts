@@ -110,5 +110,16 @@ centeredView: {
     color: '#1C1C1C', 
     fontFamily: FONT_FAMILY.regular,
     marginLeft: 10
+  },
+  listButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  regularText: {
+    fontSize: 14,
+    fontFamily: 'AvenirLTStd-Book',
+    color: '#1c1c1c'
   }
 });

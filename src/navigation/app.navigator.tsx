@@ -68,7 +68,13 @@ useEffect(() => {
             }
           }}>
           <Host>
-            {!props.isUserAuthenticated ? <AuthStack/> : (!props.isUnauth?<AppMainNav />:<CompanyStack/>)}
+            { !props.isUserAuthenticated 
+                ? <AuthStack/> 
+                : ( !props.isUnauth 
+                    ? <AppMainNav />
+                    : <CompanyStack/>
+                  )
+            }
           </Host>
           <SnackBar eventType={APP_EVENTS.DownloadAlert} backgroundColor={'#1A237E'} borderLeftColor={'#1A237E'}/>
           <ChatWidget

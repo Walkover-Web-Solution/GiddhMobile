@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { connect } from 'react-redux';
 
 import { View, TouchableOpacity, StatusBar, ScrollView, Platform, Dimensions, Alert, FlatList } from 'react-native';
@@ -16,15 +16,21 @@ import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as CommonActions from '@/redux/CommonAction';
-import CountryPicker from 'react-native-country-picker-modal'
+import { Flag } from 'react-native-country-picker-modal'
 import Modal from 'react-native-modal';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
 import Icon from '@/core/components/custom-icon/custom-icon';
+import { CompanyService } from '@/core/services/company/company.service';
+import BottomSheet from '@/components/BottomSheet';
+
+const { height } = Dimensions.get('window');
 
 var PhoneNumber = require('awesome-phonenumber');
 class NewCompany extends React.Component<any, any> {
+    private countryPickerBottomSheetRef: React.Ref<null>;
     constructor(props: any) {
         super(props);
+        this.countryPickerBottomSheetRef = createRef();
         this.state = {
             userName: "",
             companyName: '',
@@ -177,6 +183,7 @@ class NewCompany extends React.Component<any, any> {
             selectedCallingCode: "91",
             isMobileModalVisible: false,
             isCurrencyModalVisible: false,
+            companyList: [],
             newCompany2ScreenData: {
                     selectedState: null,
                     stateData: [],
@@ -206,12 +213,26 @@ class NewCompany extends React.Component<any, any> {
         return pn.isValid()
     }
 
+    getCountryList = async () => {
+        try {
+            const response =  await CompanyService.createCompanyCountryList(this.props.subscriptionData?.subscriptionId ?? 'SUB-20240816-2');
+            if (response.status === 200) {
+                this.setState({ countryList: response.data.body })
+            }
+        }
+        catch (error) {
+            console.error('----- Error in CreateCompanyCountryList -----', error?.data?.message);
+        }
+    }
+
     componentDidMount() {
         const getuserName = async () => {
             var userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
             await this.setState({ userName })
         }
+
         getuserName();
+        this.getCountryList();
     }
 
     componentDidUpdate(prevProps) {
@@ -250,15 +271,11 @@ class NewCompany extends React.Component<any, any> {
     }
 
     onSelect = async (country: any) => {
-        for (let i = 0; i < this.state.countryData.length; i++) {
-            if (this.state.countryData[i].alpha2CountryCode.includes(country.cca2)) {
-                await this.setState({
-                    countryName: this.state.countryData[i], currency: this.state.countryData[i].currency,
-                    selectedCallingCode: this.state.countryData[i].callingCode
-                })
-                await this.setState({ isMobileNoValid: !this.validateMobileNumberTextInput(this.state.mobileNumber) })
-            }
-        }
+        this.setState({
+            countryName: country,
+            currency: country?.currency,
+            selectedCallingCode: country?.callingCode
+        })
     }
 
 
@@ -439,21 +456,16 @@ class NewCompany extends React.Component<any, any> {
                         <View style={{ width: "67%", flexDirection: "row", borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
                             <Foundation name="flag" size={21} color={'#5773FF'} style={{ marginTop: 4 }} />
                             <View style={{ flex: 1, marginLeft: 15, marginTop: Platform.OS == "ios" ? 4 : 1 }}>
-                                <CountryPicker
-                                    countryCode={this.state.countryName.alpha2CountryCode}
-                                    countryCodes={["IN", "KW", "NP", "OM", "QA", "SA", "AU", "BH", "GB", "AE", "US",]}
-                                    theme={{ fontSize: 15, flagSizeButton: 15, fontFamily: 'AvenirLTStd-Book', primaryColor: '#1c1c1c' }}
-                                    withFilter={true}
-                                    withFlag={false}
-                                    withCountryNameButton={true}
-                                    withAlphaFilter={true}
-                                    withCallingCode={true}
-                                    withEmoji={true}
-                                    onSelect={this.onSelect}
-                                    filterProps={{marginHorizontal: 10}}
-                                    closeButtonStyle={{position: 'absolute', right: -5, zIndex: 1}}
-                                    flatListProps={{contentContainerStyle: { paddingLeft: 10 }}}
-                                />
+                                <TouchableOpacity
+                                    onPress={() => this.countryPickerBottomSheetRef?.current?.open()}
+                                    style={{ flexDirection: 'row', alignItems: 'center'}}
+                                >
+                                    <Flag
+                                        countryCode={this.state.countryName.alpha2CountryCode}
+                                        flagSize={16}
+                                    />
+                                    <Text style={style.regularText}>{this.state.countryName?.countryName}</Text>
+                                </TouchableOpacity>
                             </View>
                             {/* <Dropdown
                                 style={{ flex: 1, marginLeft: 20, marginTop: Platform.OS == "ios" ? 4 : 1 }}
@@ -632,6 +644,31 @@ class NewCompany extends React.Component<any, any> {
                         <Text style={{ color: '#5773FF', fontFamily: 'AvenirLTStd-Book', padding: 5, fontSize: 16 }}>Exit</Text>
                     </TouchableOpacity>}
                 </View>
+                <BottomSheet
+                    bottomSheetRef={this.countryPickerBottomSheetRef}
+                    modalHeight={height * 0.9}
+                    headerText='Select Country'
+                    headerTextColor={'#084EAD'}
+                    adjustToContentHeight={false}
+                    flatListProps={{
+                        data: this.state.countryList,
+                        renderItem: ({ item }) => (
+                            <TouchableOpacity
+                                activeOpacity={0.7}
+                                style={style.listButton}
+                                onPress={() => {
+                                    this.countryPickerBottomSheetRef?.current?.close()
+                                }}
+                            >
+                                <Flag
+                                    countryCode={item?.alpha2CountryCode}
+                                    flagSize={16}
+                                />
+                                <Text style={style.regularText}>{item?.alpha2CountryCode} - {item?.countryName}</Text>
+                            </TouchableOpacity>
+                        )
+                    }}
+                />
             </SafeAreaView>
         );
         // }
@@ -639,7 +676,9 @@ class NewCompany extends React.Component<any, any> {
 }
 
 const mapStateToProps = (state: RootState) => {
-    return {}
+    return {
+        subscriptionData: state.subscriptionReducer?.subscriptionData
+    }
 };
 
 function mapDispatchToProps(dispatch) {
