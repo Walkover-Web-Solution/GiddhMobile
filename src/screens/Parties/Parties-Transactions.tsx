@@ -24,7 +24,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';
@@ -1683,7 +1683,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 backgroundColor: this.state.payButtonPressed ? '#F1F1F2' : null,
                 minHeight: 50,
               }}>
-                <Ionicons name="person" size={25} color="#864DD3" style={{ alignSelf: 'center' }} />
+                <MaterialCommunityIcons name="account" size={24} color="#864DD3" style={{ alignSelf: 'center' }} />
                 <TouchableOpacity
                   disabled={this.state.payButtonPressed}
                   style={{ flex: 1 }}
@@ -1765,7 +1765,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                     justifyContent: 'center'
                   }}
                 >
-                  <Ionicons name={'md-document-text'} color='#864DD3' size={27} />
+                  <MaterialCommunityIcons name={'file-document'} color='#864DD3' size={27} />
                 </View>
                 <TextInput
                   multiline={true}

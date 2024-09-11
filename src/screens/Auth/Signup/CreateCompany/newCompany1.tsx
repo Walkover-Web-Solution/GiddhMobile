@@ -14,7 +14,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import Dropdown from 'react-native-modal-dropdown';
 import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as CommonActions from '@/redux/CommonAction';
 import { Flag } from 'react-native-country-picker-modal'
 import Modal from 'react-native-modal';

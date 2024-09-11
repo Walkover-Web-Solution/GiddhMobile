@@ -4,7 +4,7 @@ import  Modal  from "react-native-modal";
 import { Bars } from 'react-native-loader';
 import { useEffect, useState } from "react";
 import colors from "@/utils/colors";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/utils/constants";
 import RNFetchBlob from 'react-native-blob-util';
 import Toast from "react-native-root-toast";

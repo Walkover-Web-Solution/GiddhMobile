@@ -6,7 +6,7 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
 import _ from 'lodash';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
@@ -16,7 +16,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import WebView from 'react-native-webview';
 import Modal from 'react-native-modal';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import TOAST from 'react-native-root-toast';
 const { height } = Dimensions.get('window');
 

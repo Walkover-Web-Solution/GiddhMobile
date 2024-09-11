@@ -11,6 +11,7 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
             <InputField
                 lable="Enter Group Name"
                 value={groupName}
+                containerStyle={{marginVertical:5}}
                 placeholderTextColor={'#808080'}
                 onChangeText={(text)=>{
                     setGroupName(text);
@@ -23,6 +24,7 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
             <InputField
                 lable="Enter Unique Name"
                 value={groupUniqueName}
+                containerStyle={{marginVertical:5}}
                 placeholderTextColor={'#808080'}
                 onChangeText={(text)=>{
                     setGroupUniqueName(text.toLowerCase());

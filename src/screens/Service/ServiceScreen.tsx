@@ -7,7 +7,7 @@ import { APP_EVENTS, STORAGE_KEYS } from "@/utils/constants";
 import { InventoryService } from "@/core/services/inventory/inventory.service";
 import _, { random } from "lodash";
 import { useSelector } from "react-redux";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from "@/components/Loader";
 import makeStyles from "../Product/style";
 import Dialog from 'react-native-dialog';

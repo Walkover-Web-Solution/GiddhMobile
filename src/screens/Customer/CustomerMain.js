@@ -124,6 +124,21 @@ export class Customer extends React.Component<Props> {
     }
   };
 
+  keyboardWillShow = (event) => {
+    const value = event.endCoordinates.height - this.state.bottomOffset;
+    Animated.timing(this.keyboardMargin, {
+      duration: event.duration,
+      toValue: value
+    }).start();
+  };
+
+  keyboardWillHide = (event) => {
+    Animated.timing(this.keyboardMargin, {
+      duration: event.duration,
+      toValue: 0
+    }).start();
+  };
+  
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       console.log('refresh captured');

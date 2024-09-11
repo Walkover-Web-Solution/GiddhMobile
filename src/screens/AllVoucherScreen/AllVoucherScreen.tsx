@@ -13,7 +13,7 @@ import TOAST from 'react-native-root-toast';
 import moment from 'moment'
 import colors from '@/utils/colors'
 import _ from 'lodash'
-import AsyncStorage from '@react-native-community/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants'
 import RNFetchBlob from 'react-native-blob-util'
 import Share from 'react-native-share'

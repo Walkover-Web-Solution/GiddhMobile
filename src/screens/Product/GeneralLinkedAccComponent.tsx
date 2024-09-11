@@ -178,6 +178,7 @@ const GeneralLinkedAccComponent = ({
                         keyboardType="numeric"
                         isRequired={false}
                         placeholderTextColor={'#808080'}
+                        containerStyle={{marginVertical:5}}
                         onChangeText={(val) => {
                             linkedAccountText === "Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                         }}

@@ -107,6 +107,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 <InputField
                     lable={ selectedCode=='hsn'?'Enter HSN Code':'Enter SAC Code'}
                     isRequired={false}
+                    containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
                     onChangeText={(text)=>{
                         selectedCode === 'hsn' 
@@ -128,6 +129,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 <InputField 
                     lable="SKU Code"
                     isRequired={false}
+                    containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
                     onChangeText={(text)=>{
                         handleInputChange('skuCode',text)
@@ -137,6 +139,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 <InputField 
                     lable="Unique Name"
                     isRequired={false}
+                    containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
                     onChangeText={(text) => 
                         handleInputChange('uniqueName',text)
@@ -148,6 +151,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         lable="Opening Quantity"
                         isRequired={false}
                         keyboardType="numeric"
+                        containerStyle={{marginVertical:5}}
                         placeholderTextColor={'#808080'}
                         onChangeText={(text)=>{
                             handleInputChange('openingQuantity',text)
@@ -159,6 +163,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         lable="Closing Amount"
                         isRequired={false}
                         keyboardType="numeric"
+                        containerStyle={{marginVertical:5}}
                         placeholderTextColor={'#808080'}
                         onChangeText={(text)=>{
                             handleInputChange('openingAmount',text)
@@ -169,6 +174,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 <InputField 
                     lable="Custom Field 1"
                     isRequired={false}
+                    containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
                     onChangeText={(text)=>{
                         handleInputChange('customField1Heading','Custom Field 1')
@@ -179,6 +185,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 <InputField 
                     lable="Custom Field 2"
                     isRequired={false}
+                    containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
                     onChangeText={(text)=>{
                         handleInputChange('customField1Heading','Custom Field 1')
@@ -240,6 +247,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                                     lable={field?.fieldName}
                                     isRequired={field?.isMandatory}
                                     keyboardType={field?.fieldType?.type == 'NUMBER' ? "numeric": ""}
+                                    containerStyle={{marginVertical:5}}
                                     placeholderTextColor={'#808080'}
                                     onChangeText={(text)=>{
                                         handleCustomFieldsChange(field?.uniqueName,text)

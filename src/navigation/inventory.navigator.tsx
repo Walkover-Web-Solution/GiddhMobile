@@ -7,7 +7,7 @@ import AppDatePicker from '@/screens/DatePicker/DatePicker';
 const { Navigator, Screen } = createStackNavigator();
 
 export const InventoryNavigator = () => (
-  <Navigator>
+  <Navigator screenOptions={{headerShown:false}}>
     <Screen name={Routes.Inventory} component={Inventory} options={{ headerShown: false }} />
     <Screen component={AppDatePicker} name={'AppDatePicker'} options={{ headerShown: false }} />
   </Navigator>

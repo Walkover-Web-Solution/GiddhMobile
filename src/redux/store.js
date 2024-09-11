@@ -5,7 +5,7 @@ import promise from '../promise';
 import reducer from './reducers';
 import rootSaga from './RootSaga';
 import {persistStore, persistReducer} from 'redux-persist';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const persistConfig = {
   key: 'root',

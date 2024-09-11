@@ -9,7 +9,7 @@ import AppDatePicker from '@/screens/DatePicker/DatePicker';
 const { Navigator, Screen } = createStackNavigator();
 
 export const PartiesStack = () => (
-  <Navigator initialRouteName={'PartiesMain'}>
+  <Navigator initialRouteName={'PartiesMain'} screenOptions={{headerShown:false}}>
     <Screen component={PartiesMain} name={'Parties'} options={{ headerShown: false }} />
     <Screen component={PartiesTransactions} name={'PartiesTransactions'} options={{ headerShown: false }} />
     <Screen component={BulkPayment} name={'BulkPayment'} options={{ headerShown: false }} />

@@ -8,7 +8,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from "@react-navigation/native";
 import Routes from "@/navigation/routes";
 import { CustomFields, Variants, Warehouse } from "./ProductScreen";
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSelector } from "react-redux";
 import makeStyles from "./style";
@@ -352,6 +352,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                             lable="Option Name"
                             value={localOptionName}
                             isRequired={false}
+                            containerStyle={{marginVertical:5}}
                             placeholderTextColor={'#808080'}
                             onChangeText={(val) => {
                                 handleUniqueName(val)
@@ -385,6 +386,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                                 lable={`Option ${index + 1}`}
                                 value={field.value}
                                 isRequired={false}
+                                containerStyle={{marginVertical:5}}
                                 placeholderTextColor={'#808080'}
                                 onChangeText={(text) => handleInputChange(field.id, text)}
                             />
@@ -508,6 +510,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                             <InputField 
                                 lable="Option Name"
                                 isRequired={false}
+                                containerStyle={{marginVertical:5}}
                                 placeholderTextColor={'#808080'}
                                 onChangeText={(val) => {
                                     handleUniqueName(val);
@@ -544,6 +547,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                                     lable={`Option ${index + 1}`}
                                     value={field.value}
                                     isRequired={false}
+                                    containerStyle={{marginVertical:5}}
                                     placeholderTextColor={'#808080'}
                                     onChangeText={(text) => handleInputChange(field.id, text)}
                                 />

@@ -9,7 +9,7 @@ const { Navigator, Screen } = createStackNavigator();
 
 export const CompanyInfoStack = () => {
   return (
-    <Navigator initialRouteName={routes.CompanyInfoOne} headerMode="none">
+    <Navigator initialRouteName={routes.CompanyInfoOne} headerMode="none" screenOptions={{headerShown:false}}>
       <Screen
         name={routes.CompanyInfoOne}
         component={CompanyInfoOne}

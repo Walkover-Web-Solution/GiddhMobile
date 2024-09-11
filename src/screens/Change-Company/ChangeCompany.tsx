@@ -3,7 +3,7 @@ import { GDContainer } from '@/core/components/container/container.component';
 import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar, Platform } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 
 import { getCompanyAndBranches, updateStateDetails } from '../../redux/CommonAction';

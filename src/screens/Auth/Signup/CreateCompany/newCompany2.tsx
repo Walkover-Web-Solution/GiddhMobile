@@ -11,7 +11,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { STORAGE_KEYS, APP_EVENTS } from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CompanyService } from '@/core/services/company/company.service';
 import { getCompanyAndBranches } from '../../../../redux/CommonAction';
 import { Bars } from 'react-native-loader';
