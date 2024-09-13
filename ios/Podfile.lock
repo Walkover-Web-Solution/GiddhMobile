@@ -173,9 +173,9 @@ PODS:
     - hermes-engine/Pre-built (= 0.73.9)
   - hermes-engine/Pre-built (0.73.9)
   - libevent (2.1.12)
-  - LogRocket (1.38.0)
-  - logrocket-react-native (1.38.0):
-    - LogRocket (= 1.38.0)
+  - LogRocket (1.38.1)
+  - logrocket-react-native (1.38.1):
+    - LogRocket (= 1.38.1)
     - React
   - nanopb (2.30910.0):
     - nanopb/decode (= 2.30910.0)
@@ -1264,19 +1264,19 @@ PODS:
     - React-Core
   - RNDeviceInfo (10.14.0):
     - React-Core
-  - RNFBAnalytics (20.4.0):
+  - RNFBAnalytics (20.5.0):
     - Firebase/Analytics (= 10.29.0)
     - React-Core
     - RNFBApp
-  - RNFBApp (20.4.0):
+  - RNFBApp (20.5.0):
     - Firebase/CoreOnly (= 10.29.0)
     - React-Core
-  - RNFBCrashlytics (20.4.0):
+  - RNFBCrashlytics (20.5.0):
     - Firebase/Crashlytics (= 10.29.0)
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNFBPerf (20.4.0):
+  - RNFBPerf (20.5.0):
     - Firebase/Performance (= 10.29.0)
     - React-Core
     - RNFBApp
@@ -1287,12 +1287,10 @@ PODS:
   - RNGoogleSignin (9.1.0):
     - GoogleSignIn (~> 6.2)
     - React-Core
-  - RNIap (12.15.3):
+  - RNNotifee (7.9.0):
     - React-Core
-  - RNNotifee (7.8.2):
-    - React-Core
-    - RNNotifee/NotifeeCore (= 7.8.2)
-  - RNNotifee/NotifeeCore (7.8.2):
+    - RNNotifee/NotifeeCore (= 7.9.0)
+  - RNNotifee/NotifeeCore (7.9.0):
     - React-Core
   - RNReanimated (3.15.1):
     - glog
@@ -1404,7 +1402,6 @@ DEPENDENCIES:
   - "RNFBPerf (from `../node_modules/@react-native-firebase/perf`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
-  - RNIap (from `../node_modules/react-native-iap`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -1593,8 +1590,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-google-signin/google-signin"
-  RNIap:
-    :path: "../node_modules/react-native-iap"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
   RNReanimated:
@@ -1642,8 +1637,8 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 3a63d75eecd6aa32c2fc79f578064e1214dfdec2
   hermes-engine: ed62e0dcd013bf4a3b487f164feec1c4e705b5b5
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  LogRocket: ec53f8e609fa38b86ac358aac5a66a210df048ba
-  logrocket-react-native: 2e6f336a764cd90f732cf9e5071b51c693ce2aee
+  LogRocket: 067ced5b3540bc7df8d3955942563a18c527066a
+  logrocket-react-native: f386083f64f42c70b98efcfc5485f8837300f456
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
@@ -1706,14 +1701,13 @@ SPEC CHECKSUMS:
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDateTimePicker: 7658208086d86d09e1627b5c34ba0cf237c60140
   RNDeviceInfo: 59344c19152c4b2b32283005f9737c5c64b42fba
-  RNFBAnalytics: 11cc2dc5b054d87099c82a31911096f65b6bc8e9
-  RNFBApp: 10819a4f67d634fe34aa607c6d1e8a8aef019308
-  RNFBCrashlytics: f465771d96a2eaf9f6104b30abb002cfe78fc0be
-  RNFBPerf: 6225b3e6b2c7b0903e5ba433b79959d81b6fb35a
+  RNFBAnalytics: c26f9c7b4c748c39b3e8e323a6cf6f682e49dfe4
+  RNFBApp: 017499cd7ea340963bfac43b4fcb28d2b0b21a09
+  RNFBCrashlytics: cc2c22e812c529c1cacb1d1df1b02f76f8d911f4
+  RNFBPerf: 7748e7374afaead1d5a6705c977159d92dc1db3d
   RNGestureHandler: ff19aa3c0d63d1937b6876ffa643251ab0ac0112
   RNGoogleSignin: c15bdaa7e8a9e190b6169d9c96a4e8380a740f22
-  RNIap: 76bb8783a92a6e6bd2ad7a1e91a8b2e75930db36
-  RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
+  RNNotifee: 935f3ea8c134c88cbf8b13ea0c97c72c09ad2116
   RNReanimated: 9c3e794a4989811c54659efbf90ba46296605b66
   RNScreens: b7eeec2c5d2658dac8c30d2de57dcaabd368d239
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c

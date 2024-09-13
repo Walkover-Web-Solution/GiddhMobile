@@ -31,7 +31,7 @@ const Drawer = createDrawerNavigator();
 
 export default function AppMainNav() {
   return (
-    <Drawer.Navigator initialRouteName="Home" screenOptions={{ gestureEnabled: false , headerShown:false}}>
+    <Drawer.Navigator initialRouteName="Home" screenOptions={{ gestureEnabled: false , headerShown:false, swipeEnabled:false}}>
       <Drawer.Screen name="Home" component={HomeNavigator} />
       <Drawer.Screen name="InvoiceScreens" component={DashboardStack} />
       <Drawer.Screen name="PurchaseBillScreens" component={PurchaseBillStack} />
