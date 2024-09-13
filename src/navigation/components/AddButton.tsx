@@ -94,6 +94,13 @@ const inventoryButtons:any = {
         icon: <Inventory color='#800080' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ServiceInventoryListRefresh'   
+    },
+    item7 : {
+        name: 'Plan purchase', 
+        navigateTo: 'purchasePlanScreen', 
+        icon: <Inventory color='#800080' />, 
+        color: DefaultTheme.colors.secondary,
+        event : 'purchasePlanScreenRefresh'   
     }
 }
 

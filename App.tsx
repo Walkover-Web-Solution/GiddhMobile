@@ -23,6 +23,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
+import { endConnection, Purchase, purchaseUpdatedListener } from 'react-native-iap'
+import { initConnection, flushFailedPurchasesCachedAsPendingAndroid } from 'react-native-iap';
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
@@ -44,7 +46,7 @@ const onStatusUpdate = (event: any) => {
     BackHandler.exitApp();
   }
 };
-
+const isAndroid = Platform.OS === 'android';
 const checkForAppUpdate = () => {
   inAppUpdates.checkNeedsUpdate({ curVersion: appVersion }).then((result) => {
     console.log(`-----*** Giddh V${appVersion} ***-----`);
@@ -72,8 +74,32 @@ const checkForAppUpdate = () => {
   });
 }
 
+const initializeIAP = async () => {
+  try {
+    await initConnection().then(async (value: boolean) => {
+      console.log("hihihihiih",value);
+      // isAndroid && (await flushFailedPurchasesCachedAsPendingAndroid());
+      return isAndroid ? (await flushFailedPurchasesCachedAsPendingAndroid()) : value;
+    });
+  } catch (error) {
+    console.error('Error initializing IAP: ', error);
+  }
+};
+
+const subscriptionListener = purchaseUpdatedListener(
+  (purchase: Purchase) => {
+    console.log(purchase); // get purchase information
+  },
+);
+
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
+  constructor(props){
+    super(props);
+    this.state = {
+      connection : false,
+    }
+  }
   static navigationOptions = {
     headerShown: false,
   };
@@ -81,12 +107,15 @@ export default class App extends React.Component<any> {
   async componentDidMount() {
     SplashScreen.hide();
     checkForAppUpdate();
+    this.setState({connection : initializeIAP()});
   }
 
   componentWillUnmount() {
     if (this.listener) {
       this.listener.remove();
     }
+    endConnection();
+    subscriptionListener.remove();
   }
 
   render() {
@@ -95,7 +124,7 @@ export default class App extends React.Component<any> {
         <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
+            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light} props={this.state}>
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <RootSiblingParent>
                   <BaseContainer />

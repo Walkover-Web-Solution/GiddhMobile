@@ -8,6 +8,7 @@ import {name as appName} from './app.json';
 import LogRocket from '@logrocket/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 LogRocket.init("sd2s3m/giddh-books-mobile")
+import {withIAPContext} from 'react-native-iap';
 
 // AsyncStorage.clear();
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => withIAPContext(App));

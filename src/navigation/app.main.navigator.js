@@ -26,12 +26,13 @@ import ProductGroupScreen from '@/screens/ProductGroup/ProductGroupScreen';
 import { ServiceStack } from './components/service.navigator';
 // import SubscriptionStack from './subscription.navigator';
 import InventoryListScreen from '@/screens/InventoryList/InventoryListScreen';
+import PurchasePlanScreen from '@/screens/PurchasePlans/PurchasePlanScreen';
 
 const Drawer = createDrawerNavigator();
 
 export default function AppMainNav() {
   return (
-    <Drawer.Navigator initialRouteName="Home" screenOptions={{ gestureEnabled: false , headerShown:false}}>
+    <Drawer.Navigator initialRouteName="Home" screenOptions={{ gestureEnabled: false , headerShown:false, swipeEnabled:false}}>
       <Drawer.Screen name="Home" component={HomeNavigator} />
       <Drawer.Screen name="InvoiceScreens" component={DashboardStack} />
       <Drawer.Screen name="PurchaseBillScreens" component={PurchaseBillStack} />
@@ -55,6 +56,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'PdfPreviewScreen'} component={PdfPreviewScreen}/>
       <Drawer.Screen name={'ProductScreen'} component={ProductStack} />
       <Drawer.Screen name={'productGroupScreen'} component={ProductGroupScreen} />
+      <Drawer.Screen name={'purchasePlanScreen'} component={PurchasePlanScreen} />
       <Drawer.Screen name={'ServiceScreen'} component={ServiceStack} />
       {/* <Drawer.Screen name={'SubscriptionStack'} component={SubscriptionStack} /> */}
       <Drawer.Screen name={'InventoryListScreen'} component={InventoryListScreen} />

@@ -98,6 +98,7 @@ android {
         versionCode 40000
         versionName "4.0.0"
         multiDexEnabled true
+        missingDimensionStrategy "store", "play"
     }
     signingConfigs {
         debug {
