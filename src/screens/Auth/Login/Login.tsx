@@ -21,6 +21,7 @@ import Messages from '@/utils/messages';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {OTPVerification} from '@msg91comm/react-native-sendotp'
+import Toast from 'react-native-root-toast';
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -102,7 +103,21 @@ class Login extends React.Component<any, any> {
                 await this.props.loginWithOTP(accessToken);
               }
               else {
-                ToastAndroid.show('Verification Failed', ToastAndroid.LONG);
+                if (Platform.OS == "android") {
+                  ToastAndroid.show('Verification Failed', ToastAndroid.LONG)
+                } else {
+                  Toast.show('Verification Failed', {
+                    duration: Toast.durations.LONG,
+                    position: -70,
+                    hideOnPress: true,
+                    backgroundColor: '#1E90FF',
+                    textColor: "white",
+                    opacity: 1,
+                    shadow: false,
+                    animation: true,
+                    containerStyle: { borderRadius: 10 }
+                  });
+                }
               }
             await this.setState({isOtpModalVisible: false})
             }} 
