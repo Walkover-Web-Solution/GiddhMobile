@@ -77,9 +77,9 @@ const checkForAppUpdate = () => {
 const initializeIAP = async () => {
   try {
     await initConnection().then(async (value: boolean) => {
-      console.log("hihihihiih",value);
+      console.log("hihihihiih",value,isAndroid);
       // isAndroid && (await flushFailedPurchasesCachedAsPendingAndroid());
-      return isAndroid ? (await flushFailedPurchasesCachedAsPendingAndroid()) : value;
+      isAndroid ? (await flushFailedPurchasesCachedAsPendingAndroid()) : value;
     });
   } catch (error) {
     console.error('Error initializing IAP: ', error);
@@ -88,7 +88,7 @@ const initializeIAP = async () => {
 
 const subscriptionListener = purchaseUpdatedListener(
   (purchase: Purchase) => {
-    console.log(purchase); // get purchase information
+    console.log("purchase info",purchase); // get purchase information
   },
 );
 
@@ -124,7 +124,7 @@ export default class App extends React.Component<any> {
         <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light} props={this.state}>
+            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <RootSiblingParent>
                   <BaseContainer />

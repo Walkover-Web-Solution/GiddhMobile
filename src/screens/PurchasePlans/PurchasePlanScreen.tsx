@@ -1,11 +1,12 @@
 import React, {useEffect, useState,ReactNode} from 'react';
-import {Button, Platform, ScrollView, StyleSheet, Text, View,ViewStyle} from 'react-native';
+import {Button, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View,ViewStyle} from 'react-native';
 import {
     getAvailablePurchases,
   getPurchaseHistory,
   isIosStorekit2,
   PurchaseError,
   requestPurchase,
+  requestSubscription,
   Sku,
   useIAP,
 } from 'react-native-iap';
@@ -81,9 +82,9 @@ const Row = ({
   };
 
 
-export const PurchasePlanScreen = (props) => {
+export const PurchasePlanScreen = () => {
   const [success, setSuccess] = useState(false);
-  const subscriptionIds = ['giddh_min_plan','giddh_test_mobile','giddh_oak_mobile','giddh_vine_mobile'];// for subscriptions
+  const subscriptionIds = ['giddh_oak_mobile'];// for subscriptions
   const productIds= ['giddh_oak_mobile', 'giddh_vine_mobile'];// for in-app purchases
 
   const [subscription, setSubscription] = useState<Subscription[]>([]);
@@ -122,6 +123,26 @@ export const PurchasePlanScreen = (props) => {
     }
   };
 
+
+  const onSubscription = async (sku: Subscription) => {
+    try {
+      const offerToken = Platform.OS !== "ios"
+        ? sku?.subscriptionOfferDetails[0]?.offerToken
+        : null;
+  
+      const purchaseData = await requestSubscription({
+        sku: sku?.productId,
+        ...(offerToken && {
+          subscriptionOffers: [{ sku: sku?.productId, offerToken }],
+        }),
+      });
+  
+      console.log("plan purchased!!------->",purchaseData); // after successfully purchase, we'll get purchase information
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 //   useEffect(() => {
 //     const checkCurrentPurchase = async () => {
 //       try {
@@ -153,15 +174,13 @@ export const PurchasePlanScreen = (props) => {
     //   getPurchaseInfo();
   }, []);
   
-  console.log("mounted",props);
-  
     // To get Subscription information
     const getSubscriptionInfo = async () => {
       try {
         const subscriptions = await getSubscriptions({
           skus: subscriptionIds,
         });
-        console.log("supscriptions",subscriptions);
+        console.log("supscriptions-=-=-uiuiui",subscriptions);
         
         setSubscription(subscriptions); // set subscription information
       } catch (error) {
@@ -172,7 +191,7 @@ export const PurchasePlanScreen = (props) => {
     const getCurrentSubscriptions = async () => {
         try {
           const purchases = await getAvailablePurchases();
-          console.log(purchases);// get current available purchases
+          console.log("current purchases",purchases);// get current available purchases
         } catch (error) {
           console.log('Error getting purchases:', error);
         }
@@ -181,7 +200,7 @@ export const PurchasePlanScreen = (props) => {
     const getPurchaseHistoryIap = async () => {
     try {
         const purchaseHistory = await getPurchaseHistory();
-        console.log(purchaseHistory); //get previous all history
+        console.log("previous history",purchaseHistory); //get previous all history
     } catch (error) {
         console.error('Error fetching purchase history: ', error);
     }
@@ -202,7 +221,7 @@ export const PurchasePlanScreen = (props) => {
 
   return (
     <ScrollView>
-      {initConnectionError && (
+      {/* {initConnectionError && (
         <View>
           <Text>
             An error happened while initiating the connection.
@@ -225,7 +244,7 @@ export const PurchasePlanScreen = (props) => {
             A product purchase has been processed successfully.
           </Text>
         </View>
-      )}
+      )} */}
 
       <View>
         <View>
@@ -249,13 +268,13 @@ export const PurchasePlanScreen = (props) => {
               isLast={products.length - 1 === index}>
               <Button
                 title="Buy"
-                onPress={() => handleBuyProduct(subscription.productId)}
+                onPress={() => onSubscription(subscription)}
               />
             </Row>
           ))}
         </View>
 
-        <Button title="Get the products" onPress={getSubscriptionInfo} />
+        <Button title="Get current subs" onPress={getSubscriptionInfo} />
         <Button title="Get current subs" onPress={getCurrentSubscriptions} />
         <Button title="Get purchase history" onPress={getPurchaseHistoryIap} />
       </View>
