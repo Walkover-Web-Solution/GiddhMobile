@@ -139,10 +139,12 @@ export const HomeNavigator = () => {
       <Screen
         name={Routes.BottomTabScreen1}
         component={AllVoucherScreen}
+        options={{headerShown:false}}
       />
       <Screen
         name={Routes.BottomTabScreen2}
         component={AllVoucherScreen}
+        options={{headerShown:false}}
       />
       <Screen
         name={Routes.Accounts}

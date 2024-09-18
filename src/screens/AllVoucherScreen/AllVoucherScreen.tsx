@@ -377,7 +377,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     }, [voucherName, date])
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <_StatusBar statusBar={statusBar}/>
             <Header header={voucherName} isBackButtonVisible={isBackButtonVisible} backgroundColor={voucherBackground} />
             <View style={styles.container}>
@@ -422,7 +422,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 onConfirm={handleVoucherDelete}
                 onReject={() => setBottomSheetVisible(confirmationBottomSheetRef, false)}
             />
-        </SafeAreaView>
+        </View>
     )
 }
 

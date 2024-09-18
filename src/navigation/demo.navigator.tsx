@@ -22,7 +22,7 @@ const BottomTabBar = ({ navigation, state }: {navigation: any; state: any}) => (
 );
 
 export const DemoNavigator = () => (
-  <Navigator tabBar={(props) => <BottomTabBar {...props} />}>
+  <Navigator tabBar={(props) => <BottomTabBar {...props} />} screenOptions={{headerShown:false}}>
     <Screen name={Routes.Dashboard} component={DemoScreen} />
     <Screen name={Routes.Inventory} component={DemoScreen} />
     <Screen name={Routes.Add} component={DemoScreen} />

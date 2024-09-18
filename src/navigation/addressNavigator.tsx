@@ -6,7 +6,7 @@ import EditAddress from '@/core/components/Select-Address/EditAddress';
 const { Navigator, Screen } = createStackNavigator();
 
 export const AddressStack = () => (
-  <Navigator initialRouteName={'SelectAddress'}>
+  <Navigator initialRouteName={'SelectAddress'} screenOptions={{headerShown:false}}>
     {/* <Screen component={SelectAddress} name={'SelectAddress'} options={{headerShown: false}} />
     <Screen component={EditAddress} name={'EditAddress'} options={{headerShown: false}} /> */}
   </Navigator>
