@@ -1177,7 +1177,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       await this.setState({ code: '', disableResendButton: true })
       const payload = {
         bankName: this.state.selectedBank?.bankName,
-        urn: this.state.selectedPayor?.urn,
+        urn: this.state.selectedPayor?.bankUserId,
         uniqueName: this.state.selectedBank?.uniqueName,
         totalAmount: (((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')).trim(),
         bankPaymentTransactions: [{ amount: Number(((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')), remarks: this.state.review, vendorUniqueName: this.props.route?.params?.item?.uniqueName }]
@@ -1253,7 +1253,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     await this.setState({ paymentProcessing: true })
     const payload = { requestId: this.state.requestIdOTP, otp: this.state.code }
     console.log("Payment payload " + JSON.stringify(payload))
-    const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor.urn, this.state.selectedBank?.uniqueName)
+    const response = await PaymentServices.confirmPayment(payload, this.state.selectedPayor?.bankUserId, this.state.selectedBank?.uniqueName)
     if (response.status == "success") {
       await this.setState({ paymentProcessing: false })
       this.removeSmsListener()

@@ -158,7 +158,7 @@ class BulkPayment extends React.Component {
             }
             const payload = {
                 bankName: this.state.bankAccounts[0].bankName,
-                urn: this.state.selectedPayor.urn,
+                urn: this.state.selectedPayor?.bankUserId,
                 uniqueName: this.state.bankAccounts[0].uniqueName,
                 totalAmount: totalAmount,
                 bankPaymentTransactions: bankPaymentTransactions
