@@ -4,7 +4,7 @@ import { View, Text, Dimensions, ScrollView, Image, StatusBar, Platform } from '
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import style from './style';
 import routes from '@/navigation/routes';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '@/utils/constants';
 
 const { width, height } = Dimensions.get('window');

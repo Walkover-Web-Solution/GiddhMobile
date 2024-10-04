@@ -9,7 +9,7 @@ import AppDatePicker from '@/screens/DatePicker/DatePicker';
 const { Navigator, Screen } = createStackNavigator();
 
 export const DashPartyStack = () => (
-  <Navigator initialRouteName={'DashParty'}>
+  <Navigator initialRouteName={'DashParty'} screenOptions={{headerShown:false}}>
     <Screen component={HomeScreen} name={'Dash'} options={{ headerShown: false }} />
     <Screen component={PartiesTransactions} name={'Dash.PartiesTransactions'} options={{ headerShown: false }} />
     <Screen component={AppDatePicker} name={'AppDatePicker'} options={{ headerShown: false }} />

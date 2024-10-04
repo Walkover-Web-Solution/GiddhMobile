@@ -9,6 +9,7 @@ import {
   StatusBar,
   InteractionManager,
   DeviceEventEmitter, Platform,
+  NativeModules
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -28,7 +29,7 @@ interface Props {
 }
 
 const { width, height } = Dimensions.get('window');
-
+const { SafeAreaOffsetHelper } = NativeModules;
 export const KEYBOARD_EVENTS = {
   IOS_ONLY: {
     KEYBOARD_WILL_SHOW: 'keyboardWillShow',
@@ -45,6 +46,7 @@ export class Customer extends React.Component<Props> {
     this.scrollRef = React.createRef();
     this.state = {
       showLoader: false,
+      bottomOffset: 0,
       currentPage: 0,
       index: 0,
       customerReset: () => { },
@@ -52,6 +54,7 @@ export class Customer extends React.Component<Props> {
       screenWidth: Dimensions.get('window').width,
       screenHeight: Dimensions.get('window').height
     }
+    this.keyboardMargin = new Animated.Value(0);
     Dimensions.addEventListener('change', () => {
       this.setState({
         screenWidth: Dimensions.get('window').width,
@@ -102,6 +105,7 @@ export class Customer extends React.Component<Props> {
     } else {
       this.state.vendorReset();
     }
+    this.setState({bottomOffset: 0})
   }
 
   setCustomerFun = (fun) => {
@@ -124,6 +128,21 @@ export class Customer extends React.Component<Props> {
     }
   };
 
+  keyboardWillShow = (event) => {
+    const value = event.endCoordinates.height - this.state.bottomOffset;
+    Animated.timing(this.keyboardMargin, {
+      duration: event.duration,
+      toValue: value
+    }).start();
+  };
+
+  keyboardWillHide = (event) => {
+    Animated.timing(this.keyboardMargin, {
+      duration: event.duration,
+      toValue: 0
+    }).start();
+  };
+  
   componentDidMount() {
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.REFRESHPAGE, async () => {
       console.log('refresh captured');
@@ -165,6 +184,13 @@ export class Customer extends React.Component<Props> {
     })
     this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    if (Platform.OS == 'ios') {
+      // Native Bridge for giving the bottom offset //Our own created
+      SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
+        const { bottomOffset } = offset;
+        this.setState({ bottomOffset });
+      });
+    }
   }
 
   componentWillUnmount() {

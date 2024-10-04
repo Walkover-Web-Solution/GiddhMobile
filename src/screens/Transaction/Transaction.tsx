@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { CommonService } from '@/core/services/common/common.service';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';

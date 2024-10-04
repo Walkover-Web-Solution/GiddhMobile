@@ -111,7 +111,7 @@ class BulkPaymentOTP extends React.Component {
             }
             const payload = {
                 bankName: this.props.route.params.bankAccounts[0].bankName,
-                urn: this.props.route.params.selectedPayor.urn,
+                urn: this.props.route.params.selectedPayor?.bankUserId,
                 uniqueName: this.props.route.params.bankAccounts[0].uniqueName,
                 totalAmount: totalAmount,
                 bankPaymentTransactions: bankPaymentTransactions
@@ -188,7 +188,7 @@ class BulkPaymentOTP extends React.Component {
             await this.setState({ paymentProcessing: true })
             const payload = { requestId: this.state.requestIdOTP, otp: this.state.code }
             console.log("Payment payload " + JSON.stringify(payload))
-            const response = await PaymentServices.confirmPayment(payload, this.props.route.params.selectedPayor.urn,
+            const response = await PaymentServices.confirmPayment(payload, this.props.route.params.selectedPayor?.bankUserId,
                 this.props.route.params.bankAccounts[0].uniqueName)
             if (response.status == "success") {
                 this.removeSmsListener()

@@ -5,7 +5,7 @@ import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
 import * as CommonActions from '../../../redux/CommonAction';
 import { getCompanyAndBranches } from '../../../redux/CommonAction';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LogRocket from '@logrocket/react-native';
 import { STORAGE_KEYS } from '@/utils/constants';
 import { ToastAndroid, Platform } from 'react-native';

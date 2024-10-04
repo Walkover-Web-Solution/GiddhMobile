@@ -4,7 +4,7 @@ import * as ActionConstants from './ActionConstants';
 import * as CommonActions from './CommonAction';
 import * as CommonService from './CommonService';
 import _ from 'lodash';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { DeviceEventEmitter } from 'react-native';
 import { appleAuth } from '@invertase/react-native-apple-authentication';

@@ -9,7 +9,7 @@ import color from '@/utils/colors';
 import style from '@/screens/Auth/Login/style';
 import { GDRoundedInput } from '@/core/components/input/rounded-input.component';
 // google sign in
-import { GoogleSignin, statusCodes } from '@react-native-community/google-signin';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { ButtonSize } from '@/models/enums/button';
 import { GdImages } from '@/utils/icons-pack';
 import { WEBCLIENT_ID } from '@/env.json';
@@ -19,8 +19,9 @@ import { googleLogin, appleLogin, userEmailLogin, loginWithOTP } from './LoginAc
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
 import { STORAGE_KEYS } from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {OTPVerification} from '@msg91comm/react-native-sendotp'
+import Toast from 'react-native-root-toast';
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -102,7 +103,21 @@ class Login extends React.Component<any, any> {
                 await this.props.loginWithOTP(accessToken);
               }
               else {
-                ToastAndroid.show('Verification Failed', ToastAndroid.LONG);
+                if (Platform.OS == "android") {
+                  ToastAndroid.show('Verification Failed', ToastAndroid.LONG)
+                } else {
+                  Toast.show('Verification Failed', {
+                    duration: Toast.durations.LONG,
+                    position: -70,
+                    hideOnPress: true,
+                    backgroundColor: '#1E90FF',
+                    textColor: "white",
+                    opacity: 1,
+                    shadow: false,
+                    animation: true,
+                    containerStyle: { borderRadius: 10 }
+                  });
+                }
               }
             await this.setState({isOtpModalVisible: false})
             }} 

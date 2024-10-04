@@ -1,7 +1,7 @@
 import { getCountryList, getPlanSummaryAmount as _getPlanSummaryAmount, getSubscriptionPlans, setSelectedCountry, setSelectedPlan, setIsMonthlyPlan as _setIsMonthlyPlan, setFormData } from '@/redux/subscription/subscription.action';
 import { REDUX_STATE } from '@/redux/types';
 import { STORAGE_KEYS } from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 

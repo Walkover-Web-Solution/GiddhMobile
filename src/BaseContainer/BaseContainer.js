@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import AppNavigator from '@/navigation/app.navigator';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
 import { getCompanyAndBranches, logout, renewAccessToken } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';

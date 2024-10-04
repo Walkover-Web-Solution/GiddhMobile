@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 // import style from './style';
 import { connect } from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import Ionicons from 'react-native-vector-icons/Ionicons';

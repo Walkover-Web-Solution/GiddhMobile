@@ -30,7 +30,7 @@ import { Vendors } from './components/Vendors';
 import { Customers } from './components/Customers';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '@/utils/colors';
 import styles from './style'
 

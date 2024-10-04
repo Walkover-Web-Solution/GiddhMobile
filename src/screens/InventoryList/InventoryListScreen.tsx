@@ -869,6 +869,7 @@ const InventoryListScreen = (props) => {
                 <InputField 
                     lable= {ColumnNames[filterObject?.searchBy]}
                     isRequired={false}
+                    containerStyle={{marginVertical:5}}
                     onChangeText={(text)=>{
                         const tempObj = {
                             ...filterObject,

@@ -7,7 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { PartiesStack } from './parties.navigator';
 import { View, DeviceEventEmitter } from 'react-native';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector } from 'react-redux';
 import { getFocusedRouteNameFromRoute, useNavigation } from '@react-navigation/native';
 import PushNotification from 'react-native-push-notification';
@@ -135,14 +135,16 @@ export const HomeNavigator = () => {
   };
 
   return (
-    <Navigator tabBar={(props) => <TabBar {...props} branchSelected={branchSelected} />}>
+    <Navigator tabBar={(props) => <TabBar {...props} branchSelected={branchSelected} />} screenOptions={{headerShown:false}}>
       <Screen
         name={Routes.BottomTabScreen1}
         component={AllVoucherScreen}
+        options={{headerShown:false}}
       />
       <Screen
         name={Routes.BottomTabScreen2}
         component={AllVoucherScreen}
+        options={{headerShown:false}}
       />
       <Screen
         name={Routes.Accounts}

@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar ,
 import style from './style';
 import { connect } from 'react-redux';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 
 import { getCompanyAndBranches, updateBranchStateDetails } from '../../redux/CommonAction';

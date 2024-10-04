@@ -19,7 +19,7 @@ import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';// customer_faliure.svg
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -821,7 +821,7 @@ export class Customers extends React.Component<Props> {
 
           <View style={{ flex: 1 }}>
             <View style={styles.rowContainer}>
-              <Ionicons name="person" size={18} color="#864DD3" />
+              <MaterialIcons name="person" size={19} color="#864DD3" />
               <TextInput
                 onBlur={() => {
                   if (this.state.partyName == '') {

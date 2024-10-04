@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { View, Text, FlatList, DeviceEventEmitter, Image, Dimensions, TouchableOpacity, TouchableWithoutFeedback, Alert,StatusBar,Platform } from 'react-native';
 import style from '@/screens/Inventory/style';
 import InventoryList from '@/screens/Inventory/components/inventory-list.component';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Bars } from 'react-native-loader';
 import colors from '@/utils/colors';

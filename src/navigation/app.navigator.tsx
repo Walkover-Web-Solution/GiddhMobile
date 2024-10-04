@@ -7,7 +7,7 @@ import analytics from '@react-native-firebase/analytics';
 import AppMainNav from './app.main.navigator';
 import {CompanyStack} from './company.navigator';
 import ChatWidget from '@msg91comm/react-native-hello-sdk';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Host } from 'react-native-portalize';
 import SnackBar from '@/components/SnackBar';

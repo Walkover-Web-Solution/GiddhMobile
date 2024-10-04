@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { View, Dimensions, Text,StatusBar } from 'react-native';
+import { View, Dimensions, Text,StatusBar, Platform } from 'react-native';
 import styles from './style';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Custom from './Custom';

@@ -15,6 +15,7 @@ const RenderStockName = ({
         <View style={{marginHorizontal:16,paddingTop:5}}>
             <InputField
                 lable={'Enter '+ (type === 'PRODUCT'? 'Stock' : 'Service')}
+                containerStyle={{marginVertical:5}}
                 onChangeText={(text) => 
                     handleInputChange('name',text)
                 }

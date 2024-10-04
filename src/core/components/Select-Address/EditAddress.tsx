@@ -8,7 +8,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
 import { FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CountryPicker from 'react-native-country-picker-modal'
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import Modal1 from 'react-native-modal';

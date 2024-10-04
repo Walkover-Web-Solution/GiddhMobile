@@ -6,7 +6,7 @@ import { Image, View } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import style from '@/screens/Auth/Password/style';
 // google sign in
-import { GoogleSignin, statusCodes } from '@react-native-community/google-signin';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { ButtonSize } from '@/models/enums/button';
 import { GdImages } from '@/utils/icons-pack';
 import { GDRoundedInput } from '@/core/components/input/rounded-input.component';

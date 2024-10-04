@@ -12,7 +12,7 @@ import { Company } from '@/models/interfaces/company';
 import { Bars } from 'react-native-loader';
 import { APP_EVENTS,STORAGE_KEYS } from '@/utils/constants';
 import TOAST from 'react-native-root-toast';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ListEmptyComponent from './ListEmptyComponent';
 import { formatAmount } from '@/utils/helper';
 

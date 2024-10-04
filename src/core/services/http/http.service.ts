@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { APP_EVENTS, HTTP_REQUEST_TIME_OUT, STORAGE_KEYS } from '@/utils/constants';
 import Messages from '@/utils/messages';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DeviceEventEmitter, Platform, ToastAndroid } from 'react-native';
 import { commonUrls } from '@/core/services/common/common.url';
 import moment from 'moment';

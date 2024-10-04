@@ -40,6 +40,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                     value={codeNumber}
                     isRequired={false}
                     keyboardType="numeric"
+                    containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
                     onChangeText={(text)=>{
                         setCodeNumber(text);
