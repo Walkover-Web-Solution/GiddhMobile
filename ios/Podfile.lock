@@ -188,10 +188,10 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30911.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleSignIn (6.2.4):
+  - GoogleSignIn (7.0.0):
     - AppAuth (~> 1.5)
-    - GTMAppAuth (~> 1.3)
-    - GTMSessionFetcher/Core (< 3.0, >= 1.1)
+    - GTMAppAuth (< 3.0, >= 1.3)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.1)
   - GoogleUtilities (7.13.3):
     - GoogleUtilities/AppDelegateSwizzler (= 7.13.3)
     - GoogleUtilities/Environment (= 7.13.3)
@@ -236,17 +236,17 @@ PODS:
   - GoogleUtilities/UserDefaults (7.13.3):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GTMAppAuth (1.3.1):
+  - GTMAppAuth (2.0.0):
     - AppAuth/Core (~> 1.6)
-    - GTMSessionFetcher/Core (< 3.0, >= 1.5)
-  - GTMSessionFetcher/Core (2.3.0)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.5)
+  - GTMSessionFetcher/Core (3.5.0)
   - hermes-engine (0.73.9):
     - hermes-engine/Pre-built (= 0.73.9)
   - hermes-engine/Pre-built (0.73.9)
   - libevent (2.1.12)
-  - LogRocket (1.39.0)
-  - logrocket-react-native (1.39.0):
-    - LogRocket (= 1.39.0)
+  - LogRocket (1.38.1)
+  - logrocket-react-native (1.38.1):
+    - LogRocket (= 1.38.1)
     - React
   - nanopb (2.30910.0):
     - nanopb/decode (= 2.30910.0)
@@ -1130,6 +1130,8 @@ PODS:
     - React-debug
   - react-native-blob-util (0.19.11):
     - React-Core
+  - react-native-device-country (1.0.5):
+    - React-Core
   - react-native-document-picker (9.3.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1317,14 +1319,14 @@ PODS:
     - React-perflogger (= 0.73.9)
   - ReactNativeART (1.2.0):
     - React
-  - RNAppleAuthentication (2.4.0):
+  - RNAppleAuthentication (2.3.0):
     - React-Core
   - RNCAsyncStorage (1.24.0):
     - React-Core
   - RNCCheckbox (0.5.17):
     - BEMCheckBox (~> 1.4)
     - React-Core
-  - RNCClipboard (1.14.2):
+  - RNCClipboard (1.14.1):
     - React-Core
   - RNCMaskedView (0.1.11):
     - React
@@ -1356,27 +1358,29 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - RNGoogleSignin (9.1.0):
-    - GoogleSignIn (~> 6.2)
+  - RNGoogleSignin (10.1.2):
+    - GoogleSignIn (~> 7.0.0)
+    - React-Core
+  - RNLocalize (3.2.1):
     - React-Core
   - RNNotifee (7.9.0):
     - React-Core
     - RNNotifee/NotifeeCore (= 7.9.0)
   - RNNotifee/NotifeeCore (7.9.0):
     - React-Core
-  - RNReanimated (3.15.2):
+  - RNReanimated (3.15.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.15.2)
-    - RNReanimated/worklets (= 3.15.2)
-  - RNReanimated/reanimated (3.15.2):
+    - RNReanimated/reanimated (= 3.15.1)
+    - RNReanimated/worklets (= 3.15.1)
+  - RNReanimated/reanimated (3.15.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - ReactCommon/turbomodule/core
-  - RNReanimated/worklets (3.15.2):
+  - RNReanimated/worklets (3.15.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1390,7 +1394,7 @@ PODS:
     - React-Core
   - RNSVG (12.5.1):
     - React-Core
-  - RNVectorIcons (10.2.0):
+  - RNVectorIcons (10.1.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1462,6 +1466,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
+  - react-native-device-country (from `../node_modules/react-native-device-country`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -1505,6 +1510,7 @@ DEPENDENCIES:
   - "RNFBPerf (from `../node_modules/@react-native-firebase/perf`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -1617,6 +1623,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-blob-util:
     :path: "../node_modules/react-native-blob-util"
+  react-native-device-country:
+    :path: "../node_modules/react-native-device-country"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
   react-native-netinfo:
@@ -1703,6 +1711,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-google-signin/google-signin"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
   RNReanimated:
@@ -1753,14 +1763,14 @@ SPEC CHECKSUMS:
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   GoogleAppMeasurement: f9de05ee17401e3355f68e8fc8b5064d429f5918
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
-  GoogleSignIn: 5651ce3a61e56ca864160e79b484cd9ed3f49b7a
+  GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
-  GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
-  GTMSessionFetcher: 3a63d75eecd6aa32c2fc79f578064e1214dfdec2
+  GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
+  GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: ed62e0dcd013bf4a3b487f164feec1c4e705b5b5
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  LogRocket: 163b995f51a166b13b585fa024c542769238b3a8
-  logrocket-react-native: e236dfa9bbfe3c9a7b55b07f6c97c7f7ed81c1d3
+  LogRocket: 067ced5b3540bc7df8d3955942563a18c527066a
+  logrocket-react-native: f386083f64f42c70b98efcfc5485f8837300f456
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
@@ -1787,6 +1797,7 @@ SPEC CHECKSUMS:
   React-logger: 87a4232dd55485435edfa6803ff0de0b5c9eea1a
   React-Mapbuffer: 6c229dc8f1640457d1f665f0b7d79ab8f604dc8b
   react-native-blob-util: 39a20f2ef11556d958dc4beb0aa07d1ef2690745
+  react-native-device-country: 57691a62d923f612c5624fa34b6037547d9b8ee6
   react-native-document-picker: 23b6a82e09199f4f109376e73d88892a8931eeea
   react-native-netinfo: 30fb89fa913c342be82a887b56e96be6d71201dd
   react-native-pager-view: 7c45504fe805a954ebabd005d369937ea1c04de1
@@ -1815,10 +1826,10 @@ SPEC CHECKSUMS:
   React-utils: dab84549e65d6d711937b9c34d9f6d8fb8bd711c
   ReactCommon: 3dc453f427d2f3d7f2c71499d191b456f83c59bd
   ReactNativeART: 78edc68dd4a1e675338cd0cd113319cf3a65f2ab
-  RNAppleAuthentication: e00c76acb03351f5544373c78fa7f359bef6d5d3
+  RNAppleAuthentication: e99eaf3c4c01ad8ecb6125dd6f0cfd98871685b5
   RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
   RNCCheckbox: a3ca9978cb0846b981d28da4e9914bd437403d77
-  RNCClipboard: 5e503962f0719ace8f7fdfe9c60282b526305c85
+  RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
   RNCMaskedView: 0e1bc4bfa8365eba5fbbb71e07fbdc0555249489
   RNCPicker: 0173dedc74776227ec6dcc61bb85cd9f07bbb2ac
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
@@ -1829,13 +1840,14 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: 9cc9eb22443f5a4c0f348efddd16318a80d2dd78
   RNFBPerf: e5cc00c3fe9cf4f119b444216dd18c396dcbd378
   RNGestureHandler: 75e2ebf4e8ac521f2b3c9afdc048fcbc2e2c9ea4
-  RNGoogleSignin: c15bdaa7e8a9e190b6169d9c96a4e8380a740f22
+  RNGoogleSignin: 9d0ecc3bff939ccef83cb3a26b874130b06a6e81
+  RNLocalize: 4f22418187ecd5ca693231093ff1d912d1b3c9bc
   RNNotifee: 935f3ea8c134c88cbf8b13ea0c97c72c09ad2116
-  RNReanimated: 1b616055693239fb2607dac505f08f45573247c6
+  RNReanimated: fe9610fb0eebdd1fe8f38421bebcaa9afa0fe6b2
   RNScreens: 29418ceffb585b8f0ebd363de304288c3dce8323
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
   RNSVG: d7d7bc8229af3842c9cfc3a723c815a52cdd1105
-  RNVectorIcons: 04d49881dab53fb3397b1129085271d9d21885c1
+  RNVectorIcons: 96e8c5c45609932bb2f8347e1c709bcca0e95654
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 57d2ffe418d024d56f8b0047f335c677e4c4d9ac
 

@@ -12,7 +12,7 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
  * @param endpoint
  */
 export const createEndpoint = (endpoint: string): string => {
-  return `${API_URL}${endpoint}`;
+  return `:countryURL${endpoint}`;
 };
 
 /**

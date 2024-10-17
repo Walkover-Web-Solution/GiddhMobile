@@ -7,6 +7,9 @@ import { commonUrls } from '@/core/services/common/common.url';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import TOAST from 'react-native-root-toast';
+import { API_URL, GB_URL } from '@/env.json';
+import { getCountry } from 'react-native-localize';
+import DeviceCountry, { TYPE_CONFIGURATION } from 'react-native-device-country';
 
 let store;
 
@@ -91,6 +94,38 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
     reqConfig.url = reqConfig.url?.replace(/:currency/g, currency);
   }
 
+//2nd method: fetch country from language&input
+  const countryCode = await DeviceCountry.getCountryCode(TYPE_CONFIGURATION);
+  if(countryCode?.code?.toLowerCase() == "gb"){
+    reqConfig.url = reqConfig.url?.replace(':countryURL',GB_URL);
+  }else{
+    reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
+  }
+
+  // DeviceCountry.getCountryCode(TYPE_CONFIGURATION)
+  // .then((result) => {
+  //   console.log("----------------------new package----------------------",result);
+  //   if(result?.code?.toLowerCase() == "gb"){
+  //     reqConfig.url = reqConfig.url?.replace(':countryURL',GB_URL);
+  //   }else{
+  //     reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
+  //   }
+  // })
+  // .catch((e) => {
+  //   console.log(e);
+  //   reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
+  // });
+
+  //1st method
+  // console.log("check----------------->",getCountry() == "GB");
+  // if(getCountry() == "GB"){
+  //   console.log("if m ghusa!!");
+    
+  //   reqConfig.url = reqConfig.url?.replace(':countryURL',GB_URL);
+  // }else{
+  //   reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
+  // }
+
   let headers = reqConfig.headers;
   // add token related info here..
   const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
@@ -105,8 +140,8 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
   // if (!reqConfig.url.includes('verify-number')){
   headers['User-Agent'] = Platform.OS;
   // }
-  // console.log('intercepted url ------------');
-  // console.log(reqConfig.url);
+  console.log('intercepted url ------------',getCountry());
+  console.log(reqConfig.url);
   return { ...reqConfig, headers };
 });
 
