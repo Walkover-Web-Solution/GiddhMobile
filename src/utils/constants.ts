@@ -80,7 +80,8 @@ export const STORAGE_KEYS = {
   order: 'ORDER',
   activeCompanyCountryCode: 'ACTIVE_COMPANY_COUNTRY_CODE',
   APPLELOGINRESPONSE:"APPLELOGINRESPONSE",
-  NOTIFICATION_SET_ARR:"NOTIFICATION_SET_ARR"
+  NOTIFICATION_SET_ARR:"NOTIFICATION_SET_ARR",
+  COUNTRY_CODE: 'countryCode'
 };
 
 // APP events constants
@@ -106,7 +107,8 @@ export const APP_EVENTS = {
   ProductGroupRefresh: 'PRODUCT_GROUP_REFRESH',
   ServiceGroupRefresh: 'SERVICE_GROUP_REFRESH',
   ServiceInventoryListRefresh : 'SERVICE_INVENTORY_LIST_REFRESH',   
-  ProductInventoryListRefresh : 'PRODUCT_INVENTORY_LIST_REFRESH'
+  ProductInventoryListRefresh : 'PRODUCT_INVENTORY_LIST_REFRESH',
+  VATObligationScreenRefresh: 'VAT_OBLIGATION_SCREEN_REFRESH'
 };
 
 export const FONT_FAMILY = {

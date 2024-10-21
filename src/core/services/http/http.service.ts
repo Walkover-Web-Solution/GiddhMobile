@@ -53,7 +53,7 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
 
   if (reqConfig.url.includes(':userEmail')) {
     const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
-    reqConfig.url = reqConfig.url?.replace(':userEmail', activeEmail);
+    reqConfig.url = reqConfig.url?.replace(':userEmail', activeEmail?.toLowerCase());
   }
   // if (reqConfig.url.includes('userEmail')) {
   //   const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
@@ -95,36 +95,20 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
   }
 
 //2nd method: fetch country from language&input
-  const countryCode = await DeviceCountry.getCountryCode(TYPE_CONFIGURATION);
-  if(countryCode?.code?.toLowerCase() == "gb"){
-    reqConfig.url = reqConfig.url?.replace(':countryURL',GB_URL);
-  }else{
-    reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
-  }
-
-  // DeviceCountry.getCountryCode(TYPE_CONFIGURATION)
-  // .then((result) => {
-  //   console.log("----------------------new package----------------------",result);
-  //   if(result?.code?.toLowerCase() == "gb"){
-  //     reqConfig.url = reqConfig.url?.replace(':countryURL',GB_URL);
-  //   }else{
-  //     reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
-  //   }
-  // })
-  // .catch((e) => {
-  //   console.log(e);
-  //   reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
-  // });
-
-  //1st method
-  // console.log("check----------------->",getCountry() == "GB");
-  // if(getCountry() == "GB"){
-  //   console.log("if m ghusa!!");
-    
+  // const countryCode = await DeviceCountry.getCountryCode(TYPE_CONFIGURATION);
+  // if(countryCode?.code?.toLowerCase() == "gb"){
   //   reqConfig.url = reqConfig.url?.replace(':countryURL',GB_URL);
   // }else{
   //   reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
   // }
+
+  //another method : getting country info from async storage
+  const countryCode = await AsyncStorage.getItem(STORAGE_KEYS.COUNTRY_CODE);
+  if(countryCode == "gb"){
+    reqConfig.url = reqConfig.url?.replace(':countryURL',GB_URL);
+  }else{
+    reqConfig.url = reqConfig.url?.replace(':countryURL',API_URL);
+  }
 
   let headers = reqConfig.headers;
   // add token related info here..
@@ -140,7 +124,7 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
   // if (!reqConfig.url.includes('verify-number')){
   headers['User-Agent'] = Platform.OS;
   // }
-  console.log('intercepted url ------------',getCountry());
+  console.log('intercepted url ------------',countryCode);
   console.log(reqConfig.url);
   return { ...reqConfig, headers };
 });

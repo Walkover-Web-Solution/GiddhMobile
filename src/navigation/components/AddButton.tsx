@@ -21,12 +21,15 @@ import Group from '@/assets/images/icons/options/group-wise.svg'
 import Stock from '@/assets/images/icons/options/stock.svg'
 import Variant from '@/assets/images/icons/options/varient-wise.svg'
 import Inventory from '@/assets/images/icons/options/home-icon-black.svg'
-import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
+import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE, STORAGE_KEYS } from '@/utils/constants';
 import Product from 'react-native-vector-icons/Ionicons'
 import Service2 from 'react-native-vector-icons/FontAwesome'
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { DefaultTheme } from '@/utils/theme';
+import DeviceCountry, { TYPE_CONFIGURATION } from 'react-native-device-country';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const SIZE = 48;
 const padding = 10;
@@ -97,6 +100,51 @@ const inventoryButtons:any = {
     }
 }
 
+const taxButtons:any = {
+    item1 : {
+        name: 'VAT \nObligation', 
+        navigateTo: 'VATObligationScreen', 
+        icon: <MaterialCommunityIcons name='sack-percent' color='#C4A484' size={25}/>, 
+        color: DefaultTheme.colors.secondary,
+        event : 'VATObligationScreenRefresh'
+    },
+    // item2 : {
+    //     name: 'VAT Obligations', 
+    //     navigateTo: 'VATObligationScreen', 
+    //     icon: <Stock color='#000' />, 
+    //     color: DefaultTheme.colors.secondary,
+    //     event : 'VATObligationScreenRefresh'
+    // },
+    // item3 : {
+    //     name: 'VAT Obligations', 
+    //     navigateTo: 'VATObligationScreen', 
+    //     icon: <Stock color='#000' />, 
+    //     color: DefaultTheme.colors.secondary,
+    //     event : 'VATObligationScreenRefresh'
+    // },
+    // item4 : {
+    //     name: 'VAT Obligations', 
+    //     navigateTo: 'VATObligationScreen', 
+    //     icon: <Stock color='#000' />, 
+    //     color: DefaultTheme.colors.secondary,
+    //     event : 'VATObligationScreenRefresh'
+    // },
+    // item5 : {
+    //     name: 'VAT Obligations', 
+    //     navigateTo: 'VATObligationScreen', 
+    //     icon: <Stock color='#000' />, 
+    //     color: DefaultTheme.colors.secondary,
+    //     event : 'VATObligationScreenRefresh'
+    // },
+    // item6 : {
+    //     name: 'VAT Obligations', 
+    //     navigateTo: 'VATObligationScreen', 
+    //     icon: <Stock color='#000' />, 
+    //     color: DefaultTheme.colors.secondary,
+    //     event : 'VATObligationScreenRefresh'
+    // },
+}
+
 type Props = {
     navigation: any;
     isDisabled: any;
@@ -108,10 +156,19 @@ type Props = {
 class AddButtonOptions extends React.PureComponent<Props> {
     constructor(props: Props) {
         super(props);
+        this.state = {
+            countryCode:'in'
+        }
     }
+    async componentDidMount() {
+        const code = await AsyncStorage.getItem(STORAGE_KEYS.COUNTRY_CODE);
+        this.setState({countryCode:code})
+    }  
 
     render() {
-        const data = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
+        const inventoryData = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
+        const taxData = Object.keys(taxButtons).map(key => taxButtons[key]);
+console.log("at add button",this.state.countryCode);
 
         const getRows = (items:any, itemsPerRow:number) => {
             const rows = [];
@@ -121,8 +178,8 @@ class AddButtonOptions extends React.PureComponent<Props> {
             return rows;
         };
 
-
-        const rows = getRows(data, 4);
+        const inventoryRows = getRows(inventoryData, 4);
+        const taxRows = getRows(taxData, 4);
         return (
             <Portal>
                 <Modalize
@@ -130,64 +187,92 @@ class AddButtonOptions extends React.PureComponent<Props> {
                     adjustToContentHeight={true}
                     withHandle={false}
                     modalStyle={styles.modalStyle}
+                    modalTopOffset={70}
                 >
-                    <View style={{flex:1,padding:12}}>
-                        <Text style={styles.listTitle}>Inventory</Text>
-                        {rows.map((rowItems, rowIndex) => (
-                            <View style={styles.buttonContainer} key={rowIndex}>
-                            {rowItems.map((item) => (
-                                <TouchableOpacity
-                                key={item.name}
-                                activeOpacity={0.7}
-                                style={styles.button}
-                                onPress={async ()=>{
-                                    this?.props?.closeModal();
-                                    console.log("event emitted-->",APP_EVENTS?.[item?.event]);
-                                    
-                                    await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
-                                    await this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
-                                }}
-                                >
-                                <View style={styles.iconContainer}>
-                                    {item.icon}
-                                </View>
-                                <Text style={styles.name}>{item.name}</Text>
-                                </TouchableOpacity>
-                            ))}
-                            </View>
-                        ))}
-                    </View>
-                    <FlatList
-                        numColumns={4}
-                        data={arrButtons}
-                        showsVerticalScrollIndicator={false}
-                        style={styles.flatlistStyle}
-                        ListHeaderComponent = {()=>(<Text style={styles.listTitle}>Vouchers</Text>)}
-                        renderItem={({ item }) => (
+                {/* {this.state.countryCode == 'gb' &&  */}
+                {<View style={{flex:1,padding:12}}>
+                    <Text style={styles.listTitle}>Tax</Text>
+                    {taxRows.map((rowItems, rowIndex) => (
+                        <View style={styles.buttonContainer} key={rowIndex}>
+                        {rowItems.map((item) => (
                             <TouchableOpacity
+                            key={item.name}
                             activeOpacity={0.7}
                             style={styles.button}
-                            onPress={async () => {
+                            onPress={async ()=>{
                                 this?.props?.closeModal();
-                                if (item.name == 'Customer') {
-                                    await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 0, uniqueName: null } });
-                                    await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                                } else if (item.name == 'Vendor') {
-                                    await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: null } });
-                                    await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                                } else {
-                                    await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                                    await this.props.navigation.navigate(item.navigateTo);
-                                }
-                            }}>
-                                <View style={styles.iconContainer}>
-                                    {item.icon}
-                                </View>
-                                <Text style={styles.name}>{item.name}</Text>
+                                console.log("event emitted-->",APP_EVENTS?.[item?.event]);
+                                
+                                await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
+                                await this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
+                            }}
+                            >
+                            <View style={styles.iconContainer}>
+                                {item.icon}
+                            </View>
+                            <Text style={styles.name}>{item.name}</Text>
                             </TouchableOpacity>
-                        )}
-                        keyExtractor={(item) => item.name}
-                        />
+                        ))}
+                        </View>
+                    ))}
+                </View>}
+                <View style={{flex:1,padding:12}}>
+                    <Text style={styles.listTitle}>Inventory</Text>
+                    {inventoryRows.map((rowItems, rowIndex) => (
+                        <View style={styles.buttonContainer} key={rowIndex}>
+                        {rowItems.map((item) => (
+                            <TouchableOpacity
+                            key={item.name}
+                            activeOpacity={0.7}
+                            style={styles.button}
+                            onPress={async ()=>{
+                                this?.props?.closeModal();
+                                console.log("event emitted-->",APP_EVENTS?.[item?.event]);
+                                
+                                await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
+                                await this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
+                            }}
+                            >
+                            <View style={styles.iconContainer}>
+                                {item.icon}
+                            </View>
+                            <Text style={styles.name}>{item.name}</Text>
+                            </TouchableOpacity>
+                        ))}
+                        </View>
+                    ))}
+                </View>
+                <FlatList
+                    numColumns={4}
+                    data={arrButtons}
+                    showsVerticalScrollIndicator={false}
+                    style={styles.flatlistStyle}
+                    ListHeaderComponent = {()=>(<Text style={styles.listTitle}>Vouchers</Text>)}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                        activeOpacity={0.7}
+                        style={styles.button}
+                        onPress={async () => {
+                            this?.props?.closeModal();
+                            if (item.name == 'Customer') {
+                                await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 0, uniqueName: null } });
+                                await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                            } else if (item.name == 'Vendor') {
+                                await this.props.navigation.navigate(item.navigateTo, { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: null } });
+                                await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                            } else {
+                                await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
+                                await this.props.navigation.navigate(item.navigateTo);
+                            }
+                        }}>
+                            <View style={styles.iconContainer}>
+                                {item.icon}
+                            </View>
+                            <Text style={styles.name}>{item.name}</Text>
+                        </TouchableOpacity>
+                    )}
+                    keyExtractor={(item) => item.name}
+                    />
                 </Modalize>
             </Portal>
         );

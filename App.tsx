@@ -23,6 +23,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
+import DeviceCountry, { TYPE_CONFIGURATION } from 'react-native-device-country';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '@/utils/constants';
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
@@ -78,9 +81,20 @@ export default class App extends React.Component<any> {
     headerShown: false,
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      countryCode : 'in'
+    }
+  }
+
   async componentDidMount() {
     SplashScreen.hide();
     checkForAppUpdate();
+    const countryCode = await DeviceCountry.getCountryCode();
+    console.log("country code from package", countryCode);
+    this.setState({countryCode : countryCode?.code?.toLowerCase()})
+    await AsyncStorage.setItem(STORAGE_KEYS.COUNTRY_CODE, countryCode?.code?.toLowerCase());
   }
 
   componentWillUnmount() {

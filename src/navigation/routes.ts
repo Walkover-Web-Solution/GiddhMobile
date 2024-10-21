@@ -23,7 +23,8 @@ const Routes = {
   ProductScreen: 'productScreen',
   ProductGroupScreen: 'productGroupScreen',
   VariantTableScreen: 'variantTableScreen',
-  ServiceScreen : 'serviceScreen'
+  ServiceScreen : 'serviceScreen',
+  VATObligationScreen: 'vatObligationScreen'
 };
 
 export default Routes
