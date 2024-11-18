@@ -166,6 +166,7 @@ class NewCompanyDetails extends React.Component<any, any> {
   }
 
   submit = async () => {
+  try {
     if (this.state.bussinessType == "Registered") {
       if (this.state.gstNumber == null) {
         this.state.countryCode == "IN" ? alert('Enter GST Number') : alert('Enter TRN Number');
@@ -235,7 +236,7 @@ class NewCompanyDetails extends React.Component<any, any> {
     console.log("create Company Response " + JSON.stringify(response))
     if (response.status == "success") {
       // ToastAndroid.show("Company created Successfully", ToastAndroid.LONG)
-      await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, response.body.subscription.country.countryCode);
+      await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, response.body.subscription.country.countryCode ? response.body.subscription.country.countryCode : response.body.countryV2.alpha2CountryCode);
       await AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, response.body.uniqueName);
       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
       if (this.props.route.params.oldUser) {
@@ -260,7 +261,10 @@ class NewCompanyDetails extends React.Component<any, any> {
           containerStyle: { borderRadius: 10 }
         });
       }
-    }
+    }  
+  } catch (error) {
+    console.log("Error while creating company",error);
+  }
   }
 
   addTaxOrRemove = (tax: string) => {

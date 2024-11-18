@@ -50,7 +50,7 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
 
   if (reqConfig.url.includes(':userEmail')) {
     const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
-    reqConfig.url = reqConfig.url?.replace(':userEmail', activeEmail);
+    reqConfig.url = reqConfig.url?.replace(':userEmail', activeEmail?.toLowerCase());
   }
   // if (reqConfig.url.includes('userEmail')) {
   //   const activeEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
