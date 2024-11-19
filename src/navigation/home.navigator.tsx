@@ -15,6 +15,7 @@ import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import { AccountNavigator } from './account.navigator';
 import AllVoucherScreen from '@/screens/AllVoucherScreen/AllVoucherScreen';
 import TabBar from './components/TabBar';
+import { DashboardNavigator } from './dashboardNavigatorStack';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -145,6 +146,17 @@ export const HomeNavigator = () => {
         name={Routes.BottomTabScreen2}
         component={AllVoucherScreen}
         options={{headerShown:false}}
+      />
+      <Screen
+        name={Routes.DashboardStack}
+        component={DashboardNavigator}
+        options={({ }) => ({
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ focused }) => (
+            <View style={{ backgroundColor: focused ? '#e3e8ff' : '#eeeeee', padding: 8.5, borderRadius: 20 }}>
+              <Icon name="dashboard" size={19} color={focused ? '#5773FF' : '#808080'} />
+            </View>)
+        })}
       />
       <Screen
         name={Routes.Accounts}
