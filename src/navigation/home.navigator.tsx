@@ -136,7 +136,7 @@ export const HomeNavigator = () => {
   };
 
   return (
-    <Navigator tabBar={(props) => <TabBar {...props} branchSelected={branchSelected} />} screenOptions={{headerShown:false}}>
+    <Navigator initialRouteName={Routes.DashboardStack} tabBar={(props) => <TabBar {...props} branchSelected={branchSelected} />} screenOptions={{headerShown:false}}>
       <Screen
         name={Routes.BottomTabScreen1}
         component={AllVoucherScreen}

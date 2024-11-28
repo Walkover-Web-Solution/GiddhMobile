@@ -1,46 +1,140 @@
 import useCustomTheme from '@/utils/theme';
 import { useIsFocused } from '@react-navigation/native';
-import React from 'react'
-import { FONT_FAMILY, GD_FONT_SIZE } from '../../utils/constants';
+import React, { useCallback, useState } from 'react'
 import { ThemeProps } from '@/utils/theme';
-import { Dimensions, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, RefreshControl, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Header from '@/components/Header';
 import ChartComponent from './ChartComponent';
+import BankAccountList from './BankAccountList';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import Routes from '@/navigation/routes';
+import BalanceSheetScreen from './BalanceSheetScreen';
 
-const {height,width} = Dimensions.get('window')
-const HEADER_COLLAPSE = 32;
-const HEADER_LIST = 60;
-const HEADER_HEIGHT = HEADER_LIST + HEADER_COLLAPSE;
-const isAndroid = Platform.OS === 'android';
 
-const ProfitLossScreen = () => {
-    const {statusBar,styles, theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
-    const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-        const isFocused = useIsFocused();
-        return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-    }
+  const ProfitLossScreen = () => {
+    const {styles} = useCustomTheme(makeStyles, 'Stock');
+    const [refreshing, setRefreshing] = useState(false);
+    const [chartKey, setChartKey] = useState(0);
+    const [bankAccountKey, setBankAccountKey] = useState(10);
+    const onRefresh = useCallback(() => { 
+        setRefreshing(true); 
+        setChartKey(prevKey => prevKey + 1); 
+        setBankAccountKey(prevKey => prevKey + 1); 
+        setTimeout(() => { 
+            setRefreshing(false); }
+        , 2000); 
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
-            <_StatusBar statusBar={statusBar}/>
-            <Header header={'Dashboard'} backgroundColor={voucherBackground} />
-            <ScrollView>
-                <View>
-                    <Text>Profit & Loss</Text>
+            <ScrollView 
+            contentContainerStyle={{ flexGrow: 1,paddingTop:10 }}
+            refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }
+            >
+                <View key={chartKey}>
                     <ChartComponent />
                 </View>
-                <View>
-
+                <View key={bankAccountKey}>
+                    <BankAccountList />
                 </View>
             </ScrollView>
         </SafeAreaView>
     )
 }
 
-export default ProfitLossScreen;
+//custom tab bar design
+const CustomTopBar = ({ navigation }) => {
+    const {statusBar,styles, theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
+    const [defaultTab, setDefaultTab] = useState(0);
+    return (
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          style={[styles.button,{borderBottomWidth:(defaultTab == 0 ? 2 : 0),borderColor:voucherBackground}]}
+          onPress={() => {navigation.navigate(Routes.ProfitLossScreen);setDefaultTab(0);}}
+        >
+          <Text style={styles.buttonText}>Profit & Loss</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button,{borderBottomWidth:(defaultTab == 1 ? 2 : 0),borderColor:voucherBackground}]}
+          onPress={() => {navigation.navigate(Routes.BalanceSheetScreen);setDefaultTab(1);}}
+        >
+          <Text style={styles.buttonText}>Balance Sheet</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+
+const TopTab = () => {
+    const TopTabs = createMaterialTopTabNavigator();
+    const {theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
+    // const navigation = useNavigation();
+    return (
+      <TopTabs.Navigator
+        // tabBar={()=><CustomTopBar navigation={navigation} />}
+        screenOptions={{
+          tabBarLabelStyle:{
+            fontFamily:theme.typography.fontFamily.bold,
+            fontSize:theme.typography.fontSize.regular.size,
+            lineHeight: theme.typography.fontSize.regular.lineHeight,
+            textTransform:'none'
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: voucherBackground,
+            
+          },
+          tabBarPressOpacity:0.7
+        }}
+      >
+        <TopTabs.Screen name={Routes.ProfitLossScreen} component={ProfitLossScreen} options={{title:'Profit & Loss'}}/>
+        <TopTabs.Screen name={Routes.BalanceSheetScreen} component={BalanceSheetScreen} options={{title:'Balance Sheet'}}/>
+      </TopTabs.Navigator>
+    );
+  };
+
+const TopTabNavigator = ()=> {
+  const {statusBar,styles, theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
+  const _StatusBar = ({ statusBar }: { statusBar: string }) => {
+      const isFocused = useIsFocused();
+      return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
+  }
+  return (
+    <SafeAreaView style={styles.container}>
+      <_StatusBar statusBar={statusBar}/>
+      <Header header={'Dashboard'} backgroundColor={voucherBackground} />
+      <View style={{flex:1}}>
+      <TopTab />
+      </View>
+    </SafeAreaView>
+  );
+}
+export default TopTabNavigator;
+
 
 const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     container: {
-      flex: 1
+      flex: 1,
+      backgroundColor:theme.colors.solids.white
+    },
+    screen: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+    },
+    topBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    button: {
+        flex: 1,
+        paddingVertical: 15,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: theme.colors.solids.black,
+        fontFamily:theme.typography.fontFamily.bold,
+        fontSize:theme.typography.fontSize.regular.size,
+        lineHeight:theme.typography.fontSize.regular.lineHeight
     },
 });

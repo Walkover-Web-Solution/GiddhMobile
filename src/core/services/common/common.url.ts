@@ -21,5 +21,8 @@ export const commonUrls = {
   getAllVouchers : createEndpoint('company/:companyUniqueName/vouchers/get-all?from=:startDate&to=:endDate&page=:page&count=:count&type=:voucherType&voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en'),
   getVoucher : createEndpoint('v4/company/:companyUniqueName/accounts/:accountName/vouchers?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en'),
   deleteVoucher : createEndpoint('company/:companyUniqueName/accounts/:accountName/vouchers?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en'),
-  deleteEntry : createEndpoint('company/:companyUniqueName/accounts/:accountName/entries/:entryUniqueName?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en')
+  deleteEntry : createEndpoint('company/:companyUniqueName/accounts/:accountName/entries/:entryUniqueName?voucherVersion=:voucherVersion&branchUniqueName=:branchUniqueName&lang=en'),
+  fetchProfitLossDetails : (startDate, endDate) => createEndpoint(`v2/company/:companyUniqueName/multibranch/profit-loss?tax=30&from=${startDate}&to=${endDate}&refresh=true&branchUniqueName=:branchUniqueName&lang=en`),
+  fetchBankAccounts : (startData, endDate, page) => createEndpoint(`v2/company/:companyUniqueName/groups/bankaccounts/account-balances?page=${page}&count=50&refresh=true&q=&sortBy=closingBalance&sort=desc&from=${startData}&to=${endDate}&branchUniqueName=:branchUniqueName&lang=en`),
+  fetchDetailedBalanceSheet: (startDate, endDate, branchUniqueName) => createEndpoint(`v2/company/:companyUniqueName/multibranch/balance-sheet?from=${startDate}&to=${endDate}&fy=&selectedDateOption=1&branchUniqueName=${branchUniqueName}&selectedFinancialYearOption=&refresh=false&tagName=&lang=en`),
 };
