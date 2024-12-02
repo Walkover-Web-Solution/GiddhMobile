@@ -10,6 +10,7 @@ import getSymbolFromCurrency from 'currency-symbol-map';
 import { formatAmount } from '@/utils/helper';
 import { Text as SvgText} from 'react-native-svg';
 import Toast from '@/components/Toast';
+import { useSelector } from 'react-redux';
 
 const ChartComponent = () => {
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
@@ -22,21 +23,13 @@ const ChartComponent = () => {
     const [totalExpense, setTotalExpense] = useState({});
     const [totalIncome, setTotalIncome] = useState({});
     const [netPL, setnetPL] = useState({});
+    const countryV2 = useSelector((state)=> state?.commonReducer?.companyDetails?.countryV2)
+
+    //funciton
     const formatNumber = (value : number) => { 
         return value ? parseFloat(value.toFixed(2)) : 0; 
     }
 
-    // const formatNumberToShorthand = (num) => {
-    //   if (num >= 10000000) {
-    //     return (num / 10000000).toFixed(1) + "Cr";
-    //   } else if (num >= 100000) {
-    //     return (num / 100000).toFixed(1) + "L";
-    //   } else if (num >= 1000) {
-    //     return (num / 1000).toFixed(1) + "K";
-    //   } else {
-    //     return num.toString();
-    //   }
-    // }
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
     }
@@ -46,11 +39,10 @@ const ChartComponent = () => {
         setDateMode(dateMode);
     };
 
-
+    //api calls
     const fetchProfitLossDetails = async () => {
       try {
           const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate);
-          console.log("-------------------------",response);
           if(response?.body && response?.status == "success"){
               setChartLoading(false);
               setTotalExpense({...response?.body?.incomeStatment?.totalExpenses})
@@ -68,11 +60,9 @@ const ChartComponent = () => {
 
     useEffect(() => {
         setChartLoading(true);
-        setTimeout(()=>fetchProfitLossDetails(),1000);
+        setTimeout(()=>fetchProfitLossDetails(),1500);
     }, [date]);
 
-    console.log("tota",totalExpense,totalIncome);
-    
 
     const pieData = [
     {   value: (totalExpense?.amount == 0 && totalIncome?.amount == 0) ? 50 : formatNumber(totalIncome?.amount), 
@@ -136,15 +126,15 @@ const ChartComponent = () => {
             <View style={{paddingHorizontal: 16,width:'100%'}}>
                 <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center'}}>
                     <Text style={styles.totalAmount}>Net Profit/Loss</Text>
-                    <Text style={styles.totalAmount}>{(netPL?.amount ? (netPL?.amount !==0 && (netPL?.type?.charAt?.(0) == 'C') ? '+ ' : '- ') : '') }{getSymbolFromCurrency('INR')} {formatAmount(netPL?.amount)}</Text>
+                    <Text style={styles.totalAmount}>{(netPL?.amount ? (netPL?.amount !==0 && (netPL?.type?.charAt?.(0) == 'C') ? '+ ' : '- ') : '') }{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(netPL?.amount)}</Text>
                 </View>
                 <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center'}}>
                     <Text style={styles.totalAmount}>Total Income</Text>
-                    <Text style={[styles.totalAmount,{color:'#a5292a'}]}>{getSymbolFromCurrency('INR')} {formatAmount(totalIncome?.amount)}{(formatNumber(totalIncome?.amount)!==0) && (totalIncome?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.')}</Text>
+                    <Text style={[styles.totalAmount,{color:'#a5292a'}]}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(totalIncome?.amount)}{(formatNumber(totalIncome?.amount)!==0) && (totalIncome?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.')}</Text>
                 </View>
                 <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center'}}>
                     <Text style={styles.totalAmount}>Total Expenses</Text>
-                    <Text style={[styles.totalAmount,{color:'#1a237e'}]}>{getSymbolFromCurrency('INR')} {formatAmount(totalExpense?.amount)}{(formatNumber(totalExpense?.amount)!==0) && (totalExpense?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.')}</Text>
+                    <Text style={[styles.totalAmount,{color:'#1a237e'}]}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(totalExpense?.amount)}{(formatNumber(totalExpense?.amount)!==0) && (totalExpense?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.')}</Text>
                 </View>
             </View>
         </View>

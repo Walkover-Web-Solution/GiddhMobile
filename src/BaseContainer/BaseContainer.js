@@ -7,7 +7,7 @@ import { getCompanyAndBranches, logout, renewAccessToken } from '../redux/Common
 import SplashScreen from 'react-native-splash-screen';
 import { getExpireInTime } from '@/utils/helper';
 import { STORAGE_KEYS } from '@/utils/constants';
-import LogRocket from '@logrocket/react-native';
+// import LogRocket from '@logrocket/react-native';
 
 export var timer;
 class BaseContainer extends Component {
@@ -32,12 +32,12 @@ class BaseContainer extends Component {
     if (userEmail == null) {
       userEmail = "";
     }
-    console.log("LogRocket Details " + "  " + userName + " " + userEmail);
-    LogRocket.identify(userEmail, {
-      name: userName,
-      email: userEmail,
-      newUser:false
-    });
+    // console.log("LogRocket Details " + "  " + userName + " " + userEmail);
+    // LogRocket.identify(userEmail, {
+    //   name: userName,
+    //   email: userEmail,
+    //   newUser:false
+    // });
   }
 
   setLogoutTimer = async (expirationTime) => {

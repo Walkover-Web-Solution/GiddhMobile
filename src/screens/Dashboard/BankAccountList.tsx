@@ -6,6 +6,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import getSymbolFromCurrency from 'currency-symbol-map';
 import lodash from 'lodash.debounce';
 import { formatAmount } from "@/utils/helper";
+import { useSelector } from "react-redux";
 
 const BankAccountList = () => {
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
@@ -13,10 +14,11 @@ const BankAccountList = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const [bankAccounts, setBankAccounts] = useState<any[]>([]);
+    const countryV2 = useSelector((state) => state?.commonReducer?.companyDetails?.countryV2);
+    
     const fetchBankAccounts = async (page:number)=> {
         try {
             const response = await CommonService.fetchBankAccounts(date.startDate, date.endDate, page);
-            console.log("response",response);
             if(response?.status == "success"){
                 setBankAccounts(prevAccoutns => [...prevAccoutns, ...response?.body?.results]);
                 if(page*50 < response?.body?.totalItems){
@@ -32,7 +34,7 @@ const BankAccountList = () => {
     }
 
     useEffect(() => {
-        setTimeout(()=>fetchBankAccounts(page),1000);
+        setTimeout(()=>fetchBankAccounts(page),1500);
     }, []);
 
     const loadMoreBankAccounts = () => {
@@ -50,7 +52,7 @@ const BankAccountList = () => {
         return (
             <View key={item?.uniqueName} style={styles.card}>
                 <Text style={[styles.text,{color:'#1a237e'}]}>{item?.name}</Text>
-                <Text style={styles.price}>{getSymbolFromCurrency('INR')} {formatAmount(item?.openingBalance?.amount)}{item?.openingBalance?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.'} </Text>
+                <Text style={styles.price}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(item?.openingBalance?.amount)}{item?.openingBalance?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.'} </Text>
             </View>
         )
     }
@@ -76,12 +78,12 @@ export default BankAccountList;
 const makeStyles= (theme:ThemeProps) => StyleSheet.create({
     container: {
         flex:1,
-        marginVertical:15,
+        marginVertical:25,
         marginHorizontal:16
     },
     contentContainerStyle: {
         flexGrow: 1,
-        paddingTop: 15,
+        paddingTop: 5,
         paddingBottom:'35%'
     },
     heading: {
@@ -90,8 +92,8 @@ const makeStyles= (theme:ThemeProps) => StyleSheet.create({
         lineHeight: theme.typography.fontSize.large.lineHeight
     },
     text :{
-        fontSize: theme.typography.fontSize.large.size,
-        lineHeight: theme.typography.fontSize.large.lineHeight,
+        fontSize: theme.typography.fontSize.regular.size,
+        lineHeight: theme.typography.fontSize.regular.lineHeight,
         color: theme.colors.solids.black,
         fontFamily:theme.typography.fontFamily.semiBold,
     },
