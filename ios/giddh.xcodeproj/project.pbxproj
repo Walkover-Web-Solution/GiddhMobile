@@ -34,6 +34,7 @@
 		54DAD6704F16477CBD379AF9 /* Voucher.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3BB83A37A3C94A9AAAA83ACA /* Voucher.svg */; };
 		583ADCDCE11F4D8495F4EA11 /* AvenirLTStd-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = BFF3F2D7AE3742C2A279DF36 /* AvenirLTStd-Medium.otf */; };
 		5908366586C742B5964B0839 /* varient-wise.svg in Resources */ = {isa = PBXBuildFile; fileRef = 90575C5B66CC463DA21D5BB5 /* varient-wise.svg */; };
+		59F2AE4C1FE647090B8F738C /* libPods-giddh.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD0884E8761B86C49A681BFF /* libPods-giddh.a */; };
 		5A7630AAC0E3417CA5AF338F /* OpenSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 422F8CD4F8EF4B17ACC95473 /* OpenSans-Bold.ttf */; };
 		5B8AB58147E64830955B87CC /* Payment.svg in Resources */ = {isa = PBXBuildFile; fileRef = 5A043B280CE24CF58BF24D6F /* Payment.svg */; };
 		6368655729796AEB00F45491 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6368655629796AEB00F45491 /* AppDelegate.mm */; };
@@ -45,6 +46,7 @@
 		6CB4EE2E729749CCB9C8300C /* service.svg in Resources */ = {isa = PBXBuildFile; fileRef = A12593C5F1C2455EA03FEEE2 /* service.svg */; };
 		7276D18291A6460D9277D494 /* PurchaseBill.svg in Resources */ = {isa = PBXBuildFile; fileRef = 0ECE7B9FF5374794A08FE8C6 /* PurchaseBill.svg */; };
 		751F6B3A22EB411DAA4159E7 /* globe.svg in Resources */ = {isa = PBXBuildFile; fileRef = C4336FDEBBE84761A568396B /* globe.svg */; };
+		78B150FF56FC7FE952945762 /* libPods-giddh-giddhTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07DB74B8C64228C25DCB4BFE /* libPods-giddh-giddhTests.a */; };
 		7C129B742668B03E00CC92FB /* AvenirLTStd-Book.otf in Resources */ = {isa = PBXBuildFile; fileRef = 7C129B732668B03E00CC92FB /* AvenirLTStd-Book.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8A6E9081467F45E6A5AC420D /* msg91-white-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = EC11E24BF5294882B7D73DE4 /* msg91-white-icon.png */; };
@@ -92,6 +94,7 @@
 		05BD830F41B8425ABDEEC9CD /* CreditNote.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = CreditNote.svg; path = ../src/assets/images/icons/options/CreditNote.svg; sourceTree = "<group>"; };
 		05BFA271F5494D6EAC320B3E /* calendar.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = calendar.png; path = ../src/assets/images/icons/calendar.png; sourceTree = "<group>"; };
 		078CCAE98E954BB99749ED2F /* customer_success.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = customer_success.svg; path = ../src/assets/images/icons/customer_success.svg; sourceTree = "<group>"; };
+		07DB74B8C64228C25DCB4BFE /* libPods-giddh-giddhTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-giddh-giddhTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09A55ED3155A4472B628ADC8 /* sort.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = sort.svg; path = ../src/assets/images/icons/sort.svg; sourceTree = "<group>"; };
 		0ECE7B9FF5374794A08FE8C6 /* PurchaseBill.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = PurchaseBill.svg; path = ../src/assets/images/icons/options/PurchaseBill.svg; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* giddh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = giddh.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +158,7 @@
 		692326B364C545B4A13705E8 /* inventory.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = inventory.svg; path = ../src/assets/images/icons/inventory.svg; sourceTree = "<group>"; };
 		6A5F66B412654E59A1D145BC /* plus.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = plus.png; path = ../src/assets/images/icons/plus.png; sourceTree = "<group>"; };
 		6B478237AC324195B7A13F78 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
+		7789A798C13CF57D8262034E /* Pods-giddh.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh.release.xcconfig"; path = "Target Support Files/Pods-giddh/Pods-giddh.release.xcconfig"; sourceTree = "<group>"; };
 		7C129B712668AF9B00CC92FB /* AvenirLTStd-Book.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AvenirLTStd-Book.otf"; path = "../android/app/src/main/assets/fonts/AvenirLTStd-Book.otf"; sourceTree = "<group>"; };
 		7C129B732668B03E00CC92FB /* AvenirLTStd-Book.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AvenirLTStd-Book.otf"; path = "../assets/fonts/AvenirLTStd-Book.otf"; sourceTree = "<group>"; };
 		81772C200EFA40D6AB414E2E /* logo2x.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = logo2x.png; path = ../src/assets/images/logo2x.png; sourceTree = "<group>"; };
@@ -171,6 +175,7 @@
 		92CC26336C3E41F1B15F7F00 /* Backward.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Backward.svg; path = ../src/assets/images/icons/Backward.svg; sourceTree = "<group>"; };
 		93DB1162DEF14153AAD1B151 /* sort.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = sort.png; path = ../src/assets/images/icons/sort.png; sourceTree = "<group>"; };
 		94D9EF93DDA0410BA1F00EF9 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
+		98D465E3660DEDA813DBE67E /* Pods-giddh.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh.debug.xcconfig"; path = "Target Support Files/Pods-giddh/Pods-giddh.debug.xcconfig"; sourceTree = "<group>"; };
 		9DC0926849244010BFF5F5FC /* apple.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = apple.svg; path = ../src/assets/images/icons/apple.svg; sourceTree = "<group>"; };
 		A12593C5F1C2455EA03FEEE2 /* service.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = service.svg; path = ../src/assets/images/icons/options/service.svg; sourceTree = "<group>"; };
 		A18CF2653B2D52488A6F7123 /* libPods-giddh.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-giddh.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -185,6 +190,7 @@
 		B230F0229E264DE4A6ED782D /* giddh.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = giddh.svg; path = ../src/assets/images/giddh.svg; sourceTree = "<group>"; };
 		B41AF658685B40B297A81A93 /* google.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = google.svg; path = ../src/assets/images/icons/google.svg; sourceTree = "<group>"; };
 		B5D8B05F8E8743E88A13F30F /* selection.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = selection.json; path = ../src/assets/icomoon/selection.json; sourceTree = "<group>"; };
+		B6739A2A6298D69F7894E61D /* Pods-giddh-giddhTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh-giddhTests.debug.xcconfig"; path = "Target Support Files/Pods-giddh-giddhTests/Pods-giddh-giddhTests.debug.xcconfig"; sourceTree = "<group>"; };
 		B71C72C8BC2545FB8A5251F0 /* compose.svg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = compose.svg; path = ../src/assets/images/icons/compose.svg; sourceTree = "<group>"; };
 		B8487B60BCA4B031B9C57E81 /* Pods-giddh-giddhTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giddh-giddhTests.release.xcconfig"; path = "Target Support Files/Pods-giddh-giddhTests/Pods-giddh-giddhTests.release.xcconfig"; sourceTree = "<group>"; };
 		B8C64FFECC3445A8B79B60F9 /* noInventory.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = noInventory.png; path = ../src/assets/images/noInventory.png; sourceTree = "<group>"; };
@@ -714,6 +720,8 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputFileListPaths = (
+			);
 			inputPaths = (
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
@@ -728,20 +736,18 @@
 			files = (
 			);
 			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
-			name = "Bundle React Native Code And Images";
-			outputPaths = (
-			);
+			name = "[CP-User] [RNFB] Crashlytics Configuration";
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\nset -e\n\nif [[ ${PODS_ROOT} ]]; then\n  echo \"info: Exec FirebaseCrashlytics Run from Pods\"\n  \"${PODS_ROOT}/FirebaseCrashlytics/run\"\nelse\n  echo \"info: Exec FirebaseCrashlytics Run from framework\"\n  \"${PROJECT_DIR}/FirebaseCrashlytics.framework/run\"\nfi\n";
 		};
 		5C7E560B3386F6A17CB83E99 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",

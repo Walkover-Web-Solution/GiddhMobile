@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import { Container, ScrollContainer } from '@/components/Container';
@@ -6,12 +6,13 @@ import Header from '@/components/Header';
 import InputField from '@/components/InputField';
 import PlanSummarySection from './components/PlanSummarySection';
 import { useNavigation } from '@react-navigation/native';
-import CountryPicker, { CountryCode, Flag } from 'react-native-country-picker-modal'
+import CountryPicker, { CountryCode, Flag, isCountryCode } from 'react-native-country-picker-modal'
 import OutlinedButton from '@/components/OutlinedButton';
 import useGetCountriesStates from './hooks/useGetCountriesStates';
 import useForm from './hooks/useForm';
 import BottomSheet from '@/components/BottomSheet';
 import { validateEmail, validateGST, validatePhoneNumber } from '@/utils/helper';
+import GlobeIcon from '@/assets/images/icons/globe.svg'
 
 const { height } = Dimensions.get('window');
 
@@ -251,11 +252,14 @@ const ListItem = ({ code, name, isCountrySelector = false, onPress, buttonStyle,
         style={buttonStyle}
         onPress={onPress}
     >
-        { isCountrySelector &&
+        { isCountrySelector && (isCountryCode(code) ? 
             <Flag
                 countryCode={code}
                 flagSize={16}
-            />
+            /> : 
+            <View style={{paddingLeft:5, paddingRight:16}} >
+                <GlobeIcon height={19} width={19}/>
+            </View>)
         }
         <Text style={textStyle}>{code} - {name}</Text>
     </TouchableOpacity>
