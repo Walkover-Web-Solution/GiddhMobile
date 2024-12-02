@@ -12,7 +12,7 @@ import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import LogRocket from '@logrocket/react-native';
+// import LogRocket from '@logrocket/react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 
 
@@ -48,13 +48,13 @@ export class ChangeCompany extends React.Component<Props> {
       userEmail = "";
     }
     console.log("Current company and Branch name " + userName + " " + userEmail + " " + companyName + " " + BranchName)
-    LogRocket.identify(userEmail, {
-      name: userName,
-      email: userEmail,
-      CompanyName: companyName,
-      BranchName: BranchName,
-      newUser: false
-    });
+    // LogRocket.identify(userEmail, {
+    //   name: userName,
+    //   email: userEmail,
+    //   CompanyName: companyName,
+    //   BranchName: BranchName,
+    //   newUser: false
+    // });
   }
 
   render() {
@@ -102,7 +102,7 @@ export class ChangeCompany extends React.Component<Props> {
                     const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
-                      this.addUserDeatilsToLogRocket(item.name, " ")
+                      // this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     
                     const payload = {
