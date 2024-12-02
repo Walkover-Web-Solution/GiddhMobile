@@ -417,7 +417,7 @@ export function* appleLogin(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
 
     // const response = await AuthService.submitGoogleAuthToken(payload.token);
-    yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.googleEmail, action.payload.email ? action.payload.email : response.body.user.email);
     yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
     // get state details
     // TODO: await dispatch.common.getStateDetailsAction();

@@ -125,8 +125,6 @@ export function* getCompanyAndBranches() {
           yield AsyncStorage.setItem(STORAGE_KEYS.companyVersionNumber,JSON.stringify(companyResults.voucherVersion));
           yield put(CommonActions.setCompanyVoucherVersion(companyResults.voucherVersion));
         }
-
-      yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, companyResults?.subscription?.country?.countryCode);
       yield put(CommonActions.getCompanyAndBranchesSuccess(companyData));
       DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
     } else {
@@ -140,6 +138,7 @@ export function* getCompanyAndBranches() {
 export function* getCompanyDetails() {
   try {
     const response = yield call(CommonService.getCompanyDetails);
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, response?.body?.subscription?.country?.countryCode ? response?.body?.subscription?.country?.countryCode : response?.body?.countryV2?.alpha2CountryCode);
     if(response.status === 'success' && response.body){
       yield put(CommonActions.setCompanyDetails(response.body));
     }
