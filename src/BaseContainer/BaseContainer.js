@@ -24,11 +24,11 @@ class BaseContainer extends Component {
  * @param userEmail 
  */
   addUserDeatilsToLogRocket = async() => {
-    var userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
+    // var userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
     var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
-    if (userName == null) {
-      userName = "";
-    }
+    // if (userName == null) {
+    //   userName = "";
+    // }
     if (userEmail == null) {
       userEmail = "";
     }
@@ -38,6 +38,9 @@ class BaseContainer extends Component {
     //   email: userEmail,
     //   newUser:false
     // });
+    zipy.identify(userEmail,{
+      email: userEmail,
+    })
   }
 
   setLogoutTimer = async (expirationTime) => {
