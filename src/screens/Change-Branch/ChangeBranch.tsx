@@ -10,7 +10,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { getCompanyAndBranches, updateBranchStateDetails } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import color from '@/utils/colors';
-import LogRocket from '@logrocket/react-native';
+// import LogRocket from '@logrocket/react-native';
 import Loader from '@/components/Loader';
 
 interface Props {
@@ -38,13 +38,13 @@ export class ChangeBranch extends React.Component<Props> {
       userEmail = "";
     }
     console.log("Current company and Branch name "+userName+" "+userName+" "+companyName+" "+BranchName)
-    LogRocket.identify(userEmail, {
-      name: userName,
-      email: userEmail,
-      CompanyName:companyName,
-      BranchName:BranchName,
-      newUser:false
-    });
+    // LogRocket.identify(userEmail, {
+    //   name: userName,
+    //   email: userEmail,
+    //   CompanyName:companyName,
+    //   BranchName:BranchName,
+    //   newUser:false
+    // });
   }
 
   render () {
