@@ -6,12 +6,12 @@ import * as LoginService from './LoginService';
 import * as CommonActions from '../../../redux/CommonAction';
 import { getCompanyAndBranches } from '../../../redux/CommonAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import LogRocket from '@logrocket/react-native';
+import LogRocket from '@logrocket/react-native';
 import { STORAGE_KEYS } from '@/utils/constants';
 import { ToastAndroid, Platform } from 'react-native';
 import TOAST from 'react-native-root-toast';
 import * as CommonService from '../../../redux/CommonService';
-import zipy from 'zipyai-react-native';
+// import zipy from 'zipyai-react-native';
 
 export default function* watcherSaga() {
   yield takeLatest(ActionConstants.USER_EMAIL_LOGIN, verifyUserEmailPasswordLogin);
@@ -32,15 +32,15 @@ export default function* watcherSaga() {
  * @param userEmail 
  */
 const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, userEmail: string,) => {
-  // console.log("LogRocket Details " + userUniqueName + "  " + userName + " " + userEmail);
-  // LogRocket.identify(userUniqueName, {
-  //   name: userName,
-  //   email: userEmail,
-  //   newUser: true
-  // });
-  zipy.identify(userEmail,{
+  console.log("LogRocket Details " + userUniqueName + "  " + userName + " " + userEmail);
+  LogRocket.identify(userUniqueName, {
+    name: userName,
     email: userEmail,
-  })
+    newUser: true
+  });
+  // zipy.identify(userEmail,{
+  //   email: userEmail,
+  // })
 }
 
 export function* resetPassword(action: any) {
