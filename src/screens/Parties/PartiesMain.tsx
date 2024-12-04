@@ -462,7 +462,7 @@ export class PartiesMainScreen extends React.Component {
                     hitSlop={{right: 10, left: 10, top: 10, bottom: 10}}
                     style={{ marginLeft: 15 }}
                     delayPressIn={0}
-                    onPress={() => this?.props?.navigation?.navigate('Settings')}
+                    onPress={() => this?.props?.navigation?.navigate('MoreSettings')}
                   >
                     <Entypo name="dots-three-vertical" size={20} color={'#FFFFFF'} />
                   </TouchableOpacity>
