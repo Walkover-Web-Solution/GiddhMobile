@@ -40,7 +40,7 @@ const MatButton : React.FC<ButtonProps> = ({ lable, value, disabled,isRequired=f
             // },
             roundness: 6
           }}
-          
+          hitSlop={{top:-20, bottom:-20}}
           editable={false}
           mode={'outlined'}
           selection={{ start: 0, end: 0 }}
