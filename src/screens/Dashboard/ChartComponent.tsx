@@ -1,6 +1,6 @@
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import DateFilter from './component/DateFilter';
 import moment from 'moment';
@@ -11,6 +11,9 @@ import { formatAmount } from '@/utils/helper';
 import { Text as SvgText} from 'react-native-svg';
 import Toast from '@/components/Toast';
 import { useSelector } from 'react-redux';
+import { commonUrls } from '@/core/services/common/common.url';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '@/utils/constants';
 
 const ChartComponent = () => {
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
@@ -42,15 +45,29 @@ const ChartComponent = () => {
     //api calls
     const fetchProfitLossDetails = async () => {
       try {
-          const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate);
-          if(response?.body && response?.status == "success"){
-              setChartLoading(false);
-              setTotalExpense({...response?.body?.incomeStatment?.totalExpenses})
-              setTotalIncome({...response?.body?.incomeStatment?.revenue})
-              setnetPL({...response?.body?.incomeStatment?.incomeBeforeTaxes})
-          }else{
+        //   const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate);
+        const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
+        const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+        const response = await fetch(commonUrls.fetchProfitLossDetails(
+            date?.startDate, 
+            date?.endDate)
+          .replace(':companyUniqueName',activeCompany) ,{
+            method: "GET",
+            headers: {
+              'Accept': 'application/json',
+              'session-id' : token,
+              'user-agent' : Platform.OS
+            },
+        });
+        const result = await response.json();
+        if(result?.body && result?.status == "success"){
             setChartLoading(false);
-            Toast({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
+            setTotalExpense({...result?.body?.incomeStatment?.totalExpenses})
+            setTotalIncome({...result?.body?.incomeStatment?.revenue})
+            setnetPL({...result?.body?.incomeStatment?.incomeBeforeTaxes})
+        }else{
+            setChartLoading(false);
+            Toast({message: result?.data?.message, position:'BOTTOM',duration:'LONG'})
         }
     } catch (error) {
         console.log("error while fetching profit and loss details");
