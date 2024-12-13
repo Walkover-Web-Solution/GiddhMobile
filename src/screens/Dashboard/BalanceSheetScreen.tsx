@@ -157,9 +157,31 @@ const BalanceSheetScreen = () => {
         const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
         const consolidateBranchName = consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : '';
         const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-        console.log("url->", commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : '')));
+        console.log("called url->", commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : '')));
         
-        RNFetchBlob.fetch(
+        const { dirs } = RNFetchBlob.fs;
+        const dirToSave = Platform.OS === 'ios' ? dirs.DocumentDir : dirs.DownloadDir;
+        const configfb = {
+          fileCache: true,
+          addAndroidDownloads: {
+            useDownloadManager: true,
+            notification: true,
+            mediaScannable: true,
+            title: `BalanceSheet`,
+            path: `${dirs.DownloadDir}/BalanceSheet-${moment().format('DD-MM-YYYY-hh-mm-ss')}.xlsx`,
+          },
+          useDownloadManager: true,
+          notification: true,
+          mediaScannable: true,
+          title: `BalanceSheet`,
+          path: `${dirToSave}/BalanceSheet-${moment().format('DD-MM-YYYY-hh-mm-ss')}.xlsx`,
+          IOSBackgroundTask: true,
+        };
+        const configOptions = Platform.select({
+          ios: configfb,
+          android: configfb,
+        });
+        RNFetchBlob.config(configOptions || {}).fetch(
             'GET',
             commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : ''))
             .replace(':companyUniqueName',activeCompany),
@@ -168,42 +190,33 @@ const BalanceSheetScreen = () => {
                 'Content-Type': 'application/json'
             }
         ).then(async (res) => {
-            if (res.respInfo.status != 200) {
-                if (Platform.OS == "ios") {
-                    Toast.show(JSON.parse(res.data).message, {
-                        duration: Toast.durations.LONG,
-                        position: -200,
-                        hideOnPress: true,
-                        backgroundColor: "#1E90FF",
-                        textColor: "white",
-                        opacity: 1,
-                        shadow: false,
-                        animation: true,
-                        containerStyle: { borderRadius: 10 }
-                    });
-                } else {
-                    ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
-                }
-                return
-            }
-            let base64Str = JSON.parse(res?.data)?.body;
-            let excelName = "balancesheet - "+ moment();
-            let excelLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${excelName}.xlsx`;
-            try {
-                RNFetchBlob.fs.writeFile(excelLocation, base64Str, 'base64');
-                console.log("sheet location", excelLocation)
-                const openFile = Platform.OS === 'android' 
-                    ?  () => RNFetchBlob.android.actionViewIntent(excelLocation, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').catch((error) => { console.error('----- Error in File Opening -----', error)})
-                    :  () => RNFetchBlob.ios.openDocument(excelLocation)
+          if (Platform.OS === 'ios') {
+            RNFetchBlob.fs.writeFile(configfb.path, res.data, 'base64');
+            RNFetchBlob.ios.previewDocument(configfb.path);
+          }
+          if (Platform.OS == "android") {
+            let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
+              name: 'BalanceSheet-'+ moment().format('DD-MM-YYYY-hh-mm-ss'), 
+              parentFolder: '',
+              mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                 },
+                 'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
+                  res.path() // Path to the file being copied in the apps own storage
+              );
+            ToastAndroid.show(
+              'File saved to download folder',
+              ToastAndroid.LONG,
+            );
+          }
+            const openFile = Platform.OS === 'android' 
+                ?  () => RNFetchBlob.android.actionViewIntent(configfb.path, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').catch((error) => { console.error('----- Error in File Opening -----', error)})
+                :  () => RNFetchBlob.ios.openDocument(configfb.path)
 
-                DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { 
-                    message: 'Download Successful!', 
-                    action: 'Open',
-                    open: openFile
-                });
-            } catch (e) {
-                console.log('----- Error in Export -----', e)
-            }
+            DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { 
+                message: 'Download Successful!', 
+                action: 'Open',
+                open: openFile
+            });
         }).catch((err) => {
             TOAST({message: "Error while downloading balance sheet", position:'BOTTOM',duration:'LONG'}) 
             console.log('------- Error while downloading -------', err);
