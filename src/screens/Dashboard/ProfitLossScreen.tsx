@@ -1,21 +1,28 @@
-import useCustomTheme from '@/utils/theme';
-import { useIsFocused } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react'
-import { ThemeProps } from '@/utils/theme';
-import { Platform, RefreshControl, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Header from '@/components/Header';
-import ChartComponent from './ChartComponent';
-import BankAccountList from './BankAccountList';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Routes from '@/navigation/routes';
-import BalanceSheetScreen from './BalanceSheetScreen';
+import useCustomTheme, { ThemeProps } from "@/utils/theme";
+import { useCallback, useRef, useState } from "react";
+import { RefreshControl, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import DateFilter from "./component/DateFilter";
+import ChartComponent from "./ChartComponent";
+import BankAccountList from "./BankAccountList";
+import moment from "moment";
 
-
-  const ProfitLossScreen = () => {
+const ProfitLossScreen = () => {
     const {styles} = useCustomTheme(makeStyles, 'Stock');
     const [refreshing, setRefreshing] = useState(false);
     const [chartKey, setChartKey] = useState(0);
     const [bankAccountKey, setBankAccountKey] = useState(10);
+    const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
+    const [dateMode, setDateMode] = useState('defaultDates');
+    const [activeDateFilter, setActiveDateFilter] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const optionModalizeRef = useRef(null);
+    const branchListModalRef = useRef(null);
+    const [consolidatedBranch, setConsolidatedBranch] = useState(' ');
+    const [selectedBranch, setSelectedBranch] = useState({});
+
+
+    console.log("branch------------",consolidatedBranch);
+    
     const onRefresh = useCallback(() => { 
         setRefreshing(true); 
         setChartKey(prevKey => prevKey + 1); 
@@ -25,116 +32,56 @@ import BalanceSheetScreen from './BalanceSheetScreen';
         , 2000); 
     }, []);
 
+    const changeDate = (startDate: string, endDate: string) => {
+      setDate({ startDate, endDate });
+    }
+
+    const _setActiveDateFilter = (activeDateFilter: string, dateMode: string) => {
+      setActiveDateFilter(activeDateFilter);
+      setDateMode(dateMode);
+    };
+
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView 
-            contentContainerStyle={{ flexGrow: 1,paddingTop:10 }}
-            refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }
-            >
-                <View key={chartKey}>
-                    <ChartComponent />
-                </View>
-                <View key={bankAccountKey}>
-                    <BankAccountList />
-                </View>
-            </ScrollView>
+          <DateFilter 
+            startDate={date.startDate}
+            endDate={date.endDate}
+            dateMode={dateMode}
+            activeDateFilter={activeDateFilter}
+            disabled={isLoading}
+            changeDate={changeDate}
+            setActiveDateFilter={_setActiveDateFilter}
+            optionModalRef={branchListModalRef}
+            consolidatedBranch={consolidatedBranch}
+            selectedBranch={selectedBranch}
+          />
+          <ScrollView 
+          contentContainerStyle={{ flexGrow: 1 }}
+          refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }
+          >
+            <View key={chartKey}>
+              <ChartComponent
+                date={date} 
+                modalRef={branchListModalRef} 
+                setConsolidatedBranch={setConsolidatedBranch}
+                consolidatedBranch={consolidatedBranch}
+                setSelectedBranch={setSelectedBranch}
+                selectedBranch={selectedBranch}
+              />
+            </View>
+            <View key={bankAccountKey}>
+                <BankAccountList />
+            </View>
+          </ScrollView>
         </SafeAreaView>
     )
 }
 
-//custom tab bar design
-const CustomTopBar = ({ navigation }) => {
-    const {statusBar,styles, theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
-    const [defaultTab, setDefaultTab] = useState(0);
-    return (
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={[styles.button,{borderBottomWidth:(defaultTab == 0 ? 2 : 0),borderColor:voucherBackground}]}
-          onPress={() => {navigation.navigate(Routes.ProfitLossScreen);setDefaultTab(0);}}
-        >
-          <Text style={styles.buttonText}>Profit & Loss</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button,{borderBottomWidth:(defaultTab == 1 ? 2 : 0),borderColor:voucherBackground}]}
-          onPress={() => {navigation.navigate(Routes.BalanceSheetScreen);setDefaultTab(1);}}
-        >
-          <Text style={styles.buttonText}>Balance Sheet</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-
-const TopTab = () => {
-    const TopTabs = createMaterialTopTabNavigator();
-    const {theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
-    // const navigation = useNavigation();
-    return (
-      <TopTabs.Navigator
-        // tabBar={()=><CustomTopBar navigation={navigation} />}
-        screenOptions={{
-          tabBarLabelStyle:{
-            fontFamily:theme.typography.fontFamily.bold,
-            fontSize:theme.typography.fontSize.regular.size,
-            lineHeight: theme.typography.fontSize.regular.lineHeight,
-            textTransform:'none'
-          },
-          tabBarIndicatorStyle: {
-            backgroundColor: voucherBackground,
-            
-          },
-          tabBarPressOpacity:0.7
-        }}
-      >
-        <TopTabs.Screen name={Routes.ProfitLossScreen} component={ProfitLossScreen} options={{title:'Profit & Loss'}}/>
-        <TopTabs.Screen name={Routes.BalanceSheetScreen} component={BalanceSheetScreen} options={{title:'Balance Sheet'}}/>
-      </TopTabs.Navigator>
-    );
-  };
-
-const TopTabNavigator = ()=> {
-  const {statusBar,styles, theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
-  const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-      const isFocused = useIsFocused();
-      return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-  }
-  return (
-    <SafeAreaView style={styles.container}>
-      <_StatusBar statusBar={statusBar}/>
-      <Header header={'Dashboard'} backgroundColor={voucherBackground} />
-      <View style={{flex:1}}>
-      <TopTab />
-      </View>
-    </SafeAreaView>
-  );
-}
-export default TopTabNavigator;
-
+export default ProfitLossScreen;
 
 const makeStyles = (theme:ThemeProps)=> StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor:theme.colors.solids.white
     },
-    screen: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    topBar: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    button: {
-        flex: 1,
-        paddingVertical: 15,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: theme.colors.solids.black,
-        fontFamily:theme.typography.fontFamily.bold,
-        fontSize:theme.typography.fontSize.regular.size,
-        lineHeight:theme.typography.fontSize.regular.lineHeight
-    },
-});
+})

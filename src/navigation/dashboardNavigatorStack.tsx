@@ -2,8 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import Routes from './routes';
 import AppDatePicker from '@/screens/DatePicker/DatePicker';
-import ProfitLossScreen from '@/screens/Dashboard/ProfitLossScreen';
-import TopTabNavigator from '@/screens/Dashboard/ProfitLossScreen';
+import TopTabNavigator from '@/screens/Dashboard/TopTabNavigatorScreen';
 const { Navigator, Screen } = createStackNavigator();
 
 export const DashboardNavigator = () => (

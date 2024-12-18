@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Keyboard, StyleSheet, Text, View } from 'react-native'
 import React, { MutableRefObject } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native';
@@ -7,6 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import colors from '@/utils/colors';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
+import MatButton from '@/components/OutlinedButton';
 
 type Props = {
     startDate: string
@@ -16,11 +17,12 @@ type Props = {
     disabled: boolean
     changeDate: (startDate: string, endDate: string) => void
     setActiveDateFilter: (activeDateFilter: string, dateMode: string) => void,
-    optionModalRef: MutableRefObject<null>
-    showHeading: boolean
+    optionModalRef: MutableRefObject<null>,
+    consolidatedBranch: string,
+    selectedBranch: any
 }
 
-const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode, activeDateFilter, disabled, setActiveDateFilter, optionModalRef, showHeading }) => {
+const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode, activeDateFilter, disabled, setActiveDateFilter, optionModalRef, consolidatedBranch, selectedBranch }) => {
     const navigation = useNavigation();
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
     const dateShift = (shiftTo: 'right' | 'left') => {
@@ -73,9 +75,18 @@ const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode,
         setActiveDateFilter('', dateMode);
     }
 
+
+    const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+        if (visible) {
+          Keyboard.dismiss();
+          modalRef?.current?.open();
+        } else {
+          modalRef?.current?.close();
+        }
+    };
+
     return (
         <View style={styles.container}>
-            {showHeading && <Text style={styles.heading}>Profit & Loss</Text>}
             <TouchableOpacity
                 activeOpacity={0.7}
                 disabled={disabled}
@@ -96,6 +107,17 @@ const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode,
                         moment(endDate, 'DD-MM-YYYY').format('DD MMM YY')}
                 </Text>
             </TouchableOpacity>
+            {consolidatedBranch?.length == 1 && (
+                <View style={styles.matBtn}>
+                <MatButton
+                    lable="Select branch"
+                    value={selectedBranch ? selectedBranch?.alias : ''}
+                    onPress={() => {
+                    setBottomSheetVisible(optionModalRef, true);
+                    }}
+                />
+                </View>
+            )}
         </View>
     )
 }
@@ -108,7 +130,7 @@ const makeStyles = (theme:ThemeProps) => StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingVertical: 10,
         backgroundColor: theme.colors.solids.white
     },
     dateContainer: {
@@ -134,5 +156,9 @@ const makeStyles = (theme:ThemeProps) => StyleSheet.create({
         fontFamily: theme.typography.fontFamily.bold,
         fontSize: theme.typography.fontSize.large.size,
         lineHeight: theme.typography.fontSize.large.lineHeight
+    },
+    matBtn:{
+        width: '40%',  
+        marginTop: -7
     }
 })

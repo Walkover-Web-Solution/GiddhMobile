@@ -1,56 +1,57 @@
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform, DeviceEventEmitter, Keyboard, TouchableOpacity, Dimensions } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
-import DateFilter from './component/DateFilter';
-import moment from 'moment';
-import { CommonService } from '@/core/services/common/common.service';
 import Loader from '@/components/Loader';
-import getSymbolFromCurrency from 'currency-symbol-map';
 import { formatAmount } from '@/utils/helper';
 import { Text as SvgText} from 'react-native-svg';
 import Toast from '@/components/Toast';
 import { useSelector } from 'react-redux';
 import { commonUrls } from '@/core/services/common/common.url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import MatButton from '@/components/OutlinedButton';
+import BottomSheet from '@/components/BottomSheet';
+import Icon from '@/core/components/custom-icon/custom-icon';
 
-const ChartComponent = () => {
+const {height, width} = Dimensions.get('window');
+
+const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBranch, setSelectedBranch, selectedBranch}) => {
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
-    const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
-    const [dateMode, setDateMode] = useState('defaultDates');
-    const [activeDateFilter, setActiveDateFilter] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [chartLoading, setChartLoading] = useState(false);
-    const optionModalizeRef = useRef(null);
+    const [chartLoading, setChartLoading] = useState(true);
     const [totalExpense, setTotalExpense] = useState({});
     const [totalIncome, setTotalIncome] = useState({});
     const [netPL, setnetPL] = useState({});
     const countryV2 = useSelector((state)=> state?.commonReducer?.companyDetails?.countryV2)
+    const branchList = useSelector((state) => state?.commonReducer?.branchList);
 
     //funciton
     const formatNumber = (value : number) => { 
         return value ? parseFloat(value.toFixed(2)) : 0; 
     }
 
-    const changeDate = (startDate: string, endDate: string) => {
-        setDate({ startDate, endDate });
-    }
-
-    const _setActiveDateFilter = (activeDateFilter: string, dateMode: string) => {
-        setActiveDateFilter(activeDateFilter);
-        setDateMode(dateMode);
+    const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+        if (visible) {
+          Keyboard.dismiss();
+          modalRef?.current?.open();
+        } else {
+          modalRef?.current?.close();
+        }
     };
 
     //api calls
-    const fetchProfitLossDetails = async () => {
+    const fetchProfitLossDetails = async (branchUniqueName: string) => {
       try {
+        setChartLoading(true);
         //   const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate);
+        const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+        setConsolidatedBranch(consolidateState ? consolidateState : ' ');
         const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
         const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
         const response = await fetch(commonUrls.fetchProfitLossDetails(
             date?.startDate, 
-            date?.endDate)
+            date?.endDate,
+            branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '')
           .replace(':companyUniqueName',activeCompany) ,{
             method: "GET",
             headers: {
@@ -61,58 +62,88 @@ const ChartComponent = () => {
         });
         const result = await response.json();
         if(result?.body && result?.status == "success"){
-            setChartLoading(false);
             setTotalExpense({...result?.body?.incomeStatment?.totalExpenses})
             setTotalIncome({...result?.body?.incomeStatment?.revenue})
             setnetPL({...result?.body?.incomeStatment?.incomeBeforeTaxes})
         }else{
-            setChartLoading(false);
-            Toast({message: result?.data?.message, position:'BOTTOM',duration:'LONG'})
+            Toast({message: result?.message, position:'BOTTOM',duration:'LONG'})
         }
+        setChartLoading(false);
     } catch (error) {
         console.log("error while fetching profit and loss details");
         setChartLoading(false);
       }
     }
 
+    //component
+    const RenderBranchModal = (
+        <BottomSheet
+          bottomSheetRef={modalRef}
+          headerText="Select Branch"
+          headerTextColor="#084EAD"
+          adjustToContentHeight={branchList?.length * 47 > height - 100 ? false : true}
+          flatListProps={{
+            data: branchList,
+            renderItem: ({item}) => {
+              return (
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                    console.log('item', item?.uniqueName);
+                    fetchProfitLossDetails(item?.uniqueName);
+                    setSelectedBranch(item);
+                    setBottomSheetVisible(modalRef, false);
+                  }}>
+                  <Icon
+                    name={item?.alias === selectedBranch?.alias ? 'radio-checked2' : 'radio-unchecked'}
+                    color={'#084EAD'}
+                    size={16}
+                  />
+                  <Text style={styles.radiobuttonText}>{item?.alias}</Text>
+                </TouchableOpacity>
+              );
+            },
+            ListEmptyComponent: () => {
+              return (
+                <View style={styles.modalCancelView}>
+                  <Text style={styles.modalCancelText}>No Data</Text>
+                </View>
+              );
+            },
+          }}
+        />
+      );
+
     useEffect(() => {
-        setChartLoading(true);
-        setTimeout(()=>fetchProfitLossDetails(),1500);
+        setTimeout(()=>fetchProfitLossDetails(consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : ''),1500);
+        DeviceEventEmitter.addListener(APP_EVENTS.consolidateBranch, (payload) => {
+            setConsolidatedBranch(payload?.activeBranch);
+            setSelectedBranch({});
+        });
     }, [date]);
 
 
     const pieData = [
-    {   value: (totalExpense?.amount == 0 && totalIncome?.amount == 0) ? 50 : formatNumber(totalIncome?.amount), 
-        color: totalIncome?.amount == 0 ? theme.colors.solids.grey.light : '#a5292a', 
+    {   value: (Object.keys(totalIncome).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0)) ? 50 : formatNumber(totalIncome?.amount), 
+        color: (Object.keys(totalIncome).length === 0 || totalIncome?.amount == 0) ? theme.colors.solids.grey.light : '#a5292a', 
         gradientCenterColor: totalIncome?.amount == 0 ? theme.colors.solids.grey.light : theme.colors.solids.red.medium ,
         tooltipText:'Income',
         text:'Income'
     },
-    {   value: (totalExpense?.amount == 0 && totalIncome?.amount == 0) ? 50 : formatNumber(totalExpense?.amount), 
-        color: totalExpense?.amount == 0 ? theme.colors.solids.grey.light : '#1a237e', 
+    {   value: (Object.keys(totalExpense).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0)) ? 50 : formatNumber(totalExpense?.amount), 
+        color: (Object.keys(totalExpense).length === 0 || totalExpense?.amount == 0) ? theme.colors.solids.grey.light : '#1a237e', 
         gradientCenterColor: totalExpense?.amount == 0 ? theme.colors.solids.grey.light : theme.colors.solids.blue.light,
         tooltipText:'Expense',
         text:'Expense'
     }
     ];
+console.log("cahrloading",chartLoading, totalExpense, totalIncome);
 
     return (
     <View style={styles.container}>
-        <DateFilter 
-            startDate={date.startDate}
-            endDate={date.endDate}
-            dateMode={dateMode}
-            activeDateFilter={activeDateFilter}
-            disabled={isLoading}
-            changeDate={changeDate}
-            setActiveDateFilter={_setActiveDateFilter}
-            optionModalRef={optionModalizeRef}
-            showHeading={true}
-        />
-        
         { !chartLoading ? 
         <View style={styles.chartContainer}>
-            <View>
+            <View style={styles.pieChart}>
                 <PieChart
                     data={pieData}
                     donut
@@ -129,7 +160,7 @@ const ChartComponent = () => {
                     // tooltipVerticalShift={-10}
                     // tooltipBackgroundColor='#FAF9F6'
                     // showTooltip = {(totalExpense?.amount == 0 && totalIncome?.amount == 0 ) ? false : true}
-                    showExternalLabels = {(totalExpense?.amount == 0 && totalIncome?.amount == 0 ) ? false : true}
+                    showExternalLabels = {(Object.keys(totalExpense).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0 )) ? false : true}
                     labelLineConfig={{length:-20,labelComponentWidth: 45,}}
                     paddingHorizontal={10}
                     externalLabelComponent={(item) => {
@@ -137,7 +168,7 @@ const ChartComponent = () => {
                             {item?.text}
                         </SvgText>
                     }}
-                    centerLabelComponent={(totalExpense?.amount == 0 && totalIncome?.amount == 0 ) ? ()=>(<><Text style={styles.spending}>No Data</Text></>) : ()=>(<></>)}
+                    centerLabelComponent={(Object.keys(totalExpense).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0 )) ? ()=>(<><Text style={styles.spending}>No Data</Text></>) : ()=>(<></>)}
                 />
             </View>
             <View style={{paddingHorizontal: 16,width:'100%'}}>
@@ -156,6 +187,7 @@ const ChartComponent = () => {
             </View>
         </View>
          : <View style={styles.chartContainer}><Loader isLoading={chartLoading}/></View>}
+         {RenderBranchModal}
     </View>
 );
 };
@@ -168,7 +200,7 @@ const makeStyles= (theme:ThemeProps) => StyleSheet.create({
     backgroundColor: theme.colors.solids.white,
     alignItems: 'center',
     minHeight:300,
-    minWidth:310
+    minWidth:310,
   },
   centerLabel: {
     justifyContent: 'center',
@@ -187,6 +219,41 @@ const makeStyles= (theme:ThemeProps) => StyleSheet.create({
     color: theme.colors.solids.grey.dark,
     fontFamily:theme.typography.fontFamily.bold,
   },
+  matBtn:{
+    width: '40%', 
+    paddingRight: 16, 
+    marginTop: -4
+  },
+  button: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+  },
+  radiobuttonText: {
+    color: '#1C1C1C',
+    fontFamily: theme.typography.fontFamily.regular,
+    lineHeight: theme.typography.fontSize.regular.lineHeight,
+    marginLeft: 10,
+  },
+  modalCancelView: {
+    height: height * 0.3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  modalCancelText: {
+    flex: 1,
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontFamily: theme.typography.fontFamily.semiBold,
+    fontSize: 14,
+    textAlign: 'center',
+    alignSelf: 'center',
+  },
+  pieChart: {
+    marginTop:-10
+  }
 });
 
 export default ChartComponent;

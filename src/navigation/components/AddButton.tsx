@@ -163,6 +163,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         showsVerticalScrollIndicator={false}
                         style={styles.flatlistStyle}
                         ListHeaderComponent = {()=>(<Text style={styles.listTitle}>Vouchers</Text>)}
+                        scrollEnabled={false}
                         renderItem={({ item }) => (
                             <TouchableOpacity
                             activeOpacity={0.7}

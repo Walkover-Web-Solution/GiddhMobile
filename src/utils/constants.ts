@@ -60,7 +60,7 @@ export const GD_ICON_SIZE = {
 export const GD_PER_PAGE_ITEMS_COUNT = 20;
 
 // Http request timeout
-export const HTTP_REQUEST_TIME_OUT = 6000;
+export const HTTP_REQUEST_TIME_OUT = 30000;
 
 // Fallback language for app
 export const FALL_BACK_LANGUAGE = 'en';

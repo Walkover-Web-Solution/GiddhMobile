@@ -12,19 +12,13 @@ import {
   RefreshControl,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   ToastAndroid,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import DateFilter from './component/DateFilter';
-import {useIsFocused} from '@react-navigation/native';
-import Header from '@/components/Header';
-import MatButton from '@/components/OutlinedButton';
-import {CommonService} from '@/core/services/common/common.service';
 import {useSelector} from 'react-redux';
 import Loader from '@/components/Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,13 +29,12 @@ import { formatAmount } from '@/utils/helper';
 import { commonUrls } from '@/core/services/common/common.url';
 import Feather from 'react-native-vector-icons/Feather'
 import RNFetchBlob from 'react-native-blob-util'
-import Toast from 'react-native-root-toast';
 import TOAST from "@/components/Toast";
 
 const {height, width} = Dimensions.get('window');
 
 const BalanceSheetScreen = () => {
-  const {statusBar, styles, theme, voucherBackground} = useCustomTheme(makeStyles, 'Stock');
+  const { styles } = useCustomTheme(makeStyles, 'Stock');
   const [date, setDate] = useState<{startDate: string; endDate: string}>({
     startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
     endDate: moment().format('DD-MM-YYYY'),
@@ -49,12 +42,12 @@ const BalanceSheetScreen = () => {
   const [dateMode, setDateMode] = useState('defaultDates');
   const [activeDateFilter, setActiveDateFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const optionModalizeRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [consolidatedBranch, setConsolidatedBranch] = useState(' ');
   const [refreshing, setRefreshing] = useState(false);
   const branchListModalRef = useRef(null);
   const [selectedBranch, setSelectedBranch] = useState({});
+  const [isApiCallInProgress, setIsApiCallInProgress] = useState(false);
   const [balanceSheet, setBalanceSheet] = useState([]);
   const branchList = useSelector((state) => state?.commonReducer?.branchList);
   const onRefresh = () => {
@@ -142,6 +135,8 @@ const BalanceSheetScreen = () => {
       if (result && result?.status == 'success') {
         console.log("response 222222------------------>",result);
         setBalanceSheet(result?.body?.groupDetails);
+      }else{
+        TOAST({message: result?.message, position:'BOTTOM',duration:'LONG'})
       }
       setLoading(false);
     } catch (error) {
@@ -151,6 +146,8 @@ const BalanceSheetScreen = () => {
   };
 
   const exportFile = async (viewType: string) => {
+    if (isApiCallInProgress) return;
+    setIsApiCallInProgress(true);
     try {
         DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Downloading Started... It may take while', open: null });
         const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
@@ -159,20 +156,42 @@ const BalanceSheetScreen = () => {
         const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
         console.log("called url->", commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : '')));
         
+        // fetching base64 string
+        const response = await fetch(commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : ''))
+        .replace(':companyUniqueName',activeCompany) ,{
+          method: "GET",
+          headers: {
+            'Accept': 'application/json',
+            'session-id' : token,
+            'user-agent' : Platform.OS
+          },
+        })
+
+        if (!response.ok) {
+          TOAST({message: `Failed to fetch file: ${response.statusText}`, position:'BOTTOM',duration:'LONG'}) 
+          setIsApiCallInProgress(false);
+        }
+
+        const jsonResponse = await response.json();
+        //base64 str from response
+        const base64String = jsonResponse?.body;
+        
+        if (!base64String) {
+          TOAST({message: 'Failed to fetch file', position:'BOTTOM',duration:'LONG'});
+          setIsApiCallInProgress(false);
+          throw new Error('Base64 data is missing in the response');
+        }
+
         const { dirs } = RNFetchBlob.fs;
         const dirToSave = Platform.OS === 'ios' ? dirs.DocumentDir : dirs.DownloadDir;
         const configfb = {
           fileCache: true,
           addAndroidDownloads: {
-            useDownloadManager: true,
             notification: true,
-            mediaScannable: true,
             title: `BalanceSheet`,
             path: `${dirs.DownloadDir}/BalanceSheet-${moment().format('DD-MM-YYYY-hh-mm-ss')}.xlsx`,
           },
-          useDownloadManager: true,
           notification: true,
-          mediaScannable: true,
           title: `BalanceSheet`,
           path: `${dirToSave}/BalanceSheet-${moment().format('DD-MM-YYYY-hh-mm-ss')}.xlsx`,
           IOSBackgroundTask: true,
@@ -181,48 +200,52 @@ const BalanceSheetScreen = () => {
           ios: configfb,
           android: configfb,
         });
-        RNFetchBlob.config(configOptions || {}).fetch(
-            'GET',
-            commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : ''))
-            .replace(':companyUniqueName',activeCompany),
-            {
-                'session-id': `${token}`,
-                'Content-Type': 'application/json'
-            }
-        ).then(async (res) => {
-          if (Platform.OS === 'ios') {
-            RNFetchBlob.fs.writeFile(configfb.path, res.data, 'base64');
-            RNFetchBlob.ios.previewDocument(configfb.path);
-          }
-          if (Platform.OS == "android") {
-            let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
-              name: 'BalanceSheet-'+ moment().format('DD-MM-YYYY-hh-mm-ss'), 
-              parentFolder: '',
-              mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                 },
-                 'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
-                  res.path() // Path to the file being copied in the apps own storage
-              );
-            ToastAndroid.show(
-              'File saved to download folder',
-              ToastAndroid.LONG,
-            );
-          }
-            const openFile = Platform.OS === 'android' 
-                ?  () => RNFetchBlob.android.actionViewIntent(configfb.path, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').catch((error) => { console.error('----- Error in File Opening -----', error)})
-                :  () => RNFetchBlob.ios.openDocument(configfb.path)
 
-            DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { 
-                message: 'Download Successful!', 
-                action: 'Open',
-                open: openFile
-            });
-        }).catch((err) => {
-            TOAST({message: "Error while downloading balance sheet", position:'BOTTOM',duration:'LONG'}) 
-            console.log('------- Error while downloading -------', err);
-        } )
+        await RNFetchBlob.fs.writeFile(configfb.path, base64String, 'base64');
+
+        console.log('File saved successfully to:', configfb.path);
+        if (Platform.OS === 'ios') {
+          RNFetchBlob.ios.previewDocument(configfb.path);
+        }
+        //coping file to download folder
+        if (Platform.OS == "android") {
+          let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
+            name: 'BalanceSheet-'+ moment().format('DD-MM-YYYY-hh-mm-ss'), 
+            parentFolder: '',
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+               },
+               'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
+                configfb.path // Path to the file being copied in the apps own storage
+            );
+          ToastAndroid.show(
+            'File saved to download folder',
+            ToastAndroid.LONG,
+          );
+        }
+
+        //notification for complete download
+        RNFetchBlob.android.addCompleteDownload({
+          title: configfb.title,
+          description: 'File downloaded successfully',
+          mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          path: configfb.path,
+          showNotification: true,
+        })
+
+        const openFile = Platform.OS === 'android' 
+            ?  () => RNFetchBlob.android.actionViewIntent(configfb.path, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').catch((error) => { console.error('----- Error in File Opening -----', error)})
+            :  () => RNFetchBlob.ios.openDocument(configfb.path)
+
+        DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { 
+            message: 'Download Successful!', 
+            action: 'Open',
+            open: openFile
+        });
+
     } catch (e) {
         console.log('----- Error in Export -----', e)
+    } finally {
+        setIsApiCallInProgress(false);
     }
     };
 
@@ -266,7 +289,7 @@ const BalanceSheetScreen = () => {
   );
 
 
-  const renderCategory = (category, items) => {
+const renderCategory = (category, items) => {
     const closingTotal = calculateClosingTotal(items,category);
     const forwardTotal = calculateForwardTotal(items,category);
     
@@ -317,11 +340,7 @@ const BalanceSheetScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{flexGrow: 1}}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <View style={styles.dateContainer}>
-          <DateFilter
+        <DateFilter
             startDate={date.startDate}
             endDate={date.endDate}
             dateMode={dateMode}
@@ -329,46 +348,38 @@ const BalanceSheetScreen = () => {
             disabled={isLoading}
             changeDate={changeDate}
             setActiveDateFilter={_setActiveDateFilter}
-            optionModalRef={optionModalizeRef}
-            showHeading={false}
-          />
-          {consolidatedBranch?.length == 1 && (
-            <View style={styles.matBtn}>
-              <MatButton
-                lable="Select branch"
-                value={selectedBranch?.alias}
-                onPress={() => {
-                  setBottomSheetVisible(branchListModalRef, true);
-                }}
-              />
+            optionModalRef={branchListModalRef}
+            consolidatedBranch={consolidatedBranch}
+            selectedBranch={selectedBranch}
+        />
+        <ScrollView
+            contentContainerStyle={{flexGrow: 1}}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+            {!loading ? (
+            <View style={{paddingHorizontal: 16}}>
+                <FlatList
+                data={Object.keys(filteredData)}
+                keyExtractor={(item) => item}
+                renderItem={({item}) => renderCategory(item, filteredData?.[item])}
+                contentContainerStyle={styles.listContainer}
+                scrollEnabled={false}
+                />
+                <View style={styles.downloadBtnContainer}>
+                <TouchableOpacity style={styles.downloadBtn} disabled={isApiCallInProgress} onPress={() => downloadFile('collapsed')} >
+                    <Feather name="download" size={15} color={'#1C1C1C'} style={{paddingHorizontal:4}}/>
+                    <Text style={styles.amountText}>Main Group Report</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.downloadBtn} disabled={isApiCallInProgress} onPress={()=> downloadFile('expanded')}>
+                    <Feather name="download" size={15} color={'#1C1C1C'} style={{paddingHorizontal:4}}/>
+                    <Text style={styles.amountText}>Complete Report</Text>
+                </TouchableOpacity>
+                </View>
             </View>
-          )}
-        </View>
-        {!loading ? (
-          <View style={{paddingHorizontal: 16}}>
-            <FlatList
-              data={Object.keys(filteredData)}
-              keyExtractor={(item) => item}
-              renderItem={({item}) => renderCategory(item, filteredData?.[item])}
-              contentContainerStyle={styles.listContainer}
-              scrollEnabled={false}
-            />
-            <View style={styles.downloadBtnContainer}>
-              <TouchableOpacity style={styles.downloadBtn} onPress={()=> downloadFile('collapsed')}>
-                <Feather name="download" size={15} color={'#1C1C1C'} style={{paddingHorizontal:4}}/>
-                <Text style={styles.amountText}>Main Group Report</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.downloadBtn} onPress={()=> downloadFile('expanded')}>
-                <Feather name="download" size={15} color={'#1C1C1C'} style={{paddingHorizontal:4}}/>
-                <Text style={styles.amountText}>Complete Report</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : (
-          <Loader isLoading={loading} />
-        )}
-      </ScrollView>
-      {RenderBranchModal}
+            ) : (
+            <Loader isLoading={loading} />
+            )}
+        </ScrollView>
+        {RenderBranchModal}
     </SafeAreaView>
   );
 };
@@ -450,20 +461,20 @@ const makeStyles = (theme: ThemeProps) =>
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 8,
-      },
-      totalText: {
+    },
+    totalText: {
         fontSize: theme.typography.fontSize.regular.size,
         lineHeight: theme.typography.fontSize.regular.lineHeight,
         fontFamily: theme.typography.fontFamily.medium,
         textAlign: "center",
-      },
-      dateText:{
+    },
+    dateText:{
         fontFamily:theme.typography.fontFamily.medium,
         fontSize: theme.typography.fontSize.small.size,
         lineHeight: theme.typography.fontSize.regular.lineHeight,
         color: theme.colors.secondary
-      },
-      downloadBtn :{
+    },
+    downloadBtn :{
         backgroundColor: '#f9f9f9',
         paddingHorizontal: 12,
         paddingVertical:8,
