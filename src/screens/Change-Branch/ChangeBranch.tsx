@@ -106,7 +106,7 @@ export class ChangeBranch extends React.Component<Props> {
                       },
                       branchUniqueName : item.uniqueName
                     }
-                    this.addUserDeatilsToLogRocket(item.name,item.alias)
+                    // this.addUserDeatilsToLogRocket(item.name,item.alias)
                     this.props.getCompanyAndBranches();
                     this.props.updateBranchStateDetails(payload);
                     this.props.navigation.reset({

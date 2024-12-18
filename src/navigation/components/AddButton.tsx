@@ -131,7 +131,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                     withHandle={false}
                     modalStyle={styles.modalStyle}
                 >
-                    <View style={{flex:1,padding:12}}>
+                    <View style={styles.sectionContainer}>
                         <Text style={styles.listTitle}>Inventory</Text>
                         {rows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
@@ -236,5 +236,10 @@ const styles = StyleSheet.create({
         fontSize: GD_FONT_SIZE.medium, 
         marginTop: 5, 
         color:DefaultTheme.colors.secondary
+    },
+    sectionContainer : {
+        flex:1,
+        padding:12, 
+        alignSelf:'center'
     }
 })
