@@ -1398,10 +1398,6 @@ PODS:
     - React-Core
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
-  - zipyai-react-native (1.0.8):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
@@ -1519,7 +1515,6 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
-  - zipyai-react-native (from `../node_modules/zipyai-react-native`)
 
 SPEC REPOS:
   trunk:
@@ -1727,8 +1722,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-vector-icons"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
-  zipyai-react-native:
-    :path: "../node_modules/zipyai-react-native"
 
 SPEC CHECKSUMS:
   AppAuth: 501c04eda8a8d11f179dbe8637b7a91bb7e5d2fa
@@ -1851,7 +1844,6 @@ SPEC CHECKSUMS:
   RNVectorIcons: 96e8c5c45609932bb2f8347e1c709bcca0e95654
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 57d2ffe418d024d56f8b0047f335c677e4c4d9ac
-  zipyai-react-native: 96570b1a1b855479822ca1fd48fb7cc4a53d2ddc
 
 PODFILE CHECKSUM: e06d07a9a53b3f626f06ded7c660e858e611eadb
 
