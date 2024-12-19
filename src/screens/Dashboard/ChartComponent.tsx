@@ -89,7 +89,6 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => {
-                    console.log('item', item?.uniqueName);
                     fetchProfitLossDetails(item?.uniqueName);
                     setSelectedBranch(item);
                     setBottomSheetVisible(modalRef, false);
@@ -137,7 +136,6 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         text:'Expense'
     }
     ];
-console.log("cahrloading",chartLoading, totalExpense, totalIncome);
 
     return (
     <View style={styles.container}>

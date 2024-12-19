@@ -20,9 +20,6 @@ const ProfitLossScreen = () => {
     const [consolidatedBranch, setConsolidatedBranch] = useState(' ');
     const [selectedBranch, setSelectedBranch] = useState({});
 
-
-    console.log("branch------------",consolidatedBranch);
-    
     const onRefresh = useCallback(() => { 
         setRefreshing(true); 
         setChartKey(prevKey => prevKey + 1); 

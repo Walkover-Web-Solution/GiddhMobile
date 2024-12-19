@@ -133,7 +133,6 @@ const BalanceSheetScreen = () => {
       })
       const result = await response.json()
       if (result && result?.status == 'success') {
-        console.log("response 222222------------------>",result);
         setBalanceSheet(result?.body?.groupDetails);
       }else{
         TOAST({message: result?.message, position:'BOTTOM',duration:'LONG'})
@@ -154,7 +153,6 @@ const BalanceSheetScreen = () => {
         const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
         const consolidateBranchName = consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : '';
         const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-        console.log("called url->", commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : '')));
         
         // fetching base64 string
         const response = await fetch(commonUrls.downloadBalanceSheet(date?.startDate, date?.endDate, viewType, consolidateBranchName ? consolidateBranchName : (consolidateState ? consolidateState : ''))
@@ -263,7 +261,6 @@ const BalanceSheetScreen = () => {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                console.log('item', item?.uniqueName);
                 fetchDetailedBalanceSheet(item?.uniqueName);
                 setSelectedBranch(item);
                 setBottomSheetVisible(branchListModalRef, false);
