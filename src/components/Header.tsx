@@ -73,7 +73,7 @@ const Header : React.FC<Props> = ({ header, onBackButtonPress, subHeader, backgr
                                     <TouchableOpacity
                                         style={styles.rightButton}
                                         onPress={async () => {
-                                            navigation.navigate('Settings')
+                                            navigation.navigate('MoreSettings')
                                         }}
                                     >
                                         <Entypo name="dots-three-vertical" size={20} color={'#FFFFFF'} />

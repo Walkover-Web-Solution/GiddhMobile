@@ -109,12 +109,6 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                                 <MaterialIcons name="person" size={20} color={isFocused ? '#5773FF' : '#808080'} />
                             </View>
                         )
-                    } else if (label == 'More') {
-                        return (
-                            <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 8, borderRadius: 20 }}>
-                                <VoucherSVG height={20} width={20} color={isFocused ? '#5773FF' : '#808080'}/>
-                            </View>
-                        );
                     } else if (label == 'Inventory') {
                         return (
                             <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 10.5, borderRadius: 20 }}>
@@ -163,6 +157,13 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                     <Entypo name="plus" size={24} color={'#fff'} />
                 </TouchableOpacity>
             }
+            <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => { setBottomSheetVisible(moreOptionsRef, true); }}
+                style={styles.MoreButton}
+            >
+                <VoucherSVG height={24} width={24} color={'#fff'}/>
+            </TouchableOpacity>
             <AddButtonOptions key={'add'} productOptionRef={productOptionRef} plusButtonRef={plusButtonRef} closeModal={() => setBottomSheetVisible(plusButtonRef, false)} isDisabled={disableTabs} navigation={navigation} />
         </View>
     );
@@ -208,6 +209,31 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         backgroundColor: '#5773FF',
 
+        position: 'absolute', 
+        bottom: height * 0.16 + SIZE / 2, 
+        right: 16,
+        ...Platform.select({
+            android: {
+                elevation: 8,
+            },
+            ios: {
+                shadowColor: '#000000',
+                shadowOffset: {
+                width: 2,
+                height: 5,
+                },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+            },
+        }),
+    },
+    MoreButton: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: SIZE,
+        height: SIZE,
+        borderRadius: 50,
+        backgroundColor: '#5773FF',
         position: 'absolute', 
         bottom: height * 0.08 + SIZE / 2, 
         right: 16,

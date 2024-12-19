@@ -81,6 +81,7 @@ export class ChangeBranch extends React.Component<Props> {
               onPress={async () => {
                 await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
                 DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
+                DeviceEventEmitter.emit(APP_EVENTS.consolidateBranch, {activeBranch : " "})
                 // this.props.getCompanyAndBranches();
                 this.props.navigation.goBack();
               }}>

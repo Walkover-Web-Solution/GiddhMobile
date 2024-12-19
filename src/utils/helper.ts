@@ -143,13 +143,13 @@ export const formatAmount = (amount: number, fractionDigits = true) => {
   let INT_APOSTROPHE_SEPARATED = new Intl.NumberFormat('en-CH', options);
 
   if(balanceDisplayFormat == BalanceDisplayFormats.INT_COMMA_SEPARATED){
-    return INT_COMMA_SEPARATED.format(amount);
+    return INT_COMMA_SEPARATED.format(amount ? amount : 0);
   } else if(balanceDisplayFormat == BalanceDisplayFormats.INT_SPACE_SEPARATED){
-    return INT_SPACE_SEPARATED.format(amount);
+    return INT_SPACE_SEPARATED.format(amount ? amount : 0);
   } else if(balanceDisplayFormat == BalanceDisplayFormats.INT_APOSTROPHE_SEPARATED){
-    return INT_APOSTROPHE_SEPARATED.format(amount);
+    return INT_APOSTROPHE_SEPARATED.format(amount ? amount : 0);
   } else{
-    return IND_COMMA_SEPARATED.format(amount);
+    return IND_COMMA_SEPARATED.format(amount ? amount : 0);
   }
 }
 
