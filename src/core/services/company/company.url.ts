@@ -17,4 +17,5 @@ export const companyUrls = {
   getLastStateDetails: createEndpoint('state-details?fetchLastState=true&lang=en'),
   updateStateDetails: createEndpoint('state-details?lang=en'),
   updateBranchStateDetails: createEndpoint('state-details?branchUniqueName=:branchUniqueName&lang=en'),
+  destroyUserSession: (userEmail:string) => createEndpoint(`users/${userEmail}/destroy-session?lang=en`)
 };

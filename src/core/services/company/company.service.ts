@@ -121,4 +121,8 @@ export class CompanyService {
   static createCompanyCountryList (subscriptionId: string) {
     return httpInstance.get(companyUrls.createCompanyCountryList.replace(':subscriptionId', subscriptionId));
   }
+
+  static destroyUserSession (userEmail: string) {
+    return httpInstance.delete(companyUrls.destroyUserSession(userEmail));
+  }
 }
