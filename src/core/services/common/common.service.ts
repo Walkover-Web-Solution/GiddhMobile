@@ -344,4 +344,34 @@ export class CommonService {
         console.log('---- ERROR in currency conversion ----', error);
       });;
   }
+
+  static fetchProfitLossDetails(startDate: string, endDate: string) {
+    return httpInstance.get(commonUrls.fetchProfitLossDetails(startDate,endDate))
+    .then((res) => {
+      return res?.data;
+    }).catch((err) => {
+      console.log("Error while fetching profit and loss details", err);
+      return err;
+    })
+  }
+
+  static fetchBankAccounts(startDate: string, endDate: string, page:number) {
+    return httpInstance.get(commonUrls.fetchBankAccounts(startDate, endDate, page))
+    .then((res)=>{
+      return res?.data;
+    }).catch((err)=>{
+      console.log("Error fetching bank accounts",err);
+    })
+  }
+
+  static fetchDetailedBalanceSheet(startDate: string, endDate: string, branchUniqueName: string) {
+    return httpInstance.get(commonUrls.fetchDetailedBalanceSheet(startDate, endDate, branchUniqueName))
+    .then((res) => {
+      return res?.data;
+    }).catch((err) => {
+      console.log("Error while fetching balance sheet");
+      // return err;
+    })
+  }
+
 }

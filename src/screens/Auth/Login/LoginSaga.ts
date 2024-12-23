@@ -39,8 +39,8 @@ const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, use
     newUser: true
   });
   // zipy.identify(userEmail,{
-  //   email: userEmail,
-  // })
+  //   email: userEmail
+  // });
 }
 
 export function* resetPassword(action: any) {

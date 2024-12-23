@@ -33,6 +33,7 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '@/utils/colors';
 import styles from './style'
+import Entypo from 'react-native-vector-icons/Entypo'
 
 const { width } = Dimensions.get('window');
 
@@ -442,7 +443,7 @@ export class PartiesMainScreen extends React.Component {
             : (
               <>
                 <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Parties</Text>
-                <View style={{ position: 'absolute', right: 15, flexDirection: 'row', padding: 10, alignItems: 'center' }}>
+                <View style={{ position: 'absolute', right: 0, flexDirection: 'row', padding: 10, alignItems: 'center' }}>
                   <TouchableOpacity
                     delayPressIn={0}
                     onPress={() => this.setBottomSheetVisible(this.sortByBottomSheetRef, true)}
@@ -456,6 +457,14 @@ export class PartiesMainScreen extends React.Component {
                     onPress={() => this.setState({ textInputOpen: true }, () => this.inputRef.current.focus())}
                   >
                     <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    hitSlop={{right: 10, left: 10, top: 10, bottom: 10}}
+                    style={{ marginLeft: 15 }}
+                    delayPressIn={0}
+                    onPress={() => this?.props?.navigation?.navigate('MoreSettings')}
+                  >
+                    <Entypo name="dots-three-vertical" size={20} color={'#FFFFFF'} />
                   </TouchableOpacity>
                 </View>
               </>
