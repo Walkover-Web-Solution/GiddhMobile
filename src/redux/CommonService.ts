@@ -64,3 +64,18 @@ export async function updateBranchStateDetails (payload:any) {
     console.warn(error);
   }
 }
+
+export default async function callSlackWebHook(payload:any) {
+  try {
+    console.log("slack webhook hit",payload);
+    const response = await fetch('https://flow.sokt.io/func/scrijtkkLWeF',{
+      method:'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+  } catch (error) {
+    console.warn("Error while sending message through slack webhook", error);
+  }
+}
