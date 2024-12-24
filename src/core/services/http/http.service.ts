@@ -92,6 +92,10 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
     reqConfig.url = reqConfig.url?.replace(/:currency/g, currency);
   }
 
+  if (reqConfig?.url?.includes('/multibranch/balance-sheet')) {
+    reqConfig.timeout = 60000;
+  }
+
   let headers = reqConfig.headers;
   // add token related info here..
   const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
