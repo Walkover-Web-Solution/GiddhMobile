@@ -11,6 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Host } from 'react-native-portalize';
 import SnackBar from '@/components/SnackBar';
+import ChatBotSDK from '@/components/ChatBotSDK';
+import { DeviceEventEmitter } from 'react-native';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -43,11 +45,18 @@ useEffect(() => {
     let mail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
     setHelloConfig({
       widgetToken: "88461",
-      name: name,
-      mail: mail
+      name,
+      mail,
+      unique_id: mail
     });
   }
   setValues();
+
+  const subscribe = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => setValues());
+
+  return () => {
+      subscribe.remove();
+  }
 }, [])
 
   return (
@@ -77,13 +86,15 @@ useEffect(() => {
             }
           </Host>
           <SnackBar eventType={APP_EVENTS.DownloadAlert} backgroundColor={'#1A237E'} borderLeftColor={'#1A237E'}/>
-          <ChatWidget
-            preLoaded={true}
-            widgetColor={'#1A237E'}
-            helloConfig={helloConfig}
-          />
         </NavigationContainer>
       }
+
+      <ChatWidget
+        preLoaded={true}
+        widgetColor={'#1A237E'}
+        helloConfig={helloConfig}
+      />
+      <ChatBotSDK/>
     </SafeAreaView>
   );
 };
