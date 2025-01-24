@@ -62,9 +62,9 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         });
         const result = await response.json();
         if(result?.body && result?.status == "success"){
-            setTotalExpense({...result?.body?.incomeStatment?.totalExpenses})
-            setTotalIncome({...result?.body?.incomeStatment?.revenue})
-            setnetPL({...result?.body?.incomeStatment?.incomeBeforeTaxes})
+            setTotalExpense({...result?.body?.incomeStatement?.totalExpenses})
+            setTotalIncome({...result?.body?.incomeStatement?.revenue})
+            setnetPL({...result?.body?.incomeStatement?.incomeBeforeTaxes})
         }else{
             Toast({message: result?.message, position:'BOTTOM',duration:'LONG'})
         }

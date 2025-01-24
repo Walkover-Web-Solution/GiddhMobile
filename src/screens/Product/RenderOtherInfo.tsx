@@ -160,7 +160,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                     </View>
                     <View style={{width:'48%'}}>
                     <InputField 
-                        lable="Closing Amount"
+                        lable="Opening Amount"
                         isRequired={false}
                         keyboardType="numeric"
                         containerStyle={{marginVertical:5}}
