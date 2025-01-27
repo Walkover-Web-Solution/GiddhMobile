@@ -1136,7 +1136,7 @@ PODS:
     - React-Core
   - react-native-netinfo (5.9.10):
     - React-Core
-  - react-native-pager-view (6.4.1):
+  - react-native-pager-view (6.5.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1352,6 +1352,8 @@ PODS:
     - Firebase/Performance (= 10.29.0)
     - React-Core
     - RNFBApp
+  - RNFS (2.20.0):
+    - React-Core
   - RNGestureHandler (2.19.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1388,7 +1390,7 @@ PODS:
     - React-RCTImage
   - RNShare (10.2.1):
     - React-Core
-  - RNSVG (12.5.1):
+  - RNSVG (15.9.0):
     - React-Core
   - RNVectorIcons (10.1.0):
     - glog
@@ -1503,6 +1505,7 @@ DEPENDENCIES:
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
   - "RNFBPerf (from `../node_modules/@react-native-firebase/perf`)"
+  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
@@ -1699,6 +1702,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/crashlytics"
   RNFBPerf:
     :path: "../node_modules/@react-native-firebase/perf"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
@@ -1789,7 +1794,7 @@ SPEC CHECKSUMS:
   react-native-blob-util: 39a20f2ef11556d958dc4beb0aa07d1ef2690745
   react-native-document-picker: 23b6a82e09199f4f109376e73d88892a8931eeea
   react-native-netinfo: 30fb89fa913c342be82a887b56e96be6d71201dd
-  react-native-pager-view: 7c45504fe805a954ebabd005d369937ea1c04de1
+  react-native-pager-view: 9b5974bc64c67f1570326c90216f4979d995f0b2
   react-native-pdf: 103940c90d62adfd259f63cca99c7c0c306b514c
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
@@ -1828,17 +1833,18 @@ SPEC CHECKSUMS:
   RNFBApp: 5f87753a8d8b37d229adf85cd0ff37709ffdf008
   RNFBCrashlytics: 9cc9eb22443f5a4c0f348efddd16318a80d2dd78
   RNFBPerf: e5cc00c3fe9cf4f119b444216dd18c396dcbd378
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 75e2ebf4e8ac521f2b3c9afdc048fcbc2e2c9ea4
   RNGoogleSignin: c15bdaa7e8a9e190b6169d9c96a4e8380a740f22
   RNNotifee: 935f3ea8c134c88cbf8b13ea0c97c72c09ad2116
   RNReanimated: fe9610fb0eebdd1fe8f38421bebcaa9afa0fe6b2
   RNScreens: 29418ceffb585b8f0ebd363de304288c3dce8323
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
-  RNSVG: d7d7bc8229af3842c9cfc3a723c815a52cdd1105
+  RNSVG: 3d2bdcaef51c8071880a9c0072fe324f4423a3ba
   RNVectorIcons: 96e8c5c45609932bb2f8347e1c709bcca0e95654
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 57d2ffe418d024d56f8b0047f335c677e4c4d9ac
 
 PODFILE CHECKSUM: e06d07a9a53b3f626f06ded7c660e858e611eadb
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.14.3

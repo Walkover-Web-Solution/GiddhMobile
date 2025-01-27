@@ -3,6 +3,16 @@ import colors from '../../../../utils/colors';
 import { FONT_FAMILY, GD_ICON_SIZE } from '@/utils/constants';
 
 export default StyleSheet.create({
+  loaderWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0
+  },
   countriesContainer: {
     paddingHorizontal: 20,
     flexDirection: 'row'
@@ -104,11 +114,11 @@ export default StyleSheet.create({
   },
   contactUsButtons: {
     margin: 10,
-    marginVertical: 30,
     backgroundColor: "#E3E8FF",
     borderRadius: 100,
     alignItems: 'center',
-    width: '50%'
+    alignSelf: 'flex-start',
+    minWidth: '50%'
   },
   contactDtailsText: {
     color: 'black',
@@ -157,5 +167,27 @@ export default StyleSheet.create({
     color: 'black', 
     fontFamily: FONT_FAMILY.semibold, 
     margin: 10 
+  },
+  logoutButton: {
+    position: 'absolute',
+    right: 0,
+    left: 0,
+    bottom: 0,
+    paddingTop: 12,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    backgroundColor: colors.BACKGROUND
+  },
+  chip: {
+    backgroundColor: colors.BACKGROUND,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    marginRight: 8,
+    borderRadius: 50
+  },
+  smallText: {
+    color: colors.SECONDARY, 
+    fontFamily: FONT_FAMILY.bold, 
+    fontSize: 10
   }
 });

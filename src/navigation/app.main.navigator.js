@@ -44,7 +44,7 @@ export default function AppMainNav() {
       <Drawer.Screen name='ChangeCompanyBranch' component={ChangeCompanyBranchStack} />
       <Drawer.Screen name='AddEntryStack' component={AddEntryStack} />
       <Drawer.Screen name='Account.LinkInvoice' component={AdjustLinkInvoice} />
-      <Drawer.Screen name='Settings' component={MoreStack} />
+      <Drawer.Screen name='MoreSettings' component={MoreStack} />
       <Drawer.Screen name={Routes.Add} component={DashboardStack}/>
       <Drawer.Screen name={'AppDatePicker'} component={AppDatePicker}/>
       <Drawer.Screen name={'VoucherScreen'} component={AllVoucherScreen}/>
