@@ -64,3 +64,12 @@ export async function updateBranchStateDetails (payload:any) {
     console.warn(error);
   }
 }
+
+export async function destroyUserSession ( userEmail:string ) {
+  try {
+    const response = await CompanyService.destroyUserSession(userEmail);
+    return response;
+  } catch (error) {
+    console.warn(error);
+  }
+}
