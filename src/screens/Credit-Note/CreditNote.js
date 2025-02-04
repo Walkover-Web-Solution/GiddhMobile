@@ -22,7 +22,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
@@ -530,7 +529,7 @@ export class CreditNote extends React.Component<Props> {
           style={{
             flexDirection: 'row',
             alignSelf: 'flex-start',
-            padding: 5,
+            padding: 10,
             alignItems: 'center',
           }}
           onPress={() =>
@@ -540,7 +539,7 @@ export class CreditNote extends React.Component<Props> {
               isSearchingParty: false,
             })
           }>
-          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          <AntDesign name="closecircleo" size={15} color={'#424242'} />
           {/* <Text style={{marginLeft: 3}}>Close</Text> */}
         </TouchableOpacity>
       </View>
@@ -1179,7 +1178,7 @@ export class CreditNote extends React.Component<Props> {
                   flexDirection: 'row',
                   alignSelf: 'flex-end',
                   alignItems: 'center',
-                  marginHorizontal: 20,
+                  marginHorizontal: 15,
                   marginTop: -2,
                 }}
                 onPress={() => {
@@ -1188,7 +1187,7 @@ export class CreditNote extends React.Component<Props> {
                       linkedInvoices: '',
                     });
                 }}>
-                <Ionicons name="close-circle" size={20} color={'grey'} />
+                <AntDesign name="closecircleo" size={15} color={'grey'} />
                 {/* <Text style={{marginLeft: 3}}>Close</Text> */}
               </TouchableOpacity>
             ) : null}

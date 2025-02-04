@@ -19,7 +19,6 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Bars} from 'react-native-loader';
@@ -566,7 +565,7 @@ export class Payment extends React.Component {
           style={{
             flexDirection: 'row',
             alignSelf: 'flex-start',
-            padding: 5,
+            padding: 10,
             alignItems: 'center',
           }}
           onPress={() =>
@@ -576,7 +575,7 @@ export class Payment extends React.Component {
               isSearchingParty: false,
             })
           }>
-          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          <AntDesign name="closecircleo" size={15} color={'#424242'} />
         </TouchableOpacity>
       </View>
     );
