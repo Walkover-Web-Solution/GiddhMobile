@@ -382,7 +382,10 @@ export function* verifyOTP(action) {
     yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionStart, response.body ? response.body.session.createdAt : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.sessionEnd, response.body ? response.body.session.expiresAt : '');
-
+    const activeCompany = yield call(CommonService.getLastStateDetails);
+    const { companyUniqueName,branchUniqueName } = activeCompany
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
+    yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
     yield put(
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
