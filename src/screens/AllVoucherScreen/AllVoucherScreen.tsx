@@ -55,7 +55,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const [voucherData, setVoucherData] = useState<Array<any>>([]);
-    const [pageCount, setPageCount] = useState({ page: 0, count: 25 });
+    const [pageCount, setPageCount] = useState({ page: 1, count: 25, totalItem: 0 });
     const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
     const [activeDateFilter, setActiveDateFilter] = useState('');
     const [dateMode, setDateMode] = useState('defaultDates');
@@ -70,21 +70,21 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
         setDateMode(dateMode);
     };
 
-    const getAllVouchers = async (page?: number) => {
+    const getAllVouchers = async (page: number) => {
         const payload = {
-            page: ( page ?? pageCount.page ) + 1,
+            page:  page,
             count: pageCount.count
         }
 
         console.log('-----GET ALL VOUCHERS-----', date.startDate, date.endDate)
         
         try {
-            const response = await CommonService.getAllVouchers(voucherName.toLocaleLowerCase(), date.startDate, date.endDate, ( page ?? pageCount.page ) + 1, pageCount.count, companyVoucherVersion, payload)
+            const response = await CommonService.getAllVouchers(voucherName.toLocaleLowerCase(), date.startDate, date.endDate,  page  , pageCount.count, companyVoucherVersion, payload)
             if (response?.status === 'success' && Array.isArray(response?.body?.items)) {
-                setVoucherData((prevVoucherData) => page === 0 ? response?.body?.items : [...prevVoucherData, ...response?.body?.items])
-                setPageCount((prevPageCount) => ({ page: response?.body?.items?.length < 25 ? -1 : ( page ?? prevPageCount.page ) + 1, count: prevPageCount.count }))
-                if (response?.body?.items?.length < 25) {
-                    setIsLoadingMore(false)
+                setVoucherData((prevVoucherData) => [...prevVoucherData, ...response?.body?.items])
+                setPageCount((prevPageCount) => ({ page: response?.body?.items?.length < 25 ? -1 : page + 1, count: prevPageCount.count, totalItem: response?.body?.totalItems }))
+                if (response?.body?.totalItems > 25) {
+                    setIsLoadingMore(true);
                 }
             }
         } catch (error) {
@@ -95,14 +95,15 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
         }
     }
 
-    const loadMoreVouchers = getAllVouchers;
+    const loadMoreVouchers = (page:number) => getAllVouchers(page);
     const throttleLoadMore = useCallback(_.debounce(() => { 
-
+        if(voucherData?.length >= pageCount.totalItem ){
+            setIsLoadingMore(false);
+        }
         if (pageCount.page === -1) return;
-        setIsLoadingMore(true);
-        loadMoreVouchers();
+        isLoadingMore && loadMoreVouchers(pageCount.page);
         
-    }, 2000, { leading: true, trailing: false }), [pageCount.page, voucherName, date])
+    }, 2000, { leading: true, trailing: false }), [pageCount.page, voucherName, date, isLoadingMore])
 
     const onEndReached = () => {
         throttleLoadMore();
@@ -324,11 +325,11 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
     const refreshData = async () => {
         console.log('-------- Refresh Data -----------');
-        setPageCount({ page: 0, count: 25 });
+        setPageCount({ page: 1, count: 25, totalItem: 0 });
         setIsLoading(true);
         setIsLoadingMore(false);
         setVoucherData([]);
-        getAllVouchers(0);
+        getAllVouchers(1);
     }
 
     const onRefresh = () => {
@@ -398,6 +399,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                         renderItem={renderItem}
                         onViewableItemsChanged={onViewableItemsChanged}
                         onEndReached={onEndReached}
+                        keyExtractor={item => JSON.stringify(item)}
                         refreshControl={ 
                             <RefreshControl 
                                 progressBackgroundColor={colors.BACKGROUND}
