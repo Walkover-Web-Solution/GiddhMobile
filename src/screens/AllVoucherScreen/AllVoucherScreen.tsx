@@ -359,6 +359,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 shareFile={shareFile}
                 downloadFile={downloadFile}
                 onPressDelete={onPressDelete}
+                accountDetail={item?.account}
             />
         )
     }

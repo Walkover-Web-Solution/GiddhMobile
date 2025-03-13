@@ -27,7 +27,8 @@ const Routes = {
   DashboardStack : 'DashboardStack',
   ProfitLossScreen : 'ProfitLossScreen',
   TopTabNavigator: 'TopTabNavigator',
-  BalanceSheetScreen: 'BalanceSheetScreen'
+  BalanceSheetScreen: 'BalanceSheetScreen',
+  ListEWayBillsScreen: 'ListEWayBillsScreen'
 };
 
 export default Routes

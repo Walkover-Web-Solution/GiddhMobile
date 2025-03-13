@@ -2,15 +2,17 @@ import { capitalizeName, formatAmount } from '@/utils/helper'
 import useCustomTheme, { ThemeProps } from '@/utils/theme'
 import moment from 'moment'
 import React, { memo, useRef, useState } from 'react'
-import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { DeviceEventEmitter, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Feather from 'react-native-vector-icons/Feather'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import { Swipeable } from 'react-native-gesture-handler'
 import DateChipSeparator from './DateChipSeparator'
 import { useNavigation } from '@react-navigation/native'
 import { APP_EVENTS } from '@/utils/constants'
-import PreviewIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import PdfPreviewModal from '@/screens/Parties/components/PdfPreviewModal'
+import BottomSheet from '@/components/BottomSheet'
+import Toast from '@/components/Toast'
 
 type Props = {
     name: string
@@ -30,7 +32,8 @@ type Props = {
     companyVoucherVersion: number
     shareFile: (uniqueName: string, voucherNumber: string) => void
     downloadFile: (uniqueName: string, voucherNumber: string) => void
-    onPressDelete: (accountUniqueName: string, voucherUniqueName: string, voucherType: string) => void
+    onPressDelete: (accountUniqueName: string, voucherUniqueName: string, voucherType: string) => void,
+    accountDetail: any
 }
 
 const _RenderVoucher : React.FC<Props> = ({ 
@@ -51,7 +54,8 @@ const _RenderVoucher : React.FC<Props> = ({
     companyVoucherVersion,
     shareFile, 
     downloadFile,
-    onPressDelete 
+    onPressDelete, 
+    accountDetail
 }) => {
     const swipeableRef = useRef<Swipeable>(null);
     const navigation = useNavigation();
@@ -59,7 +63,98 @@ const _RenderVoucher : React.FC<Props> = ({
     const overDueDays : number = moment().clone().startOf('day').diff(moment(dueDate, 'DD MM YYYY'), 'days')
     const [pdfPreviewLoading,setpdfPreviewLoading] = useState(false);
     const [pdfModalVisible,setpdfModalVisible] = useState(false);
+    const moreActionModalizeRef = useRef(null);
     const isOverDue : boolean =(balanceStatus !== 'PAID' && balanceStatus !== 'HOLD' && balanceStatus !== 'CANCEL') && (!!dueDate && overDueDays >= 0)
+
+    const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
+        if(visible){
+          Keyboard.dismiss();
+          modalRef?.current?.open();
+        } else {
+          modalRef?.current?.close();
+        }
+    };
+
+    const MoreActionModalize = (
+        <BottomSheet
+        bottomSheetRef={moreActionModalizeRef}
+        headerText='Voucher Options'
+        headerTextColor='#084EAD'
+        adjustToContentHeight={true}
+        customRenderer={(
+            <View style={styles.iconContainer}>
+                <TouchableOpacity
+                    hitSlop={{ top: 10, bottom: 10 }}
+                    style={styles.iconButton}
+                    onPress={() => {
+                        setBottomSheetVisible(moreActionModalizeRef, false);
+                        shareFile(voucherUniqueName, voucherNumber)
+                    }}
+                >
+                    <Feather name="send" size={20} color={'#1C1C1C'} />
+                    <Text style={styles.modalText}>Share</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    hitSlop={{ top: 10, bottom: 10 }}
+                    style={styles.iconButton}
+                    onPress={() => {
+                        setBottomSheetVisible(moreActionModalizeRef, false);
+                        downloadFile(voucherUniqueName, voucherNumber)
+                    }}
+                    >
+                    <Feather name="download" size={20} color={'#1C1C1C'} />
+                    <Text style={styles.modalText}>Download</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    activeOpacity={0.7}
+                    style={styles.iconButton}
+                    hitSlop={{ top: 10, bottom: 10 }}
+                    onPress={() => {
+                        setBottomSheetVisible(moreActionModalizeRef, false);
+                        navigation.navigate('PdfPreviewScreen',{
+                            companyVersionNumber:companyVoucherVersion,
+                            uniqueName:accountUniqueName,
+                            voucherInfo:{
+                                voucherNumber: [voucherNumber],
+                                uniqueName: voucherUniqueName,
+                                voucherType: voucherName.toLocaleLowerCase(),
+                            }
+                        })
+                    }}>
+                    <MaterialCommunityIcons name="file-eye-outline" size={20} color={'#000'} />
+                    <Text style={styles.modalText}>Preview</Text>
+                </TouchableOpacity>
+                {voucherName == "Sales" && <TouchableOpacity
+                    activeOpacity={0.7}
+                    style={styles.iconButton}
+                    hitSlop={{ top: 10, bottom: 10 }}
+                    onPress={async () => {
+                        if(accountDetail?.billingDetails?.pincode && accountDetail?.billingDetails?.pincode?.length > 0){
+                            setBottomSheetVisible(moreActionModalizeRef, false);
+                            await DeviceEventEmitter.emit(APP_EVENTS.EWayBillScreenRefresh, {});
+                            navigation.navigate('EWayBillScreen',{
+                                isSalesCashInvoice: isSalesCashInvoice,
+                                accountUniqueName: accountUniqueName,
+                                companyVersionNumber: companyVoucherVersion,
+                                voucherInfo:{
+                                    voucherNumber: voucherNumber,
+                                    uniqueName: voucherUniqueName,
+                                    voucherType: voucherName.toLocaleLowerCase(),
+                                },
+                                accountDetail: accountDetail,
+                                key: voucherUniqueName
+                            })
+                        }else{
+                            Toast({message: "Please update pincode in voucher before creating eway bill.", position:'BOTTOM',duration:'LONG'}) 
+                        }
+                    }}>
+                    <MaterialCommunityIcons name="truck-fast-outline" size={20} color={'#000'} />
+                    <Text style={styles.modalText}>Generate E-way Bill</Text>
+                </TouchableOpacity>}
+            </View>
+        )}
+        />
+    )
 
     return (
         <>
@@ -134,8 +229,8 @@ const _RenderVoucher : React.FC<Props> = ({
             >
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    disabled={true}
                     style={styles?.button}
+                    onPress={() => setBottomSheetVisible(moreActionModalizeRef, true)}
                 >
                     <View style={styles.row}>
                         <Text style={styles?.name}>{name}</Text>
@@ -167,39 +262,6 @@ const _RenderVoucher : React.FC<Props> = ({
                                 :   
                                     <Text style={styles.overDueText}><AntDesign name="exclamationcircleo" size={12} /> Overdue By {overDueDays === 0 ? 'Today' : `${overDueDays} Days`}</Text>
                             }
-                            <View style={styles.iconContainer}>
-                                <TouchableOpacity
-                                    hitSlop={{ top: 10, bottom: 10 }}
-                                    style={styles.iconButton}
-                                    onPress={() => shareFile(voucherUniqueName, voucherNumber)}
-                                >
-                                    <Feather name="send" size={17} color={'#1C1C1C'} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    hitSlop={{ top: 10, bottom: 10 }}
-                                    style={styles.iconButton}
-                                    onPress={() => downloadFile(voucherUniqueName, voucherNumber)}
-                                >
-                                    <Feather name="download" size={17} color={'#1C1C1C'} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    activeOpacity={0.7}
-                                    style={{paddingHorizontal: 8}}
-                                    hitSlop={{ top: 10, bottom: 10 }}
-                                    onPress={() => {
-                                        navigation.navigate('PdfPreviewScreen',{
-                                            companyVersionNumber:companyVoucherVersion,
-                                            uniqueName:accountUniqueName,
-                                            voucherInfo:{
-                                              voucherNumber: [voucherNumber],
-                                              uniqueName: voucherUniqueName,
-                                              voucherType: voucherName.toLocaleLowerCase(),
-                                            }
-                                        })
-                                    }}>
-                                    <PreviewIcon name="file-eye-outline" size={17} color={'#000'} />
-                                </TouchableOpacity>
-                            </View>
                         </View>
                     }
                 </TouchableOpacity>
@@ -217,6 +279,7 @@ const _RenderVoucher : React.FC<Props> = ({
                 voucherType: voucherName.toLocaleLowerCase(),
             }}
           /> */}
+        {MoreActionModalize}
         </>
     )
 }
@@ -238,7 +301,7 @@ const getVoucherStyles = (theme: ThemeProps) => StyleSheet.create({
     },
     button: {
         paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingVertical: 8,
     },
     name: {
         fontFamily: theme.typography.fontFamily.semiBold,
@@ -256,12 +319,12 @@ const getVoucherStyles = (theme: ThemeProps) => StyleSheet.create({
         color: theme.colors.text
     },
     iconButton: {
-        paddingHorizontal: 8,
+        paddingVertical:11,
+        flexDirection:'row',
+        alignItems:'center'
     },
     iconContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginRight: -10
+        paddingHorizontal:18
     },
     date: {
         fontFamily: theme.typography.fontFamily.regular,
@@ -303,6 +366,13 @@ const getVoucherStyles = (theme: ThemeProps) => StyleSheet.create({
         paddingHorizontal: 28,
         borderTopRightRadius: 50,
         borderBottomRightRadius: 50
+    },
+    modalText: {
+        fontFamily: theme.typography.fontFamily.semiBold,
+        fontSize: theme.typography.fontSize.large.size,
+        lineHeight: theme.typography.fontSize.large.lineHeight,
+        color: theme.colors.solids.black,
+        marginLeft:12
     }
 })
 

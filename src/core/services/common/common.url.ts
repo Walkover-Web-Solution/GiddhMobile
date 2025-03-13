@@ -26,4 +26,8 @@ export const commonUrls = {
   fetchBankAccounts : (startData, endDate, page) => createEndpoint(`v2/company/:companyUniqueName/groups/bankaccounts/account-balances?page=${page}&count=50&refresh=true&q=&sortBy=closingBalance&sort=desc&from=${startData}&to=${endDate}&branchUniqueName=:branchUniqueName&lang=en`),
   fetchDetailedBalanceSheet: (startDate, endDate, branchUniqueName) => createEndpoint(`v2/company/:companyUniqueName/multibranch/balance-sheet?from=${startDate}&to=${endDate}&fy=&selectedDateOption=1&branchUniqueName=${branchUniqueName}&selectedFinancialYearOption=&refresh=false&tagName=&lang=en`),
   downloadBalanceSheet: (startDate, endDate, viewType, branchUniqueName) => createEndpoint(`company/:companyUniqueName/v2/balance-sheet-collapsed-download?from=${startDate}&to=${endDate}&branchUniqueName=${branchUniqueName}&filename=balancesheet.xlsx&view=${viewType}&lang=en`),
+  generateEWayBill: createEndpoint('company/:companyUniqueName/ewb?lang=en'),
+  downloadEWB: (billNo) => createEndpoint(`company/:companyUniqueName/ewb/${billNo}/download?`),
+  fetchTaxNumbers: createEndpoint('company/:companyUniqueName/tax-numbers'),
+  fetchEWayBills: (startDate, endDate, gstno) => createEndpoint(`company/:companyUniqueName/ewb?fromDate=${startDate}&toDate=${endDate}&gstin=${gstno}&count=20&branchUniqueName=:branchUniqueName&`)
 };

@@ -26,6 +26,8 @@ import ProductGroupScreen from '@/screens/ProductGroup/ProductGroupScreen';
 import { ServiceStack } from './components/service.navigator';
 // import SubscriptionStack from './subscription.navigator';
 import InventoryListScreen from '@/screens/InventoryList/InventoryListScreen';
+import EWayBillScreen from '@/screens/EWayBill/EWayBillScreen';
+import { TaxStack } from './taxStack.navigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -53,9 +55,11 @@ export default function AppMainNav() {
       <Drawer.Screen name={'CreditNoteUpdateStack'} component={CreditNoteUpdateStack}/>
       <Drawer.Screen name={'DebitNoteUpdateStack'} component={DebitNoteUpdateStack}/>
       <Drawer.Screen name={'PdfPreviewScreen'} component={PdfPreviewScreen}/>
+      <Drawer.Screen name={'EWayBillScreen'} component={EWayBillScreen} options={detachInactiveScreens=false}/>
       <Drawer.Screen name={'ProductScreen'} component={ProductStack} />
       <Drawer.Screen name={'productGroupScreen'} component={ProductGroupScreen} />
       <Drawer.Screen name={'ServiceScreen'} component={ServiceStack} />
+      <Drawer.Screen name={'TaxStack'} component={TaxStack} />
       {/* <Drawer.Screen name={'SubscriptionStack'} component={SubscriptionStack} /> */}
       <Drawer.Screen name={'InventoryListScreen'} component={InventoryListScreen} />
     </Drawer.Navigator>

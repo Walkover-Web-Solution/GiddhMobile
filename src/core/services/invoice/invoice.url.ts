@@ -71,6 +71,8 @@ export const invoiceUrls = {
   getCompanyVoucherTemplate: createEndpoint(
     'v2/company/:companyUniqueName/templates?type=voucher&branchUniqueName=:branchUniqueName'
   ),
+  fetchReceiverDetail: createEndpoint(`company/:companyUniqueName/ewb/user`),
+  fetchTransporterDetails: createEndpoint(`company/:companyUniqueName/transporters?page=1&count=20`)
 };
 
 

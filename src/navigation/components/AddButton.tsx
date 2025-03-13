@@ -23,7 +23,7 @@ import Variant from '@/assets/images/icons/options/varient-wise.svg'
 import Inventory from '@/assets/images/icons/options/home-icon-black.svg'
 import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import Product from 'react-native-vector-icons/Ionicons'
-import Service2 from 'react-native-vector-icons/FontAwesome'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { DefaultTheme } from '@/utils/theme';
@@ -54,21 +54,21 @@ const arrButtons = [
 
 const inventoryButtons:any = {
     item1 : {
-        name: 'Product Stock', 
+        name: 'Stock', 
         navigateTo: 'ProductScreen', 
         icon: <Stock color='#000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductScreenRefresh'
     },
     item2 : {
-        name: 'Product Group', 
+        name: 'Group', 
         navigateTo: 'productGroupScreen', 
         icon: <Variant color='#008000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductGroupRefresh'   
     },
     item3 : {
-        name: 'Product Inventory', 
+        name: 'Inventory', 
         navigateTo: 'InventoryListScreen', 
         icon: <Inventory color='#800080' />, 
         color: DefaultTheme.colors.secondary,
@@ -97,6 +97,16 @@ const inventoryButtons:any = {
     }
 }
 
+const taxButtons:any = {
+    item1 : {
+        name: 'E-Way Bill', 
+        navigateTo: 'TaxStack', 
+        icon: <MaterialCommunityIcons name="truck-fast-outline" size={26} color={'#084EAD'} />, 
+        color: DefaultTheme.colors.secondary,
+        event : 'ListEWayBillsScreenRefresh'
+    }
+}
+
 type Props = {
     navigation: any;
     isDisabled: any;
@@ -111,7 +121,8 @@ class AddButtonOptions extends React.PureComponent<Props> {
     }
 
     render() {
-        const data = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
+        const dataInventory = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
+        const dataTax = Object.keys(taxButtons).map(key => taxButtons[key]);
 
         const getRows = (items:any, itemsPerRow:number) => {
             const rows = [];
@@ -122,18 +133,45 @@ class AddButtonOptions extends React.PureComponent<Props> {
         };
 
 
-        const rows = getRows(data, 4);
+        const inventoryRows = getRows(dataInventory, 4);
+        const taxRows = getRows(dataTax, 4);
         return (
             <Portal>
                 <Modalize
                     ref={this?.props?.plusButtonRef}
-                    adjustToContentHeight={true}
+                    // adjustToContentHeight={false}
+                    // modalHeight={height*0.7}
+                    modalTopOffset={height*0.3}
                     withHandle={false}
                     modalStyle={styles.modalStyle}
                 >
+                    <View style={[styles.sectionContainer,{alignSelf:'flex-start',}]}>
+                        <Text style={styles.listTitle}>Tax</Text>
+                        {taxRows.map((rowItems, rowIndex) => (
+                            <View style={styles.buttonContainer} key={rowIndex}>
+                            {rowItems.map((item) => (
+                                <TouchableOpacity
+                                key={item.name}
+                                activeOpacity={0.7}
+                                style={styles.button}
+                                onPress={async ()=>{
+                                    this?.props?.closeModal();
+                                    await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
+                                    await this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
+                                }}
+                                >
+                                <View style={styles.iconContainer}>
+                                    {item.icon}
+                                </View>
+                                <Text style={styles.name}>{item.name}</Text>
+                                </TouchableOpacity>
+                            ))}
+                            </View>
+                        ))}
+                    </View>
                     <View style={styles.sectionContainer}>
                         <Text style={styles.listTitle}>Inventory</Text>
-                        {rows.map((rowItems, rowIndex) => (
+                        {inventoryRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
                             {rowItems.map((item) => (
                                 <TouchableOpacity

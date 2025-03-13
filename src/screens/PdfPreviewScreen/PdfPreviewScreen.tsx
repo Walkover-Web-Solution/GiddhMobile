@@ -115,9 +115,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
         borderColor:'red'
     },
     container : {
-        flex:1,
-        marginTop:0,
-        borderRadius:7 
+        flex:1
     },
     pdf: {
         flex:1,
