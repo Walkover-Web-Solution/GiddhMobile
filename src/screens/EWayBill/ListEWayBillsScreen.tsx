@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused } from "@react-navigation/native";
-import { Alert, DeviceEventEmitter, Dimensions, FlatList, PermissionsAndroid, Platform, RefreshControl, SafeAreaView, StatusBar, StyleSheet, ToastAndroid, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Alert, DeviceEventEmitter, FlatList, PermissionsAndroid, Platform, RefreshControl, SafeAreaView, StatusBar, StyleSheet, ToastAndroid, TouchableOpacity } from "react-native";
 import { Text, View } from "react-native"
 import { useSelector } from "react-redux";
 import Feather from 'react-native-vector-icons/Feather'
@@ -18,7 +18,9 @@ import Toast from "@/components/Toast";
 import DateFilter from "./component/DateFilte";
 import TaxNumbersModalize from "./component/TaxNumbersModalize";
 import { setBottomSheetVisible } from "@/components/BottomSheet";
-const {height,width} = Dimensions.get('window')
+import Loader from "@/components/Loader";
+import NoData from "@/components/NoData";
+import { REDUX_STATE } from "@/redux/types";
 
 const exportFile = async (uniqueName) => {
     // if (isApiCallInProgress) return;
@@ -27,89 +29,89 @@ const exportFile = async (uniqueName) => {
         DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Downloading Started... It may take while', open: null });
         const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
         const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-        
+
         // fetching base64 string
         const response = await fetch(commonUrls.downloadEWB(uniqueName)
-        .replace(':companyUniqueName',activeCompany) ,{
-          method: "GET",
-          headers: {
-            'Accept': 'application/json',
-            'session-id' : token,
-            'user-agent' : Platform.OS
-          },
+            .replace(':companyUniqueName', activeCompany), {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json',
+                'session-id': token,
+                'user-agent': Platform.OS
+            },
         })
 
         if (!response.ok) {
-          TOAST({message: `Failed to fetch file: ${response.statusText}`, position:'BOTTOM',duration:'LONG'}) 
-        //   setIsApiCallInProgress(false);
+            TOAST({ message: `Failed to fetch file: ${response.statusText}`, position: 'BOTTOM', duration: 'LONG' })
+            //   setIsApiCallInProgress(false);
         }
 
         const jsonResponse = await response.json();
         //base64 str from response
         const base64String = jsonResponse?.body;
-        
+
         if (!base64String) {
-          TOAST({message: 'Failed to fetch file', position:'BOTTOM',duration:'LONG'});
-        //   setIsApiCallInProgress(false);
-          throw new Error('Base64 data is missing in the response');
+            TOAST({ message: 'Failed to fetch file', position: 'BOTTOM', duration: 'LONG' });
+            //   setIsApiCallInProgress(false);
+            throw new Error('Base64 data is missing in the response');
         }
 
         const { dirs } = RNFetchBlob.fs;
         const dirToSave = Platform.OS === 'ios' ? dirs.DocumentDir : dirs.DownloadDir;
         const configfb = {
-          fileCache: true,
-          addAndroidDownloads: {
+            fileCache: true,
+            addAndroidDownloads: {
+                notification: true,
+                title: `EWAYB`,
+                path: `${dirs.DownloadDir}/EWBill-${moment().format('DD-MM-YYYY-hh-mm-ss')}.pdf`,
+            },
             notification: true,
             title: `EWAYB`,
-            path: `${dirs.DownloadDir}/EWBill-${moment().format('DD-MM-YYYY-hh-mm-ss')}.pdf`,
-          },
-          notification: true,
-          title: `EWAYB`,
-          path: `${dirToSave}/EWBill-${moment().format('DD-MM-YYYY-hh-mm-ss')}.pdf`,
-          IOSBackgroundTask: true,
+            path: `${dirToSave}/EWBill-${moment().format('DD-MM-YYYY-hh-mm-ss')}.pdf`,
+            IOSBackgroundTask: true,
         };
         const configOptions = Platform.select({
-          ios: configfb,
-          android: configfb,
+            ios: configfb,
+            android: configfb,
         });
 
         await RNFetchBlob.fs.writeFile(configfb.path, base64String, 'base64');
 
         console.log('File saved successfully to:', configfb.path);
         if (Platform.OS === 'ios') {
-          RNFetchBlob.ios.previewDocument(configfb.path);
+            RNFetchBlob.ios.previewDocument(configfb.path);
         }
         //coping file to download folder
         if (Platform.OS == "android") {
-          let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
-            name: 'EWBill-'+ moment().format('DD-MM-YYYY-hh-mm-ss'), 
-            parentFolder: '',
-            mimeType: 'application/pdf'
-               },
-               'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
+            let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
+                name: 'EWBill-' + moment().format('DD-MM-YYYY-hh-mm-ss'),
+                parentFolder: '',
+                mimeType: 'application/pdf'
+            },
+                'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
                 configfb.path // Path to the file being copied in the apps own storage
             );
-          ToastAndroid.show(
-            'File saved to download folder',
-            ToastAndroid.LONG,
-          );
+            ToastAndroid.show(
+                'File saved to download folder',
+                ToastAndroid.LONG,
+            );
         }
 
         //notification for complete download
         RNFetchBlob.android.addCompleteDownload({
-          title: configfb.title,
-          description: 'File downloaded successfully',
-          mime: 'application/pdf',
-          path: configfb.path,
-          showNotification: true,
+            title: configfb.title,
+            description: 'File downloaded successfully',
+            mime: 'application/pdf',
+            path: configfb.path,
+            showNotification: true,
         })
 
-        const openFile = Platform.OS === 'android' 
-            ?  () => RNFetchBlob.android.actionViewIntent(configfb.path, 'application/pdf').catch((error) => { console.error('----- Error in File Opening -----', error)})
-            :  () => RNFetchBlob.ios.openDocument(configfb.path)
+        const openFile = Platform.OS === 'android'
+            ? () => RNFetchBlob.android.actionViewIntent(configfb.path, 'application/pdf').catch((error) => { console.error('----- Error in File Opening -----', error) })
+            : () => RNFetchBlob.ios.openDocument(configfb.path)
 
-        DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { 
-            message: 'Download Successful!', 
+        DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, {
+            message: 'Download Successful!',
             action: 'Open',
             open: openFile
         });
@@ -135,26 +137,25 @@ const downloadEWayBill = async (uniqueName: string) => {
     }
 }
 
-const RenderItem = ( {element, currency} ) => {
-    const {styles, theme} = useCustomTheme(getStyles);
-    const {item} = element;    
+const RenderItem = ({ item, currency }) => {
+    const { styles, theme } = useCustomTheme(getStyles);
 
     return (
         <View style={styles.card}>
-            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={styles.title}>#{item.docNumber} </Text>
                 <Text style={styles.title}>{currency?.currency?.symbol} {item.totalValue}</Text>
             </View>
             <View style={styles.detailsContainer}>
-                <View style={{flexDirection:'row', justifyContent:'space-between', marginBottom:5}}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
                     <Text style={styles.regularText}>{item.invoiceDate}</Text>
-                    <Text style={[styles.regularText, {fontFamily:theme.typography.fontFamily.semiBold}]}>{item.customerName || 'N/A'}</Text>
+                    <Text style={[styles.regularText, { fontFamily: theme.typography.fontFamily.semiBold }]}>{item.customerName || 'N/A'}</Text>
                 </View>
                 <Text style={styles.regularText}>Bill#: {item.ewbNo}</Text>
                 <Text style={styles.regularText}>Customer GSTIN: {item.customerGstin || 'N/A'}</Text>
                 <Text style={styles.regularText}>Bill Date: {item.ewayBillDate}</Text>
-                <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', paddingTop:3}}>
-                    <TouchableOpacity onPress={() => {downloadEWayBill(item.ewbNo)}} style={styles.downloadButton}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 3 }}>
+                    <TouchableOpacity onPress={() => { downloadEWayBill(item.ewbNo) }} style={styles.downloadButton}>
                         <Feather name="download" size={20} color={'#1C1C1C'} />
                         {/* <Text style={[styles.title,{marginBottom: 0, marginLeft:5}]}>Download</Text> */}
                     </TouchableOpacity>
@@ -165,15 +166,17 @@ const RenderItem = ( {element, currency} ) => {
 }
 
 const ListEWayBillsScreen = () => {
-    const {statusBar, styles, voucherBackground, theme} = useCustomTheme(getStyles, 'PdfPreview');
-    const { countryV2:currencyDetails } = useSelector(state => state?.commonReducer?.companyDetails);
+    const { statusBar, styles, voucherBackground, theme } = useCustomTheme(getStyles, 'PdfPreview');
+    const { countryV2: currencyDetails } = useSelector((state: REDUX_STATE) => state?.commonReducer?.companyDetails);
     const [taxNumbers, setTaxNumbers] = useState([]);
     const [selectedGst, setSelectedGst] = useState('');
     const [refreshing, setRefreshing] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
     const [dateMode, setDateMode] = useState('defaultDates');
     const [activeDateFilter, setActiveDateFilter] = useState('');
     const [ewayList, setEWayList] = useState([]);
+    const [pageData, setPageData] = useState({ page: 1, totalPages: 1 });
     const dropDownModalizeRef = useRef(null);
 
     const changeDate = (startDate: string, endDate: string) => {
@@ -193,50 +196,64 @@ const ListEWayBillsScreen = () => {
     const fetchTaxNumbers = async () => {
         try {
             const response = await CommonService.fetchTaxNumbers();
-            console.log("hi",response);
-            if(response && response?.status == "success"){
+            if (response && response?.status == "success") {
                 setTaxNumbers(response?.body);
-                if(response?.body?.length > 0)setSelectedGst(response?.body?.[0]);
+                if (response?.body?.length > 0) setSelectedGst(response?.body?.[0]);
             }
         } catch (error) {
             console.log("Error while fetching tax numbers", error);
-            Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'})         
+            Toast({ message: error?.message, duration: 'SHORT', position: 'BOTTOM' })
         }
     }
 
-    const fetchEWayBills = async () => {
+    const fetchEWayBills = async (page?: number) => {
         try {
-            const response = await CommonService.fetchEWayBills(date.startDate, date.endDate, selectedGst);
-            console.log("hihihhi", response);
-            if(response && response?.status =="success"){
-                setEWayList(response?.body?.results);
+            const _page = page ?? pageData.page + 1;
+            const response = await CommonService.fetchEWayBills(date.startDate, date.endDate, selectedGst, _page);
+            if (response && response?.status == "success") {
+                const { results, page, totalPages } = response?.body;
+                setEWayList((prev) => _page > 1 ? [...prev, ...results] : results);
+                setPageData({ page, totalPages });
             }
         } catch (error) {
             console.log("Error while fetching ewaybill list", error);
-            Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'}) 
+            Toast({ message: error?.message, duration: 'SHORT', position: 'BOTTOM' })
         }
     }
 
-    const onRefresh = () => {
+    const onRefresh = async () => {
         setRefreshing(true);
-        fetchEWayBills();
-        setTimeout(() => {
-          setRefreshing(false);
-        }, 2000);
+        await fetchEWayBills(1);
+        setRefreshing(false);
     };
 
-    useEffect(()=>{
-        if(selectedGst !=''){
-            console.log("bhaisab");
-            
-            fetchEWayBills();
-        }else fetchTaxNumbers();
+    useEffect(() => {
+        if (selectedGst != '') {
+            setIsLoading(true);
+            fetchEWayBills(1).then(() => setIsLoading(false));
+        } else {
+            fetchTaxNumbers();
+        }
+
+        const subscribe = DeviceEventEmitter.addListener(
+            APP_EVENTS.ListEWayBillsScreenRefresh,
+            () => setDate({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') })
+        );
+
+        return () => {
+            subscribe.remove();
+        }
     }, [selectedGst, date])
 
-    
+    const ListFooterComponent = (
+        <View style={styles.loader}>
+            <ActivityIndicator color={colors.PRIMARY_NORMAL} size="small" animating={pageData.page < pageData.totalPages} />
+        </View>
+    );
+
     return (
         <SafeAreaView style={styles.container}>
-            <_StatusBar statusBar={statusBar}/>
+            <_StatusBar statusBar={statusBar} />
             <Header header={'E-way Bills'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             <DateFilter
                 startDate={date.startDate}
@@ -254,73 +271,82 @@ const ListEWayBillsScreen = () => {
             <FlatList
                 data={ewayList}
                 keyExtractor={(item) => item.ewbNo}
-                renderItem={item => <RenderItem element={item} currency={currencyDetails}/>}
+                renderItem={({ item }) => <RenderItem item={item} currency={currencyDetails} />}
                 contentContainerStyle={styles.listContainer}
-                ListEmptyComponent={()=>(
-                    <View style={{backgroundColor: theme.colors.solids.white,alignItems:'center'}}>
-                        <Text style={styles.regularText}>No entries found within given criteria.Do search with some other dates</Text>
-                    </View>
-                )}
-                refreshControl={ 
-                    <RefreshControl 
+                ListFooterComponent={ListFooterComponent}
+                ListEmptyComponent={
+                    !isLoading ? (
+                        <NoData
+                            primaryMessage="No Records found."
+                            secondaryMessage="There is no E-way Bill recorded in the selected date range."
+                        />
+                    ) : null
+                }
+                refreshControl={
+                    <RefreshControl
                         progressBackgroundColor={colors.BACKGROUND}
                         colors={[colors.PRIMARY_NORMAL]}
-                        refreshing={refreshing} 
+                        refreshing={refreshing}
                         progressViewOffset={15}
-                        onRefresh={onRefresh} 
+                        onRefresh={onRefresh}
                     />
                 }
+                onEndReachedThreshold={2}
+                onEndReached={() => (pageData.page < pageData.totalPages) && fetchEWayBills()}
             />
-            <TaxNumbersModalize modalizeRef={dropDownModalizeRef} setBottomSheetVisible={setBottomSheetVisible} taxData={taxNumbers} setSelectedGst={setSelectedGst}/>
+            <Loader isLoading={isLoading} />
+            <TaxNumbersModalize modalizeRef={dropDownModalizeRef} setBottomSheetVisible={setBottomSheetVisible} taxData={taxNumbers} setSelectedGst={setSelectedGst} />
         </SafeAreaView>
     )
 }
 
 export default ListEWayBillsScreen;
 
-const getStyles = (theme: ThemeProps)=> StyleSheet.create({
-    container : {
-        flex:1,
+const getStyles = (theme: ThemeProps) => StyleSheet.create({
+    container: {
+        flex: 1,
         backgroundColor: theme.colors.solids.white
     },
     subContainer: {
-        marginHorizontal: 20, 
+        marginHorizontal: 20,
         marginVertical: 7,
     },
     card: {
+        marginHorizontal: 12,
         backgroundColor: 'white',
-        padding: 13,
+        padding: 12,
         borderRadius: 12,
         marginBottom: 12,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 4,
-        elevation: 3,
-      },
-      detailsContainer: {
+        borderColor: '#D9D9D9',
+        borderWidth: 1
+    },
+    detailsContainer: {
         flex: 1,
-      },
-      title: {
+    },
+    title: {
         fontSize: theme.typography.fontSize.large.size,
-        fontFamily: theme.typography.fontFamily.bold,
+        fontFamily: theme.typography.fontFamily.extraBold,
         lineHeight: theme.typography.fontSize.large.lineHeight,
         marginBottom: 8,
-      },
-      downloadButton:{
+    },
+    downloadButton: {
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
-        flexDirection:'row',
+        flexDirection: 'row',
     },
-      listContainer: {
-        padding: 10,
-        backgroundColor: theme.colors.solids.white,
-      },
-      regularText: {
+    listContainer: {
+        flexGrow: 1
+    },
+    regularText: {
         fontSize: theme.typography.fontSize.regular.size,
-        fontFamily: theme.typography.fontFamily.semiBold,
+        fontFamily: theme.typography.fontFamily.regular,
         lineHeight: theme.typography.fontSize.regular.lineHeight,
-        marginBottom:1,
-      },
+        marginBottom: 1,
+    },
+    loader: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12
+    }
 })

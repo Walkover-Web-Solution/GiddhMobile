@@ -86,7 +86,7 @@ export class SalesInvoice extends React.Component<Props> {
       endDate: null,
       date: moment(),
       displayedDate: moment(),
-      dueDate: moment().add(10, 'day'),
+      dueDate: moment(),
       showDatePicker: false,
       showDueDatePicker: false,
       partyBillingAddress: {
@@ -696,7 +696,7 @@ export class SalesInvoice extends React.Component<Props> {
       endDate: null,
       date: moment(),
       displayedDate: moment(),
-      dueDate: moment().add(10, 'day'),
+      dueDate: moment(),
       showDatePicker: false,
       showDueDatePicker: false,
       partyBillingAddress: {},
@@ -849,7 +849,7 @@ export class SalesInvoice extends React.Component<Props> {
         // discounts: [
         //   {calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''},
         // ],
-        hsnNumber: item.hsnNumber == null ? '' : item.hsnNumber,
+        hsnNumber: item.stock ? (item.stock?.hsnNumber ?? '') : (item.hsnNumber == null ? '' : item.hsnNumber),
         purchaseOrderItemMapping: { uniqueName: '', entryUniqueName: '' },
         sacNumber: item.sacNumber == null ? '' : item.sacNumber,
         taxes: this.getTaxesForEntry(item),
@@ -1088,7 +1088,7 @@ export class SalesInvoice extends React.Component<Props> {
   handleConfirm = (date) => {
     // console.log('A date has been picked: ', date);
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
-    this.setState({ date: moment(date), dueDate: moment(date).add(10, 'day') });
+    this.setState({ date: moment(date), dueDate: moment(date) });
     this.hideDatePicker();
   };
 

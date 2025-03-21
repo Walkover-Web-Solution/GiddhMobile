@@ -395,8 +395,8 @@ export class CommonService {
     })
   }
 
-  static fetchEWayBills(startDate: string, endDate: string, gstno: string) {
-    return httpInstance.get(commonUrls.fetchEWayBills(startDate, endDate, gstno))
+  static fetchEWayBills(startDate: string, endDate: string, gstno: string, page: number) {
+    return httpInstance.get(commonUrls.fetchEWayBills(startDate, endDate, gstno, page))
     .then((res) => {
       return res?.data;
     }).catch((err) => {

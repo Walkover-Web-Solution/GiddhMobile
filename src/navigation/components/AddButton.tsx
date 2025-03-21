@@ -145,53 +145,52 @@ class AddButtonOptions extends React.PureComponent<Props> {
                     withHandle={false}
                     modalStyle={styles.modalStyle}
                 >
-                    <View style={[styles.sectionContainer,{alignSelf:'flex-start',}]}>
+                    <View style={[styles.sectionContainer, { alignSelf:'flex-start' }]}>
                         <Text style={styles.listTitle}>Tax</Text>
-                        {taxRows.map((rowItems, rowIndex) => (
+                        { taxRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
-                            {rowItems.map((item) => (
-                                <TouchableOpacity
-                                key={item.name}
-                                activeOpacity={0.7}
-                                style={styles.button}
-                                onPress={async ()=>{
-                                    this?.props?.closeModal();
-                                    await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
-                                    await this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
-                                }}
-                                >
-                                <View style={styles.iconContainer}>
-                                    {item.icon}
-                                </View>
-                                <Text style={styles.name}>{item.name}</Text>
-                                </TouchableOpacity>
-                            ))}
+                                { rowItems.map((item) => (
+                                    <TouchableOpacity
+                                        key={item.name}
+                                        activeOpacity={0.7}
+                                        style={styles.button}
+                                        onPress={() => {
+                                            this?.props?.closeModal();
+                                            DeviceEventEmitter.emit(APP_EVENTS?.[item?.event]);
+                                            this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
+                                        }}
+                                    >
+                                        <View style={styles.iconContainer}>
+                                            {item.icon}
+                                        </View>
+                                        <Text style={styles.name}>{item.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
                             </View>
                         ))}
                     </View>
                     <View style={styles.sectionContainer}>
                         <Text style={styles.listTitle}>Inventory</Text>
-                        {inventoryRows.map((rowItems, rowIndex) => (
+                        { inventoryRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
-                            {rowItems.map((item) => (
-                                <TouchableOpacity
-                                key={item.name}
-                                activeOpacity={0.7}
-                                style={styles.button}
-                                onPress={async ()=>{
-                                    this?.props?.closeModal();
-                                    console.log("event emitted-->",APP_EVENTS?.[item?.event]);
-                                    
-                                    await DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
-                                    await this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
-                                }}
-                                >
-                                <View style={styles.iconContainer}>
-                                    {item.icon}
-                                </View>
-                                <Text style={styles.name}>{item.name}</Text>
-                                </TouchableOpacity>
-                            ))}
+                                { rowItems.map((item) => (
+                                    <TouchableOpacity
+                                        key={item.name}
+                                        activeOpacity={0.7}
+                                        style={styles.button}
+                                        onPress={async () => {
+                                            this?.props?.closeModal();
+                                            console.log("event emitted-->",APP_EVENTS?.[item?.event]);
+                                            DeviceEventEmitter.emit(APP_EVENTS?.[item?.event], {});
+                                            this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
+                                        }}
+                                    >
+                                        <View style={styles.iconContainer}>
+                                            {item.icon}
+                                        </View>
+                                        <Text style={styles.name}>{item.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
                             </View>
                         ))}
                     </View>

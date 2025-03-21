@@ -386,7 +386,7 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
   }
 
   static fetchReceiverDetail(){
-    return httpInstance.get(invoiceUrls.fetchReceiverDetail)
+    return httpInstance.get(invoiceUrls.eWayBillUser)
       .then((res) => {
         return res.data;
       }).catch((err) => {
@@ -416,4 +416,7 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       });
   }
 
+  static async loginEwayBill(payload: any) {
+    return httpInstance.post(invoiceUrls.eWayBillUser, payload)
+  }
 }

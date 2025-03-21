@@ -29,6 +29,6 @@ const Routes = {
   TopTabNavigator: 'TopTabNavigator',
   BalanceSheetScreen: 'BalanceSheetScreen',
   ListEWayBillsScreen: 'ListEWayBillsScreen'
-};
+} as const;
 
 export default Routes

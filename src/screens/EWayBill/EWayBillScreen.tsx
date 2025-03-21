@@ -5,27 +5,33 @@ import MatButton from "@/components/OutlinedButton";
 import Toast from "@/components/Toast";
 import { CommonService } from "@/core/services/common/common.service";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
-import { Dimensions, KeyboardAvoidingView, Platform, Pressable, RefreshControl, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, KeyboardAvoidingView, Platform, Pressable, RefreshControl, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSelector } from "react-redux";
 import TransporterModalize from "./component/TransporterModalize";
 import TransportModeModalize from "./component/TransportModeModalize";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import AddTransporterModalize from "./component/AddTransporterModalize";
+import Loader, { NoActionLoader } from "@/components/Loader";
+import colors from "@/utils/colors";
+import EwayBillLoginBottomSheet from "./component/EwayBillLoginBottomSheet";
+import Routes from "@/navigation/routes";
+import { APP_EVENTS } from "@/utils/constants";
 
-const {height,width} = Dimensions.get('window')
+const {width} = Dimensions.get('window')
 const ModeOfTransport = [
     {
         name: "Road",
         isRegularChecked: false,
         overDimensionChecked: false,
         key: 'r',
-        icon: <MaterialIcons name="directions-car" size={22}/>,
+        icon: <MaterialCommunityIcons name="truck-fast-outline" size={22}/>,
         id: 1
     },{
         name: "Rail",
@@ -54,6 +60,9 @@ const EWayBillScreenComponent = ( {route} ) => {
     const transporterModalizeRef = useRef(null);
     const addTransporterModalize = useRef(null);
     const transportModeModalizeRef = useRef(null);
+    const ewayBillLoginBottomSheetRef = useRef(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingCreateBill, setIsLoadingCreateBill] = useState(false);
     const [receiverDetail, setReceiverDetail] = useState({});
     const [transporterDetails, setTransporterDetails] = useState([]);
     const [voucherDetails, setVoucherDetails] = useState({});
@@ -71,12 +80,6 @@ const EWayBillScreenComponent = ( {route} ) => {
     const [subType, setSubType] = useState(baseCurrency === accountDetail?.currency?.code ? "Supply" : "Export");
     const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation();
-    const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-        const isFocused = useIsFocused();
-        return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-    }
-    console.log("key", key, voucherInfo);
-    
 
     const showDatePicker = () => {
         setDatePickerVisibility(true);
@@ -106,12 +109,11 @@ const EWayBillScreenComponent = ( {route} ) => {
     const fetchReceiverDetail = async () => {
         try {
             const response = await InvoiceService.fetchReceiverDetail();
-            if(response && response?.status =="success"){
-                console.log("response-----",response);
+            if(response && response?.status === "success"){
                 setReceiverDetail(response?.body);
             }
         } catch (error) {
-            console.log("Error while fetching receiver details", error);
+            console.error("----- Error while fetching receiver details -----", error);
             Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'})            
         }
     }
@@ -119,12 +121,11 @@ const EWayBillScreenComponent = ( {route} ) => {
     const fetchTransporterDetails = async () => {
         try {
             const response = await InvoiceService.fetchTransporterDetails();
-            if(response && response?.status =="success"){
-                console.log("response----tras-",response);
+            if(response && response?.status === "success"){
                 setTransporterDetails(response?.body?.results);
             }
         } catch (error) {
-            console.log("Error while fetching transporter details", error);
+            console.error("----- Error while fetching transporter details -----", error);
             Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'})            
         }
     }
@@ -139,20 +140,19 @@ const EWayBillScreenComponent = ( {route} ) => {
             }
             const response = await CommonService.getVoucher(accountUniqueName, companyVersionNumber, payload)
             if(response && response?.status === 'success'){
-                console.log("hellow-=-=-=-=-",response);
                 setVoucherDetails(response?.body);
                 const hasNonNilRatedTax = response?.body?.entries?.some((entry: any) =>
                     entry?.taxes?.some((tax: any) => tax.taxPercent !== 0)
                 );
-                if(hasNonNilRatedTax){
+                if(hasNonNilRatedTax) {
                     setDocType("Invoice")
-                }else{
+                } else {
                     setDocType("Bill of Supply")
                 }
             }
             
         } catch (error) {
-            console.log("Error while fetching voucher detailed object", error);
+            console.error("----- Error while fetching voucher details -----", error);
             Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'})
         }
   
@@ -165,10 +165,10 @@ const EWayBillScreenComponent = ( {route} ) => {
         setDocDate("");
         setVehicleNo("");
         setDocNo("");
-        setPincode(accountDetail?.billingDetails?.pincode)
+        setPincode(accountDetail?.billingDetails?.pincode);
     }
 
-    const handleGenerate = async () => {
+    const onCreateEwayBill = async () => {
         try {
             const payload = {
                 toPinCode: pincode,
@@ -186,55 +186,85 @@ const EWayBillScreenComponent = ( {route} ) => {
                 uniqueName: voucherInfo?.uniqueName
             }
             const response = await CommonService.generateEWayBill(payload);
-            console.log("response", response);
             
-            if(response && response?.status == "success"){
-                Toast({message: "E-Way bill "+response?.body?.ewayBillNo+" generated successfully.", duration:'SHORT', position:'BOTTOM'});
-                navigation.navigate('ListEWayBillsScreen');
+            if(response && response?.status == "success") {
+                navigation.navigate('TaxStack', { screen: Routes.ListEWayBillsScreen });
+                DeviceEventEmitter.emit(APP_EVENTS.ListEWayBillsScreenRefresh);
+                Toast({message: "E-Way bill " + response?.body?.ewayBillNo + " generated successfully.", duration:'SHORT', position:'BOTTOM'});
                 resetAll();
-            }else{
+            } else {
                 Toast({message: response?.data?.message, duration:'SHORT', position:'BOTTOM'})
             }
         } catch (error) {
-            console.log("Error while generating eway bill");
             Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'})
         }
     }
+
+    const onCreateEwayBillAfterLogin = async () => {
+        await fetchReceiverDetail();
+        await onCreateEwayBill();
+    }
+
+    const handleGenerate = async () => {
+        const isUserLoggedInforEwayBill = !!receiverDetail?.gstIn;
+        if (!isUserLoggedInforEwayBill) {
+            setBottomSheetVisible(ewayBillLoginBottomSheetRef, true);
+            return;
+        }
+
+        setIsLoadingCreateBill(true);
+        await onCreateEwayBill();
+        setIsLoadingCreateBill(false);
+    }
+
+    const isCreateButtonDisabled = distance?.length === 0
     
     const CreateButton = (
-        <View style={{flexDirection:'row', justifyContent:'space-between',paddingHorizontal:20}}>
+        <View style={styles.buttonWrapper}>
             <TouchableOpacity
-                style={[styles.createButton,{backgroundColor: (distance?.length == 0 || pincode?.length == 0) ? '#E6E6E6' :'#5773FF'}]}
-                disabled = {distance?.length == 0 || pincode?.length == 0}
-                onPress={()=>handleGenerate()}>
+                activeOpacity={0.7}
+                style={[styles.createButton,{backgroundColor: isCreateButtonDisabled ? colors.PRIMARY_DISABLED : colors.PRIMARY_NORMAL }]}
+                disabled={isCreateButtonDisabled}
+                onPress={handleGenerate}
+            >
                 <Text style={styles.createBtn}>Generate</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                style={[styles.createButton,{backgroundColor: '#5773FF'}]}
-                onPress={()=>{resetAll()}}>
-                <Text style={styles.createBtn}>Cancel</Text>
+                activeOpacity={0.7}
+                style={styles.createButton}
+                onPress={() => {
+                    navigation.goBack();
+                    resetAll();
+                }}
+            >
+                <Text style={[styles.createBtn, { color: colors.PRIMARY_NORMAL }]}>Cancel</Text>
             </TouchableOpacity>
         </View>
     )
 
     useEffect(() => {
         setHasNonNilRatedTax(false);
-        fetchReceiverDetail();
-        fetchTransporterDetails();
-        fetchVoucherDetails();
+        setIsLoading(true);
+        Promise.all([fetchReceiverDetail(), fetchTransporterDetails(), fetchVoucherDetails()])
+            .then(() => setIsLoading(false))
     }, []);
 
     return (
         <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container} key={key}>
-            <_StatusBar statusBar={statusBar}/>
-            <Header header={'Generate E-way Bill'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
-            <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+            <Header header={'Generate E-way Bill'} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+            <ScrollView
+                style={{ display: isLoading ? 'none' : 'flex'}}
+                keyboardShouldPersistTaps="handled"
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 <View style={styles.subContainer}>
                     <Text style={styles.heading}>Part A</Text>
                     <InputField 
                         lable="Sub Type"
                         isRequired={false}
-                        containerStyle={styles.inputFieldStyle}
+                        containerStyle={styles.inputFieldNonEditableStyle}
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={subType}
@@ -242,7 +272,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                     <InputField 
                         lable="Document Type"
                         isRequired={false}
-                        containerStyle={styles.inputFieldStyle}
+                        containerStyle={styles.inputFieldNonEditableStyle}
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={docType}
@@ -250,10 +280,10 @@ const EWayBillScreenComponent = ( {route} ) => {
                     <InputField 
                         lable="GSTIN of Receiver"
                         isRequired={false}
-                        containerStyle={styles.inputFieldStyle}
+                        containerStyle={styles.inputFieldNonEditableStyle}
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
-                        value={receiverDetail?.gstIn}
+                        value={receiverDetail?.gstIn ?? 'URP'}
                     />
                     <InputField 
                         lable="Pincode of Receiver"
@@ -381,9 +411,12 @@ const EWayBillScreenComponent = ( {route} ) => {
                 </View>
                 {CreateButton}
             </ScrollView>
+            <Loader isLoading={isLoading} />
+            <NoActionLoader isLoading={isLoadingCreateBill}/>
+            <EwayBillLoginBottomSheet bottomSheetRef={ewayBillLoginBottomSheetRef} setIsLoadingCreateBill={setIsLoadingCreateBill} onCreateEwayBillAfterLogin={onCreateEwayBillAfterLogin}/>
             <TransporterModalize modalizeRef={transporterModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transporterData={transporterDetails} setTransporter={setSelectedTransporter} addTrasporterModalRef={addTransporterModalize}/>
             <AddTransporterModalize modalizeRef={addTransporterModalize} setBottomSheetVisible={setBottomSheetVisible} setTransporter={setTransporterDetails}/>
-            <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={ModeOfTransport} setTransportMode={setSelectedTransportMode}/>
+            <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={ModeOfTransport} transportMode={selectedTransportMode} setTransportMode={setSelectedTransportMode}/>
         </KeyboardAvoidingView>
     )
 }
@@ -414,6 +447,9 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
         marginTop:10
     },
     inputFieldStyle: { marginVertical:4 },
+    inputFieldNonEditableStyle: {
+        marginVertical:4
+    },
     radioGroupContainer :{
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -445,20 +481,25 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
         marginLeft: 10, 
         fontFamily:theme.typography.fontFamily.semiBold 
     },
+    buttonWrapper: { 
+        flexDirection:'row', 
+        justifyContent:'space-between', 
+        paddingHorizontal: 20 
+    },
     createButton:{
-        height: height * 0.06,
-        width: width * 0.4,
-        borderRadius: 25,
+        paddingVertical: 8,
+        minWidth: width * 0.34,
+        borderRadius: 100,
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
-        marginVertical:20
+        marginVertical: 20
     },
     createBtn:{
         fontFamily: theme.typography.fontFamily.semiBold ,
         lineHeight: theme.typography.fontSize.xLarge.lineHeight,
         fontSize: theme.typography.fontSize.xLarge.size,
-        color: '#fff',
+        color: theme.colors.solids.white
     },
 })
 

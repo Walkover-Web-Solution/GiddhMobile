@@ -39,4 +39,4 @@ export default {
 
   SWIPE_RIGHT: '#41BDFF',
   SWIPE_LEFT: '#864DD3'
-};
+} as const;
