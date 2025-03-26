@@ -995,14 +995,6 @@ export class SalesInvoice extends React.Component<Props> {
         const invoiceType = this.state.invoiceType;
         const partyUniqueName = this.state.partyDetails.uniqueName;
         // Here for cash invoice party detail is empty {}
-        this.resetState();
-        await this.setActiveCompanyCountry();
-        await this.getAllTaxes();
-        await this.getAllDiscounts();
-        await this.getAllWarehouse();
-        await this.getAllAccountsModes();
-        await this.getCompanyVersionNumber();
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
         if (type == 'navigate') {
           if (invoiceType == INVOICE_TYPE.cash) {
             this.props.navigation.goBack();
@@ -1032,6 +1024,14 @@ export class SalesInvoice extends React.Component<Props> {
             results.body?.type
           );
         }
+        this.resetState();
+        await this.setActiveCompanyCountry();
+        await this.getAllTaxes();
+        await this.getAllDiscounts();
+        await this.getAllWarehouse();
+        await this.getAllAccountsModes();
+        await this.getCompanyVersionNumber();
+        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);

@@ -252,8 +252,7 @@ const EWayBillScreenComponent = ( {route} ) => {
     return (
         <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container} key={key}>
             <Header header={'Generate E-way Bill'} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
-            <ScrollView
-                style={{ display: isLoading ? 'none' : 'flex'}}
+            { !isLoading && <ScrollView
                 keyboardShouldPersistTaps="handled"
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -410,7 +409,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                     />
                 </View>
                 {CreateButton}
-            </ScrollView>
+            </ScrollView>}
             <Loader isLoading={isLoading} />
             <NoActionLoader isLoading={isLoadingCreateBill}/>
             <EwayBillLoginBottomSheet bottomSheetRef={ewayBillLoginBottomSheetRef} setIsLoadingCreateBill={setIsLoadingCreateBill} onCreateEwayBillAfterLogin={onCreateEwayBillAfterLogin}/>
