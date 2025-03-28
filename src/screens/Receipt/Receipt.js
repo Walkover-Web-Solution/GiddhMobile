@@ -22,7 +22,6 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo'
 import {Bars} from 'react-native-loader';
@@ -551,7 +550,7 @@ export class Receipt extends React.Component<any> {
           style={{
             flexDirection: 'row',
             alignSelf: 'flex-start',
-            padding: 5,
+            padding: 10,
             alignItems: 'center',
           }}
           onPress={() =>
@@ -561,7 +560,7 @@ export class Receipt extends React.Component<any> {
               isSearchingParty: false,
             })
           }>
-          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          <AntDesign name="closecircleo" size={15} color={'#424242'} />
         </TouchableOpacity>
       </View>
     );
@@ -1256,15 +1255,7 @@ export class Receipt extends React.Component<any> {
                 //   } else {
                 //   }
                 // }}
-                onChangeText={(text) => {
-                  if (!this.state.partyName) {
-                    alert('Please select a party.');
-                  } else if (this.state.amountForReceipt == '') {
-                    alert('Please enter amount.');
-                  } else {
-                    this.setState({chequeNumber: text});
-                  }
-                }}
+                onChangeText={(text) => {this.setState({chequeNumber: text})}}
               />
             </View>
 

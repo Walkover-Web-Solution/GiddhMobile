@@ -3,17 +3,26 @@ import React, { Component } from 'react';
 import AppNavigator from '@/navigation/app.navigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
-import { getCompanyAndBranches, logout, renewAccessToken } from '../redux/CommonAction';
+import { getCompanyAndBranches, logout, renewAccessToken, reset } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import { getExpireInTime } from '@/utils/helper';
-import { STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import LogRocket from '@logrocket/react-native';
+import { DeviceEventEmitter } from 'react-native';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
+import Toast from '@/components/Toast';
 // import zipy from 'zipyai-react-native';
 
 export var timer;
 class BaseContainer extends Component {
   componentDidMount() {
     SplashScreen.hide();
+    this.logoutListner = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken,async ()=>{
+      Toast({message: "Your session has expired. Please log in again.", position:'BOTTOM',duration:'LONG'}) 
+      appleAuth.Operation.LOGOUT;
+      await AsyncStorage.clear();
+      await this.props.reset();
+    })
     if (this.props.isUserAuthenticated) {
       this.checkSessionExpiry();
     }
@@ -80,8 +89,6 @@ class BaseContainer extends Component {
     }
   }
 
-  componentWillUnmount() { }
-
   componentDidUpdate(prevProps) {
     if (this.props.isUserAuthenticated && !prevProps.isUserAuthenticated) {
       this.props.getCompanyAndBranches();
@@ -95,6 +102,7 @@ class BaseContainer extends Component {
     if (this.listener) {
       this.listener.remove();
     }
+    this.logoutListner = undefined;
   }
 }
 function mapStateToProps(state) {
@@ -115,6 +123,9 @@ function mapDispatchToProps(dispatch) {
     logout: () => {
       dispatch(logout());
     },
+    reset: () => {
+      dispatch(reset())
+    }
   };
 }
 

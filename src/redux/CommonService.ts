@@ -65,6 +65,15 @@ export async function updateBranchStateDetails (payload:any) {
   }
 }
 
+export async function destroyUserSession ( userEmail:string ) {
+  try {
+    const response = await CompanyService.destroyUserSession(userEmail);
+    return response;
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
 export default async function callSlackWebHook(payload:any) {
   try {
     console.log("slack webhook hit",payload);

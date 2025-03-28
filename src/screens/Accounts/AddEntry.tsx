@@ -28,7 +28,6 @@ import moment from 'moment';
 import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Bars } from 'react-native-loader';
 import DocumentPicker from 'react-native-document-picker';
@@ -1542,7 +1541,7 @@ export class AddEntry extends React.Component<Props> {
           style={{
             flexDirection: 'row',
             alignSelf: 'flex-start',
-            padding: 5,
+            padding: 10,
             alignItems: 'center',
           }}
           onPress={() =>
@@ -1552,7 +1551,7 @@ export class AddEntry extends React.Component<Props> {
               isSearchingAccount: false,
             })
           }>
-          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          <AntDesign name="closecircleo" size={15} color={'#424242'} />
           {/* <Text style={{marginLeft: 3}}>Close</Text> */}
         </TouchableOpacity>
       </View>
@@ -2772,7 +2771,7 @@ export class AddEntry extends React.Component<Props> {
                 }} >
 
                 <Text style={style.selectedTagText} >{item}</Text>
-                <Ionicons name={'close'} size={16} color={'#1C1C1C'} />
+                <AntDesign name="close" size={14} color={'#1C1C1C'} />
               </TouchableOpacity>
             )
           })}

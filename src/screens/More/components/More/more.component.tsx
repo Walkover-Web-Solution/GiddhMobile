@@ -18,7 +18,8 @@ import Modal from 'react-native-modal';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
 import TOAST from 'react-native-root-toast';
-const { height } = Dimensions.get('window');
+import ChatGPT from '@/assets/images/icons/ChatGPT.svg';
+const { height } = Dimensions.get('screen');
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -172,6 +173,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   copyEmailButton = (email: string) => {
     return (
       <TouchableOpacity
+        activeOpacity={0.7}
         onPress={() => {
           Clipboard.setString(email);
           Platform.OS == "ios" ? TOAST.show('Email Copied to Clipboard', {
@@ -200,16 +202,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     if (this.props.isFetchingCompanyList) {
       return (
         <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            top: 0
-          }}>
+          style={style.loaderWrapper}>
           <Bars size={15} color={color.PRIMARY_NORMAL} />
         </View>
       );
@@ -218,6 +211,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         <View style={{ flex: 1, backgroundColor: 'white' }} >
           <View style={{flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity
+              activeOpacity={0.7}
               style={{ padding: 20 }}
               onPress={() => {
                 this.props.navigation.goBack();
@@ -229,6 +223,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           {activeCompanyName && activeCompanyName.length > 1
             ? (
               <TouchableOpacity
+                activeOpacity={0.7}
                 style={style.companyView}
                 onPress={() => {
                   navigation.navigate('ChangeCompany', {
@@ -265,6 +260,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           }
           {this.props.branchList && this.props.branchList.length > 1 && (
             <TouchableOpacity
+              activeOpacity={0.7}
               style={style.branchView}
               onPress={() => {
                 navigation.navigate('ChangeCompanyBranch', {
@@ -314,6 +310,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 {this.copyEmailButton('support@giddh.com')}
               </View>
               <TouchableOpacity
+                activeOpacity={0.7}
                 style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
                 onPress={() => {
                   this.setState({ isModalVisible: true })
@@ -325,6 +322,20 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
+                activeOpacity={0.7}
+                style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
+                onPress={() => DeviceEventEmitter.emit('openChatbot', { type: 'openChatbot' })}
+              >
+                <ChatGPT style={{marginLeft: 14}}/>
+                <Text style={style.buttonText}>
+                  Chat With Bot
+                </Text>
+                <View style={style.chip}>
+                  <Text style={style.smallText}>BETA</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
                 style={[style.contactUsButtons, { flexDirection: 'row' }]}
                 onPress={() => DeviceEventEmitter.emit("showHelloWidget", { status: true })}
               >
@@ -337,34 +348,17 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           </View>
 
           <TouchableOpacity
-            style={{
-              height: 65,
-              width: '100%',
-              backgroundColor: 'white',
-              //flexDirection: 'row',
-              position: 'absolute',
-              bottom: 10,
-              //alignItems: 'center',
-              paddingHorizontal: 30,
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 1
-              },
-              shadowOpacity: 0.22,
-              shadowRadius: 2.22,
-              elevation: 3
-            }}
+            activeOpacity={0.7}
+            style={style.logoutButton}
             onPress={this.props.logout}
           >
-            <View style={{
-              flexDirection: "row",
-              alignItems: "center", marginTop: 10
-            }}>
-              <Feather name="power" size={26} color={'#5773FF'} />
-              <Text style={{ fontFamily: 'AvenirLTStd-Black', marginLeft: 20 }}>Logout</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Feather name="power" size={26} color={'#5773FF'} style={{ marginRight: 12 }}/>
+              <View>
+                <Text style={{ fontFamily: 'AvenirLTStd-Black'}}>Logout</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book'}}>{this.state.activeUserEmail}</Text>
+              </View>
             </View>
-            <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 41.5 }}> {this.state.activeUserEmail}  </Text>
           </TouchableOpacity>
           {this.contactUsModal()}
         </View>

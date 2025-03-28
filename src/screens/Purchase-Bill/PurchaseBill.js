@@ -23,7 +23,6 @@ import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Bars } from 'react-native-loader';
 import color from '@/utils/colors';
@@ -514,7 +513,7 @@ export class PurchaseBill extends React.Component {
           style={{
             flexDirection: 'row',
             alignSelf: 'flex-start',
-            padding: 5,
+            padding: 10,
             alignItems: 'center',
           }}
           onPress={() =>
@@ -524,7 +523,7 @@ export class PurchaseBill extends React.Component {
               isSearchingParty: false,
             })
           }>
-          <Ionicons name="close-circle" size={20} color={'#424242'} />
+          <AntDesign name="closecircleo" size={15} color={'#424242'} />
           {/* <Text style={{marginLeft: 3}}>Close</Text> */}
         </TouchableOpacity>
       </View>
@@ -1284,10 +1283,10 @@ export class PurchaseBill extends React.Component {
     return (
       <View style={style.dateView}>
         <View style={{ flexDirection: 'row' }}>
-          <Text style={style.InvoiceHeading}>Invoice #</Text>
+          <Text style={style.InvoiceHeading}>Bill #</Text>
           <View style={{ flexDirection: 'row', width: '75%', marginHorizontal: 15, justifyContent: 'space-between' }}>
             <TextInput
-              placeholder={'Enter Invoice name'}
+              placeholder={'Enter bill number'}
               value={this.state.selectedInvoice}
               style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular, width: '100%', height: 40 }}
               onChangeText={(value) => {

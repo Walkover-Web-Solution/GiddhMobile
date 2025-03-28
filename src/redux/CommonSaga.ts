@@ -149,6 +149,8 @@ export function* getCompanyDetails() {
 
 export function* logoutUser() {
   try {
+    const userEmail = yield AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+    const response = yield call(CommonService.destroyUserSession, userEmail);
     appleAuth.Operation.LOGOUT;
     yield AsyncStorage.clear();
     console.log('logout worked');
