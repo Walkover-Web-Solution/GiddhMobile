@@ -24,6 +24,7 @@ import Inventory from '@/assets/images/icons/options/home-icon-black.svg'
 import { APP_EVENTS, FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 import Product from 'react-native-vector-icons/Ionicons'
 import Service2 from 'react-native-vector-icons/FontAwesome'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { DefaultTheme } from '@/utils/theme';
@@ -42,6 +43,7 @@ const arrButtons = [
     { name: 'Receipt', navigateTo: 'ReceiptScreens', icon: <Receipt color={'#00B795'} />, color: '#00B795' },
     { name: 'Customer', navigateTo: 'CustomerVendorScreens', icon: <Customer color={'#864DD3'} />, color: '#864DD3' },
     { name: 'Vendor', navigateTo: 'CustomerVendorScreens', icon: <Vendor color={'#FF72BE'} />, color: '#FF72BE' },
+    { name: 'Contra', navigateTo: 'ContraScreens', icon: <MaterialCommunityIcons name='arrow-left-right-bold-outline' size={24} color={'#AC94BE'} />, color: '#AC94BE' },
     // { name: 'Advance Rcpt', navigateTo: 'AdvanceReceiptScreens', icon: 'Group-6188', color: '#51C445' }
     // {name: 'Purchase Bill', navigateTo: 'Purchase_Bill', icon: 'Purchase_Bill', color: '#FC8345'},
     // {name: 'Receipt', navigateTo: 'Receipt', icon: 'Receipt', color: '#00B795'},

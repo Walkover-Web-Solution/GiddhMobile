@@ -71,7 +71,8 @@ export interface ThemeProps extends DefaultConfigProps {
         payment: { statusBar: '#1A237E', background: '#084EAD' },
         pdfPreview: { statusBar: '#1A237E', background: '#084EAD' }
         stock: { statusBar: '#1A237E', background: '#084EAD' },
-        group: { statusBar: '#1A237E', background: '#084EAD' }
+        group: { statusBar: '#1A237E', background: '#084EAD' },
+        contra: { statusBar: '#8d7a9b', background: '#AC94BE' }
     }
     border: '#B3B3B3',
     shadow: '#4D4D4D',
@@ -247,7 +248,8 @@ const DarkTheme: ThemeProps = {
         payment: { statusBar: '#1A237E', background: '#084EAD' },
         pdfPreview: { statusBar: '#1A237E', background: '#084EAD' },
         stock: { statusBar: '#1A237E', background: '#084EAD' },
-        group: { statusBar: '#1A237E', background: '#084EAD' }
+        group: { statusBar: '#1A237E', background: '#084EAD' },
+        contra: { statusBar: '#8d7a9b', background: '#AC94BE' }
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
      
@@ -278,7 +280,8 @@ const LightTheme: ThemeProps = {
         payment: { statusBar: '#1A237E', background: '#084EAD' },
         pdfPreview: { statusBar: '#1A237E', background: '#084EAD' },
         stock: { statusBar: '#1A237E', background: '#084EAD' },
-        group: { statusBar: '#1A237E', background: '#084EAD' }
+        group: { statusBar: '#1A237E', background: '#084EAD' },
+        contra: { statusBar: '#8d7a9b', background: '#AC94BE' },
     },
     solids: solids                            // Only to be used for elements which have fixed colours across themes
   },
@@ -295,7 +298,8 @@ const VOUCHERS = {
     'Payment': 'payment',
     'PdfPreview': 'pdfPreview',
     'Stock':'stock',
-    'Group':'group'
+    'Group':'group',
+    'Contra': 'contra'
 }
 
 /**

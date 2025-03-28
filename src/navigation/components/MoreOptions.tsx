@@ -13,7 +13,8 @@ const Vouchers = {
     CREDIT_NOTE: 'Credit Note',
     DEBIT_NOTE: 'Debit Note',
     RECEIPT: 'Receipt',
-    PAYMENT: 'Payment'
+    PAYMENT: 'Payment',
+    CONTRA: 'Contra'
 }
 
 type Props = {
