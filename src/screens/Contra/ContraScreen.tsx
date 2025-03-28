@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { ActivityIndicator, Animated, DeviceEventEmitter, Dimensions, FlatList, Keyboard, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Animated, DeviceEventEmitter, Dimensions, FlatList, Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import moment from "moment";
@@ -386,6 +386,7 @@ const ContraScreen = () => {
                 DeviceEventEmitter.emit(APP_EVENTS.ReceiptCreated, {});
             }
         } catch (e) {
+            setLoading(false);
         }
       }
 
@@ -424,7 +425,7 @@ const ContraScreen = () => {
 
 
     return (
-        <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container}>
             <Animated.ScrollView
             keyboardShouldPersistTaps="never"
             bounces={false}>
@@ -454,33 +455,36 @@ const ContraScreen = () => {
                 </TouchableOpacity>
             </View>
             {/* Amount */}
-            <View style={{paddingVertical: Platform.OS == 'ios'? 10 : 0, paddingHorizontal: 15,  flexDirection: 'row',alignItems:'center',}}>
-                <Text style={styles.invoiceAmountText}>{currencySymbol}</Text>
-                <TextInput
-                    style={[styles.invoiceAmountText, {flex: 1}]}
-                    keyboardType="phone-pad"
-                    placeholder={'0.00'}
-                    placeholderTextColor={isAmountFieldInFocus ? '#808080' : '#1C1C1C'}
-                    value={amountForReceipt}
-                    ref={focusRef}
-                    onFocus={() => {
-                        setIsAmountFieldInFocus(true);
-                    }}
-                    onBlur={() => {
-                        setIsAmountFieldInFocus(amountForReceipt != '' ? true : false)
-                    }}
-                    onChangeText={async (text) => {
-                    if (!partyName) {
-                        alert('Please select a party.');
-                    } else {
-                        setAmountForReceipt(text.replace(/[^0-9]/g, ''));
-                        setBalanceDetails({
-                            ...balanceDetails,
-                            totalTaxableAmount: text.replace(/[^0-9]/g, '')
-                        })
-                    }
-                    }}>
-                </TextInput>
+            <View style={{flexDirection: 'row', flex: 1}}>
+                <View style={{paddingVertical: Platform.OS == 'ios'? 10 : 0, paddingHorizontal: 15, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                    <Text style={styles.invoiceAmountText}>{currencySymbol}</Text>
+                    <TextInput
+                        style={[styles.invoiceAmountText, {flex: 1,alignSelf: 'flex-start'}]}
+                        keyboardType="phone-pad"
+                        placeholder={'0.00'}
+                        
+                        placeholderTextColor={isAmountFieldInFocus ? '#808080' : '#1C1C1C'}
+                        value={amountForReceipt}
+                        ref={focusRef}
+                        onFocus={() => {
+                            setIsAmountFieldInFocus(true);
+                        }}
+                        onBlur={() => {
+                            setIsAmountFieldInFocus(amountForReceipt != '' ? true : false)
+                        }}
+                        onChangeText={async (text) => {
+                        if (!partyName) {
+                            alert('Please select a party.');
+                        } else {
+                            setAmountForReceipt(text.replace(/[^0-9]/g, ''));
+                            setBalanceDetails({
+                                ...balanceDetails,
+                                totalTaxableAmount: text.replace(/[^0-9]/g, '')
+                            })
+                        }
+                        }}>
+                    </TextInput>
+                </View>
             </View>
             {/* Date */}
             <View style={styles.dateView}>
@@ -717,7 +721,7 @@ const ContraScreen = () => {
                     <Icon name={'path-18'} size={48} color={voucherBackground} />
                 </TouchableOpacity>
             }
-        </SafeAreaView>
+        </KeyboardAvoidingView>
       );
 }
 
@@ -740,8 +744,7 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
     invoiceAmountText: {
         fontFamily: theme.typography.fontFamily.bold,
         color: theme.colors.text,
-        fontSize: theme.typography.fontSize.xLarge.size,
-        lineHeight: theme.typography.fontSize.xLarge.lineHeight
+        fontSize: theme.typography.fontSize.xLarge.size
     },
     dateView: {
         flexDirection: 'row',
