@@ -30,8 +30,7 @@ const Vouchers : Voucher = {
     'Credit Note' : (color: string) : React.ReactElement => <CreditNote color={color} height={20} width={20}/>,
     'Debit Note' : (color: string) : React.ReactElement => <DebitNote color={color} height={20} width={20}/>,
     'Receipt' : (color: string) : React.ReactElement => <Receipt color={color} height={20} width={20}/>,
-    'Payment' : (color: string) : React.ReactElement => <Payment color={color} height={20} width={20}/>,
-    'Contra' : (color: string) : React.ReactElement => <MaterialCommunityIcons name='arrow-left-right-bold-outline' size={20} color={color} />
+    'Payment' : (color: string) : React.ReactElement => <Payment color={color} height={20} width={20}/>
 }
 
 type Props = {

@@ -116,5 +116,32 @@ export const accountStyles = StyleSheet.create({
     fontSize: 12,
     color: '#1C1C1C',
   },
+  searchResultContainer: {
+    maxHeight: 300,
+    width: '100%',
+    backgroundColor: 'white',
+    alignSelf: 'center',
+    paddingBottom:3,
+  },
+  searchItemText: { 
+    color: '#808080',
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 13, 
+  },
+  searchHeading: {
+    paddingTop:10,
+    marginHorizontal:25,
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 14,
+  },
+  recents:{
+    paddingHorizontal:10,
+    paddingVertical:7,
+    marginHorizontal:20,
+    marginVertical:0,
+    // borderBottomWidth:1,
+    // borderBottomColor:'#EDEDED'
+}
 });
 

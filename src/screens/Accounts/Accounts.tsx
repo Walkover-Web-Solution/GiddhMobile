@@ -13,6 +13,8 @@ import Routes from '@/navigation/routes';
 import _ from 'lodash';
 import Header from '@/components/Header';
 import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
+import { resetAccountSearch, updateAccountSearch } from '@/redux/CommonAction';
+
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps & {
@@ -34,14 +36,17 @@ type State = {
   searchDataTotalPages: number,
   totalPages: number,
   loadingMore: boolean,
-  loadingMoreSearch : boolean
+  loadingMoreSearch : boolean,
+  showSearchSuggestion: boolean
 };
 export class AccountScreen extends React.Component<Props, State> {
 
   listener: any;
+  focusRef: React.RefObject<any>;
 
   constructor(props: Props) {
     super(props);
+    this.focusRef = React.createRef();
     this.state = {
       showLoader: false,
       startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
@@ -62,6 +67,7 @@ export class AccountScreen extends React.Component<Props, State> {
       selectedSearchOption: 'groups',
       showSearchLoader: false,
       searchedText: '',
+      showSearchSuggestion: true
     };
   }
   componentDidMount() {
@@ -146,6 +152,7 @@ export class AccountScreen extends React.Component<Props, State> {
           this.setState({ showSearchLoader: false })
         }
       }
+      this.handleInputFocus();
 
     } catch (e) {
       this.setState({ showSearchLoader: false })
@@ -216,6 +223,9 @@ export class AccountScreen extends React.Component<Props, State> {
       <TouchableOpacity
         style={styles.groupButton}
         onPress={() => {
+          const updatedSearchSuggestions = (this.state.searchedText != '' && !this.props.accountsSearchSuggestions?.includes(item?.name)) ? 
+          (this.props.accountsSearchSuggestions?.length < 7 ? [item?.name, ...this.props.accountsSearchSuggestions] : [item?.name, ...this.props.accountsSearchSuggestions].slice(0, -1)) : 
+          this.props.accountsSearchSuggestions ;
           if (this.state.selectedSearchOption == 'groups') {
             this.setState(
               {
@@ -225,6 +235,7 @@ export class AccountScreen extends React.Component<Props, State> {
               }
               , () => {
                 this.getAccounts();
+                this.props.updateAccountSearch(updatedSearchSuggestions);
               }
             );
           } else {
@@ -235,6 +246,7 @@ export class AccountScreen extends React.Component<Props, State> {
               }
               , () => {
                 this.getAccountData(item);
+                this.props.updateAccountSearch(updatedSearchSuggestions);
               }
             );
            
@@ -244,6 +256,40 @@ export class AccountScreen extends React.Component<Props, State> {
         <Text style={styles.groupNameText} >{item?.name}</Text>
       </TouchableOpacity>
     )
+  }
+
+  renderSearchSuggestionBox = () =>{
+    return (
+      <View style={[style.searchResultContainer,{}]}>
+        <View style={{flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
+          <Text style={style.searchHeading}>Recent</Text>
+          <TouchableOpacity onPress={() =>this.props.resetAccountSearch()}>
+            <Text style={style.searchHeading}>Clear all</Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={false}
+          data={this.props.accountsSearchSuggestions}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => (
+            <TouchableOpacity
+              style={[style.recents,{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}]}
+              onPress={async () => {
+                this.setState({ searchedText: item });
+                this.searchGroupAccountsData(item);
+              }
+              }>
+              <Text style={style.searchItemText}>{item ? item : "Result Not found"}</Text>
+              <TouchableOpacity
+                onPress={() => {this.props.updateAccountSearch(this.props.accountsSearchSuggestions?.filter((_:any, i:number) => i !== index))}}>
+                <AntDesign name="close" size={13} color={'#808080'} />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    );
   }
 
   renderModalView = () => {
@@ -256,7 +302,7 @@ export class AccountScreen extends React.Component<Props, State> {
           <Header backgroundColor='#084EAD'>
             <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
             <TextInput
-              autoFocus={true}
+              ref={this.focusRef}
               value={this.state.searchedText}
               placeholder={`Search ${this.state.selectedSearchOption == 'groups' ? 'Groups' : 'Accounts'}`}
               placeholderTextColor={'#FFFFFF'}
@@ -276,11 +322,10 @@ export class AccountScreen extends React.Component<Props, State> {
               <AntDesign name={'close'} size={25} color={'#FFFFFF'} />
             </TouchableOpacity>
           </Header>
-
           <View style={styles.switchView} >
             <TouchableOpacity
               onPress={() => {
-                this.setState({ selectedSearchOption: 'groups',searchDataPage:1,searchDataTotalPages:0 }, () => {
+                this.setState({ selectedSearchOption: 'groups',searchDataPage:1,searchDataTotalPages:0,showSearchSuggestion:true }, () => {
                   this.searchGroupAccountsData(this.state.searchedText)
                 })
               }}
@@ -289,7 +334,7 @@ export class AccountScreen extends React.Component<Props, State> {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                this.setState({ selectedSearchOption: 'accounts',searchDataPage:1,searchDataTotalPages:0 }, () => {
+                this.setState({ selectedSearchOption: 'accounts',searchDataPage:1,searchDataTotalPages:0,showSearchSuggestion:true }, () => {
                   this.searchGroupAccountsData(this.state.searchedText)
                 })
               }}
@@ -301,6 +346,7 @@ export class AccountScreen extends React.Component<Props, State> {
             <Bars size={15} color={colors.PRIMARY_NORMAL} />
           </View> :
             <View style={{ flex: 1 }}>
+              {/* {this.props.accountsSearchSuggestions.length > 0 && this.state.showSearchSuggestion ? this.renderSearchSuggestionBox() : null} */}
               <FlatList
                 scrollEnabled
                 keyboardShouldPersistTaps={'handled'}
@@ -308,6 +354,7 @@ export class AccountScreen extends React.Component<Props, State> {
                 renderItem={({ item }) => this.renderGroupAccountNames(item)}
                 onEndReached={() => this.handleLoadMoreSearchData()}
                 ListFooterComponent={this._renderSearchMoreLoader}
+                ListHeaderComponent={this.state.searchedText == '' && this.props.accountsSearchSuggestions.length > 0 && this.state.showSearchSuggestion ? this.renderSearchSuggestionBox() : null}
                 keyExtractor={(item, index) => index.toString()}
               />
             </View>
@@ -397,6 +444,11 @@ export class AccountScreen extends React.Component<Props, State> {
       </View>
     );
   };
+
+  handleInputFocus(){
+    this.focusRef.current.focus()
+  }
+
   render() {
     const { activeCompany, isFocused }: any = this.props;
     
@@ -457,10 +509,27 @@ export class AccountScreen extends React.Component<Props, State> {
     );
   }
 }
+function mapStateToProps(state:any) {
+  return {
+    accountsSearchSuggestions: state.commonReducer.accountsSearchSuggestions,
+  };
+}
 
-function Screen(props: any) {
+function mapDispatchToProps(dispatch) {
+  return {
+    resetAccountSearch: () => {
+      dispatch(resetAccountSearch());
+    },
+    updateAccountSearch: (payload:string[]) => {
+      dispatch(updateAccountSearch(payload));
+    }
+  };
+}
+
+function Component(props: any) {
   const isFocused = useIsFocused();
   return <AccountScreen {...props} isFocused={isFocused} />;
 }
 
+const Screen = connect(mapStateToProps, mapDispatchToProps)(Component);
 export default Screen;
