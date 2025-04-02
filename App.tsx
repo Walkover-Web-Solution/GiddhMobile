@@ -23,6 +23,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
+import AppLock from '@/AppLock/AppLock';
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
@@ -77,6 +78,13 @@ export default class App extends React.Component<any> {
   static navigationOptions = {
     headerShown: false,
   };
+  
+  constructor(props:any){
+    super(props);
+    this.state = {
+      unlocked : false
+    }
+  }
 
   async componentDidMount() {
     SplashScreen.hide();
@@ -98,7 +106,12 @@ export default class App extends React.Component<any> {
             <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <RootSiblingParent>
-                  <BaseContainer />
+                  {!this.state.unlocked && <AppLock visible={!this.state.unlocked} onUnlock={()=>{
+                    this.setState({
+                      unlocked: true
+                    });
+                  }}/>}
+                  <BaseContainer /> 
                 </RootSiblingParent>
               </GestureHandlerRootView>
             </ApplicationProvider>
