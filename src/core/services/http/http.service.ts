@@ -128,7 +128,9 @@ httpInstance.interceptors.response.use(
         message: `⚠️ *API Performance Alert*\nThe API at \`${response.config.url}\` took *${timeTaken/1000} s* to respond.`,
         userEmail: userEmail
       }
-      callSlackWebHook(payload);
+      callSlackWebHook(payload).catch(error => {
+        console.log("Failed to send Slack alert", error)
+      });
     }
     return response;
   },
