@@ -1,6 +1,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription, Switch } from 'react-native';
 import { Country } from '@/models/interfaces/country';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
@@ -19,6 +19,11 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
 import TOAST from 'react-native-root-toast';
 import ChatGPT from '@/assets/images/icons/ChatGPT.svg';
+import { connect } from 'react-redux';
+import { BiometricAuth } from '@msg91comm/sendotp-react-native';
+import { toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
+import * as LoginAction from '../../../Auth/Login/LoginAction';
+import Toast from '@/components/Toast';
 const { height } = Dimensions.get('screen');
 
 type MoreComponentProp = WithTranslation &
@@ -195,7 +200,54 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     )
   }
 
+
+
   render() {
+
+    const authenticateUser = async () => {
+      try {
+          const { available, biometryType } = await BiometricAuth.isSensorAvailable();
+  
+          if (!available) {
+              Toast({message: 'Biometrics not available. Use PIN.', position:'CENTER', duration:'LONG'});
+              await new Promise(resolve => setTimeout(resolve, 900));
+              const response = await BiometricAuth.simplePrompt({
+                  promptMessage: 'Enter your device PIN/Password',
+                  allowDeviceCredentials: true
+              })
+              console.log("res", response);
+              if (response?.success) {
+                this.props.toggleBiometricAuthentication();
+              }else {
+                console.log("error while no biometric is available", response);
+                if(response?.code == 14){
+                  this.props.resetBiometricAuthentication();
+                  Toast({message: response?.error, position:'CENTER', duration:'LONG'});
+                  return ;
+                }
+                Toast({message: 'Authentication failed. Please try again.', position:'CENTER', duration:'LONG'});
+              }
+              return;
+          }
+      
+          const response = await BiometricAuth.authenticate();
+      
+          if (response?.success) {
+            this.props.toggleBiometricAuthentication();
+          // setIsAuthenticated(true);
+          // setErrorMessage("");
+          // onUnlock();
+          } else {
+              console.log("error", response);
+              Toast({message: response?.error, position:'CENTER', duration:'LONG'});
+              // setErrorMessage(response?.error)
+          //   Alert.alert('Authentication failed');
+          }
+      } catch (error) {
+          console.error('Authentication error:', error);
+          // setErrorMessage('Something went wrong during authentication. Please try again.');
+      }
+    };
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
     const { navigation } = this.props;
@@ -284,7 +336,22 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-
+          {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
+          {
+            <View style={[style.biometicContainer, {justifyContent:'space-between'}]}>
+              <View style={{flexDirection:'row', marginLeft: 15, alignItems:'center'}}>
+                <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
+                <Text style={style.companyNameText}>Enable Biometric</Text>
+              </View>
+              <Switch
+                trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
+                thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
+                ios_backgroundColor={color.BORDER_COLOR}
+                onValueChange={authenticateUser}
+                value={this.props.toggleBiometric}
+              />
+            </View>
+          }
           {/* ------------ Contact Us View ------------ */}
           <View style={style.contactUsView}>
             <View style={{ margin: 15 }}>
@@ -367,4 +434,21 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   }
 }
 
-export default withTranslation()(MoreComponent);
+function mapStateToProps(state : any) {
+  return {
+    toggleBiometric: state.LoginReducer.toggleBiometric
+  }
+}
+
+function mapDispatchToProps(dispatch: any) {
+  return {
+    toggleBiometricAuthentication: () => {
+      dispatch(LoginAction.toggleBiometricAuthentication())
+    },
+    resetBiometricAuthentication: () => {
+      dispatch(LoginAction.resetBiometricAuthentication())
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(MoreComponent));

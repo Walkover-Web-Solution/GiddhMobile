@@ -88,7 +88,7 @@ export default StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: colors.BACKGROUND,
     width: '100%',
     alignItems: 'center',
     height: 78
@@ -189,5 +189,14 @@ export default StyleSheet.create({
     color: colors.SECONDARY, 
     fontFamily: FONT_FAMILY.bold, 
     fontSize: 10
+  },
+  biometicContainer: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    backgroundColor: colors.BACKGROUND,
+    width: '100%',
+    alignItems: 'center',
+    height:76
   }
 });

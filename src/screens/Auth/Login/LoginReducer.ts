@@ -13,7 +13,9 @@ const initialState = {
   startTFA: undefined,
   isVerifyingOTP: false,
   otpVerificationError: '',
-  signUpOTPSent: false
+  signUpOTPSent: false,
+  toggleBiometric: false,
+  isBiometricVerified: false
 };
 
 export default (state = initialState, action: Action) => {
@@ -194,6 +196,21 @@ export default (state = initialState, action: Action) => {
         error: action.payload,
         isUserAuthenticated: false
       };
+    case ActionConstants.TOGGLE_BIOMETIC_AUTHENTICATION:
+      return {
+        ...state,
+        toggleBiometric: !state.toggleBiometric
+      }
+    case ActionConstants.RESET_BIOMETIC_AUTHENTICATION:
+      return {
+        ...state,
+        toggleBiometric: false
+      }
+    case ActionConstants.UPDATE_IS_BIOMETRIC_VERIFIED: 
+      return {
+        ...state, 
+        isBiometricVerified: action.payload
+      }
     default:
       return state;
   }

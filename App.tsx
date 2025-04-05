@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import * as material from '@eva-design/material';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
-import {Provider} from 'react-redux';
+import {Provider, useSelector} from 'react-redux';
 import '@/utils/i18n';
 import {BackHandler, EmitterSubscription, Platform} from 'react-native';
 import {default as mapping} from './mappings.json';
@@ -81,9 +81,6 @@ export default class App extends React.Component<any> {
   
   constructor(props:any){
     super(props);
-    this.state = {
-      unlocked : false
-    }
   }
 
   async componentDidMount() {
@@ -98,26 +95,34 @@ export default class App extends React.Component<any> {
   }
 
   render() {
+    console.log("main app", store.getState().LoginReducer.toggleBiometric);
     return (  
-      <SafeAreaProvider>
-        <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <RootSiblingParent>
-                  {!this.state.unlocked && <AppLock visible={!this.state.unlocked} onUnlock={()=>{
-                    this.setState({
-                      unlocked: true
-                    });
-                  }}/>}
-                  <BaseContainer /> 
-                </RootSiblingParent>
-              </GestureHandlerRootView>
-            </ApplicationProvider>
+            <InnerApp />
           </PersistGate>
         </Provider>
-      </SafeAreaProvider>
     );
   }
+}
+
+
+const InnerApp = () => {
+  const {toggleBiometric, isBiometricVerified} = useSelector(state => state.LoginReducer);
+  
+  const [unlocked, setUnlocked] = useState(false);
+  console.log("store vs selector", toggleBiometric, unlocked);
+  return (
+    <SafeAreaProvider>
+      <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
+      <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <RootSiblingParent>
+            {toggleBiometric && !unlocked && <AppLock visible={!unlocked} onUnlock={()=>setUnlocked(true)}/>}
+            <BaseContainer /> 
+          </RootSiblingParent>
+        </GestureHandlerRootView>
+      </ApplicationProvider>
+    </SafeAreaProvider>
+  )
 }
