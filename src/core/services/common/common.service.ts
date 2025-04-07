@@ -345,8 +345,8 @@ export class CommonService {
       });;
   }
 
-  static fetchProfitLossDetails(startDate: string, endDate: string) {
-    return httpInstance.get(commonUrls.fetchProfitLossDetails(startDate,endDate))
+  static fetchProfitLossDetails(startDate: string, endDate: string, branchUniqueName:string) {
+    return httpInstance.get(commonUrls.fetchProfitLossDetails(startDate,endDate,branchUniqueName))
     .then((res) => {
       return res?.data;
     }).catch((err) => {
