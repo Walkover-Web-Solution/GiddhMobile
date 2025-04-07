@@ -119,6 +119,9 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
 // intercept response
 httpInstance.interceptors.response.use(
   async (response) => {
+    if(response?.config?.url?.includes('/multibranch/balance-sheet')){
+      return response;
+    }
     const endTime = new Date().getTime();
     const startTime = response?.request?._headers?.["request-start-time"];
     const timeTaken = endTime-startTime;
