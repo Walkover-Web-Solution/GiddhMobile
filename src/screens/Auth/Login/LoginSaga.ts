@@ -32,7 +32,6 @@ export default function* watcherSaga() {
  * @param userEmail 
  */
 const addUserDeatilsToLogRocket = (userUniqueName: string, userName: string, userEmail: string,) => {
-  return ;
   console.log("LogRocket Details " + userUniqueName + "  " + userName + " " + userEmail);
   LogRocket.identify(userUniqueName, {
     name: userName,

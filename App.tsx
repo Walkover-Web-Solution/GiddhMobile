@@ -108,10 +108,9 @@ export default class App extends React.Component<any> {
 
 
 const InnerApp = () => {
-  const {toggleBiometric, isBiometricVerified} = useSelector(state => state.LoginReducer);
-  
+  const {toggleBiometric} = useSelector(state => state.LoginReducer);  
   const [unlocked, setUnlocked] = useState(false);
-  console.log("store vs selector", toggleBiometric, unlocked);
+  
   return (
     <SafeAreaProvider>
       <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />

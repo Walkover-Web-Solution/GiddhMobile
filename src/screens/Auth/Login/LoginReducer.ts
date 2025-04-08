@@ -14,8 +14,7 @@ const initialState = {
   isVerifyingOTP: false,
   otpVerificationError: '',
   signUpOTPSent: false,
-  toggleBiometric: false,
-  isBiometricVerified: false
+  toggleBiometric: false
 };
 
 export default (state = initialState, action: Action) => {
@@ -205,11 +204,6 @@ export default (state = initialState, action: Action) => {
       return {
         ...state,
         toggleBiometric: false
-      }
-    case ActionConstants.UPDATE_IS_BIOMETRIC_VERIFIED: 
-      return {
-        ...state, 
-        isBiometricVerified: action.payload
       }
     default:
       return state;

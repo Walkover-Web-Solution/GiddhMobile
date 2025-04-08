@@ -188,10 +188,3 @@ export function resetBiometricAuthentication() {
     type: Actions.RESET_BIOMETIC_AUTHENTICATION
   }
 }
-
-export function updateIsBiometricVerified(payload) {
-  return {
-    type: Actions.UPDATE_IS_BIOMETRIC_VERIFIED,
-    payload: payload
-  }
-}

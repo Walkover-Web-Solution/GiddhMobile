@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
 import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription, Switch } from 'react-native';
 import { Country } from '@/models/interfaces/country';
@@ -23,6 +23,8 @@ import { connect } from 'react-redux';
 import { BiometricAuth } from '@msg91comm/sendotp-react-native';
 import { resetBiometricAuthentication, toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
 import Toast from '@/components/Toast';
+import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
+import { setBottomSheetVisible } from '@/components/BottomSheet';
 const { height } = Dimensions.get('screen');
 
 type MoreComponentProp = WithTranslation &
@@ -42,12 +44,14 @@ type MoreComponentState = {
   copiedText: string,
   isModalVisible: boolean,
   activeCompany: any,
-  activeBranch: any
+  activeBranch: any,
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
+  private confirmationBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: MoreComponentProp) {
     super(props);
+    this.confirmationBottomSheetRef = createRef<BottomSheet>();
     this.state = {
       activeCompany: undefined,
       activeBranch: undefined,
@@ -205,10 +209,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 
     const authenticateUser = async () => {
       try {
-          const { available, biometryType } = await BiometricAuth.isSensorAvailable();
+          const { available } = await BiometricAuth.isSensorAvailable();
   
           if (!available) {
-              Toast({message: 'Biometrics not available. Use PIN.', position:'CENTER', duration:'SHORT'});
+              Toast({message: 'Biometrics not available. Use PIN.', position:'BOTTOM', duration:'SHORT'});
               await new Promise(resolve => setTimeout(resolve, 900));
               const response = await BiometricAuth.simplePrompt({
                   promptMessage: 'Enter your device PIN/Password',
@@ -221,16 +225,16 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 console.log("error while no biometric is available", response);
                 if(response?.code == 14){
                   this.props.resetBiometricAuthentication();
-                  Toast({message: response?.error, position:'CENTER', duration:'LONG'});
+                  Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                   return ;
                 }
                 if(Platform.OS=='ios' && response?.code == -5){
                   console.log("bhaisab passcode bhi nahi h-----");
                   this.props.resetBiometricAuthentication();
-                  Toast({message: response?.error, position:'CENTER', duration:'LONG'});
+                  Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                   return ;
                 }
-                Toast({message: 'Authentication failed. Please try again.', position:'CENTER', duration:'LONG'});
+                Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
               }
               return;
           }
@@ -244,7 +248,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           // onUnlock();
           } else {
               console.log("error", response);
-              Toast({message: response?.error, position:'CENTER', duration:'LONG'});
+              Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
               // setErrorMessage(response?.error)
           //   Alert.alert('Authentication failed');
           }
@@ -253,6 +257,35 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           // setErrorMessage('Something went wrong during authentication. Please try again.');
       }
     };
+
+    const authenicateAndLogoutUser = async () => {
+      try {
+        const { available } = await BiometricAuth.isSensorAvailable();
+        if (!available) {
+            await new Promise(resolve => setTimeout(resolve, 900));
+            const response = await BiometricAuth.simplePrompt({
+                promptMessage: 'Enter your device PIN/Password to logout',
+                allowDeviceCredentials: true
+            })
+            if (response?.success) {
+              setBottomSheetVisible(this.confirmationBottomSheetRef, false);
+              this.props.logout();
+            }else {
+              Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+            }
+            return;
+        }
+        const response = await BiometricAuth.authenticate();
+        if (response?.success) {
+          setBottomSheetVisible(this.confirmationBottomSheetRef, false);
+          this.props.logout();
+        } else {
+            Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+        }
+      } catch (error) {
+          console.error('Authentication error:', error);
+      }
+    }
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
     const { navigation } = this.props;
@@ -343,7 +376,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           )}
           {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
           {
-            <View style={[style.biometicContainer, {justifyContent:'space-between'}]}>
+            <TouchableOpacity activeOpacity={0.7} style={[style.biometicContainer, {justifyContent:'space-between'}]} onPress={authenticateUser}>
               <View style={{flexDirection:'row', marginLeft: 15, alignItems:'center'}}>
                 <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
                 <Text style={style.companyNameText}>Enable Biometric</Text>
@@ -355,7 +388,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 onValueChange={authenticateUser}
                 value={this.props.toggleBiometric}
               />
-            </View>
+            </TouchableOpacity>
           }
           {/* ------------ Contact Us View ------------ */}
           <View style={style.contactUsView}>
@@ -422,7 +455,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           <TouchableOpacity
             activeOpacity={0.7}
             style={style.logoutButton}
-            onPress={this.props.logout}
+            onPress={()=>{
+              if(this.props.toggleBiometric){
+                setBottomSheetVisible(this.confirmationBottomSheetRef, true);
+                return;
+              }
+              this.props.logout();
+            }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Feather name="power" size={26} color={'#5773FF'} style={{ marginRight: 12 }}/>
@@ -433,6 +472,15 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             </View>
           </TouchableOpacity>
           {this.contactUsModal()}
+          <ConfirmationBottomSheet
+              bottomSheetRef={this.confirmationBottomSheetRef}
+              message={ConfirmationMessages.APPLOCK.message}
+              description={ConfirmationMessages.APPLOCK.description}
+              onConfirm={authenicateAndLogoutUser}
+              onReject={() => setBottomSheetVisible(this.confirmationBottomSheetRef, false)}
+              confirmText='Logout'
+              rejectText='Cancel'
+          />
         </View>
       );
     }
