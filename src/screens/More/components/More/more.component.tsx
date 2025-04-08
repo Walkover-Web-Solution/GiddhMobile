@@ -21,8 +21,7 @@ import TOAST from 'react-native-root-toast';
 import ChatGPT from '@/assets/images/icons/ChatGPT.svg';
 import { connect } from 'react-redux';
 import { BiometricAuth } from '@msg91comm/sendotp-react-native';
-import { toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
-import * as LoginAction from '../../../Auth/Login/LoginAction';
+import { resetBiometricAuthentication, toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
 import Toast from '@/components/Toast';
 const { height } = Dimensions.get('screen');
 
@@ -209,7 +208,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           const { available, biometryType } = await BiometricAuth.isSensorAvailable();
   
           if (!available) {
-              Toast({message: 'Biometrics not available. Use PIN.', position:'CENTER', duration:'LONG'});
+              Toast({message: 'Biometrics not available. Use PIN.', position:'CENTER', duration:'SHORT'});
               await new Promise(resolve => setTimeout(resolve, 900));
               const response = await BiometricAuth.simplePrompt({
                   promptMessage: 'Enter your device PIN/Password',
@@ -221,6 +220,12 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               }else {
                 console.log("error while no biometric is available", response);
                 if(response?.code == 14){
+                  this.props.resetBiometricAuthentication();
+                  Toast({message: response?.error, position:'CENTER', duration:'LONG'});
+                  return ;
+                }
+                if(Platform.OS=='ios' && response?.code == -5){
+                  console.log("bhaisab passcode bhi nahi h-----");
                   this.props.resetBiometricAuthentication();
                   Toast({message: response?.error, position:'CENTER', duration:'LONG'});
                   return ;
@@ -434,19 +439,19 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
   }
 }
 
-function mapStateToProps(state : any) {
+const mapStateToProps = (state : any) => {
   return {
     toggleBiometric: state.LoginReducer.toggleBiometric
   }
 }
 
-function mapDispatchToProps(dispatch: any) {
+const mapDispatchToProps = (dispatch: any) => {
   return {
     toggleBiometricAuthentication: () => {
-      dispatch(LoginAction.toggleBiometricAuthentication())
+      dispatch(toggleBiometricAuthentication())
     },
     resetBiometricAuthentication: () => {
-      dispatch(LoginAction.resetBiometricAuthentication())
+      dispatch(resetBiometricAuthentication())
     }
   }
 }

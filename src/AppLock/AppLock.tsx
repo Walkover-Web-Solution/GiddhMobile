@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, Modal, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { BiometricAuth } from '@msg91comm/sendotp-react-native'
 import Toast from "@/components/Toast";
 import { useDispatch } from "react-redux";
@@ -47,6 +47,11 @@ const AppLock = ({visible, onUnlock}) => {
                     if(response?.code == 14){
                         dispatch(resetBiometricAuthentication());
                         return;
+                    }
+                    if(Platform.OS=='ios' && response?.code == -5){
+                        console.log("bhaisab passcode bhi nahi h");
+                        dispatch(resetBiometricAuthentication());
+                        return ;
                     }
                     setErrorMessage('Authentication failed. Please try again.');
                 }
