@@ -117,11 +117,12 @@ export const accountStyles = StyleSheet.create({
     color: '#1C1C1C',
   },
   searchResultContainer: {
-    maxHeight: 300,
+    maxHeight: 350,
     width: '100%',
     backgroundColor: 'white',
     alignSelf: 'center',
-    paddingBottom:3,
+    marginBottom:-5,
+    marginTop:5
   },
   searchItemText: { 
     color: '#808080',
@@ -130,18 +131,15 @@ export const accountStyles = StyleSheet.create({
   },
   searchHeading: {
     paddingTop:10,
-    marginHorizontal:25,
+    marginHorizontal:20,
     color: '#1C1C1C',
     fontFamily: FONT_FAMILY.semibold,
     fontSize: 14,
   },
   recents:{
-    paddingHorizontal:10,
-    paddingVertical:7,
     marginHorizontal:20,
-    marginVertical:0,
-    // borderBottomWidth:1,
-    // borderBottomColor:'#EDEDED'
+    marginVertical:5,
+    padding:10,
 }
 });
 

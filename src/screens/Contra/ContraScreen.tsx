@@ -365,7 +365,7 @@ const ContraScreen = () => {
             lang,
           );
             if (results.body) {
-                alert('Receipt created successfully!');
+                alert('Contra voucher created successfully!');
                 navigation.navigate(Routes.Parties, {
                 screen: 'PartiesTransactions',
                 initial: false,
@@ -392,7 +392,7 @@ const ContraScreen = () => {
 
     const genrateInvoice = () => {
         if (!partyName) {
-            alert('Please select a party.');
+            alert('Please select a creditor.');
         } else if (amountForReceipt == '' || parseInt(amountForReceipt) == 0 ) {
             alert('Please enter amount.');
         } else if (!paymentMode.uniqueName){
@@ -439,7 +439,7 @@ const ContraScreen = () => {
                 <Icon name={'Profile'} color={voucherBackground} style={{margin: 16}} size={16} />
                 <TextInput
                     placeholderTextColor={'#808080'}
-                    placeholder={'Select Parties Name'}
+                    placeholder={'From (CR)'}
                     returnKeyType={'done'}
                     value={searchPartyName}
                     onChangeText={(text) => {
@@ -520,7 +520,7 @@ const ContraScreen = () => {
             <View style={styles.fieldContainer}>
                 <View style={{flexDirection: 'row'}}>
                 <Icon name={'Path-12190'} color={voucherBackground} size={16} />
-                <Text style={styles.fieldHeadingText}>{'Payment Mode*'}</Text>
+                <Text style={styles.fieldHeadingText}>{'To (DR)*'}</Text>
                 </View>
 
                 <View style={{paddingVertical: 6, marginTop: 10}}>
@@ -531,7 +531,7 @@ const ContraScreen = () => {
                         if (partyName) {
                             setBottomSheetVisible(accountsModalizeRef, true);
                         } else {
-                            alert('Please select a party.');
+                            alert('Please select a creditor.');
                         }
                     }}
                     textColor={{colors}}>
@@ -573,7 +573,7 @@ const ContraScreen = () => {
                         {
                             justifyContent: 'center',
                             width: 150,
-                            height: 40,
+                            height: 38,
                             borderColor: chequeNumber ? voucherBackground : '#d9d9d9',
                         }
                         ]}>
@@ -594,7 +594,7 @@ const ContraScreen = () => {
                     <TouchableOpacity
                         onPress={() => {
                         if (!partyName) {
-                            alert('Please select a party.');
+                            alert('Please select a creditor.');
                         } else if (amountForReceipt == '' || parseInt(amountForReceipt) == 0) {
                             alert('Please enter amount.');
                         } else {
@@ -637,52 +637,6 @@ const ContraScreen = () => {
                 </TextInput>
                 </View>
             </View>
-            {/* Total amount */}
-            {amountForReceipt != '' && partyName?.name && <View>
-                <View
-                style={{
-                    backgroundColor: '#E6E6E6',
-                    flexDirection: 'row',
-                    paddingVertical: 9,
-                    paddingHorizontal: 16,
-                    justifyContent: 'space-between'
-                }}>
-                <View style={{ flexDirection: 'row' }}>
-                    <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color={voucherBackground} />
-                    <Text style={{ color: '#1C1C1C', fontFamily: theme.typography.fontFamily.semiBold }}>Balance</Text>
-                </View>
-                <Icon
-                    style={{ transform: [{ rotate: expandedBalance ? '180deg' : '0deg' }] }}
-                    name={'9'}
-                    size={16}
-                    color="#808080"
-                    onPress={() => setExpandedBalance(!expandedBalance)}
-                />
-                </View>
-
-                {expandedBalance && (
-                <View style={{ margin: 16 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ color: '#1C1C1C', fontFamily:theme.typography.fontFamily.semiBold }}>{'Taxable Amount'}</Text>
-                    <Text style={{ color: '#1C1C1C', fontFamily:theme.typography.fontFamily.semiBold }}>
-                        {currencySymbol + formatAmount(Number(balanceDetails.totalTaxableAmount))}
-                    </Text>
-                    </View>
-                    <View style={{height: 1.1, backgroundColor: 'black', marginVertical: 10}}></View>
-                    {
-                    amountForReceipt != '' 
-                        ? (
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ color: '#1C1C1C', fontFamily:theme.typography.fontFamily.semiBold }}>{'Total'}</Text>
-                        <Text style={{ color: '#1C1C1C', fontFamily:theme.typography.fontFamily.semiBold }}>
-                            {currencySymbol + formatAmount(Number(amountForReceipt))}
-                        </Text>
-                        </View>)
-                        : null
-                    }
-                </View>
-                )}
-            </View>}
             <DateTimePickerModal
               isVisible={showDatePicker}
               mode="date"
@@ -812,7 +766,7 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         overflow: 'hidden'
     },
     searchItemText: { 
-        color: theme.colors.secondaryText, 
+        color: theme.colors.solids.black, 
         paddingVertical: 10,
         fontFamily: theme.typography.fontFamily.semiBold,
         fontSize: theme.typography.fontSize.regular.size,

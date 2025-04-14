@@ -260,7 +260,7 @@ export class AccountScreen extends React.Component<Props, State> {
 
   renderSearchSuggestionBox = () =>{
     return (
-      <View style={[style.searchResultContainer,{}]}>
+      <View style={style.searchResultContainer}>
         <View style={{flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
           <Text style={style.searchHeading}>Recent</Text>
           <TouchableOpacity onPress={() =>this.props.resetAccountSearch()}>
@@ -269,6 +269,7 @@ export class AccountScreen extends React.Component<Props, State> {
         </View>
         <FlatList
           nestedScrollEnabled={true}
+          style={{marginTop:3}}
           showsVerticalScrollIndicator={false}
           data={this.props.accountsSearchSuggestions}
           keyExtractor={(item, index) => index.toString()}
