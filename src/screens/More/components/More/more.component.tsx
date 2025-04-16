@@ -209,13 +209,17 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 
     const authenticateUser = async () => {
       try {
+          if(!this.props.toggleBiometric){
+            this.props.toggleBiometricAuthentication();
+            return;
+          }
           const { available } = await BiometricAuth.isSensorAvailable();
   
           if (!available) {
               Toast({message: 'Biometrics not available. Use PIN.', position:'BOTTOM', duration:'SHORT'});
               await new Promise(resolve => setTimeout(resolve, 900));
               const response = await BiometricAuth.simplePrompt({
-                  promptMessage: 'Enter your device PIN/Password',
+                  promptMessage: 'Confirm lock screen password',
                   allowDeviceCredentials: true
               })
               console.log("res", response);
@@ -239,7 +243,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               return;
           }
       
-          const response = await BiometricAuth.authenticate();
+          const response = await BiometricAuth.simplePrompt({
+            promptMessage: 'Confirm Biometric',
+            allowDeviceCredentials: true
+          });
       
           if (response?.success) {
             this.props.toggleBiometricAuthentication();
@@ -264,7 +271,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         if (!available) {
             await new Promise(resolve => setTimeout(resolve, 900));
             const response = await BiometricAuth.simplePrompt({
-                promptMessage: 'Enter your device PIN/Password to logout',
+                promptMessage: 'Confirm lock screen password',
                 allowDeviceCredentials: true
             })
             if (response?.success) {
@@ -275,7 +282,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             }
             return;
         }
-        const response = await BiometricAuth.authenticate();
+        const response = await BiometricAuth.simplePrompt({
+          promptMessage: 'Confirm biometric to logout',
+          allowDeviceCredentials: true
+        });
         if (response?.success) {
           setBottomSheetVisible(this.confirmationBottomSheetRef, false);
           this.props.logout();
@@ -379,7 +389,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             <TouchableOpacity activeOpacity={0.7} style={[style.biometicContainer, {justifyContent:'space-between'}]} onPress={authenticateUser}>
               <View style={{flexDirection:'row', marginLeft: 15, alignItems:'center'}}>
                 <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
-                <Text style={style.companyNameText}>Enable Biometric</Text>
+                <Text style={style.companyNameText}>Enable App Lock</Text>
               </View>
               <Switch
                 trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}

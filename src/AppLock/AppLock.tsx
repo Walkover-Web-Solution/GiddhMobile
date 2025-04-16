@@ -34,7 +34,7 @@ const AppLock = ({visible, onUnlock}) => {
             if (!available) {
                 // Toast({message: 'Biometrics not available. Use PIN.', position:'CENTER', duration:'LONG'})
                 const response = await BiometricAuth.simplePrompt({
-                    promptMessage: 'Enter your device PIN/Password',
+                    promptMessage: 'Enter lock screen password',
                     allowDeviceCredentials: true
                 })
                 console.log("res", response);
@@ -46,11 +46,13 @@ const AppLock = ({visible, onUnlock}) => {
                     
                     if(response?.code == 14){
                         dispatch(resetBiometricAuthentication());
+                        Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                         return;
                     }
                     if(Platform.OS=='ios' && response?.code == -5){
                         console.log("bhaisab passcode bhi nahi h");
                         dispatch(resetBiometricAuthentication());
+                        Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                         return ;
                     }
                     setErrorMessage('Authentication failed. Please try again.');
@@ -58,7 +60,10 @@ const AppLock = ({visible, onUnlock}) => {
                 return;
             }
         
-            const response = await BiometricAuth.authenticate();
+            const response = await BiometricAuth.simplePrompt({
+                promptMessage: 'Biometric Authentication',
+                allowDeviceCredentials: true
+            });
         
             if (response?.success) {
                 setIsAuthenticated(true);
