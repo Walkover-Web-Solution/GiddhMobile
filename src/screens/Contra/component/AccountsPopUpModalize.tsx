@@ -17,12 +17,7 @@ const AccountsPopUpModalize = ({modalizeRef, paymentModes, setBottomSheetVisible
           renderItem: ({item}) => {
             return (
               <TouchableOpacity
-                // onFocus={() => this.onChangeText('')}
-                style={{
-                  paddingHorizontal: 20,
-                  marginHorizontal: 2,
-                  borderRadius: 10,
-                }}
+                style={styles.itemView}
                 onPress={() => {
                   setPaymentMode({
                     uniqueName: item.uniqueName,
@@ -37,18 +32,7 @@ const AccountsPopUpModalize = ({modalizeRef, paymentModes, setBottomSheetVisible
                   ) : (
                     <Icon name={'radio-unchecked'} color={voucherBackground} size={16} />
                   )}
-                  <Text
-                    style={{
-                      color: '#1C1C1C',
-                      paddingVertical: 4,
-                      fontSize: theme.typography.fontSize.regular.size,
-                      lineHeight: theme.typography.fontSize.regular.lineHeight,
-                      textAlign: 'center',
-                      marginLeft: 10,
-                      fontFamily: theme.typography.fontFamily.bold,
-                    }}>
-                    {item.name}
-                  </Text>
+                  <Text style={styles.text}>{item.name}</Text>
                 </View>
               </TouchableOpacity>
             );
@@ -65,5 +49,19 @@ const AccountsPopUpModalize = ({modalizeRef, paymentModes, setBottomSheetVisible
         flexDirection: 'row', 
         alignItems: 'center', 
         paddingVertical: 8
+    },
+    itemView:{
+      paddingHorizontal: 20,
+      marginHorizontal: 2,
+      borderRadius: 10,
+    },
+    text: {
+      color: '#1C1C1C',
+      paddingVertical: 4,
+      fontSize: theme.typography.fontSize.regular.size,
+      lineHeight: theme.typography.fontSize.regular.lineHeight,
+      textAlign: 'center',
+      marginLeft: 10,
+      fontFamily: theme.typography.fontFamily.bold,
     }
   })
