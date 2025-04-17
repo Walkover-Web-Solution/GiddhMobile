@@ -336,12 +336,6 @@ export class Receipt extends React.Component<any> {
         alert('Receipt created successfully!');
         const partyDetails = this.state.partyDetails;
         const partyName = this.state.partyName;
-        this.resetState();
-        this.setActiveCompanyCountry();
-        this.getAllTaxes();
-        this.getAllPaymentModes();
-        this.getCompanyVersionNumber();
-        DeviceEventEmitter.emit(APP_EVENTS.ReceiptCreated, {});
         if (type == 'navigate') {
           this.props.navigation.navigate(routes.Parties, {
             screen: 'PartiesTransactions',
@@ -357,6 +351,12 @@ export class Receipt extends React.Component<any> {
             },
           });
         }
+        this.resetState();
+        this.setActiveCompanyCountry();
+        this.getAllTaxes();
+        this.getAllPaymentModes();
+        this.getCompanyVersionNumber();
+        DeviceEventEmitter.emit(APP_EVENTS.ReceiptCreated, {});
       }
     } catch (e) {
       this.setState({allVoucherInvoice: []});
