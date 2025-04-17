@@ -222,18 +222,15 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                   promptMessage: 'Confirm lock screen password',
                   allowDeviceCredentials: true
               })
-              console.log("res", response);
               if (response?.success) {
                 this.props.toggleBiometricAuthentication();
               }else {
-                console.log("error while no biometric is available", response);
                 if(response?.code == 14){
                   this.props.resetBiometricAuthentication();
                   Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                   return ;
                 }
                 if(Platform.OS=='ios' && response?.code == -5){
-                  console.log("bhaisab passcode bhi nahi h-----");
                   this.props.resetBiometricAuthentication();
                   Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                   return ;
@@ -250,18 +247,11 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       
           if (response?.success) {
             this.props.toggleBiometricAuthentication();
-          // setIsAuthenticated(true);
-          // setErrorMessage("");
-          // onUnlock();
           } else {
-              console.log("error", response);
-              Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
-              // setErrorMessage(response?.error)
-          //   Alert.alert('Authentication failed');
+            Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
           }
       } catch (error) {
           console.error('Authentication error:', error);
-          // setErrorMessage('Something went wrong during authentication. Please try again.');
       }
     };
 
@@ -290,7 +280,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           setBottomSheetVisible(this.confirmationBottomSheetRef, false);
           this.props.logout();
         } else {
-            Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+          Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
         }
       } catch (error) {
           console.error('Authentication error:', error);
@@ -386,8 +376,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           )}
           {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
           {
-            <TouchableOpacity activeOpacity={0.7} style={[style.biometicContainer, {justifyContent:'space-between'}]} onPress={authenticateUser}>
-              <View style={{flexDirection:'row', marginLeft: 15, alignItems:'center'}}>
+            <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={authenticateUser}>
+              <View style={style.textView}>
                 <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
                 <Text style={style.companyNameText}>Enable App Lock</Text>
               </View>

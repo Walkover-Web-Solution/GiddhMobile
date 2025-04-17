@@ -11,46 +11,32 @@ const AppLock = ({visible, onUnlock}) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [availableBiometricType, setAvailableBiometricType] = useState("");
-    const {styles} = useCustomTheme(getStyles, 'Payment');
+    const {styles, theme} = useCustomTheme(getStyles, 'Payment');
     const dispatch = useDispatch();
+
     useEffect(() => {
-        console.log("applock mount");
-        
       authenticateUser();
-      return (
-        ()=>{
-            console.log("applock unmount");
-            
-        }
-      )
     }, []);
 
     const authenticateUser = async () => {
         try {
             const { available, biometryType } = await BiometricAuth.isSensorAvailable();
-            console.log("bio", biometryType);
             setAvailableBiometricType(biometryType? biometryType : "");
-            
             if (!available) {
-                // Toast({message: 'Biometrics not available. Use PIN.', position:'CENTER', duration:'LONG'})
                 const response = await BiometricAuth.simplePrompt({
                     promptMessage: 'Enter lock screen password',
                     allowDeviceCredentials: true
                 })
-                console.log("res", response);
                 if (response?.success) {
                     setIsAuthenticated(true);
                     onUnlock();
                 }else {
-                    console.log("error for pin",response);
-                    
                     if(response?.code == 14){
                         dispatch(resetBiometricAuthentication());
                         Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                         return;
                     }
                     if(Platform.OS=='ios' && response?.code == -5){
-                        console.log("bhaisab passcode bhi nahi h");
                         dispatch(resetBiometricAuthentication());
                         Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                         return ;
@@ -70,9 +56,7 @@ const AppLock = ({visible, onUnlock}) => {
                 setErrorMessage("");
                 onUnlock();
             } else {
-                console.log("erroe", response);
                 setErrorMessage(response?.error)
-            //   Alert.alert('Authentication failed');
             }
         } catch (error) {
             console.error('Authentication error:', error);
@@ -80,13 +64,13 @@ const AppLock = ({visible, onUnlock}) => {
         }
     };
     
-      if (isAuthenticated) return null; // If authenticated, show nothing (or main app)
+    if (isAuthenticated) return null;
     
     return (
         <Modal visible={visible} transparent animationType="fade">
         <TouchableWithoutFeedback>
             <View style={styles.modal}>
-                <Feather name="lock" size={35} color={'#fff'} />
+                <Feather name="lock" size={35} color={theme.colors.solids.white} />
                 <Text style={styles.heading}>Giddh Locked</Text>
                 <TouchableOpacity onPress={authenticateUser} style={styles.button} activeOpacity={0.7}>
                     <Text style={styles.buttonText}>Try{availableBiometricType ? " "+availableBiometricType+" " : " "}Again</Text>
@@ -107,7 +91,7 @@ const getStyles = (theme:ThemeProps) => StyleSheet.create({
         backgroundColor: 'rgba(3,3,3,0.9)',
       },
       button: {
-        backgroundColor: 'rgba(191, 191, 191, 0.77)', // soft pink with opacity
+        backgroundColor: 'rgba(191, 191, 191, 0.77)',
         paddingVertical: 15,
         paddingHorizontal: 19,
         borderRadius: 20,
@@ -120,7 +104,7 @@ const getStyles = (theme:ThemeProps) => StyleSheet.create({
         fontFamily: theme.typography.fontFamily.semiBold,
       },
       heading: {
-        color: '#fff',
+        color: theme.colors.solids.white,
         fontSize: theme.typography.fontSize.xxxLarge.size,
         fontFamily: theme.typography.fontFamily.bold,
         marginTop:5,

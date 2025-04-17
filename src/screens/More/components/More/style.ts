@@ -197,6 +197,12 @@ export default StyleSheet.create({
     backgroundColor: colors.BACKGROUND,
     width: '100%',
     alignItems: 'center',
-    height:76
+    height:76,
+    justifyContent:'space-between'
+  },
+  textView: {
+    flexDirection:'row', 
+    marginLeft: 15, 
+    alignItems:'center'
   }
 });

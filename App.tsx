@@ -95,7 +95,6 @@ export default class App extends React.Component<any> {
   }
 
   render() {
-    console.log("main app", store.getState().LoginReducer.toggleBiometric);
     return (  
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
