@@ -2,10 +2,9 @@ import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { ActivityIndicator, Animated, DeviceEventEmitter, Dimensions, FlatList, Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import moment from "moment";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import colors from "@/utils/colors";
 import Entypo from 'react-native-vector-icons/Entypo'
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -17,11 +16,10 @@ import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { APP_EVENTS, STORAGE_KEYS } from "@/utils/constants";
 import _ from 'lodash';
-import { formatAmount } from "@/utils/helper";
 import Routes from "@/navigation/routes";
 
-const {width, height} = Dimensions.get('window');
-const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setSearchError, partyName, setPartyName, setSearchPartyName, searchAccount, focusRef}) => {
+const { height} = Dimensions.get('window');
+const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setPartyName, setSearchPartyName, searchAccount, focusRef}) => {
     const {styles} = useCustomTheme(getStyles,'Contra')
     const handleInputFocus = () =>{
         focusRef.current.focus()
@@ -37,13 +35,11 @@ const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setSe
             renderItem={({item}) => (
               <TouchableOpacity
                 style={{}}
-                // onFocus={() => onChangeText('')}
                 onPress={async () => {
                     setSearchData([]);
                     setIsSearchingParty(false);
                     if (item != 'Result Not found') {
                         Keyboard.dismiss();
-                        setSearchError('');
                         setPartyName(item);
                         setSearchPartyName(item?.name);
                         searchAccount(item?.uniqueName);
@@ -55,15 +51,9 @@ const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setSe
             )}
           />
           <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-start',
-              padding: 10,
-              alignItems: 'center',
-            }}
+            style={styles.closeIcon}
             onPress={() =>{
                 setSearchData([]);
-                setSearchError('');
                 setIsSearchingParty(false);
             }}>
             <AntDesign name="closecircleo" size={15} color={'#424242'} />
@@ -74,7 +64,6 @@ const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setSe
 
 const ContraScreen = () => {
     const {styles, statusBar, voucherBackground, theme} = useCustomTheme(getStyles, 'Contra');
-
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
         return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
@@ -85,16 +74,9 @@ const ContraScreen = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [allPaymentModes, setAllPaymentModes] = useState([]);
     const [isSearchingParty, setIsSearchingParty] = useState(false);
-    const [searchError, setSearchError] = useState('');
     const [companyCountryDetails, setCompanyCountryDetails] = useState('');
-    const [currency, setCurrency] = useState('');
     const [currencySymbol, setCurrencySymbol] = useState('₹');
     const [companyVersionNumber, setCompanyVersionNumber] = useState('1');
-    const [searchTop, setSearchTop] = useState(height * 0.15);
-    const [countryDeatils, setCountryDeatils] = useState({
-        countryName: '',
-        countryCode: '',
-    });
     const [exchangeRate, setExchangeRate] = useState(1);
     const [partyDetails, setPartyDetails] = useState({});
     const [partyName, setPartyName] = useState('');
@@ -108,7 +90,6 @@ const ContraScreen = () => {
     });
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showClearanceDatePicker, setShowClearanceDatePicker] = useState(false);
-    const [expandedBalance, setExpandedBalance] = useState(true);
     const [isSelectAccountButtonSelected, setIsSelectAccountButtonSelected] = useState(false);
     const [paymentMode, setPaymentMode] = useState({
         uniqueName: '',
@@ -124,12 +105,10 @@ const ContraScreen = () => {
     const formatDate = (tempDate) => {
         const fulldays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
         const someDateTimeStamp = tempDate;
         var dt = (dt = new Date(someDateTimeStamp));
         const date = dt.getDate();
         const month = months[dt.getMonth()];
-        const timeDiff = someDateTimeStamp - Date.now();
         const diffDays = new Date().getDate() - date;
         const diffYears = new Date().getFullYear() - dt.getFullYear();
     
@@ -145,10 +124,6 @@ const ContraScreen = () => {
           return month + ' ' + date + ', ' + new Date(someDateTimeStamp).getFullYear();
         }
     }
-
-    const onLayout = (e) => {
-        setSearchTop(e.nativeEvent.layout.height + e.nativeEvent.layout.y)
-    };
 
     const getYesterdayDate = () => {
         setDate(moment().subtract(1, 'days'))
@@ -187,21 +162,14 @@ const ContraScreen = () => {
         setSearchPartyName('');
         setSearchResults([]);
         setIsSearchingParty(false);
-        setSearchError('');
         setCompanyCountryDetails('');
-        setCurrency('');
         setCurrencySymbol('₹');
         setCompanyVersionNumber('1');
-            setCountryDeatils({
-                countryName: '',
-                countryCode: '',
-            });
         setExchangeRate(1);
         setPartyDetails({});
         setPartyName('');
         setClearanceDate('');
         setAllPaymentModes([]);
-        setSearchTop(height * 0.15);
         setIsAmountFieldInFocus(false);
         setIsClearanceDateSelelected(false);
         setAmountForReceipt('');
@@ -212,7 +180,6 @@ const ContraScreen = () => {
             });
         setShowDatePicker(false);
         setShowClearanceDatePicker(false);
-        setExpandedBalance(false);
         setIsSelectAccountButtonSelected(false);
         setPaymentMode({
                 uniqueName: '',
@@ -279,11 +246,9 @@ const ContraScreen = () => {
           if (results.body && results.body.results) {
             setSearchResults(results?.body?.results);
             setIsSearchingParty(false);
-            setSearchError('');
           }
         } catch (e) {
             setSearchResults([]);
-            setSearchError('No Results');
             setIsSearchingParty(false);
         }
     }
@@ -297,73 +262,67 @@ const ContraScreen = () => {
               await getExchangeRateToINR(results.body.currency);
             }
             setIsSearchingParty(false);
-            setSearchError('');
             setPartyDetails(results?.body);
-            setCountryDeatils(results?.body?.country);
-            setCurrency(results?.body?.currency);
             setCurrencySymbol(results?.body?.currencySymbol);
           }
         } catch (e) {
           setSearchResults([]);
-          setSearchError('No Results');
           setIsSearchingParty(false);
         }
     }
 
     const createContraVoucher = async () => {
-        console.log("hihihhih", moment('').format('DD-MM-YYYY'));
-        
         try {
-          setLoading(true);
-          const lang = 'en';
-          const payload = {
-            transactions: [
-              {
-                amount: parseInt(amountForReceipt),
-                particular: paymentMode.uniqueName,
-                total: parseInt(amountForReceipt),
-                convertedTotal: (Math.round((parseInt(balanceDetails.totalTaxableAmount) - parseInt(balanceDetails.tdsOrTcsTaxAmount)) * exchangeRate * 100) / 100 ).toFixed(2),
-                discount: 0,
-                convertedDiscount: 0,
-                isStock: false,
-                convertedRate: 0,
-                convertedAmount: (Math.round(parseInt(amountForReceipt) * exchangeRate * 100) / 100).toFixed(2),
-                isChecked: false,
-                showTaxationDiscountBox: false,
-                itcAvailable: '',
-                advanceReceiptAmount: parseInt(balanceDetails.totalTaxableAmount).toFixed(2),
-                showDropdown: false,
-                showOtherTax: true,
-                type: 'CREDIT',
-                discounts: [],
-                isInclusiveTax: false,
-                shouldShowRcmEntry: false,
-              },
-            ],
-            voucherType: 'contra',
-            entryDate: moment(date).format('DD-MM-YYYY'),
-            unconfirmedEntry: false,
-            attachedFile: '',
-            attachedFileName: '',
-            tag: null,
-            description: addDescription,
-            generateInvoice: true,
-            chequeNumber: chequeNumber,
-            chequeClearanceDate: clearanceDate ? moment(clearanceDate).format('DD-MM-YYYY') : '',
-            compoundTotal: parseInt(amountForReceipt),
-            convertedCompoundTotal: (Math.round(parseInt(amountForReceipt) * exchangeRate * 100) / 100 ).toFixed(2),
-            tdsTcsTaxesSum: balanceDetails.tdsOrTcsTaxAmount,
-            otherTaxesSum: balanceDetails.tdsOrTcsTaxAmount,
-            exchangeRate: exchangeRate,
-            valuesInAccountCurrency: true,
-            selectedCurrencyToDisplay: 0,
-          };
-          const results = await InvoiceService.createReceipt(
-            payload,
-            partyName.uniqueName,
-            companyVersionNumber,
-            lang,
-          );
+            setLoading(true);
+            const lang = 'en';
+            const payload = {
+                transactions: [
+                {
+                    amount: parseInt(amountForReceipt),
+                    particular: paymentMode.uniqueName,
+                    total: parseInt(amountForReceipt),
+                    convertedTotal: (Math.round((parseInt(balanceDetails.totalTaxableAmount) - parseInt(balanceDetails.tdsOrTcsTaxAmount)) * exchangeRate * 100) / 100 ).toFixed(2),
+                    discount: 0,
+                    convertedDiscount: 0,
+                    isStock: false,
+                    convertedRate: 0,
+                    convertedAmount: (Math.round(parseInt(amountForReceipt) * exchangeRate * 100) / 100).toFixed(2),
+                    isChecked: false,
+                    showTaxationDiscountBox: false,
+                    itcAvailable: '',
+                    advanceReceiptAmount: parseInt(balanceDetails.totalTaxableAmount).toFixed(2),
+                    showDropdown: false,
+                    showOtherTax: true,
+                    type: 'CREDIT',
+                    discounts: [],
+                    isInclusiveTax: false,
+                    shouldShowRcmEntry: false,
+                },
+                ],
+                voucherType: 'contra',
+                entryDate: moment(date).format('DD-MM-YYYY'),
+                unconfirmedEntry: false,
+                attachedFile: '',
+                attachedFileName: '',
+                tag: null,
+                description: addDescription,
+                generateInvoice: true,
+                chequeNumber: chequeNumber,
+                chequeClearanceDate: clearanceDate ? moment(clearanceDate).format('DD-MM-YYYY') : '',
+                compoundTotal: parseInt(amountForReceipt),
+                convertedCompoundTotal: (Math.round(parseInt(amountForReceipt) * exchangeRate * 100) / 100 ).toFixed(2),
+                tdsTcsTaxesSum: balanceDetails.tdsOrTcsTaxAmount,
+                otherTaxesSum: balanceDetails.tdsOrTcsTaxAmount,
+                exchangeRate: exchangeRate,
+                valuesInAccountCurrency: true,
+                selectedCurrencyToDisplay: 0,
+            };
+            const results = await InvoiceService.createReceipt(
+                payload,
+                partyName.uniqueName,
+                companyVersionNumber,
+                lang,
+            );
             if (results.body) {
                 alert('Contra voucher created successfully!');
                 navigation.navigate(Routes.Parties, {
@@ -432,37 +391,34 @@ const ContraScreen = () => {
             <_StatusBar statusBar={statusBar}/>
             <Header header={'Contra'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             {/* Party Name */}
-            <View
-                onLayout={onLayout}
-                style={{flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 14}}>
-                <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-                <Icon name={'Profile'} color={voucherBackground} style={{margin: 16}} size={16} />
-                <TextInput
-                    placeholderTextColor={'#808080'}
-                    placeholder={'From (CR)'}
-                    returnKeyType={'done'}
-                    value={searchPartyName}
-                    onChangeText={(text) => {
-                        setSearchPartyName(text);
-                        searchCalls(text);
-                    }}
-                    style={styles.searchTextInputStyle}
-                />
-                <ActivityIndicator color={'#5773FF'} size="small" animating={isSearchingParty} />
+            <View style={styles.partyContainer}>
+                <View style={styles.partySubView}>
+                    <Icon name={'Profile'} color={voucherBackground} style={{margin: 16}} size={16} />
+                    <TextInput
+                        placeholderTextColor={'#808080'}
+                        placeholder={'From (CR)'}
+                        returnKeyType={'done'}
+                        value={searchPartyName}
+                        onChangeText={(text) => {
+                            setSearchPartyName(text);
+                            searchCalls(text);
+                        }}
+                        style={styles.searchTextInputStyle}
+                    />
+                    <ActivityIndicator color={'#5773FF'} size="small" animating={isSearchingParty} />
                 </View>
                 <TouchableOpacity onPress={clearAll}>
-                <Text style={{color: theme.colors.text, marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
+                <Text style={styles.planText}>Clear All</Text>
                 </TouchableOpacity>
             </View>
             {/* Amount */}
-            <View style={{flexDirection: 'row', flex: 1}}>
-                <View style={{paddingVertical: Platform.OS == 'ios'? 10 : 0, paddingHorizontal: 15, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+            <View style={styles.amountContainer}>
+                <View style={styles.amountView}>
                     <Text style={styles.invoiceAmountText}>{currencySymbol}</Text>
                     <TextInput
                         style={[styles.invoiceAmountText, {flex: 1,alignSelf: 'flex-start'}]}
                         keyboardType="phone-pad"
                         placeholder={'0.00'}
-                        
                         placeholderTextColor={isAmountFieldInFocus ? '#808080' : '#1C1C1C'}
                         value={amountForReceipt}
                         ref={focusRef}
@@ -489,152 +445,150 @@ const ContraScreen = () => {
             {/* Date */}
             <View style={styles.dateView}>
                 <TouchableOpacity
-                style={{flexDirection: 'row', alignItems:'baseline'}}
-                onPress={() => {
-                    if (!partyName) {
-                    alert('Please select a party.');
-                    } else {
-                        setShowDatePicker(true);
-                    }
-                }}>
-                <Icon name={'Calendar'} color={voucherBackground} size={16} />
-                <Text style={styles.selectedDateText}>{formatDate(date)}</Text>
+                    style={styles.dateBtn}
+                    onPress={() => {
+                        if (!partyName) {
+                        alert('Please select a party.');
+                        } else {
+                            setShowDatePicker(true);
+                        }
+                    }}>
+                    <Icon name={'Calendar'} color={voucherBackground} size={16} />
+                    <Text style={styles.selectedDateText}>{formatDate(date)}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                style={{borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2}}
-                onPress={() => {
-                    if (!partyName) {
-                    alert('Please select a party.');
-                    } else {
-                    date.startOf('day').isSame(moment().startOf('day'))
-                        ? getYesterdayDate()
-                        : getTodayDate();
-                    }
-                }}>
-                <Text style={{color: '#808080'}}>
-                    {date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
-                </Text>
+                    style={styles.dateBtnStyle}
+                    onPress={() => {
+                        if (!partyName) {
+                        alert('Please select a party.');
+                        } else {
+                        date.startOf('day').isSame(moment().startOf('day'))
+                            ? getYesterdayDate()
+                            : getTodayDate();
+                        }
+                    }}>
+                    <Text style={{color: '#808080'}}>
+                        {date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+                    </Text>
                 </TouchableOpacity>
             </View>
             {/* Payment mode */}
             <View style={styles.fieldContainer}>
-                <View style={{flexDirection: 'row'}}>
-                <Icon name={'Path-12190'} color={voucherBackground} size={16} />
-                <Text style={styles.fieldHeadingText}>{'To (DR)*'}</Text>
+                <View style={styles.rowContainer}>
+                    <Icon name={'Path-12190'} color={voucherBackground} size={16} />
+                    <Text style={styles.fieldHeadingText}>{'To (DR)*'}</Text>
                 </View>
-
-                <View style={{paddingVertical: 6, marginTop: 10}}>
-                <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity
-                    style={{flexDirection: 'row'}}
-                    onPress={() => {
-                        if (partyName) {
-                            setBottomSheetVisible(accountsModalizeRef, true);
-                        } else {
-                            alert('Please select a creditor.');
-                        }
-                    }}
-                    textColor={{colors}}>
-                    <View
-                        style={[
-                        styles.buttonWrapper,
-                        {marginLeft: 20},
-                        {borderColor: isSelectAccountButtonSelected ? voucherBackground : '#d9d9d9'},
-                        ]}>
-                        <Text
-                        style={[
-                            styles.buttonText,
-                            {
-                            color: isSelectAccountButtonSelected ? voucherBackground : '#868686',
-                            },
-                        ]}>
-                        {isSelectAccountButtonSelected ? paymentMode.name : 'Select A/c'}
-                        </Text>
+                <View style={styles.paymentView}>
+                    <View style={styles.rowContainer}>
+                        <TouchableOpacity
+                            style={styles.rowContainer}
+                            onPress={() => {
+                                if (partyName) {
+                                    setBottomSheetVisible(accountsModalizeRef, true);
+                                } else {
+                                    alert('Please select a creditor.');
+                                }
+                            }}
+                            textColor={{colors}}>
+                            <View
+                                style={[
+                                styles.buttonWrapper,
+                                {marginLeft: 20},
+                                {borderColor: isSelectAccountButtonSelected ? voucherBackground : '#d9d9d9'},
+                                ]}>
+                                <Text
+                                style={[
+                                    styles.buttonText,
+                                    {
+                                    color: isSelectAccountButtonSelected ? voucherBackground : '#868686',
+                                    },
+                                ]}>
+                                {isSelectAccountButtonSelected ? paymentMode.name : 'Select A/c'}
+                                </Text>
+                            </View>
+                            {isSelectAccountButtonSelected ? (
+                                <Entypo name="edit" size={16} color={voucherBackground} style={{ alignSelf: 'center' }}/>
+                            ) : null}
+                        </TouchableOpacity>
                     </View>
-                    {isSelectAccountButtonSelected ? (
-                        <Entypo name="edit" size={16} color={voucherBackground} style={{ alignSelf: 'center' }}/>
-                    ) : null}
-                    </TouchableOpacity>
-                </View>
                 </View>
             </View>
             {/* Cheque details */}
             <View style={styles.fieldContainer}>
-                <View style={{flexDirection: 'row'}}>
+                <View style={styles.rowContainer}>
                     <Icon name={'path-15'} color={voucherBackground} size={16} />
                     <Text style={styles.fieldHeadingText}>{'Cheque Details'}</Text>
                 </View>
-                <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
-                    <View style={{flexDirection: 'row', }}>
-                    <View
-                        style={[
-                        styles.buttonWrapper,
-                        {marginHorizontal: 20},
-                        {
-                            justifyContent: 'center',
-                            width: 150,
-                            height: 38,
-                            borderColor: chequeNumber ? voucherBackground : '#d9d9d9',
-                        }
-                        ]}>
-                        <TextInput
-                        style={[
-                            styles.chequeButtonText, {color: chequeNumber ? voucherBackground : '#868686'}
-                            ]}
-                        autoCapitalize = {"characters"}
-                        value={chequeNumber.toString()}
-                        placeholder={'Cheque #'}
-                        placeholderTextColor={'#868686'}
-                        returnKeyType={"done"}
-                        multiline={true}
-                        onChangeText={(text) => setChequeNumber(text)}
-                        />
-                    </View>
-
-                    <TouchableOpacity
-                        onPress={() => {
-                        if (!partyName) {
-                            alert('Please select a creditor.');
-                        } else if (amountForReceipt == '' || parseInt(amountForReceipt) == 0) {
-                            alert('Please enter amount.');
-                        } else {
-                            setShowClearanceDatePicker(true);
-                            setIsClearanceDateSelelected(true);
-                        }
-                        }}>
+                <View style={styles.chequeView}>
+                    <View style={styles.rowContainer}>
                         <View
-                        style={[
+                            style={[
                             styles.buttonWrapper,
-                            {borderColor: (isClearanceDateSelelected && clearanceDate) ? voucherBackground: '#d9d9d9'},
-                        ]}>
-                        {(isClearanceDateSelelected && clearanceDate) ? (
-                            <Text style={[styles.buttonText, { color: voucherBackground }]}>
-                            {formatDate(clearanceDate)}
-                            </Text>
-                        ) : (
-                            <Text
-                            style={[styles.buttonText, { color: theme.colors.secondaryText }]}>
-                            Clearance Date
-                            </Text>
-                        )}
+                            {marginHorizontal: 20},
+                            {
+                                justifyContent: 'center',
+                                width: 150,
+                                height: 38,
+                                borderColor: chequeNumber ? voucherBackground : '#d9d9d9',
+                            }
+                            ]}>
+                            <TextInput
+                            style={[
+                                styles.chequeButtonText, {color: chequeNumber ? voucherBackground : '#868686'}
+                                ]}
+                            autoCapitalize = {"characters"}
+                            value={chequeNumber.toString()}
+                            placeholder={'Cheque #'}
+                            placeholderTextColor={'#868686'}
+                            returnKeyType={"done"}
+                            multiline={true}
+                            onChangeText={(text) => setChequeNumber(text)}
+                            />
                         </View>
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                            if (!partyName) {
+                                alert('Please select a creditor.');
+                            } else if (amountForReceipt == '' || parseInt(amountForReceipt) == 0) {
+                                alert('Please enter amount.');
+                            } else {
+                                setShowClearanceDatePicker(true);
+                                setIsClearanceDateSelelected(true);
+                            }
+                            }}>
+                            <View
+                            style={[
+                                styles.buttonWrapper,
+                                {borderColor: (isClearanceDateSelelected && clearanceDate) ? voucherBackground: '#d9d9d9'},
+                            ]}>
+                            {(isClearanceDateSelelected && clearanceDate) ? (
+                                <Text style={[styles.buttonText, { color: voucherBackground }]}>
+                                {formatDate(clearanceDate)}
+                                </Text>
+                            ) : (
+                                <Text
+                                style={[styles.buttonText, { color: theme.colors.secondaryText }]}>
+                                Clearance Date
+                                </Text>
+                            )}
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
             {/* Description */}
             <View style={styles.fieldContainer}>
-                <View style={{flexDirection: 'row'}}>
-                <Icon name={'path-15'} color={voucherBackground} size={16} />
-                <Text style={styles.fieldHeadingText}>{'Add Description'}</Text>
+                <View style={styles.rowContainer}>
+                    <Icon name={'path-15'} color={voucherBackground} size={16} />
+                    <Text style={styles.fieldHeadingText}>{'Add Description'}</Text>
                 </View>
-                <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
-                <TextInput
-                    style={{marginLeft: 20, margin: 10, borderBottomColor: theme.colors.secondaryText, borderBottomWidth: 1.5}}
-                    value={addDescription}
-                    placeholder={'Note (Opional)'}
-                    onChangeText={(text) => setAddDescription(text)}>
-                </TextInput>
+                <View style={styles.chequeView}>
+                    <TextInput
+                        style={styles.descText}
+                        value={addDescription}
+                        placeholder={'Note (Opional)'}
+                        onChangeText={(text) => setAddDescription(text)}>
+                    </TextInput>
                 </View>
             </View>
             <DateTimePickerModal
@@ -652,9 +606,7 @@ const ContraScreen = () => {
             {searchResults?.length > 0 && <RenderSearchList 
                 searchData={searchResults} 
                 setIsSearchingParty={setIsSearchingParty} 
-                setSearchData={setSearchResults} 
-                setSearchError={setSearchError}
-                partyName={partyName} 
+                setSearchData={setSearchResults}
                 setPartyName= {setPartyName} 
                 setSearchPartyName= {setSearchPartyName}
                 searchAccount={searchAccount} 
@@ -772,4 +724,66 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         fontSize: theme.typography.fontSize.regular.size,
         lineHeight: theme.typography.fontSize.regular.lineHeight
     },
+    closeIcon: {
+        flexDirection: 'row',
+        alignSelf: 'flex-start',
+        padding: 10,
+        alignItems: 'center',
+    },
+    partyContainer: {
+        flexDirection: 'row', 
+        minHeight: 50, 
+        alignItems: 'center', 
+        paddingTop: 14
+    },
+    partySubView: {
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        flex: 1
+    },
+    planText: {
+        color: theme.colors.text, 
+        marginRight: 16, 
+        fontFamily: 'AvenirLTStd-Book'
+    },
+    amountContainer: {
+        flexDirection: 'row', 
+        flex: 1
+    },
+    amountView: {
+        paddingVertical: Platform.OS == 'ios'? 10 : 0, 
+        paddingHorizontal: 15, 
+        flex: 1, 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'center'
+    },
+    dateBtn: {
+        flexDirection: 'row', 
+        alignItems:'baseline'
+    },
+    dateBtnStyle: {
+        borderColor: '#D9D9D9', 
+        borderWidth: 1, 
+        paddingHorizontal: 4, 
+        paddingVertical: 2
+    },
+    rowContainer: {
+        flexDirection: 'row'
+    },
+    paymentView: {
+        paddingVertical: 6, 
+        marginTop: 10
+    },
+    chequeView: {
+        paddingVertical: 6, 
+        marginTop: 10, 
+        justifyContent: 'space-between'
+    },
+    descText: {
+        marginLeft: 20,
+        margin: 10, 
+        borderBottomColor: theme.colors.secondaryText, 
+        borderBottomWidth: 1.5
+    }
 })

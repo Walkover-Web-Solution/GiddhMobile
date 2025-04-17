@@ -140,6 +140,11 @@ export const accountStyles = StyleSheet.create({
     marginHorizontal:20,
     marginVertical:5,
     padding:10,
-}
+  },
+  searchHeader: {
+    flexDirection:'row', 
+    justifyContent:'space-between', 
+    width:'100%'
+  }
 });
 

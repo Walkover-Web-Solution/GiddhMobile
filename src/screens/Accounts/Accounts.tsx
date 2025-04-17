@@ -158,7 +158,6 @@ export class AccountScreen extends React.Component<Props, State> {
       this.setState({ showSearchLoader: false })
 
       console.log("Error in group accounts search ", e);
-      // this.setState({ showLoader: false });
     }
   }
   private async loadMoreSearchGroupAccounts(text: string) {
@@ -193,7 +192,6 @@ export class AccountScreen extends React.Component<Props, State> {
       this.setState({ showSearchLoader: false ,loadingMoreSearch:false})
 
       console.log("Error in group accounts search ", e);
-      // this.setState({ showLoader: false });
     }
   }
   private async getAccountData(item :any){
@@ -261,7 +259,7 @@ export class AccountScreen extends React.Component<Props, State> {
   renderSearchSuggestionBox = () =>{
     return (
       <View style={style.searchResultContainer}>
-        <View style={{flexDirection:'row', justifyContent:'space-between', width:'100%'}}>
+        <View style={style.searchHeader}>
           <Text style={style.searchHeading}>Recent</Text>
           <TouchableOpacity onPress={() =>this.props.resetAccountSearch()}>
             <Text style={style.searchHeading}>Clear all</Text>
@@ -347,7 +345,6 @@ export class AccountScreen extends React.Component<Props, State> {
             <Bars size={15} color={colors.PRIMARY_NORMAL} />
           </View> :
             <View style={{ flex: 1 }}>
-              {/* {this.props.accountsSearchSuggestions.length > 0 && this.state.showSearchSuggestion ? this.renderSearchSuggestionBox() : null} */}
               <FlatList
                 scrollEnabled
                 keyboardShouldPersistTaps={'handled'}
