@@ -11,7 +11,8 @@ const initialState = {
   isUnauth: false,
   companyDetails: {},
   companyVoucherVersion: 2,
-  selectedVouchersForBottomTabs: ['Sales', 'Purchase']
+  selectedVouchersForBottomTabs: ['Sales', 'Purchase'],
+  accountsSearchSuggestions: []
 };
 
 export default (state = initialState, action: Action) => {
@@ -72,6 +73,16 @@ export default (state = initialState, action: Action) => {
       return {
         ...state,
         selectedVouchersForBottomTabs: action.payload
+      }
+    case ActionConstants.RESET_ACCOUNT_SEARCH:
+      return {
+        ...state,
+        accountsSearchSuggestions: []
+      }
+    case ActionConstants.UPDATE_ACCOUNT_SEARCH:
+      return {
+        ...state,
+        accountsSearchSuggestions: action?.payload
       }
     default:
       return state;
