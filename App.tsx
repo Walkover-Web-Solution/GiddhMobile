@@ -79,10 +79,6 @@ export default class App extends React.Component<any> {
     headerShown: false,
   };
   
-  constructor(props:any){
-    super(props);
-  }
-
   async componentDidMount() {
     SplashScreen.hide();
     checkForAppUpdate();

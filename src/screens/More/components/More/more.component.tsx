@@ -44,7 +44,7 @@ type MoreComponentState = {
   copiedText: string,
   isModalVisible: boolean,
   activeCompany: any,
-  activeBranch: any,
+  activeBranch: any
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
