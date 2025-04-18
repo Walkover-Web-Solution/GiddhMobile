@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription, Switch } from 'react-native';
 import { Country } from '@/models/interfaces/country';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
@@ -19,6 +19,12 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
 import TOAST from 'react-native-root-toast';
 import ChatGPT from '@/assets/images/icons/ChatGPT.svg';
+import { connect } from 'react-redux';
+import { BiometricAuth } from '@msg91comm/sendotp-react-native';
+import { resetBiometricAuthentication, toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
+import Toast from '@/components/Toast';
+import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
+import { setBottomSheetVisible } from '@/components/BottomSheet';
 const { height } = Dimensions.get('screen');
 
 type MoreComponentProp = WithTranslation &
@@ -42,8 +48,10 @@ type MoreComponentState = {
 };
 
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
+  private confirmationBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: MoreComponentProp) {
     super(props);
+    this.confirmationBottomSheetRef = createRef<BottomSheet>();
     this.state = {
       activeCompany: undefined,
       activeBranch: undefined,
@@ -110,6 +118,87 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this.setState({ activeBranch: branchResults });
     } else {
       this.setState({ activeBranch: undefined });
+    }
+  }
+
+  authenticateUser = async () => {
+    try {
+        if(!this.props.toggleBiometric){
+          this.props.toggleBiometricAuthentication();
+          return;
+        }
+        const { available } = await BiometricAuth.isSensorAvailable();
+
+        if (!available) {
+            Toast({message: 'Biometrics not available. Use PIN.', position:'BOTTOM', duration:'SHORT'});
+            await new Promise(resolve => setTimeout(resolve, 900));
+            const response = await BiometricAuth.simplePrompt({
+                promptMessage: 'Confirm lock screen password',
+                allowDeviceCredentials: true
+            })
+            if (response?.success) {
+              this.props.toggleBiometricAuthentication();
+            }else {
+              if(response?.code == 14){
+                this.props.resetBiometricAuthentication();
+                Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+                return ;
+              }
+              if(Platform.OS=='ios' && response?.code == -5){
+                this.props.resetBiometricAuthentication();
+                Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+                return ;
+              }
+              Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+            }
+            return;
+        }
+    
+        const response = await BiometricAuth.simplePrompt({
+          promptMessage: 'Confirm Biometric',
+          allowDeviceCredentials: true
+        });
+    
+        if (response?.success) {
+          this.props.toggleBiometricAuthentication();
+        } else {
+          Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+        }
+    } catch (error) {
+        console.error('Authentication error:', error);
+    }
+  };
+
+
+  authenicateAndLogoutUser = async() => {
+    try {
+      const { available } = await BiometricAuth.isSensorAvailable();
+      if (!available) {
+          await new Promise(resolve => setTimeout(resolve, 900));
+          const response = await BiometricAuth.simplePrompt({
+              promptMessage: 'Confirm lock screen password',
+              allowDeviceCredentials: true
+          })
+          if (response?.success) {
+            setBottomSheetVisible(this.confirmationBottomSheetRef, false);
+            this.props.logout();
+          }else {
+            Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+          }
+          return;
+      }
+      const response = await BiometricAuth.simplePrompt({
+        promptMessage: 'Confirm biometric to logout',
+        allowDeviceCredentials: true
+      });
+      if (response?.success) {
+        setBottomSheetVisible(this.confirmationBottomSheetRef, false);
+        this.props.logout();
+      } else {
+        Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+      }
+    } catch (error) {
+        console.error('Authentication error:', error);
     }
   }
 
@@ -195,7 +284,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     )
   }
 
+
+
   render() {
+
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
     const { navigation } = this.props;
@@ -284,7 +376,22 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </TouchableOpacity>
           )}
-
+          {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
+          {
+            <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
+              <View style={style.textView}>
+                <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
+                <Text style={style.companyNameText}>Enable App Lock</Text>
+              </View>
+              <Switch
+                trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
+                thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
+                ios_backgroundColor={color.BORDER_COLOR}
+                onValueChange={this.authenticateUser}
+                value={this.props.toggleBiometric}
+              />
+            </TouchableOpacity>
+          }
           {/* ------------ Contact Us View ------------ */}
           <View style={style.contactUsView}>
             <View style={{ margin: 15 }}>
@@ -350,7 +457,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           <TouchableOpacity
             activeOpacity={0.7}
             style={style.logoutButton}
-            onPress={this.props.logout}
+            onPress={()=>{
+              if(this.props.toggleBiometric){
+                setBottomSheetVisible(this.confirmationBottomSheetRef, true);
+                return;
+              }
+              this.props.logout();
+            }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Feather name="power" size={26} color={'#5773FF'} style={{ marginRight: 12 }}/>
@@ -361,10 +474,36 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             </View>
           </TouchableOpacity>
           {this.contactUsModal()}
+          <ConfirmationBottomSheet
+              bottomSheetRef={this.confirmationBottomSheetRef}
+              message={ConfirmationMessages.APPLOCK.message}
+              description={ConfirmationMessages.APPLOCK.description}
+              onConfirm={this.authenicateAndLogoutUser}
+              onReject={() => setBottomSheetVisible(this.confirmationBottomSheetRef, false)}
+              confirmText='Logout'
+              rejectText='Cancel'
+          />
         </View>
       );
     }
   }
 }
 
-export default withTranslation()(MoreComponent);
+const mapStateToProps = (state : any) => {
+  return {
+    toggleBiometric: state.LoginReducer.toggleBiometric
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    toggleBiometricAuthentication: () => {
+      dispatch(toggleBiometricAuthentication())
+    },
+    resetBiometricAuthentication: () => {
+      dispatch(resetBiometricAuthentication())
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(MoreComponent));

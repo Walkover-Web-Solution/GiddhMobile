@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import * as material from '@eva-design/material';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
-import {Provider} from 'react-redux';
+import {Provider, useSelector} from 'react-redux';
 import '@/utils/i18n';
 import {BackHandler, EmitterSubscription, Platform} from 'react-native';
 import {default as mapping} from './mappings.json';
@@ -23,6 +23,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
+import AppLock from '@/AppLock/AppLock';
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
@@ -77,7 +78,7 @@ export default class App extends React.Component<any> {
   static navigationOptions = {
     headerShown: false,
   };
-
+  
   async componentDidMount() {
     SplashScreen.hide();
     checkForAppUpdate();
@@ -91,20 +92,31 @@ export default class App extends React.Component<any> {
 
   render() {
     return (  
-      <SafeAreaProvider>
-        <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <RootSiblingParent>
-                  <BaseContainer />
-                </RootSiblingParent>
-              </GestureHandlerRootView>
-            </ApplicationProvider>
+            <InnerApp />
           </PersistGate>
         </Provider>
-      </SafeAreaProvider>
     );
   }
+}
+
+
+const InnerApp = () => {
+  const {toggleBiometric} = useSelector(state => state.LoginReducer);  
+  const [unlocked, setUnlocked] = useState(false);
+  
+  return (
+    <SafeAreaProvider>
+      <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
+      <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <RootSiblingParent>
+            {toggleBiometric && !unlocked && <AppLock visible={!unlocked} onUnlock={()=>setUnlocked(true)}/>}
+            <BaseContainer /> 
+          </RootSiblingParent>
+        </GestureHandlerRootView>
+      </ApplicationProvider>
+    </SafeAreaProvider>
+  )
 }

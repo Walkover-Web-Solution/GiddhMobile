@@ -176,3 +176,15 @@ export function loginWithOtpFailure(error) {
     payload: error
   }
 }
+
+export function toggleBiometricAuthentication() {
+  return {
+    type: Actions.TOGGLE_BIOMETRIC_AUTHENTICATION
+  }
+}
+
+export function resetBiometricAuthentication() {
+  return {
+    type: Actions.RESET_BIOMETRIC_AUTHENTICATION
+  }
+}
