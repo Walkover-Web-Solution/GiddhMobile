@@ -195,12 +195,12 @@ export default (state = initialState, action: Action) => {
         error: action.payload,
         isUserAuthenticated: false
       };
-    case ActionConstants.TOGGLE_BIOMETIC_AUTHENTICATION:
+    case ActionConstants.TOGGLE_BIOMETRIC_AUTHENTICATION:
       return {
         ...state,
         toggleBiometric: !state.toggleBiometric
       }
-    case ActionConstants.RESET_BIOMETIC_AUTHENTICATION:
+    case ActionConstants.RESET_BIOMETRIC_AUTHENTICATION:
       return {
         ...state,
         toggleBiometric: false

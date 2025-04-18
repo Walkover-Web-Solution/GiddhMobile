@@ -179,12 +179,12 @@ export function loginWithOtpFailure(error) {
 
 export function toggleBiometricAuthentication() {
   return {
-    type: Actions.TOGGLE_BIOMETIC_AUTHENTICATION
+    type: Actions.TOGGLE_BIOMETRIC_AUTHENTICATION
   }
 }
 
 export function resetBiometricAuthentication() {
   return {
-    type: Actions.RESET_BIOMETIC_AUTHENTICATION
+    type: Actions.RESET_BIOMETRIC_AUTHENTICATION
   }
 }

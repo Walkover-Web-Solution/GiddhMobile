@@ -121,6 +121,87 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     }
   }
 
+  authenticateUser = async () => {
+    try {
+        if(!this.props.toggleBiometric){
+          this.props.toggleBiometricAuthentication();
+          return;
+        }
+        const { available } = await BiometricAuth.isSensorAvailable();
+
+        if (!available) {
+            Toast({message: 'Biometrics not available. Use PIN.', position:'BOTTOM', duration:'SHORT'});
+            await new Promise(resolve => setTimeout(resolve, 900));
+            const response = await BiometricAuth.simplePrompt({
+                promptMessage: 'Confirm lock screen password',
+                allowDeviceCredentials: true
+            })
+            if (response?.success) {
+              this.props.toggleBiometricAuthentication();
+            }else {
+              if(response?.code == 14){
+                this.props.resetBiometricAuthentication();
+                Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+                return ;
+              }
+              if(Platform.OS=='ios' && response?.code == -5){
+                this.props.resetBiometricAuthentication();
+                Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+                return ;
+              }
+              Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+            }
+            return;
+        }
+    
+        const response = await BiometricAuth.simplePrompt({
+          promptMessage: 'Confirm Biometric',
+          allowDeviceCredentials: true
+        });
+    
+        if (response?.success) {
+          this.props.toggleBiometricAuthentication();
+        } else {
+          Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+        }
+    } catch (error) {
+        console.error('Authentication error:', error);
+    }
+  };
+
+
+  authenicateAndLogoutUser = async() => {
+    try {
+      const { available } = await BiometricAuth.isSensorAvailable();
+      if (!available) {
+          await new Promise(resolve => setTimeout(resolve, 900));
+          const response = await BiometricAuth.simplePrompt({
+              promptMessage: 'Confirm lock screen password',
+              allowDeviceCredentials: true
+          })
+          if (response?.success) {
+            setBottomSheetVisible(this.confirmationBottomSheetRef, false);
+            this.props.logout();
+          }else {
+            Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+          }
+          return;
+      }
+      const response = await BiometricAuth.simplePrompt({
+        promptMessage: 'Confirm biometric to logout',
+        allowDeviceCredentials: true
+      });
+      if (response?.success) {
+        setBottomSheetVisible(this.confirmationBottomSheetRef, false);
+        this.props.logout();
+      } else {
+        Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
+      }
+    } catch (error) {
+        console.error('Authentication error:', error);
+    }
+  }
+
   getInitails(name) {
     const allWords = name.split(' ');
     if (allWords.length > 2) {
@@ -207,85 +288,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 
   render() {
 
-    const authenticateUser = async () => {
-      try {
-          if(!this.props.toggleBiometric){
-            this.props.toggleBiometricAuthentication();
-            return;
-          }
-          const { available } = await BiometricAuth.isSensorAvailable();
-  
-          if (!available) {
-              Toast({message: 'Biometrics not available. Use PIN.', position:'BOTTOM', duration:'SHORT'});
-              await new Promise(resolve => setTimeout(resolve, 900));
-              const response = await BiometricAuth.simplePrompt({
-                  promptMessage: 'Confirm lock screen password',
-                  allowDeviceCredentials: true
-              })
-              if (response?.success) {
-                this.props.toggleBiometricAuthentication();
-              }else {
-                if(response?.code == 14){
-                  this.props.resetBiometricAuthentication();
-                  Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
-                  return ;
-                }
-                if(Platform.OS=='ios' && response?.code == -5){
-                  this.props.resetBiometricAuthentication();
-                  Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
-                  return ;
-                }
-                Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
-              }
-              return;
-          }
-      
-          const response = await BiometricAuth.simplePrompt({
-            promptMessage: 'Confirm Biometric',
-            allowDeviceCredentials: true
-          });
-      
-          if (response?.success) {
-            this.props.toggleBiometricAuthentication();
-          } else {
-            Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
-          }
-      } catch (error) {
-          console.error('Authentication error:', error);
-      }
-    };
-
-    const authenicateAndLogoutUser = async () => {
-      try {
-        const { available } = await BiometricAuth.isSensorAvailable();
-        if (!available) {
-            await new Promise(resolve => setTimeout(resolve, 900));
-            const response = await BiometricAuth.simplePrompt({
-                promptMessage: 'Confirm lock screen password',
-                allowDeviceCredentials: true
-            })
-            if (response?.success) {
-              setBottomSheetVisible(this.confirmationBottomSheetRef, false);
-              this.props.logout();
-            }else {
-              Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
-            }
-            return;
-        }
-        const response = await BiometricAuth.simplePrompt({
-          promptMessage: 'Confirm biometric to logout',
-          allowDeviceCredentials: true
-        });
-        if (response?.success) {
-          setBottomSheetVisible(this.confirmationBottomSheetRef, false);
-          this.props.logout();
-        } else {
-          Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
-        }
-      } catch (error) {
-          console.error('Authentication error:', error);
-      }
-    }
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
     const { navigation } = this.props;
@@ -376,7 +378,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           )}
           {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
           {
-            <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={authenticateUser}>
+            <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
               <View style={style.textView}>
                 <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
                 <Text style={style.companyNameText}>Enable App Lock</Text>
@@ -385,7 +387,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
                 thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
                 ios_backgroundColor={color.BORDER_COLOR}
-                onValueChange={authenticateUser}
+                onValueChange={this.authenticateUser}
                 value={this.props.toggleBiometric}
               />
             </TouchableOpacity>
@@ -476,7 +478,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               bottomSheetRef={this.confirmationBottomSheetRef}
               message={ConfirmationMessages.APPLOCK.message}
               description={ConfirmationMessages.APPLOCK.description}
-              onConfirm={authenicateAndLogoutUser}
+              onConfirm={this.authenicateAndLogoutUser}
               onReject={() => setBottomSheetVisible(this.confirmationBottomSheetRef, false)}
               confirmText='Logout'
               rejectText='Cancel'
