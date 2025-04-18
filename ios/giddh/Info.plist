@@ -8,6 +8,8 @@
 	<string>giddh</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>We use Face ID to authenticate you securely.</string>
 	<key>CFBundleGetInfoString</key>
 	<string/>
 	<key>CFBundleIdentifier</key>
