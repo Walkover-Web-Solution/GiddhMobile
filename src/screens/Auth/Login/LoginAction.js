@@ -188,3 +188,11 @@ export function resetBiometricAuthentication() {
     type: Actions.RESET_BIOMETRIC_AUTHENTICATION
   }
 }
+
+export function setBiometricTourEnabled(enabled) {
+  console.log("enabled--------------", enabled);
+  return {
+    type: Actions.SET_BIOMETRIC_TOUR_ENABLED,
+    payload: enabled
+  }
+}

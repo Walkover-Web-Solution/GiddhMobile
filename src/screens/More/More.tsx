@@ -1,11 +1,14 @@
 import React from 'react';
-import { StatusBar,Platform } from 'react-native';
+import { StatusBar,Platform, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
 import { CommonService } from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
 import * as CommonActions from '@/redux/CommonAction';
 import { useIsFocused } from '@react-navigation/native';
+import { CopilotProvider } from 'react-native-copilot';
+import style from './components/More/style';
+import CustomTooltip from './components/More/CustomToolTip';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps & {navigation: any};
@@ -22,22 +25,47 @@ export class MoreScreen extends React.Component<Props, {}> {
   getData = async () => {
     await CommonService.getCurrencies();
   };
-
+  customSvgPath = ({args, position, canvasSize }) => {
+    if (args.step?.name === "hello") {
+      return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0ZM${position.x._value},${position.y._value}Za50 50 0 1 0 100 0 50 50 0 1 0-100 0`;
+    } else {
+      return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0ZM${position.x._value},${
+        position.y._value
+      }H${position.x._value + size.x._value}V${
+        position.y._value + size.y._value
+      }H${position.x._value}V${position.y._value}Z`;
+    }
+  };
   render () {
     return (
-      <GDContainer>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
-        <MoreComponent
-          navigation={this.props.navigation}
-          countries={this.props.countries}
-          getCountriesAction={this.props.getCountriesAction}
-          isCountriesLoading={this.props.isCountriesLoading}
-          logout={this.props.logout}
-          companyList={this.props.comapnyList}
-          branchList={this.props.branchList}
-          isFetchingCompanyList={this.props.isFetchingCompanyList}
-        />
-      </GDContainer>
+      <CopilotProvider 
+        verticalOffset={27} 
+        overlay='svg' 
+        stepNumberComponent={() => <></>} 
+        arrowColor='#1A237E'
+        tooltipStyle={style.tooltip}
+        tooltipComponent={() =><CustomTooltip isFirstStep={true} isLastStep={false} 
+        handleNext={() => {}}
+        handlePrev={() => {}}
+        handleStop={() => {}}
+        currentStep={{name: 'Enable app lock using biometric authentication for enhanced security', text: 'hello'}}
+        />}
+        // svgMaskPath={this.circleSvgPath}
+      >
+        <GDContainer>
+          {this.FocusAwareStatusBar(this.props.isFocused)}
+          <MoreComponent
+            navigation={this.props.navigation}
+            countries={this.props.countries}
+            getCountriesAction={this.props.getCountriesAction}
+            isCountriesLoading={this.props.isCountriesLoading}
+            logout={this.props.logout}
+            companyList={this.props.comapnyList}
+            branchList={this.props.branchList}
+            isFetchingCompanyList={this.props.isFetchingCompanyList}
+          />
+        </GDContainer>
+      </CopilotProvider>
     );
   }
 }

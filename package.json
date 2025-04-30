@@ -81,6 +81,7 @@
     "react-native-blob-util": "^0.19.9",
     "react-native-calendars": "1.403.0",
     "react-native-check-box": "^2.1.7",
+    "react-native-copilot": "^3.3.3",
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-daterange-picker": "^1.5.1",
     "react-native-device-info": "^10.12.0",

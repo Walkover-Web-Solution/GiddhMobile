@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React, { createRef, useEffect } from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
 import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription, Switch } from 'react-native';
 import { Country } from '@/models/interfaces/country';
@@ -19,13 +19,14 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
 import TOAST from 'react-native-root-toast';
 import ChatGPT from '@/assets/images/icons/ChatGPT.svg';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { BiometricAuth } from '@msg91comm/sendotp-react-native';
-import { resetBiometricAuthentication, toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
+import { resetBiometricAuthentication, setBiometricTourEnabled, toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
 import Toast from '@/components/Toast';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import { setBottomSheetVisible } from '@/components/BottomSheet';
 const { height } = Dimensions.get('screen');
+import { walkthroughable, CopilotStep, useCopilot } from 'react-native-copilot';
 
 type MoreComponentProp = WithTranslation &
   WithTranslationProps & {
@@ -47,6 +48,7 @@ type MoreComponentState = {
   activeBranch: any
 };
 
+const WalkthroughableTouchableOpacity = walkthroughable(TouchableOpacity);
 class MoreComponent extends React.Component<MoreComponentProp, MoreComponentState> {
   private confirmationBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props: MoreComponentProp) {
@@ -67,6 +69,11 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this._getActiveCompany();
     });
     this._getActiveCompany();
+    if (!this.props.biometricTourEnabled && !this.props.isFetchingCompanyList) {
+      setTimeout(() => {
+        this.props.start();
+      }, 1000);
+    }
     const getUserDetails = async () => {
       let activeUserEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
       let userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
@@ -287,7 +294,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 
 
   render() {
-
+    console.log("enabled", this.props.biometricTourEnabled);
+    
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
     const { navigation } = this.props;
@@ -378,19 +386,29 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           )}
           {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
           {
-            <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
-              <View style={style.textView}>
-                <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
-                <Text style={style.companyNameText}>Enable App Lock</Text>
-              </View>
-              <Switch
-                trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
-                thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
-                ios_backgroundColor={color.BORDER_COLOR}
-                onValueChange={this.authenticateUser}
-                value={this.props.toggleBiometric}
-              />
-            </TouchableOpacity>
+            <CopilotStep
+              text="Enable app lock using biometric authentication for enhanced security"
+              order={1}
+              name="biometric"
+            >
+              <WalkthroughableTouchableOpacity 
+                activeOpacity={0.7} 
+                style={style.biometicContainer} 
+                onPress={this.authenticateUser}
+              >
+                <View style={style.textView}>
+                  <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
+                  <Text style={style.companyNameText}>Enable App Lock</Text>
+                </View>
+                <Switch
+                  trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
+                  thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
+                  ios_backgroundColor={color.BORDER_COLOR}
+                  onValueChange={this.authenticateUser}
+                  value={this.props.toggleBiometric}
+                />
+              </WalkthroughableTouchableOpacity>
+            </CopilotStep>
           }
           {/* ------------ Contact Us View ------------ */}
           <View style={style.contactUsView}>
@@ -491,7 +509,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 
 const mapStateToProps = (state : any) => {
   return {
-    toggleBiometric: state.LoginReducer.toggleBiometric
+    toggleBiometric: state.LoginReducer.toggleBiometric,
+    biometricTourEnabled: state.copilotReducer.biometricTourEnabled
   }
 }
 
@@ -502,8 +521,27 @@ const mapDispatchToProps = (dispatch: any) => {
     },
     resetBiometricAuthentication: () => {
       dispatch(resetBiometricAuthentication())
+    },
+    setBiometricTourEnabled: (enabled: boolean) => {
+      dispatch(setBiometricTourEnabled(enabled))
     }
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(MoreComponent));
+function Screen (props) {
+  const { start, copilotEvents } = useCopilot();
+  const dispatch = useDispatch();
+  const markTourComplete = () => {
+    dispatch(setBiometricTourEnabled(true))
+  };
+  useEffect(() => {
+    copilotEvents.on("stop", () => {
+      console.log("evnet");
+      markTourComplete();
+    })
+  }, [])
+
+  return <MoreComponent {...props} start={start} />;
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(Screen));

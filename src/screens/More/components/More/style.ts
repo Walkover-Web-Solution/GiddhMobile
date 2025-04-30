@@ -204,5 +204,16 @@ export default StyleSheet.create({
     flexDirection:'row', 
     marginLeft: 15, 
     alignItems:'center'
-  }
+  },
+  tooltip: {
+    // backgroundColor: colors.PRIMARY_NORMAL,
+    padding: 15,
+    borderRadius: 12,
+    // width:'100%',
+  },
+  tooltipText: {
+    color: 'white',
+    fontSize: 14,
+    fontFamily: FONT_FAMILY.bold,
+  },
 });
