@@ -263,7 +263,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                     <InputField 
                         lable="Sub Type"
                         isRequired={false}
-                        containerStyle={styles.inputFieldNonEditableStyle}
+                        containerStyle={styles.inputFieldStyleWithBackground}
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={subType}
@@ -271,7 +271,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                     <InputField 
                         lable="Document Type"
                         isRequired={false}
-                        containerStyle={styles.inputFieldNonEditableStyle}
+                        containerStyle={styles.inputFieldStyleWithBackground}
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={docType}
@@ -279,7 +279,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                     <InputField 
                         lable="GSTIN of Receiver"
                         isRequired={false}
-                        containerStyle={styles.inputFieldNonEditableStyle}
+                        containerStyle={styles.inputFieldStyleWithBackground}
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={receiverDetail?.gstIn ?? 'URP'}
@@ -305,7 +305,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                     />
                     <InputField 
                         lable="Distance in KM"
-                        isRequired={false}
+                        isRequired={true}
                         keyboardType='numeric'
                         containerStyle={styles.inputFieldStyle}
                         placeholderTextColor={theme.colors.secondary}
@@ -350,7 +350,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                                 <Text style={styles.radioBtnText}>Regular</Text>
                             </Pressable>
                         </View>
-                        {selectedTransportMode?.name === "Road" && <View style={styles.radioBtnView}>
+                        {(selectedTransportMode?.name === "Road" || selectedTransportMode == null) && <View style={styles.radioBtnView}>
                             <TouchableOpacity
                             style={styles.radioBtn}
                             onPress={() =>{
@@ -446,6 +446,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
         marginTop:10
     },
     inputFieldStyle: { marginVertical:4 },
+    inputFieldStyleWithBackground: { marginVertical:4, backgroundColor: theme.colors.solids.grey.lightest },
     inputFieldNonEditableStyle: {
         marginVertical:4
     },
