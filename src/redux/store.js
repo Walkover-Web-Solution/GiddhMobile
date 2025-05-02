@@ -4,12 +4,25 @@ import createSagaMiddleware from 'redux-saga';
 import promise from '../promise';
 import reducer from './reducers';
 import rootSaga from './RootSaga';
-import {persistStore, persistReducer} from 'redux-persist';
+import {persistStore, persistReducer, createMigrate} from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const migrations = {
+  0: (state) => {
+    return {
+      ...state,
+      copilotReducer: {
+        pendingScreens: ["MoreScreen"]
+      }
+    }
+  }
+}
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
+  version: 1,
+  migrate: createMigrate(migrations, { debug: false }),
 };
 
 const sagaMiddleware = createSagaMiddleware();

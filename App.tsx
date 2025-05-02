@@ -6,7 +6,7 @@ import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import {Provider, useSelector} from 'react-redux';
 import '@/utils/i18n';
-import {BackHandler, EmitterSubscription, Platform} from 'react-native';
+import {BackHandler, EmitterSubscription, Platform, StyleSheet} from 'react-native';
 import {default as mapping} from './mappings.json';
 import {PersistGate} from 'redux-persist/integration/react';
 import BaseContainer from './src/BaseContainer/BaseContainer';
@@ -24,6 +24,9 @@ import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
 import AppLock from '@/AppLock/AppLock';
+import { CopilotProvider } from 'react-native-copilot';
+import CustomTooltip from '@/components/CustomToolTip';
+import { FONT_FAMILY } from '@/utils/constants';
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
@@ -105,18 +108,42 @@ export default class App extends React.Component<any> {
 const InnerApp = () => {
   const {toggleBiometric} = useSelector(state => state.LoginReducer);  
   const [unlocked, setUnlocked] = useState(false);
-  
   return (
     <SafeAreaProvider>
+      <CopilotProvider 
+        verticalOffset={30} 
+        overlay='svg' 
+        stepNumberComponent={() => <></>}
+        tooltipStyle={styles.tooltip}
+        tooltipComponent={(props) => <CustomTooltip {...props}/>}
+      >
       <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
       <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={styles.rootContainer}>
           <RootSiblingParent>
             {toggleBiometric && !unlocked && <AppLock visible={!unlocked} onUnlock={()=>setUnlocked(true)}/>}
             <BaseContainer /> 
           </RootSiblingParent>
         </GestureHandlerRootView>
       </ApplicationProvider>
+      </CopilotProvider>
     </SafeAreaProvider>
   )
 }
+
+const styles = StyleSheet.create({
+  rootContainer: {
+    flex: 1
+  },
+  tooltip: {
+    // backgroundColor: colors.PRIMARY_NORMAL,
+    padding: 15,
+    borderRadius: 12,
+    // width:'100%',
+  },
+  tooltipText: {
+    color: 'white',
+    fontSize: 14,
+    fontFamily: FONT_FAMILY.bold,
+  },
+});

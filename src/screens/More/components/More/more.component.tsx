@@ -21,7 +21,7 @@ import TOAST from 'react-native-root-toast';
 import ChatGPT from '@/assets/images/icons/ChatGPT.svg';
 import { connect, useDispatch } from 'react-redux';
 import { BiometricAuth } from '@msg91comm/sendotp-react-native';
-import { resetBiometricAuthentication, setBiometricTourEnabled, toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
+import { clearTourForScreen, resetBiometricAuthentication, toggleBiometricAuthentication } from '@/screens/Auth/Login/LoginAction';
 import Toast from '@/components/Toast';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import { setBottomSheetVisible } from '@/components/BottomSheet';
@@ -68,8 +68,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     this.listener = DeviceEventEmitter.addListener(APP_EVENTS.comapnyBranchChange, () => {
       this._getActiveCompany();
     });
+    console.log("pendingScreens", this.props.pendingScreens);
+    
     this._getActiveCompany();
-    if (!this.props.biometricTourEnabled && !this.props.isFetchingCompanyList) {
+    if (!this.props.isFetchingCompanyList && this.props.pendingScreens?.includes("MoreScreen")) {
       setTimeout(() => {
         this.props.start();
       }, 1000);
@@ -389,7 +391,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             <CopilotStep
               text="Enable app lock using biometric authentication for enhanced security"
               order={1}
-              name="biometric"
+              name="App Lock"
             >
               <WalkthroughableTouchableOpacity 
                 activeOpacity={0.7} 
@@ -510,7 +512,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 const mapStateToProps = (state : any) => {
   return {
     toggleBiometric: state.LoginReducer.toggleBiometric,
-    biometricTourEnabled: state.copilotReducer.biometricTourEnabled
+    pendingScreens: state.copilotReducer.pendingScreens
   }
 }
 
@@ -522,8 +524,8 @@ const mapDispatchToProps = (dispatch: any) => {
     resetBiometricAuthentication: () => {
       dispatch(resetBiometricAuthentication())
     },
-    setBiometricTourEnabled: (enabled: boolean) => {
-      dispatch(setBiometricTourEnabled(enabled))
+    clearTourForScreen: (payload: string) => {
+      dispatch(clearTourForScreen(payload))
     }
   }
 }
@@ -532,7 +534,7 @@ function Screen (props) {
   const { start, copilotEvents } = useCopilot();
   const dispatch = useDispatch();
   const markTourComplete = () => {
-    dispatch(setBiometricTourEnabled(true))
+    dispatch(clearTourForScreen("MoreScreen"))
   };
   useEffect(() => {
     copilotEvents.on("stop", () => {

@@ -1,22 +1,30 @@
 import * as ActionConstants from '../ActionConstants';
-const initialState : any = {
-    biometricTourEnabled: false
+
+interface TourState {
+    pendingScreens: string[];
+}
+
+const initialState : TourState = {
+    pendingScreens: ["MoreScreen"]
 } as const;
 
 
 export default (state = initialState, action: any): typeof initialState => {
     switch (action.type) {
-        case ActionConstants.SET_BIOMETRIC_TOUR_ENABLED:
+        case ActionConstants.MARK_TOUR_FOR_SCREEN:
             console.log("action.payload", action.payload);
             
             return {
                 ...state,
-                biometricTourEnabled: action.payload
+                pendingScreens: !state.pendingScreens.includes(action.payload) 
+                    ? [...state.pendingScreens, action.payload]
+                    : state.pendingScreens
             }
         
-        case ActionConstants.LOGOUT:
+        case ActionConstants.CLEAR_TOUR_FOR_SCREEN:
             return {
-                ...initialState
+                ...state,
+                pendingScreens: state.pendingScreens.filter(screen => screen !== action.payload)
             }
         default: 
             return state;
