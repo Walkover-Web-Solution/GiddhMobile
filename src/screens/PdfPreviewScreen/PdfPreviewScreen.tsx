@@ -11,6 +11,7 @@ import SafeAreaView from "react-native-safe-area-view";
 import Header from "@/components/Header";
 import { useIsFocused } from "@react-navigation/native";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
+import { createEndpoint } from "@/utils/helper";
 
 const Screen_width = Dimensions.get('window').width;
 const PdfPreviewScreen = ( route ) => {
@@ -28,8 +29,8 @@ const PdfPreviewScreen = ( route ) => {
           const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
           RNFetchBlob.fetch(
             'POST',
-            companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf` :
-              `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+            companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf`):
+              createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
             {
               'session-id': `${token}`,
               'Content-Type': 'application/json'

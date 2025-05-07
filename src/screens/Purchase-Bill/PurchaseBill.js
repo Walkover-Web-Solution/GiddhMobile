@@ -40,7 +40,7 @@ import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -845,10 +845,10 @@ export class PurchaseBill extends React.Component {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       console.log("for on share api", token);
-      console.log(`https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=base64`);
+      console.log(createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=base64`));
       RNFetchBlob.fetch(
         'GET',
-        `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=pdf`,
+        createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=pdf`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json',

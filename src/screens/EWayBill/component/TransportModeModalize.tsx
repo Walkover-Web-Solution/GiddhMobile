@@ -8,7 +8,11 @@ const RenderItem = ({item, isSelected, handlePress, setBottomSheetVisible, modal
     return (
         <TouchableOpacity
             onPress={() => {
-                handlePress(item);
+                handlePress({
+                    ...item,
+                    isRegularChecked:true,
+                    overDimensionChecked: false
+                });
                 setBottomSheetVisible(modalRef, false);
             }}
             style={styles.button}

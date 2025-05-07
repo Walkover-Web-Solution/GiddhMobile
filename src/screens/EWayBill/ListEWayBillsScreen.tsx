@@ -142,8 +142,13 @@ const RenderItem = ({ item, currency }) => {
 
     return (
         <View style={styles.card}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={styles.title}>#{item.docNumber} </Text>
+            <View style={styles.rowView}>
+                <View style={styles.itemView}>
+                    <Text style={styles.title}>#{item.docNumber} </Text>
+                    <TouchableOpacity onPress={() => downloadEWayBill(item.ewbNo)} style={styles.downloadButton}>
+                        <Feather name="download" size={18} color={theme.colors.solids.black} />
+                    </TouchableOpacity>
+                </View>
                 <Text style={styles.title}>{currency?.currency?.symbol} {item.totalValue}</Text>
             </View>
             <View style={styles.detailsContainer}>
@@ -154,12 +159,6 @@ const RenderItem = ({ item, currency }) => {
                 <Text style={styles.regularText}>Bill#: {item.ewbNo}</Text>
                 <Text style={styles.regularText}>Customer GSTIN: {item.customerGstin || 'N/A'}</Text>
                 <Text style={styles.regularText}>Bill Date: {item.ewayBillDate}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 3 }}>
-                    <TouchableOpacity onPress={() => { downloadEWayBill(item.ewbNo) }} style={styles.downloadButton}>
-                        <Feather name="download" size={20} color={'#1C1C1C'} />
-                        {/* <Text style={[styles.title,{marginBottom: 0, marginLeft:5}]}>Download</Text> */}
-                    </TouchableOpacity>
-                </View>
             </View>
         </View>
     )
@@ -326,8 +325,7 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
     title: {
         fontSize: theme.typography.fontSize.large.size,
         fontFamily: theme.typography.fontFamily.extraBold,
-        lineHeight: theme.typography.fontSize.large.lineHeight,
-        marginBottom: 8,
+        // lineHeight: theme.typography.fontSize.large.lineHeight
     },
     downloadButton: {
         justifyContent: 'center',
@@ -348,5 +346,14 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 12
+    },
+    rowView: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between' 
+    },
+    itemView: {
+        flexDirection:'row',
+        alignItems:'baseline',
+        paddingBottom:8
     }
 })

@@ -38,7 +38,7 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 
 const { SafeAreaOffsetHelper } = NativeModules;
@@ -2579,8 +2579,8 @@ export class SalesInvoice extends React.Component<Props, State> {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf` :
-          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+        this.state.companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`) :
+          createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'

@@ -80,6 +80,7 @@ const EWayBillScreenComponent = ( {route} ) => {
     const [subType, setSubType] = useState(baseCurrency === accountDetail?.currency?.code ? "Supply" : "Export");
     const [refreshing, setRefreshing] = useState(false);
     const navigation = useNavigation();
+    const vehicleNoRegex = /^[A-Z]{2}\d{1,2}[A-Z]{0,2}\d{4}$/i;
 
     const showDatePicker = () => {
         setDatePickerVisibility(true);
@@ -175,7 +176,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                 transporterId: selectedTransporter ? selectedTransporter?.transporterId : null,
                 transDistance: distance,
                 transMode: selectedTransportMode ? selectedTransportMode?.id : null,
-                vehicleType: (selectedTransportMode?.key == 'r') ? (selectedTransportMode?.overDimensionChecked ? 'O' : 'R') : null,
+                vehicleType: (selectedTransportMode?.key == 'r') ? (selectedTransportMode?.overDimensionChecked ? 'O' : 'R') : 'R',
                 vehicleNo: vehicleNo ? vehicleNo : null,
                 transDocNo: docNo ? docNo : null,
                 transDocDate: docDate ? docDate : null,
@@ -211,7 +212,10 @@ const EWayBillScreenComponent = ( {route} ) => {
             setBottomSheetVisible(ewayBillLoginBottomSheetRef, true);
             return;
         }
-
+        if(vehicleNo?.length > 0 && !vehicleNoRegex.test(vehicleNo)){
+            Toast({message: "Vehicle No. format must be like: mp01aa1234", duration:'SHORT', position:'BOTTOM'})
+            return ;
+        }
         setIsLoadingCreateBill(true);
         await onCreateEwayBill();
         setIsLoadingCreateBill(false);
@@ -414,7 +418,7 @@ const EWayBillScreenComponent = ( {route} ) => {
             <NoActionLoader isLoading={isLoadingCreateBill}/>
             <EwayBillLoginBottomSheet bottomSheetRef={ewayBillLoginBottomSheetRef} setIsLoadingCreateBill={setIsLoadingCreateBill} onCreateEwayBillAfterLogin={onCreateEwayBillAfterLogin}/>
             <TransporterModalize modalizeRef={transporterModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transporterData={transporterDetails} setTransporter={setSelectedTransporter} addTrasporterModalRef={addTransporterModalize}/>
-            <AddTransporterModalize modalizeRef={addTransporterModalize} setBottomSheetVisible={setBottomSheetVisible} setTransporter={setTransporterDetails}/>
+            <AddTransporterModalize modalizeRef={addTransporterModalize} setBottomSheetVisible={setBottomSheetVisible} setTransporter={setTransporterDetails} transporterData={transporterDetails}/>
             <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={ModeOfTransport} transportMode={selectedTransportMode} setTransportMode={setSelectedTransportMode}/>
         </KeyboardAvoidingView>
     )

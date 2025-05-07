@@ -8,7 +8,7 @@ import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from "
 
 const {height,width} = Dimensions.get('window')
 
-const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTransporter}) => {
+const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTransporter, transporterData}) => {
     const {styles, theme} = useCustomTheme(getStyles);
     const [transporterName, setTransporterName] = useState("");
     const [transporterId, setTransporterId] = useState("");
@@ -27,7 +27,7 @@ const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTranspor
             }
             const response = await InvoiceService.addTransporter(payload);
             if(response && response?.status =="success"){
-                setTransporter([{...response?.body}]);
+                setTransporter([...transporterData, {...response?.body}]);
                 setTransporterName("");
                 setTransporterId("");
                 setBottomSheetVisible(modalizeRef, false);

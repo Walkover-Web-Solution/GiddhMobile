@@ -41,7 +41,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -2087,8 +2087,8 @@ export class SalesInvoice extends React.Component<Props> {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf` :
-          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+        this.state.companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`) :
+          createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'
