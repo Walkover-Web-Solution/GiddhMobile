@@ -21,8 +21,9 @@ import { setBottomSheetVisible } from "@/components/BottomSheet";
 import Loader from "@/components/Loader";
 import NoData from "@/components/NoData";
 import { REDUX_STATE } from "@/redux/types";
+import ActionModalize from "./component/ActionModalize";
 
-const exportFile = async (uniqueName) => {
+export const exportFile = async (uniqueName) => {
     // if (isApiCallInProgress) return;
     // setIsApiCallInProgress(true);
     try {
@@ -123,7 +124,7 @@ const exportFile = async (uniqueName) => {
     }
 };
 
-const downloadEWayBill = async (uniqueName: string) => {
+export const downloadEWayBill = async (uniqueName: string) => {
     try {
         if (Platform.OS == "android" && Platform.Version < 33) {
             const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
@@ -137,11 +138,15 @@ const downloadEWayBill = async (uniqueName: string) => {
     }
 }
 
-const RenderItem = ({ item, currency }) => {
+const RenderItem = ({ item, currency, modalizeRef, setSelectedEWBill }) => {
     const { styles, theme } = useCustomTheme(getStyles);
-
     return (
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={()=>{
+            setSelectedEWBill(item);
+            setBottomSheetVisible(modalizeRef, true);
+            console.log("select4ed item", item);
+            
+        }}>
             <View style={styles.rowView}>
                 <View style={styles.itemView}>
                     <Text style={styles.title}>#{item.docNumber} </Text>
@@ -160,7 +165,7 @@ const RenderItem = ({ item, currency }) => {
                 <Text style={styles.regularText}>Customer GSTIN: {item.customerGstin || 'N/A'}</Text>
                 <Text style={styles.regularText}>Bill Date: {item.ewayBillDate}</Text>
             </View>
-        </View>
+        </TouchableOpacity>
     )
 }
 
@@ -177,6 +182,8 @@ const ListEWayBillsScreen = () => {
     const [ewayList, setEWayList] = useState([]);
     const [pageData, setPageData] = useState({ page: 1, totalPages: 1 });
     const dropDownModalizeRef = useRef(null);
+    const actionModalizeRef = useRef(null);
+    const [selectedEWBill, setSelectedEWBill] = useState(null);
 
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
@@ -270,7 +277,7 @@ const ListEWayBillsScreen = () => {
             <FlatList
                 data={ewayList}
                 keyExtractor={(item) => item.ewbNo}
-                renderItem={({ item }) => <RenderItem item={item} currency={currencyDetails} />}
+                renderItem={({ item }) => <RenderItem item={item} currency={currencyDetails} modalizeRef={actionModalizeRef} setSelectedEWBill={setSelectedEWBill}/>}
                 contentContainerStyle={styles.listContainer}
                 ListFooterComponent={ListFooterComponent}
                 ListEmptyComponent={
@@ -295,6 +302,7 @@ const ListEWayBillsScreen = () => {
             />
             <Loader isLoading={isLoading} />
             <TaxNumbersModalize modalizeRef={dropDownModalizeRef} setBottomSheetVisible={setBottomSheetVisible} taxData={taxNumbers} setSelectedGst={setSelectedGst} />
+            <ActionModalize modalizeRef={actionModalizeRef} setBottomSheetVisible={setBottomSheetVisible} selectedEWBill={selectedEWBill}/>
         </SafeAreaView>
     )
 }
