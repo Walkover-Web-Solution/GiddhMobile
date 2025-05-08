@@ -60,6 +60,7 @@ const EWayBillScreenComponent = ( {route} ) => {
     const transporterModalizeRef = useRef(null);
     const addTransporterModalize = useRef(null);
     const transportModeModalizeRef = useRef(null);
+    const debounceTimeout = useRef(null);
     const ewayBillLoginBottomSheetRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingCreateBill, setIsLoadingCreateBill] = useState(false);
@@ -220,6 +221,18 @@ const EWayBillScreenComponent = ( {route} ) => {
         await onCreateEwayBill();
         setIsLoadingCreateBill(false);
     }
+
+    const handleTextChange = (text:string) => {
+        setVehicleNo(text);
+        if (debounceTimeout.current) {
+          clearTimeout(debounceTimeout.current);
+        }
+        debounceTimeout.current = setTimeout(() => {
+          if (text && !vehicleNoRegex.test(text)) {
+            Toast({message: "Vehicle No. format must be like: mp01aa1234", duration:'SHORT', position:'BOTTOM'})
+          }
+        }, 1000);
+      };
 
     const isCreateButtonDisabled = distance?.length === 0
     
@@ -387,7 +400,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         value={vehicleNo}
                         placeholderTextColor={theme.colors.secondary}
                         onChangeText={(text) => {
-                            setVehicleNo(text)
+                            handleTextChange(text)
                         }}
                     />
                     <InputField 
