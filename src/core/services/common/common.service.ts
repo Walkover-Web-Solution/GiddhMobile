@@ -405,4 +405,24 @@ export class CommonService {
     })
   }
 
+  static async cancelEWayBill(payload: any) {
+    return httpInstance.put(commonUrls.cancelEWayBill, payload)
+    .then((res)=> {
+      return res?.data;
+    }).catch((err)=> {
+      console.log("Error while cancelling ewaybill");
+      return err;
+    })
+  }
+
+  static async addVehicleEWayBill(payload: any) {
+    return httpInstance.put(commonUrls.addVehicleEWayBill, payload)
+    .then((res) => {
+      return res?.data;
+    }).catch((err) => {
+      console.log("Error while adding vehicle");
+      return err;
+    })
+  }
+
 }

@@ -25,7 +25,7 @@ import Routes from "@/navigation/routes";
 import { APP_EVENTS } from "@/utils/constants";
 
 const {width} = Dimensions.get('window')
-const ModeOfTransport = [
+export const ModeOfTransport = [
     {
         name: "Road",
         isRegularChecked: false,

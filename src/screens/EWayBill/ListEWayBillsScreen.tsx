@@ -22,8 +22,20 @@ import Loader from "@/components/Loader";
 import NoData from "@/components/NoData";
 import { REDUX_STATE } from "@/redux/types";
 import ActionModalize from "./component/ActionModalize";
+import CancelEWBModalize from "./component/CancelEWBModalize";
+import CancelReasonEWBModalize from "./component/CancelReasonEWBModalize";
+import AddVehicleModalize from "./component/AddVehicleModalize";
+import TransportModeModalize from "./component/TransportModeModalize";
+import { ModeOfTransport } from "./EWayBillScreen";
 
-export const exportFile = async (uniqueName) => {
+export const RsnCodeMap:any = {
+    1: "Duplicate",
+    2: "Order Cancelled",
+    3: "Data Entry Mistake",
+    4: "Others"
+}
+
+const exportFile = async (uniqueName) => {
     // if (isApiCallInProgress) return;
     // setIsApiCallInProgress(true);
     try {
@@ -124,7 +136,7 @@ export const exportFile = async (uniqueName) => {
     }
 };
 
-export const downloadEWayBill = async (uniqueName: string) => {
+const downloadEWayBill = async (uniqueName: string) => {
     try {
         if (Platform.OS == "android" && Platform.Version < 33) {
             const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
@@ -183,7 +195,27 @@ const ListEWayBillsScreen = () => {
     const [pageData, setPageData] = useState({ page: 1, totalPages: 1 });
     const dropDownModalizeRef = useRef(null);
     const actionModalizeRef = useRef(null);
+    const cancelEWBModalizeRef = useRef(null);
+    const cancelReasonModalizeRef = useRef(null);
+    const addVehicleModalizeRef = useRef(null);
+    const transportModeModalizeRef = useRef(null);
     const [selectedEWBill, setSelectedEWBill] = useState(null);
+    const [reasonState, setReasonState] = useState({
+        cancelRmrk:"",
+        cancelRsnCode:0
+    })
+    const [vehicleState, setVehicleState] = useState({
+        vehicleNo: "",
+        fromPlace: "",
+        fromState: "",
+        reasonCode: "",
+        reasonRem: "",
+        transDocNo: "",
+        transDocDate: "",
+        transMode: "",
+        vehicleType: ""
+    })
+    const [stateData, setStateData] = useState([]);
 
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
@@ -229,6 +261,10 @@ const ListEWayBillsScreen = () => {
 
     const onRefresh = async () => {
         setRefreshing(true);
+        setReasonState({
+            cancelRmrk:"",
+            cancelRsnCode:0
+        });
         await fetchEWayBills(1);
         setRefreshing(false);
     };
@@ -302,7 +338,16 @@ const ListEWayBillsScreen = () => {
             />
             <Loader isLoading={isLoading} />
             <TaxNumbersModalize modalizeRef={dropDownModalizeRef} setBottomSheetVisible={setBottomSheetVisible} taxData={taxNumbers} setSelectedGst={setSelectedGst} />
-            <ActionModalize modalizeRef={actionModalizeRef} setBottomSheetVisible={setBottomSheetVisible} selectedEWBill={selectedEWBill}/>
+            <ActionModalize modalizeRef={actionModalizeRef} setBottomSheetVisible={setBottomSheetVisible} selectedEWBill={selectedEWBill} cancelModalizeRef={cancelEWBModalizeRef} addVehicleModalizeRef={addVehicleModalizeRef} setStateData={setStateData}/>
+            <CancelEWBModalize 
+                key={"-"+selectedEWBill?.ewbNo}
+                modalizeRef={cancelEWBModalizeRef} 
+                setBottomSheetVisible={setBottomSheetVisible} 
+                cancelReasonModalizeRef={cancelReasonModalizeRef}
+                selectedEWBill={selectedEWBill}
+                handleRefresh={onRefresh}
+            /> 
+            <AddVehicleModalize key={selectedEWBill?.ewbNo} modalizeRef={addVehicleModalizeRef} setBottomSheetVisible={setBottomSheetVisible} setVehicleState={setVehicleState} stateData={stateData} handleRefresh={onRefresh} selectedEWBill={selectedEWBill}/> 
         </SafeAreaView>
     )
 }
