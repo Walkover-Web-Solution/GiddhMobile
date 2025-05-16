@@ -1,5 +1,4 @@
 import {createStore, applyMiddleware, compose} from 'redux';
-import createSagaMiddleware from 'redux-saga';
 // import thunk from 'redux-thunk';
 import promise from '../promise';
 import reducer from './reducers';
@@ -12,6 +11,7 @@ const persistConfig = {
   storage: AsyncStorage,
 };
 
+const createSagaMiddleware = require('redux-saga').default;
 const sagaMiddleware = createSagaMiddleware();
 
 export default () => {
