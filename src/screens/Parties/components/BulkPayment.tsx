@@ -8,7 +8,7 @@ import {
     FlatList,
     Text,
     StatusBar,
-    Alert, Platform, ToastAndroid, SafeAreaView
+    Alert, Platform, ToastAndroid
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -18,12 +18,12 @@ import { GdSVGIcons } from '@/utils/icons-pack';
 import { GD_ICON_SIZE } from '@/utils/constants';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
-import colors, { baseColor } from '@/utils/colors';
+import colors from '@/utils/colors';
 import { TextInput } from 'react-native-gesture-handler';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import TOAST from 'react-native-root-toast';
 import { PaymentServices } from '@/core/services/payment/payment';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 class BulkPayment extends React.Component {
@@ -411,7 +411,7 @@ class BulkPayment extends React.Component {
 
     render() {
         return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+            <View style={{ flex: 1, backgroundColor: 'white' }}>
                 {this.FocusAwareStatusBar(this.props.isFocused)}
                 <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'}>
                     <View
@@ -507,7 +507,7 @@ class BulkPayment extends React.Component {
                     </View>
                 )}
 
-            </SafeAreaView>
+            </View>
         )
     }
 }

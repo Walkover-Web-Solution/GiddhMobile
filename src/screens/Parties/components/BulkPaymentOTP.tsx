@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     Dimensions,
     Text,
-    StatusBar, StyleSheet, ToastAndroid, Platform, Alert, SafeAreaView
+    StatusBar, StyleSheet, ToastAndroid, Platform, Alert
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -14,7 +14,7 @@ import OTPInputView from '@twotalltotems/react-native-otp-input';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import TOAST from 'react-native-root-toast';
 import { PaymentServices } from '@/core/services/payment/payment';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import SMSUserConsent from '../../../../SMSUserConsent';
 
 interface SMSMessage {
@@ -239,7 +239,7 @@ class BulkPaymentOTP extends React.Component {
 
     render() {
         return (
-            <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+            <View style={{ flex: 1, backgroundColor: 'white' }}>
                 {this.FocusAwareStatusBar(this.props.isFocused)}
                 <View
                     style={{
@@ -312,7 +312,7 @@ class BulkPaymentOTP extends React.Component {
                         <Bars size={15} color={'#5773FF'} />
                     </View>
                 )}
-            </SafeAreaView>
+            </View>
         )
     }
 }

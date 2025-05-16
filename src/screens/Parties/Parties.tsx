@@ -8,7 +8,7 @@ import { CommonService } from '@/core/services/common/common.service';
 import * as CommonActions from '@/redux/CommonAction';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS } from '@/utils/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 

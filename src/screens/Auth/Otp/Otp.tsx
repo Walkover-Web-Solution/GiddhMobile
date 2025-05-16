@@ -9,7 +9,7 @@ import { GdImages } from '@/utils/icons-pack';
 import colors from '@/utils/colors';
 import { verifyOTP, clearOTPError, OTPScreenUnmounting } from '../Login/LoginAction';
 import { sendOTP } from '../Login/LoginService';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { baseColor } from '../../../utils/colors';
 import TOAST from 'react-native-root-toast';
 import SMSUserConsent from '../../../../SMSUserConsent';

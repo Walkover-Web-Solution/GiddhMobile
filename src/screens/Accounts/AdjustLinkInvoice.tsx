@@ -24,7 +24,7 @@ import CheckBox from 'react-native-check-box';
 import { FONT_FAMILY } from '@/utils/constants';
 import { getInvoiceListRequest } from './accountHelper';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { FlatList, SafeAreaView, Text, TouchableOpacity } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
 import Icon from '@/core/components/custom-icon/custom-icon';
 
@@ -30,7 +30,7 @@ class HelpList extends React.Component<HelpListProp, HelpListState> {
   render () {
     const { navigation } = this.props;
     return (
-      <SafeAreaView>
+      <View>
         <FlatList
           data={this.listData}
           showsVerticalScrollIndicator={false}
@@ -44,7 +44,7 @@ class HelpList extends React.Component<HelpListProp, HelpListState> {
           )}
           keyExtractor={(item) => item.id.toString()}
         />
-      </SafeAreaView>
+      </View>
     );
   }
 }

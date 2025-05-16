@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, SafeAreaView, ScrollViewBase } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import { Bars } from 'react-native-loader';
+import { TextInput } from 'react-native-gesture-handler';
+import LoaderKit  from 'react-native-loader-kit';
 import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
@@ -2816,7 +2816,7 @@ export class EditAddress extends React.Component<any, any> {
          <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
             onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
             style={style.modalMobileContainer}>
-            <SafeAreaView style={style.modalViewContainer}>
+            <View style={style.modalViewContainer}>
                <View style={style.cancelButtonModal} >
                   <TextInput
                      placeholderTextColor={'rgba(80,80,80,0.5)'}
@@ -2839,7 +2839,7 @@ export class EditAddress extends React.Component<any, any> {
                   keyExtractor={(item, index) => index.toString()}
                   ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
                />
-            </SafeAreaView>
+            </View>
          </Modal1>
       )
    }

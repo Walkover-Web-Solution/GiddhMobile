@@ -1,4 +1,4 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useMemo, useRef } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import Header from '@/components/Header';
@@ -50,7 +50,7 @@ const PlansScreen = () => {
     }, [planDetailsBottomSheetRef])
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             {isLoading && <Loader isLoading={isLoading}/>}
             <Header
                 header='Plans'
@@ -122,7 +122,7 @@ const PlansScreen = () => {
                     dispatch(logout());
                 }}
             />
-        </SafeAreaView>
+        </View>
     )
 }
 

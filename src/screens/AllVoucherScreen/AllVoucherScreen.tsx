@@ -4,7 +4,6 @@ import { CommonService } from '@/core/services/common/common.service'
 import useCustomTheme, { ThemeProps } from '@/utils/theme'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, DeviceEventEmitter, EmitterSubscription, FlatList, PermissionsAndroid, Platform, RefreshControl, StatusBar, StyleSheet, Text, ToastAndroid, View } from 'react-native'
-import SafeAreaView from 'react-native-safe-area-view'
 import { connect } from 'react-redux'
 import Routes from '@/navigation/routes'
 import { useIsFocused } from '@react-navigation/native';

@@ -14,7 +14,7 @@ import {
 import style from './style';
 import { connect } from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';

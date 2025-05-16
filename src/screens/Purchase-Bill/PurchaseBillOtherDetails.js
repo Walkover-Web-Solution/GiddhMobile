@@ -427,7 +427,6 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
   render() {
     const sDate = moment(this.state.otherDetail.shipDate, 'DD-MM-YYYY');
     return (
-      // <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{ flex: 1 }}>
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
           {this.FocusAwareStatusBar(this.props.isFocused)}
@@ -451,7 +450,6 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
           {/* <TouchableOpacity
           style={{height: 50, width: 100, backgroundColor: 'pink'}}
           onPress={() => console.log(this.state.otherDetail)}></TouchableOpacity> */}
-          {/* </SafeAreaView> */}
         </KeyboardAwareScrollView>
         {!this.state.keyboard && (
           <TouchableOpacity

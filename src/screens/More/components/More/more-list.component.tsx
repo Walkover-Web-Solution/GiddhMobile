@@ -1,6 +1,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { FlatList, SafeAreaView, Text, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
 import Icon from '@/core/components/custom-icon/custom-icon';
 
@@ -38,7 +38,7 @@ class MoreList extends React.Component<MoreListProp, MoreListState> {
 
   render () {
     return (
-      <SafeAreaView>
+      <View>
         <FlatList
           data={this.listData}
           showsVerticalScrollIndicator={false}
@@ -50,7 +50,7 @@ class MoreList extends React.Component<MoreListProp, MoreListState> {
           )}
           keyExtractor={(item) => item.id.toString()}
         />
-      </SafeAreaView>
+      </View>
     );
   }
 }

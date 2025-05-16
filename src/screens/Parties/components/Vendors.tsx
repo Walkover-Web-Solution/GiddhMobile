@@ -9,7 +9,7 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Company } from '@/models/interfaces/company';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS,STORAGE_KEYS } from '@/utils/constants';
 import TOAST from 'react-native-root-toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';

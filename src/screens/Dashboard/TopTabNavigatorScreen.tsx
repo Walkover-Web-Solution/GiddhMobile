@@ -1,16 +1,12 @@
 import useCustomTheme from '@/utils/theme';
 import { useIsFocused } from '@react-navigation/native';
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { ThemeProps } from '@/utils/theme';
-import { Platform, RefreshControl, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Header from '@/components/Header';
-import ChartComponent from './ChartComponent';
-import BankAccountList from './BankAccountList';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Routes from '@/navigation/routes';
 import BalanceSheetScreen from './BalanceSheetScreen';
-import DateFilter from './component/DateFilter';
-import moment from 'moment';
 import ProfitLossScreen from './ProfitLossScreen';
 
 
@@ -71,13 +67,13 @@ const TopTabNavigator = ()=> {
       return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
   }
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <_StatusBar statusBar={statusBar}/>
       <Header header={'Dashboard'} backgroundColor={voucherBackground} />
       <View style={{flex:1}}>
       <TopTab />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 export default TopTabNavigator;

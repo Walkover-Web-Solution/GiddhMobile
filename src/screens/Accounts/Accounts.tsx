@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, FlatList, DeviceEventEmitter, Image, TouchableOpacity, StatusBar, Platform, Modal, SafeAreaView, TextInput } from 'react-native';
+import { View, Text, FlatList, DeviceEventEmitter, Image, TouchableOpacity, StatusBar, Platform, Modal, TextInput } from 'react-native';
 import { APP_EVENTS } from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 import moment from 'moment';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -297,7 +297,7 @@ export class AccountScreen extends React.Component<Props, State> {
         onDismiss={() => { this.setState({ isSearchingModalVisible: false }) }}
         style={styles.modalMobileContainer}
       >
-        <SafeAreaView style={styles.modalViewContainer}>
+        <View style={styles.modalViewContainer}>
           <Header backgroundColor='#084EAD'>
             <AntDesign name={'search1'} size={20} color={'#FFFFFF'} />
             <TextInput
@@ -357,7 +357,7 @@ export class AccountScreen extends React.Component<Props, State> {
               />
             </View>
           }
-        </SafeAreaView>
+        </View>
       </Modal>
     )
   }

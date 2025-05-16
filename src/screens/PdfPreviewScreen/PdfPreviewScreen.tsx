@@ -1,16 +1,16 @@
 import { Dimensions, Platform, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 import Pdf from 'react-native-pdf';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { useEffect, useState } from "react";
 import colors from "@/utils/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/utils/constants";
 import RNFetchBlob from 'react-native-blob-util';
 import Toast from "react-native-root-toast";
-import SafeAreaView from "react-native-safe-area-view";
 import Header from "@/components/Header";
 import { useIsFocused } from "@react-navigation/native";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Screen_width = Dimensions.get('window').width;
 const PdfPreviewScreen = ( route ) => {

@@ -8,7 +8,7 @@ import { GdImages } from '@/utils/icons-pack';
 
 import colors from '@/utils/colors';
 import { verifyOTP, clearOTPError, resetPassword, setNewPassword } from '../Login/LoginAction';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { baseColor } from '../../../utils/colors';
 
 const { width, height } = Dimensions.get('window');

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import SafeAreaView from 'react-native-safe-area-view';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { connect } from 'react-redux';
 import { AuthStack } from './auth.navigator';
@@ -13,6 +12,7 @@ import { Host } from 'react-native-portalize';
 import SnackBar from '@/components/SnackBar';
 import ChatBotSDK from '@/components/ChatBotSDK';
 import { DeviceEventEmitter } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const navigatorTheme = {
   ...DefaultTheme,

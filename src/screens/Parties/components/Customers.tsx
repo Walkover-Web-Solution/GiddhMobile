@@ -7,7 +7,7 @@ import colors from '@/utils/colors';
 import * as constants from '@/utils/constants';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import ListEmptyComponent from './ListEmptyComponent';
 import { formatAmount } from '@/utils/helper';

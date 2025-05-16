@@ -15,7 +15,7 @@ import style from '@/screens/Transaction/style';
 import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 import moment from 'moment';
 import _ from 'lodash';

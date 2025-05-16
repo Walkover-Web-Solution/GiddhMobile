@@ -8,7 +8,7 @@ import {
   View,
   TouchableOpacity
 } from 'react-native';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;

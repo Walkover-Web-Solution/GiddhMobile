@@ -1,6 +1,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { FlatList, SafeAreaView, Text, TouchableOpacity } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import styles from '@/screens/More/components/More/listStyle';
 import Icon from '@/core/components/custom-icon/custom-icon';
 
@@ -50,7 +50,7 @@ class MenuList extends React.Component<MenuListProp, MenuListState> {
   render () {
     const { navigation } = this.props;
     return (
-      <SafeAreaView>
+      <View>
         <FlatList
           data={this.listData}
           showsVerticalScrollIndicator={false}
@@ -65,7 +65,7 @@ class MenuList extends React.Component<MenuListProp, MenuListState> {
           )}
           keyExtractor={(item) => item.id.toString()}
         />
-      </SafeAreaView>
+      </View>
     );
   }
 }

@@ -15,8 +15,7 @@ import {
   Dimensions,
   StatusBar,
   PermissionsAndroid,
-  Alert,
-  KeyboardAvoidingView
+  Alert
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -24,9 +23,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
-import _, { result } from 'lodash';
+import _ from 'lodash';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -38,8 +37,6 @@ import RNFetchBlob from 'react-native-blob-util';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 

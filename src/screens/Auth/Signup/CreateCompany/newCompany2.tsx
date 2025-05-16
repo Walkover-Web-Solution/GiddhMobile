@@ -14,7 +14,7 @@ import { STORAGE_KEYS, APP_EVENTS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CompanyService } from '@/core/services/company/company.service';
 import { getCompanyAndBranches } from '../../../../redux/CommonAction';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import TOAST from 'react-native-root-toast';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';

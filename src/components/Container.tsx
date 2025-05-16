@@ -1,4 +1,4 @@
-import { StyleSheet, SafeAreaView } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import React from 'react'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
@@ -16,9 +16,9 @@ const ScrollContainer: React.FC<Props> = ({ children }) => {
 
 const Container: React.FC<Props> = ({ children }) => {
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             {children}
-        </SafeAreaView>
+        </View>
     )
 }
 

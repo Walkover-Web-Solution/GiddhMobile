@@ -1,6 +1,6 @@
 import useCustomTheme, {ThemeProps} from '@/utils/theme';
 import moment from 'moment';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState} from 'react';
 import {
     Alert,
   DeviceEventEmitter,
@@ -10,7 +10,6 @@ import {
   PermissionsAndroid,
   Platform,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -323,7 +322,7 @@ const renderCategory = (category, items) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
         <DateFilter
             startDate={date.startDate}
             endDate={date.endDate}
@@ -364,7 +363,7 @@ const renderCategory = (category, items) => {
             )}
         </ScrollView>
         {RenderBranchModal}
-    </SafeAreaView>
+    </View>
   );
 };
 

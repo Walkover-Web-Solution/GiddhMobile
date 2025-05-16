@@ -1,7 +1,6 @@
 import React, { createRef } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Dimensions, SafeAreaView, ScrollView } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform } from 'react-native';
 import styles from './style';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -14,7 +13,7 @@ import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import { useIsFocused } from '@react-navigation/native';
 import Dialog from 'react-native-dialog';
@@ -917,7 +916,7 @@ export class Vendors extends React.Component<Props> {
       <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
         style={styles.modalMobileContainer}>
-        <SafeAreaView style={styles.modalViewContainer}>
+        <View style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
             <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: false }) }} style={styles.cancelButtonTextModal}>
               <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 5 }} />
@@ -941,7 +940,7 @@ export class Vendors extends React.Component<Props> {
               keyExtractor={(item, index) => index.toString()}
             />
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
     )
   }
@@ -951,7 +950,7 @@ export class Vendors extends React.Component<Props> {
       <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
         style={styles.modalMobileContainer}>
-        <SafeAreaView style={styles.modalViewContainer}>
+        <View style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
@@ -974,7 +973,7 @@ export class Vendors extends React.Component<Props> {
               keyExtractor={(item, index) => index.toString()}
             />
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
     )
   }

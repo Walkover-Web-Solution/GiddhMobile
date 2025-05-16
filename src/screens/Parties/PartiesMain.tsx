@@ -23,7 +23,7 @@ import { CommonService } from '@/core/services/common/common.service';
 import _ from 'lodash';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 
 import { Vendors } from './components/Vendors';

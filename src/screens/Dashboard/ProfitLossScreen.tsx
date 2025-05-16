@@ -1,6 +1,6 @@
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useCallback, useRef, useState } from "react";
-import { RefreshControl, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import DateFilter from "./component/DateFilter";
 import ChartComponent from "./ChartComponent";
 import BankAccountList from "./BankAccountList";
@@ -39,7 +39,7 @@ const ProfitLossScreen = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
           <DateFilter 
             startDate={date.startDate}
             endDate={date.endDate}
@@ -70,7 +70,7 @@ const ProfitLossScreen = () => {
                 <BankAccountList />
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
     )
 }
 
