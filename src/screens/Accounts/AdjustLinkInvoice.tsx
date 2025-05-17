@@ -24,7 +24,7 @@ import CheckBox from 'react-native-check-box';
 import { FONT_FAMILY } from '@/utils/constants';
 import { getInvoiceListRequest } from './accountHelper';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 
 
@@ -521,7 +521,12 @@ class AdjustLinkInvoice extends React.Component<Props> {
               bottom: 0,
               top: 0
             }}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
           </View>
         )}
       </KeyboardAvoidingView>

@@ -8,7 +8,7 @@ import { GdImages } from '@/utils/icons-pack';
 
 import colors from '@/utils/colors';
 import { verifyOTP, clearOTPError, resetPassword, setNewPassword } from '../Login/LoginAction';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { baseColor } from '../../../utils/colors';
 
 const { width, height } = Dimensions.get('window');
@@ -85,7 +85,12 @@ class ResetPassword extends React.Component<any, any> {
               </TouchableOpacity>
             </View>
             {this.props.isVerifyingOTP && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
-              <Bars size={15} color={colors.PRIMARY_NORMAL} />
+              {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+              <LoaderKit
+                style={{ width: 15, height: 15 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
             </View>}
           </View>
         </ScrollView>

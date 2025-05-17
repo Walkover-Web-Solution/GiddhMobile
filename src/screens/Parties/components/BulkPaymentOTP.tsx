@@ -14,8 +14,9 @@ import OTPInputView from '@twotalltotems/react-native-otp-input';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import TOAST from 'react-native-root-toast';
 import { PaymentServices } from '@/core/services/payment/payment';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import SMSUserConsent from '../../../../SMSUserConsent';
+import colors from '@/utils/colors';
 
 interface SMSMessage {
     receivedOtpMessage: string
@@ -309,7 +310,12 @@ class BulkPaymentOTP extends React.Component {
                             bottom: 0,
                             top: 0,
                         }}>
-                        <Bars size={15} color={'#5773FF'} />
+                        {/* <Bars size={15} color={'#5773FF'} /> */}
+                        <LoaderKit
+                            style={{ width: 45, height: 45 }}
+                            name={'LineScale'}
+                            color={colors.PRIMARY_NORMAL}
+                        />
                     </View>
                 )}
             </SafeAreaView>

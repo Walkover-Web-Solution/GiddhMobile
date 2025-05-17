@@ -18,7 +18,7 @@ import { connect } from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
@@ -766,7 +766,12 @@ class AddItemScreen extends React.Component<Props> {
                 bottom: 0,
                 top: 0
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           )}
         </View>

@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import { useIsFocused } from '@react-navigation/native';
 import Dialog from 'react-native-dialog';
@@ -1387,7 +1387,12 @@ export class Vendors extends React.Component<Props> {
                 bottom: 0,
                 top: 0
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+              />
             </View>
           )}
         </KeyboardAwareScrollView>

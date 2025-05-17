@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { View, Text, FlatList, DeviceEventEmitter, Image, TouchableOpacity, StatusBar, Platform, Modal, SafeAreaView, TextInput } from 'react-native';
 import { APP_EVENTS } from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 import moment from 'moment';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -342,7 +342,12 @@ export class AccountScreen extends React.Component<Props, State> {
             </TouchableOpacity>
           </View>
           {this.state.showSearchLoader ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
           </View> :
             <View style={{ flex: 1 }}>
               <FlatList
@@ -421,7 +426,12 @@ export class AccountScreen extends React.Component<Props, State> {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+        <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+        />
       </View>
     );
   };
@@ -438,7 +448,12 @@ export class AccountScreen extends React.Component<Props, State> {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+        <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+        />
       </View>
     );
   };
@@ -476,7 +491,12 @@ export class AccountScreen extends React.Component<Props, State> {
         />
         {this.state.showLoader
           ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
           </View>
           : <View style={style.container}>
             {this.state.accounts?.length == 0

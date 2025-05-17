@@ -29,8 +29,8 @@ import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { Bars } from 'react-native-loader';
-import DocumentPicker from 'react-native-document-picker';
+import LoaderKit  from 'react-native-loader-kit';
+import DocumentPicker from '@react-native-documents/picker';
 import color from '@/utils/colors';
 import _, { find, result } from 'lodash';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
@@ -3043,7 +3043,12 @@ export class AddEntry extends React.Component<Props> {
             statusBarTranslucent
           >
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
           <DateTimePickerModal

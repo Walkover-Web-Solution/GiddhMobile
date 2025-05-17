@@ -8,7 +8,7 @@ import {
   View,
   TouchableOpacity
 } from 'react-native';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
@@ -18,7 +18,12 @@ function DownloadModal ({ modalVisible }) {
     <Modal animationType="none" transparent={true} visible={modalVisible} statusBarTranslucent>
       <TouchableOpacity style={styles.container}>
         <View style={styles.centeredView}>
-          <Bars size={15} color={colors.PRIMARY_NORMAL} />
+          {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+          <LoaderKit
+              style={{ width: 45, height: 45 }}
+              name={'LineScale'}
+              color={colors.PRIMARY_NORMAL}
+          />
           <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
         </View>
       </TouchableOpacity>

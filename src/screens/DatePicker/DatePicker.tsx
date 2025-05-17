@@ -29,34 +29,38 @@ export class AppDatePicker extends React.Component {
   renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: 'white' }}
+      indicatorStyle={{ backgroundColor: '#520EAD' }}
       style={{ backgroundColor: 'white', elevation: 0 }}
-      renderLabel={({ route, focused }) => (
-        <View
-          style={{
-            borderTopEndRadius: 17,
-            borderTopLeftRadius: 17,
-            borderBottomLeftRadius: 17,
-            borderColor: focused ? '#5773FF' : '#D9D9D9',
-            // paddingHorizontal: 10,
-            width: Dimensions.get('window').width * 0.4,
-            // height: Dimensions.get('window').height * 0.045,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 7,
-            borderWidth: 1
-          }}>
-          <Text
-            numberOfLines={1}
-            style={{
-              color: focused ? '#5773FF' : '#808080',
-              // fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
-              fontWeight: focused ? 'bold' : 'normal'
-            }}>
-            {route.title}
-          </Text>
-        </View>
-      )}
+      activeColor='#520EAD'
+      inactiveColor='#D9D9D9'
+      
+      // renderLabel={({ route, focused, color }) => (
+      //   <View
+      //     style={{
+      //       borderTopEndRadius: 17,
+      //       borderTopLeftRadius: 17,
+      //       borderBottomLeftRadius: 17,
+      //       borderColor: color,
+      //       // paddingHorizontal: 10,
+      //       width: Dimensions.get('window').width * 0.4,
+      //       // height: Dimensions.get('window').height * 0.045,
+      //       alignItems: 'center',
+      //       justifyContent: 'center',
+      //       paddingVertical: 7,
+      //       borderWidth: 1
+      //     }}>
+      //     <Text
+      //       numberOfLines={1}
+      //       style={{
+      //         color: color,
+      //         // fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
+      //         fontWeight: focused ? 'bold' : 'normal'
+      //       }}>
+      //       {route.title}
+      //     </Text>
+      //   </View>
+      // )}
+      
     />
   );
 
@@ -96,6 +100,7 @@ export class AppDatePicker extends React.Component {
             initialLayout={initialLayout}
             // swipeEnabled={false}
             renderTabBar={this.renderTabBar}
+            
           />
         }
       </View>

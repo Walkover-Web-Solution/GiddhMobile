@@ -14,7 +14,7 @@ import { STORAGE_KEYS, APP_EVENTS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CompanyService } from '@/core/services/company/company.service';
 import { getCompanyAndBranches } from '../../../../redux/CommonAction';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import TOAST from 'react-native-root-toast';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -732,7 +732,12 @@ class NewCompanyDetails extends React.Component<any, any> {
               bottom: 0,
               top: 0
             }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
+            {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+            />
           </View>
         )}
         {this.businessTypeBottomSheet()}

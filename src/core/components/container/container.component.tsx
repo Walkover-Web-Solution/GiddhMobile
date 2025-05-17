@@ -1,6 +1,7 @@
 import React from 'react';
-import SafeAreaView from 'react-native-safe-area-view';
+// import SafeAreaView from 'react-native-safe-area-view';
 import utilStyles from '@/utils/style';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type GDContainerProps = {
   children: React.ReactNode;

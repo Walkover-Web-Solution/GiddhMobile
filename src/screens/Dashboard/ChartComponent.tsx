@@ -48,9 +48,9 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         setConsolidatedBranch(consolidateState ? consolidateState : ' ');
         const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate, branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '');
         if(response?.body && response?.status == "success"){
-            setTotalExpense({...response?.body?.incomeStatment?.totalExpenses})
-            setTotalIncome({...response?.body?.incomeStatment?.revenue})
-            setnetPL({...response?.body?.incomeStatment?.incomeBeforeTaxes})
+            setTotalExpense({...response?.body?.incomeStatement?.totalExpenses});
+            setTotalIncome({...response?.body?.incomeStatement?.revenue});
+            setnetPL({...response?.body?.incomeStatement?.incomeBeforeTaxes});
         }else{
             Toast({message: response?.message, position:'BOTTOM',duration:'LONG'})
         }
@@ -122,6 +122,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         text:'Expense'
     }
     ];
+console.log("pie data", pieData, totalExpense, totalIncome, netPL);
 
     return (
     <View style={styles.container}>

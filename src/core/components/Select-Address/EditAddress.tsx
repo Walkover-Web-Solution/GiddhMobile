@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, SafeAreaVi
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
@@ -3133,7 +3133,12 @@ export class EditAddress extends React.Component<any, any> {
                      bottom: 0,
                      top: 0,
                   }}>
-                  <Bars size={15} color={color.PRIMARY_NORMAL} />
+                  {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+                  <LoaderKit
+                     style={{ width: 45, height: 45 }}
+                     name={'LineScale'}
+                     color={color.PRIMARY_NORMAL}
+                  />
                </View>
             )}
          </View>

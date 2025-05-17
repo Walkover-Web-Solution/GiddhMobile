@@ -24,7 +24,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _, { isInteger } from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -2693,7 +2693,12 @@ export class PurchaseBill extends React.Component {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
         </Animated.ScrollView>

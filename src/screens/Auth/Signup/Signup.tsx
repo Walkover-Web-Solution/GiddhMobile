@@ -14,7 +14,7 @@ import { ButtonSize } from '@/models/enums/button';
 import { GdImages } from '@/utils/icons-pack';
 import { WEBCLIENT_ID } from '@/env.json';
 // @ts-ignore
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { googleLogin, appleLogin, userEmailSignup, verifySignupOTP } from '../Login/LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
@@ -316,7 +316,12 @@ class Signup extends React.Component<any, any> {
               bottom: 0,
               top: 0
             }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
+            {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
           </View>
         )}
       </ScrollView>

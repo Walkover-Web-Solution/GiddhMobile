@@ -5,7 +5,7 @@ import style from '@/screens/Inventory/style';
 import InventoryList from '@/screens/Inventory/components/inventory-list.component';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 import moment from 'moment';
 import { InventoryService } from '@/core/services/inventory/inventory.service';
@@ -296,7 +296,12 @@ export class InventoryScreen extends React.Component<Props, State> {
         </View>
         {this.state.showLoader
           ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
           </View>
           : <View style={style.container}>
             {this.state.inventoryData.length == 0

@@ -7,7 +7,7 @@ import colors from '@/utils/colors';
 import * as constants from '@/utils/constants';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import LastDataLoadedTime from '@/core/components/data-loaded-time/LastDataLoadedTime';
 import ListEmptyComponent from './ListEmptyComponent';
 import { formatAmount } from '@/utils/helper';
@@ -45,7 +45,12 @@ export const Customers = (props) => {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+        <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+        />
       </View>
     );
   }

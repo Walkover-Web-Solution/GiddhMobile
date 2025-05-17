@@ -26,7 +26,7 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
@@ -1166,7 +1166,12 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+        <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+        />
       </View>
     );
   };
@@ -1444,7 +1449,12 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
           {this.FocusAwareStatusBar(this.props.isFocused)}
-          <Bars size={15} color={colors.PRIMARY_NORMAL} />
+          {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+          <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+          />
         </View>
       );
     } else {
@@ -1841,7 +1851,12 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           {this.state.payNowButtonPressed === false ?
             this.state.transactionsLoader ? (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-                <Bars size={15} color={colors.PRIMARY_NORMAL} />
+                {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
+                <LoaderKit
+                    style={{ width: 45, height: 45 }}
+                    name={'LineScale'}
+                    color={colors.PRIMARY_NORMAL}
+                />
               </View>
             ) : (
               <>
@@ -2010,7 +2025,12 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
-                <Bars size={15} color={color.PRIMARY_NORMAL} />
+                {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+                <LoaderKit
+                    style={{ width: 45, height: 45 }}
+                    name={'LineScale'}
+                    color={color.PRIMARY_NORMAL}
+                />
                 <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
               </View>
             </View>
@@ -2027,7 +2047,12 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 bottom: 0,
                 top: 0,
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+              />
             </View>
           )}
           {this.props.route.params.type == 'Vendors' ? (

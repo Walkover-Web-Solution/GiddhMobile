@@ -8,12 +8,12 @@ import style from './style';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import WebView from 'react-native-webview';
+// import WebView from 'react-native-webview';
 import Modal from 'react-native-modal';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -239,7 +239,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           this.setState({ isModalVisible: false })
         }}
       >
-          <WebView
+        <View>
+          
+        </View>
+          {/* <WebView
             containerStyle={style.modalView}
             source={{ uri: 'https://calendly.com/sales-accounting-software/talk-to-sale' }}
             originWhitelist={['*']}
@@ -254,7 +257,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 </View>
               )
             }}
-          />
+          /> */}
       </Modal>
     )
   }
@@ -295,7 +298,12 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       return (
         <View
           style={style.loaderWrapper}>
-          <Bars size={15} color={color.PRIMARY_NORMAL} />
+          {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
+          <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+          />
         </View>
       );
     } else {
@@ -473,7 +481,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </View>
           </TouchableOpacity>
-          {this.contactUsModal()}
+          {/* {this.contactUsModal()} */}
           <ConfirmationBottomSheet
               bottomSheetRef={this.confirmationBottomSheetRef}
               message={ConfirmationMessages.APPLOCK.message}
