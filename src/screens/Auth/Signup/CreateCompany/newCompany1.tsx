@@ -346,7 +346,7 @@ class NewCompany extends React.Component<any, any> {
             <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
                 onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
                 style={style.modalMobileContainer}>
-                <SafeAreaView style={style.modalViewContainer}>
+                <View style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
                         <TextInput
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
@@ -370,7 +370,7 @@ class NewCompany extends React.Component<any, any> {
                         keyExtractor={(item, index) => index.toString()}
                         ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
                     />
-                </SafeAreaView>
+                </View>
             </Modal>
         )
     }
@@ -380,7 +380,7 @@ class NewCompany extends React.Component<any, any> {
             <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
                 onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
                 style={style.modalMobileContainer}>
-                <SafeAreaView style={style.modalViewContainer}>
+                <View style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
                         <TextInput
                             returnKeyType={"done"}
@@ -403,16 +403,16 @@ class NewCompany extends React.Component<any, any> {
                         keyExtractor={(item, index) => index.toString()}
                         ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
                     />
-                </SafeAreaView>
+                </View>
             </Modal>
         )
     }
 
     render() {
         return (
-            <SafeAreaView style={style.container}>
+            <View style={style.container}>
                 <ScrollView style={{ flex: 1 }}>
-                    <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
+                    {/* <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> */}
                     <View
                         style={{
                             flexDirection: 'row',
@@ -669,7 +669,7 @@ class NewCompany extends React.Component<any, any> {
                         )
                     }}
                 />
-            </SafeAreaView>
+            </View>
         );
         // }
     }

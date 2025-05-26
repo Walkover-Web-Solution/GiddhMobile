@@ -336,13 +336,13 @@ const ProductGroupScreen = (props)=>{
     );
 
     return (
-      <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.containerView}>
+      <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : "height" } style={styles.containerView}>
         <View>
           <Animated.ScrollView
             keyboardShouldPersistTaps="never"
             style={styles.animatedView}
             bounces={false}>
-            <_StatusBar statusBar={statusBar}/>
+            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header 
               header={'Create Group'} 
               isBackButtonVisible={true} 

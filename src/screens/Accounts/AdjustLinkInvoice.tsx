@@ -13,6 +13,7 @@ import {
   FlatList,
   Alert,
   KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import style from './AdjustLinkInvoice.style';
 import { connect } from 'react-redux';
@@ -474,8 +475,9 @@ class AdjustLinkInvoice extends React.Component<Props> {
 
   render() {
     return (
-      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: 'white' }}>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: 'white' }} behavior={ Platform.OS == 'ios' ? "padding" : "height" }>
+        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {this.renderHeader()}
         {this.renderPartyName()}
         {this.renderAmount()}
@@ -529,6 +531,7 @@ class AdjustLinkInvoice extends React.Component<Props> {
             />
           </View>
         )}
+        </ScrollView>
       </KeyboardAvoidingView>
     );
   }

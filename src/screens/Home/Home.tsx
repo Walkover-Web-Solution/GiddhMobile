@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
-import { StatusBar,Platform } from 'react-native';
+import { StatusBar,Platform, View } from 'react-native';
 import * as CommonActions from '../../redux/CommonAction';
 import { GDContainer } from '@/core/components/container/container.component';
 import HomeComponent from '@/screens/Home/components/Home/home.component';
@@ -25,8 +25,9 @@ export class HomeScreen extends React.Component<Props, {}> {
 
   render () {
     return (
-      <GDContainer>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      // <GDContainer>
+      <View style={{flex:1}}>
+        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <HomeComponent
           countries={this.props.countries}
           logout={this.props.logout}
@@ -34,7 +35,8 @@ export class HomeScreen extends React.Component<Props, {}> {
           isCountriesLoading={this.props.isCountriesLoading}
           logoutAction={this.props.logoutAction}
         />
-      </GDContainer>
+      </View>
+      // </GDContainer>
     );
   }
 }

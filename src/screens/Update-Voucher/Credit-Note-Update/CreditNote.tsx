@@ -2110,6 +2110,8 @@ export class CreditNote extends React.Component<Props, State> {
     return (
       <TouchableOpacity
         onPress={() => {
+          console.log("hihhih");
+          
           if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
             this.props.navigation.navigate('CreditNoteAddItem', {
               updateAddedItems: this.updateAddedItems.bind(this),
@@ -2156,6 +2158,8 @@ export class CreditNote extends React.Component<Props, State> {
               borderRadius:2
             }}
             onPress={() => {
+              console.log("update");
+              
               this.props.navigation.navigate('CreditNoteAddItem', {
                 updateAddedItems: this.updateAddedItems.bind(this),
                 addedItems: this.state.addedItems,
@@ -2779,7 +2783,7 @@ export class CreditNote extends React.Component<Props, State> {
             pointerEvents={ this.state.isSearchingParty ? 'none' : 'auto' }
             style={[style.container, {paddingBottom: 80}]}
           >
-          <_StatusBar statusBar='#2e80d1' />
+          {/* <_StatusBar statusBar='#2e80d1' /> */}
             <View style={style.headerConatiner}>
               {this.renderSelectPartyName()}
               {this.renderAmount()}

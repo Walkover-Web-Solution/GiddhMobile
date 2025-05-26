@@ -655,12 +655,12 @@ const ServiceScreen = ()=>{
     
     
     return (
-        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={[styles.container,styles.backGround]}>
+        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : "height" } style={[styles.container,styles.backGround]}>
             <View>
                 <Animated.ScrollView
                     style={styles.backGround}
                     bounces={false}>
-                    <_StatusBar statusBar={statusBar}/>
+                    {/* <_StatusBar statusBar={statusBar}/> */}
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
                         headerRightContent={
                             <>

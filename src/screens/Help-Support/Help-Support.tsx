@@ -34,7 +34,7 @@ export class HelpScreen extends React.Component<Props> {
 
   render () {
     return (
-      <GDContainer>
+      // <GDContainer>
         <View style={style.container}>
           <Text style={{ fontSize: 20, fontFamily: 'AvenirLTStd-Black', margin: 20 }}>Help and Support</Text>
           <View style={{ alignSelf: 'center' }}>
@@ -53,7 +53,7 @@ export class HelpScreen extends React.Component<Props> {
             keyExtractor={(item) => item.id.toString()}
           />
         </View>
-      </GDContainer>
+      // </GDContainer>
     );
   }
 }

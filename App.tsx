@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import * as material from '@eva-design/material';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import {Provider, useSelector} from 'react-redux';
@@ -24,6 +24,7 @@ import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
 import AppLock from '@/AppLock/AppLock';
+import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-controller";
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls
@@ -94,7 +95,9 @@ export default class App extends React.Component<any> {
     return (  
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            <InnerApp />
+            <SafeAreaProvider>
+              <InnerApp />
+            </SafeAreaProvider>
           </PersistGate>
         </Provider>
     );
@@ -105,18 +108,23 @@ export default class App extends React.Component<any> {
 const InnerApp = () => {
   const {toggleBiometric} = useSelector(state => state.LoginReducer);  
   const [unlocked, setUnlocked] = useState(false);
+  const insets = useSafeAreaInsets();
   
   return (
-    <SafeAreaProvider>
-      <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
-      <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <RootSiblingParent>
-            {toggleBiometric && !unlocked && <AppLock visible={!unlocked} onUnlock={()=>setUnlocked(true)}/>}
-            <BaseContainer /> 
-          </RootSiblingParent>
-        </GestureHandlerRootView>
-      </ApplicationProvider>
-    </SafeAreaProvider>
+    
+      <KeyboardProvider>
+        <KeyboardAvoidingView style={{flex:1}} behavior={"padding"} keyboardVerticalOffset={-(insets.bottom)}>
+          <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
+          <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <RootSiblingParent>
+                {toggleBiometric && !unlocked && <AppLock visible={!unlocked} onUnlock={()=>setUnlocked(true)}/>}
+                <BaseContainer /> 
+              </RootSiblingParent>
+            </GestureHandlerRootView>
+          </ApplicationProvider>
+        </KeyboardAvoidingView>
+      </KeyboardProvider>
+    
   )
 }

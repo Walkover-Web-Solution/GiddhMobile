@@ -64,8 +64,9 @@ export class ChangeCompany extends React.Component<Props> {
     );
 
     return (
-      <GDContainer>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      // <GDContainer>
+      <View style={{flex:1}}>
+        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <View style={style.container}>
           <View style={{ flex: 1, backgroundColor: 'rgba(87,115,255,0.03)' }}>
             <View
@@ -183,7 +184,8 @@ export class ChangeCompany extends React.Component<Props> {
             />
           </View>
         )}
-      </GDContainer>
+      {/* </GDContainer> */}
+      </View>
     );
   }
 }

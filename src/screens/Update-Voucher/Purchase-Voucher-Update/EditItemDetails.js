@@ -733,7 +733,7 @@ class PurchaseItemEdit extends Component {
           backgroundColor: 'white',
           flex: 1
         }}>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         {this.renderHeader()}
 
         {/* <Animated.ScrollView

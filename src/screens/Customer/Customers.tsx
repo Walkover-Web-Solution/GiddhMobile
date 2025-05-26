@@ -894,6 +894,7 @@ export class Customers extends React.Component<Props> {
                 withCallingCode={true}
                 withAlphaFilter={true}
                 withFilter={true}
+                withFlag={true}
                 theme={{fontSize: 15, flagSizeButton: 15, fontFamily: FONT_FAMILY.regular, primaryColor: '#1c1c1c'}}
                 filterProps={{marginHorizontal: 10}}
                 closeButtonStyle={{position: 'absolute', right: -5, zIndex: 1}}

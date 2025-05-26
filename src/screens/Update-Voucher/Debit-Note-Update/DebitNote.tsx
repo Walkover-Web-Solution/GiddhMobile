@@ -2800,7 +2800,7 @@ export class DebiteNote extends React.Component<Props, State> {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <_StatusBar statusBar='#ff5355' />
+        {/* <_StatusBar statusBar='#ff5355' /> */}
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white', marginBottom: this.keyboardMargin }]}

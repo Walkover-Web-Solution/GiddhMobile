@@ -202,7 +202,7 @@ export class Customer extends React.Component<Props> {
     return (
       <SafeAreaInsetsContext.Consumer>
         {(insets) => <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-              {this.FocusAwareStatusBar(this.props.isFocused)}
+              {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
               <View style={style.headerConatiner}>
                 {this.renderHeader()}
               </View>

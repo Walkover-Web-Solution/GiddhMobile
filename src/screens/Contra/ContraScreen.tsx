@@ -325,18 +325,21 @@ const ContraScreen = () => {
             );
             if (results.body) {
                 alert('Contra voucher created successfully!');
-                navigation.navigate(Routes.Parties, {
-                screen: 'PartiesTransactions',
-                initial: false,
-                params: {
-                    item: {
-                    name: partyName.name,
-                    uniqueName: partyName.uniqueName,
-                    country: { code: partyDetails?.country?.countryCode },
-                    mobileNo: partyDetails?.mobileNo,
-                    },
-                    type: 'Creditors',
-                },
+                navigation.navigate("Home", {
+                    screen: Routes.Parties,
+                    params: {
+                        screen: 'PartiesTransactions',
+                        initial: false,
+                        params: {
+                            item: {
+                                name: partyName.name,
+                                uniqueName: partyName.uniqueName,
+                                country: { code: partyDetails?.country?.countryCode },
+                                mobileNo: partyDetails?.mobileNo,
+                            },
+                            type: 'Creditors',
+                        },
+                    }
                 });
                 resetState();
                 setActiveCompanyCountry();
@@ -384,11 +387,11 @@ const ContraScreen = () => {
 
 
     return (
-        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container}>
+        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : "height" } style={styles.container}>
             <Animated.ScrollView
             keyboardShouldPersistTaps="never"
             bounces={false}>
-            <_StatusBar statusBar={statusBar}/>
+            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header header={'Contra'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             {/* Party Name */}
             <View style={styles.partyContainer}>

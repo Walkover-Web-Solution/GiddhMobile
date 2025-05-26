@@ -363,17 +363,20 @@ export class Payment extends React.Component {
         this.getCompanyVersionNumber();
         DeviceEventEmitter.emit(APP_EVENTS.PaymentCreated, {});
         if (type == 'navigate') {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
+          this.props.navigation.navigate("Home", {
+            screen: routes.Parties,
             params: {
-              item: {
-                name: partyName.name,
-                uniqueName: partyName.uniqueName,
-                country: {code: partyDetails.country.countryCode},
-                mobileNo: partyDetails.mobileNo,
-              },
-              type: 'Vendors',
+              screen: 'PartiesTransactions',
+              initial: false,
+              params: {
+                item: {
+                  name: partyName.name,
+                  uniqueName: partyName.uniqueName,
+                  country: {code: partyDetails.country.countryCode},
+                  mobileNo: partyDetails.mobileNo,
+                },
+                type: 'Vendors',
+              }
             },
           });
         }
@@ -509,19 +512,19 @@ export class Payment extends React.Component {
       const results = await InvoiceService.getTaxes();
       if (results.body && results.status == 'success') {
         this.setState({taxArray: results.body, fetechingTaxList: false});
-        this.getTdsTcsTaxes();
+        this.getTdsTcsTaxes(results?.body);
       }
     } catch (e) {
       this.setState({fetechingTaxList: false});
     }
   }
 
-  async getTdsTcsTaxes() {
-    const taxes = this.state.taxArray.filter((item) => {
+  getTdsTcsTaxes(taxArray) {
+    const taxes = taxArray.filter((item) => {
       return item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc';
     });
-    await this.setState({tdsTcsTaxArray: taxes});
-    await this.setState({tdsOrTcsArray: taxes});
+    this.setState({tdsTcsTaxArray: taxes});
+    this.setState({tdsOrTcsArray: taxes});
   }
 
   _renderSearchList() {
@@ -1671,7 +1674,7 @@ export class Payment extends React.Component {
           style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
           bounces={false}>
           <View style={[style.container, {paddingBottom: 80}]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
+            {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}

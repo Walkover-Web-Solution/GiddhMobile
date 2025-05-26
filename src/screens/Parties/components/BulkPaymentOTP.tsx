@@ -241,7 +241,7 @@ class BulkPaymentOTP extends React.Component {
     render() {
         return (
             <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-                {this.FocusAwareStatusBar(this.props.isFocused)}
+                {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
                 <View
                     style={{
                         height: Dimensions.get('window').height * 0.08,

@@ -122,6 +122,7 @@ class Signup extends React.Component<any, any> {
   };
 
   async signUpWithUsernamePassword() {
+    Keyboard.dismiss();
     await this.props.userSignupSentOTP({ email: this.state.username, password: this.state.password });
     // Send otp
     setTimeout(() => {
@@ -170,7 +171,7 @@ class Signup extends React.Component<any, any> {
     // } else {
     return (
       <ScrollView
-        keyboardShouldPersistTaps
+        keyboardShouldPersistTaps="handled"
         style={style.loginContainer}
         contentContainerStyle={style.verticalCenter}
       >

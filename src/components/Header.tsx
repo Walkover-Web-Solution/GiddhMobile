@@ -5,6 +5,8 @@ import Entypo from 'react-native-vector-icons/Entypo'
 import { useNavigation } from '@react-navigation/native'
 import { FONT_FAMILY } from '@/utils/constants'
 
+// StatusBar.setBarStyle('dark-content');
+// StatusBar.setBackgroundColor('#FFFFFF');
 type HeaderWithoutChildren = {
     header: string
     subHeader?: string
@@ -34,7 +36,7 @@ const Header : React.FC<Props> = ({ header, onBackButtonPress, subHeader, backgr
 
     return (
         <>
-            <StatusBar backgroundColor={statusBarColor} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/>
+            {/* <StatusBar backgroundColor={statusBarColor} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/> */}
             <View style={[styles.mainContainer, { backgroundColor }]}>
                 {   children ??
                     <>

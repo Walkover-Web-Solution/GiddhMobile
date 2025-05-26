@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import Feather from 'react-native-vector-icons/Feather'
@@ -8,6 +8,8 @@ import PlanSummarySection from './PlanSummarySection';
 import useGetPlanDetails from '../hooks/useGetPlanDetails';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Portal } from 'react-native-portalize';
+import BottomSheet from '@/components/BottomSheet';
 
 type Props = { 
     bottomSheetRef: React.MutableRefObject<null>
@@ -86,14 +88,13 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
     ]
 
     return (
+        <Portal>
         <Modalize
-            modalTopOffset={insets.top}
             ref={bottomSheetRef}
-            withHandle={false}
-            scrollViewProps={{
-                keyboardShouldPersistTaps: true,
-                showsVerticalScrollIndicator: false
-            }}
+            adjustToContentHeight={false}
+            modalStyle={{ minHeight: '25%', paddingBottom:insets.bottom}}
+            modalTopOffset={insets.top}
+            keyboardAvoidingBehavior="height"
         >
             <View style={styles.card}>
                 <View style={styles.headerSection}>
@@ -135,6 +136,7 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
 
             </View>
         </Modalize>
+        </Portal>
     )
 }
 

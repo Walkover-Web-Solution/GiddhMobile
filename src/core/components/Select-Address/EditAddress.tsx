@@ -2868,9 +2868,9 @@ export class EditAddress extends React.Component<any, any> {
    render() {
       return (
          <View style={style.container}>
-            {this.props.route.params.statusBarColor && (
+            {/* {this.props.route.params.statusBarColor && (
                <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
-            )}
+            )} */}
             <View
                style={{
                   ...style.header,

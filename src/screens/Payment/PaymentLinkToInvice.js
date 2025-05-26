@@ -375,8 +375,8 @@ class PaymentLinkToInvice extends React.Component<Props> {
 
   render() {
     return (
-        <KeyboardAvoidingView style={{flex: 1, backgroundColor: 'white'}}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
+        <KeyboardAvoidingView style={{flex: 1, backgroundColor: 'white'}} behavior={ Platform.OS == 'ios' ? "padding" : "height" }>
+          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
           {this.renderHeader()}
           {this.renderPartyName()}
           {this.renderAmount()}

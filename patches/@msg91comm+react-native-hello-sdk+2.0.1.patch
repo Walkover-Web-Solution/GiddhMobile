@@ -1,0 +1,13 @@
+diff --git a/node_modules/@msg91comm/react-native-hello-sdk/index.tsx b/node_modules/@msg91comm/react-native-hello-sdk/index.tsx
+index b6a2f8c..54e7f13 100644
+--- a/node_modules/@msg91comm/react-native-hello-sdk/index.tsx
++++ b/node_modules/@msg91comm/react-native-hello-sdk/index.tsx
+@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
+ import Chat from './Chat'
+ import { apiService } from './API'
+ import CobrowseIO from 'cobrowse-sdk-react-native';
+-
++// Patched to force newer react-native-webview version
+ interface ChatWidgetProps {
+     preLoaded?: boolean,
+     widgetColor: string,

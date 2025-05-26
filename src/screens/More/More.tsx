@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar,Platform } from 'react-native';
+import { StatusBar,Platform, View } from 'react-native';
 import { connect } from 'react-redux';
 import { GDContainer } from '@/core/components/container/container.component';
 import { CommonService } from '@/core/services/common/common.service';
@@ -25,8 +25,9 @@ export class MoreScreen extends React.Component<Props, {}> {
 
   render () {
     return (
-      <GDContainer>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      // <GDContainer>
+      <View style={{flex:1}}>
+        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <MoreComponent
           navigation={this.props.navigation}
           countries={this.props.countries}
@@ -37,7 +38,8 @@ export class MoreScreen extends React.Component<Props, {}> {
           branchList={this.props.branchList}
           isFetchingCompanyList={this.props.isFetchingCompanyList}
         />
-      </GDContainer>
+      </View>
+      // </GDContainer>
     );
   }
 }

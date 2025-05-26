@@ -425,7 +425,7 @@ class OtherDetails extends React.Component<Props> {
     return (
       <View style={{ flex: 1 }}>
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-          <StatusBar backgroundColor="#2e80d1" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} />
+          {/* <StatusBar backgroundColor="#2e80d1" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> */}
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
           {this._renderShipDate()}

@@ -337,18 +337,21 @@ export class Receipt extends React.Component<any> {
         const partyDetails = this.state.partyDetails;
         const partyName = this.state.partyName;
         if (type == 'navigate') {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
+          this.props.navigation.navigate("Home", {
+            screen: routes.Parties,
             params: {
-              item: {
-                name: partyName.name,
-                uniqueName: partyName.uniqueName,
-                country: { code: partyDetails.country.countryCode },
-                mobileNo: partyDetails.mobileNo,
+              screen: 'PartiesTransactions',
+              initial: false,
+              params: {
+                item: {
+                  name: partyName.name,
+                  uniqueName: partyName.uniqueName,
+                  country: { code: partyDetails.country.countryCode },
+                  mobileNo: partyDetails.mobileNo,
+                },
+                type: 'Creditors',
               },
-              type: 'Creditors',
-            },
+            }
           });
         }
         this.resetState();
@@ -494,15 +497,15 @@ export class Receipt extends React.Component<any> {
           return item.taxType != 'inputgst';
         });
         this.setState({taxArray: taxes, fetechingTaxList: false});
-        this.getTdsTcsTaxes();
+        this.getTdsTcsTaxes(taxes);
       }
     } catch (e) {
       this.setState({fetechingTaxList: false});
     }
   }
 
-  async getTdsTcsTaxes() {
-    const taxes = this.state.taxArray.filter((item) => {
+  getTdsTcsTaxes(taxArray) {
+    const taxes = taxArray.filter((item) => {
       return item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc';
     });
      this.setState({tdsTcsTaxArray: taxes});
@@ -1575,7 +1578,7 @@ export class Receipt extends React.Component<any> {
           style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
           bounces={false}>
           <View style={[style.container, {paddingBottom: 80}]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
+            {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}

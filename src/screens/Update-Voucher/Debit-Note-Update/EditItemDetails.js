@@ -758,7 +758,7 @@ class EditItemDetails extends Component {
           backgroundColor: 'white',
           flex: 1,
         }}>
-        <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
+        {/* <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> */}
         {this.renderHeader()}
 
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>

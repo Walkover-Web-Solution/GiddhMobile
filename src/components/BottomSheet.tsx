@@ -24,7 +24,6 @@ const BottomSheet: React.FC<Props> = ({
       <View style={styles.divider}/>
     </View>
   )
-
   return (
     <Portal>
       <Modalize
@@ -32,8 +31,10 @@ const BottomSheet: React.FC<Props> = ({
         adjustToContentHeight={true}
         handlePosition='inside'
         HeaderComponent={<HeaderComponent/>}
-        modalStyle={{ minHeight: '25%' }}
+        modalStyle={{ minHeight: '25%', paddingBottom:insets.bottom}}
         modalTopOffset={insets.top}
+        keyboardAvoidingBehavior="height"
+        // keyboardAvoidingOffset={100}
         {...props}
       >
         {children}

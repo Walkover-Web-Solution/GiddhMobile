@@ -285,7 +285,7 @@ class NewCompanyDetails extends React.Component<any, any> {
       <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
         style={style.modalMobileContainer}>
-        <SafeAreaView style={style.modalViewContainer}>
+        <View style={style.modalViewContainer}>
           <View style={style.cancelButtonModal} >
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
@@ -308,7 +308,7 @@ class NewCompanyDetails extends React.Component<any, any> {
             keyExtractor={(item, index) => index.toString()}
             ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
           />
-        </SafeAreaView>
+        </View>
       </Modal1>
     )
   }
@@ -528,8 +528,8 @@ class NewCompanyDetails extends React.Component<any, any> {
 
   render() {
     return (
-      <SafeAreaView style={style.container}>
-        <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
+      <View style={style.container}>
+        {/* <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> */}
         <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'}
           style={{ flex: 1, marginBottom: 10, }}>
           
@@ -743,7 +743,7 @@ class NewCompanyDetails extends React.Component<any, any> {
         {this.businessTypeBottomSheet()}
         {this.businessNatureBottomSheet()}
         {this.taxBottomSheet()}
-      </SafeAreaView>
+      </View>
     );
     // }
   }

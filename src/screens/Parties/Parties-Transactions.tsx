@@ -1448,7 +1448,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     if (this.state.showLoader) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
+          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
           {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
           <LoaderKit
             style={{ width: 45, height: 45 }}
@@ -1460,7 +1460,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     } else {
       return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
+          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
           <View
             style={{
               height: Dimensions.get('window').height * 0.08,

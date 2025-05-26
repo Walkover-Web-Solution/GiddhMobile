@@ -63,7 +63,7 @@ class ForgotPassword extends React.Component<any, any> {
 
   render() {
     return (
-      <GDContainer>
+      // <GDContainer>
         <View style={style.backgroundContainer}>
           <View style={style.loginContainer}>
             <View style={style.upperContainer}>
@@ -117,7 +117,7 @@ class ForgotPassword extends React.Component<any, any> {
             </View>
           </View>
         </View>
-      </GDContainer>
+      // </GDContainer>
     );
   }
 }

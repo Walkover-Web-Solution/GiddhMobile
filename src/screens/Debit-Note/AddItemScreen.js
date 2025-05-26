@@ -512,9 +512,16 @@ class AddItemScreen extends React.Component<Props> {
     this.setState({ loading: true });
     try {
       if (item.stock) {
+        let tempAllStockVariantsResults = {
+          ...this.state.allStockVariants
+        };
         if(!this.state.allStockVariants[item.stock.uniqueName]){
           const stockVariantsResult = await InvoiceService.getStockVariants(item.stock.uniqueName);
           if(stockVariantsResult.status == 'success' && stockVariantsResult.body){
+            tempAllStockVariantsResults = {
+              ...this.state.allStockVariants,
+              [item.stock.uniqueName]: stockVariantsResult.body
+            }
             this.setState({
               allStockVariants: {
                 ...this.state.allStockVariants,
@@ -523,7 +530,7 @@ class AddItemScreen extends React.Component<Props> {
             });
           }
         }
-        const results = await InvoiceService.getStockDetails(item.uniqueName, item.stock.uniqueName, variantUniqueName ?? this.state.allStockVariants[item.stock.uniqueName][0].uniqueName);
+        const results = await InvoiceService.getStockDetails(item.uniqueName, item.stock.uniqueName, variantUniqueName ?? tempAllStockVariantsResults[item.stock.uniqueName][0].uniqueName);
         if (results && results.body) {
           const addedItems = this.state.addedItems;
           // if (!this.checkIfItemIsSelcted(results.body)) {
@@ -748,7 +755,7 @@ class AddItemScreen extends React.Component<Props> {
   render () {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
+        {/* <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> */}
         <View style={style.headerConatiner}>{this.renderHeader()}</View>
 
         <View style={{ flex: 1 }}>

@@ -13,7 +13,7 @@ import color from '@/utils/colors';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-// import WebView from 'react-native-webview';
+import WebView from 'react-native-webview';
 import Modal from 'react-native-modal';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -239,25 +239,28 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           this.setState({ isModalVisible: false })
         }}
       >
-        <View>
-          
-        </View>
-          {/* <WebView
-            containerStyle={style.modalView}
-            source={{ uri: 'https://calendly.com/sales-accounting-software/talk-to-sale' }}
-            originWhitelist={['*']}
-            scrollEnabled={false}
-            startInLoadingState={true}
-            renderLoading={() => <View style={style.renderLoadingView}><Bars size={15} color={color.PRIMARY_NORMAL} /></View>}
-            renderError={() => {
-              return (
-                <View style={style.renderErrorView}>
-                  <Text style={style.renderErrorText}>Something Went Wrong.</Text>
-                  <Text style={style.renderErrorText}>Please Try Again.</Text>
-                </View>
-              )
-            }}
-          /> */}
+        <WebView
+          containerStyle={style.modalView}
+          source={{ uri: 'https://calendly.com/sales-accounting-software/talk-to-sale' }}
+          originWhitelist={['*']}
+          scrollEnabled={false}
+          startInLoadingState={true}
+          renderLoading={() => <View style={style.renderLoadingView}>
+            <LoaderKit
+              style={{ width: 45, height: 45 }}
+              name={'LineScale'}
+              color={color.PRIMARY_NORMAL}
+            />
+          </View>}
+          renderError={() => {
+            return (
+              <View style={style.renderErrorView}>
+                <Text style={style.renderErrorText}>Something Went Wrong.</Text>
+                <Text style={style.renderErrorText}>Please Try Again.</Text>
+              </View>
+            )
+          }}
+        />
       </Modal>
     )
   }
@@ -481,7 +484,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               </View>
             </View>
           </TouchableOpacity>
-          {/* {this.contactUsModal()} */}
+          {this.contactUsModal()}
           <ConfirmationBottomSheet
               bottomSheetRef={this.confirmationBottomSheetRef}
               message={ConfirmationMessages.APPLOCK.message}

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, KeyboardAvoidingView, DeviceEventEmitter, RefreshControl, Keyboard, Dimensions } from 'react-native';
+import { FlatList, View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, KeyboardAvoidingView, DeviceEventEmitter, RefreshControl, Keyboard, Dimensions, ScrollView } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { useIsFocused } from '@react-navigation/native';
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
@@ -938,8 +938,8 @@ const InventoryListScreen = (props) => {
     const renderItem = ({item,index})=><Card item={item} index={index} onPress={onOpen}/>
     
     return (
-        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container}>
-            <_StatusBar statusBar={statusBar}/>
+        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : "height" } style={styles.container}>
+            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header 
               header={'Inventory'} 
               isBackButtonVisible={true} 

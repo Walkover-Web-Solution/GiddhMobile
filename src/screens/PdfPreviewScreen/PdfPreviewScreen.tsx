@@ -11,7 +11,7 @@ import Toast from "react-native-root-toast";
 import Header from "@/components/Header";
 import { useIsFocused } from "@react-navigation/native";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
-import { SafeAreaView } from "react-native-safe-area-context";
+// import { SafeAreaView } from "react-native-safe-area-context";
 
 const Screen_width = Dimensions.get('window').width;
 const PdfPreviewScreen = ( route ) => {
@@ -75,8 +75,8 @@ const PdfPreviewScreen = ( route ) => {
     },[route?.route])
     
     return ( 
-        <SafeAreaView style={styles.container}>
-            <_StatusBar statusBar={statusBar}/>
+        <View style={styles.container}>
+            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header header={'Pdf Preview'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             <View style={styles.container}>
                 {!isLoading ? <View style={styles.container}>
@@ -111,7 +111,7 @@ const PdfPreviewScreen = ( route ) => {
                     />
                 </View>}
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -122,8 +122,6 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
     },
     container : {
         flex:1,
-        marginTop:0,
-        borderRadius:7 
     },
     pdf: {
         flex:1,

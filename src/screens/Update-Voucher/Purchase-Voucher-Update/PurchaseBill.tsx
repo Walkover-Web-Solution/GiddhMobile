@@ -3262,7 +3262,7 @@ export class PurchaseBill extends React.Component<Props, State> {
             pointerEvents={ this.state.isSearchingParty ? 'none' : 'auto' }
             style={[style.container, {paddingBottom: 40}]}
           >
-            <_StatusBar statusBar='#ef6c00' />
+            {/* <_StatusBar statusBar='#ef6c00' /> */}
             <View style={style.headerConatiner}>
               {this.renderSelectPartyName()}
               {this.renderAmount()}

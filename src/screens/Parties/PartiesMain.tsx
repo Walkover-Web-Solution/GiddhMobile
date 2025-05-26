@@ -403,7 +403,7 @@ export class PartiesMainScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <View
           style={{
             height: Dimensions.get('window').height * 0.08,

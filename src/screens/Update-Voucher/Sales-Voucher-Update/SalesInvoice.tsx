@@ -3030,7 +3030,7 @@ export class SalesInvoice extends React.Component<Props, State> {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <_StatusBar statusBar='#0E7942' />
+        {/* <_StatusBar statusBar='#0E7942' /> */}
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}

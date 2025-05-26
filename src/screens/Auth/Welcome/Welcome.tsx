@@ -144,7 +144,7 @@ class Welcome extends React.Component<any, any> {
     const { currentPage: pageIndex } = this.state;
     return (
       <View style={style.container}>
-        <StatusBar backgroundColor='#000080' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} />
+        {/* <StatusBar backgroundColor='#000080' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> */}
         <View style={{ height: this.state.screenHeight * 0.7, width: this.state.screenWidth, marginTop: this.state.screenHeight * 0.05 }}>
           <ScrollView
             ref={(ref) => this.state.scrollRef = ref}

@@ -1127,18 +1127,21 @@ export class PurchaseBill extends React.Component {
         this.getCompanyVersionNumber();
         DeviceEventEmitter.emit(APP_EVENTS.PurchaseBillCreated, {});
         if (type == 'navigate') {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
+          this.props.navigation.navigate("Home", {
+            screen: routes.Parties,
             params: {
-              item: {
-                name: partyDetails.name,
-                uniqueName: partyDetails.uniqueName,
-                country: { code: partyDetails.country.countryCode },
-                mobileNo: partyDetails.mobileNo,
+              screen: 'PartiesTransactions',
+              initial: false,
+              params: {
+                item: {
+                  name: partyDetails.name,
+                  uniqueName: partyDetails.uniqueName,
+                  country: { code: partyDetails.country.countryCode },
+                  mobileNo: partyDetails.mobileNo,
+                },
+                type: 'Creditors',
               },
-              type: 'Creditors',
-            },
+            }
           });
         }
         // else if (type == 'share') {
@@ -2650,7 +2653,7 @@ export class PurchaseBill extends React.Component {
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={[style.container, {paddingBottom: 40}]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
+            {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}

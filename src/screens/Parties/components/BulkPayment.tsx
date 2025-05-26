@@ -412,7 +412,7 @@ class BulkPayment extends React.Component {
     render() {
         return (
             <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-                {this.FocusAwareStatusBar(this.props.isFocused)}
+                {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
                 <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'}>
                     <View
                         style={{

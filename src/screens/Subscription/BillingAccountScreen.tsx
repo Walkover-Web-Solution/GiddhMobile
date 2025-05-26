@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import { Container, ScrollContainer } from '@/components/Container';
@@ -34,7 +34,8 @@ const BillingAccountScreen = () => {
     }
     
     return (
-        <Container>
+        // <Container>
+        <KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS === 'ios' ? 'padding' : "padding"}>
             <Header
                 header='Select Billing Account'
                 statusBarColor={statusBar}
@@ -242,7 +243,8 @@ const BillingAccountScreen = () => {
                     )}
                 }}
             />
-        </Container>
+        {/* </Container> */}
+        </KeyboardAvoidingView>
     )
 }
 

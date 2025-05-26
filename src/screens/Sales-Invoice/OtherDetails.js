@@ -424,7 +424,7 @@ class OtherDetails extends React.Component<Props> {
     return (
       <View style={{ flex: 1 }}>
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-          <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
+          {/* <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> */}
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
           {this._renderShipDate()}
@@ -449,7 +449,7 @@ class OtherDetails extends React.Component<Props> {
             }}
             onPress={() => {
               this.props.route.params.setOtherDetails(this.state.otherDetail);
-              this.props.navigation.navigate('SalesInvoiceScreen');
+              this.props.navigation.goBack();
             }}>
             <Text
               style={{

@@ -2293,7 +2293,7 @@ export class DebiteNote extends React.Component<Props> {
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={[style.container, { paddingBottom: 80 }]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
+            {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}

@@ -55,8 +55,10 @@ export class ChangeBranch extends React.Component<Props> {
     const activeBranch = this.props.route.params.activeBranch;
 
     return (
-      <GDContainer>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      // <GDContainer>
+      <View style={{flex:1}}>
+
+        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <View style={style.container}>
           <View style={{ flex: 1, backgroundColor: 'rgba(87,115,255,0.03)' }}>
             {/* <TouchableOpacity
@@ -68,11 +70,11 @@ export class ChangeBranch extends React.Component<Props> {
                 onPress={() => {
                   this.props.navigation.goBack();
                 }}
-              >
+                >
                 <Icon
                   size={20}
                   name={'Backward-arrow'}
-                />
+                  />
               </TouchableOpacity>
               <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>Switch Branch</Text>
             </View>
@@ -94,26 +96,26 @@ export class ChangeBranch extends React.Component<Props> {
               style={{ flex: 1 }}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={style.listItem}
-                  delayPressIn={0}
-                  onPress={async () => {
-                    const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-                    await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
-                    const payload = {
-                      body : {
-                        companyUniqueName: activeCompany,
-                        lastState: "pages/home"
-                      },
-                      branchUniqueName : item.uniqueName
-                    }
-                    // this.addUserDeatilsToLogRocket(item.name,item.alias)
-                    this.props.getCompanyAndBranches();
-                    this.props.updateBranchStateDetails(payload);
-                    this.props.navigation.reset({
-                      index: 0,
-                      routes: [{ name: 'Home' }],
-                    });
-                  }}>
+                style={style.listItem}
+                delayPressIn={0}
+                onPress={async () => {
+                  const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+                  await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
+                  const payload = {
+                    body : {
+                      companyUniqueName: activeCompany,
+                      lastState: "pages/home"
+                    },
+                    branchUniqueName : item.uniqueName
+                  }
+                  // this.addUserDeatilsToLogRocket(item.name,item.alias)
+                  this.props.getCompanyAndBranches();
+                  this.props.updateBranchStateDetails(payload);
+                  this.props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                  });
+                }}>
                   <Text style={style.listItemName}>{item.alias}</Text>
                   {activeBranch && item.uniqueName == activeBranch.uniqueName && (
                     // <Icon name={'discount'} color={color.PRIMARY_BASIC} size={15} style={{alignself: 'center'}} />
@@ -122,11 +124,12 @@ export class ChangeBranch extends React.Component<Props> {
                 </TouchableOpacity>
               )}
               keyExtractor={(item) => item.uniqueName}
-            />
-            : <Loader isLoading={ this.props.isFetchingCompanyList }/>}
+              />
+              : <Loader isLoading={ this.props.isFetchingCompanyList }/>}
           </View>
         </View>
-      </GDContainer>
+        </View>
+      // </GDContainer>
     );
   }
 }

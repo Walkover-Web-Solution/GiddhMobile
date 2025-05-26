@@ -1007,17 +1007,20 @@ export class SalesInvoice extends React.Component<Props> {
           if (invoiceType == INVOICE_TYPE.cash) {
             this.props.navigation.goBack();
           } else {
-            this.props.navigation.navigate(routes.Parties, {
-              screen: 'PartiesTransactions',
-              initial: false,
-              params: {
-                item: {
-                  name: partyDetails.name,
-                  uniqueName: partyDetails.uniqueName,
-                  country: { code: partyDetails.country.countryCode },
-                  mobileNo: partyDetails.mobileNo
-                },
-                type: 'Creditors'
+            this.props.navigation.navigate("Home", {
+              screen: routes.Parties, 
+              params : {
+                screen: 'PartiesTransactions',
+                initial: false,
+                params: {
+                  item: {
+                    name: partyDetails.name,
+                    uniqueName: partyDetails.uniqueName,
+                    country: { code: partyDetails.country.countryCode },
+                    mobileNo: partyDetails.mobileNo
+                  },
+                  type: 'Creditors'
+                }
               }
             });
           }
@@ -2539,7 +2542,7 @@ export class SalesInvoice extends React.Component<Props> {
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={style.container}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
+            {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}

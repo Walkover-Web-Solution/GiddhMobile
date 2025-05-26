@@ -149,7 +149,7 @@ console.log("pie data", pieData, totalExpense, totalIncome, netPL);
                     labelLineConfig={{length:-20,labelComponentWidth: 45,}}
                     paddingHorizontal={10}
                     externalLabelComponent={(item) => {
-                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold}>
+                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold} fill={theme.colors.secondary}>
                             {item?.text}
                         </SvgText>
                     }}

@@ -430,7 +430,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
       // <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{ flex: 1 }}>
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
+          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
           {this._renderShipDate()}
