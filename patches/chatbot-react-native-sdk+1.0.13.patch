@@ -1,0 +1,62 @@
+diff --git a/node_modules/chatbot-react-native-sdk/index.tsx b/node_modules/chatbot-react-native-sdk/index.tsx
+index a8a7b51..ccd48ae 100644
+--- a/node_modules/chatbot-react-native-sdk/index.tsx
++++ b/node_modules/chatbot-react-native-sdk/index.tsx
+@@ -1,5 +1,7 @@
+ import React, { useEffect, useRef, useState } from 'react';
+ import { DeviceEventEmitter, BackHandler, Dimensions, Image, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native';
++import { SystemBars } from 'react-native-edge-to-edge';
++import { useSafeAreaInsets } from 'react-native-safe-area-context';
+ import { WebView } from 'react-native-webview';
+ 
+ const { height, width } = Dimensions.get('screen');
+@@ -22,7 +24,7 @@ const ChatBot: React.FC<ChatbotProps> = (props) => {
+   const webViewRef = useRef(null);
+ 
+   const [chatbotProps, setChatbotProps] = useState<any>({ ...props });
+-
++  const insets = useSafeAreaInsets();
+   // Update state when props change
+   useEffect(() => {
+     setChatbotProps((prevProps: any) => ({
+@@ -213,22 +215,24 @@ const ChatBot: React.FC<ChatbotProps> = (props) => {
+       <View
+         style={{
+           position: 'absolute',
+-          bottom: 0,
++          top:insets.top,
++          bottom: insets.bottom,
+           left: 0,
+           width: isWebViewVisible ? openInContainer ? '100%' : width : 0,
+           height: isWebViewVisible ? openInContainer ? '100%' : ( Platform.OS === 'ios' ? height : '100%' ): 0,
+-          zIndex: 999999 // Ensure the z-index is the highest
++          zIndex: 999999, // Ensure the z-index is the highest
++          flex:1
+         }}>
+-        <StatusBar
++        {/* <StatusBar
+           translucent={isWebViewVisible ? false : null}
+-          backgroundColor={null} />
+-        <KeyboardAvoidingView
+-          behavior={Platform.OS === 'ios' ? 'padding' : null}
++          backgroundColor={null} /> */}
++        {/* <KeyboardAvoidingView
++          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+           style={{
+             width: isWebViewVisible ? openInContainer ? '100%' : width : 0,
+             height: isWebViewVisible ? (openInContainer ? '100%' : (Platform.OS === 'android' ? '100%' : iosKeyboardAvoidingHeight)) : 0,
+           }}
+-        >
++        > */}
+           <View style={{ flex: 1, marginTop: Platform.OS === 'ios' ? 30 : 0 }} >
+             <WebView
+               ref={webViewRef}  // Reference the WebView
+@@ -264,7 +268,7 @@ const ChatBot: React.FC<ChatbotProps> = (props) => {
+               refreshControlLightMode={true}
+             />
+           </View>
+-        </KeyboardAvoidingView>
++        {/* </KeyboardAvoidingView> */}
+       </View>
+     </>
+   );
