@@ -159,8 +159,8 @@ export class AddEntry extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     // this.getSelectedAccountData(this.props?.route?.params?.item?.uniqueName)
     // this.searchCalls();
     // this.setActiveCompanyCountry();
@@ -3040,6 +3040,7 @@ export class AddEntry extends React.Component<Props> {
           <DateTimePickerModal
             isVisible={this.state.showClearanceDatePicker}
             mode="date"
+            pickerComponentStyleIOS={{height: 250}}
             onConfirm={this.handleConfirmClearanceDate}
             onCancel={() => {
               this.setState({ showClearanceDatePicker: false });
@@ -3048,6 +3049,7 @@ export class AddEntry extends React.Component<Props> {
           <DateTimePickerModal
             isVisible={this.state.showDatePicker}
             mode="date"
+            pickerComponentStyleIOS={{height: 250}}
             onConfirm={this.handleConfirm}
             onCancel={this.hideDatePicker}
           />

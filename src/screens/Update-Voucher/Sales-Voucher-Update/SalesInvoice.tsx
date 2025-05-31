@@ -301,8 +301,8 @@ export class SalesInvoice extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
 
     if(this.isVoucherUpdate){
       this.getPartyDataForUpdateVoucher(this.state.searchPartyName)
@@ -3051,12 +3051,14 @@ export class SalesInvoice extends React.Component<Props, State> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
             <DateTimePickerModal
               isVisible={this.state.showDueDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleDueDateConfirm}
               onCancel={this.hideDueDatePicker}
             />

@@ -1,10 +1,10 @@
 import React, { createRef } from 'react';
 import { connect } from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { View, TouchableOpacity, TextInput, Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert, Keyboard } from 'react-native';
+import { View, TouchableOpacity, TextInput, Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert, Keyboard, ScrollView } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext, SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -280,11 +280,11 @@ class NewCompanyDetails extends React.Component<any, any> {
     }
   }
 
-  renderStateModalView = () => {
+  renderStateModalView = (insets) => {
     return (
       <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
-        style={style.modalMobileContainer}>
+        style={[style.modalMobileContainer, { paddingTop: Platform.OS== "ios" ? insets?.top : 0 }]}>
         <View style={style.modalViewContainer}>
           <View style={style.cancelButtonModal} >
             <TextInput
@@ -297,7 +297,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               }}
             />
             <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
-              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
+              <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 0 }} />
             </TouchableOpacity>
           </View>
           <FlatList
@@ -528,10 +528,10 @@ class NewCompanyDetails extends React.Component<any, any> {
 
   render() {
     return (
-      <View style={style.container}>
+      <SafeAreaInsetsContext.Consumer>
+      {(insets) => (<View style={style.container}>
         {/* <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> */}
-        <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'}
-          style={{ flex: 1, marginBottom: 10, }}>
+        <ScrollView keyboardShouldPersistTaps={'handled'} style={{ flexGrow: 1 }}>
           
           <View style={{ borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55, flexDirection: "row", marginTop: 4}}>
             <FontAwesome name="th" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
@@ -687,7 +687,7 @@ class NewCompanyDetails extends React.Component<any, any> {
               style={style.GSTInput}>
             </TextInput>
           </View>}
-        </KeyboardAwareScrollView>
+        </ScrollView>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <TouchableOpacity  
             style={{
@@ -719,7 +719,7 @@ class NewCompanyDetails extends React.Component<any, any> {
             <Text style={{ color: '#fff', fontFamily: 'AvenirLTStd-Black' }}>Create</Text>
           </TouchableOpacity>
         </View>
-        {this.renderStateModalView()}
+        {this.renderStateModalView(insets)}
         {this.state.loader && (
           <View
             style={{
@@ -743,7 +743,8 @@ class NewCompanyDetails extends React.Component<any, any> {
         {this.businessTypeBottomSheet()}
         {this.businessNatureBottomSheet()}
         {this.taxBottomSheet()}
-      </View>
+      </View>)}
+      </SafeAreaInsetsContext.Consumer>
     );
     // }
   }

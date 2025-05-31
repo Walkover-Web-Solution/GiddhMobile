@@ -1961,6 +1961,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               <DateTimePickerModal
                 isVisible={this.state.datePicker}
                 mode="date"
+                pickerComponentStyleIOS={{height: 250}}
                 date={this.state.dateTime}
                 onConfirm={(date) => {
                   if (Number(format(date, "MM")) < Number(format(new Date(Date.now()), "MM"))) {
@@ -1986,6 +1987,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               <DateTimePickerModal
                 isVisible={this.state.timePicker}
                 mode="time"
+                pickerComponentStyleIOS={{height: 250}}
                 date={this.state.dateTime}
                 onConfirm={(date) => {
                   const newTime: Date = this.state.dateTime;

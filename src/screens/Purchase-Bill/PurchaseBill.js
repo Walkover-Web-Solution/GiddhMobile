@@ -232,8 +232,8 @@ export class PurchaseBill extends React.Component {
 
   componentDidMount() {
     this.setBottomSheetVisible(this.paymentModeBottomSheetRef, true);
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -2669,6 +2669,7 @@ export class PurchaseBill extends React.Component {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />

@@ -207,8 +207,8 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -2310,6 +2310,7 @@ export class DebiteNote extends React.Component<Props> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />

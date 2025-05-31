@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import BottomSheet from '@/components/BottomSheet';
-import { Flag } from 'react-native-country-picker-modal'
+import { Flag, FlagButton } from 'react-native-country-picker-modal'
 import GlobeIcon from '@/assets/images/icons/globe.svg'
 import Entypo from 'react-native-vector-icons/Entypo'
 
@@ -19,16 +19,17 @@ const RegionSelector: React.FC<Props> = ({ countries, selectedCountry, setSelect
     return (
         <>
             <TouchableOpacity
-                hitSlop={{ top: 10, left: 10, right: 10, bottom: 10}}
                 activeOpacity={0.7}
                 style={styles.regionButton}
                 onPress={() => bottomSheetRef?.current?.open()}
             >
                 { selectedCountry?.alpha3CountryCode === 'GLB' 
                     ?   <View style={styles.globalIcon}><GlobeIcon height={28} width={28}/></View>
-                    :   <Flag
+                    :   <FlagButton
                             countryCode={selectedCountry?.alpha2CountryCode}
-                            flagSize={28}
+                            placeholder={""}
+                            containerButtonStyle={{marginTop:-3}}
+                            onOpen={() => bottomSheetRef?.current?.open()}
                         />
                 }
             </TouchableOpacity>
@@ -53,9 +54,10 @@ const RegionSelector: React.FC<Props> = ({ countries, selectedCountry, setSelect
                                 <View style={styles.countryNameContainer}>
                                     { item.alpha3CountryCode === 'GLB' 
                                         ?   <View style={{paddingLeft: 6, paddingRight: 16}}><GlobeIcon/></View>
-                                        :   <Flag
+                                        :   <FlagButton
                                                 countryCode={item.alpha2CountryCode}
-                                                flagSize={14}
+                                                placeholder={""}
+                                                containerButtonStyle={{marginTop:-3}}
                                             />
                                     }
                                     <Text style={styles.regularText}>{item?.alpha3CountryCode} - {item?.countryName}</Text>

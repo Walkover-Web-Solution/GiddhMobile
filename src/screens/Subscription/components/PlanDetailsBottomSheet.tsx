@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Platform, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import Feather from 'react-native-vector-icons/Feather'
@@ -9,7 +9,6 @@ import useGetPlanDetails from '../hooks/useGetPlanDetails';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Portal } from 'react-native-portalize';
-import BottomSheet from '@/components/BottomSheet';
 
 type Props = { 
     bottomSheetRef: React.MutableRefObject<null>
@@ -91,10 +90,10 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
         <Portal>
         <Modalize
             ref={bottomSheetRef}
-            adjustToContentHeight={false}
-            modalStyle={{ minHeight: '25%', paddingBottom:insets.bottom}}
-            modalTopOffset={insets.top}
-            keyboardAvoidingBehavior="height"
+            adjustToContentHeight={Platform.OS === "ios" ? false: true}
+            handlePosition='inside'
+            modalStyle={{ minHeight: '25%', marginTop: insets.top}}
+            keyboardAvoidingBehavior="padding"
         >
             <View style={styles.card}>
                 <View style={styles.headerSection}>
@@ -126,7 +125,10 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
 
                 <PlanSummarySection>
                     <PlanSummarySection.Button
-                        onPress={() => navigation.navigate('BillingAccountScreen')}
+                        onPress={() => {
+                            setBottomSheetVisible(bottomSheetRef, false);
+                            navigation.navigate('BillingAccountScreen');
+                        }}
                         textStyle={{ color: theme.colors.vouchers.payment.background, fontFamily: theme.typography.fontFamily.extraBold}}
                         buttonBackgroundColor={theme.colors.solids.blue.light}
                     >

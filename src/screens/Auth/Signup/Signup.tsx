@@ -42,8 +42,8 @@ class Signup extends React.Component<any, any> {
     GoogleSignin.configure({
       webClientId: `${WEBCLIENT_ID}`
     });
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+    // this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    // this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
 
   componentDidUpdate(prevProps) {
@@ -55,8 +55,8 @@ class Signup extends React.Component<any, any> {
   }
 
   componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
+    // this.keyboardDidShowListener.remove();
+    // this.keyboardDidHideListener.remove();
   }
 
   async onAppleButtonPress() {

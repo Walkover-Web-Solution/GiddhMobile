@@ -367,8 +367,8 @@ export class Receipt extends React.Component<any> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -1595,6 +1595,7 @@ export class Receipt extends React.Component<any> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
@@ -1602,6 +1603,7 @@ export class Receipt extends React.Component<any> {
             <DateTimePickerModal
               isVisible={this.state.showClearanceDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirmClearanceDate}
               onCancel={this.hideClearanceDatePicker}
             />

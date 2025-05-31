@@ -16,7 +16,6 @@ import {
   StatusBar,
   PermissionsAndroid,
   Alert,
-  KeyboardAvoidingView
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -223,8 +222,8 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -2536,7 +2535,7 @@ export class SalesInvoice extends React.Component<Props> {
   render() {
     
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'yellow' }}>
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
@@ -2557,12 +2556,14 @@ export class SalesInvoice extends React.Component<Props> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
             <DateTimePickerModal
               isVisible={this.state.showDueDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleDueDateConfirm}
               onCancel={this.hideDueDatePicker}
             />

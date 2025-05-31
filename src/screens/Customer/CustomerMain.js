@@ -22,7 +22,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Vendors } from './Vendors';
 import { Customers } from './Customers';
 import { APP_EVENTS } from '@/utils/constants';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Props {
   navigation: any;
@@ -182,8 +182,8 @@ export class Customer extends React.Component<Props> {
       })
       this.setState({ showLoader: false });
     })
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
@@ -316,6 +316,7 @@ export class Customer extends React.Component<Props> {
                       <Customers
                         resetFun={this.setCustomerFun}
                         navigation={this.props.navigation}
+                        insets={this.props.insets}
                       />
                     )}
                 </View>
@@ -347,6 +348,7 @@ export class Customer extends React.Component<Props> {
                         resetFun={this.setVendorFun}
                         navigation={this.props.navigation}
                         uniqueName={this.props.route.params.uniqueName}
+                        insets={insets}
                       />
                     )}
                 </View>
@@ -373,8 +375,8 @@ function mapDispatchToProps(dispatch) {
 
 function Screen(props) {
   const isFocused = useIsFocused();
-
-  return <Customer {...props} isFocused={isFocused} />;
+  const insets = useSafeAreaInsets();
+  return <Customer {...props} isFocused={isFocused} insets={insets}/>;
 }
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
 export default MyComponent;

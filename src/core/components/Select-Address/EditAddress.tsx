@@ -14,6 +14,7 @@ import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import Modal1 from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 const allCountry = [
    {
@@ -2811,11 +2812,11 @@ export class EditAddress extends React.Component<any, any> {
       //this.state.stateDropDown.show();
    }
 
-   renderStateModalView = () => {
+   renderStateModalView = (insets) => {
       return (
          <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
             onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
-            style={style.modalMobileContainer}>
+            style={[style.modalMobileContainer, {paddingTop: Platform.OS == "ios" ? insets?.top : 0}]}>
             <SafeAreaView style={style.modalViewContainer}>
                <View style={style.cancelButtonModal} >
                   <TextInput
@@ -2828,7 +2829,7 @@ export class EditAddress extends React.Component<any, any> {
                      }}
                   />
                   <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
-                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
+                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} />
                   </TouchableOpacity>
                </View>
                <FlatList
@@ -2867,7 +2868,8 @@ export class EditAddress extends React.Component<any, any> {
 
    render() {
       return (
-         <View style={style.container}>
+         <SafeAreaInsetsContext.Consumer>
+         {(insets)=>(<View style={style.container}>
             {/* {this.props.route.params.statusBarColor && (
                <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
             )} */}
@@ -2886,7 +2888,7 @@ export class EditAddress extends React.Component<any, any> {
                </TouchableOpacity>
                <Text style={style.title}>Enter Address</Text>
             </View>
-            <KeyboardAwareScrollView style={style.body}>
+            <ScrollView style={style.body}>
                <Text style={style.BMfieldTitle}>Address</Text>
                <TextInput
                   placeholder={"Enter Address"}
@@ -3116,11 +3118,11 @@ export class EditAddress extends React.Component<any, any> {
             </TouchableOpacity>
             <Text style={style.DefaultAddressText}>Default Address</Text>
           </View> */}
-            </KeyboardAwareScrollView>
+         </ScrollView>
             <TouchableOpacity style={style.button} onPress={() => this.onSubmit()}>
                <Text style={style.buttonText}>Save</Text>
             </TouchableOpacity>
-            {this.renderStateModalView()}
+            {this.renderStateModalView(insets)}
             {this.state.loading && (
                <View
                   style={{
@@ -3141,7 +3143,8 @@ export class EditAddress extends React.Component<any, any> {
                   />
                </View>
             )}
-         </View>
+         </View>)}
+         </SafeAreaInsetsContext.Consumer>
       );
    }
 }

@@ -144,7 +144,7 @@ export class SelectAddress extends React.Component<any, any> {
             keyExtractor={(item, index) => index.toString()}
           />
         </View> */}
-        {this.state.dataPresent ? <View style={{ height: height * 0.8 }}>
+        {this.state.dataPresent ? <View style={{ height: height * 0.75 }}>
           <FlatList
             data={this.state.addressList}
             renderItem={({ item, index }) => {

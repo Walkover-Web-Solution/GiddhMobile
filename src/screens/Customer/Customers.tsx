@@ -1,5 +1,5 @@
 import React, { createRef } from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard, Platform, Dimensions, SafeAreaView } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard, Platform, Dimensions, ScrollViewBase } from 'react-native';
 import styles from './style';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -28,6 +28,7 @@ import Fontisto from 'react-native-vector-icons/Fontisto';
 import PhoneInput from 'react-native-phone-input';
 import CountryPicker from 'react-native-country-picker-modal';
 import BottomSheet from '@/components/BottomSheet';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 interface Props {
@@ -621,7 +622,7 @@ export class Customers extends React.Component<Props> {
     return (
       <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
-        style={styles.modalMobileContainer}>
+        style={[styles.modalMobileContainer, { paddingTop: Platform.OS == "ios" ? this.props?.insets?.top : 0 }]}>
         <SafeAreaView style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
             <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: false }) }} style={styles.cancelButtonTextModal}>
@@ -652,10 +653,10 @@ export class Customers extends React.Component<Props> {
   }
 
   renderCurrencyModalView = () => {
-    return (
+     return (
       <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
-        style={styles.modalMobileContainer}>
+        style={[styles.modalMobileContainer, { paddingTop: Platform.OS == "ios" ? this.props?.insets?.top : 0 }]}>
         <SafeAreaView style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
             <TextInput
@@ -757,16 +758,8 @@ export class Customers extends React.Component<Props> {
 
   render() {
     return (
-      <View style={styles.customerMainContainer}>
-        <KeyboardAwareScrollView
-          enableOnAndroid
-          extraHeight={100}
-          extraScrollHeight={100}
-          keyboardShouldPersistTaps="handled"
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.scrollViewContainerStyle}
-          bounces={true}
-        >
+      <ScrollView style={styles.customerMainContainer} contentContainerStyle={styles.scrollViewContainerStyle}>
+        <View style={{ flexGrow: 1 }}>
           {this.state.successDialog
             ? <Dialog.Container
               onRequestClose={() => { this.setState({ successDialog: false }) }}
@@ -1053,18 +1046,18 @@ export class Customers extends React.Component<Props> {
               />   
             </View>
           )}
-        </KeyboardAwareScrollView>
-        <TouchableOpacity
-          disabled={!this.isCreateButtonVisible()}
-          style={[styles.saveButton, (!this.isCreateButtonVisible() && { backgroundColor: '#CCCCCC'})]}
-          onPress={() => {
-            this.genrateCustomer();
-          }}>
-          <Text style={styles.saveText}>Save</Text>
-        </TouchableOpacity>
+        </View>
+          <TouchableOpacity
+            disabled={!this.isCreateButtonVisible()}
+            style={[styles.saveButton, (!this.isCreateButtonVisible() && { backgroundColor: '#CCCCCC'})]}
+            onPress={() => {
+              this.genrateCustomer();
+            }}>
+            <Text style={styles.saveText}>Save</Text>
+          </TouchableOpacity>
         {this.allGroupsBottomSheet()}
         {this.partyTypeBottomSheet()}
-      </View>
+      </ScrollView>
     )
   }
 };

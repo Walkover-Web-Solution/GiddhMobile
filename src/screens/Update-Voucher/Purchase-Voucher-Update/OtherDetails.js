@@ -8,7 +8,8 @@ import {
   StatusBar,
   Keyboard,
   NativeModules,
-  Dimensions,Platform
+  Dimensions,Platform,
+  ScrollView
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -101,8 +102,8 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
         this.setState({ bottomOffset });
       });
     }
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
@@ -429,7 +430,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
     return (
       // <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{ flex: 1 }}>
-        <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+        <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
           {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
@@ -444,6 +445,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
           <DateTimePickerModal
             isVisible={this.state.isDatePickerVisible}
             mode="date"
+            pickerComponentStyleIOS={{height: 250}}
             date={this.state.otherDetail.shipDate == '' ? new Date() : new Date(sDate)}
             onConfirm={this.handleConfirm}
             onCancel={this.hideDatePicker}
@@ -452,7 +454,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
           style={{height: 50, width: 100, backgroundColor: 'pink'}}
           onPress={() => console.log(this.state.otherDetail)}></TouchableOpacity> */}
           {/* </SafeAreaView> */}
-        </KeyboardAwareScrollView>
+        </ScrollView>
         {!this.state.keyboard && (
           <TouchableOpacity
             style={{

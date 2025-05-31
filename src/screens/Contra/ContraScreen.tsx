@@ -597,12 +597,14 @@ const ContraScreen = () => {
             <DateTimePickerModal
               isVisible={showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={handleConfirm}
               onCancel={hideDatePicker}
             />
             <DateTimePickerModal
               isVisible={showClearanceDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={handleConfirmClearanceDate}
               onCancel={hideClearanceDatePicker}
             />
