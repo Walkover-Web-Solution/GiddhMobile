@@ -9,6 +9,7 @@ import useGetPlanDetails from '../hooks/useGetPlanDetails';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Portal } from 'react-native-portalize';
+import { setBottomSheetVisible } from '@/components/BottomSheet';
 
 type Props = { 
     bottomSheetRef: React.MutableRefObject<null>
