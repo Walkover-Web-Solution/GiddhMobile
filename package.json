@@ -28,7 +28,7 @@
     "@invertase/react-native-apple-authentication": "^2.2.2",
     "@logrocket/react-native": "^1.36.0",
     "@msg91comm/react-native-hello-sdk": "^2.0.1",
-    "@msg91comm/react-native-sendotp": "^3.0.0",
+    "@msg91comm/react-native-sendotp": "^3.1.0",
     "@msg91comm/sendotp-react-native": "^2.0.1",
     "@notifee/react-native": "^7.8.2",
     "@react-native-async-storage/async-storage": "^1.17.11",
