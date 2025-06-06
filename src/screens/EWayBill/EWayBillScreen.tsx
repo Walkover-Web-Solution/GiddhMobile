@@ -23,6 +23,8 @@ import colors from "@/utils/colors";
 import EwayBillLoginBottomSheet from "./component/EwayBillLoginBottomSheet";
 import Routes from "@/navigation/routes";
 import { APP_EVENTS } from "@/utils/constants";
+import Dialog from 'react-native-dialog';
+import Faliure from '../../assets/images/icons/customer_faliure.svg';
 
 const {width} = Dimensions.get('window')
 const ModeOfTransport = [
@@ -80,6 +82,8 @@ const EWayBillScreenComponent = ( {route} ) => {
     const [hasNonNilRatedTax, setHasNonNilRatedTax] = useState(false);
     const [subType, setSubType] = useState(baseCurrency === accountDetail?.currency?.code ? "Supply" : "Export");
     const [refreshing, setRefreshing] = useState(false);
+    const [faliureDialog, setFaliureDialog] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
     const navigation = useNavigation();
     const vehicleNoRegex = /^[A-Z]{2}\d{1,2}[A-Z]{0,2}\d{4}$/i;
 
@@ -195,10 +199,12 @@ const EWayBillScreenComponent = ( {route} ) => {
                 Toast({message: "E-Way bill " + response?.body?.ewayBillNo + " generated successfully.", duration:'SHORT', position:'BOTTOM'});
                 resetAll();
             } else {
-                Toast({message: response?.data?.message, duration:'SHORT', position:'BOTTOM'})
+                setErrorMsg(response?.data?.message);
+                setFaliureDialog(true);
             }
         } catch (error) {
-            Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'})
+            setErrorMsg(error?.message);
+            setFaliureDialog(true);
         }
     }
 
@@ -427,6 +433,27 @@ const EWayBillScreenComponent = ( {route} ) => {
                 </View>
                 {CreateButton}
             </ScrollView>}
+            <Dialog.Container
+              onRequestClose={() => setFaliureDialog(false)}
+              visible={faliureDialog} onBackdropPress={() => setFaliureDialog(false)} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Faliure />
+              <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Error!</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{errorMsg ?? 'Something went wrong'}</Text>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  width: '70%',
+                  alignSelf: 'center',
+                  borderRadius: 30,
+                  backgroundColor: '#F2596F',
+                  marginTop: 30,
+                  height: 50, marginBottom: 5
+                }}
+                onPress={() => setFaliureDialog(false)}
+              >
+                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>Try Again</Text>
+              </TouchableOpacity>
+            </Dialog.Container>
             <Loader isLoading={isLoading} />
             <NoActionLoader isLoading={isLoadingCreateBill}/>
             <EwayBillLoginBottomSheet bottomSheetRef={ewayBillLoginBottomSheetRef} setIsLoadingCreateBill={setIsLoadingCreateBill} onCreateEwayBillAfterLogin={onCreateEwayBillAfterLogin}/>
