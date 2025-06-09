@@ -370,7 +370,7 @@ export class CommonService {
       return res?.data;
     }).catch((err) => {
       console.log("Error while fetching balance sheet");
-      // return err;
+      return err;
     })
   }
 
