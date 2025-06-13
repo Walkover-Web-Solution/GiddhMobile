@@ -43,12 +43,14 @@ const _Card = ({ item,index, onPress }) => {
     const {statusBar,styles, theme} = useCustomTheme(style);
     
     return(
-    <TouchableOpacity activeOpacity={0.6} onPress={()=>onPress(item)}>
-        <View style={styles.card}>
-            <View style={{flex:1}}>
-                <Text style={styles.title}>{item.variantName}</Text>
-                <View style={styles.cardView}>
+    <TouchableOpacity activeOpacity={0.6} onPress={()=>onPress(item)} style={styles.card}>
+        <View style={{flex:1}}>
+            <Text style={styles.title}>{item.variantName}</Text>
+            <View style={styles.cardView}>
+                <View style={{maxWidth:'70%'}}>
                     <Text style={[styles.subtitle,{fontFamily:theme.typography.fontFamily.semiBold}]}>Stock: <Text style={styles.subtitle}>{item.stockName}</Text></Text>
+                </View>
+                <View style={{maxWidth:'30%'}}>
                     <Text style={[styles.subtitle,{fontSize:theme.typography.fontSize.small.size}]}>{item.stockUnitName+'('+item.stockUnitCode+')'}</Text>
                 </View>
             </View>

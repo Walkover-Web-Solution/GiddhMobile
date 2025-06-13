@@ -709,8 +709,8 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       }
       //Handling balance api
       const balance = await CommonService.getPartyBalance(
-        this.state.startDate,
-        this.state.endDate,
+        transactions.body.fromDate,
+        transactions.body.toDate,
         this.props.route.params?.item?.uniqueName,
       );
       if (balance.body) {

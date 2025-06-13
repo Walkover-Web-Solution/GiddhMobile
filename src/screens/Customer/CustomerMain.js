@@ -345,6 +345,7 @@ export class Customer extends React.Component<Props> {
                     )
                     : (
                       <Vendors
+                        key={this.props.route.params.uniqueName}
                         resetFun={this.setVendorFun}
                         navigation={this.props.navigation}
                         uniqueName={this.props.route.params.uniqueName}

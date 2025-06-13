@@ -106,7 +106,7 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                     } else if (label == 'Parties') {
                         return (
                             <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 8, borderRadius: 20 }}>
-                                <MaterialIcons name="person" size={20} color={isFocused ? '#5773FF' : '#808080'} />
+                                <MaterialCommunityIcons name="account-group-outline" size={20} color={disableTabs ? '#808080' : isFocused ? '#5773FF' : '#808080'} />
                             </View>
                         )
                     } else if (label == 'Inventory') {
@@ -118,8 +118,7 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                     else if (label == 'Accounts') {
                         return (
                             <View style={{ backgroundColor: isFocused ? '#e3e8ff' : '#eeeeee', padding: 8.0, borderRadius: 20 }}>
-                                <Text style={{ color: isFocused ? '#5773FF' : '#808080', fontSize: 12, fontFamily: 'AvenirLTStd-Black', lineHeight: 20 }}>
-                                    A/c</Text>
+                                <MaterialCommunityIcons name="account-outline" size={20} color={disableTabs ? '#808080' : isFocused ? '#5773FF' : '#808080'} />
                             </View>)
                     }
                 };
