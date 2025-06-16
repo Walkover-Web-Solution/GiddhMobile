@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  Modal,
   Keyboard,
   ActivityIndicator,
   DeviceEventEmitter,
@@ -14,9 +13,6 @@ import {
   Platform,
   Dimensions,
   StatusBar,
-  PermissionsAndroid,
-  Alert,
-  KeyboardAvoidingView,
 } from 'react-native';
 import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +20,7 @@ import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo'
-import {Bars} from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _, {isInteger} from 'lodash';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
@@ -337,18 +333,21 @@ export class Receipt extends React.Component<any> {
         const partyDetails = this.state.partyDetails;
         const partyName = this.state.partyName;
         if (type == 'navigate') {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
+          this.props.navigation.navigate("Home", {
+            screen: routes.Parties,
             params: {
-              item: {
-                name: partyName.name,
-                uniqueName: partyName.uniqueName,
-                country: { code: partyDetails.country.countryCode },
-                mobileNo: partyDetails.mobileNo,
+              screen: 'PartiesTransactions',
+              initial: false,
+              params: {
+                item: {
+                  name: partyName.name,
+                  uniqueName: partyName.uniqueName,
+                  country: { code: partyDetails.country.countryCode },
+                  mobileNo: partyDetails.mobileNo,
+                },
+                type: 'Creditors',
               },
-              type: 'Creditors',
-            },
+            }
           });
         }
         this.resetState();
@@ -364,8 +363,6 @@ export class Receipt extends React.Component<any> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -494,15 +491,15 @@ export class Receipt extends React.Component<any> {
           return item.taxType != 'inputgst';
         });
         this.setState({taxArray: taxes, fetechingTaxList: false});
-        this.getTdsTcsTaxes();
+        this.getTdsTcsTaxes(taxes);
       }
     } catch (e) {
       this.setState({fetechingTaxList: false});
     }
   }
 
-  async getTdsTcsTaxes() {
-    const taxes = this.state.taxArray.filter((item) => {
+  getTdsTcsTaxes(taxArray) {
+    const taxes = taxArray.filter((item) => {
       return item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc';
     });
      this.setState({tdsTcsTaxArray: taxes});
@@ -1575,7 +1572,6 @@ export class Receipt extends React.Component<any> {
           style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
           bounces={false}>
           <View style={[style.container, {paddingBottom: 80}]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}
@@ -1592,6 +1588,7 @@ export class Receipt extends React.Component<any> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
@@ -1599,6 +1596,7 @@ export class Receipt extends React.Component<any> {
             <DateTimePickerModal
               isVisible={this.state.showClearanceDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirmClearanceDate}
               onCancel={this.hideClearanceDatePicker}
             />
@@ -1617,7 +1615,11 @@ export class Receipt extends React.Component<any> {
                 bottom: 0,
                 top: 0,
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           )}
         </Animated.ScrollView>

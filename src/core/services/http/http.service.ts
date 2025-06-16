@@ -8,6 +8,7 @@ import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import TOAST from 'react-native-root-toast';
 import callSlackWebHook from '@/redux/CommonService';
+import Toast from '@/components/Toast';
 
 let store;
 
@@ -140,7 +141,10 @@ httpInstance.interceptors.response.use(
   async (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
+        Toast({message: error.response?.data?.message, duration:'LONG', position:'BOTTOM'});
+        if(error.response?.data?.code === "INVALID_SESSION_ID" || error.response?.data?.code === "SESSION_EXPIRED_OR_INVALID"){
+          DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
+        }
       }
     }
     // const endTime = new Date().getTime();

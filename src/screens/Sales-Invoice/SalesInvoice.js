@@ -16,7 +16,6 @@ import {
   StatusBar,
   PermissionsAndroid,
   Alert,
-  KeyboardAvoidingView
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -24,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _, { result } from 'lodash';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
@@ -38,8 +37,6 @@ import RNFetchBlob from 'react-native-blob-util';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 
@@ -223,8 +220,6 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -1007,17 +1002,20 @@ export class SalesInvoice extends React.Component<Props> {
           if (invoiceType == INVOICE_TYPE.cash) {
             this.props.navigation.goBack();
           } else {
-            this.props.navigation.navigate(routes.Parties, {
-              screen: 'PartiesTransactions',
-              initial: false,
-              params: {
-                item: {
-                  name: partyDetails.name,
-                  uniqueName: partyDetails.uniqueName,
-                  country: { code: partyDetails.country.countryCode },
-                  mobileNo: partyDetails.mobileNo
-                },
-                type: 'Creditors'
+            this.props.navigation.navigate("Home", {
+              screen: routes.Parties, 
+              params : {
+                screen: 'PartiesTransactions',
+                initial: false,
+                params: {
+                  item: {
+                    name: partyDetails.name,
+                    uniqueName: partyDetails.uniqueName,
+                    country: { code: partyDetails.country.countryCode },
+                    mobileNo: partyDetails.mobileNo
+                  },
+                  type: 'Creditors'
+                }
               }
             });
           }
@@ -2533,13 +2531,12 @@ export class SalesInvoice extends React.Component<Props> {
   render() {
     
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'yellow' }}>
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={style.container}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}
@@ -2554,12 +2551,14 @@ export class SalesInvoice extends React.Component<Props> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
             <DateTimePickerModal
               isVisible={this.state.showDueDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleDueDateConfirm}
               onCancel={this.hideDueDatePicker}
             />
@@ -2574,7 +2573,11 @@ export class SalesInvoice extends React.Component<Props> {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
         </Animated.ScrollView>

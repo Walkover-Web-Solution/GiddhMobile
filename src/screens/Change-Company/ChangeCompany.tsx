@@ -8,7 +8,7 @@ import { useIsFocused } from '@react-navigation/native';
 
 import { getCompanyAndBranches, updateStateDetails } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -64,8 +64,7 @@ export class ChangeCompany extends React.Component<Props> {
     );
 
     return (
-      <GDContainer>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      <View style={{flex:1}}>
         <View style={style.container}>
           <View style={{ flex: 1, backgroundColor: 'rgba(87,115,255,0.03)' }}>
             <View
@@ -175,10 +174,14 @@ export class ChangeCompany extends React.Component<Props> {
               bottom: 0,
               top: 0
             }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+            />
           </View>
         )}
-      </GDContainer>
+      </View>
     );
   }
 }

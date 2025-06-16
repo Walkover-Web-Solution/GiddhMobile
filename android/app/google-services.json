@@ -1,0 +1,195 @@
+{
+  "project_info": {
+    "project_number": "641015054140",
+    "firebase_url": "https://giddh-1216.firebaseio.com",
+    "project_id": "giddh-1216",
+    "storage_bucket": "giddh-1216.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641015054140:android:57f4dd10d746ad1f03e839",
+        "android_client_info": {
+          "package_name": "com.app.Giddh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641015054140-5rh4o6geqs4o3pa8lfii5tu50siiatsj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.Giddh",
+            "certificate_hash": "6afa2bf89aeb48cb7b151669b1aee3e1c5a7c135"
+          }
+        },
+        {
+          "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5kZmeCjSunQityG9d7kqDOp812bPp2G8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "641015054140-5j1ct1gdkhrkltujn29tsomf4449d01f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.app.giddh"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641015054140:android:915a1685ee3efd6103e839",
+        "android_client_info": {
+          "package_name": "com.giddh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641015054140-hr1p09k5gn648ed7f5jmbvt4s78msjc5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.giddh",
+            "certificate_hash": "843d3482b77e5d8765e0dc341ebe92ce8e032a86"
+          }
+        },
+        {
+          "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5kZmeCjSunQityG9d7kqDOp812bPp2G8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "641015054140-5j1ct1gdkhrkltujn29tsomf4449d01f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.app.giddh"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641015054140:android:9cb810a21df3ff3c",
+        "android_client_info": {
+          "package_name": "com.giddh.accounts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641015054140-22m4v5kgtpnedfiq4peo9u3vcojmespu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.giddh.accounts",
+            "certificate_hash": "426febc87ef1cce94e0aec2536d3b4952063cb27"
+          }
+        },
+        {
+          "client_id": "641015054140-89gsdjme5f4l279vru4rbjld1me9fj73.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.giddh.accounts",
+            "certificate_hash": "9cffe38834af77ad35b73446eaa76231b3a6499f"
+          }
+        },
+        {
+          "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5kZmeCjSunQityG9d7kqDOp812bPp2G8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "641015054140-5j1ct1gdkhrkltujn29tsomf4449d01f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.app.giddh"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641015054140:android:ef3b899489e5e94103e839",
+        "android_client_info": {
+          "package_name": "com.giddh.www"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641015054140-nvse4datiqc0a415ivc6so7cqsm6ae2f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.giddh.www",
+            "certificate_hash": "9cffe38834af77ad35b73446eaa76231b3a6499f"
+          }
+        },
+        {
+          "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5kZmeCjSunQityG9d7kqDOp812bPp2G8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641015054140-3cl9c3kh18vctdjlrt9c8v0vs85dorv2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "641015054140-5j1ct1gdkhrkltujn29tsomf4449d01f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.app.giddh"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

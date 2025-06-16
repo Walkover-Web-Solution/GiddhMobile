@@ -1,13 +1,12 @@
 import React, { createRef } from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, StatusBar, ScrollView, Platform, Dimensions, Alert, FlatList } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Platform, Dimensions, Alert, FlatList } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Foundation from 'react-native-vector-icons/Foundation';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { TextInput } from 'react-native-gesture-handler';
@@ -16,7 +15,7 @@ import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as CommonActions from '@/redux/CommonAction';
-import { Flag } from 'react-native-country-picker-modal'
+import { FlagButton } from 'react-native-country-picker-modal'
 import Modal from 'react-native-modal';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -341,12 +340,12 @@ class NewCompany extends React.Component<any, any> {
         );
     }
 
-    renderModalView = () => {
+    renderModalView = (insets) => {
         return (
             <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
                 onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
-                style={style.modalMobileContainer}>
-                <SafeAreaView style={style.modalViewContainer}>
+                style={[style.modalMobileContainer, { paddingTop:Platform.OS=="ios"? insets?.top : 0 }]}>
+                <View style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
                         <TextInput
                             placeholderTextColor={'rgba(80,80,80,0.5)'}
@@ -370,17 +369,17 @@ class NewCompany extends React.Component<any, any> {
                         keyExtractor={(item, index) => index.toString()}
                         ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
                     />
-                </SafeAreaView>
+                </View>
             </Modal>
         )
     }
 
-    renderCurrencyModalView = () => {
+    renderCurrencyModalView = (insets) => {
         return (
             <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
                 onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
-                style={style.modalMobileContainer}>
-                <SafeAreaView style={style.modalViewContainer}>
+                style={[style.modalMobileContainer, { paddingTop:Platform.OS=="ios"? insets?.top : 0 }]}>
+                <View style={style.modalViewContainer}>
                     <View style={style.cancelButtonModal} >
                         <TextInput
                             returnKeyType={"done"}
@@ -403,16 +402,16 @@ class NewCompany extends React.Component<any, any> {
                         keyExtractor={(item, index) => index.toString()}
                         ItemSeparatorComponent={()=> <View style={style.borderInModal}/>}
                     />
-                </SafeAreaView>
+                </View>
             </Modal>
         )
     }
 
     render() {
         return (
-            <SafeAreaView style={style.container}>
+            <SafeAreaInsetsContext.Consumer>
+            {(insets)=>(<View style={style.container}>
                 <ScrollView style={{ flex: 1 }}>
-                    <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
                     <View
                         style={{
                             flexDirection: 'row',
@@ -460,9 +459,10 @@ class NewCompany extends React.Component<any, any> {
                                     onPress={() => this.countryPickerBottomSheetRef?.current?.open()}
                                     style={{ flexDirection: 'row', alignItems: 'center'}}
                                 >
-                                    <Flag
+                                    <FlagButton
                                         countryCode={this.state.countryName.alpha2CountryCode}
-                                        flagSize={16}
+                                        placeholder={""}
+                                        containerButtonStyle={{marginTop:-3}}
                                     />
                                     <Text style={style.regularText}>{this.state.countryName?.countryName}</Text>
                                 </TouchableOpacity>
@@ -590,8 +590,8 @@ class NewCompany extends React.Component<any, any> {
                         </TextInput>
                     </View>
                     {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 30 }}>Sorry!Invalid Number</Text>}
-                    {this.renderModalView()}
-                    {this.renderCurrencyModalView()}
+                    {this.renderModalView(insets)}
+                    {this.renderCurrencyModalView(insets)}
                 </ScrollView>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", position: "absolute", bottom: 20, marginHorizontal: 15, width: "100%" }}>
                     <TouchableOpacity
@@ -660,16 +660,18 @@ class NewCompany extends React.Component<any, any> {
                                     this.countryPickerBottomSheetRef?.current?.close()
                                 }}
                             >
-                                <Flag
+                                <FlagButton
                                     countryCode={item?.alpha2CountryCode}
-                                    flagSize={16}
+                                    placeholder={""}
+                                    containerButtonStyle={{marginTop:-3}}
                                 />
                                 <Text style={style.regularText}>{item?.alpha2CountryCode} - {item?.countryName}</Text>
                             </TouchableOpacity>
                         )
                     }}
                 />
-            </SafeAreaView>
+            </View>)}
+            </SafeAreaInsetsContext.Consumer>
         );
         // }
     }

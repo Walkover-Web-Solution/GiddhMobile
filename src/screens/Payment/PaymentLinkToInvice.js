@@ -11,13 +11,11 @@ import {
   Dimensions,
   Platform,
   FlatList,
-  Alert,
   KeyboardAvoidingView,
 } from 'react-native';
 import style from './style';
 import {connect} from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import _ from 'lodash';
 import {useIsFocused} from '@react-navigation/native';
 import CheckBox from 'react-native-check-box';
@@ -68,8 +66,6 @@ class PaymentLinkToInvice extends React.Component<Props> {
         this.setState({bottomOffset});
       });
     }
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     this.setVoucherInvoices();
@@ -375,8 +371,7 @@ class PaymentLinkToInvice extends React.Component<Props> {
 
   render() {
     return (
-        <KeyboardAvoidingView style={{flex: 1, backgroundColor: 'white'}}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
+        <KeyboardAvoidingView style={{flex: 1, backgroundColor: 'white'}} behavior={ Platform.OS == 'ios' ? "padding" : "height" }>
           {this.renderHeader()}
           {this.renderPartyName()}
           {this.renderAmount()}

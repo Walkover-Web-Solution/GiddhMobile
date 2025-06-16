@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dimensions, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Icon from '@/core/components/custom-icon/custom-icon'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { useNavigation } from '@react-navigation/native'
@@ -34,7 +34,6 @@ const Header : React.FC<Props> = ({ header, onBackButtonPress, subHeader, backgr
 
     return (
         <>
-            <StatusBar backgroundColor={statusBarColor} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/>
             <View style={[styles.mainContainer, { backgroundColor }]}>
                 {   children ??
                     <>

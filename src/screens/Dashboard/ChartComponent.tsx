@@ -48,11 +48,11 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         setConsolidatedBranch(consolidateState ? consolidateState : ' ');
         const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate, branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '');
         if(response?.body && response?.status == "success"){
-            setTotalExpense({...response?.body?.incomeStatment?.totalExpenses})
-            setTotalIncome({...response?.body?.incomeStatment?.revenue})
-            setnetPL({...response?.body?.incomeStatment?.incomeBeforeTaxes})
+            setTotalExpense({...response?.body?.incomeStatement?.totalExpenses});
+            setTotalIncome({...response?.body?.incomeStatement?.revenue});
+            setnetPL({...response?.body?.incomeStatement?.incomeBeforeTaxes});
         }else{
-            Toast({message: response?.message, position:'BOTTOM',duration:'LONG'})
+            Toast({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
         }
         setChartLoading(false);
     } catch (error) {
@@ -122,6 +122,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         text:'Expense'
     }
     ];
+console.log("pie data", pieData, totalExpense, totalIncome, netPL);
 
     return (
     <View style={styles.container}>
@@ -148,7 +149,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
                     labelLineConfig={{length:-20,labelComponentWidth: 45,}}
                     paddingHorizontal={10}
                     externalLabelComponent={(item) => {
-                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold}>
+                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold} fill={theme.colors.secondary}>
                             {item?.text}
                         </SvgText>
                     }}

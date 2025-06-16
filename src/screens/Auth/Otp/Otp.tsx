@@ -1,15 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { GDContainer } from '@/core/components/container/container.component';
 import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, ToastAndroid, Platform, Alert } from 'react-native';
 import style from '@/screens/Auth/Otp/style';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { GdImages } from '@/utils/icons-pack';
-
 import colors from '@/utils/colors';
 import { verifyOTP, clearOTPError, OTPScreenUnmounting } from '../Login/LoginAction';
 import { sendOTP } from '../Login/LoginService';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { baseColor } from '../../../utils/colors';
 import TOAST from 'react-native-root-toast';
 import SMSUserConsent from '../../../../SMSUserConsent';
@@ -102,7 +100,6 @@ class Login extends React.Component<any, any> {
   }
   render() {
     return (
-      <GDContainer>
         <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white' }}>
           <View style={style.upperContainer}>
             <Image style={style.logoStyle} source={GdImages.icons.logoGiddh} />
@@ -153,11 +150,14 @@ class Login extends React.Component<any, any> {
             </TouchableOpacity>
           </View> */}
           {this.props.isVerifyingOTP && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
           </View>}
         </View>
 
-      </GDContainer>
     );
   }
 }

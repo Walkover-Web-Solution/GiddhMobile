@@ -10,12 +10,12 @@ import {
   Platform,
   Dimensions,
   StatusBar,
-  Alert
+  Alert,
+  ScrollView
 } from 'react-native';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useIsFocused } from '@react-navigation/native';
 import style from './style';
 import BottomSheet from '@/components/BottomSheet';
@@ -99,8 +99,6 @@ class PurchaseItemEdit extends Component {
   };
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.caluclateTotalAmount();
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
@@ -602,8 +600,6 @@ class PurchaseItemEdit extends Component {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     const editDetails = this.state.editItemDetails;
     editDetails.total = this.calculateFinalAmount(editDetails);
     this.setState({ editItemDetails: editDetails });
@@ -733,20 +729,19 @@ class PurchaseItemEdit extends Component {
           backgroundColor: 'white',
           flex: 1
         }}>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
         {this.renderHeader()}
 
         {/* <Animated.ScrollView
           keyboardShouldPersistTaps="always"
           style={[{flex: 1}, {marginBottom: this.keyboardMargin}]}
           bounces={false}> */}
-        <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+        <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
           {this._renderScreenElements()}
           {/* <TouchableOpacity
             style={{height: 60, width: 60, backgroundColor: 'pink'}}
             onPress={() => console.log(this.props.taxArray)}></TouchableOpacity> */}
           {/* </Animated.ScrollView> */}
-        </KeyboardAwareScrollView>
+        </ScrollView>
         {this._renderDiscounts()}
         {this._renderTax()}
         {this._renderUnit()}

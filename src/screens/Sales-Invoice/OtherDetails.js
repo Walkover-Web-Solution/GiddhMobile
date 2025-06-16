@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   Animated,
   TextInput,
-  StatusBar,
   Keyboard,
   NativeModules,
-  Dimensions,Platform
+  Dimensions,Platform,
+  ScrollView
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -16,7 +16,6 @@ import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import _ from 'lodash';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
@@ -100,9 +99,6 @@ class OtherDetails extends React.Component<Props> {
         this.setState({ bottomOffset });
       });
     }
-
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
@@ -423,8 +419,7 @@ class OtherDetails extends React.Component<Props> {
     const sDate = moment(this.state.otherDetail.shipDate, 'DD-MM-YYYY');
     return (
       <View style={{ flex: 1 }}>
-        <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-          <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} />
+        <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
           {this.renderHeader()}
           {/* {this._renderSelectWareHouse()} */}
           {this._renderShipDate()}
@@ -433,7 +428,7 @@ class OtherDetails extends React.Component<Props> {
           {this._renderCustomTextField1(this.state.OtherDetailsHeadingNames.customField1Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
           {this._renderCustomTextField2(this.state.OtherDetailsHeadingNames.customField2Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
           {this._renderCustomTextField3(this.state.OtherDetailsHeadingNames.customField3Name, <Icon name={'Polygon-3'} size={16} color={'#808080'} />)}
-        </KeyboardAwareScrollView>
+        </ScrollView>
         {!this.state.keyboard && (
           <TouchableOpacity
             style={{
@@ -449,7 +444,7 @@ class OtherDetails extends React.Component<Props> {
             }}
             onPress={() => {
               this.props.route.params.setOtherDetails(this.state.otherDetail);
-              this.props.navigation.navigate('SalesInvoiceScreen');
+              this.props.navigation.goBack();
             }}>
             <Text
               style={{
@@ -464,6 +459,7 @@ class OtherDetails extends React.Component<Props> {
         <DateTimePickerModal
           isVisible={this.state.isDatePickerVisible}
           mode="date"
+          pickerComponentStyleIOS={{height: 250}}
           date={this.state.otherDetail.shipDate == '' ? new Date() : new Date(sDate)}
           onConfirm={this.handleConfirm}
           onCancel={this.hideDatePicker}

@@ -28,6 +28,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { DefaultTheme } from '@/utils/theme';
+import { Pressable } from 'react-native-gesture-handler';
 
 const SIZE = 48;
 const padding = 10;
@@ -138,9 +139,8 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         {rows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
                             {rowItems.map((item) => (
-                                <TouchableOpacity
+                                <Pressable
                                 key={item.name}
-                                activeOpacity={0.7}
                                 style={styles.button}
                                 onPress={async ()=>{
                                     this?.props?.closeModal();
@@ -154,7 +154,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                     {item.icon}
                                 </View>
                                 <Text style={styles.name}>{item.name}</Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             ))}
                             </View>
                         ))}
@@ -167,8 +167,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         ListHeaderComponent = {()=>(<Text style={styles.listTitle}>Vouchers</Text>)}
                         scrollEnabled={false}
                         renderItem={({ item }) => (
-                            <TouchableOpacity
-                            activeOpacity={0.7}
+                            <Pressable
                             style={styles.button}
                             onPress={async () => {
                                 this?.props?.closeModal();
@@ -187,7 +186,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                     {item.icon}
                                 </View>
                                 <Text style={styles.name}>{item.name}</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         )}
                         keyExtractor={(item) => item.name}
                         />
