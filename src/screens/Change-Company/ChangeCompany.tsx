@@ -64,9 +64,7 @@ export class ChangeCompany extends React.Component<Props> {
     );
 
     return (
-      // <GDContainer>
       <View style={{flex:1}}>
-        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <View style={style.container}>
           <View style={{ flex: 1, backgroundColor: 'rgba(87,115,255,0.03)' }}>
             <View
@@ -176,7 +174,6 @@ export class ChangeCompany extends React.Component<Props> {
               bottom: 0,
               top: 0
             }}>
-            {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
             <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}
@@ -184,7 +181,6 @@ export class ChangeCompany extends React.Component<Props> {
             />
           </View>
         )}
-      {/* </GDContainer> */}
       </View>
     );
   }

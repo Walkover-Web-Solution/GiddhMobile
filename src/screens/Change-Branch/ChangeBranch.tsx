@@ -1,5 +1,4 @@
 import React from 'react';
-import { GDContainer } from '@/core/components/container/container.component';
 import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar ,Platform} from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -55,10 +54,7 @@ export class ChangeBranch extends React.Component<Props> {
     const activeBranch = this.props.route.params.activeBranch;
 
     return (
-      // <GDContainer>
       <View style={{flex:1}}>
-
-        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <View style={style.container}>
           <View style={{ flex: 1, backgroundColor: 'rgba(87,115,255,0.03)' }}>
             {/* <TouchableOpacity
@@ -129,7 +125,6 @@ export class ChangeBranch extends React.Component<Props> {
           </View>
         </View>
         </View>
-      // </GDContainer>
     );
   }
 }

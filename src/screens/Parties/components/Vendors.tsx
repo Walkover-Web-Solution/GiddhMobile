@@ -134,7 +134,6 @@ export const Vendors = (props) => {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
         <LoaderKit
             style={{ width: 45, height: 45 }}
             name={'LineScale'}
@@ -304,7 +303,6 @@ export const Vendors = (props) => {
             bottom: 0,
             top: 0,
           }}>
-          {/* <Bars size={15} color={'#5773FF'} /> */}
           <LoaderKit
               style={{ width: 45, height: 45 }}
               name={'LineScale'}

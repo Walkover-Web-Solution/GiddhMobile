@@ -34,7 +34,6 @@ const BottomSheet: React.FC<Props> = ({
         modalStyle={{ minHeight: '25%', paddingBottom:insets.bottom}}
         modalTopOffset={insets.top}
         keyboardAvoidingBehavior="height"
-        // keyboardAvoidingOffset={100}
         {...props}
       >
         {children}

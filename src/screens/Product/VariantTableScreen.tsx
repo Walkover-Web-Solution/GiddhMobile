@@ -592,7 +592,6 @@ const VariantTableScreen = ({route})=>{
 
     return (
         <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : "height" } style={styles.container}>
-            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header header={'Variants'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
             headerRightContent={
                 <>

@@ -238,7 +238,6 @@ export class InventoryScreen extends React.Component<Props, State> {
   render() {
     return (
       <View style={style.container}>
-        {/* <StatusBar backgroundColor='#000080' barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> */}
         <View
           style={{
             flexDirection: 'row',
@@ -296,7 +295,6 @@ export class InventoryScreen extends React.Component<Props, State> {
         </View>
         {this.state.showLoader
           ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
             <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

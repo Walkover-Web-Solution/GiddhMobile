@@ -25,7 +25,7 @@ import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handl
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 import moment from 'moment';
@@ -48,8 +48,6 @@ import base64 from 'react-native-base64';
 import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
 import color from '@/utils/colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Dropdown from 'react-native-modal-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PaymentServices } from '@/core/services/payment/payment';
 import TOAST from 'react-native-root-toast';
@@ -1166,7 +1164,6 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
         <LoaderKit
             style={{ width: 45, height: 45 }}
             name={'LineScale'}
@@ -1448,8 +1445,6 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     if (this.state.showLoader) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
-          {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
           <LoaderKit
             style={{ width: 45, height: 45 }}
             name={'LineScale'}
@@ -1460,7 +1455,6 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     } else {
       return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
-          {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
           <View
             style={{
               height: Dimensions.get('window').height * 0.08,
@@ -1851,7 +1845,6 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           {this.state.payNowButtonPressed === false ?
             this.state.transactionsLoader ? (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-                {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
                 <LoaderKit
                     style={{ width: 45, height: 45 }}
                     name={'LineScale'}
@@ -2027,7 +2020,6 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
-                {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
                 <LoaderKit
                     style={{ width: 45, height: 45 }}
                     name={'LineScale'}
@@ -2049,7 +2041,6 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 bottom: 0,
                 top: 0,
               }}>
-              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
               <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

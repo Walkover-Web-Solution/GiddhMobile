@@ -391,7 +391,6 @@ const ContraScreen = () => {
             <Animated.ScrollView
             keyboardShouldPersistTaps="never"
             bounces={false}>
-            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header header={'Contra'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             {/* Party Name */}
             <View style={styles.partyContainer}>

@@ -379,7 +379,6 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
     return (
         <View style={styles.container}>
-            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header header={voucherName} isBackButtonVisible={isBackButtonVisible} backgroundColor={voucherBackground} />
             <View style={styles.container}>
                 <DateFilter

@@ -10,7 +10,6 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS } from '@/utils/constants';
-import { ScrollView } from 'react-native-gesture-handler';
 
 type PartiesScreenProp = {
   logout: Function;
@@ -88,7 +87,6 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
     if (this.state.showLoader) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
           <LoaderKit
               style={{ width: 45, height: 45 }}
               name={'LineScale'}

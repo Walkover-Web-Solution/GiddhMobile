@@ -125,7 +125,6 @@ export class AppDatePicker extends React.Component {
     });
     return (
       <View style={styles.container}>
-        {/* <StatusBar backgroundColor='#520EAD' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> */}
         {this.props.route.params.DateRangeOnly ? SecondRoute()
           : <TabView
             navigationState={{ index: this.state.index, routes: this.state.routes }}
@@ -134,7 +133,6 @@ export class AppDatePicker extends React.Component {
             initialLayout={initialLayout}
             // swipeEnabled={false}
             renderTabBar={props => <CustomTabBar {...props}/>}
-            
           />
         }
       </View>

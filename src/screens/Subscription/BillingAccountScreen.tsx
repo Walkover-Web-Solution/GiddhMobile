@@ -1,12 +1,11 @@
-import { Dimensions, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
-import { Container, ScrollContainer } from '@/components/Container';
 import Header from '@/components/Header';
 import InputField from '@/components/InputField';
 import PlanSummarySection from './components/PlanSummarySection';
 import { useNavigation } from '@react-navigation/native';
-import CountryPicker, { CountryCode, Flag, FlagButton, isCountryCode } from 'react-native-country-picker-modal'
+import CountryPicker, { CountryCode, FlagButton, isCountryCode } from 'react-native-country-picker-modal'
 import OutlinedButton from '@/components/OutlinedButton';
 import useGetCountriesStates from './hooks/useGetCountriesStates';
 import useForm from './hooks/useForm';
@@ -35,7 +34,6 @@ const BillingAccountScreen = () => {
     }
     
     return (
-        // <Container>
         <View style={{flex:1, backgroundColor:theme.colors.background}}>
             <Header
                 header='Select Billing Account'
@@ -244,7 +242,6 @@ const BillingAccountScreen = () => {
                     )}
                 }}
             />
-        {/* </Container> */}
         </View>
     )
 }

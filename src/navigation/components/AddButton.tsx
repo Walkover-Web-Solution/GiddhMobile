@@ -141,7 +141,6 @@ class AddButtonOptions extends React.PureComponent<Props> {
                             {rowItems.map((item) => (
                                 <Pressable
                                 key={item.name}
-                                // activeOpacity={0.7}
                                 style={styles.button}
                                 onPress={async ()=>{
                                     this?.props?.closeModal();
@@ -169,7 +168,6 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         scrollEnabled={false}
                         renderItem={({ item }) => (
                             <Pressable
-                            // activeOpacity={0.7}
                             style={styles.button}
                             onPress={async () => {
                                 this?.props?.closeModal();

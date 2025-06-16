@@ -40,8 +40,6 @@ class Login extends React.Component<any, any> {
     GoogleSignin.configure({
       webClientId: `${WEBCLIENT_ID}`
     });
-    // this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    // this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
 
   componentDidUpdate(prevProps) {
@@ -53,8 +51,6 @@ class Login extends React.Component<any, any> {
   }
 
   componentWillUnmount() {
-    // this.keyboardDidShowListener.remove();
-    // this.keyboardDidHideListener.remove();
   }
 
   async onAppleButtonPress() {
@@ -295,7 +291,6 @@ class Login extends React.Component<any, any> {
               bottom: 0,
               top: 0
             }}>
-            {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
             <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

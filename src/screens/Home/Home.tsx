@@ -25,9 +25,7 @@ export class HomeScreen extends React.Component<Props, {}> {
 
   render () {
     return (
-      // <GDContainer>
       <View style={{flex:1}}>
-        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <HomeComponent
           countries={this.props.countries}
           logout={this.props.logout}
@@ -36,7 +34,6 @@ export class HomeScreen extends React.Component<Props, {}> {
           logoutAction={this.props.logoutAction}
         />
       </View>
-      // </GDContainer>
     );
   }
 }

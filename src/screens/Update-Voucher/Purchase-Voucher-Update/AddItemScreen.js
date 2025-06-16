@@ -71,8 +71,6 @@ class PurchaseAddItem extends React.Component<Props> {
       });
     }
     this.searchUser();
-    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -753,7 +751,6 @@ class PurchaseAddItem extends React.Component<Props> {
   render () {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
-        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <View style={style.headerConatiner}>{this.renderHeader()}</View>
 
         <View style={{ flex: 1 }}>
@@ -771,7 +768,6 @@ class PurchaseAddItem extends React.Component<Props> {
                 bottom: 0,
                 top: 0
               }}>
-              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
               <LoaderKit
                   style={{ width: 45, height: 45 }}
                   name={'LineScale'}

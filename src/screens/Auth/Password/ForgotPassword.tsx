@@ -1,7 +1,6 @@
 import React from 'react';
 import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
-import { GDContainer } from '@/core/components/container/container.component';
 import { Image, View } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import style from '@/screens/Auth/Password/style';
@@ -63,7 +62,6 @@ class ForgotPassword extends React.Component<any, any> {
 
   render() {
     return (
-      // <GDContainer>
         <View style={style.backgroundContainer}>
           <View style={style.loginContainer}>
             <View style={style.upperContainer}>
@@ -117,7 +115,6 @@ class ForgotPassword extends React.Component<any, any> {
             </View>
           </View>
         </View>
-      // </GDContainer>
     );
   }
 }

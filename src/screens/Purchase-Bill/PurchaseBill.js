@@ -18,7 +18,6 @@ import {
   Alert,
   KeyboardAvoidingView
 } from 'react-native';
-// import style from './style';
 import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
@@ -232,8 +231,6 @@ export class PurchaseBill extends React.Component {
 
   componentDidMount() {
     this.setBottomSheetVisible(this.paymentModeBottomSheetRef, true);
-    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -2653,7 +2650,6 @@ export class PurchaseBill extends React.Component {
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={[style.container, {paddingBottom: 40}]}>
-            {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}
@@ -2697,7 +2693,6 @@ export class PurchaseBill extends React.Component {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
               <LoaderKit
                   style={{ width: 45, height: 45 }}
                   name={'LineScale'}

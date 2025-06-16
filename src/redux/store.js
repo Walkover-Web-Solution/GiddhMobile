@@ -1,5 +1,4 @@
 import {createStore, applyMiddleware, compose} from 'redux';
-// import thunk from 'redux-thunk';
 import promise from '../promise';
 import reducer from './reducers';
 import rootSaga from './RootSaga';

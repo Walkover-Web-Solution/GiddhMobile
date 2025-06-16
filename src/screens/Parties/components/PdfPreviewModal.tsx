@@ -1,4 +1,4 @@
-import { Dimensions, Platform, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, StyleSheet, ToastAndroid, View } from "react-native";
 import Pdf from 'react-native-pdf';
 import  Modal  from "react-native-modal";
 import LoaderKit  from 'react-native-loader-kit';
@@ -108,7 +108,6 @@ const PdfPreviewModal = ({modalVisible,setModalVisible,setLoading,isLoading,comp
             : 
             <View style={styles.loadContainer}>
                 <View style={styles.centeredView}>
-                {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
                 <LoaderKit
                     style={{ width: 45, height: 45 }}
                     name={'LineScale'}

@@ -84,9 +84,6 @@ export class SelectAddress extends React.Component<any, any> {
   render() {
     return (
       <View style={style.container}>
-        {/* {this.props.route.params.statusBarColor && (
-          <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle="light-content" />
-        )} */}
         <View
           style={[
             style.header,

@@ -182,8 +182,6 @@ export class Customer extends React.Component<Props> {
       })
       this.setState({ showLoader: false });
     })
-    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
@@ -202,7 +200,6 @@ export class Customer extends React.Component<Props> {
     return (
       <SafeAreaInsetsContext.Consumer>
         {(insets) => <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-              {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
               <View style={style.headerConatiner}>
                 {this.renderHeader()}
               </View>
@@ -303,7 +300,6 @@ export class Customer extends React.Component<Props> {
                           bottom: 0,
                           top: 0
                         }}>
-                          {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
                           <LoaderKit
                               style={{ width: 45, height: 45 }}
                               name={'LineScale'}
@@ -334,7 +330,6 @@ export class Customer extends React.Component<Props> {
                           bottom: 0,
                           top: 0
                         }}>
-                          {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
                           <LoaderKit
                               style={{ width: 45, height: 45 }}
                               name={'LineScale'}

@@ -21,7 +21,6 @@ import color from '@/utils/colors';
 import SortModal from '@/screens/Parties/components/sortModal';
 import { CommonService } from '@/core/services/common/common.service';
 import _ from 'lodash';
-import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -403,7 +402,6 @@ export class PartiesMainScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
         <View
           style={{
             height: Dimensions.get('window').height * 0.08,
@@ -549,7 +547,6 @@ export class PartiesMainScreen extends React.Component {
             {this.state.showLoader
               ? (
                 <View style={style.alignLoader}>
-                  {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
                   <LoaderKit
                       style={{ width: 45, height: 45 }}
                       name={'LineScale'}
@@ -573,7 +570,6 @@ export class PartiesMainScreen extends React.Component {
               ? (
                 <View style={{ flex: 1 }}>
                   <View style={style.alignLoader}>
-                    {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
                     <LoaderKit
                       style={{ width: 45, height: 45 }}
                       name={'LineScale'}

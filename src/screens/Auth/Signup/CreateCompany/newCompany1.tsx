@@ -1,13 +1,12 @@
 import React, { createRef } from 'react';
 import { connect } from 'react-redux';
 
-import { View, TouchableOpacity, StatusBar, ScrollView, Platform, Dimensions, Alert, FlatList } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Platform, Dimensions, Alert, FlatList } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
-import { SafeAreaInsetsContext, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Foundation from 'react-native-vector-icons/Foundation';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { TextInput } from 'react-native-gesture-handler';
@@ -16,7 +15,7 @@ import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as CommonActions from '@/redux/CommonAction';
-import { Flag, FlagButton } from 'react-native-country-picker-modal'
+import { FlagButton } from 'react-native-country-picker-modal'
 import Modal from 'react-native-modal';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -413,7 +412,6 @@ class NewCompany extends React.Component<any, any> {
             <SafeAreaInsetsContext.Consumer>
             {(insets)=>(<View style={style.container}>
                 <ScrollView style={{ flex: 1 }}>
-                    {/* <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} /> */}
                     <View
                         style={{
                             flexDirection: 'row',
@@ -461,10 +459,6 @@ class NewCompany extends React.Component<any, any> {
                                     onPress={() => this.countryPickerBottomSheetRef?.current?.open()}
                                     style={{ flexDirection: 'row', alignItems: 'center'}}
                                 >
-                                    {/* <Flag
-                                        countryCode={this.state.countryName.alpha2CountryCode}
-                                        flagSize={16}
-                                    /> */}
                                     <FlagButton
                                         countryCode={this.state.countryName.alpha2CountryCode}
                                         placeholder={""}
@@ -666,10 +660,6 @@ class NewCompany extends React.Component<any, any> {
                                     this.countryPickerBottomSheetRef?.current?.close()
                                 }}
                             >
-                                {/* <Flag
-                                    countryCode={item?.alpha2CountryCode}
-                                    flagSize={16}
-                                /> */}
                                 <FlagButton
                                     countryCode={item?.alpha2CountryCode}
                                     placeholder={""}

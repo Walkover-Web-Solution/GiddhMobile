@@ -1,13 +1,13 @@
 import React, { createRef } from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, EmitterSubscription, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, Switch } from 'react-native';
 import { Country } from '@/models/interfaces/country';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
 import style from './style';
 import _ from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import Feather from 'react-native-vector-icons/Feather';
@@ -79,10 +79,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       this.setState({ userName, activeUserEmail })
     }
     getUserDetails()
-  }
-
-  componentDidUpdate() {
-    // this._getActiveCompany();
   }
 
   changeLanguage = () => {
@@ -301,7 +297,6 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       return (
         <View
           style={style.loaderWrapper}>
-          {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
           <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

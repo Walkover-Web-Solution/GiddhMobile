@@ -1,7 +1,6 @@
 import React from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
-import { ScrollContainer } from '@/components/Container';
 import Header from '@/components/Header';
 import PlanSummarySection from './components/PlanSummarySection';
 import { useNavigation } from '@react-navigation/native';

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// import SafeAreaView from 'react-native-safe-area-view';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { connect } from 'react-redux';
 import { AuthStack } from './auth.navigator';
@@ -13,9 +12,7 @@ import { Host } from 'react-native-portalize';
 import SnackBar from '@/components/SnackBar';
 import ChatBotSDK from '@/components/ChatBotSDK';
 import { DeviceEventEmitter, View } from 'react-native';
-import { SystemBars } from "react-native-edge-to-edge";
 import { GDContainer } from '@/core/components/container/container.component';
-// import { SafeAreaView } from 'react-native-safe-area-context';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -63,7 +60,6 @@ useEffect(() => {
 }, [])
 
   return (
-    // <SafeAreaView style={{ flex: 1 }}>
     <GDContainer>
       {
         <NavigationContainer
@@ -73,7 +69,6 @@ useEffect(() => {
           const previousRouteName = routeNameRef.current;
           const currentRouteName = navigationRef.current.getCurrentRoute().name;
           if (previousRouteName !== currentRouteName) {
-            // console.log('currentScreen is', currentRouteName);
             await analytics().logScreenView({
               screen_name: currentRouteName,
               screen_class: currentRouteName
@@ -81,7 +76,6 @@ useEffect(() => {
           }
         }}>
           <Host>
-            {/* <SystemBars style="light" /> */}
             { !props.isUserAuthenticated 
                 ? <AuthStack/> 
                 : ( props.isUnauth 
@@ -101,7 +95,6 @@ useEffect(() => {
       />
       <ChatBotSDK/>
     </GDContainer>
-    // </SafeAreaView>
   );
 };
 

@@ -19,7 +19,6 @@ export class DemoScreen extends React.Component<Props, {}> {
 
   render () {
     return (
-      // <GDContainer>
       <View style={{flex:1}}>
         <DemoComponent
           countries={this.props.countries}
@@ -28,7 +27,6 @@ export class DemoScreen extends React.Component<Props, {}> {
           logoutAction={this.props.logoutAction}
         />
       </View>
-      // </GDContainer>
     );
   }
 }

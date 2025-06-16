@@ -1,28 +1,25 @@
 import React, { createRef } from 'react';
 import { connect } from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { View, TouchableOpacity, TextInput, Dimensions, StatusBar, Platform, DeviceEventEmitter, ToastAndroid, FlatList, Alert, Keyboard, ScrollView } from 'react-native';
+import { View, TouchableOpacity, TextInput, Dimensions, Platform, ToastAndroid, FlatList, Keyboard, ScrollView } from 'react-native';
 import style from './style';
 import { Text } from '@ui-kitten/components';
-import { SafeAreaInsetsContext, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
-import { STORAGE_KEYS, APP_EVENTS } from '@/utils/constants';
+import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CompanyService } from '@/core/services/company/company.service';
 import { getCompanyAndBranches } from '../../../../redux/CommonAction';
 import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import TOAST from 'react-native-root-toast';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal1 from 'react-native-modal';
 import styles from './style';
 import BottomSheet from '@/components/BottomSheet';
-
-const { height, width } = Dimensions.get('screen');
 
 class NewCompanyDetails extends React.Component<any, any> {
   private businessTypeBottomSheetRef: React.Ref<BottomSheet>;
@@ -732,7 +729,6 @@ class NewCompanyDetails extends React.Component<any, any> {
               bottom: 0,
               top: 0
             }}>
-            {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
             <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

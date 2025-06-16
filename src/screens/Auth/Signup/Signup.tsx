@@ -2,10 +2,9 @@ import React from 'react';
 import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
 
-import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid, TouchableOpacity, Dimensions } from 'react-native';
 import { GDButton } from '@/core/components/button/button.component';
 import LoginButton from '@/core/components/login-button/login-button.component';
-import color from '@/utils/colors';
 import style from '@/screens/Auth/Login/style';
 import { GDRoundedInput } from '@/core/components/input/rounded-input.component';
 // google sign in
@@ -42,8 +41,6 @@ class Signup extends React.Component<any, any> {
     GoogleSignin.configure({
       webClientId: `${WEBCLIENT_ID}`
     });
-    // this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    // this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
 
   componentDidUpdate(prevProps) {
@@ -52,11 +49,6 @@ class Signup extends React.Component<any, any> {
     //   console.log('going to otp');
     //   this.props.navigation.navigate('Otp');
     // }
-  }
-
-  componentWillUnmount() {
-    // this.keyboardDidShowListener.remove();
-    // this.keyboardDidHideListener.remove();
   }
 
   async onAppleButtonPress() {
@@ -317,7 +309,6 @@ class Signup extends React.Component<any, any> {
               bottom: 0,
               top: 0
             }}>
-            {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
             <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

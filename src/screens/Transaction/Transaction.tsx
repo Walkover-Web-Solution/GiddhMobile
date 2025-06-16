@@ -27,7 +27,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Foundation from 'react-native-vector-icons/Foundation';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import VoucherModal from '../Parties/components/voucherModal'
-import BottomSheet from '@/components/BottomSheet';
 import { EmitterSubscription } from 'react-native';
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps;
@@ -529,7 +528,6 @@ export class TransactionScreen extends React.Component<Props, {}> {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
         <LoaderKit
             style={{ width: 45, height: 45 }}
             name={'LineScale'}
@@ -633,7 +631,6 @@ export class TransactionScreen extends React.Component<Props, {}> {
         {this.state.showLoader
           ? (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
               <LoaderKit
                   style={{ width: 45, height: 45 }}
                   name={'LineScale'}

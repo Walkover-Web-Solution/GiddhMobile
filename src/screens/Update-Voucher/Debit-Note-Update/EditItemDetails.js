@@ -9,13 +9,12 @@ import {
   NativeModules,
   Platform,
   Dimensions,
-  StatusBar,
   Alert,
+  ScrollView,
 } from 'react-native';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import style from './style';
 import BottomSheet from '@/components/BottomSheet';
 import { FONT_FAMILY } from '@/utils/constants';
@@ -114,8 +113,6 @@ class EditItemDetails extends Component {
   }
 
   componentDidMount() {
-    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.caluclateTotalAmount();
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
@@ -758,15 +755,14 @@ class EditItemDetails extends Component {
           backgroundColor: 'white',
           flex: 1,
         }}>
-        {/* <StatusBar backgroundColor="#ff5355" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> */}
         {this.renderHeader()}
 
-        <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+        <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
           {this._renderScreenElements()}
           {/* <TouchableOpacity
             style={{height: 60, width: 60, backgroundColor: 'pink'}}
             onPress={() => console.log(this.props.taxArray)}></TouchableOpacity> */}
-        </KeyboardAwareScrollView>
+        </ScrollView>
         {this._renderDiscounts()}
         {this._renderTax()}
         {this._renderUnit()}

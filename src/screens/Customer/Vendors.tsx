@@ -1,7 +1,6 @@
 import React, { createRef } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Dimensions, SafeAreaView, ScrollView } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, SafeAreaView, ScrollView } from 'react-native';
 import styles from './style';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -23,7 +22,6 @@ import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PhoneInput from 'react-native-phone-input';
@@ -1379,7 +1377,6 @@ export class Vendors extends React.Component<Props> {
                 bottom: 0,
                 top: 0
               }}>
-              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
               <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

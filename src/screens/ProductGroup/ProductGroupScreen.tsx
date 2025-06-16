@@ -24,10 +24,6 @@ import Toast from "@/components/Toast"
 const ProductGroupScreen = (props)=>{
     const [name,setName] = useState(props?.route?.params?.params?.name);
     const navigation = useNavigation();
-    const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-        const isFocused = useIsFocused();
-        return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-    }
     const [isLoading,setIsLoading] = useState(false);
     const [successDialog,setSuccessDialog]=useState(false);
     const [failureDialog,setFailureDialog]=useState(false);
@@ -342,7 +338,6 @@ const ProductGroupScreen = (props)=>{
             keyboardShouldPersistTaps="never"
             style={styles.animatedView}
             bounces={false}>
-            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header 
               header={'Create Group'} 
               isBackButtonVisible={true} 

@@ -159,8 +159,6 @@ export class AddEntry extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
   componentDidMount() {
-    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     // this.getSelectedAccountData(this.props?.route?.params?.item?.uniqueName)
     // this.searchCalls();
     // this.setActiveCompanyCountry();
@@ -3012,7 +3010,6 @@ export class AddEntry extends React.Component<Props> {
     return (
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#ffffff' }} behavior='height'>
           <ScrollView contentContainerStyle={{flexGrow: 1}}>
-            {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderAccountFlow()}
@@ -3029,7 +3026,6 @@ export class AddEntry extends React.Component<Props> {
             statusBarTranslucent
           >
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
               <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}
@@ -3053,7 +3049,6 @@ export class AddEntry extends React.Component<Props> {
             onConfirm={this.handleConfirm}
             onCancel={this.hideDatePicker}
           />
-        {/* </KeyboardAwareScrollView> */}
         {this._renderAssignTags()}
         {this._renderVoucherTypes()}
         {this._renderInvoicesTypes()}

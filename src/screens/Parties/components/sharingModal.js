@@ -17,7 +17,6 @@ function ShareModal ({ modalVisible }) {
     <Modal animationType="none" transparent={true} visible={modalVisible} statusBarTranslucent>
       <TouchableOpacity style={styles.container}>
         <View style={styles.centeredView}>
-        {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
         <LoaderKit
             style={{ width: 45, height: 45 }}
             name={'LineScale'}

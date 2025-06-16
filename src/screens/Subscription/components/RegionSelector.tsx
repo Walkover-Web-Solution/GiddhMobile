@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import BottomSheet from '@/components/BottomSheet';
-import { Flag, FlagButton } from 'react-native-country-picker-modal'
+import { FlagButton } from 'react-native-country-picker-modal'
 import GlobeIcon from '@/assets/images/icons/globe.svg'
 import Entypo from 'react-native-vector-icons/Entypo'
 

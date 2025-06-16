@@ -64,7 +64,6 @@ export class SettingsScreen extends React.Component<Props> {
 
   render () {
     return (
-      // <GDContainer>
         <View style={style.container}>
           <Text style={{ fontSize: 20, fontFamily: 'AvenirLTStd-Black', margin: 20 }}>Settings</Text>
           <FlatList
@@ -83,7 +82,6 @@ export class SettingsScreen extends React.Component<Props> {
             keyExtractor={(item) => item.id.toString()}
           />
         </View>
-      // </GDContainer>
     );
   }
 }

@@ -6,7 +6,6 @@ import { BOT_JWT_SECRET } from '@/env.json';
 import { SupportedAlgorithms } from 'expo-jwt/dist/types/algorithms';
 import ChatBot from "chatbot-react-native-sdk";
 import { DeviceEventEmitter } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const ChatBotSDK = () => {
     const [chatBotConfig, setChatBotConfig] = useState({

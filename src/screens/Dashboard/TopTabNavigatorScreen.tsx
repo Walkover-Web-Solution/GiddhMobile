@@ -72,7 +72,6 @@ const TopTabNavigator = ()=> {
   }
   return (
     <SafeAreaView style={styles.container}>
-      {/* <_StatusBar statusBar={statusBar}/> */}
       <Header header={'Dashboard'} backgroundColor={voucherBackground} />
       <View style={{flex:1}}>
       <TopTab />

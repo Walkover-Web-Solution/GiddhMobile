@@ -7,7 +7,6 @@ const Loader = ({ isLoading = false }) => {
     if (!isLoading) return null;
     return (
         <View style={styles.loaderContainer}>
-            {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
             <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}
@@ -21,7 +20,6 @@ const NoActionLoader = ({ isLoading = false }) => {
     return (
         <Modal visible={isLoading} transparent statusBarTranslucent>
             <View style={styles.loaderContainer}>
-                {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
             <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

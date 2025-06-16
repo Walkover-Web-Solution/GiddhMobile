@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme";
+import useCustomTheme from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Animated, DeviceEventEmitter, Dimensions, Keyboard, KeyboardAvoidingView, Platform, StatusBar, Text, TouchableOpacity, View } from "react-native";
 import { useEffect, useRef, useState } from "react";
@@ -661,7 +661,6 @@ const ProductScreen = ()=>{
                 <Animated.ScrollView
                     style={styles.backGround}
                     bounces={false}>
-                    {/* <_StatusBar statusBar={statusBar}/> */}
                     <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
                         headerRightContent={
                             <>

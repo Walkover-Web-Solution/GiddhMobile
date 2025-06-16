@@ -301,9 +301,6 @@ export class SalesInvoice extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-
     if(this.isVoucherUpdate){
       this.getPartyDataForUpdateVoucher(this.state.searchPartyName)
     } else {
@@ -3030,7 +3027,6 @@ export class SalesInvoice extends React.Component<Props, State> {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        {/* <_StatusBar statusBar='#0E7942' /> */}
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
@@ -3073,7 +3069,6 @@ export class SalesInvoice extends React.Component<Props, State> {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
               <LoaderKit
                   style={{ width: 45, height: 45 }}
                   name={'LineScale'}

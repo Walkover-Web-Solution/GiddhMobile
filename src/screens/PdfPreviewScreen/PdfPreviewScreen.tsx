@@ -1,4 +1,4 @@
-import { Dimensions, Platform, StatusBar, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, StatusBar, StyleSheet, ToastAndroid, View } from "react-native";
 import Pdf from 'react-native-pdf';
 import LoaderKit  from 'react-native-loader-kit';
 import { useEffect, useState } from "react";
@@ -7,19 +7,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/utils/constants";
 import RNFetchBlob from 'react-native-blob-util';
 import Toast from "react-native-root-toast";
-// import SafeAreaView from "react-native-safe-area-view";
 import Header from "@/components/Header";
 import { useIsFocused } from "@react-navigation/native";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
-// import { SafeAreaView } from "react-native-safe-area-context";
 
 const Screen_width = Dimensions.get('window').width;
 const PdfPreviewScreen = ( route ) => {
-    const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-        const isFocused = useIsFocused();
-        return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-    }
-    const {statusBar,styles, voucherBackground} = useCustomTheme(getStyles, 'PdfPreview');
+    const {styles, voucherBackground} = useCustomTheme(getStyles, 'PdfPreview');
     const {companyVersionNumber,uniqueName,voucherInfo} = route?.route?.params 
     const [pdfBlobUri,setPdfBlobUri] = useState("");
     const [isLoading,setLoading] = useState(true);
@@ -76,7 +70,6 @@ const PdfPreviewScreen = ( route ) => {
     
     return ( 
         <View style={styles.container}>
-            {/* <_StatusBar statusBar={statusBar}/> */}
             <Header header={'Pdf Preview'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             <View style={styles.container}>
                 {!isLoading ? <View style={styles.container}>
@@ -103,7 +96,6 @@ const PdfPreviewScreen = ( route ) => {
                 </View>
                 : 
                 <View style={styles.loadContainer}>
-                    {/* <Bars size={15} color={colors.PRIMARY_NORMAL} /> */}
                     <LoaderKit
                         style={{ width: 45, height: 45 }}
                         name={'LineScale'}

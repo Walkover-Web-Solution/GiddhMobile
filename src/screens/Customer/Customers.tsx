@@ -1,7 +1,6 @@
 import React, { createRef } from 'react';
-import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, useWindowDimensions, Keyboard, Platform, Dimensions, ScrollViewBase } from 'react-native';
+import { Text, View, ScrollView, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform } from 'react-native';
 import styles from './style';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -22,13 +21,12 @@ import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'reac
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PhoneInput from 'react-native-phone-input';
 import CountryPicker from 'react-native-country-picker-modal';
 import BottomSheet from '@/components/BottomSheet';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 interface Props {
@@ -1038,7 +1036,6 @@ export class Customers extends React.Component<Props> {
                 bottom: 0,
                 top: 0
               }}>
-              {/* <Bars size={15} color={color.PRIMARY_NORMAL} /> */}
               <LoaderKit
                 style={{ width: 45, height: 45 }}
                 name={'LineScale'}

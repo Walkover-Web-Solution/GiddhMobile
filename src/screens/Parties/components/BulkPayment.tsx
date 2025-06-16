@@ -18,7 +18,7 @@ import { GdSVGIcons } from '@/utils/icons-pack';
 import { GD_ICON_SIZE } from '@/utils/constants';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
-import colors, { baseColor } from '@/utils/colors';
+import colors from '@/utils/colors';
 import { TextInput } from 'react-native-gesture-handler';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import TOAST from 'react-native-root-toast';
@@ -412,7 +412,6 @@ class BulkPayment extends React.Component {
     render() {
         return (
             <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-                {/* {this.FocusAwareStatusBar(this.props.isFocused)} */}
                 <KeyboardAwareScrollView keyboardShouldPersistTaps={'handled'}>
                     <View
                         style={{
@@ -503,7 +502,6 @@ class BulkPayment extends React.Component {
                             bottom: 0,
                             top: 0,
                         }}>
-                        {/* <Bars size={15} color={'#5773FF'} /> */}
                         <LoaderKit
                             style={{ width: 45, height: 45 }}
                             name={'LineScale'}
