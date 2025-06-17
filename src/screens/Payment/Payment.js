@@ -21,7 +21,7 @@ import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {Bars} from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _, {isInteger} from 'lodash';
 import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
@@ -363,17 +363,20 @@ export class Payment extends React.Component {
         this.getCompanyVersionNumber();
         DeviceEventEmitter.emit(APP_EVENTS.PaymentCreated, {});
         if (type == 'navigate') {
-          this.props.navigation.navigate(routes.Parties, {
-            screen: 'PartiesTransactions',
-            initial: false,
+          this.props.navigation.navigate("Home", {
+            screen: routes.Parties,
             params: {
-              item: {
-                name: partyName.name,
-                uniqueName: partyName.uniqueName,
-                country: {code: partyDetails.country.countryCode},
-                mobileNo: partyDetails.mobileNo,
-              },
-              type: 'Vendors',
+              screen: 'PartiesTransactions',
+              initial: false,
+              params: {
+                item: {
+                  name: partyName.name,
+                  uniqueName: partyName.uniqueName,
+                  country: {code: partyDetails.country.countryCode},
+                  mobileNo: partyDetails.mobileNo,
+                },
+                type: 'Vendors',
+              }
             },
           });
         }
@@ -384,8 +387,6 @@ export class Payment extends React.Component {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -509,19 +510,19 @@ export class Payment extends React.Component {
       const results = await InvoiceService.getTaxes();
       if (results.body && results.status == 'success') {
         this.setState({taxArray: results.body, fetechingTaxList: false});
-        this.getTdsTcsTaxes();
+        this.getTdsTcsTaxes(results?.body);
       }
     } catch (e) {
       this.setState({fetechingTaxList: false});
     }
   }
 
-  async getTdsTcsTaxes() {
-    const taxes = this.state.taxArray.filter((item) => {
+  getTdsTcsTaxes(taxArray) {
+    const taxes = taxArray.filter((item) => {
       return item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc';
     });
-    await this.setState({tdsTcsTaxArray: taxes});
-    await this.setState({tdsOrTcsArray: taxes});
+    this.setState({tdsTcsTaxArray: taxes});
+    this.setState({tdsOrTcsArray: taxes});
   }
 
   _renderSearchList() {
@@ -1671,7 +1672,6 @@ export class Payment extends React.Component {
           style={[{flex: 1, backgroundColor: 'white'}, {marginBottom: this.keyboardMargin}]}
           bounces={false}>
           <View style={[style.container, {paddingBottom: 80}]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}
@@ -1687,6 +1687,7 @@ export class Payment extends React.Component {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
@@ -1694,6 +1695,7 @@ export class Payment extends React.Component {
             <DateTimePickerModal
               isVisible={this.state.showClearanceDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirmClearanceDate}
               onCancel={this.hideClearanceDatePicker}
             />
@@ -1712,7 +1714,11 @@ export class Payment extends React.Component {
                 bottom: 0,
                 top: 0,
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           )}
         </Animated.ScrollView>

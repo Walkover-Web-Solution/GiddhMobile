@@ -1,15 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { GDContainer } from '@/core/components/container/container.component';
 import { Image, View, Text, StyleSheet, Dimensions, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import style from '@/screens/Auth/Otp/style';
-import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { GdImages } from '@/utils/icons-pack';
 
 import colors from '@/utils/colors';
-import { verifyOTP, clearOTPError, resetPassword, setNewPassword } from '../Login/LoginAction';
-import { Bars } from 'react-native-loader';
-import { baseColor } from '../../../utils/colors';
+import { resetPassword, setNewPassword } from '../Login/LoginAction';
+import LoaderKit  from 'react-native-loader-kit';
 
 const { width, height } = Dimensions.get('window');
 class ResetPassword extends React.Component<any, any> {
@@ -24,7 +21,6 @@ class ResetPassword extends React.Component<any, any> {
 
   render() {
     return (
-      <GDContainer>
         <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
           <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white' }}>
             <View style={style.upperContainer}>
@@ -85,11 +81,14 @@ class ResetPassword extends React.Component<any, any> {
               </TouchableOpacity>
             </View>
             {this.props.isVerifyingOTP && <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}>
-              <Bars size={15} color={colors.PRIMARY_NORMAL} />
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
             </View>}
           </View>
         </ScrollView>
-      </GDContainer>
     );
   }
 }

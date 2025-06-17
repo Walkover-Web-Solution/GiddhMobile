@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import SafeAreaView from 'react-native-safe-area-view';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { connect } from 'react-redux';
 import { AuthStack } from './auth.navigator';
@@ -12,7 +11,8 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Host } from 'react-native-portalize';
 import SnackBar from '@/components/SnackBar';
 import ChatBotSDK from '@/components/ChatBotSDK';
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, View } from 'react-native';
+import { GDContainer } from '@/core/components/container/container.component';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -60,28 +60,27 @@ useEffect(() => {
 }, [])
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <GDContainer>
       {
         <NavigationContainer
-          ref={navigationRef}
-          theme={navigatorTheme}
-          onStateChange={async () => {
-            const previousRouteName = routeNameRef.current;
-            const currentRouteName = navigationRef.current.getCurrentRoute().name;
-            if (previousRouteName !== currentRouteName) {
-              // console.log('currentScreen is', currentRouteName);
-              await analytics().logScreenView({
-                screen_name: currentRouteName,
-                screen_class: currentRouteName
-              });
-            }
-          }}>
+        ref={navigationRef}
+        theme={navigatorTheme}
+        onStateChange={async () => {
+          const previousRouteName = routeNameRef.current;
+          const currentRouteName = navigationRef.current.getCurrentRoute().name;
+          if (previousRouteName !== currentRouteName) {
+            await analytics().logScreenView({
+              screen_name: currentRouteName,
+              screen_class: currentRouteName
+            });
+          }
+        }}>
           <Host>
             { !props.isUserAuthenticated 
                 ? <AuthStack/> 
-                : ( !props.isUnauth 
-                    ? <AppMainNav />
-                    : <CompanyStack/>
+                : ( props.isUnauth 
+                    ? <CompanyStack/>
+                    : <AppMainNav />
                   )
             }
           </Host>
@@ -95,7 +94,7 @@ useEffect(() => {
         helloConfig={helloConfig}
       />
       <ChatBotSDK/>
-    </SafeAreaView>
+    </GDContainer>
   );
 };
 

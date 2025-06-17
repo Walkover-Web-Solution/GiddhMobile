@@ -93,6 +93,7 @@ export class Custom extends React.Component {
           mode="date"
           date={new Date(sDate)}
           onConfirm={this.startDateConfirm}
+          pickerComponentStyleIOS={{height: 250}}
           onCancel={this.hideStartDatePicker}
           maximumDate={new Date(eDate)}
         />
@@ -101,6 +102,7 @@ export class Custom extends React.Component {
           mode="date"
           date={new Date(eDate)}
           onConfirm={this.endDateConfirm}
+          pickerComponentStyleIOS={{height: 250}}
           onCancel={this.hideEndDatePicker}
           minimumDate={new Date(sDate)}
         />

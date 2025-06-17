@@ -9,7 +9,6 @@ import {
   NativeModules,
   Platform,
   Dimensions,
-  StatusBar,
   Alert,
 } from 'react-native';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -114,8 +113,6 @@ class EditItemDetails extends Component {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.caluclateTotalAmount();
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
@@ -758,7 +755,6 @@ class EditItemDetails extends Component {
           backgroundColor: 'white',
           flex: 1,
         }}>
-        <StatusBar backgroundColor="#2e80d1" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} />
         {this.renderHeader()}
 
         <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: 'white' }}>

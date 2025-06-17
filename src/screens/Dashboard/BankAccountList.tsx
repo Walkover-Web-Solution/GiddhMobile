@@ -2,20 +2,48 @@ import { CommonService } from "@/core/services/common/common.service";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import getSymbolFromCurrency from 'currency-symbol-map';
 import lodash from 'lodash.debounce';
 import { formatAmount } from "@/utils/helper";
 import { useSelector } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "@/utils/constants";
+import { AccountsService } from "@/core/services/accounts/accounts.service";
+import { useNavigation } from "@react-navigation/native";
+import Routes from "@/navigation/routes";
+import Loader from "@/components/Loader";
 
 const BankAccountList = () => {
-    const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
+    const {styles, theme, voucherBackground} = useCustomTheme(makeStyles, 'Stock');
     const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const [bankAccounts, setBankAccounts] = useState<any[]>([]);
     const countryV2 = useSelector((state) => state?.commonReducer?.companyDetails?.countryV2);
-    
+    const [loading, setLoading] = useState(false);
+    const navigation = useNavigation();
+
+    const getAccountData = async (item :any) => {
+        try{
+            setLoading(true);
+            const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
+            const response = await AccountsService.getIndividualAccountData(item?.uniqueName);
+            if(response?.status == 'success'){
+                setLoading(false);
+                navigation.navigate(Routes.Parties, {
+                cameFromStack: Routes.Accounts,
+                initial: false,
+                item: response?.body,
+                type: (response?.body?.accountType === 'Creditors' ? 'Vendors' : 'Creditors'),
+                activeCompany: activeCompany
+                });
+            }
+        }catch(e){
+          setLoading(false);
+        }        
+      }
+
     const fetchBankAccounts = async (page:number)=> {
         try {
             const response = await CommonService.fetchBankAccounts(date.startDate, date.endDate, page);
@@ -50,10 +78,10 @@ const BankAccountList = () => {
 
     const renderItem = ({item})=>{
         return (
-            <View key={item?.uniqueName} style={styles.card}>
-                <Text style={[styles.text,{color:'#1a237e'}]}>{item?.name}</Text>
+            <TouchableOpacity key={item?.uniqueName} style={styles.card} onPress={()=>getAccountData(item)}>
+                <Text style={[styles.text,{color:voucherBackground}]}>{item?.name}</Text>
                 <Text style={styles.price}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(item?.openingBalance?.amount)}{item?.openingBalance?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.'} </Text>
-            </View>
+            </TouchableOpacity>
         )
     }
 
@@ -69,6 +97,7 @@ const BankAccountList = () => {
                 scrollEnabled={false}
                 renderItem={renderItem}
             /> : <View style={{alignItems:'center',marginVertical:30}}><Text style={styles.text}>Yet to add Bank Details</Text></View>}
+            {loading && <Loader isLoading={loading}/>}
         </View>
     )
 }

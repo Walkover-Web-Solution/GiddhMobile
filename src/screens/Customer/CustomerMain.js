@@ -14,7 +14,7 @@ import {
 import style from './style';
 import { connect } from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';
@@ -22,7 +22,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Vendors } from './Vendors';
 import { Customers } from './Customers';
 import { APP_EVENTS } from '@/utils/constants';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Props {
   navigation: any;
@@ -182,8 +182,6 @@ export class Customer extends React.Component<Props> {
       })
       this.setState({ showLoader: false });
     })
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
@@ -202,7 +200,6 @@ export class Customer extends React.Component<Props> {
     return (
       <SafeAreaInsetsContext.Consumer>
         {(insets) => <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-              {this.FocusAwareStatusBar(this.props.isFocused)}
               <View style={style.headerConatiner}>
                 {this.renderHeader()}
               </View>
@@ -303,7 +300,11 @@ export class Customer extends React.Component<Props> {
                           bottom: 0,
                           top: 0
                         }}>
-                          <Bars size={15} color={color.PRIMARY_NORMAL} />
+                          <LoaderKit
+                              style={{ width: 45, height: 45 }}
+                              name={'LineScale'}
+                              color={color.PRIMARY_NORMAL}
+                          />
                         </View>
                       </View>
                     )
@@ -311,6 +312,7 @@ export class Customer extends React.Component<Props> {
                       <Customers
                         resetFun={this.setCustomerFun}
                         navigation={this.props.navigation}
+                        insets={this.props.insets}
                       />
                     )}
                 </View>
@@ -328,15 +330,21 @@ export class Customer extends React.Component<Props> {
                           bottom: 0,
                           top: 0
                         }}>
-                          <Bars size={15} color={color.PRIMARY_NORMAL} />
+                          <LoaderKit
+                              style={{ width: 45, height: 45 }}
+                              name={'LineScale'}
+                              color={color.PRIMARY_NORMAL}
+                          />
                         </View>
                       </View>
                     )
                     : (
                       <Vendors
+                        key={this.props.route.params.uniqueName}
                         resetFun={this.setVendorFun}
                         navigation={this.props.navigation}
                         uniqueName={this.props.route.params.uniqueName}
+                        insets={insets}
                       />
                     )}
                 </View>
@@ -363,8 +371,8 @@ function mapDispatchToProps(dispatch) {
 
 function Screen(props) {
   const isFocused = useIsFocused();
-
-  return <Customer {...props} isFocused={isFocused} />;
+  const insets = useSafeAreaInsets();
+  return <Customer {...props} isFocused={isFocused} insets={insets}/>;
 }
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
 export default MyComponent;

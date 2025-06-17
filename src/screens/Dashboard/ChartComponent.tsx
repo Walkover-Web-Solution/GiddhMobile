@@ -13,6 +13,7 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import MatButton from '@/components/OutlinedButton';
 import BottomSheet from '@/components/BottomSheet';
 import Icon from '@/core/components/custom-icon/custom-icon';
+import { CommonService } from '@/core/services/common/common.service';
 
 const {height, width} = Dimensions.get('window');
 
@@ -43,30 +44,15 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
     const fetchProfitLossDetails = async (branchUniqueName: string) => {
       try {
         setChartLoading(true);
-        //   const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate);
         const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
         setConsolidatedBranch(consolidateState ? consolidateState : ' ');
-        const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-        const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-        const response = await fetch(commonUrls.fetchProfitLossDetails(
-            date?.startDate, 
-            date?.endDate,
-            branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '')
-          .replace(':companyUniqueName',activeCompany) ,{
-            method: "GET",
-            headers: {
-              'Accept': 'application/json',
-              'session-id' : token,
-              'user-agent' : Platform.OS
-            },
-        });
-        const result = await response.json();
-        if(result?.body && result?.status == "success"){
-            setTotalExpense({...result?.body?.incomeStatement?.totalExpenses})
-            setTotalIncome({...result?.body?.incomeStatement?.revenue})
-            setnetPL({...result?.body?.incomeStatement?.incomeBeforeTaxes})
+        const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate, branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '');
+        if(response?.body && response?.status == "success"){
+            setTotalExpense({...response?.body?.incomeStatement?.totalExpenses});
+            setTotalIncome({...response?.body?.incomeStatement?.revenue});
+            setnetPL({...response?.body?.incomeStatement?.incomeBeforeTaxes});
         }else{
-            Toast({message: result?.message, position:'BOTTOM',duration:'LONG'})
+            Toast({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
         }
         setChartLoading(false);
     } catch (error) {
@@ -136,6 +122,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         text:'Expense'
     }
     ];
+console.log("pie data", pieData, totalExpense, totalIncome, netPL);
 
     return (
     <View style={styles.container}>
@@ -162,7 +149,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
                     labelLineConfig={{length:-20,labelComponentWidth: 45,}}
                     paddingHorizontal={10}
                     externalLabelComponent={(item) => {
-                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold}>
+                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold} fill={theme.colors.secondary}>
                             {item?.text}
                         </SvgText>
                     }}

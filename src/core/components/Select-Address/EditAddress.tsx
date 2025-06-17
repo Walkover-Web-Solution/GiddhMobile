@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, FlatList, Platform, SafeAreaView, ScrollViewBase } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Platform, SafeAreaView } from 'react-native';
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import Dropdown from 'react-native-modal-dropdown';
 import color from '@/utils/colors';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
@@ -13,7 +13,7 @@ import CountryPicker from 'react-native-country-picker-modal'
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import Modal1 from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 const allCountry = [
    {
@@ -2811,11 +2811,11 @@ export class EditAddress extends React.Component<any, any> {
       //this.state.stateDropDown.show();
    }
 
-   renderStateModalView = () => {
+   renderStateModalView = (insets) => {
       return (
          <Modal1 isVisible={this.state.isStateModalVisible} onBackdropPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
             onBackButtonPress={() => { this.setState({ isStateModalVisible: !this.state.isStateModalVisible }) }}
-            style={style.modalMobileContainer}>
+            style={[style.modalMobileContainer, {paddingTop: Platform.OS == "ios" ? insets?.top : 0}]}>
             <SafeAreaView style={style.modalViewContainer}>
                <View style={style.cancelButtonModal} >
                   <TextInput
@@ -2828,7 +2828,7 @@ export class EditAddress extends React.Component<any, any> {
                      }}
                   />
                   <TouchableOpacity onPress={() => { this.setState({ isStateModalVisible: false }) }} style={style.cancelButtonTextModal}>
-                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} style={{ marginTop: 4 }} />
+                     <Fontisto name="close-a" size={Platform.OS == "ios" ? 10 : 18} color={'black'} />
                   </TouchableOpacity>
                </View>
                <FlatList
@@ -2867,10 +2867,8 @@ export class EditAddress extends React.Component<any, any> {
 
    render() {
       return (
-         <View style={style.container}>
-            {this.props.route.params.statusBarColor && (
-               <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle={Platform.OS == "ios" ? "dark-content" : "light-content"} />
-            )}
+         <SafeAreaInsetsContext.Consumer>
+         {(insets)=>(<View style={style.container}>
             <View
                style={{
                   ...style.header,
@@ -2886,7 +2884,7 @@ export class EditAddress extends React.Component<any, any> {
                </TouchableOpacity>
                <Text style={style.title}>Enter Address</Text>
             </View>
-            <KeyboardAwareScrollView style={style.body}>
+            <ScrollView style={style.body}>
                <Text style={style.BMfieldTitle}>Address</Text>
                <TextInput
                   placeholder={"Enter Address"}
@@ -3116,11 +3114,11 @@ export class EditAddress extends React.Component<any, any> {
             </TouchableOpacity>
             <Text style={style.DefaultAddressText}>Default Address</Text>
           </View> */}
-            </KeyboardAwareScrollView>
+         </ScrollView>
             <TouchableOpacity style={style.button} onPress={() => this.onSubmit()}>
                <Text style={style.buttonText}>Save</Text>
             </TouchableOpacity>
-            {this.renderStateModalView()}
+            {this.renderStateModalView(insets)}
             {this.state.loading && (
                <View
                   style={{
@@ -3133,10 +3131,15 @@ export class EditAddress extends React.Component<any, any> {
                      bottom: 0,
                      top: 0,
                   }}>
-                  <Bars size={15} color={color.PRIMARY_NORMAL} />
+                  <LoaderKit
+                     style={{ width: 45, height: 45 }}
+                     name={'LineScale'}
+                     color={color.PRIMARY_NORMAL}
+                  />
                </View>
             )}
-         </View>
+         </View>)}
+         </SafeAreaInsetsContext.Consumer>
       );
    }
 }
