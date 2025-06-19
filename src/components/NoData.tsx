@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, Image } from 'react-native';
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
-import EmptyData from '@/assets/images/icons/EmptyData.svg';
 
 const SIZE = Dimensions.get('window').width * 0.7;
 
