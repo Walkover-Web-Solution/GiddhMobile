@@ -74,7 +74,7 @@ const InputField : React.FC<InputProps> = ({
         activeOutlineColor={theme.colors.vouchers.stock.background}
         outlineColor={theme.colors.solids.grey.light}          
         style={[styles.input, containerStyle ? containerStyle : undefined]}
-        contentStyle={styles.inputTextStyle}
+        contentStyle={[styles.inputTextStyle, {color: !editable ? theme.colors.secondaryText : theme.colors.text}]}
         onBlur={() => onblur ? onblur() : {}}
         keyboardType={keyboardType}
         onChangeText={(text) => {

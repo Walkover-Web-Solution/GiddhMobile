@@ -53,7 +53,7 @@ import { PaymentServices } from '@/core/services/payment/payment';
 import TOAST from 'react-native-root-toast';
 import SMSUserConsent from '../../../SMSUserConsent';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import Toast from '@/components/Toast';
@@ -818,7 +818,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`,
+        createEndpoint(`company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`),
         {
           'session-id': `${token}`,
           'content-type': 'application/json'
@@ -938,7 +938,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       let pdfName = `${this.state.startDate} to ${this.state.endDate} - ${moment()}`
       RNFetchBlob.fetch(
         'POST',
-        `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`,
+        createEndpoint(`company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`),
         {
           'session-id': `${token}`,
           'content-type': 'application/json'
@@ -1015,7 +1015,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
             };
             RNFetchBlob.fetch(
               'POST',
-              `https://api.giddh.com/company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`,
+              createEndpoint(`company/${activeCompany}/export-daybook-v2?page=0&count=50&from=${this.state.startDate}&to=${this.state.endDate}&format=pdf&type=admin-detailed&sort=asc&branchUniqueName=&lang=en`),
               {
                 'session-id': `${token}`,
                 'content-type': 'application/json'

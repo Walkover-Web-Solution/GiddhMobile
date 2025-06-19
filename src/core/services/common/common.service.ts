@@ -374,4 +374,35 @@ export class CommonService {
     })
   }
 
+  static async generateEWayBill(payload:any) {
+    return httpInstance.post(
+      commonUrls.generateEWayBill, payload)
+    .then((res) => {
+      return res.data;
+    }).catch((err) => {
+      console.log("Error while generating eway bill");
+      return err;
+    })
+  }
+
+  static fetchTaxNumbers() {
+    return httpInstance.get(commonUrls.fetchTaxNumbers)
+    .then((res) => {
+      return res?.data;
+    }).catch((err) => {
+      console.log("Error while fetching tax numbers");
+      return err;
+    })
+  }
+
+  static fetchEWayBills(startDate: string, endDate: string, gstno: string, page: number) {
+    return httpInstance.get(commonUrls.fetchEWayBills(startDate, endDate, gstno, page))
+    .then((res) => {
+      return res?.data;
+    }).catch((err) => {
+      console.log("Error while fetching ewaybill list");
+      return err;
+    })
+  }
+
 }

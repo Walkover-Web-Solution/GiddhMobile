@@ -384,4 +384,39 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
         return null;
       });
   }
+
+  static fetchReceiverDetail(){
+    return httpInstance.get(invoiceUrls.eWayBillUser)
+      .then((res) => {
+        return res.data;
+      }).catch((err) => {
+        console.log(JSON.stringify(err));
+        return null;
+      });
+  }
+
+  static fetchTransporterDetails() {
+    return httpInstance.get(invoiceUrls.fetchTransporterDetails)
+      .then((res) => {
+        return res.data;
+      }).catch((err) => {
+        console.log(JSON.stringify(err));
+        return null;
+      });
+  }
+
+  static addTransporter(payload) {
+    return httpInstance
+    .post(invoiceUrls.fetchTransporterDetails, payload)
+      .then((res) => {
+        return res.data;
+      }).catch((err) => {
+        console.log(JSON.stringify(err));
+        return err;
+      });
+  }
+
+  static async loginEwayBill(payload: any) {
+    return httpInstance.post(invoiceUrls.eWayBillUser, payload)
+  }
 }

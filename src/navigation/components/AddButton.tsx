@@ -6,7 +6,8 @@ import {
     Text,
     TouchableOpacity,
     DeviceEventEmitter,
-    StyleSheet
+    StyleSheet,
+    Platform
 } from 'react-native';
 import SalesInvoice from '@/assets/images/icons/options/SalesInvoice.svg'
 import CreditNote from '@/assets/images/icons/options/CreditNote.svg'
@@ -57,21 +58,21 @@ const arrButtons = [
 
 const inventoryButtons:any = {
     item1 : {
-        name: 'Product Stock', 
+        name: 'Stock', 
         navigateTo: 'ProductScreen', 
         icon: <Stock color='#000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductScreenRefresh'
     },
     item2 : {
-        name: 'Product Group', 
+        name: 'Group', 
         navigateTo: 'productGroupScreen', 
         icon: <Variant color='#008000' />, 
         color: DefaultTheme.colors.secondary,
         event : 'ProductGroupRefresh'   
     },
     item3 : {
-        name: 'Product Inventory', 
+        name: 'Inventory', 
         navigateTo: 'InventoryListScreen', 
         icon: <Inventory color='#800080' />, 
         color: DefaultTheme.colors.secondary,
@@ -100,6 +101,16 @@ const inventoryButtons:any = {
     }
 }
 
+const taxButtons:any = {
+    item1 : {
+        name: 'E-Way Bill', 
+        navigateTo: 'TaxStack', 
+        icon: <MaterialCommunityIcons name="truck-fast-outline" size={26} color={'#084EAD'} />, 
+        color: DefaultTheme.colors.secondary,
+        event : 'ListEWayBillsScreenRefresh'
+    }
+}
+
 type Props = {
     navigation: any;
     isDisabled: any;
@@ -108,13 +119,18 @@ type Props = {
     closeModal: () => void;
 }
 
+const WorkingTouchableOpacity = Platform.OS === "ios"
+  ? TouchableOpacity
+  : Pressable
+
 class AddButtonOptions extends React.PureComponent<Props> {
     constructor(props: Props) {
         super(props);
     }
 
     render() {
-        const data = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
+        const dataInventory = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
+        const dataTax = Object.keys(taxButtons).map(key => taxButtons[key]);
 
         const getRows = (items:any, itemsPerRow:number) => {
             const rows = [];
@@ -125,21 +141,47 @@ class AddButtonOptions extends React.PureComponent<Props> {
         };
 
 
-        const rows = getRows(data, 4);
+        const inventoryRows = getRows(dataInventory, 4);
+        const taxRows = getRows(dataTax, 4);
         return (
             <Portal>
                 <Modalize
                     ref={this?.props?.plusButtonRef}
-                    adjustToContentHeight={true}
+                    // adjustToContentHeight={false}
+                    // modalHeight={height*0.7}
+                    modalTopOffset={height*0.2}
                     withHandle={false}
                     modalStyle={styles.modalStyle}
                 >
+                    <View style={[styles.sectionContainer, { alignSelf:'flex-start' }]}>
+                        <Text style={styles.listTitle}>Tax</Text>
+                        { taxRows.map((rowItems, rowIndex) => (
+                            <View style={styles.buttonContainer} key={rowIndex}>
+                                { rowItems.map((item) => (
+                                    <WorkingTouchableOpacity
+                                        key={item.name}
+                                        style={styles.button}
+                                        onPress={() => {
+                                            this?.props?.closeModal();
+                                            DeviceEventEmitter.emit(APP_EVENTS?.[item?.event]);
+                                            this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
+                                        }}
+                                    >
+                                        <View style={styles.iconContainer}>
+                                            {item.icon}
+                                        </View>
+                                        <Text style={styles.name}>{item.name}</Text>
+                                    </WorkingTouchableOpacity>
+                                ))}
+                            </View>
+                        ))}
+                    </View>
                     <View style={styles.sectionContainer}>
                         <Text style={styles.listTitle}>Inventory</Text>
-                        {rows.map((rowItems, rowIndex) => (
+                        { inventoryRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
                             {rowItems.map((item) => (
-                                <Pressable
+                                <WorkingTouchableOpacity
                                 key={item.name}
                                 style={styles.button}
                                 onPress={async ()=>{
@@ -154,7 +196,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                     {item.icon}
                                 </View>
                                 <Text style={styles.name}>{item.name}</Text>
-                                </Pressable>
+                                </WorkingTouchableOpacity>
                             ))}
                             </View>
                         ))}
@@ -167,7 +209,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         ListHeaderComponent = {()=>(<Text style={styles.listTitle}>Vouchers</Text>)}
                         scrollEnabled={false}
                         renderItem={({ item }) => (
-                            <Pressable
+                            <WorkingTouchableOpacity
                             style={styles.button}
                             onPress={async () => {
                                 this?.props?.closeModal();
@@ -186,7 +228,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                     {item.icon}
                                 </View>
                                 <Text style={styles.name}>{item.name}</Text>
-                            </Pressable>
+                            </WorkingTouchableOpacity>
                         )}
                         keyExtractor={(item) => item.name}
                         />
