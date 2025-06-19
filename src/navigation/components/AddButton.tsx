@@ -6,7 +6,8 @@ import {
     Text,
     TouchableOpacity,
     DeviceEventEmitter,
-    StyleSheet
+    StyleSheet,
+    Platform
 } from 'react-native';
 import SalesInvoice from '@/assets/images/icons/options/SalesInvoice.svg'
 import CreditNote from '@/assets/images/icons/options/CreditNote.svg'
@@ -118,6 +119,10 @@ type Props = {
     closeModal: () => void;
 }
 
+const WorkingTouchableOpacity = Platform.OS === "ios"
+  ? TouchableOpacity
+  : Pressable
+
 class AddButtonOptions extends React.PureComponent<Props> {
     constructor(props: Props) {
         super(props);
@@ -144,7 +149,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                     ref={this?.props?.plusButtonRef}
                     // adjustToContentHeight={false}
                     // modalHeight={height*0.7}
-                    modalTopOffset={height*0.3}
+                    modalTopOffset={height*0.2}
                     withHandle={false}
                     modalStyle={styles.modalStyle}
                 >
@@ -153,9 +158,8 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         { taxRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
                                 { rowItems.map((item) => (
-                                    <TouchableOpacity
+                                    <WorkingTouchableOpacity
                                         key={item.name}
-                                        activeOpacity={0.7}
                                         style={styles.button}
                                         onPress={() => {
                                             this?.props?.closeModal();
@@ -167,7 +171,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                             {item.icon}
                                         </View>
                                         <Text style={styles.name}>{item.name}</Text>
-                                    </TouchableOpacity>
+                                    </WorkingTouchableOpacity>
                                 ))}
                             </View>
                         ))}
@@ -177,7 +181,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         { inventoryRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
                             {rowItems.map((item) => (
-                                <Pressable
+                                <WorkingTouchableOpacity
                                 key={item.name}
                                 style={styles.button}
                                 onPress={async ()=>{
@@ -192,7 +196,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                     {item.icon}
                                 </View>
                                 <Text style={styles.name}>{item.name}</Text>
-                                </Pressable>
+                                </WorkingTouchableOpacity>
                             ))}
                             </View>
                         ))}
@@ -205,7 +209,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         ListHeaderComponent = {()=>(<Text style={styles.listTitle}>Vouchers</Text>)}
                         scrollEnabled={false}
                         renderItem={({ item }) => (
-                            <Pressable
+                            <WorkingTouchableOpacity
                             style={styles.button}
                             onPress={async () => {
                                 this?.props?.closeModal();
@@ -224,7 +228,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                     {item.icon}
                                 </View>
                                 <Text style={styles.name}>{item.name}</Text>
-                            </Pressable>
+                            </WorkingTouchableOpacity>
                         )}
                         keyExtractor={(item) => item.name}
                         />

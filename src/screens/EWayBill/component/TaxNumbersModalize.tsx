@@ -5,8 +5,6 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 
 const RenderItem = ({item, handlePress, setBottomSheetVisible, modalRef}) => {
     const {styles} = useCustomTheme(getStyles);
-    // console.log("hi", item);
-    
     return (
         <TouchableOpacity
             onPress={() => {

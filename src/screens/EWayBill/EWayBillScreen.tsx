@@ -11,7 +11,7 @@ import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
-import { DeviceEventEmitter, Dimensions, KeyboardAvoidingView, Platform, Pressable, RefreshControl, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSelector } from "react-redux";
 import TransporterModalize from "./component/TransporterModalize";
 import TransportModeModalize from "./component/TransportModeModalize";
@@ -273,14 +273,16 @@ const EWayBillScreenComponent = ( {route} ) => {
     }, []);
 
     return (
-        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container} key={key}>
-            <Header header={'Generate E-way Bill'} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+        <>
             { !isLoading && <ScrollView
+                style={styles.container}
+                key={key}
                 keyboardShouldPersistTaps="handled"
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
-            >
+                >
+                <Header header={'Generate E-way Bill'} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
                 <View style={styles.subContainer}>
                     <Text style={styles.heading}>Part A</Text>
                     <InputField 
@@ -429,6 +431,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         mode="date"
                         onConfirm={handleConfirm}
                         onCancel={hideDatePicker}
+                        pickerComponentStyleIOS={{height: 250}}
                     />
                 </View>
                 {CreateButton}
@@ -460,7 +463,7 @@ const EWayBillScreenComponent = ( {route} ) => {
             <TransporterModalize modalizeRef={transporterModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transporterData={transporterDetails} setTransporter={setSelectedTransporter} addTrasporterModalRef={addTransporterModalize}/>
             <AddTransporterModalize modalizeRef={addTransporterModalize} setBottomSheetVisible={setBottomSheetVisible} setTransporter={setTransporterDetails} transporterData={transporterDetails}/>
             <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={ModeOfTransport} transportMode={selectedTransportMode} setTransportMode={setSelectedTransportMode}/>
-        </KeyboardAvoidingView>
+        </>
     )
 }
 

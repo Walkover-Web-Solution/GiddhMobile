@@ -15,7 +15,7 @@ import moment from "moment";
 import { CommonService } from "@/core/services/common/common.service";
 import colors from "@/utils/colors";
 import Toast from "@/components/Toast";
-import DateFilter from "./component/DateFilte";
+import DateFilter from "./component/DateFilter";
 import TaxNumbersModalize from "./component/TaxNumbersModalize";
 import { setBottomSheetVisible } from "@/components/BottomSheet";
 import Loader from "@/components/Loader";
@@ -152,7 +152,7 @@ const RenderItem = ({ item, currency }) => {
                 <Text style={styles.title}>{currency?.currency?.symbol} {item.totalValue}</Text>
             </View>
             <View style={styles.detailsContainer}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <View style={styles.detailsView}>
                     <Text style={styles.regularText}>{item.invoiceDate}</Text>
                     <Text style={[styles.regularText, { fontFamily: theme.typography.fontFamily.semiBold }]}>{item.customerName || 'N/A'}</Text>
                 </View>
@@ -186,11 +186,6 @@ const ListEWayBillsScreen = () => {
         setActiveDateFilter(activeDateFilter);
         setDateMode(dateMode);
     };
-
-    const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-        const isFocused = useIsFocused();
-        return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-    }
 
     const fetchTaxNumbers = async () => {
         try {
@@ -251,8 +246,7 @@ const ListEWayBillsScreen = () => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <_StatusBar statusBar={statusBar} />
+        <View style={styles.container}>
             <Header header={'E-way Bills'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             <DateFilter
                 startDate={date.startDate}
@@ -295,7 +289,7 @@ const ListEWayBillsScreen = () => {
             />
             <Loader isLoading={isLoading} />
             <TaxNumbersModalize modalizeRef={dropDownModalizeRef} setBottomSheetVisible={setBottomSheetVisible} taxData={taxNumbers} setSelectedGst={setSelectedGst} />
-        </SafeAreaView>
+        </View>
     )
 }
 
@@ -355,5 +349,10 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         flexDirection:'row',
         alignItems:'baseline',
         paddingBottom:8
+    },
+    detailsView: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        marginBottom: 5 
     }
 })

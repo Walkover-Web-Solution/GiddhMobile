@@ -4,7 +4,7 @@ import Toast from "@/components/Toast";
 import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useState } from "react";
-import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const {height,width} = Dimensions.get('window')
 
@@ -67,7 +67,7 @@ const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTranspor
                             setTransporterId(text);
                         }}
                     />
-                    <View style={{flexDirection:'row', justifyContent:'space-between',paddingHorizontal:5}}>
+                    <View style={styles.modalView}>
                         <TouchableOpacity
                             style={[styles.createButton,{backgroundColor: (false) ? '#E6E6E6' :'#5773FF'}]}
                             disabled = {false}
@@ -120,4 +120,9 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         color: '#fff',
         fontSize: 20,
     },
+    modalView:{
+        flexDirection:'row', 
+        justifyContent:'space-between',
+        paddingHorizontal:5
+    }
 });
