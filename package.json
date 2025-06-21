@@ -153,6 +153,7 @@
     "react-native-svg-transformer": "^1.0.0",
     "react-native-typescript-transformer": "^1.2.13",
     "react-test-renderer": "19.0.0",
+    "reactotron-react-native": "^5.1.13",
     "ts-jest": "^26.1.4",
     "typescript": "5.0.4"
   },
