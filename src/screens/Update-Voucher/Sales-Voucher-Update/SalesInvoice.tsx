@@ -2562,6 +2562,7 @@ export class SalesInvoice extends React.Component<Props, State> {
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onShare(voucherUniqueName, voucherNo, partyUniqueName,voucherType);

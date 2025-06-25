@@ -104,6 +104,7 @@ const BalanceSheetScreen = () => {
             const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
             if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
                 Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                return;
             }
         }
         await exportFile(viewType);

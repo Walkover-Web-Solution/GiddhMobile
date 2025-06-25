@@ -890,6 +890,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.downloadModalVisible(false);
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.exportFile();
@@ -905,6 +906,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onShare();
@@ -920,6 +922,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onWhatsAppShare();
