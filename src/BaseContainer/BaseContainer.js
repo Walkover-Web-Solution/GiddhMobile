@@ -33,15 +33,15 @@ class BaseContainer extends Component {
     if (userEmail == null) {
       userEmail = "";
     }
-    console.log("LogRocket Details " + "  " + userName + " " + userEmail);
-    LogRocket.identify(userEmail, {
-      name: userName,
-      email: userEmail,
-      newUser:false
-    });
-    // zipy.identify(userEmail,{
+    // console.log("LogRocket Details " + "  " + userName + " " + userEmail);
+    // LogRocket.identify(userEmail, {
+    //   name: userName,
     //   email: userEmail,
-    // })
+    //   newUser:false
+    // });
+    zipy.identify(userEmail,{
+      email: userEmail,
+    })
   }
 
   setLogoutTimer = async (expirationTime) => {
