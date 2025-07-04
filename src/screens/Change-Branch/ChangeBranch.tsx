@@ -9,7 +9,6 @@ import { useIsFocused } from '@react-navigation/native';
 import { getCompanyAndBranches, updateBranchStateDetails } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import color from '@/utils/colors';
-// import LogRocket from '@logrocket/react-native';
 import Loader from '@/components/Loader';
 
 interface Props {
@@ -20,31 +19,6 @@ export class ChangeBranch extends React.Component<Props> {
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
   };
-
-  /**
-   * Add user deatils and current company to log Rocket
-   * @param companyName 
-   * @param BranchName 
-   */
-
-   addUserDeatilsToLogRocket = async (companyName: string, BranchName: string) => {
-    var userName  = await AsyncStorage.getItem(STORAGE_KEYS.userName)
-    var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
-    if(userName==null){
-      userName = "";
-    }
-    if(userEmail==null){
-      userEmail = "";
-    }
-    console.log("Current company and Branch name "+userName+" "+userName+" "+companyName+" "+BranchName)
-    // LogRocket.identify(userEmail, {
-    //   name: userName,
-    //   email: userEmail,
-    //   CompanyName:companyName,
-    //   BranchName:BranchName,
-    //   newUser:false
-    // });
-  }
 
   render () {
     const branches = this.props?.branchList?.sort((a, b) =>
@@ -104,7 +78,6 @@ export class ChangeBranch extends React.Component<Props> {
                     },
                     branchUniqueName : item.uniqueName
                   }
-                  // this.addUserDeatilsToLogRocket(item.name,item.alias)
                   this.props.getCompanyAndBranches();
                   this.props.updateBranchStateDetails(payload);
                   this.props.navigation.reset({

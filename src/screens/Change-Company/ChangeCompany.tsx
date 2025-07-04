@@ -12,8 +12,6 @@ import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-// import LogRocket from '@logrocket/react-native';
-import Entypo from 'react-native-vector-icons/Entypo';
 
 
 interface Props {
@@ -32,30 +30,6 @@ export class ChangeCompany extends React.Component<Props> {
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
-
-  /**
-   * Add user deatils and current company to log Rocket
-   * @param companyName 
-   * @param BranchName 
-   */
-  addUserDeatilsToLogRocket = async (companyName: string, BranchName: string) => {
-    var userName = await AsyncStorage.getItem(STORAGE_KEYS.userName)
-    var userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail)
-    if (userName == null) {
-      userName = "";
-    }
-    if (userEmail == null) {
-      userEmail = "";
-    }
-    console.log("Current company and Branch name " + userName + " " + userEmail + " " + companyName + " " + BranchName)
-    // LogRocket.identify(userEmail, {
-    //   name: userName,
-    //   email: userEmail,
-    //   CompanyName: companyName,
-    //   BranchName: BranchName,
-    //   newUser: false
-    // });
-  }
 
   render() {
     const activeCompany = this.props.route.params.activeCompany;
@@ -101,7 +75,6 @@ export class ChangeCompany extends React.Component<Props> {
                     const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
-                      // this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     
                     const payload = {
