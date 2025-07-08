@@ -5,7 +5,7 @@ import useCustomTheme, { ThemeProps } from '@/utils/theme'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, DeviceEventEmitter, EmitterSubscription, FlatList, PermissionsAndroid, Platform, RefreshControl, StatusBar, StyleSheet, Text, ToastAndroid, View } from 'react-native'
 import SafeAreaView from 'react-native-safe-area-view'
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import Routes from '@/navigation/routes'
 import { useIsFocused } from '@react-navigation/native';
 import StickyDay from '../Transaction/components/StickyDay'
@@ -40,9 +40,10 @@ type Props = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchT
     route: any
 }
 
-const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-    const isFocused = useIsFocused();
-    return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
+export const consolidatedBranchSetter = async (branchList:any[], setIsConsolidatedBranch:any) => {
+    const activeBranchUniqueName = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    const selectedBranch = branchList.filter((item:any)=>item?.uniqueName === activeBranchUniqueName);
+    setIsConsolidatedBranch(selectedBranch?.[0]?.consolidatedBranch);
 }
 
 const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion, route }) => {
@@ -61,6 +62,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const [activeDateFilter, setActiveDateFilter] = useState('');
     const [dateMode, setDateMode] = useState('defaultDates');
     const [voucherToDelete, setVoucherToDelete] = useState({ accountUniqueName: '', voucherUniqueName: '', voucherType: '' });
+    const { branchList } = useSelector(state => state.commonReducer);
+    const [isConsolidatedBranch, setIsConsolidatedBranch] = useState(false);
 
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
@@ -361,13 +364,14 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 downloadFile={downloadFile}
                 onPressDelete={onPressDelete}
                 accountDetail={item?.account}
+                isConsolidatedBranch={isConsolidatedBranch}
             />
         )
     }
 
     useEffect(() => {
         refreshData();
-
+        consolidatedBranchSetter(branchList, setIsConsolidatedBranch);
         const listeners : Array<EmitterSubscription> = [];
         
         ListnerEvents.forEach((Event) => {

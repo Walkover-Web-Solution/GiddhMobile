@@ -391,7 +391,7 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
         return res.data;
       }).catch((err) => {
         console.log(JSON.stringify(err));
-        return null;
+        return err?.data;
       });
   }
 

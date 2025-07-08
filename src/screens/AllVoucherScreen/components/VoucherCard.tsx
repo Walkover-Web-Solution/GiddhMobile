@@ -33,7 +33,8 @@ type Props = {
     shareFile: (uniqueName: string, voucherNumber: string) => void
     downloadFile: (uniqueName: string, voucherNumber: string) => void
     onPressDelete: (accountUniqueName: string, voucherUniqueName: string, voucherType: string) => void,
-    accountDetail: any
+    accountDetail: any,
+    isConsolidatedBranch:boolean
 }
 
 const _RenderVoucher : React.FC<Props> = ({ 
@@ -55,7 +56,8 @@ const _RenderVoucher : React.FC<Props> = ({
     shareFile, 
     downloadFile,
     onPressDelete, 
-    accountDetail
+    accountDetail,
+    isConsolidatedBranch
 }) => {
     const swipeableRef = useRef<Swipeable>(null);
     const navigation = useNavigation();
@@ -124,7 +126,7 @@ const _RenderVoucher : React.FC<Props> = ({
                     <MaterialCommunityIcons name="file-eye-outline" size={20} color={'#000'} />
                     <Text style={styles.modalText}>Preview</Text>
                 </TouchableOpacity>
-                {voucherName == "Sales" && <TouchableOpacity
+                {voucherName == "Sales" && !(isConsolidatedBranch) &&  <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles.iconButton}
                     hitSlop={{ top: 10, bottom: 10 }}
