@@ -16,7 +16,6 @@ import {
   StatusBar,
   PermissionsAndroid,
   Alert,
-  KeyboardAvoidingView
 } from 'react-native';
 // import style from './style';
 import { connect } from 'react-redux';
@@ -24,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment, { Moment } from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _, { isInteger } from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -40,7 +39,7 @@ import { FONT_FAMILY } from '@/utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 
 const { SafeAreaOffsetHelper } = NativeModules;
@@ -396,8 +395,6 @@ export class PurchaseBill extends React.Component<Props, State> {
 
   componentDidMount() {
     this.setBottomSheetVisible(this.paymentModeBottomSheetRef, true);
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
 
     if(this.isVoucherUpdate){
       this.getPartyDataForUpdateVoucher(this.state.searchPartyName)
@@ -1314,10 +1311,10 @@ export class PurchaseBill extends React.Component<Props, State> {
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       console.log("for on share api", token);
-      console.log(`https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=base64`);
+      console.log(createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=base64`));
       RNFetchBlob.fetch(
         'GET',
-        `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=pdf`,
+        createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/purchase-record/${voucherName}/download?fileType=pdf`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json',
@@ -3262,7 +3259,6 @@ export class PurchaseBill extends React.Component<Props, State> {
             pointerEvents={ this.state.isSearchingParty ? 'none' : 'auto' }
             style={[style.container, {paddingBottom: 40}]}
           >
-            <_StatusBar statusBar='#ef6c00' />
             <View style={style.headerConatiner}>
               {this.renderSelectPartyName()}
               {this.renderAmount()}
@@ -3277,6 +3273,7 @@ export class PurchaseBill extends React.Component<Props, State> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
@@ -3304,7 +3301,11 @@ export class PurchaseBill extends React.Component<Props, State> {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
         </Animated.ScrollView>

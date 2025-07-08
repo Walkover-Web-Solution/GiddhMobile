@@ -52,7 +52,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
             setTotalIncome({...response?.body?.incomeStatement?.revenue})
             setnetPL({...response?.body?.incomeStatement?.incomeBeforeTaxes})
         }else{
-            Toast({message: response?.message, position:'BOTTOM',duration:'LONG'})
+            Toast({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
         }
         setChartLoading(false);
     } catch (error) {
@@ -122,6 +122,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         text:'Expense'
     }
     ];
+console.log("pie data", pieData, totalExpense, totalIncome, netPL);
 
     return (
     <View style={styles.container}>
@@ -148,7 +149,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
                     labelLineConfig={{length:-20,labelComponentWidth: 45,}}
                     paddingHorizontal={10}
                     externalLabelComponent={(item) => {
-                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold}>
+                    return <SvgText fontSize={theme.typography.fontSize.small.size} fontFamily={theme.typography.fontFamily.bold} fill={theme.colors.secondary}>
                             {item?.text}
                         </SvgText>
                     }}

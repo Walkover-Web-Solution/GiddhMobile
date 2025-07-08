@@ -9,7 +9,7 @@ import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { Company } from '@/models/interfaces/company';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS,STORAGE_KEYS } from '@/utils/constants';
 import TOAST from 'react-native-root-toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -134,7 +134,11 @@ export const Vendors = (props) => {
           justifyContent: 'center',
           alignItems: 'center'
         }}>
-        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+        <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+        />
       </View>
     );
   }
@@ -299,7 +303,11 @@ export const Vendors = (props) => {
             bottom: 0,
             top: 0,
           }}>
-          <Bars size={15} color={'#5773FF'} />
+          <LoaderKit
+              style={{ width: 45, height: 45 }}
+              name={'LineScale'}
+              color={colors.PRIMARY_NORMAL}
+          />
         </View>
       )}
     </View>

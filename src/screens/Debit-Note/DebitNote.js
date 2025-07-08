@@ -24,7 +24,7 @@ import { FONT_FAMILY } from '../../utils/constants';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -207,8 +207,6 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -2293,7 +2291,6 @@ export class DebiteNote extends React.Component<Props> {
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={[style.container, { paddingBottom: 80 }]}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}
@@ -2310,6 +2307,7 @@ export class DebiteNote extends React.Component<Props> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
@@ -2325,7 +2323,11 @@ export class DebiteNote extends React.Component<Props> {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
         </Animated.ScrollView>

@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
-import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme";
+import useCustomTheme from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { Animated, DeviceEventEmitter, Dimensions, Keyboard, KeyboardAvoidingView, Platform, StatusBar, Text, TouchableOpacity, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, Keyboard, Platform, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { APP_EVENTS, STORAGE_KEYS } from "@/utils/constants";
 import RenderStockName from "./RenderStockName";
@@ -656,145 +656,138 @@ const ProductScreen = ()=>{
     
     
     return (
-        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={[styles.container,styles.backGround]}>
-            <View>
-                <Animated.ScrollView
-                    style={styles.backGround}
-                    bounces={false}>
-                    <_StatusBar statusBar={statusBar}/>
-                    <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
-                        headerRightContent={
-                            <>
-                            <TouchableOpacity
-                                activeOpacity={0.7}
-                                hitSlop={{ top: 10, bottom: 10 }}
-                                style={{ padding: 8 }}
-                                onPress={() => {
-                                    clearAll();
-                                }}
-                            >
-                                <Text style={styles.smallText}>Clear</Text>
-                            </TouchableOpacity>
-                            </>}
-                        />
-                    <RenderStockName
-                        key={childKeys.key1}
-                        handleInputChange={handleInputChange}
-                        allData={otherDataRef}
-                        clearAll={clearAll}
-                        type="PRODUCT"
-                    />
-                    <RenderUnitGroup 
-                        key={childKeys.key2} 
-                        unit ={unit} 
-                        unitGroupName={selectedUnitGroup} 
-                        unitGroupModalRef={unitGroupModalRef} 
+        <ScrollView style={[styles.backGround, styles.container]}>
+            <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
+                headerRightContent={
+                    <>
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        hitSlop={{ top: 10, bottom: 10 }}
+                        style={{ padding: 8 }}
+                        onPress={() => {
+                            clearAll();
+                        }}
+                    >
+                        <Text style={styles.smallText}>Clear</Text>
+                    </TouchableOpacity>
+                    </>}
+                />
+            <RenderStockName
+                key={childKeys.key1}
+                handleInputChange={handleInputChange}
+                allData={otherDataRef}
+                clearAll={clearAll}
+                type="PRODUCT"
+            />
+            <RenderUnitGroup 
+                key={childKeys.key2} 
+                unit ={unit} 
+                unitGroupName={selectedUnitGroup} 
+                unitGroupModalRef={unitGroupModalRef} 
+                setBottomSheetVisible={setBottomSheetVisible} 
+                unitGroupMappingModalRef={unitGroupMappingModalRef} 
+                unitGroupArr={unitGroupArr} 
+                setSelectedUnitGroup={setSelectedUnitGroup} 
+                setSelectedUnitGroupUniqueName={setSelectedUnitGroupUniqueName} 
+                fetchUnitGroupMappingDebounce={fetchUnitGroupMappingDebounce} 
+                selectedUnitGroup={selectedUnitGroup} 
+                unitGroupMapping={unitGroupMapping}
+                setUnit={setUnit}
+                setUnitGroupMapping={setUnitGroupMapping}
+                fetchLinkedUnitMapping={fetchLinkedUnitMapping}/>
+            <View style={{flexDirection:'row',width:'100%',marginBottom:5,paddingHorizontal:16,justifyContent:'space-between'}}>
+                <View style={{width:'48%'}}>
+                    <RenderTaxes 
+                        key={childKeys.key3} 
+                        selectedUniqueTax={selectedUniqueTax} 
+                        taxModalRef={taxModalRef} 
                         setBottomSheetVisible={setBottomSheetVisible} 
-                        unitGroupMappingModalRef={unitGroupMappingModalRef} 
-                        unitGroupArr={unitGroupArr} 
-                        setSelectedUnitGroup={setSelectedUnitGroup} 
-                        setSelectedUnitGroupUniqueName={setSelectedUnitGroupUniqueName} 
-                        fetchUnitGroupMappingDebounce={fetchUnitGroupMappingDebounce} 
-                        selectedUnitGroup={selectedUnitGroup} 
-                        unitGroupMapping={unitGroupMapping}
-                        setUnit={setUnit}
-                        setUnitGroupMapping={setUnitGroupMapping}
-                        fetchLinkedUnitMapping={fetchLinkedUnitMapping}/>
-                    <View style={{flexDirection:'row',width:'100%',marginBottom:5,paddingHorizontal:16,justifyContent:'space-between'}}>
-                        <View style={{width:'48%'}}>
-                            <RenderTaxes 
-                                key={childKeys.key3} 
-                                selectedUniqueTax={selectedUniqueTax} 
-                                taxModalRef={taxModalRef} 
-                                setBottomSheetVisible={setBottomSheetVisible} 
-                                taxArr={taxArr} 
-                                setSelectedUniqueTax={setSelectedUniqueTax}
-                            />
-                        </View>
-                        <View style={{width:'48%'}}>
-                            <RenderGroups 
-                                key={childKeys.key4} 
-                                groupName={selectedGroup}
-                                groupModalRef={groupModalRef} 
-                                setBottomSheetVisible={setBottomSheetVisible} 
-                                fetchAllParentGroup={fetchAllParentGroup} 
-                                parentGroupArr={parentGroupArr}
-                                setSelectedGroup={setSelectedGroup} 
-                                setSelectedGroupUniqueName={setSelectedGroupUniqueName}
-                            />
-                        </View>
-                    </View>
-                    <RenderLinkedAcc 
-                        key={childKeys.key5}
-                        unit={unit} 
-                        type="purchase"
-                        purchaseSubUnitMappingModalRef={purchaseSubUnitMappingModalRef} 
-                        salesSubUnitMappingModalRef={salesSubUnitMappingModalRef}
+                        taxArr={taxArr} 
+                        setSelectedUniqueTax={setSelectedUniqueTax}
+                    />
+                </View>
+                <View style={{width:'48%'}}>
+                    <RenderGroups 
+                        key={childKeys.key4} 
+                        groupName={selectedGroup}
+                        groupModalRef={groupModalRef} 
                         setBottomSheetVisible={setBottomSheetVisible} 
-                        purchaseSubUnits={purchaseSubUnits} 
-                        salesSubUnits={salesSubUnits}
-                        salesAccModalRef={salesAccModalRef}
-                        purchaseAccModalRef={purchaseAccModalRef}
-                        purchaseAccount={purchaseAccount}
-                        salesAccount={salesAccount}
-                        handleRateChange={handleInputChange}
-                        variantsChecked={variantsChecked}
-                        setPurchaseSubUnits={setPurchaseSubUnits}
-                        setSalesSubUnits={setSalesSubUnits}
-                        subUnits={subUnits}
-                        salesAccountArr={salesAccountArr}
-                        purchaseAccountArr={purchaseAccountArr}
-                        setPurchaseAccount={setPurchaseAccount}
-                        setSalesAccount={setSalesAccount}
+                        fetchAllParentGroup={fetchAllParentGroup} 
+                        parentGroupArr={parentGroupArr}
+                        setSelectedGroup={setSelectedGroup} 
+                        setSelectedGroupUniqueName={setSelectedGroupUniqueName}
                     />
-                    <RenderLinkedAcc 
-                        key={childKeys.key8}
-                        unit={unit} 
-                        type="sales"
-                        purchaseSubUnitMappingModalRef={purchaseSubUnitMappingModalRef} 
-                        salesSubUnitMappingModalRef={salesSubUnitMappingModalRef}
-                        setBottomSheetVisible={setBottomSheetVisible} 
-                        purchaseSubUnits={purchaseSubUnits} 
-                        salesSubUnits={salesSubUnits}
-                        salesAccModalRef={salesAccModalRef}
-                        purchaseAccModalRef={purchaseAccModalRef}
-                        purchaseAccount={purchaseAccount}
-                        salesAccount={salesAccount}
-                        handleRateChange={handleInputChange}
-                        variantsChecked={variantsChecked}
-                        setPurchaseSubUnits={setPurchaseSubUnits}
-                        setSalesSubUnits={setSalesSubUnits}
-                        subUnits={subUnits}
-                        salesAccountArr={salesAccountArr}
-                        purchaseAccountArr={purchaseAccountArr}
-                        setPurchaseAccount={setPurchaseAccount}
-                        setSalesAccount={setSalesAccount}
-                    />
-                    <RenderVariants 
-                        key={childKeys.key7} 
-                        setVariantsChecked={setVariantsChecked} 
-                        handleGlobalInputChange={handleInputChange} 
-                        unit={unit} 
-                        globalData={otherDataRef?.current} 
-                        subUnits={subUnits} 
-                        purchaseAccount={purchaseAccount}
-                        salesAccount={salesAccount}
-                        variantCustomFields={variantCustomFields}
-                    />
-                    <RenderOtherInfo 
-                        key={childKeys.key6} 
-                        handleInputChange={handleInputChange} 
-                        variantsChecked={variantsChecked} 
-                        variantCustomFields={variantCustomFields} 
-                        globalData={otherDataRef?.current}
-                    />
-                    {CreateButton}
-                </Animated.ScrollView>
+                </View>
             </View>
+            <RenderLinkedAcc 
+                key={childKeys.key5}
+                unit={unit} 
+                type="purchase"
+                purchaseSubUnitMappingModalRef={purchaseSubUnitMappingModalRef} 
+                salesSubUnitMappingModalRef={salesSubUnitMappingModalRef}
+                setBottomSheetVisible={setBottomSheetVisible} 
+                purchaseSubUnits={purchaseSubUnits} 
+                salesSubUnits={salesSubUnits}
+                salesAccModalRef={salesAccModalRef}
+                purchaseAccModalRef={purchaseAccModalRef}
+                purchaseAccount={purchaseAccount}
+                salesAccount={salesAccount}
+                handleRateChange={handleInputChange}
+                variantsChecked={variantsChecked}
+                setPurchaseSubUnits={setPurchaseSubUnits}
+                setSalesSubUnits={setSalesSubUnits}
+                subUnits={subUnits}
+                salesAccountArr={salesAccountArr}
+                purchaseAccountArr={purchaseAccountArr}
+                setPurchaseAccount={setPurchaseAccount}
+                setSalesAccount={setSalesAccount}
+            />
+            <RenderLinkedAcc 
+                key={childKeys.key8}
+                unit={unit} 
+                type="sales"
+                purchaseSubUnitMappingModalRef={purchaseSubUnitMappingModalRef} 
+                salesSubUnitMappingModalRef={salesSubUnitMappingModalRef}
+                setBottomSheetVisible={setBottomSheetVisible} 
+                purchaseSubUnits={purchaseSubUnits} 
+                salesSubUnits={salesSubUnits}
+                salesAccModalRef={salesAccModalRef}
+                purchaseAccModalRef={purchaseAccModalRef}
+                purchaseAccount={purchaseAccount}
+                salesAccount={salesAccount}
+                handleRateChange={handleInputChange}
+                variantsChecked={variantsChecked}
+                setPurchaseSubUnits={setPurchaseSubUnits}
+                setSalesSubUnits={setSalesSubUnits}
+                subUnits={subUnits}
+                salesAccountArr={salesAccountArr}
+                purchaseAccountArr={purchaseAccountArr}
+                setPurchaseAccount={setPurchaseAccount}
+                setSalesAccount={setSalesAccount}
+            />
+            <RenderVariants 
+                key={childKeys.key7} 
+                setVariantsChecked={setVariantsChecked} 
+                handleGlobalInputChange={handleInputChange} 
+                unit={unit} 
+                globalData={otherDataRef?.current} 
+                subUnits={subUnits} 
+                purchaseAccount={purchaseAccount}
+                salesAccount={salesAccount}
+                variantCustomFields={variantCustomFields}
+            />
+            <RenderOtherInfo 
+                key={childKeys.key6} 
+                handleInputChange={handleInputChange} 
+                variantsChecked={variantsChecked} 
+                variantCustomFields={variantCustomFields} 
+                globalData={otherDataRef?.current}
+            />
+            {CreateButton}
             <Loader isLoading={isLoading}/>
             {successBox}
             {failureBox}
-        </KeyboardAvoidingView>
+        </ScrollView>
     )
 }
 

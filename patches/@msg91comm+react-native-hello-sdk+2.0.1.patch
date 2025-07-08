@@ -1,0 +1,71 @@
+diff --git a/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx b/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx
+index a31ddcb..5eff53a 100644
+--- a/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx
++++ b/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx
+@@ -1,6 +1,7 @@
+ import { View, Platform, Linking, Dimensions, KeyboardAvoidingView, StatusBar } from 'react-native'
+ import React, { useState, useEffect } from 'react'
+ import { WebView } from 'react-native-webview';
++import { useSafeAreaInsets } from 'react-native-safe-area-context';
+ const { height, width } = Dimensions.get('screen');
+ 
+ interface CustomChatProps {
+@@ -20,7 +21,7 @@ const Chat: React.FC<CustomChatProps> = ({ widgetColor = null, isChatOn, closeCh
+   const [startWidget, setStartWidget] = useState(preLoaded);
+   const [helloConfigState, setHelloConfigState] = useState(helloConfig);
+   const [retryCount, setRetryCount] = useState(0);
+-
++  const insets = useSafeAreaInsets();
+   useEffect(() => {
+     if (isChatOn) {
+       setStartWidget(true)
+@@ -127,19 +128,21 @@ const Chat: React.FC<CustomChatProps> = ({ widgetColor = null, isChatOn, closeCh
+       <View
+         style={{
+           position: 'absolute',
++          top:insets.top,
++          bottom:insets.bottom,
+           backgroundColor: Platform.OS == 'ios' ? widgetColor ? widgetColor : '#FFFFFF' : '#FFFFFF',
+           width: isChatOn ? width : 0,
+           height: isChatOn ? '100%' : 0
+         }}>
+-        <StatusBar
++        {/* <StatusBar
+           translucent={isChatOn ? false : null}
+-          backgroundColor={isChatOn ? widgetColor : null} barStyle={isChatOn ? statusBarStyle : null} />
+-        <KeyboardAvoidingView
+-          behavior={Platform.OS === 'ios' ? 'padding' : null}
++          backgroundColor={isChatOn ? widgetColor : null} barStyle={isChatOn ? statusBarStyle : null} /> */}
++        {/* <KeyboardAvoidingView
++          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+           style={{
+             width: isChatOn ? width : 0,
+-            height: isChatOn ? Platform.OS == 'android' ? '100%' : hasNotch ? height - StatusBar.currentHeight : height - StatusBar.currentHeight * 3 : 0,
+-          }} >
++            height: isChatOn ? Platform.OS == 'android' ? '100%' : hasNotch ? height : height  : 0,
++          }} > */}
+           <View style={{ flex: 1, marginTop: Platform.OS == 'ios' ? 30 : 0 }} >
+             <WebView
+               ref={webviewRef}
+@@ -158,7 +161,7 @@ const Chat: React.FC<CustomChatProps> = ({ widgetColor = null, isChatOn, closeCh
+               }}
+             />
+           </View>
+-        </KeyboardAvoidingView>
++        {/* </KeyboardAvoidingView> */}
+       </View>
+     )
+   } else {
+diff --git a/node_modules/@msg91comm/react-native-hello-sdk/index.tsx b/node_modules/@msg91comm/react-native-hello-sdk/index.tsx
+index b6a2f8c..54e7f13 100644
+--- a/node_modules/@msg91comm/react-native-hello-sdk/index.tsx
++++ b/node_modules/@msg91comm/react-native-hello-sdk/index.tsx
+@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
+ import Chat from './Chat'
+ import { apiService } from './API'
+ import CobrowseIO from 'cobrowse-sdk-react-native';
+-
++// Patched to force newer react-native-webview version
+ interface ChatWidgetProps {
+     preLoaded?: boolean,
+     widgetColor: string,

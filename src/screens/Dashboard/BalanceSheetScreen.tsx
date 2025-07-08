@@ -122,7 +122,7 @@ const BalanceSheetScreen = () => {
       if (response?.body && response?.status == 'success') {
         setBalanceSheet(response?.body?.groupDetails);
       }else{
-        TOAST({message: response?.message, position:'BOTTOM',duration:'LONG'})
+        TOAST({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
       }
       setLoading(false);
     } catch (error) {

@@ -108,7 +108,9 @@ export const APP_EVENTS = {
   ServiceGroupRefresh: 'SERVICE_GROUP_REFRESH',
   ServiceInventoryListRefresh : 'SERVICE_INVENTORY_LIST_REFRESH',   
   ProductInventoryListRefresh : 'PRODUCT_INVENTORY_LIST_REFRESH',
-  consolidateBranch : 'CONSOLIDATE_BRANCH'
+  consolidateBranch : 'CONSOLIDATE_BRANCH',
+  EWayBillScreenRefresh: 'EWAY_BILL_SCREEN_REFRESH',
+  ListEWayBillsScreenRefresh: 'LIST_EWAY_BILLS_SCREEN_REFRESH'
 };
 
 export const FONT_FAMILY = {

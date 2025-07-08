@@ -1,18 +1,18 @@
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useRef } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
-import { Container, ScrollContainer } from '@/components/Container';
 import Header from '@/components/Header';
 import InputField from '@/components/InputField';
 import PlanSummarySection from './components/PlanSummarySection';
 import { useNavigation } from '@react-navigation/native';
-import CountryPicker, { CountryCode, Flag, isCountryCode } from 'react-native-country-picker-modal'
+import CountryPicker, { CountryCode, FlagButton, isCountryCode } from 'react-native-country-picker-modal'
 import OutlinedButton from '@/components/OutlinedButton';
 import useGetCountriesStates from './hooks/useGetCountriesStates';
 import useForm from './hooks/useForm';
 import BottomSheet from '@/components/BottomSheet';
 import { validateEmail, validateGST, validatePhoneNumber } from '@/utils/helper';
 import GlobeIcon from '@/assets/images/icons/globe.svg'
+import { ScrollView } from 'react-native';
 
 const { height } = Dimensions.get('window');
 
@@ -34,14 +34,14 @@ const BillingAccountScreen = () => {
     }
     
     return (
-        <Container>
+        <View style={{flex:1, backgroundColor:theme.colors.background}}>
             <Header
                 header='Select Billing Account'
                 statusBarColor={statusBar}
                 backgroundColor={voucherBackground}
                 isBackButtonVisible
             />
-            <ScrollContainer>
+            <ScrollView style={{flexGrow:1}}>
                     <Text style={styles.headingText}>Create a new billing account</Text>
 
                     <InputField
@@ -99,7 +99,7 @@ const BillingAccountScreen = () => {
                                 withFilter
                                 withFlag
                                 withEmoji
-                                containerButtonStyle={{ paddingTop: 6, paddingLeft: 6 }}
+                                containerButtonStyle={{ paddingTop: 0, paddingLeft: 6 }}
                                 withCloseButton={false}
                                 // @ts-ignore
                                 flatListProps={{style: {paddingHorizontal: 15}}}
@@ -190,7 +190,7 @@ const BillingAccountScreen = () => {
                         Back to Plan
                     </PlanSummarySection.Button>
                 </PlanSummarySection>
-            </ScrollContainer>
+            </ScrollView>
 
             <BottomSheet
                 bottomSheetRef={countryPickerBottomSheetRef}
@@ -242,7 +242,7 @@ const BillingAccountScreen = () => {
                     )}
                 }}
             />
-        </Container>
+        </View>
     )
 }
 
@@ -253,10 +253,12 @@ const ListItem = ({ code, name, isCountrySelector = false, onPress, buttonStyle,
         onPress={onPress}
     >
         { isCountrySelector && (isCountryCode(code) ? 
-            <Flag
+            <FlagButton
                 countryCode={code}
-                flagSize={16}
-            /> : 
+                placeholder={""}
+                containerButtonStyle={{marginTop:-3}}
+            />
+            : 
             <View style={{paddingLeft:5, paddingRight:16}} >
                 <GlobeIcon height={19} width={19}/>
             </View>)

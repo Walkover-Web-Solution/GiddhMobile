@@ -14,7 +14,7 @@ import { ButtonSize } from '@/models/enums/button';
 import { GdImages } from '@/utils/icons-pack';
 import { WEBCLIENT_ID } from '@/env.json';
 // @ts-ignore
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import { googleLogin, appleLogin, userEmailLogin, loginWithOTP } from './LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
@@ -40,8 +40,6 @@ class Login extends React.Component<any, any> {
     GoogleSignin.configure({
       webClientId: `${WEBCLIENT_ID}`
     });
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
   }
 
   componentDidUpdate(prevProps) {
@@ -53,8 +51,6 @@ class Login extends React.Component<any, any> {
   }
 
   componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
   }
 
   async onAppleButtonPress() {
@@ -295,7 +291,11 @@ class Login extends React.Component<any, any> {
               bottom: 0,
               top: 0
             }}>
-            <Bars size={15} color={color.PRIMARY_NORMAL} />
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+            />
           </View>
         )}
         {this.state.isOtpModalVisible && this._loginWithOTP()}

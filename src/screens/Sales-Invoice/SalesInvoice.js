@@ -16,7 +16,6 @@ import {
   StatusBar,
   PermissionsAndroid,
   Alert,
-  KeyboardAvoidingView
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
@@ -24,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _, { result } from 'lodash';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
@@ -38,10 +37,8 @@ import RNFetchBlob from 'react-native-blob-util';
 import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -86,7 +83,7 @@ export class SalesInvoice extends React.Component<Props> {
       endDate: null,
       date: moment(),
       displayedDate: moment(),
-      dueDate: moment().add(10, 'day'),
+      dueDate: moment(),
       showDatePicker: false,
       showDueDatePicker: false,
       partyBillingAddress: {
@@ -223,8 +220,6 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.searchCalls();
     this.setActiveCompanyCountry();
     this.getAllTaxes();
@@ -696,7 +691,7 @@ export class SalesInvoice extends React.Component<Props> {
       endDate: null,
       date: moment(),
       displayedDate: moment(),
-      dueDate: moment().add(10, 'day'),
+      dueDate: moment(),
       showDatePicker: false,
       showDueDatePicker: false,
       partyBillingAddress: {},
@@ -849,7 +844,7 @@ export class SalesInvoice extends React.Component<Props> {
         // discounts: [
         //   {calculationMethod: 'FIX_AMOUNT', amount: {type: 'DEBIT', amountForAccount: 0}, name: '', particular: ''},
         // ],
-        hsnNumber: item.hsnNumber == null ? '' : item.hsnNumber,
+        hsnNumber: item.stock ? (item.stock?.hsnNumber ?? '') : (item.hsnNumber == null ? '' : item.hsnNumber),
         purchaseOrderItemMapping: { uniqueName: '', entryUniqueName: '' },
         sacNumber: item.sacNumber == null ? '' : item.sacNumber,
         taxes: this.getTaxesForEntry(item),
@@ -995,29 +990,24 @@ export class SalesInvoice extends React.Component<Props> {
         const invoiceType = this.state.invoiceType;
         const partyUniqueName = this.state.partyDetails.uniqueName;
         // Here for cash invoice party detail is empty {}
-        this.resetState();
-        await this.setActiveCompanyCountry();
-        await this.getAllTaxes();
-        await this.getAllDiscounts();
-        await this.getAllWarehouse();
-        await this.getAllAccountsModes();
-        await this.getCompanyVersionNumber();
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
         if (type == 'navigate') {
           if (invoiceType == INVOICE_TYPE.cash) {
             this.props.navigation.goBack();
           } else {
-            this.props.navigation.navigate(routes.Parties, {
-              screen: 'PartiesTransactions',
-              initial: false,
-              params: {
-                item: {
-                  name: partyDetails.name,
-                  uniqueName: partyDetails.uniqueName,
-                  country: { code: partyDetails.country.countryCode },
-                  mobileNo: partyDetails.mobileNo
-                },
-                type: 'Creditors'
+            this.props.navigation.navigate("Home", {
+              screen: routes.Parties, 
+              params : {
+                screen: 'PartiesTransactions',
+                initial: false,
+                params: {
+                  item: {
+                    name: partyDetails.name,
+                    uniqueName: partyDetails.uniqueName,
+                    country: { code: partyDetails.country.countryCode },
+                    mobileNo: partyDetails.mobileNo
+                  },
+                  type: 'Creditors'
+                }
               }
             });
           }
@@ -1032,6 +1022,14 @@ export class SalesInvoice extends React.Component<Props> {
             results.body?.type
           );
         }
+        this.resetState();
+        await this.setActiveCompanyCountry();
+        await this.getAllTaxes();
+        await this.getAllDiscounts();
+        await this.getAllWarehouse();
+        await this.getAllAccountsModes();
+        await this.getCompanyVersionNumber();
+        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
       }
     } catch (e) {
       console.log('problem occured', e);
@@ -1088,7 +1086,7 @@ export class SalesInvoice extends React.Component<Props> {
   handleConfirm = (date) => {
     // console.log('A date has been picked: ', date);
     // this.setState({shipDate: moment(date).format('DD-MM-YYYY')});
-    this.setState({ date: moment(date), dueDate: moment(date).add(10, 'day') });
+    this.setState({ date: moment(date), dueDate: moment(date) });
     this.hideDatePicker();
   };
 
@@ -2087,8 +2085,8 @@ export class SalesInvoice extends React.Component<Props> {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf` :
-          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+        this.state.companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`) :
+          createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'
@@ -2533,13 +2531,12 @@ export class SalesInvoice extends React.Component<Props> {
   render() {
     
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'yellow' }}>
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
           bounces={false}>
           <View style={style.container}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderSelectPartyName()}
@@ -2554,12 +2551,14 @@ export class SalesInvoice extends React.Component<Props> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
             <DateTimePickerModal
               isVisible={this.state.showDueDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleDueDateConfirm}
               onCancel={this.hideDueDatePicker}
             />
@@ -2574,7 +2573,11 @@ export class SalesInvoice extends React.Component<Props> {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
         </Animated.ScrollView>

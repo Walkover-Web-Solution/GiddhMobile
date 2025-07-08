@@ -24,6 +24,7 @@ import VoucherCard from './components/VoucherCard'
 import Toast from '@/components/Toast'
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet'
 import { setBottomSheetVisible } from '@/components/BottomSheet'
+import { createEndpoint } from '@/utils/helper'
 
 const ListnerEvents = [
     APP_EVENTS.comapnyBranchChange,
@@ -139,8 +140,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
             RNFetchBlob.fetch(
                 'POST',
-                companyVoucherVersion == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf` :
-                    `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${companyVoucherVersion}&fileType=pdf&downloadOption=VOUCHER`,
+                companyVoucherVersion == 1 ? createEndpoint(`company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf`) :
+                    createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${companyVoucherVersion}&fileType=pdf&downloadOption=VOUCHER`),
                 {
                     'session-id': `${token}`,
                     'Content-Type': 'application/json'
@@ -218,8 +219,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
             RNFetchBlob.fetch(
                 'POST',
-                companyVoucherVersion == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf` :
-                    `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${companyVoucherVersion}&fileType=pdf&downloadOption=VOUCHER`,
+                companyVoucherVersion == 1 ? createEndpoint(`company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf`) :
+                    createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${companyVoucherVersion}&fileType=pdf&downloadOption=VOUCHER`),
                 {
                     'session-id': `${token}`,
                     'Content-Type': 'application/json'
@@ -359,6 +360,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 shareFile={shareFile}
                 downloadFile={downloadFile}
                 onPressDelete={onPressDelete}
+                accountDetail={item?.account}
             />
         )
     }
@@ -379,7 +381,6 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
     return (
         <View style={styles.container}>
-            <_StatusBar statusBar={statusBar}/>
             <Header header={voucherName} isBackButtonVisible={isBackButtonVisible} backgroundColor={voucherBackground} />
             <View style={styles.container}>
                 <DateFilter

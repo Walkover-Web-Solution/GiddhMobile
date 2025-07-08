@@ -23,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment, { Moment } from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _, { result } from 'lodash';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
@@ -38,7 +38,7 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 
 const { SafeAreaOffsetHelper } = NativeModules;
@@ -301,9 +301,6 @@ export class SalesInvoice extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-
     if(this.isVoucherUpdate){
       this.getPartyDataForUpdateVoucher(this.state.searchPartyName)
     } else {
@@ -2579,8 +2576,8 @@ export class SalesInvoice extends React.Component<Props, State> {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf` :
-          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+        this.state.companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${partyUniqueName}/vouchers/download-file?fileType=pdf`) :
+          createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'
@@ -3030,7 +3027,6 @@ export class SalesInvoice extends React.Component<Props, State> {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <_StatusBar statusBar='#0E7942' />
         <Animated.ScrollView
           keyboardShouldPersistTaps="never"
           style={[{ flex: 1, backgroundColor: 'white' }, { marginBottom: this.keyboardMargin }]}
@@ -3051,12 +3047,14 @@ export class SalesInvoice extends React.Component<Props, State> {
             <DateTimePickerModal
               isVisible={this.state.showDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleConfirm}
               onCancel={this.hideDatePicker}
             />
             <DateTimePickerModal
               isVisible={this.state.showDueDatePicker}
               mode="date"
+              pickerComponentStyleIOS={{height: 250}}
               onConfirm={this.handleDueDateConfirm}
               onCancel={this.hideDueDatePicker}
             />
@@ -3071,7 +3069,11 @@ export class SalesInvoice extends React.Component<Props, State> {
             statusBarTranslucent
           >
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)'}}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                  style={{ width: 45, height: 45 }}
+                  name={'LineScale'}
+                  color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
         </Animated.ScrollView>

@@ -15,7 +15,7 @@ function DebitNoteStack () {
       screenOptions={{
         headerShown: false
       }}
-      initialRouteName={'DebitNoteScreens'}>
+      initialRouteName={'DebiteNote'}>
       {/* <Screen component={HomeScreen} name={'Dashboard'} /> */}
       <Screen component={DebiteNote} name={'DebiteNote'} />
       <Screen component={AddInvoiceItemScreen} name={'AddInvoiceItemScreen'} />

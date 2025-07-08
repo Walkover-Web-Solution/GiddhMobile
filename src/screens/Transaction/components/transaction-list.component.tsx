@@ -13,7 +13,7 @@ import DownloadModal from '../../Parties/components/downloadingModal';
 import moment from 'moment';
 import Feather from 'react-native-vector-icons/Feather';
 import TOAST from 'react-native-root-toast';
-import { formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount } from '@/utils/helper';
 import { Swipeable } from 'react-native-gesture-handler';
 import PdfPreviewModal from '@/screens/Parties/components/PdfPreviewModal';
 import PreviewIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -94,8 +94,8 @@ class TransactionList extends React.Component<Props> {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       RNFetchBlob.fetch(
         'POST',
-        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf` :
-          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+        this.state.companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`) :
+          createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'
@@ -162,8 +162,8 @@ class TransactionList extends React.Component<Props> {
       let pdfName = this.props.item.voucherNo + " - " + moment();
       RNFetchBlob.fetch(
         'POST',
-        this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf` :
-          `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+        this.state.companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`) :
+          createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
         {
           'session-id': `${token}`,
           'Content-Type': 'application/json'
@@ -249,8 +249,8 @@ class TransactionList extends React.Component<Props> {
             };
             RNFetchBlob.fetch(
               'POST',
-              this.state.companyVersionNumber == 1 ? `https://api.giddh.com/company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf` :
-                `https://api.giddh.com/company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`,
+              this.state.companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${this.props.item.particular.uniqueName}/vouchers/download-file?fileType=pdf`) :
+                createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${this.state.companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
               {
                 'session-id': `${token}`,
                 'Content-Type': 'application/json'

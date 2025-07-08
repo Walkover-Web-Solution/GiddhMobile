@@ -1,7 +1,6 @@
 import React from 'react';
-import { StatusBar,Platform, Dimensions } from 'react-native';
+import { StatusBar,Platform, View } from 'react-native';
 import { connect } from 'react-redux';
-import { GDContainer } from '@/core/components/container/container.component';
 import { CommonService } from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
 import * as CommonActions from '@/redux/CommonAction';
@@ -22,21 +21,10 @@ export class MoreScreen extends React.Component<Props, {}> {
   getData = async () => {
     await CommonService.getCurrencies();
   };
-  customSvgPath = ({args, position, canvasSize }) => {
-    if (args.step?.name === "hello") {
-      return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0ZM${position.x._value},${position.y._value}Za50 50 0 1 0 100 0 50 50 0 1 0-100 0`;
-    } else {
-      return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0ZM${position.x._value},${
-        position.y._value
-      }H${position.x._value + size.x._value}V${
-        position.y._value + size.y._value
-      }H${position.x._value}V${position.y._value}Z`;
-    }
-  };
+  
   render () {
     return (
-      <GDContainer>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      <View style={{flex:1}}>
         <MoreComponent
           navigation={this.props.navigation}
           countries={this.props.countries}
@@ -47,7 +35,7 @@ export class MoreScreen extends React.Component<Props, {}> {
           branchList={this.props.branchList}
           isFetchingCompanyList={this.props.isFetchingCompanyList}
         />
-      </GDContainer>
+      </View>
     );
   }
 }

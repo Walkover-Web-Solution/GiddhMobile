@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import * as material from '@eva-design/material';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import {Provider, useSelector} from 'react-redux';
@@ -24,6 +24,7 @@ import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
 import AppLock from '@/AppLock/AppLock';
+import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-controller";
 import { CopilotProvider } from 'react-native-copilot';
 import CustomTooltip from '@/components/CustomToolTip';
 import { FONT_FAMILY } from '@/utils/constants';
@@ -97,7 +98,9 @@ export default class App extends React.Component<any> {
     return (  
         <Provider store={store as any}>
           <PersistGate loading={null} persistor={persistor}>
-            <InnerApp />
+            <SafeAreaProvider>
+              <InnerApp />
+            </SafeAreaProvider>
           </PersistGate>
         </Provider>
     );
@@ -108,26 +111,32 @@ export default class App extends React.Component<any> {
 const InnerApp = () => {
   const {toggleBiometric} = useSelector(state => state.LoginReducer);  
   const [unlocked, setUnlocked] = useState(false);
+  const insets = useSafeAreaInsets();
+  
   return (
-    <SafeAreaProvider>
-      <CopilotProvider 
-        verticalOffset={30} 
-        overlay='svg' 
-        stepNumberComponent={() => <></>}
-        tooltipStyle={styles.tooltip}
-        tooltipComponent={(props) => <CustomTooltip {...props}/>}
-      >
-      <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
-      <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
-        <GestureHandlerRootView style={styles.rootContainer}>
-          <RootSiblingParent>
-            {toggleBiometric && !unlocked && <AppLock visible={!unlocked} onUnlock={()=>setUnlocked(true)}/>}
-            <BaseContainer /> 
-          </RootSiblingParent>
-        </GestureHandlerRootView>
-      </ApplicationProvider>
-      </CopilotProvider>
-    </SafeAreaProvider>
+    
+      <KeyboardProvider>
+        <KeyboardAvoidingView style={{flex:1}} behavior={"padding"} keyboardVerticalOffset={-(insets.bottom)}>
+          <CopilotProvider 
+            verticalOffset={30} 
+            overlay='svg' 
+            stepNumberComponent={() => <></>}
+            tooltipStyle={styles.tooltip}
+            tooltipComponent={(props) => <CustomTooltip {...props}/>}
+          >
+            <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
+            <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
+              <GestureHandlerRootView style={styles.rootContainer}>
+                <RootSiblingParent>
+                  {toggleBiometric && !unlocked && <AppLock visible={!unlocked} onUnlock={()=>setUnlocked(true)}/>}
+                  <BaseContainer /> 
+                </RootSiblingParent>
+              </GestureHandlerRootView>
+            </ApplicationProvider>
+          </CopilotProvider>
+        </KeyboardAvoidingView>
+      </KeyboardProvider>
+    
   )
 }
 
