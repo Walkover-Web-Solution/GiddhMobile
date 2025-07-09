@@ -118,7 +118,6 @@ const InnerApp = () => {
       <KeyboardProvider>
         <KeyboardAvoidingView style={{flex:1}} behavior={"padding"} keyboardVerticalOffset={-(insets.bottom)}>
           <CopilotProvider 
-            verticalOffset={30} 
             overlay='svg' 
             stepNumberComponent={() => <></>}
             tooltipStyle={styles.tooltip}
