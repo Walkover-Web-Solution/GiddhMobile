@@ -25,6 +25,7 @@ import Toast from '@/components/Toast'
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet'
 import { setBottomSheetVisible } from '@/components/BottomSheet'
 import { createEndpoint } from '@/utils/helper'
+import { MoreActionBottomSheet } from './components/MoreActionModalize'
 
 const ListnerEvents = [
     APP_EVENTS.comapnyBranchChange,
@@ -40,16 +41,12 @@ type Props = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchT
     route: any
 }
 
-const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-    const isFocused = useIsFocused();
-    return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-}
-
 const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion, route }) => {
     const voucherName = route?.params?.voucherName ?? _voucherName;
     const isBackButtonVisible = !!route?.params?.voucherName;
     const { theme, styles, statusBar, voucherBackground } = useCustomTheme(getStyles, voucherName);
     const stickyDayRef = useRef<any>(null);
+    const moreActionModalizeRef = useRef<any>(null);
     const confirmationBottomSheetRef = useRef<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -372,6 +369,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const renderItem = ({ item, index } : { item: any, index: number }) => {
         return (
             <VoucherCard
+                ref={moreActionModalizeRef}
                 name={item?.account?.uniqueName === 'cash' ? item?.account?.customerName : item?.account?.name}
                 accountUniqueName={item?.account?.uniqueName}
                 amount={item?.grandTotal?.amountForAccount}
@@ -454,6 +452,11 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 description={ConfirmationMessages.DELETE_VOUCHER.description}
                 onConfirm={handleVoucherDelete}
                 onReject={() => setBottomSheetVisible(confirmationBottomSheetRef, false)}
+            />
+            <MoreActionBottomSheet
+                ref={moreActionModalizeRef}
+                downloadFile={downloadFile}
+                shareFile={shareFile}
             />
         </View>
     )
