@@ -178,29 +178,36 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                         RNFetchBlob.ios.previewDocument(pdfLocation);
                     }
                     //coping file to download folder
-                    if (Platform.OS == "android") {
-                        let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
-                        name: pdfName, 
-                        parentFolder: '',
-                        mimeType: 'application/pdf'
-                            },
-                            'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
-                            pdfLocation // Path to the file being copied in the apps own storage
-                        );
-                        ToastAndroid.show(
-                        'File saved to download folder',
-                        ToastAndroid.LONG,
-                        );
+                    if (Platform.OS === "android") {
+                        try {
+                            let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
+                            name: pdfName, 
+                            parentFolder: '',
+                            mimeType: 'application/pdf'
+                                },
+                                'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
+                                pdfLocation // Path to the file being copied in the apps own storage
+                            );
+                            ToastAndroid.show(
+                            'File saved to download folder',
+                            ToastAndroid.LONG,
+                            );
+                        } catch(error) {
+                            console.error('----- Error copying to MediaStore -----', error);
+                            ToastAndroid.show(
+                                'Error saving file to download folder',
+                                ToastAndroid.LONG,
+                            );
+                        }
+                        //notification for complete download
+                        RNFetchBlob.android.addCompleteDownload({
+                            title: pdfName,
+                            description: 'File downloaded successfully',
+                            mime: 'application/pdf',
+                            path: pdfLocation,
+                            showNotification: true,
+                        })
                     }
-            
-                    //notification for complete download
-                    RNFetchBlob.android.addCompleteDownload({
-                        title: pdfName,
-                        description: 'File downloaded successfully',
-                        mime: 'application/pdf',
-                        path: pdfLocation,
-                        showNotification: true,
-                    })
 
                     const openFile = Platform.OS === 'android' 
                         ?  () => RNFetchBlob.android.actionViewIntent(pdfLocation, 'application/pdf').catch((error) => { console.error('----- Error in File Opening -----', error)})
