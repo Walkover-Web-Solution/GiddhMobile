@@ -822,6 +822,7 @@ export class PurchaseBill extends React.Component {
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onShare(voucherName, voucherNo, partyUniqueName);

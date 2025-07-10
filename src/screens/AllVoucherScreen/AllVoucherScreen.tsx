@@ -25,6 +25,7 @@ import Toast from '@/components/Toast'
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet'
 import { setBottomSheetVisible } from '@/components/BottomSheet'
 import { createEndpoint } from '@/utils/helper'
+import { MoreActionBottomSheet } from './components/MoreActionModalize'
 
 const ListnerEvents = [
     APP_EVENTS.comapnyBranchChange,
@@ -40,16 +41,12 @@ type Props = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchT
     route: any
 }
 
-const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-    const isFocused = useIsFocused();
-    return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-}
-
 const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion, route }) => {
     const voucherName = route?.params?.voucherName ?? _voucherName;
     const isBackButtonVisible = !!route?.params?.voucherName;
     const { theme, styles, statusBar, voucherBackground } = useCustomTheme(getStyles, voucherName);
     const stickyDayRef = useRef<any>(null);
+    const moreActionModalizeRef = useRef<any>(null);
     const confirmationBottomSheetRef = useRef<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -177,6 +174,41 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                     console.log("PDF location", pdfLocation)
                     RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
 
+                    if (Platform.OS === 'ios') {
+                        RNFetchBlob.ios.previewDocument(pdfLocation);
+                    }
+                    //coping file to download folder
+                    if (Platform.OS === "android") {
+                        try {
+                            let result = await RNFetchBlob.MediaCollection.copyToMediaStore({
+                            name: pdfName, 
+                            parentFolder: '',
+                            mimeType: 'application/pdf'
+                                },
+                                'Download', // Media Collection to store the file in ("Audio" | "Image" | "Video" | "Download")
+                                pdfLocation // Path to the file being copied in the apps own storage
+                            );
+                            ToastAndroid.show(
+                            'File saved to download folder',
+                            ToastAndroid.LONG,
+                            );
+                        } catch(error) {
+                            console.error('----- Error copying to MediaStore -----', error);
+                            ToastAndroid.show(
+                                'Error saving file to download folder',
+                                ToastAndroid.LONG,
+                            );
+                        }
+                        //notification for complete download
+                        RNFetchBlob.android.addCompleteDownload({
+                            title: pdfName,
+                            description: 'File downloaded successfully',
+                            mime: 'application/pdf',
+                            path: pdfLocation,
+                            showNotification: true,
+                        })
+                    }
+
                     const openFile = Platform.OS === 'android' 
                         ?  () => RNFetchBlob.android.actionViewIntent(pdfLocation, 'application/pdf').catch((error) => { console.error('----- Error in File Opening -----', error)})
                         :  () => RNFetchBlob.ios.openDocument(pdfLocation)
@@ -201,6 +233,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
                 if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
                     Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                    return;
                 }
             }
             await exportFile(uniqueName, voucherNumber);
@@ -270,6 +303,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
                 if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
                     Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                    return;
                 }
             }
             await onShare(uniqueName, voucherNumber);
@@ -342,6 +376,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const renderItem = ({ item, index } : { item: any, index: number }) => {
         return (
             <VoucherCard
+                ref={moreActionModalizeRef}
                 name={item?.account?.uniqueName === 'cash' ? item?.account?.customerName : item?.account?.name}
                 accountUniqueName={item?.account?.uniqueName}
                 amount={item?.grandTotal?.amountForAccount}
@@ -393,7 +428,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                     setActiveDateFilter={_setActiveDateFilter}
                 />
                 <View style={styles.container}>
-                    <StickyDay stickyDayRef={stickyDayRef} />
+                    {voucherData?.length > 0 &&<StickyDay stickyDayRef={stickyDayRef} />}
                     <FlatList
                         data={voucherData}
                         contentContainerStyle={styles.contentContainerStyle}
@@ -424,6 +459,11 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 description={ConfirmationMessages.DELETE_VOUCHER.description}
                 onConfirm={handleVoucherDelete}
                 onReject={() => setBottomSheetVisible(confirmationBottomSheetRef, false)}
+            />
+            <MoreActionBottomSheet
+                ref={moreActionModalizeRef}
+                downloadFile={downloadFile}
+                shareFile={shareFile}
             />
         </View>
     )
