@@ -15,6 +15,7 @@ import BottomSheet from '@/components/BottomSheet'
 import Toast from '@/components/Toast'
 
 type Props = {
+    ref:any,
     name: string
     accountUniqueName: string
     amount: number
@@ -38,6 +39,7 @@ type Props = {
 }
 
 const _RenderVoucher : React.FC<Props> = ({ 
+    ref,
     name,
     accountUniqueName,
     amount,
@@ -67,96 +69,6 @@ const _RenderVoucher : React.FC<Props> = ({
     const [pdfModalVisible,setpdfModalVisible] = useState(false);
     const moreActionModalizeRef = useRef(null);
     const isOverDue : boolean =(balanceStatus !== 'PAID' && balanceStatus !== 'HOLD' && balanceStatus !== 'CANCEL') && (!!dueDate && overDueDays >= 0)
-
-    const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
-        if(visible){
-          Keyboard.dismiss();
-          modalRef?.current?.open();
-        } else {
-          modalRef?.current?.close();
-        }
-    };
-
-    const MoreActionModalize = (
-        <BottomSheet
-        bottomSheetRef={moreActionModalizeRef}
-        headerText='Voucher Options'
-        headerTextColor='#084EAD'
-        adjustToContentHeight={true}
-        customRenderer={(
-            <View style={styles.iconContainer}>
-                <TouchableOpacity
-                    hitSlop={{ top: 10, bottom: 10 }}
-                    style={styles.iconButton}
-                    onPress={() => {
-                        setBottomSheetVisible(moreActionModalizeRef, false);
-                        shareFile(voucherUniqueName, voucherNumber)
-                    }}
-                >
-                    <Feather name="send" size={20} color={'#1C1C1C'} />
-                    <Text style={styles.modalText}>Share</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    hitSlop={{ top: 10, bottom: 10 }}
-                    style={styles.iconButton}
-                    onPress={() => {
-                        setBottomSheetVisible(moreActionModalizeRef, false);
-                        downloadFile(voucherUniqueName, voucherNumber)
-                    }}
-                    >
-                    <Feather name="download" size={20} color={'#1C1C1C'} />
-                    <Text style={styles.modalText}>Download</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    activeOpacity={0.7}
-                    style={styles.iconButton}
-                    hitSlop={{ top: 10, bottom: 10 }}
-                    onPress={() => {
-                        setBottomSheetVisible(moreActionModalizeRef, false);
-                        navigation.navigate('PdfPreviewScreen',{
-                            companyVersionNumber:companyVoucherVersion,
-                            uniqueName:accountUniqueName,
-                            voucherInfo:{
-                                voucherNumber: [voucherNumber],
-                                uniqueName: voucherUniqueName,
-                                voucherType: voucherName.toLocaleLowerCase(),
-                            }
-                        })
-                    }}>
-                    <MaterialCommunityIcons name="file-eye-outline" size={20} color={'#000'} />
-                    <Text style={styles.modalText}>Preview</Text>
-                </TouchableOpacity>
-                {voucherName == "Sales" && !(isConsolidatedBranch) &&  <TouchableOpacity
-                    activeOpacity={0.7}
-                    style={styles.iconButton}
-                    hitSlop={{ top: 10, bottom: 10 }}
-                    onPress={async () => {
-                        if(accountDetail?.billingDetails?.pincode && accountDetail?.billingDetails?.pincode?.length > 0){
-                            setBottomSheetVisible(moreActionModalizeRef, false);
-                            await DeviceEventEmitter.emit(APP_EVENTS.EWayBillScreenRefresh, {});
-                            navigation.navigate('EWayBillScreen',{
-                                isSalesCashInvoice: isSalesCashInvoice,
-                                accountUniqueName: accountUniqueName,
-                                companyVersionNumber: companyVoucherVersion,
-                                voucherInfo:{
-                                    voucherNumber: voucherNumber,
-                                    uniqueName: voucherUniqueName,
-                                    voucherType: voucherName.toLocaleLowerCase(),
-                                },
-                                accountDetail: accountDetail,
-                                key: voucherUniqueName
-                            })
-                        }else{
-                            Toast({message: "Please update pincode in voucher before creating eway bill.", position:'BOTTOM',duration:'LONG'}) 
-                        }
-                    }}>
-                    <MaterialCommunityIcons name="truck-fast-outline" size={20} color={'#000'} />
-                    <Text style={styles.modalText}>Generate E-way Bill</Text>
-                </TouchableOpacity>}
-            </View>
-        )}
-        />
-    )
 
     return (
         <>
@@ -232,10 +144,20 @@ const _RenderVoucher : React.FC<Props> = ({
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles?.button}
-                    onPress={() => setBottomSheetVisible(moreActionModalizeRef, true)}
+                    onPress={() => ref?.current?.open({
+                        voucherName,
+                        voucherUniqueName,
+                        voucherNumber,
+                        companyVoucherVersion,
+                        accountUniqueName,
+                        accountDetail,
+                        isSalesCashInvoice
+                    })}
                 >
                     <View style={styles.row}>
-                        <Text style={styles?.name}>{name}</Text>
+                        <View style={{width:'70%'}}>
+                            <Text style={styles?.name}>{name}</Text>
+                        </View>
                         <Text style={styles.amount}>{`${currencySymbol} ${formatAmount(amount)}`}</Text>
                     </View>
                     <View style={styles.voucherNumberRow}>
@@ -268,20 +190,6 @@ const _RenderVoucher : React.FC<Props> = ({
                     }
                 </TouchableOpacity>
             </Swipeable>
-            {/* <PdfPreviewModal 
-                modalVisible={pdfModalVisible} 
-                setModalVisible={setpdfModalVisible} 
-                setLoading = {setpdfPreviewLoading}
-                isLoading={pdfPreviewLoading}
-                companyVersionNumber={companyVoucherVersion}
-                uniqueName={accountUniqueName}
-                voucherInfo={{
-                voucherNumber: [voucherNumber],
-                uniqueName: voucherUniqueName,
-                voucherType: voucherName.toLocaleLowerCase(),
-            }}
-          /> */}
-        {MoreActionModalize}
         </>
     )
 }

@@ -61,6 +61,7 @@ class TransactionList extends React.Component<Props> {
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.props.downloadModal(false);
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.exportFile();
@@ -77,6 +78,7 @@ class TransactionList extends React.Component<Props> {
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.setState({ iosShare: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onShare();
@@ -221,6 +223,7 @@ class TransactionList extends React.Component<Props> {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onWhatsApp();

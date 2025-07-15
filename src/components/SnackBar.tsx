@@ -87,7 +87,7 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
     baseView: {
         position: 'absolute',
         zIndex: 1,
-        top: -(height * 0.1),
+        top: -(height * 0.08),
         alignSelf: "center",
         backgroundColor: theme.colors.solids.white,
         borderRadius: 8,

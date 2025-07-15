@@ -21,7 +21,7 @@ function MoreModal ({
   return (
     <BottomSheet
       bottomSheetRef={bottomSheetRef}
-      headerText='Select Filters'
+      headerText='Contact'
       headerTextColor='#864DD3'
     >
       <TouchableOpacity

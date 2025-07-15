@@ -1,5 +1,5 @@
 diff --git a/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx b/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx
-index a31ddcb..5eff53a 100644
+index a31ddcb..c7cf011 100644
 --- a/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx
 +++ b/node_modules/@msg91comm/react-native-hello-sdk/Chat.tsx
 @@ -1,6 +1,7 @@
@@ -19,6 +19,15 @@ index a31ddcb..5eff53a 100644
    useEffect(() => {
      if (isChatOn) {
        setStartWidget(true)
+@@ -108,7 +109,7 @@ const Chat: React.FC<CustomChatProps> = ({ widgetColor = null, isChatOn, closeCh
+             }
+           }
+         ,1);
+-    },500);
++    },1500);
+         
+     var metaTag = document.createElement('meta');  
+     metaTag.setAttribute('name','viewport');
 @@ -127,19 +128,21 @@ const Chat: React.FC<CustomChatProps> = ({ widgetColor = null, isChatOn, closeCh
        <View
          style={{
