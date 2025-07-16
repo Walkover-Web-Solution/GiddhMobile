@@ -117,6 +117,8 @@ const EWayBillScreenComponent = ( {route} ) => {
             const response = await InvoiceService.fetchReceiverDetail();
             if(response && response?.status === "success"){
                 setReceiverDetail(response?.body);
+            }else{
+                Toast({message: response?.message, duration:'LONG', position:'BOTTOM'})  
             }
         } catch (error) {
             console.error("----- Error while fetching receiver details -----", error);

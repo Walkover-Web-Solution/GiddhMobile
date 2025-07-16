@@ -40,6 +40,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
       customRenderer={(
         <View style={styles.iconContainer}>
           <TouchableOpacity
+            activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10 }}
             style={styles.iconButton}
             onPress={() => {
@@ -51,6 +52,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
             <Text style={styles.modalText}>Share</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10 }}
             style={styles.iconButton}
             onPress={() => {
@@ -82,7 +84,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
             <Text style={styles.modalText}>Preview</Text>
           </TouchableOpacity>
 
-          {data?.voucherName === "Sales" && (
+          {data?.voucherName === "Sales" && !(data?.isConsolidatedBranch) && (
               <TouchableOpacity
                 activeOpacity={0.7}
                 style={styles.iconButton}

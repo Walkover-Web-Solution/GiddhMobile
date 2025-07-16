@@ -34,7 +34,8 @@ type Props = {
     shareFile: (uniqueName: string, voucherNumber: string) => void
     downloadFile: (uniqueName: string, voucherNumber: string) => void
     onPressDelete: (accountUniqueName: string, voucherUniqueName: string, voucherType: string) => void,
-    accountDetail: any
+    accountDetail: any,
+    isConsolidatedBranch:boolean
 }
 
 const _RenderVoucher : React.FC<Props> = ({ 
@@ -57,7 +58,8 @@ const _RenderVoucher : React.FC<Props> = ({
     shareFile, 
     downloadFile,
     onPressDelete, 
-    accountDetail
+    accountDetail,
+    isConsolidatedBranch
 }) => {
     const swipeableRef = useRef<Swipeable>(null);
     const navigation = useNavigation();
@@ -149,7 +151,8 @@ const _RenderVoucher : React.FC<Props> = ({
                         companyVoucherVersion,
                         accountUniqueName,
                         accountDetail,
-                        isSalesCashInvoice
+                        isSalesCashInvoice,
+                        isConsolidatedBranch
                     })}
                 >
                     <View style={styles.row}>
