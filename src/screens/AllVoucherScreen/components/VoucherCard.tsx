@@ -151,7 +151,8 @@ const _RenderVoucher : React.FC<Props> = ({
                         companyVoucherVersion,
                         accountUniqueName,
                         accountDetail,
-                        isSalesCashInvoice
+                        isSalesCashInvoice,
+                        isConsolidatedBranch
                     })}
                 >
                     <View style={styles.row}>

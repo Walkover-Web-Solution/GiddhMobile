@@ -1,0 +1,13 @@
+diff --git a/node_modules/@msg91comm/react-native-hello-sdk/src/ChatWidgetModal.tsx b/node_modules/@msg91comm/react-native-hello-sdk/src/ChatWidgetModal.tsx
+index 88d7983..d9919b9 100644
+--- a/node_modules/@msg91comm/react-native-hello-sdk/src/ChatWidgetModal.tsx
++++ b/node_modules/@msg91comm/react-native-hello-sdk/src/ChatWidgetModal.tsx
+@@ -27,7 +27,7 @@ const ChatWidgetModal: React.FC<ChatWidgetModalProps> = ({
+             setStartWidget(true);
+         }
+         if (statusBarStyle) {
+-            StatusBar.setBarStyle(isChatOn ? statusBarStyle : 'default');
++            // StatusBar.setBarStyle(isChatOn ? statusBarStyle : 'default');
+         }
+     }, [isChatOn])
+ 

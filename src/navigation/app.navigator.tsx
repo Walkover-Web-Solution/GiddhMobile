@@ -5,7 +5,7 @@ import { AuthStack } from './auth.navigator';
 import analytics from '@react-native-firebase/analytics';
 import AppMainNav from './app.main.navigator';
 import {CompanyStack} from './company.navigator';
-import ChatWidget from '@msg91comm/react-native-hello-sdk';
+import { ChatWidgetModal } from '@msg91comm/react-native-hello-sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Host } from 'react-native-portalize';
@@ -37,7 +37,7 @@ const getActiveRouteName = (navigationState: any) => {
 const AppNavigator = (props: any): React.ReactElement => {
   const routeNameRef = React.createRef();
   const navigationRef = React.createRef();
-const [helloConfig, setHelloConfig] = useState<object>({});
+  const [helloConfig, setHelloConfig] = useState<{ widgetToken : string, name?: string|null, mail?: string|null, unique_id?: string|null }>({widgetToken:"88461"});
 
 useEffect(() => {
   const setValues = async () => {
@@ -83,16 +83,18 @@ useEffect(() => {
                     : <AppMainNav />
                   )
             }
+            <ChatWidgetModal
+              helloConfig={helloConfig}
+              widgetColor={'#1A237E'}
+              statusBarStyle="dark-content"
+              useKeyboardAvoidingView={false}
+              preLoaded={true} // Preloads widget content (default: true)
+            />
           </Host>
           <SnackBar eventType={APP_EVENTS.DownloadAlert} backgroundColor={'#1A237E'} borderLeftColor={'#1A237E'}/>
         </NavigationContainer>
       }
 
-      <ChatWidget
-        preLoaded={true}
-        widgetColor={'#1A237E'}
-        helloConfig={helloConfig}
-      />
       <ChatBotSDK/>
     </GDContainer>
   );
