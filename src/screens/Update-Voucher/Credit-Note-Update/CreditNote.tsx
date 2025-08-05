@@ -487,10 +487,14 @@ export class CreditNote extends React.Component<Props, State> {
         "discountValue": 0,
         "discountType": null,
         "fixedDiscount": fixedDiscount,
-        "fixedDiscountUniqueName": fixedDiscount?.uniqueName
+        "fixedDiscountUniqueName": fixedDiscount?.uniqueName,
+        "tdsTcsTaxCalculationMethod": null,
+        "tdsOrTcsTaxObj": null
       }
 
       modifiedEntryObj.discountValue = this.calculateDiscountedAmount(modifiedEntryObj)
+      modifiedEntryObj.tdsOrTcsTaxObj = this.calculateTdsTcsTaxToDisplay(entry);
+      modifiedEntryObj.tdsTcsTaxCalculationMethod = modifiedEntryObj.tdsOrTcsTaxObj?.calculationMethod;
       addedItems.push(modifiedEntryObj);
     }))
 
@@ -600,6 +604,7 @@ export class CreditNote extends React.Component<Props, State> {
         })
         
         const addedItems = await this.mapEntriesToUIData(response.body.entries);
+        this.updateTCSAndTDSTaxAmount(addedItems);
         this.setState({ addedItems, loading: false });
         this.getAllInvoice();
       }
@@ -1139,7 +1144,7 @@ export class CreditNote extends React.Component<Props, State> {
     if (item.taxDetailsArray) {
       for (let i = 0; i < item.taxDetailsArray.length; i++) {
         const tax = item.taxDetailsArray[i];
-        const taxItem = { uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount' };
+        const taxItem = { uniqueName: tax.uniqueName, calculationMethod: item?.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount' };
         taxArr.push(taxItem);
       }
       return taxArr;
@@ -1956,7 +1961,10 @@ export class CreditNote extends React.Component<Props, State> {
     }
 
     for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
-      if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) { this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i]) }
+      if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) { 
+        this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i]) 
+        this.calculateTdsOrTcsAmountToDisplay(updateAmountToCurrentCurrency[i])
+      }
     }
 
     await this.setState({ addedItems: [...this.state.addedItems, ...updateAmountToCurrentCurrency] });
@@ -1965,6 +1973,44 @@ export class CreditNote extends React.Component<Props, State> {
     });
     await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
+
+  calculateTdsOrTcsAmountToDisplay = (itemDetails) => {
+    try {
+      let totalTcsorTdsTax = 0;
+      let totalTcsorTdsTaxName = '';
+      const discountAmount = Number(itemDetails?.discountValue);
+      let totalTaxableAmount = 0;
+      let amt = Number(itemDetails.rate) * Number(itemDetails.quantityText);
+      amt = amt - (discountAmount ? discountAmount : 0) ;
+      if (itemDetails?.taxDetailsArray && itemDetails?.taxDetailsArray?.length > 0) {
+        for (let i = 0; i < itemDetails?.taxDetailsArray?.length; i++) {
+          const item = itemDetails?.taxDetailsArray[i];
+          const taxPercent = Number(item.taxDetail[0].taxValue);
+          if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
+            if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+              totalTaxableAmount = amt;
+            }else if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+              totalTaxableAmount = amt + (itemDetails?.taxText ? Number(itemDetails?.taxText) : 0);
+            }
+            const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
+            totalTcsorTdsTax = taxAmount;
+            totalTcsorTdsTaxName = item.taxType;
+            break;
+          }
+        }
+      }
+      if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
+        const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
+        itemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
+      } else {
+        itemDetails.tdsOrTcsTaxObj = null;
+      }
+      return itemDetails
+    } catch (error) {
+      console.log("errr", error);
+      return null;
+    }
+  }
 
   async DefaultStockAndAccountTax(itemDetails) {
     let editItemDetails = itemDetails
@@ -2109,7 +2155,7 @@ export class CreditNote extends React.Component<Props, State> {
       <TouchableOpacity
         onPress={() => {
           if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
-            this.props.navigation.navigate('CreditNoteAddItem', {
+            this.props.navigation.navigate('AddInvoiceItemScreen', {
               updateAddedItems: this.updateAddedItems.bind(this),
               addedItems: this.state.addedItems,
               currencySymbol: this.state.currencySymbol,
@@ -2154,7 +2200,7 @@ export class CreditNote extends React.Component<Props, State> {
               borderRadius:2
             }}
             onPress={() => {
-              this.props.navigation.navigate('CreditNoteAddItem', {
+              this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: this.updateAddedItems.bind(this),
                 addedItems: this.state.addedItems,
                 currencySymbol: this.state.currencySymbol,
@@ -2236,7 +2282,7 @@ export class CreditNote extends React.Component<Props, State> {
             });
           }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 5 }}>
-            <View style={{ flexDirection: 'row', width: "75%", }}>
+            <View style={{ flexDirection: 'row', width: "55%", }}>
               <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>{item.name}</Text>
               {item.stock && (
                 <Text numberOfLines={1} style={{ color: '#1C1C1C', flex: 1 }}>
@@ -2244,13 +2290,16 @@ export class CreditNote extends React.Component<Props, State> {
                 </Text>
               )}
             </View>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View style={{width: '50%', flexWrap: 'wrap'}}>
               <Text style={{ color: '#808080' }}>
                 {String(item.quantity)} x {this.state.currencySymbol}
                 {String(item.rate)}
               </Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{width: '50%', flexWrap: 'wrap'}}>
+              {item?.tdsOrTcsTaxObj ? <Text style={{ color: '#808080' }}>
+                {item.tdsOrTcsTaxObj.name + ' : ' +formatAmount(item.tdsOrTcsTaxObj.amount)}
+              </Text>:<></>}
             </View>
             <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignContent: 'flex-end', alignItems: 'center' }}>
               <Text style={{ color: '#808080' }}>
@@ -2316,6 +2365,38 @@ export class CreditNote extends React.Component<Props, State> {
     );
   }
 
+  calculateTdsTcsTaxToDisplay(itemDetails) {
+    console.log('itemDetails', itemDetails);
+    
+    try {
+      let totalTcsorTdsTax = 0;
+      let totalTcsorTdsTaxName = '';
+      let calculationMethod = '';
+      if (itemDetails?.taxes && itemDetails?.taxes?.length > 0) {
+        for (let i = 0; i < itemDetails?.taxes?.length; i++) {
+          const item = itemDetails?.taxes[i];
+          if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
+            if(itemDetails?.otherTaxTotal){
+              totalTcsorTdsTax = itemDetails?.otherTaxTotal?.amountForAccount < 0 ? ((-1)* itemDetails?.otherTaxTotal?.amountForAccount) : itemDetails?.otherTaxTotal?.amountForAccount;
+              totalTcsorTdsTaxName = item.taxType;
+              calculationMethod = item.calculationMethod;
+              break;
+            }
+          }
+        }
+      }
+      if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
+        const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2), calculationMethod: calculationMethod };
+        return tdsOrTcsTaxObj;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log("errr", error);
+      return null;
+    }
+  }
+
   calculateDiscountedAmount(itemDetails) {
     let totalDiscount = 0;
     let percentDiscount = 0;
@@ -2377,7 +2458,7 @@ export class CreditNote extends React.Component<Props, State> {
   calculatedTdsOrTcsTaxAmount(itemDetails) {
     let totalTcsorTdsTax = 0;
     let totalTcsorTdsTaxName = '';
-
+    let totalTaxableAmount = 0;
     const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
     amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
@@ -2385,13 +2466,18 @@ export class CreditNote extends React.Component<Props, State> {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
         const item = itemDetails.taxDetailsArray[i];
         const taxPercent = Number(item.taxDetail[0].taxValue);
-        const taxAmount = (taxPercent * Number(amt)) / 100;
         if (
           item.taxType == 'tdspay' ||
           item.taxType == 'tcspay' ||
           item.taxType == 'tcsrc' ||
           item.taxType == 'tdsrc'
         ) {
+          if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+            totalTaxableAmount = amt;
+          }else if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+            totalTaxableAmount = amt + (itemDetails?.tax ? Number(itemDetails?.tax) : 0);
+          }
+          const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
           totalTcsorTdsTax = taxAmount;
           totalTcsorTdsTaxName = item.taxType;
           break;
@@ -2404,13 +2490,18 @@ export class CreditNote extends React.Component<Props, State> {
         for (let j = 0; j < taxArr.length; j++) {
           if (item == taxArr[j].uniqueName) {
             const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-            const taxAmount = (taxPercent * Number(amt)) / 100;
             if (
               taxArr[j].taxType == 'tdspay' ||
               taxArr[j].taxType == 'tcspay' ||
               taxArr[j].taxType == 'tcsrc' ||
               taxArr[j].taxType == 'tdsrc'
             ) {
+              if(itemDetails?.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+                totalTaxableAmount = amt;
+              }else if(itemDetails?.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+                totalTaxableAmount = amt + (itemDetails?.tax ? Number(itemDetails?.tax) : 0);
+              }
+              const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
               totalTcsorTdsTax = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType;
             }
@@ -2718,6 +2809,8 @@ export class CreditNote extends React.Component<Props, State> {
     item.fixedDiscount = details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 };
     item.fixedDiscountUniqueName = details.fixedDiscountUniqueName ? details.fixedDiscountUniqueName : '';
     item.selectedArrayType = selectedArrayType;
+    item.tdsTcsTaxCalculationMethod = details.tdsTcsTaxCalculationMethod;
+    item.tdsOrTcsTaxObj = details.tdsOrTcsTaxObj;
     if(item?.stock?.variant){
       item.stock.variant.stockUnitCode = details.unitText;
     } else if(item?.stock){

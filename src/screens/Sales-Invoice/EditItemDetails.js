@@ -928,7 +928,7 @@ class EditItemDetails extends Component {
     editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
     editItemDetails.total = this.calculateFinalAmount(editItemDetails);
     editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
-
+    this.calculateFinalTcsOrTdsToDisplay(editItemDetails)
     this.setState({ editItemDetails });
   }
 
@@ -1196,6 +1196,7 @@ class EditItemDetails extends Component {
                 // returnKeyType={'done'}
                 onChangeText={(text) => {
                   this.fixedDiscountValueChange(text);
+                  this.calculateFinalTcsOrTdsToDisplay(this.state.editItemDetails)
                 }}
               />
               {this._renderBottomSeprator(8)}

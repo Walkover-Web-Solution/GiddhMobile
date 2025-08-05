@@ -824,7 +824,7 @@ export class SalesInvoice extends React.Component<Props> {
     if (item.taxDetailsArray) {
       for (let i = 0; i < item.taxDetailsArray.length; i++) {
         const tax = item.taxDetailsArray[i];
-        const taxItem = { uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount' };
+        const taxItem = { uniqueName: tax.uniqueName, calculationMethod: item?.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount' };
         taxArr.push(taxItem);
       }
       return taxArr;

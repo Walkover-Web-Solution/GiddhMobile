@@ -547,6 +547,7 @@ class PurchaseAddItem extends React.Component<Props> {
               data.stock.stockUnitUniqueName = data.stock.unitRates[0].stockUnitUniqueName;
             }
             data.quantity = 1;
+            data.tdsTcsTaxCalculationMethod = 'OnTaxableAmount'
             // data.rate = results.body.stock.rate;
             if(this.props.companyVoucherVersion == 2){ 
               const variantObj = this.state.allStockVariants[item.stock.uniqueName].find((variant) => variant.uniqueName == variantUniqueName); 

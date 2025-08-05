@@ -44,6 +44,7 @@ class EditItemDetails extends Component {
     this.discountBottomSheetRef = createRef();
     this.taxBottomSheetRef = createRef();
     this.unitBottomSheetRef = createRef();
+    this.taxCalculationModalRef = React.createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       bottomOffset: 0,
@@ -78,6 +79,8 @@ class EditItemDetails extends Component {
         fixedDiscountUniqueName: this.props.itemDetails.fixedDiscountUniqueName
           ? this.props.itemDetails.fixedDiscountUniqueName
           : '',
+        tdsTcsTaxCalculationMethod: this.props.itemDetails?.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount',
+        tdsOrTcsTaxObj: this.props.itemDetails?.tdsOrTcsTaxObj ?? null
       },
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -116,6 +119,7 @@ class EditItemDetails extends Component {
     // this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
     // this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.caluclateTotalAmount();
+    this.calculateFinalTcsOrTdsToDisplay();
     if (Platform.OS == 'ios') {
       // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
@@ -165,6 +169,89 @@ class EditItemDetails extends Component {
 
   //   return true;
   // };
+  _renderTaxCalculationMethodModal() {
+    return (
+
+      <BottomSheet
+        bottomSheetRef={this.taxCalculationModalRef}
+        headerText='Calculation Method'
+        headerTextColor='#229F5F'
+      >
+        <TouchableOpacity
+          onFocus={() => this.onChangeText('')}
+          style={{
+            paddingHorizontal: 20,
+            marginHorizontal: 2,
+            borderRadius: 10,
+            marginTop: 10
+          }}
+          onPress={async() => {
+            const itemDetails = this.state.editItemDetails;
+            itemDetails.tdsTcsTaxCalculationMethod = 'OnTaxableAmount';
+            this.setState({ editItemDetails: itemDetails });
+            this.calculatedTaxAmount(itemDetails);
+            this.calculateFinalAmount(itemDetails);
+            this.calculateFinalTcsOrTdsToDisplay();
+            this.setBottomSheetVisible(this.taxCalculationModalRef, false);
+          }}>
+          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+            {this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? (
+              <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
+            ) : (
+              <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
+            )}
+            <Text
+              style={{
+                color: '#1C1C1C',
+                paddingVertical: 4,
+                fontSize: 14,
+                textAlign: 'center',
+                marginLeft: 10,
+                fontFamily: FONT_FAMILY.semibold,
+              }}>
+              {'On Taxable Value (Amt - Dis)'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onFocus={() => this.onChangeText('')}
+          style={{
+            paddingHorizontal: 20,
+            marginHorizontal: 2,
+            borderRadius: 10,
+            marginBottom: 10
+          }}
+          onPress={async() => {
+            const itemDetails = this.state.editItemDetails;
+            itemDetails.tdsTcsTaxCalculationMethod = 'OnTotalAmount';
+            this.setState({ editItemDetails: itemDetails });
+            this.calculatedTaxAmount(itemDetails);
+            this.calculateFinalAmount(itemDetails);
+            this.calculateFinalTcsOrTdsToDisplay();
+            this.setBottomSheetVisible(this.taxCalculationModalRef, false);
+          }}>
+          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+            {this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'  ? (
+              <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
+            ) : (
+              <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
+            )}
+            <Text
+              style={{
+                color: '#1C1C1C',
+                paddingVertical: 4,
+                fontSize: 14,
+                textAlign: 'center',
+                marginLeft: 10,
+                fontFamily: FONT_FAMILY.semibold,
+              }}>
+              {'On Total Value (Taxable + Gst + Cess)'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </BottomSheet>
+    );
+  }
 
   _renderTax() {
     return (
@@ -221,6 +308,9 @@ class EditItemDetails extends Component {
                       const tax = this.calculatedTaxAmount(itemDetails);
                       itemDetails.taxText = tax;
                       const arr1 = [...selectedTaxTypeArr, item.taxType];
+                      if(item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc'){
+                        this.setBottomSheetVisible(this.taxCalculationModalRef, true);
+                      }
                       const total = this.calculateFinalAmount(itemDetails);
                       itemDetails.total = total;
                       this.setState({ itemDetails, selectedArrayType: arr1 });
@@ -243,6 +333,7 @@ class EditItemDetails extends Component {
                       itemDetails.total = total;
                       this.setState({ itemDetails, selectedArrayType: arr2 });
                     }
+                    this.calculateFinalTcsOrTdsToDisplay();
                   }
                 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}>
@@ -467,6 +558,45 @@ class EditItemDetails extends Component {
       finalAmt = finalAmt + totalTax;
     }
     return finalAmt;
+  }
+
+  calculateFinalTcsOrTdsToDisplay() {
+    const editItemDetails = this.state.editItemDetails;
+    let totalTcsorTdsTax = 0;
+    let totalTcsorTdsTaxName = '';
+    const discountAmount = this.calculateDiscountedAmountToDisplayTotalAmount(editItemDetails);
+    let totalTaxableAmount = 0;
+    let amt = Number(this.state.editItemDetails.rateText) * Number(editItemDetails.quantityText);
+    amt = amt - (discountAmount ? discountAmount : 0) ;
+
+    if (editItemDetails.taxDetailsArray && editItemDetails.taxDetailsArray.length > 0) {
+      for (let i = 0; i < editItemDetails.taxDetailsArray.length; i++) {
+        const item = editItemDetails.taxDetailsArray[i];
+        const taxPercent = Number(item.taxDetail[0].taxValue);
+        if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
+          if(editItemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+            totalTaxableAmount = amt;
+          }else if(editItemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+            totalTaxableAmount = amt + (editItemDetails?.taxText ? Number(editItemDetails?.taxText) : 0);
+          }
+          const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
+          totalTcsorTdsTax = taxAmount;
+          totalTcsorTdsTaxName = item.taxType;
+          break;
+        }
+      }
+    }
+    // const itemDetails = this.state.editItemDetails;
+    if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
+      const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
+      editItemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
+      this.setState({ editItemDetails: editItemDetails });
+      // return tdsOrTcsTaxObj;
+    } else {
+      // return null;
+      editItemDetails.tdsOrTcsTaxObj = null;
+      this.setState({ editItemDetails: editItemDetails});
+    }
   }
 
   _renderDiscounts() {
@@ -713,6 +843,18 @@ class EditItemDetails extends Component {
     );
   }
 
+  _renderTDSorTCS() {
+    return (
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 16, marginBottom:10 }}>
+        <Text>{this.state.editItemDetails.tdsOrTcsTaxObj ? this.state.editItemDetails.tdsOrTcsTaxObj?.name : ''}</Text>
+        <Text style={style.finalItemAmount}>{`${(this.props.currencySymbol ? this.props.currencySymbol : '') +
+          '' +
+          (this.state.editItemDetails.tdsOrTcsTaxObj ? (formatAmount(this.state.editItemDetails.tdsOrTcsTaxObj?.amount)) : '')
+          }`}</Text>
+      </View>
+    );
+  }
+
   render() {
     return (
       <View
@@ -738,6 +880,7 @@ class EditItemDetails extends Component {
         {this._renderDiscounts()}
         {this._renderTax()}
         {this._renderUnit()}
+        {this._renderTaxCalculationMethodModal()}
       </View>
     );
   }
@@ -782,7 +925,7 @@ class EditItemDetails extends Component {
     editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
     editItemDetails.total = this.calculateFinalAmount(editItemDetails);
     editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
-
+    this.calculateFinalTcsOrTdsToDisplay(editItemDetails)
     this.setState({ editItemDetails });
   }
 
@@ -978,6 +1121,7 @@ class EditItemDetails extends Component {
         {this._renderBottomSheetTax()}
         {this._renderHsn()}
         {this._renderFinalTotal()}
+        {this.state.editItemDetails.tdsOrTcsTaxObj && this._renderTDSorTCS()}
         {this._renderDescriptionField()}
         {/* <TouchableOpacity
           style={{height: 50, width: 50, backgroundColor: 'pink'}}
@@ -1052,6 +1196,7 @@ class EditItemDetails extends Component {
                 // returnKeyType={'done'}
                 onChangeText={(text) => {
                   this.fixedDiscountValueChange(text);
+                  this.calculateFinalTcsOrTdsToDisplay(this.state.editItemDetails)
                 }}
               />
               {this._renderBottomSeprator(8)}
