@@ -6,7 +6,6 @@ const { Navigator, Screen } = createStackNavigator();
 export const ChangeCompanyBranchStack = () => {
   return (
     <Navigator
-      initialRouteName={"ChangeCompanyBranch"}
       screenOptions={{
         headerShown: false
       }}>

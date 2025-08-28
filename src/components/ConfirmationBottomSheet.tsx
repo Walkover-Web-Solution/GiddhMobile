@@ -15,10 +15,14 @@ export const ConfirmationMessages = {
     LOGOUT: {
         message: 'Are you sure you want to logout?',
         description: 'You will lose all of your entries.'
+    },
+    APPLOCK: {
+        message: 'Are You Sure You Want to Log Out?',
+        description: 'Logging out will disable App Lock. You’ll have to re-enable it after login.'
     }
 }
 
-const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', onConfirm, onReject }) => {
+const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', onConfirm, onReject, confirmText = 'Yes', rejectText= 'No' }) => {
     return (
         <BottomSheet
             bottomSheetRef={bottomSheetRef}
@@ -37,13 +41,13 @@ const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', on
                         style={styles.confirmationButton}
                         onPress={onConfirm}
                     >
-                        <Text style={styles.buttonText} >Yes</Text>
+                        <Text style={styles.buttonText} >{confirmText}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onReject}
                         style={styles.confirmationButton}
                     >
-                        <Text style={styles.buttonText} >No</Text>
+                        <Text style={styles.buttonText} >{rejectText}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -89,7 +93,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         backgroundColor: '#864DD3',
         padding: 10,
-        width: 100,
+        minWidth: 100,
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 5

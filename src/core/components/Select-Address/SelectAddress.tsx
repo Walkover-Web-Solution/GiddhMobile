@@ -84,9 +84,6 @@ export class SelectAddress extends React.Component<any, any> {
   render() {
     return (
       <View style={style.container}>
-        {this.props.route.params.statusBarColor && (
-          <StatusBar backgroundColor={this.props.route.params.statusBarColor} barStyle="light-content" />
-        )}
         <View
           style={[
             style.header,
@@ -144,7 +141,7 @@ export class SelectAddress extends React.Component<any, any> {
             keyExtractor={(item, index) => index.toString()}
           />
         </View> */}
-        {this.state.dataPresent ? <View style={{ height: height * 0.8 }}>
+        {this.state.dataPresent ? <View style={{ height: height * 0.75 }}>
           <FlatList
             data={this.state.addressList}
             renderItem={({ item, index }) => {

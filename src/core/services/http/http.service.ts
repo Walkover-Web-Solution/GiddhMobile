@@ -7,6 +7,8 @@ import { commonUrls } from '@/core/services/common/common.url';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import TOAST from 'react-native-root-toast';
+import callSlackWebHook from '@/redux/CommonService';
+import Toast from '@/components/Toast';
 
 let store;
 
@@ -91,6 +93,10 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
     reqConfig.url = reqConfig.url?.replace(/:currency/g, currency);
   }
 
+  if (reqConfig?.url?.includes('/multibranch/balance-sheet')) {
+    reqConfig.timeout = 60000;
+  }
+
   let headers = reqConfig.headers;
   // add token related info here..
   const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
@@ -104,6 +110,7 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
   }
   // if (!reqConfig.url.includes('verify-number')){
   headers['User-Agent'] = Platform.OS;
+  headers['request-start-time'] = new Date().getTime();
   // }
   // console.log('intercepted url ------------');
   // console.log(reqConfig.url);
@@ -112,13 +119,38 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
 
 // intercept response
 httpInstance.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+    if(response?.config?.url?.includes('/multibranch/balance-sheet')){
+      return response;
+    }
+    const endTime = new Date().getTime();
+    const startTime = response?.request?._headers?.["request-start-time"];
+    const timeTaken = endTime-startTime;
+    const userEmail = await AsyncStorage.getItem(STORAGE_KEYS.googleEmail);
+    if(timeTaken > 6000){
+      const payload = {
+        message: `⚠️ *API Performance Alert*\nThe API at \`${response.config.url}\` took *${timeTaken/1000} s* to respond.`,
+        userEmail: userEmail
+      }
+      callSlackWebHook(payload).catch(error => {
+        console.log("Failed to send Slack alert", error)
+      });
+    }
+    return response;
+  },
   async (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
+        Toast({message: error.response?.data?.message, duration:'LONG', position:'BOTTOM'});
+        if(error.response?.data?.code === "INVALID_SESSION_ID" || error.response?.data?.code === "SESSION_EXPIRED_OR_INVALID"){
+          DeviceEventEmitter.emit(APP_EVENTS.invalidAuthToken, {});
+        }
       }
     }
+    // const endTime = new Date().getTime();
+    // const startTime = new Date(error?.request?._headers?.["request-start-time"]).getTime();
+    // const timeTaken = endTime-startTime;
+    // console.log(`API request to ${error.config.url} failed and took ${timeTaken} ms.`);
     return Promise.reject(error.response)
   }
 );

@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import SafeAreaView from 'react-native-safe-area-view';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { connect } from 'react-redux';
 import { AuthStack } from './auth.navigator';
 import analytics from '@react-native-firebase/analytics';
 import AppMainNav from './app.main.navigator';
 import {CompanyStack} from './company.navigator';
-import ChatWidget from '@msg91comm/react-native-hello-sdk';
+import { ChatWidgetModal } from '@msg91comm/react-native-hello-sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { Host } from 'react-native-portalize';
 import SnackBar from '@/components/SnackBar';
 import ChatBotSDK from '@/components/ChatBotSDK';
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, View } from 'react-native';
+import { GDContainer } from '@/core/components/container/container.component';
 
 const navigatorTheme = {
   ...DefaultTheme,
@@ -37,7 +37,7 @@ const getActiveRouteName = (navigationState: any) => {
 const AppNavigator = (props: any): React.ReactElement => {
   const routeNameRef = React.createRef();
   const navigationRef = React.createRef();
-const [helloConfig, setHelloConfig] = useState<object>({});
+  const [helloConfig, setHelloConfig] = useState<{ widgetToken : string, name?: string|null, mail?: string|null, unique_id?: string|null }>({widgetToken:"88461"});
 
 useEffect(() => {
   const setValues = async () => {
@@ -60,42 +60,43 @@ useEffect(() => {
 }, [])
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <GDContainer>
       {
         <NavigationContainer
-          ref={navigationRef}
-          theme={navigatorTheme}
-          onStateChange={async () => {
-            const previousRouteName = routeNameRef.current;
-            const currentRouteName = navigationRef.current.getCurrentRoute().name;
-            if (previousRouteName !== currentRouteName) {
-              // console.log('currentScreen is', currentRouteName);
-              await analytics().logScreenView({
-                screen_name: currentRouteName,
-                screen_class: currentRouteName
-              });
-            }
-          }}>
+        ref={navigationRef}
+        theme={navigatorTheme}
+        onStateChange={async () => {
+          const previousRouteName = routeNameRef.current;
+          const currentRouteName = navigationRef.current.getCurrentRoute().name;
+          if (previousRouteName !== currentRouteName) {
+            await analytics().logScreenView({
+              screen_name: currentRouteName,
+              screen_class: currentRouteName
+            });
+          }
+        }}>
           <Host>
             { !props.isUserAuthenticated 
                 ? <AuthStack/> 
-                : ( !props.isUnauth 
-                    ? <AppMainNav />
-                    : <CompanyStack/>
+                : ( props.isUnauth 
+                    ? <CompanyStack/>
+                    : <AppMainNav />
                   )
             }
+            <ChatWidgetModal
+              helloConfig={helloConfig}
+              widgetColor={'#1A237E'}
+              statusBarStyle="dark-content"
+              useKeyboardAvoidingView={false}
+              preLoaded={true} // Preloads widget content (default: true)
+            />
           </Host>
           <SnackBar eventType={APP_EVENTS.DownloadAlert} backgroundColor={'#1A237E'} borderLeftColor={'#1A237E'}/>
         </NavigationContainer>
       }
 
-      <ChatWidget
-        preLoaded={true}
-        widgetColor={'#1A237E'}
-        helloConfig={helloConfig}
-      />
       <ChatBotSDK/>
-    </SafeAreaView>
+    </GDContainer>
   );
 };
 

@@ -13,18 +13,18 @@ import {
   FlatList,
   Alert,
   KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import style from './AdjustLinkInvoice.style';
 import { connect } from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';
 import CheckBox from 'react-native-check-box';
 import { FONT_FAMILY } from '@/utils/constants';
 import { getInvoiceListRequest } from './accountHelper';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 
 
@@ -83,8 +83,6 @@ class AdjustLinkInvoice extends React.Component<Props> {
     } else {
       this.getVoucherAdjustmentInvoiceList()
     }
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     // this.setVoucherInvoices();
@@ -474,15 +472,13 @@ class AdjustLinkInvoice extends React.Component<Props> {
 
   render() {
     return (
-      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: 'white' }}>
-        {this.FocusAwareStatusBar(this.props.isFocused)}
+      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: 'white' }} behavior={ Platform.OS == 'ios' ? "padding" : "height" }>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {this.renderHeader()}
         {this.renderPartyName()}
         {this.renderAmount()}
         {this.state.allVoucherInvoice.length == 0 ? null : this.renderAdjustedAmount()}
-        {/* <KeyboardAwareScrollView style={{flex: 1, backgroundColor: 'white'}}> */}
         {this.renderInvoice()}
-        {/* </KeyboardAwareScrollView> */}
         {!this.state.keyboard && !this.state.allVoucherInvoice.length == 0 && (
           <TouchableOpacity
             style={{
@@ -521,9 +517,14 @@ class AdjustLinkInvoice extends React.Component<Props> {
               bottom: 0,
               top: 0
             }}>
-            <Bars size={15} color={colors.PRIMARY_NORMAL} />
+            <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={colors.PRIMARY_NORMAL}
+            />
           </View>
         )}
+        </ScrollView>
       </KeyboardAvoidingView>
     );
   }

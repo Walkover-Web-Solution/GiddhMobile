@@ -26,6 +26,7 @@ import ProductGroupScreen from '@/screens/ProductGroup/ProductGroupScreen';
 import { ServiceStack } from './components/service.navigator';
 // import SubscriptionStack from './subscription.navigator';
 import InventoryListScreen from '@/screens/InventoryList/InventoryListScreen';
+import { ContraStack } from './contra.navigator';
 import EWayBillScreen from '@/screens/EWayBill/EWayBillScreen';
 import { TaxStack } from './taxStack.navigator';
 
@@ -62,6 +63,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'TaxStack'} component={TaxStack} />
       {/* <Drawer.Screen name={'SubscriptionStack'} component={SubscriptionStack} /> */}
       <Drawer.Screen name={'InventoryListScreen'} component={InventoryListScreen} />
+      <Drawer.Screen name={'ContraScreens'} component={ContraStack} />
     </Drawer.Navigator>
   );
 }

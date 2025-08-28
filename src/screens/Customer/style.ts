@@ -221,7 +221,6 @@ export default StyleSheet.create({
     height: "100%",
     width:"100%",
     margin:0,
-    paddingTop:Platform.OS=="ios"?15:0
   },
   modalViewContainer: {
     flex: 1,
@@ -258,7 +257,8 @@ export default StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     position: 'absolute',
-    bottom: 10
+    bottom: 0,
+    
   },
   saveText:{
     fontFamily: 'AvenirLTStd-Black',

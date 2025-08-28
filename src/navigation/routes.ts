@@ -28,6 +28,7 @@ const Routes = {
   ProfitLossScreen : 'ProfitLossScreen',
   TopTabNavigator: 'TopTabNavigator',
   BalanceSheetScreen: 'BalanceSheetScreen',
+  ContraScreen: 'ContraScreen',
   ListEWayBillsScreen: 'ListEWayBillsScreen'
 } as const;
 

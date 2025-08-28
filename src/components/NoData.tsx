@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Dimensions, Image } from 'react-native';
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
-import EmptyData from '@/assets/images/icons/EmptyData.svg';
 
 const SIZE = Dimensions.get('window').width * 0.7;
 
@@ -15,7 +14,10 @@ const NoData: React.FC<Props> = ({ primaryMessage, secondaryMessage = '' }) => {
 
     return (
         <View style={styles.container}>
-            <EmptyData height={SIZE} width={SIZE} />
+            <Image
+                source={require('@/assets/images/noTransactions.png')}
+                style={{ resizeMode: 'contain', height: 300, width: 300 }}
+            />
             <Text style={styles.primaryMessageTextStyle}>{primaryMessage}</Text>
             <Text style={styles.secondaryMessageTextStyle}>{secondaryMessage}</Text>
         </View>

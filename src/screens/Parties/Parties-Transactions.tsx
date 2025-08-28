@@ -25,8 +25,8 @@ import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handl
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
-import { Bars } from 'react-native-loader';
+import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
+import LoaderKit  from 'react-native-loader-kit';
 import colors from '@/utils/colors';
 import moment from 'moment';
 import Foundation from 'react-native-vector-icons/Foundation';
@@ -48,8 +48,6 @@ import base64 from 'react-native-base64';
 import MoreModal from './components/moreModal';
 import ShareModal from './components/sharingModal';
 import color from '@/utils/colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Dropdown from 'react-native-modal-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PaymentServices } from '@/core/services/payment/payment';
 import TOAST from 'react-native-root-toast';
@@ -709,8 +707,8 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       }
       //Handling balance api
       const balance = await CommonService.getPartyBalance(
-        this.state.startDate,
-        this.state.endDate,
+        transactions.body.fromDate,
+        transactions.body.toDate,
         this.props.route.params?.item?.uniqueName,
       );
       if (balance.body) {
@@ -892,6 +890,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.downloadModalVisible(false);
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.exportFile();
@@ -907,6 +906,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onShare();
@@ -922,6 +922,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.setState({ ShareModal: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          return;
         }
       }
       await this.onWhatsAppShare();
@@ -1166,7 +1167,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Bars size={15} color={colors.PRIMARY_NORMAL} />
+        <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+        />
       </View>
     );
   };
@@ -1443,14 +1448,16 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     if (this.state.showLoader) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
-          <Bars size={15} color={colors.PRIMARY_NORMAL} />
+          <LoaderKit
+            style={{ width: 45, height: 45 }}
+            name={'LineScale'}
+            color={colors.PRIMARY_NORMAL}
+          />
         </View>
       );
     } else {
       return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
-          {this.FocusAwareStatusBar(this.props.isFocused)}
           <View
             style={{
               height: Dimensions.get('window').height * 0.08,
@@ -1841,7 +1848,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           {this.state.payNowButtonPressed === false ?
             this.state.transactionsLoader ? (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-                <Bars size={15} color={colors.PRIMARY_NORMAL} />
+                <LoaderKit
+                    style={{ width: 45, height: 45 }}
+                    name={'LineScale'}
+                    color={colors.PRIMARY_NORMAL}
+                />
               </View>
             ) : (
               <>
@@ -1946,6 +1957,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               <DateTimePickerModal
                 isVisible={this.state.datePicker}
                 mode="date"
+                pickerComponentStyleIOS={{height: 250}}
                 date={this.state.dateTime}
                 onConfirm={(date) => {
                   if (Number(format(date, "MM")) < Number(format(new Date(Date.now()), "MM"))) {
@@ -1971,6 +1983,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               <DateTimePickerModal
                 isVisible={this.state.timePicker}
                 mode="time"
+                pickerComponentStyleIOS={{height: 250}}
                 date={this.state.dateTime}
                 onConfirm={(date) => {
                   const newTime: Date = this.state.dateTime;
@@ -2010,7 +2023,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 justifyContent: 'center',
                 alignItems: 'center'
               }}>
-                <Bars size={15} color={color.PRIMARY_NORMAL} />
+                <LoaderKit
+                    style={{ width: 45, height: 45 }}
+                    name={'LineScale'}
+                    color={color.PRIMARY_NORMAL}
+                />
                 <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
               </View>
             </View>
@@ -2027,7 +2044,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 bottom: 0,
                 top: 0,
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+              />
             </View>
           )}
           {this.props.route.params.type == 'Vendors' ? (

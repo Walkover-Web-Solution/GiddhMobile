@@ -46,7 +46,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    bottom: 10
+    bottom: 0
   },
   buttonText: {
     fontFamily: 'AvenirLTStd-Black',
@@ -103,7 +103,6 @@ export default StyleSheet.create({
     height: "100%",
     width: "100%",
     margin: 0,
-    paddingTop: Platform.OS == "ios" ? 15 : 0
  },
  modalViewContainer: {
     flex: 1,

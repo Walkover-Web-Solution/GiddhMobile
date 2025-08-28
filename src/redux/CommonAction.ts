@@ -88,3 +88,16 @@ export function updateBranchStateDetails(payload: any){
     payload: payload
   }
 }
+
+export function resetAccountSearch() {
+  return {
+    type: Actions.RESET_ACCOUNT_SEARCH
+  };
+}
+
+export function updateAccountSearch(payload: string[]) {
+  return {
+    type: Actions.UPDATE_ACCOUNT_SEARCH,
+    payload: payload
+  };
+}

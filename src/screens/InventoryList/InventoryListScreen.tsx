@@ -43,12 +43,14 @@ const _Card = ({ item,index, onPress }) => {
     const {statusBar,styles, theme} = useCustomTheme(style);
     
     return(
-    <TouchableOpacity activeOpacity={0.6} onPress={()=>onPress(item)}>
-        <View style={styles.card}>
-            <View style={{flex:1}}>
-                <Text style={styles.title}>{item.variantName}</Text>
-                <View style={styles.cardView}>
+    <TouchableOpacity activeOpacity={0.6} onPress={()=>onPress(item)} style={styles.card}>
+        <View style={{flex:1}}>
+            <Text style={styles.title}>{item.variantName}</Text>
+            <View style={styles.cardView}>
+                <View style={{maxWidth:'70%'}}>
                     <Text style={[styles.subtitle,{fontFamily:theme.typography.fontFamily.semiBold}]}>Stock: <Text style={styles.subtitle}>{item.stockName}</Text></Text>
+                </View>
+                <View style={{maxWidth:'30%'}}>
                     <Text style={[styles.subtitle,{fontSize:theme.typography.fontSize.small.size}]}>{item.stockUnitName+'('+item.stockUnitCode+')'}</Text>
                 </View>
             </View>
@@ -153,7 +155,7 @@ const InventoryListScreen = (props) => {
 
     const onRefresh = () => {
         setIsRefreshing(true)
-        DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Product Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
+        DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
         _.delay(() => { setIsRefreshing(false) }, 500)
     }
 
@@ -193,12 +195,12 @@ const InventoryListScreen = (props) => {
             //eat 5Start & do nothing
         }
         else if(hasMore)
-        fetchAllVariants(props?.route?.params?.params?.name === 'Product Inventory' ? 'PRODUCT' : 'SERVICE',false);
+        fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',false);
         
     },[page])
 
     useEffect(()=>{
-        fetchAllVariants(props?.route?.params?.params?.name === 'Product Inventory' ? 'PRODUCT' : 'SERVICE',false);
+        fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',false);
         DeviceEventEmitter.addListener(APP_EVENTS.ServiceInventoryListRefresh, async () => {
             await clearAll();
             fetchAllVariants("SERVICE",false);
@@ -320,7 +322,7 @@ const InventoryListScreen = (props) => {
                                 setRefresh(true);
                                 setHasMore(true);
                                 setLoading(true);
-                                setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Product Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
+                                setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
                                 setBottomSheetVisible(filterModalizeRef,false);
                             }
                         }}
@@ -347,7 +349,7 @@ const InventoryListScreen = (props) => {
                         onPress={() => {
                             setBottomSheetVisible(filterModalizeRef,false)
                             setFilterFlag(false);
-                            DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Product Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
+                            DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
                         }}
                     >
                         <Text style={[styles.smallText,{color:voucherBackground,fontSize:theme.typography.fontSize.large.size}]}>Clear Filter</Text>
@@ -677,7 +679,7 @@ const InventoryListScreen = (props) => {
                     setRefresh(true);
                     setHasMore(true);
                     setLoading(true);
-                    setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Product Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
+                    setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
                     setBottomSheetVisible(sortByTypeModalizeRef, false);
                     setBottomSheetVisible(sortModalizeRef, false);
                 }}
@@ -700,7 +702,7 @@ const InventoryListScreen = (props) => {
                     setRefresh(true);
                     setHasMore(true);
                     setLoading(true);
-                    setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Product Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
+                    setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
                     setBottomSheetVisible(sortByTypeModalizeRef, false);
                     setBottomSheetVisible(sortModalizeRef, false);
                 }}
@@ -886,7 +888,7 @@ const InventoryListScreen = (props) => {
                             setRefresh(true);
                             setHasMore(true);
                             setLoading(true);
-                            setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Product Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
+                            setTimeout(()=>{setPage(1);fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',true);},2000);
                             setBottomSheetVisible(searchSubModalizeRef,false);
                         }
                     }}
@@ -938,8 +940,7 @@ const InventoryListScreen = (props) => {
     const renderItem = ({item,index})=><Card item={item} index={index} onPress={onOpen}/>
     
     return (
-        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container}>
-            <_StatusBar statusBar={statusBar}/>
+        <View style={styles.container}>
             <Header 
               header={'Inventory'} 
               isBackButtonVisible={true} 
@@ -952,7 +953,7 @@ const InventoryListScreen = (props) => {
                     <TouchableOpacity
                         style={[{marginTop:20}]}
                         onPress={() => {
-                            DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Product Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
+                            DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
                         }}
                         >
                         <Text style={{color:voucherBackground,fontFamily:theme.typography.fontFamily.regular,fontSize:theme.typography.fontSize.large.size}}>Click to reset</Text>
@@ -963,6 +964,17 @@ const InventoryListScreen = (props) => {
                         <Text style={styles.columnHeading}>Variant Name</Text>
                         <Text style={styles.columnHeading}>Unit</Text>
                     </View>
+                    {filterObject?.search !== "" && 
+                    <View style={styles.clearFilter}>
+                        <TouchableOpacity
+                            style={[styles.buttonContainer, styles.clearButton, {borderColor:voucherBackground}]}
+                            onPress={() => {DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})}}
+                            >
+                            <Text style={[styles.clearText, {color:voucherBackground}]}>Clear Filter</Text>
+                            <AntDesign name="closecircleo" size={13} color={voucherBackground} />
+                        </TouchableOpacity>
+                    </View>
+                    }
                     <FlatList
                     data={dataArr}
                     renderItem={renderItem}
@@ -990,7 +1002,7 @@ const InventoryListScreen = (props) => {
             {SortByTypeModal}
             {SearchByModal}
             {SearchSubModal}
-        </KeyboardAvoidingView>
+        </View>
     );
 };
 
@@ -1153,7 +1165,10 @@ const style = (theme:ThemeProps)=> StyleSheet.create({
     columnHeading:{
         fontFamily:theme.typography.fontFamily.bold,
         color:theme.colors.secondary
-    }
+    },
+    clearFilter: {alignItems:'flex-end',paddingHorizontal:7, paddingBottom:7 },
+    clearButton: {borderWidth:1, borderRadius:25, padding:5},
+    clearText: {fontFamily:theme.typography.fontFamily.regular,fontSize:theme.typography.fontSize.regular.size, marginRight:5}
 });
 
 export default InventoryListScreen;

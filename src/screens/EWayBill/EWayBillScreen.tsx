@@ -11,7 +11,7 @@ import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
-import { DeviceEventEmitter, Dimensions, KeyboardAvoidingView, Platform, Pressable, RefreshControl, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSelector } from "react-redux";
 import TransporterModalize from "./component/TransporterModalize";
 import TransportModeModalize from "./component/TransportModeModalize";
@@ -23,9 +23,11 @@ import colors from "@/utils/colors";
 import EwayBillLoginBottomSheet from "./component/EwayBillLoginBottomSheet";
 import Routes from "@/navigation/routes";
 import { APP_EVENTS } from "@/utils/constants";
+import Dialog from 'react-native-dialog';
+import Faliure from '../../assets/images/icons/customer_faliure.svg';
 
 const {width} = Dimensions.get('window')
-export const ModeOfTransport = [
+const ModeOfTransport = [
     {
         name: "Road",
         isRegularChecked: false,
@@ -80,6 +82,8 @@ const EWayBillScreenComponent = ( {route} ) => {
     const [hasNonNilRatedTax, setHasNonNilRatedTax] = useState(false);
     const [subType, setSubType] = useState(baseCurrency === accountDetail?.currency?.code ? "Supply" : "Export");
     const [refreshing, setRefreshing] = useState(false);
+    const [faliureDialog, setFaliureDialog] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
     const navigation = useNavigation();
     const vehicleNoRegex = /^[A-Z]{2}\d{1,2}[A-Z]{0,2}\d{4}$/i;
 
@@ -113,6 +117,8 @@ const EWayBillScreenComponent = ( {route} ) => {
             const response = await InvoiceService.fetchReceiverDetail();
             if(response && response?.status === "success"){
                 setReceiverDetail(response?.body);
+            }else{
+                Toast({message: response?.message, duration:'LONG', position:'BOTTOM'})  
             }
         } catch (error) {
             console.error("----- Error while fetching receiver details -----", error);
@@ -195,10 +201,12 @@ const EWayBillScreenComponent = ( {route} ) => {
                 Toast({message: "E-Way bill " + response?.body?.ewayBillNo + " generated successfully.", duration:'SHORT', position:'BOTTOM'});
                 resetAll();
             } else {
-                Toast({message: response?.data?.message, duration:'SHORT', position:'BOTTOM'})
+                setErrorMsg(response?.data?.message);
+                setFaliureDialog(true);
             }
         } catch (error) {
-            Toast({message: error?.message, duration:'SHORT', position:'BOTTOM'})
+            setErrorMsg(error?.message);
+            setFaliureDialog(true);
         }
     }
 
@@ -267,14 +275,16 @@ const EWayBillScreenComponent = ( {route} ) => {
     }, []);
 
     return (
-        <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : undefined } style={styles.container} key={key}>
-            <Header header={'Generate E-way Bill'} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+        <>
             { !isLoading && <ScrollView
+                style={styles.container}
+                key={key}
                 keyboardShouldPersistTaps="handled"
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
-            >
+                >
+                <Header header={'Generate E-way Bill'} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
                 <View style={styles.subContainer}>
                     <Text style={styles.heading}>Part A</Text>
                     <InputField 
@@ -423,17 +433,39 @@ const EWayBillScreenComponent = ( {route} ) => {
                         mode="date"
                         onConfirm={handleConfirm}
                         onCancel={hideDatePicker}
+                        pickerComponentStyleIOS={{height: 250}}
                     />
                 </View>
                 {CreateButton}
             </ScrollView>}
+            <Dialog.Container
+              onRequestClose={() => setFaliureDialog(false)}
+              visible={faliureDialog} onBackdropPress={() => setFaliureDialog(false)} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Faliure />
+              <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Error!</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{errorMsg ?? 'Something went wrong'}</Text>
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  width: '70%',
+                  alignSelf: 'center',
+                  borderRadius: 30,
+                  backgroundColor: '#F2596F',
+                  marginTop: 30,
+                  height: 50, marginBottom: 5
+                }}
+                onPress={() => setFaliureDialog(false)}
+              >
+                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>Try Again</Text>
+              </TouchableOpacity>
+            </Dialog.Container>
             <Loader isLoading={isLoading} />
             <NoActionLoader isLoading={isLoadingCreateBill}/>
             <EwayBillLoginBottomSheet bottomSheetRef={ewayBillLoginBottomSheetRef} setIsLoadingCreateBill={setIsLoadingCreateBill} onCreateEwayBillAfterLogin={onCreateEwayBillAfterLogin}/>
             <TransporterModalize modalizeRef={transporterModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transporterData={transporterDetails} setTransporter={setSelectedTransporter} addTrasporterModalRef={addTransporterModalize}/>
             <AddTransporterModalize modalizeRef={addTransporterModalize} setBottomSheetVisible={setBottomSheetVisible} setTransporter={setTransporterDetails} transporterData={transporterDetails}/>
             <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={ModeOfTransport} transportMode={selectedTransportMode} setTransportMode={setSelectedTransportMode}/>
-        </KeyboardAvoidingView>
+        </>
     )
 }
 

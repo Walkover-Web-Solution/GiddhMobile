@@ -16,6 +16,7 @@ import {
   StatusBar,
   ToastAndroid,
   KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import style from './addEntryStyles';
 import { connect } from 'react-redux';
@@ -29,8 +30,8 @@ import Dialog from 'react-native-dialog';
 import Award from '../../assets/images/icons/customer_success.svg';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { Bars } from 'react-native-loader';
-import DocumentPicker from 'react-native-document-picker';
+import LoaderKit  from 'react-native-loader-kit';
+import { pick, types } from '@react-native-documents/picker';
 import color from '@/utils/colors';
 import _, { find, result } from 'lodash';
 import { APP_EVENTS, FONT_FAMILY, STORAGE_KEYS } from '@/utils/constants';
@@ -158,8 +159,6 @@ export class AddEntry extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#0E7942" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
   componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
     // this.getSelectedAccountData(this.props?.route?.params?.item?.uniqueName)
     // this.searchCalls();
     // this.setActiveCompanyCountry();
@@ -753,22 +752,21 @@ export class AddEntry extends React.Component<Props> {
   };
   handleUploadAttachment = async () => {
     try {
-      const selectedAttachment = await DocumentPicker.pick({
-        type: [
-          DocumentPicker.types.images,
-          DocumentPicker.types.pdf,
-          DocumentPicker.types.csv,
-          DocumentPicker.types.xls,
-        ],
-      })
-
+      const selectedAttachment = await pick({
+        type: [types.images, types.pdf, types.csv, types.xls],
+        copyTo: 'cachesDirectory',
+        allowMultiSelection: false
+      });
       if (selectedAttachment) {
-        if (selectedAttachment?.size > 5000000) {
+        if (selectedAttachment[0]?.size > 5000000) {
           ToastAndroid.show('File size more than 5MB is not allowed', ToastAndroid.LONG);
+          return;
         }
         this.setState({ loading: true })
 
         const uploadRes = await this.uploadAttachment(selectedAttachment[0]);
+        console.log("response of upload", uploadRes);
+        
         if (uploadRes?.status == 'success') {
           this.setState({
             uploadedAttachment: uploadRes?.body,
@@ -804,12 +802,6 @@ export class AddEntry extends React.Component<Props> {
         uploadedAttachment: {},
         loading: false
       })
-
-      if (DocumentPicker.isCancel(err)) {
-        console.log('User cancelled the picker');
-      } else {
-        throw err;
-      }
     }
   };
   checkForCreateEntryConditions = async () => {
@@ -3016,17 +3008,8 @@ export class AddEntry extends React.Component<Props> {
   render() {
 
     return (
-      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#ffffff' }}>
-        <KeyboardAwareScrollView
-          enableOnAndroid
-          keyboardShouldPersistTaps="handled"
-          style={{ flex: 1, backgroundColor: '#ffffff' }}
-          // contentContainerStyle={{paddingBottom: height * 0.2,
-          // }}
-          bounces={true}
-        >
-          <View style={style.container}>
-            {this.FocusAwareStatusBar(this.props.isFocused)}
+      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#ffffff' }} behavior='height'>
+          <ScrollView contentContainerStyle={{flexGrow: 1}}>
             <View style={style.headerConatiner}>
               {this.renderHeader()}
               {this.renderAccountFlow()}
@@ -3035,7 +3018,7 @@ export class AddEntry extends React.Component<Props> {
             </View>
             {this._renderScreenElements()}
 
-          </View>
+          </ScrollView>
           {this.state.searchResults?.length > 0 && this._renderSearchList()}
           <Modal
             visible={this.state.loading}
@@ -3043,12 +3026,17 @@ export class AddEntry extends React.Component<Props> {
             statusBarTranslucent
           >
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+              />
             </View>
           </Modal>
           <DateTimePickerModal
             isVisible={this.state.showClearanceDatePicker}
             mode="date"
+            pickerComponentStyleIOS={{height: 250}}
             onConfirm={this.handleConfirmClearanceDate}
             onCancel={() => {
               this.setState({ showClearanceDatePicker: false });
@@ -3057,10 +3045,10 @@ export class AddEntry extends React.Component<Props> {
           <DateTimePickerModal
             isVisible={this.state.showDatePicker}
             mode="date"
+            pickerComponentStyleIOS={{height: 250}}
             onConfirm={this.handleConfirm}
             onCancel={this.hideDatePicker}
           />
-        </KeyboardAwareScrollView>
         {this._renderAssignTags()}
         {this._renderVoucherTypes()}
         {this._renderInvoicesTypes()}

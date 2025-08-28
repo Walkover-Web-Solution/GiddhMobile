@@ -30,6 +30,7 @@ import { commonUrls } from '@/core/services/common/common.url';
 import Feather from 'react-native-vector-icons/Feather'
 import RNFetchBlob from 'react-native-blob-util'
 import TOAST from "@/components/Toast";
+import { CommonService } from '@/core/services/common/common.service';
 
 const {height, width} = Dimensions.get('window');
 
@@ -103,6 +104,7 @@ const BalanceSheetScreen = () => {
             const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
             if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
                 Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                return;
             }
         }
         await exportFile(viewType);
@@ -117,25 +119,11 @@ const BalanceSheetScreen = () => {
     const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
     setConsolidatedBranch(consolidateState ? consolidateState : ' ');
     try {
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-      const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
-      const response = await fetch(commonUrls.fetchDetailedBalanceSheet(
-        date?.startDate, 
-        date?.endDate, 
-        branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '')
-      .replace(':companyUniqueName',activeCompany) ,{
-        method: "GET",
-        headers: {
-          'Accept': 'application/json',
-          'session-id' : token,
-          'user-agent' : Platform.OS
-        },
-      })
-      const result = await response.json()
-      if (result && result?.status == 'success') {
-        setBalanceSheet(result?.body?.groupDetails);
+      const response = await CommonService.fetchDetailedBalanceSheet(date?.startDate, date?.endDate, branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '')
+      if (response?.body && response?.status == 'success') {
+        setBalanceSheet(response?.body?.groupDetails);
       }else{
-        TOAST({message: result?.message, position:'BOTTOM',duration:'LONG'})
+        TOAST({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
       }
       setLoading(false);
     } catch (error) {

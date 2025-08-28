@@ -1,7 +1,6 @@
 import React, { createRef } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Dimensions, SafeAreaView, ScrollView } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, SafeAreaView, ScrollView } from 'react-native';
 import styles from './style';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Zocial from 'react-native-vector-icons/Zocial';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -14,7 +13,7 @@ import { connect } from 'react-redux';
 import Foundation from 'react-native-vector-icons/Foundation';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import { CustomerVendorService } from '@/core/services/customer-vendor/customer-vendor.service';
-import { Bars } from 'react-native-loader';
+import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import { useIsFocused } from '@react-navigation/native';
 import Dialog from 'react-native-dialog';
@@ -23,7 +22,6 @@ import Faliure from '../../assets/images/icons/customer_faliure.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Modal from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import PhoneInput from 'react-native-phone-input';
@@ -916,7 +914,7 @@ export class Vendors extends React.Component<Props> {
     return (
       <Modal isVisible={this.state.isMobileModalVisible} onBackdropPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isMobileModalVisible: !this.state.isMobileModalVisible }) }}
-        style={styles.modalMobileContainer}>
+        style={[styles.modalMobileContainer, { paddingTop: Platform.OS == "ios" ? this.props?.insets?.top : 0 }]}>
         <SafeAreaView style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
             <TouchableOpacity onPress={() => { this.setState({ isMobileModalVisible: false }) }} style={styles.cancelButtonTextModal}>
@@ -950,7 +948,7 @@ export class Vendors extends React.Component<Props> {
     return (
       <Modal isVisible={this.state.isCurrencyModalVisible} onBackdropPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
         onBackButtonPress={() => { this.setState({ isCurrencyModalVisible: !this.state.isCurrencyModalVisible }) }}
-        style={styles.modalMobileContainer}>
+        style={[styles.modalMobileContainer, { paddingTop: Platform.OS == "ios" ? this.props?.insets?.top : 0 }]}>
         <SafeAreaView style={styles.modalViewContainer}>
           <View style={styles.cancelButtonModal} >
             <TextInput
@@ -1052,16 +1050,8 @@ export class Vendors extends React.Component<Props> {
 
   render() {
     return (
-      <View style={styles.customerMainContainer}>
-        <KeyboardAwareScrollView
-          enableOnAndroid
-          extraHeight={100}
-          extraScrollHeight={100}
-          keyboardShouldPersistTaps="handled"
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.scrollViewContainerStyle}
-          bounces={true}
-        >
+      <ScrollView style={styles.customerMainContainer} contentContainerStyle={styles.scrollViewContainerStyle}>
+        <View style={{ flexGrow: 1 }}>
           {this.state.successDialog
             ? <Dialog.Container
               onRequestClose={() => { this.setState({ successDialog: false }) }}
@@ -1387,10 +1377,14 @@ export class Vendors extends React.Component<Props> {
                 bottom: 0,
                 top: 0
               }}>
-              <Bars size={15} color={color.PRIMARY_NORMAL} />
+              <LoaderKit
+                style={{ width: 45, height: 45 }}
+                name={'LineScale'}
+                color={color.PRIMARY_NORMAL}
+              />
             </View>
           )}
-        </KeyboardAwareScrollView>
+        </View>
         <TouchableOpacity
           disabled={!this.isCreateButtonVisible()}
           style={[styles.saveButton, (!this.isCreateButtonVisible() && { backgroundColor: '#CCCCCC'})]}
@@ -1401,7 +1395,7 @@ export class Vendors extends React.Component<Props> {
         </TouchableOpacity>
         {this.allGroupsBottomSheet()}
         {this.partyTypeBottomSheet()}
-      </View>
+      </ScrollView>
     )
   }
 };

@@ -53,7 +53,7 @@ export class Period extends React.Component {
           style={styles.periodButton}
           onPress={() => {
             this.props.setActiveDateFilter('TM', 'default');
-            this.props.selectDate(moment().startOf('month').format('DD-MM-YYYY'), moment().format('DD-MM-YYYY'));
+            this.props.selectDate(moment().startOf('month').format('DD-MM-YYYY'), moment().endOf('month').format('DD-MM-YYYY'));
             this.props.navigation.goBack();
           }}>
           <Text style={styles.periodText}>This Month</Text>

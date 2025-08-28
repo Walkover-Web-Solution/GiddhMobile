@@ -1,7 +1,6 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
-import { ScrollContainer } from '@/components/Container';
 import Header from '@/components/Header';
 import PlanSummarySection from './components/PlanSummarySection';
 import { useNavigation } from '@react-navigation/native';
@@ -28,7 +27,7 @@ const ReviewAndPayScreen = () => {
                 backgroundColor={theme.colors.vouchers.payment.background}
                 isBackButtonVisible
             />
-            <ScrollContainer>
+            <ScrollView style={{flexGrow:1}}>
                 <Text style={styles.headingText}>Payment Details</Text>
                 <View style={styles.card}>
                     <Text style={styles.mediumText}>Bill To:</Text>
@@ -53,7 +52,7 @@ const ReviewAndPayScreen = () => {
                         Back to Billing Account
                     </PlanSummarySection.Button>
                 </PlanSummarySection>
-            </ScrollContainer>
+            </ScrollView>
         </>
     )
 }

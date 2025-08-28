@@ -1,12 +1,47 @@
 import React from 'react';
 
-import { View, Dimensions, Text,StatusBar, Platform } from 'react-native';
+import { View, Dimensions, Text,StatusBar, Platform, TouchableOpacity } from 'react-native';
 import styles from './style';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Custom from './Custom';
 import Period from './Period';
+import colors from '@/utils/colors';
+import { FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
 
 const initialLayout = { width: Dimensions.get('window').width };
+
+const CustomTabBar = ({ navigationState, jumpTo }) => {
+  return (
+    <View style={{ flexDirection: 'row', backgroundColor: 'white' }}>
+      {navigationState.routes.map((route, index) => {
+        const focused = navigationState.index === index;
+        return (
+          <TouchableOpacity
+            key={route.key}
+            style={{
+              flex: 1,
+              paddingVertical: 15,
+              borderBottomWidth: 2,
+              borderBottomColor: focused ? '#520EAD' : 'transparent',
+              alignItems: 'center',
+            }}
+            onPress={() => jumpTo(route.key)}
+          >
+            <Text
+              style={{
+                color: focused ? '#520EAD' : '#D9D9D9',
+                fontFamily: focused ? FONT_FAMILY.bold : FONT_FAMILY.regular,
+                fontSize: GD_FONT_SIZE.medium,
+              }}
+            >
+              {route.title}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+};
 
 export class AppDatePicker extends React.Component {
   constructor(props) {
@@ -29,15 +64,17 @@ export class AppDatePicker extends React.Component {
   renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: 'white' }}
-      style={{ backgroundColor: 'white', elevation: 0 }}
-      renderLabel={({ route, focused }) => (
+      indicatorStyle={{ backgroundColor: '#520EAD' }}
+      style={{ backgroundColor: 'white', elevation: 0, fontFamily:FONT_FAMILY.bold }}
+      activeColor='#520EAD'
+      inactiveColor='#D9D9D9'
+      renderLabel={({ route, focused, color }) => (
         <View
           style={{
             borderTopEndRadius: 17,
             borderTopLeftRadius: 17,
             borderBottomLeftRadius: 17,
-            borderColor: focused ? '#5773FF' : '#D9D9D9',
+            borderColor: color,
             // paddingHorizontal: 10,
             width: Dimensions.get('window').width * 0.4,
             // height: Dimensions.get('window').height * 0.045,
@@ -49,7 +86,7 @@ export class AppDatePicker extends React.Component {
           <Text
             numberOfLines={1}
             style={{
-              color: focused ? '#5773FF' : '#808080',
+              color: color,
               // fontFamily: focused ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
               fontWeight: focused ? 'bold' : 'normal'
             }}>
@@ -57,6 +94,7 @@ export class AppDatePicker extends React.Component {
           </Text>
         </View>
       )}
+      
     />
   );
 
@@ -87,7 +125,6 @@ export class AppDatePicker extends React.Component {
     });
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor='#520EAD' barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} />
         {this.props.route.params.DateRangeOnly ? SecondRoute()
           : <TabView
             navigationState={{ index: this.state.index, routes: this.state.routes }}
@@ -95,7 +132,7 @@ export class AppDatePicker extends React.Component {
             onIndexChange={this.handleIndexChange}
             initialLayout={initialLayout}
             // swipeEnabled={false}
-            renderTabBar={this.renderTabBar}
+            renderTabBar={props => <CustomTabBar {...props}/>}
           />
         }
       </View>

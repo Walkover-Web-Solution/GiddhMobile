@@ -15,7 +15,7 @@ import moment from "moment";
 import { CommonService } from "@/core/services/common/common.service";
 import colors from "@/utils/colors";
 import Toast from "@/components/Toast";
-import DateFilter from "./component/DateFilte";
+import DateFilter from "./component/DateFilter";
 import TaxNumbersModalize from "./component/TaxNumbersModalize";
 import { setBottomSheetVisible } from "@/components/BottomSheet";
 import Loader from "@/components/Loader";
@@ -142,6 +142,7 @@ const downloadEWayBill = async (uniqueName: string) => {
             const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
             if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
                 Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                return;
             }
         }
         await exportFile(uniqueName);
@@ -152,6 +153,7 @@ const downloadEWayBill = async (uniqueName: string) => {
 
 const RenderItem = ({ item, currency, modalizeRef, setSelectedEWBill }) => {
     const { styles, theme } = useCustomTheme(getStyles);
+
     return (
         <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={()=>{
             setSelectedEWBill(item);
@@ -169,7 +171,7 @@ const RenderItem = ({ item, currency, modalizeRef, setSelectedEWBill }) => {
                 <Text style={styles.title}>{currency?.currency?.symbol} {item.totalValue}</Text>
             </View>
             <View style={styles.detailsContainer}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <View style={styles.detailsView}>
                     <Text style={styles.regularText}>{item.invoiceDate}</Text>
                     <Text style={[styles.regularText, { fontFamily: theme.typography.fontFamily.semiBold }]}>{item.customerName || 'N/A'}</Text>
                 </View>
@@ -217,6 +219,7 @@ const ListEWayBillsScreen = () => {
     })
     const [stateData, setStateData] = useState([]);
 
+
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
     }
@@ -225,11 +228,6 @@ const ListEWayBillsScreen = () => {
         setActiveDateFilter(activeDateFilter);
         setDateMode(dateMode);
     };
-
-    const _StatusBar = ({ statusBar }: { statusBar: string }) => {
-        const isFocused = useIsFocused();
-        return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
-    }
 
     const fetchTaxNumbers = async () => {
         try {
@@ -294,8 +292,7 @@ const ListEWayBillsScreen = () => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <_StatusBar statusBar={statusBar} />
+        <View style={styles.container}>
             <Header header={'E-way Bills'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             <DateFilter
                 startDate={date.startDate}
@@ -348,7 +345,7 @@ const ListEWayBillsScreen = () => {
                 handleRefresh={onRefresh}
             /> 
             <AddVehicleModalize key={selectedEWBill?.ewbNo} modalizeRef={addVehicleModalizeRef} setBottomSheetVisible={setBottomSheetVisible} setVehicleState={setVehicleState} stateData={stateData} handleRefresh={onRefresh} selectedEWBill={selectedEWBill}/> 
-        </SafeAreaView>
+        </View>
     )
 }
 
@@ -408,5 +405,10 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         flexDirection:'row',
         alignItems:'baseline',
         paddingBottom:8
+    },
+    detailsView: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        marginBottom: 5 
     }
 })
