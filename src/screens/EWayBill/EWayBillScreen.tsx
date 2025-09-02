@@ -27,7 +27,7 @@ import Dialog from 'react-native-dialog';
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 
 const {width} = Dimensions.get('window')
-const ModeOfTransport = [
+export const ModeOfTransport = [
     {
         name: "Road",
         isRegularChecked: false,

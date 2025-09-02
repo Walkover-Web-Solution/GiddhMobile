@@ -8,12 +8,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { commonUrls } from "@/core/services/common/common.url";
 import RNFetchBlob from 'react-native-blob-util'
 import { CustomerVendorService } from "@/core/services/customer-vendor/customer-vendor.service";
-import { useState } from "react";
 
 const exportFile = async (uniqueName) => {
     try {
-        console.log("hihiihih", uniqueName);
-        
         DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Downloading Started... It may take while', open: null });
         const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
         const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
@@ -127,19 +124,29 @@ const downloadEWayBill = async (uniqueName: string) => {
     }
 }
 
-const ActionModalize = ({modalizeRef, setBottomSheetVisible, selectedEWBill, cancelModalizeRef, addVehicleModalizeRef, setStateData}) => {
+const ActionModalize = ({modalizeRef, setBottomSheetVisible, selectedEWBill, cancelModalizeRef, addVehicleModalizeRef, setStateData, setCityData}) => {
     const {styles} = useCustomTheme(getStyles);
-
-    console.log("hello modal", selectedEWBill);
-
+    
     const fetchAllStates = async () => {
+        const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
         try {
-            const response = await CustomerVendorService.getAllStateName("IN");
+            const response = await CustomerVendorService.getAllStateName(activeCompanyCountryCode ?? "IN");
             if(response && response?.status == "success"){
                 setStateData(response?.body?.stateList)
             }
         } catch (error) {
             console.log("Error while fetching states");
+        }
+    }
+
+    const fetchAllCities = async () => {
+        try {
+            const response = await CustomerVendorService.getAllCityName(selectedEWBill?.pincode);
+            if(response && response?.status == "success"){
+                setCityData(response?.body)
+            }
+        } catch (error) {
+            console.log("Error while fetching cities");
         }
     }
     
@@ -153,6 +160,7 @@ const ActionModalize = ({modalizeRef, setBottomSheetVisible, selectedEWBill, can
                 <View style={styles.modalStyle} >
                     <TouchableOpacity style={styles.button} onPress={()=>{
                         fetchAllStates();
+                        fetchAllCities();
                         setBottomSheetVisible(modalizeRef, false);
                         setBottomSheetVisible(addVehicleModalizeRef, true);
                     }}>

@@ -12,9 +12,9 @@ import CancelReasonEWBModalize from "./CancelReasonEWBModalize";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import StateModalize from "./StateModalize";
-import CityModalize from "./CityModalize";
-import { Bubbles } from 'react-native-loader';
+import LoaderKit from 'react-native-loader-kit';
 import { CommonService } from "@/core/services/common/common.service";
+import colors from "@/utils/colors";
 const {height,width} = Dimensions.get('window')
 
 const RsnCodeMap:any = {
@@ -24,7 +24,7 @@ const RsnCodeMap:any = {
     4: "First Time"
 }
 
-const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState, stateData, handleRefresh, selectedEWBill}) => {
+const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState, stateData, cityData, handleRefresh, selectedEWBill}) => {
     const {styles, theme} = useCustomTheme(getStyles);
     const transportModeModalizeRef = useRef(null);
     const cancelReasonModalizeRef = useRef(null);
@@ -87,7 +87,7 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
         const payload = {
             ewbNo: selectedEWBill?.ewbNo,
             vehicleNo: tempVehicleState?.vehicleNo,
-            fromPlace: tempVehicleState?.fromPlace,
+            fromPlace: cityData,
             fromState: tempVehicleState?.fromState,
             reasonCode: tempVehicleState?.cancelRsnCode,
             reasonRem: tempVehicleState?.reasonRem,
@@ -96,7 +96,6 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
             transMode: selectedTransportMode?.id,
             vehicleType: selectedTransportMode?.isRegularChecked ? "R" : "O"
         }
-        console.log("hihihihhii", payload);
         if(payload?.fromPlace == "" || payload?.fromState == "" || payload?.reasonCode == "" || payload?.reasonRem == "" || payload?.transDocDate == "" || payload?.transDocNo == "" || payload?.name == "" || payload?.vehicleNo == "" ){
             Toast({ message: "Required fields cannot be left blank.", position: 'BOTTOM', duration: 'LONG' });
             setIsLoading(false);
@@ -106,8 +105,24 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
             const response = await CommonService.addVehicleEWayBill(payload);
             setIsLoading(false);
             if(response && response?.status == "success"){
-                Toast({ message: response?.body, position: 'BOTTOM', duration: 'LONG' })
+                Toast({ message: "Vehicle added successfully. Valid Upto: "+response?.body?.validUpto, position: 'BOTTOM', duration: 'LONG' })
                 handleRefresh();
+                setTempVehicleState({
+                    vehicleNo: "",
+                    fromPlace: "",
+                    fromState: "",
+                    reasonCode: "",
+                    reasonRem: "",
+                    transDocNo: "",
+                    transDocDate: "",
+                    transMode: "",
+                    vehicleType: "",
+                    cancelRsnCode: ""
+                });
+                setSelectedTransportMode({
+                    isRegularChecked:true,
+                    overDimensionChecked: false
+                });
             }else{
                 Toast({ message: response?.data?.message, position: 'BOTTOM', duration: 'LONG' })
             }
@@ -125,10 +140,9 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
             headerText={'Add Vehicle'}
             headerTextColor={'#084EAD'}
             modalStyle={{flex:1,}}
-            modalTopOffset={100}
             adjustToContentHeight={true}
             customRenderer={
-                <KeyboardAvoidingView style={styles.modalStyle}>
+                <View style={styles.modalStyle}>
                     <ScrollView showsVerticalScrollIndicator={false} keyboardDismissMode="on-drag">
                     <MatButton
                         isRequired={true}
@@ -200,13 +214,13 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
                         placeholderTextColor={theme.colors.secondary}
                         value={tempVehicleState?.vehicleNo}
                     />
-                    <MatButton
+                    <InputField 
+                        lable="From Place"
                         isRequired={true}
-                        lable={"From Place"}
-                        value={ tempVehicleState?.fromPlaceName }
-                        onPress={() => {
-                            setBottomSheetVisible(setCityModalizeRef, true);
-                        }}
+                        editable={false}
+                        containerStyle={[styles.inputView, {backgroundColor: theme.colors.solids.grey.lightest}]}
+                        placeholderTextColor={theme.colors.secondary}
+                        value={cityData}
                     />
                     <MatButton
                         isRequired={true}
@@ -261,11 +275,16 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
                             style={[styles.createButton,{backgroundColor: (isLoading) ? '#E6E6E6' :'#5773FF'}]}
                             disabled = {isLoading}
                             onPress={()=>{
-                                // console.log("------------->",tempVehicleState, selectedTransportMode, );
                                 setIsLoading(true);
                                 handleSave();
                             }}>
-                            {isLoading ? <Bubbles size={3} color="#FFF" /> : <Text style={styles.createBtn}>Save</Text>}
+                            {isLoading ? 
+                            <LoaderKit
+                                style={{ width: 45, height: 45 }}
+                                name={'BallPulse'}
+                                color={colors.PRIMARY_NORMAL}
+                            />
+                             : <Text style={styles.createBtn}>Save</Text>}
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.createButton,{backgroundColor: '#5773FF'}]}
@@ -274,7 +293,7 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
                         </TouchableOpacity>
                     </View>
                     </ScrollView>
-                </KeyboardAvoidingView>
+                </View>
             }
         />
         <DateTimePickerModal
@@ -284,7 +303,6 @@ const AddVehicleModalize = ({modalizeRef, setBottomSheetVisible, setVehicleState
             onCancel={hideDatePicker}
         />
         <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={ModeOfTransport} transportMode={selectedTransportMode} setTransportMode={setSelectedTransportMode}/>
-        <CityModalize modalizeRef={setCityModalizeRef} setBottomSheetVisible={setBottomSheetVisible} data={stateData} tempVehicleState={tempVehicleState} setTempVehicleState={setTempVehicleState}/>
         <StateModalize modalizeRef={setStateModalizeRef} setBottomSheetVisible={setBottomSheetVisible} data={stateData} tempVehicleState={tempVehicleState} setTempVehicleState={setTempVehicleState}/>
         <CancelReasonEWBModalize modalizeRef={cancelReasonModalizeRef} setBottomSheetVisible={setBottomSheetVisible} reasonState={tempVehicleState} setReasonState={setTempVehicleState} data={RsnCodeMap}/> 
         </>

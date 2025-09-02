@@ -155,11 +155,10 @@ const RenderItem = ({ item, currency, modalizeRef, setSelectedEWBill }) => {
     const { styles, theme } = useCustomTheme(getStyles);
 
     return (
-        <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={()=>{
+        <TouchableOpacity style={styles.card} activeOpacity={0.7} 
+        onPress={()=>{
             setSelectedEWBill(item);
             setBottomSheetVisible(modalizeRef, true);
-            console.log("select4ed item", item);
-            
         }}>
             <View style={styles.rowView}>
                 <View style={styles.itemView}>
@@ -218,7 +217,7 @@ const ListEWayBillsScreen = () => {
         vehicleType: ""
     })
     const [stateData, setStateData] = useState([]);
-
+    const [cityData, setCityData] = useState([]);
 
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
@@ -335,7 +334,7 @@ const ListEWayBillsScreen = () => {
             />
             <Loader isLoading={isLoading} />
             <TaxNumbersModalize modalizeRef={dropDownModalizeRef} setBottomSheetVisible={setBottomSheetVisible} taxData={taxNumbers} setSelectedGst={setSelectedGst} />
-            <ActionModalize modalizeRef={actionModalizeRef} setBottomSheetVisible={setBottomSheetVisible} selectedEWBill={selectedEWBill} cancelModalizeRef={cancelEWBModalizeRef} addVehicleModalizeRef={addVehicleModalizeRef} setStateData={setStateData}/>
+            <ActionModalize modalizeRef={actionModalizeRef} setBottomSheetVisible={setBottomSheetVisible} selectedEWBill={selectedEWBill} cancelModalizeRef={cancelEWBModalizeRef} addVehicleModalizeRef={addVehicleModalizeRef} setStateData={setStateData} setCityData={setCityData}/>
             <CancelEWBModalize 
                 key={"-"+selectedEWBill?.ewbNo}
                 modalizeRef={cancelEWBModalizeRef} 
@@ -344,7 +343,7 @@ const ListEWayBillsScreen = () => {
                 selectedEWBill={selectedEWBill}
                 handleRefresh={onRefresh}
             /> 
-            <AddVehicleModalize key={selectedEWBill?.ewbNo} modalizeRef={addVehicleModalizeRef} setBottomSheetVisible={setBottomSheetVisible} setVehicleState={setVehicleState} stateData={stateData} handleRefresh={onRefresh} selectedEWBill={selectedEWBill}/> 
+            <AddVehicleModalize key={selectedEWBill?.ewbNo} modalizeRef={addVehicleModalizeRef} setBottomSheetVisible={setBottomSheetVisible} setVehicleState={setVehicleState} stateData={stateData} cityData={cityData} handleRefresh={onRefresh} selectedEWBill={selectedEWBill}/> 
         </View>
     )
 }

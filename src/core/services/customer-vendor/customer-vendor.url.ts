@@ -7,6 +7,9 @@ export const CustomerVendorUrls = {
   getAllState: createEndpoint(
     'country/:countryCode?branchUniqueName=:branchUniqueName'
   ),
+  getAllCity: createEndpoint(
+    'country/cities?pinCode=:pinCode&branchUniqueName=:branchUniqueName&lang=en'
+  ),
   getAllPartyType: createEndpoint(
     'ui/party-types?branchUniqueName=:branchUniqueName'
   ),

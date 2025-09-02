@@ -68,6 +68,18 @@ export class CustomerVendorService {
       });
   }
 
+  static getAllCityName(pinCode: any) {
+    return httpInstance
+      .get(CustomerVendorUrls.getAllCity.replace(':pinCode', `${pinCode}`))
+      .then((res) => {
+        return res.data;
+      })
+      .catch((_err) => {
+        // Alert.alert("Error", err.data.message, [{ style: "destructive", onPress: () => console.log("alert destroyed") }]);
+        return null;
+      });
+  }
+
   /**
    * Get all currency
    * @returns

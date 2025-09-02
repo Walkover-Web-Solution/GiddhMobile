@@ -3,7 +3,7 @@ import InputField from "@/components/InputField";
 import MatButton from "@/components/OutlinedButton";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useState } from "react";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Keyboard, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { RsnCodeMap } from "../ListEWayBillsScreen";
 import { CommonService } from "@/core/services/common/common.service";
 import Toast from "@/components/Toast";
@@ -56,6 +56,7 @@ const CancelEWBModalize = ({modalizeRef, setBottomSheetVisible, cancelReasonModa
                         lable={"Reason"}
                         value={ RsnCodeMap[tempReasonState?.cancelRsnCode] ?? "" }
                         onPress={() => {
+                            Keyboard.dismiss();
                             setBottomSheetVisible(cancelReasonModalizeRef, true);
                         }}
                     />
@@ -72,7 +73,7 @@ const CancelEWBModalize = ({modalizeRef, setBottomSheetVisible, cancelReasonModa
                         placeholderTextColor={theme.colors.secondary}
                         value={tempReasonState?.cancelRmrk}
                     />
-                    <View style={{flexDirection:'row', justifyContent:'space-between',paddingHorizontal:5}}>
+                    <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={[styles.createButton,{backgroundColor: (false) ? '#E6E6E6' :'#5773FF'}]}
                             disabled = {false}
@@ -96,7 +97,7 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
     modalStyle: {
         backgroundColor: theme.colors.secondaryBackground,
         paddingHorizontal: 21,
-        paddingVertical:10
+        paddingVertical:3
     },
     semiBoldText: {
         fontFamily: theme.typography.fontFamily.regular,
@@ -124,14 +125,19 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
-        alignSelf: 'center',
-        marginVertical:20
+        alignSelf: 'center'
     },
     createBtn:{
         fontFamily: theme.typography.fontFamily.bold ,
         color: '#fff',
         fontSize: 20,
     },
+    buttonContainer: {
+        flexDirection:'row', 
+        justifyContent:'space-between',
+        paddingHorizontal:5, 
+        marginTop:15
+    }
 });
 
 export default CancelEWBModalize;
