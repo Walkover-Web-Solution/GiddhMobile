@@ -182,9 +182,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.selectedBank !== prevState.selectedBank || this.state.totalAmount !== prevState.totalAmount) {
-      const amount = (((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')).trim();
-      this.getAllPayorData(amount)
+    if (this.props.route?.params?.item?.bankPaymentDetails && this.props.route?.params?.type == 'Vendors') {
+      if (this.state.selectedBank !== prevState.selectedBank || this.state.totalAmount !== prevState.totalAmount) {
+        const amount = (((this.state.totalAmount)).replace(/₹/g, '').replace(/,/g, '')).trim();
+        this.getAllPayorData(amount)
+      }
     }
   }
 

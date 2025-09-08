@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useRef } from 'react'
+import React, { useRef, useState, useMemo } from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import Header from '@/components/Header';
 import InputField from '@/components/InputField';
@@ -23,6 +23,32 @@ const BillingAccountScreen = () => {
     const { theme, styles, statusBar, voucherBackground } = useCustomTheme(getStyles, 'Payment');
     const {formData, setFormData} = useForm();
     const { allCountries, allStates, getCountryStates } = useGetCountriesStates();
+    const [countrySearchTerm, setCountrySearchTerm] = useState('');
+    const [stateSearchTerm, setStateSearchTerm] = useState('');
+
+
+
+    // Filter countries based on search term
+    const filteredCountries = useMemo(() => {
+        if (!countrySearchTerm.trim()) {
+            return allCountries;
+        }
+        return allCountries.filter(country => 
+            country.countryName.toLowerCase().includes(countrySearchTerm.toLowerCase()) ||
+            country.alpha2CountryCode.toLowerCase().includes(countrySearchTerm.toLowerCase())
+        );
+    }, [allCountries, countrySearchTerm]);
+
+    // Filter states based on search term
+    const filteredStates = useMemo(() => {
+        if (!stateSearchTerm.trim()) {
+            return allStates;
+        }
+        return allStates.filter(state => 
+            state.name.toLowerCase().includes(stateSearchTerm.toLowerCase()) ||
+            state.code.toLowerCase().includes(stateSearchTerm.toLowerCase())
+        );
+    }, [allStates, stateSearchTerm]);
 
     const isContinueToReviewDisabled = () => {
         return formData.billingName.trim().length === 0
@@ -198,8 +224,12 @@ const BillingAccountScreen = () => {
                 headerText='Select Country'
                 headerTextColor={theme.colors.vouchers.payment.background}
                 adjustToContentHeight={false}
+                searchable={true}
+                searchValue={countrySearchTerm}
+                onSearchChange={setCountrySearchTerm}
+                searchPlaceholder='Search countries...'
                 flatListProps={{
-                    data: allCountries,
+                    data: filteredCountries,
                     renderItem: ({ item }) => (
                         <ListItem
                             isCountrySelector
@@ -212,6 +242,7 @@ const BillingAccountScreen = () => {
                                 setFormData({name: item.countryName, code: item?.alpha2CountryCode}, 'country');
                                 setFormData({ code: '', name: ''}, 'state');
                                 getCountryStates(item?.alpha2CountryCode);
+                                setCountrySearchTerm(''); // Clear search when country is selected
                             }}
                         />
                     )
@@ -224,8 +255,12 @@ const BillingAccountScreen = () => {
                 headerText='Select State'
                 headerTextColor={theme.colors.vouchers.payment.background}
                 adjustToContentHeight={false}
+                searchable={true}
+                searchValue={stateSearchTerm}
+                onSearchChange={setStateSearchTerm}
+                searchPlaceholder='Search states...'
                 flatListProps={{
-                    data: allStates,
+                    data: filteredStates,
                     renderItem: ({ item }) => {
                         console.log(item)
                         return (
@@ -237,6 +272,7 @@ const BillingAccountScreen = () => {
                             onPress={() => {
                                 statePickerBottomSheetRef?.current?.close()
                                 setFormData({name: item?.name, code: item?.code, stateGstCode: item?.stateGstCode }, 'state');
+                                setStateSearchTerm(''); // Clear search when state is selected
                             }}
                         />
                     )}
@@ -309,15 +345,18 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
     },
     pickerFilterStyle: {
         flex: 1,
-        height: 50,
-        margin: 5, 
-        paddingHorizontal: 20,
-        borderRadius: 50, 
+        height: 40,
+        marginHorizontal: 15,
+        marginVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.solids.white,
         color: theme.colors.text,
         fontFamily: theme.typography.fontFamily.regular,
         fontSize: theme.typography.fontSize.regular.size,
         lineHeight: theme.typography.fontSize.regular.lineHeight,
-        backgroundColor: theme.colors.lightPalette, 
     },
     outlineStyle: {
         borderWidth: 1.4
