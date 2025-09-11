@@ -304,7 +304,8 @@ class PurchaseItemEdit extends Component {
                     this.calculateFinalTcsOrTdsToDisplay();
                   }
                 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, flex: 1 }}>
                   <View
                     style={{
                       borderRadius: 1,
@@ -324,6 +325,11 @@ class PurchaseItemEdit extends Component {
                     style={style.text}>
                     {item.name}
                   </Text>
+                </View>
+                {(item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc') && filtered.length > 0 ? 
+                <TouchableOpacity style={style.tdsTcsCalculationButton} onPress={() => this.setBottomSheetVisible(this.taxCalculationModalRef, true)}>
+                  <Text style={style.tdsTcsCalculationButtonText}>{this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? 'On Taxable Value' : 'On Total Value'}</Text>
+                </TouchableOpacity> : null}
                 </View>
               </TouchableOpacity>
             );

@@ -336,26 +336,32 @@ class EditItemDetails extends Component {
                     this.calculateFinalTcsOrTdsToDisplay();
                   }
                 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}>
-                  <View
-                    style={{
-                      borderRadius: 1,
-                      borderWidth: 1,
-                      borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
-                      width: 18,
-                      height: 18,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    {filtered.length > 0 && (
-                      <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
-                    )}
-                  </View>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, flex: 1 }}>
+                    <View
+                      style={{
+                        borderRadius: 1,
+                        borderWidth: 1,
+                        borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
+                        width: 18,
+                        height: 18,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      {filtered.length > 0 && (
+                        <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
+                      )}
+                    </View>
 
-                  <Text
-                    style={style.text}>
-                    {item.name}
-                  </Text>
+                    <Text
+                      style={style.text}>
+                      {item.name}
+                    </Text>
+                  </View>
+                  {(item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc') && filtered.length > 0 ? 
+                  <TouchableOpacity style={style.tdsTcsCalculationButton} onPress={() => this.setBottomSheetVisible(this.taxCalculationModalRef, true)}>
+                    <Text style={style.tdsTcsCalculationButtonText}>{this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? 'On Taxable Value' : 'On Total Value'}</Text>
+                  </TouchableOpacity> : null}
                 </View>
               </TouchableOpacity>
             );

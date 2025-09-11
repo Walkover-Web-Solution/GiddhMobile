@@ -220,5 +220,17 @@ export default StyleSheet.create({
     color: '#1C1C1C', 
     fontFamily: FONT_FAMILY.regular,
     marginLeft: 10
+  },
+  tdsTcsCalculationButton: {
+    backgroundColor: 'transparent',
+    marginLeft: 20,
+    marginTop: 2,
+    paddingBottom: 4,
+  },
+  tdsTcsCalculationButtonText: {
+    color: '#229F5F',
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 13,
+    textAlign: 'left',
   }
 });

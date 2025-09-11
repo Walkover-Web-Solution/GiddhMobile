@@ -40,6 +40,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
 import { createEndpoint, formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
+import Toast from '@/components/Toast';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -934,6 +935,7 @@ export class SalesInvoice extends React.Component<Props, State> {
       }
     } catch (e) {
       console.warn('----- Error in Get Party Data ------', e)
+      Toast({message: e?.data?.message ?? 'Error in Get Party Data', duration:'LONG', position:'BOTTOM'});
     } finally { 
       this.setState({ isSearchingParty: false });
     }
@@ -2629,7 +2631,7 @@ export class SalesInvoice extends React.Component<Props, State> {
 
   getTotalAmountOfCard(item){
     const discount = item.discountValue ? item.discountValue : 0;
-    const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
+    const tax = this.calculatedTaxAmount(item, 'totalAmount');
     const amount = Number(item.rate) * Number(item.quantity);
     const total = amount - discount + tax;
     return total;

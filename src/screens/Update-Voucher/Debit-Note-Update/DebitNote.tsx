@@ -35,6 +35,7 @@ import CheckBox from 'react-native-check-box';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
+import Toast from '@/components/Toast';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 
@@ -638,6 +639,7 @@ export class DebiteNote extends React.Component<Props, State> {
       }
     } catch (e) {
       console.warn('----- Error in Get Party Data ------', e)
+      Toast({message: e?.data?.message ?? 'Error in Get Party Data', duration:'LONG', position:'BOTTOM'});
     } finally { 
       this.setState({ isSearchingParty: false });
     }

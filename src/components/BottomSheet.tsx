@@ -31,6 +31,7 @@ const BottomSheet: React.FC<Props> = ({
         adjustToContentHeight={true}
         handlePosition='inside'
         HeaderComponent={<HeaderComponent/>}
+        disableScrollIfPossible={false}
         modalStyle={{ minHeight: '25%', paddingBottom:insets.bottom}}
         modalTopOffset={insets.top}
         keyboardAvoidingBehavior="height"

@@ -459,5 +459,17 @@ export default StyleSheet.create({
   },
   touristSchemeView:{
     marginHorizontal:16
+  },
+  tdsTcsCalculationButton: {
+    backgroundColor: 'transparent',
+    marginLeft: 20,
+    marginTop: 2,
+    paddingBottom: 4,
+  },
+  tdsTcsCalculationButtonText: {
+    color: '#229F5F',
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 13,
+    textAlign: 'left',
   }
 });
