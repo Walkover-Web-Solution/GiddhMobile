@@ -2102,7 +2102,7 @@ export class SalesInvoice extends React.Component<Props> {
 
   getTotalAmountOfCard(item){
     const discount = item.discountValue ? item.discountValue : 0;
-    const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
+    const tax = this.calculatedTaxAmount(item, 'totalAmount');
     const amount = Number(item.rate) * Number(item.quantity);
     const total = amount - discount + tax;
     return total;
