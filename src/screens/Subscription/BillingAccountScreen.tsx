@@ -230,6 +230,7 @@ const BillingAccountScreen = () => {
                 searchPlaceholder='Search countries...'
                 flatListProps={{
                     data: filteredCountries,
+                    keyboardShouldPersistTaps: 'handled',
                     renderItem: ({ item }) => (
                         <ListItem
                             isCountrySelector
