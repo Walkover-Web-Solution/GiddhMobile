@@ -262,6 +262,7 @@ const BillingAccountScreen = () => {
                 searchPlaceholder='Search states...'
                 flatListProps={{
                     data: filteredStates,
+                    keyboardShouldPersistTaps: 'handled',
                     renderItem: ({ item }) => {
                         console.log(item)
                         return (
