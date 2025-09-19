@@ -2036,8 +2036,6 @@ export class SalesInvoice extends React.Component<Props> {
     console.log('TCS Or TDS Tax is ' + totalTcsorTdsTax);
     if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
       const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
-      // editItemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
-      // this.setState({ editItemDetails: editItemDetails });
       return tdsOrTcsTaxObj;
     } else {
       return null;

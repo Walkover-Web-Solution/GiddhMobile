@@ -228,5 +228,53 @@ export default StyleSheet.create({
     fontFamily: FONT_FAMILY.semibold,
     fontSize: 13,
     textAlign: 'left',
-  }
+  },
+  taxCalculationMethodButton: {
+    paddingHorizontal: 20,
+    marginHorizontal: 2,
+    borderRadius: 10,
+    marginTop: 10
+  },
+  taxCalculationMethodButtonView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8
+  },
+  taxCalculationMethodButtonText: {
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontSize: 14,
+    textAlign: 'center',
+    marginLeft: 10,
+    fontFamily: FONT_FAMILY.semibold,
+  },
+  otherTaxButtonView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  otherTaxButtonViewItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    flex: 1
+  },
+  otherTaxButtonViewItemCheckbox: {
+    borderRadius: 1,
+    borderWidth: 1,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otherTaxListEmptyComponent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tdsOrTcsView: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginBottom: 10
+  },
 });

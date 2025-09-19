@@ -180,12 +180,7 @@ class EditItemDetails extends Component {
       >
         <TouchableOpacity
           onFocus={() => this.onChangeText('')}
-          style={{
-            paddingHorizontal: 20,
-            marginHorizontal: 2,
-            borderRadius: 10,
-            marginTop: 10
-          }}
+          style={style.taxCalculationMethodButton}
           onPress={async() => {
             const itemDetails = this.state.editItemDetails;
             itemDetails.tdsTcsTaxCalculationMethod = 'OnTaxableAmount';
@@ -195,33 +190,21 @@ class EditItemDetails extends Component {
             this.calculateFinalTcsOrTdsToDisplay();
             this.setBottomSheetVisible(this.taxCalculationModalRef, false);
           }}>
-          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+          <View style={style.taxCalculationMethodButtonView}>
             {this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? (
               <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
             ) : (
               <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
             )}
             <Text
-              style={{
-                color: '#1C1C1C',
-                paddingVertical: 4,
-                fontSize: 14,
-                textAlign: 'center',
-                marginLeft: 10,
-                fontFamily: FONT_FAMILY.semibold,
-              }}>
+              style={style.taxCalculationMethodButtonText}>
               {'On Taxable Value (Amt - Dis)'}
             </Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
           onFocus={() => this.onChangeText('')}
-          style={{
-            paddingHorizontal: 20,
-            marginHorizontal: 2,
-            borderRadius: 10,
-            marginBottom: 10
-          }}
+          style={style.taxCalculationMethodButton}
           onPress={async() => {
             const itemDetails = this.state.editItemDetails;
             itemDetails.tdsTcsTaxCalculationMethod = 'OnTotalAmount';
@@ -231,21 +214,14 @@ class EditItemDetails extends Component {
             this.calculateFinalTcsOrTdsToDisplay();
             this.setBottomSheetVisible(this.taxCalculationModalRef, false);
           }}>
-          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+          <View style={style.taxCalculationMethodButtonView}>
             {this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'  ? (
               <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
             ) : (
               <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
             )}
             <Text
-              style={{
-                color: '#1C1C1C',
-                paddingVertical: 4,
-                fontSize: 14,
-                textAlign: 'center',
-                marginLeft: 10,
-                fontFamily: FONT_FAMILY.semibold,
-              }}>
+              style={style.taxCalculationMethodButtonText}>
               {'On Total Value (Taxable + Gst + Cess)'}
             </Text>
           </View>
@@ -338,18 +314,10 @@ class EditItemDetails extends Component {
                     this.calculateFinalTcsOrTdsToDisplay();
                   }
                 }}>
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, flex: 1 }}>
+                <View style={style.otherTaxButtonView}>
+                <View style={style.otherTaxButtonViewItem}>
                   <View
-                    style={{
-                      borderRadius: 1,
-                      borderWidth: 1,
-                      borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
-                      width: 18,
-                      height: 18,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
+                    style={[style.otherTaxButtonViewItemCheckbox, { borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C' }]}>
                     {filtered.length > 0 && (
                       <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
                     )}
@@ -370,7 +338,7 @@ class EditItemDetails extends Component {
           },
           ListEmptyComponent: () => {
             return (
-              <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
+              <View style={[style.otherTaxListEmptyComponent, { height: height * 0.3 }]}>
                 <Text style={style.regularText}>
                   No Tax Exist
                 </Text>
@@ -594,14 +562,11 @@ class EditItemDetails extends Component {
         }
       }
     }
-    // const itemDetails = this.state.editItemDetails;
     if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
       const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
       editItemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
       this.setState({ editItemDetails: editItemDetails });
-      // return tdsOrTcsTaxObj;
     } else {
-      // return null;
       editItemDetails.tdsOrTcsTaxObj = null;
       this.setState({ editItemDetails: editItemDetails});
     }
@@ -854,7 +819,7 @@ class EditItemDetails extends Component {
 
   _renderTDSorTCS() {
     return (
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 16, marginBottom:10 }}>
+      <View style={style.tdsOrTcsView}>
         <Text>{this.state.editItemDetails.tdsOrTcsTaxObj ? this.state.editItemDetails.tdsOrTcsTaxObj?.name : ''}</Text>
         <Text style={style.finalItemAmount}>{`${(this.props.currencySymbol ? this.props.currencySymbol : '') +
           '' +

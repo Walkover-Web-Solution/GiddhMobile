@@ -1884,63 +1884,39 @@ export class AddEntry extends React.Component<Props> {
         headerTextColor='#229F5F'
       >
         <TouchableOpacity
-          style={{
-            paddingHorizontal: 20,
-            marginHorizontal: 2,
-            borderRadius: 10,
-            marginTop: 10
-          }}
+          style={style.taxCalculationMethodButton}
           onPress={async() => {
             this.setState({tdsTcsTaxCalculationMethod: 'OnTaxableAmount'});
             this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
             this.setBottomSheetVisible(this.taxCalculationModalRef, false);
           }}>
-          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+          <View style={style.taxCalculationMethodButtonView}>
             {this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? (
               <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
             ) : (
               <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
             )}
             <Text
-              style={{
-                color: '#1C1C1C',
-                paddingVertical: 4,
-                fontSize: 14,
-                textAlign: 'center',
-                marginLeft: 10,
-                fontFamily: FONT_FAMILY.semibold,
-              }}>
+              style={style.taxCalculationMethodButtonText}>
               {'On Taxable Value (Amt - Dis)'}
             </Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          style={{
-            paddingHorizontal: 20,
-            marginHorizontal: 2,
-            borderRadius: 10,
-            marginBottom: 10
-          }}
+          style={style.taxCalculationMethodButton}
           onPress={async() => {
             this.setState({tdsTcsTaxCalculationMethod: 'OnTotalAmount'});
             this.calculateFinalTcsOrTdsToDisplay('OnTotalAmount', this.state.totalTaxAmount);
             this.setBottomSheetVisible(this.taxCalculationModalRef, false);
           }}>
-          <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
+          <View style={style.taxCalculationMethodButtonView}>
             {this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount'  ? (
               <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
             ) : (
               <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
             )}
             <Text
-              style={{
-                color: '#1C1C1C',
-                paddingVertical: 4,
-                fontSize: 14,
-                textAlign: 'center',
-                marginLeft: 10,
-                fontFamily: FONT_FAMILY.semibold,
-              }}>
+              style={style.taxCalculationMethodButtonText}>
               {'On Total Value (Taxable + Gst + Cess)'}
             </Text>
           </View>
@@ -2029,31 +2005,16 @@ export class AddEntry extends React.Component<Props> {
                   }
                   this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
                 }}>
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, flex: 1 }}>
+                <View style={style.otherTaxButtonView}>
+                  <View style={style.otherTaxButtonViewItem}>
                     <View
-                      style={{
-                        borderRadius: 1,
-                        borderWidth: 1,
-                        borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C',
-                        width: 18,
-                        height: 18,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
+                      style={[style.otherTaxButtonViewItemCheckbox, { borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C' }]}>
                       {filtered.length > 0 && (
                         <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
                       )}
                     </View>
                     <Text
-                      style={{
-                        color: '#1C1C1C',
-                        paddingVertical: 4,
-                        fontFamily: FONT_FAMILY.semibold,
-                        fontSize: 14,
-                        textAlign: 'center',
-                        marginLeft: 20,
-                      }}>
+                      style={style.otherTaxButtonViewItemText}>
                       {item.name}
                     </Text>
                   </View>
@@ -2073,17 +2034,9 @@ export class AddEntry extends React.Component<Props> {
           },
           ListEmptyComponent: () => {
             return (
-              <View style={{ height: height * 0.3, flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}>
+              <View style={[style.otherTaxListEmptyComponent, { height: height * 0.3 }]}>
                 <Text
-                  style={{
-                    flex: 1,
-                    color: '#1C1C1C',
-                    paddingVertical: 4,
-                    fontFamily: FONT_FAMILY.semibold,
-                    fontSize: 14,
-                    textAlign: 'center',
-                    alignSelf: 'center'
-                  }}>
+                  style={style.otherTaxListEmptyComponentText}>
                   No Taxes Available
                 </Text>
               </View>
