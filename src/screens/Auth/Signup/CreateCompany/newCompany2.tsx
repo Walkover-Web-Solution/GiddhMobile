@@ -45,6 +45,7 @@ class NewCompanyDetails extends React.Component<any, any> {
       selectStateDisable: false,
       gstNumberWrong: this.props.route.params.gstNumberWrong,
       bussinessNature: this.props.route.params.bussinessNature,
+      otherBusinessNature: this.props.route.params.otherBusinessNature,
       pinCode: this.props.route.params.pinCode,
       modalVisible: false,
       loader: false,
@@ -77,6 +78,7 @@ class NewCompanyDetails extends React.Component<any, any> {
       stateDropDown: this.state.stateDropDown,
       gstNumberWrong: this.state.gstNumberWrong,
       bussinessNature: this.state.bussinessNature,
+      otherBusinessNature: this.state.otherBusinessNature,
       pinCode: this.state.pinCode,
     })
   }
@@ -182,6 +184,10 @@ class NewCompanyDetails extends React.Component<any, any> {
         alert('Enter Address');
         return
       }
+    }
+    if (this.state.bussinessNature == "Other" && (this.state.otherBusinessNature == null || this.state.otherBusinessNature.trim() == "")) {
+      alert('Enter Other Business Nature');
+      return
     }
     if (this.state.pinCode!=null && this.state.pinCode.length > 15) {
       alert('Pincode can be maximum 15 digits in length');
@@ -408,6 +414,7 @@ class NewCompanyDetails extends React.Component<any, any> {
         <Field name='Service' />
         <Field name='Manufacturing' />
         <Field name='Retail' />
+        <Field name='Other' />
       </BottomSheet>
     )
   }
@@ -555,6 +562,26 @@ class NewCompanyDetails extends React.Component<any, any> {
               </TouchableOpacity>
             </View>
           </View>
+          {this.state.bussinessNature == "Other" && <View style={{ marginTop: 20, borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)' }}>
+            <View style={{ flexDirection: "row", }}>
+              <FontAwesome name="briefcase" size={20} color={'#5773FF'} style={{ marginTop: 4 }} />
+              <Text style={{ marginLeft: 20, marginBottom: 5 }}>
+                <Text style={{ color: 'rgba(80,80,80,0.5)', fontFamily: 'AvenirLTStd-Roman' }}>{'Other Business Nature'}</Text>
+                <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Roman' }}>{'*'}</Text>
+              </Text>
+            </View>
+            <TextInput
+              multiline={true}
+              returnKeyType={"done"}
+              onChangeText={(text) => {
+                this.setState({ otherBusinessNature: text })
+              }}
+              value={this.state.otherBusinessNature}
+              placeholder={"Enter Other Business Nature"}
+              placeholderTextColor={'rgba(80,80,80,0.5)'}
+              style={style.GSTInput}>
+            </TextInput>
+          </View>}
 
           {this.state.bussinessType == "Registered" && <View style={{ marginTop: 20, borderBottomWidth: 0.5, borderColor: 'rgba(80,80,80,0.5)', height: 55 }}>
             <View style={{ flexDirection: "row", }}>
