@@ -108,6 +108,7 @@ const BottomSheet: React.FC<Props> = ({
             searchPlaceholder={searchPlaceholder}
           />
         }
+        disableScrollIfPossible={false}
         modalStyle={{ minHeight: '25%', paddingBottom:insets.bottom}}
         modalTopOffset={insets.top}
         keyboardAvoidingBehavior="height"

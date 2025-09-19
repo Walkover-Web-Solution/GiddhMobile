@@ -66,6 +66,8 @@ export class AddEntry extends React.Component<Props> {
     this.warehouseRef = React.createRef();
     this.reverseChargeConfirmation = React.createRef();
     this.stockUnitRef = React.createRef();
+    this.taxCalculationModalRef = React.createRef();
+    this.otherTaxModalRef = React.createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       selectedAccountData: {},
@@ -144,7 +146,9 @@ export class AddEntry extends React.Component<Props> {
       uploadedAttachment: {},
       successDialog: false,
       invoicePageCount: 1,
-      totalInvoicePageCount: 1
+      totalInvoicePageCount: 1,
+      tdsTcsTaxCalculationMethod: 'OnTaxableAmount',
+      tdsOrTcsTaxObj: null
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -269,7 +273,9 @@ export class AddEntry extends React.Component<Props> {
       uploadedAttachment: {},
       successDialog: false,
       invoicePageCount: 1,
-      totalInvoicePageCount: 1
+      totalInvoicePageCount: 1,
+      tdsTcsTaxCalculationMethod: 'OnTaxableAmount',
+      tdsOrTcsTaxObj: null
     });
   };
   componentDidUpdate(prevProps, prevState) {
@@ -280,7 +286,6 @@ export class AddEntry extends React.Component<Props> {
     if ((prevState.discountTotalValue !== this.state.discountTotalValue) || (prevState.selectedDiscounts !== this.state.selectedDiscounts)) {
       this.calculatedTaxAmounstForEntry();
     }
-
     //below are conditions for stck related
     if (!this.state?.particularAccountStockData?.stock) {
       return;
@@ -496,7 +501,7 @@ export class AddEntry extends React.Component<Props> {
     if (this.state?.selectedVoucherType == 'Advance Receipt') {
       ///only checkning if it is Advance receipt
       let amountForIncTax = Number(this.state?.amountForEntry);
-      let taxess = this.state?.SelectedTaxData?.taxDetailsArray;
+      let taxess = this.state?.SelectedTaxData?.taxDetailsArray?.filter(item => !(item?.taxType?.includes('tds') || item?.taxType?.includes('tcs')));
       if (!Array.isArray(taxess)) {
         throw new Error('Taxes must be an array.');
       }
@@ -516,11 +521,13 @@ export class AddEntry extends React.Component<Props> {
         totalTaxAmount: taxAmount.toFixed(2),
         selectedTaxUniqueNameList: uniquenameArray
       })
-
+      if(this.state.tdsOrTcsTaxObj){
+        this.calculateFinalTcsOrTdsToDisplay(this.state.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount', Number(taxAmount.toFixed(2)));
+      }
     } else {
       let totalTax = 0;
       let amount = this.state?.amountForEntry - Number(this.calculateTotalDiscount());
-      let taxes = this.state?.SelectedTaxData?.taxDetailsArray;
+      let taxes = this.state?.SelectedTaxData?.taxDetailsArray?.filter(item => !(item?.taxType?.includes('tds') || item?.taxType?.includes('tcs')));
       taxes.forEach(tax => {
         if (tax.taxDetail && Array.isArray(tax.taxDetail) && tax.taxDetail.length > 0) {
           const latestTaxValue = tax.taxDetail[0].taxValue;
@@ -533,9 +540,48 @@ export class AddEntry extends React.Component<Props> {
         totalTaxAmount: totalTax,
         selectedTaxUniqueNameList: uniquenameArray
       })
+      if(this.state.tdsOrTcsTaxObj){
+        this.calculateFinalTcsOrTdsToDisplay(this.state.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount', Number(totalTax));
+      }
     }
+  }
 
-
+  calculateFinalTcsOrTdsToDisplay(tdsTcsTaxCalculationMethod: string, totalTaxAmount: number) {
+    let totalTcsorTdsTax = 0;
+    let totalTcsorTdsTaxName = '';
+    let totalTaxableAmount = 0;
+    let amt = parseFloat(this.state?.amountForEntry || 0) - Number(this.calculateTotalDiscount()) 
+    const uniquenameArray = this.state?.SelectedTaxData?.taxDetailsArray?.map((item) => item?.uniqueName);
+    const taxDetailsArray = this.state.SelectedTaxData.taxDetailsArray;
+    
+    if (taxDetailsArray && taxDetailsArray.length > 0) {
+      for (let i = 0; i < taxDetailsArray.length; i++) {
+        const item = taxDetailsArray[i];
+        const taxPercent = Number(item.taxDetail[0].taxValue);
+        if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
+          if(tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+            totalTaxableAmount = amt;
+            console.log('this.state.totalTaxAmount', totalTaxableAmount);
+          }else if(tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+            console.log('this.state.totalTotalAmount', totalTaxableAmount);
+            totalTaxableAmount = amt + totalTaxAmount;
+          }
+          console.log('totalTaxableAmount', totalTaxableAmount);
+          const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
+          totalTcsorTdsTax = taxAmount;
+          totalTcsorTdsTaxName = item.taxType;
+          break;
+        }
+      }
+    }
+    if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
+      const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
+      this.setState({ tdsOrTcsTaxObj: tdsOrTcsTaxObj });
+    } else {
+      this.setState({ tdsOrTcsTaxObj: null });
+    }
+    this.setState({ selectedTaxUniqueNameList: uniquenameArray });
+    console.log('totalTcsorTdsTax', totalTcsorTdsTax);
   }
  
   keyboardWillShow = (event) => {
@@ -1310,13 +1356,14 @@ export class AddEntry extends React.Component<Props> {
         compoundTotal: await this.calculateTotalAmount(),
         convertedCompoundTotal: await this.state?.exchangeRate * this.calculateTotalAmount(),
         invoicesToBePaid: [], //left
-        tdsTcsTaxesSum: 0,
-        otherTaxesSum: 0,
-        otherTaxType: "",
+        tdsTcsTaxesSum: this.state?.tdsOrTcsTaxObj ? this.state?.tdsOrTcsTaxObj?.amount : 0,
+        otherTaxesSum: this.state?.tdsOrTcsTaxObj ? this.state?.tdsOrTcsTaxObj?.amount : 0,
+        otherTaxType: this.state?.tdsOrTcsTaxObj ? this.state?.tdsOrTcsTaxObj?.name : "",
         exchangeRate: this.state?.exchangeRate,
+        tcsCalculationMethod: this.state?.tdsTcsTaxCalculationMethod,
         valuesInAccountCurrency: true,
         selectedCurrencyToDisplay: 0,
-        isOtherTaxesApplicable: false,
+        isOtherTaxesApplicable: this.state?.tdsOrTcsTaxObj ? true : false,
         ...(this.state?.touristScheme && { touristSchemeApplicable: this.state?.touristScheme }),
         ...(this.state?.passPortNumber != '' && { passportNumber: this.state?.passPortNumber }),
         transactions: [{
@@ -1339,7 +1386,7 @@ export class AddEntry extends React.Component<Props> {
           ...(this.state?.reverseCharge && { subVoucher: "REVERSE_CHARGE" }),
           taxInclusiveAmount: this.state?.taxInclusiveAmount,
           showDropdown: false,
-          showOtherTax: false,
+          showOtherTax: this.state?.tdsOrTcsTaxObj ? true : false,
           type: this.state?.currentEntryType == 'Cr' ? "CREDIT" : "DEBIT",
           discounts: [
             ...this.state?.selectedDiscounts,
@@ -1827,6 +1874,180 @@ export class AddEntry extends React.Component<Props> {
       />
     );
   }
+
+  _renderTaxCalculationMethodModal() {
+    return (
+
+      <BottomSheet
+        bottomSheetRef={this.taxCalculationModalRef}
+        headerText='Calculation Method'
+        headerTextColor='#229F5F'
+      >
+        <TouchableOpacity
+          style={style.taxCalculationMethodButton}
+          onPress={async() => {
+            this.setState({tdsTcsTaxCalculationMethod: 'OnTaxableAmount'});
+            this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
+            this.setBottomSheetVisible(this.taxCalculationModalRef, false);
+          }}>
+          <View style={style.taxCalculationMethodButtonView}>
+            {this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? (
+              <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
+            ) : (
+              <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
+            )}
+            <Text
+              style={style.taxCalculationMethodButtonText}>
+              {'On Taxable Value (Amt - Dis)'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={style.taxCalculationMethodButton}
+          onPress={async() => {
+            this.setState({tdsTcsTaxCalculationMethod: 'OnTotalAmount'});
+            this.calculateFinalTcsOrTdsToDisplay('OnTotalAmount', this.state.totalTaxAmount);
+            this.setBottomSheetVisible(this.taxCalculationModalRef, false);
+          }}>
+          <View style={style.taxCalculationMethodButtonView}>
+            {this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount'  ? (
+              <Icon name={'radio-checked2'} color={'#229F5F'} size={16} />
+            ) : (
+              <Icon name={'radio-unchecked'} color={'#229F5F'} size={16} />
+            )}
+            <Text
+              style={style.taxCalculationMethodButtonText}>
+              {'On Total Value (Taxable + Gst + Cess)'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </BottomSheet>
+    );
+  }
+
+  _renderOtherTaxModal() {
+    return (
+      <BottomSheet
+        bottomSheetRef={this.otherTaxModalRef}
+        headerText='Select Other Taxes'
+        headerTextColor='#00B795'
+
+        flatListProps={{
+          data: this.state.taxArray?.filter(item => (item?.taxType?.includes('tds') || item?.taxType?.includes('tcs'))),
+          renderItem: ({ item }) => {
+            console.log('item', item);
+            const selectedTaxArray = this.state.SelectedTaxData.taxDetailsArray;
+            const selectedTaxTypeArr = [...this.state.selectedArrayType];
+            const filtered = _.filter(selectedTaxArray, function (o) {
+              if (o.uniqueName == item.uniqueName) {
+                return o;
+              }
+            });
+            return (
+              <TouchableOpacity
+                style={{ paddingHorizontal: 20 }}
+                onPress={async () => {
+
+                  if (
+                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                    ((selectedTaxTypeArr.includes('tdspay') ||
+                      selectedTaxTypeArr.includes('tdsrc') ||
+                      selectedTaxTypeArr.includes('tcsrc')) &&
+                      item.taxType == 'tcspay') ||
+                    ((selectedTaxTypeArr.includes('tdspay') ||
+                      selectedTaxTypeArr.includes('tcspay') ||
+                      selectedTaxTypeArr.includes('tcsrc')) &&
+                      item.taxType == 'tdsrc') ||
+                    ((selectedTaxTypeArr.includes('tdspay') ||
+                      selectedTaxTypeArr.includes('tdsrc') ||
+                      selectedTaxTypeArr.includes('tcspay')) &&
+                      item.taxType == 'tcsrc') ||
+                    ((selectedTaxTypeArr.includes('tcspay') ||
+                      selectedTaxTypeArr.includes('tdsrc') ||
+                      selectedTaxTypeArr.includes('tcsrc')) &&
+                      item.taxType == 'tdspay')
+                  ) {
+                    console.log('did not select');
+                  } else {
+                    const itemDetails = this.state.SelectedTaxData;
+                    var filtered = _.filter(selectedTaxArray, function (o) {
+                      if (o.uniqueName == item.uniqueName) {
+                        return o;
+                      }
+                    });
+                    if (filtered.length == 0) {
+                      selectedTaxArray.push(item);
+                      itemDetails.taxDetailsArray = selectedTaxArray;
+                      const arr1 = [...selectedTaxTypeArr, item.taxType];
+                      if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc') {
+                        this.setState({tdsTcsTaxCalculationMethod: 'OnTaxableAmount'});
+                        this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
+                        this.setBottomSheetVisible(this.taxCalculationModalRef, true);
+                      }
+                      this.setState({ selectedArrayType: arr1 });
+                    } else {
+                      this.setState({tdsTcsTaxCalculationMethod: 'OnTaxableAmount'});
+                      this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
+                      var filtered = _.filter(selectedTaxArray, function (o) {
+                        if (o.uniqueName !== item.uniqueName) {
+                          return o;
+                        }
+                      });
+
+                      const arr2 = _.filter(selectedTaxTypeArr, function (o) {
+                        if (o !== item.taxType) {
+                          return o;
+                        }
+                      });
+                      itemDetails.taxDetailsArray = filtered;
+                      this.setState({ selectedArrayType: arr2 });
+                    }
+                  }
+                  this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
+                }}>
+                <View style={style.otherTaxButtonView}>
+                  <View style={style.otherTaxButtonViewItem}>
+                    <View
+                      style={[style.otherTaxButtonViewItemCheckbox, { borderColor: filtered.length == 0 ? '#CCCCCC' : '#1C1C1C' }]}>
+                      {filtered.length > 0 && (
+                        <AntDesign name={'check'} size={10} color={filtered.length == 0 ? '#CCCCCC' : '#1C1C1C'} />
+                      )}
+                    </View>
+                    <Text
+                      style={style.otherTaxButtonViewItemText}>
+                      {item.name}
+                    </Text>
+                  </View>
+                  {(item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc') && filtered.length > 0 ? 
+                  <TouchableOpacity 
+                    style={style.tdsTcsCalculationButton}
+                    onPress={() => this.setBottomSheetVisible(this.taxCalculationModalRef, true)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={style.tdsTcsCalculationButtonText}>
+                      {this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? 'On Taxable Value' : 'On Total Value'}
+                    </Text>
+                  </TouchableOpacity> : null}
+                </View>
+              </TouchableOpacity>
+            );
+          },
+          ListEmptyComponent: () => {
+            return (
+              <View style={[style.otherTaxListEmptyComponent, { height: height * 0.3 }]}>
+                <Text
+                  style={style.otherTaxListEmptyComponentText}>
+                  No Taxes Available
+                </Text>
+              </View>
+
+            );
+          }
+        }}
+      />
+    );
+  }
+  
   _renderTaxModal() {
     return (
       <BottomSheet
@@ -1882,12 +2103,11 @@ export class AddEntry extends React.Component<Props> {
                       itemDetails.taxDetailsArray = selectedTaxArray;
                       const arr1 = [...selectedTaxTypeArr, item.taxType];
                       if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc') {
-                        await this.calculatedTaxAmounstForEntry()
-                        this.setBottomSheetVisible(this.calculationModalRef, true);
+                        this.calculatedTaxAmounstForEntry()
                       }
                       this.setState({ selectedArrayType: arr1 });
                     } else {
-                      await this.calculatedTaxAmounstForEntry()
+                      this.calculatedTaxAmounstForEntry()
                       var filtered = _.filter(selectedTaxArray, function (o) {
                         if (o.uniqueName !== item.uniqueName) {
                           return o;
@@ -2517,6 +2737,30 @@ export class AddEntry extends React.Component<Props> {
             </Text>
           </TouchableOpacity>}
         </View>
+        {(this.state?.showDiscountAndTaxPopup) && <TouchableOpacity
+            onPress={() => {
+              if (this.state?.amountForEntry == 0) {
+                alert('Add amount')
+              } else {
+                this.setBottomSheetVisible(this.otherTaxModalRef, true);
+              }
+            }}
+            style={[
+              style.sectionButton,
+              { borderColor: this.state?.tdsOrTcsTaxObj ? '#229F5F' : '#d9d9d9' },
+            ]}
+          >
+            <Text
+              style={[
+                style.cashBankButtonText,
+                {
+                  color: this.state?.tdsOrTcsTaxObj ? '#229F5F' : '#868686',
+                  fontFamily: this.state?.tdsOrTcsTaxObj ? FONT_FAMILY.bold : FONT_FAMILY.regular,
+                },
+              ]}>
+              {this.state?.tdsOrTcsTaxObj ? (this.state?.currencySymbol + ' ' + this.state?.tdsOrTcsTaxObj?.amount) : 'Other Tax'}
+            </Text>
+          </TouchableOpacity>}
       </View>
     )
   }
@@ -3054,6 +3298,8 @@ export class AddEntry extends React.Component<Props> {
         {this._renderInvoicesTypes()}
         {this._renderDiscountOptions()}
         {this._renderTaxModal()}
+        {this._renderOtherTaxModal()}
+        {this._renderTaxCalculationMethodModal()}
         {this._renderStockUnitModal()}
         {this._renderVariantModal()}
         {this._renderWarehouseModal()}

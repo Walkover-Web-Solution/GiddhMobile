@@ -759,7 +759,7 @@ export class DebiteNote extends React.Component<Props> {
     if (item.taxDetailsArray) {
       for (let i = 0; i < item.taxDetailsArray.length; i++) {
         const tax = item.taxDetailsArray[i];
-        const taxItem = { uniqueName: tax.uniqueName, calculationMethod: 'OnTaxableAmount' };
+        const taxItem = { uniqueName: tax.uniqueName, calculationMethod: item?.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount' };
         taxArr.push(taxItem);
       }
       return taxArr;
@@ -1482,6 +1482,7 @@ export class DebiteNote extends React.Component<Props> {
     for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
       if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) {
         this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i])
+        this.calculateTdsOrTcsAmountToDisplay(updateAmountToCurrentCurrency[i]);
       }
     }
     await this.setState({ addedItems: [...this.state.addedItems, ...updateAmountToCurrentCurrency] });
@@ -1490,6 +1491,44 @@ export class DebiteNote extends React.Component<Props> {
     });
     await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
   };
+
+  calculateTdsOrTcsAmountToDisplay = (itemDetails) => {
+    try {
+      let totalTcsorTdsTax = 0;
+      let totalTcsorTdsTaxName = '';
+      const discountAmount = Number(itemDetails?.discountValue);
+      let totalTaxableAmount = 0;
+      let amt = Number(itemDetails.rate) * Number(itemDetails.quantityText);
+      amt = amt - (discountAmount ? discountAmount : 0) ;
+      if (itemDetails?.taxDetailsArray && itemDetails?.taxDetailsArray?.length > 0) {
+        for (let i = 0; i < itemDetails?.taxDetailsArray?.length; i++) {
+          const item = itemDetails?.taxDetailsArray[i];
+          const taxPercent = Number(item.taxDetail[0].taxValue);
+          if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
+            if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+              totalTaxableAmount = amt;
+            }else if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+              totalTaxableAmount = amt + (itemDetails?.taxText ? Number(itemDetails?.taxText) : 0);
+            }
+            const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
+            totalTcsorTdsTax = taxAmount;
+            totalTcsorTdsTaxName = item.taxType;
+            break;
+          }
+        }
+      }
+      if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
+        const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
+        itemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
+      } else {
+        itemDetails.tdsOrTcsTaxObj = null;
+      }
+      return itemDetails
+    } catch (error) {
+      console.log("errr", error);
+      return null;
+    }
+  }
 
   async DefaultStockAndAccountTax(itemDetails) {
     let editItemDetails = itemDetails
@@ -1762,7 +1801,7 @@ export class DebiteNote extends React.Component<Props> {
             });
           }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 5 }}>
-            <View style={{ flexDirection: 'row', width: "75%", }}>
+            <View style={{ flexDirection: 'row', width: "55%", }}>
               <Text numberOfLines={1} style={{ color: '#1C1C1C' }}>{item.name}</Text>
               {item.stock && (
                 <Text numberOfLines={1} style={{ color: '#1C1C1C', flex: 1 }}>
@@ -1770,13 +1809,16 @@ export class DebiteNote extends React.Component<Props> {
                 </Text>
               )}
             </View>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View style={{width: '50%', flexWrap: 'wrap'}}>
               <Text style={{ color: '#808080' }}>
                 {String(item.quantity)} x {this.state.currencySymbol}
                 {String(item.rate)}
               </Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{width: '50%', flexWrap: 'wrap'}}>
+              {item?.tdsOrTcsTaxObj ? <Text style={{ color: '#808080' }}>
+                {item.tdsOrTcsTaxObj.name + ' : ' +formatAmount(item.tdsOrTcsTaxObj.amount)}
+              </Text>:<></>}
             </View>
             <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignContent: 'flex-end', alignItems: 'center' }}>
               <Text style={{ color: '#808080' }}>
@@ -1905,6 +1947,7 @@ export class DebiteNote extends React.Component<Props> {
 
     const taxArr = this.state.taxArray;
     let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
+    let totalTaxableAmount = 0;
     amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
@@ -1917,6 +1960,12 @@ export class DebiteNote extends React.Component<Props> {
           item.taxType == 'tcsrc' ||
           item.taxType == 'tdsrc'
         ) {
+          if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+            totalTaxableAmount = amt;
+          }else if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+            totalTaxableAmount = amt + (itemDetails?.tax ? Number(itemDetails?.tax) : 0);
+          }
+          const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
           totalTcsorTdsTax = taxAmount;
           totalTcsorTdsTaxName = item.taxType;
           break;
@@ -1936,6 +1985,12 @@ export class DebiteNote extends React.Component<Props> {
               taxArr[j].taxType == 'tcsrc' ||
               taxArr[j].taxType == 'tdsrc'
             ) {
+              if(itemDetails?.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
+                totalTaxableAmount = amt;
+              }else if(itemDetails?.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
+                totalTaxableAmount = amt + (itemDetails?.tax ? Number(itemDetails?.tax) : 0);
+              }
+              const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
               totalTcsorTdsTax = taxAmount;
               totalTcsorTdsTaxName = taxArr[j].taxType;
             }
@@ -1990,7 +2045,7 @@ export class DebiteNote extends React.Component<Props> {
 
   getTotalAmountOfCard(item){
     const discount = item.discountValue ? item.discountValue : 0;
-    const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
+    const tax = this.calculatedTaxAmount(item, 'totalAmount');
     const amount = Number(item.rate) * Number(item.quantity);
     const total = amount - discount + tax;
     return total;
@@ -2239,6 +2294,8 @@ export class DebiteNote extends React.Component<Props> {
     item.fixedDiscount = details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 };
     item.fixedDiscountUniqueName = details.fixedDiscountUniqueName ? details.fixedDiscountUniqueName : '';
     item.selectedArrayType = selectedArrayType;
+    item.tdsTcsTaxCalculationMethod = details.tdsTcsTaxCalculationMethod;
+    item.tdsOrTcsTaxObj = details.tdsOrTcsTaxObj;
     if(item?.stock?.variant){
       item.stock.variant.stockUnitCode = details.unitText;
     } else if(item?.stock){

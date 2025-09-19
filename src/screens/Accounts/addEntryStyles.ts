@@ -459,5 +459,77 @@ export default StyleSheet.create({
   },
   touristSchemeView:{
     marginHorizontal:16
+  },
+  tdsTcsCalculationButton: {
+    backgroundColor: 'transparent',
+    marginLeft: 20,
+    marginTop: 2,
+    paddingBottom: 4,
+  },
+  tdsTcsCalculationButtonText: {
+    color: '#229F5F',
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 13,
+    textAlign: 'left',
+  },
+  taxCalculationMethodButton: {
+    paddingHorizontal: 20,
+    marginHorizontal: 2,
+    borderRadius: 10,
+    marginTop: 10
+  },
+  taxCalculationMethodButtonView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8
+  },
+  taxCalculationMethodButtonText: {
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontSize: 14,
+    textAlign: 'center',
+    marginLeft: 10,
+    fontFamily: FONT_FAMILY.semibold,
+  },
+  otherTaxButtonView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  otherTaxButtonViewItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    flex: 1
+  },
+  otherTaxButtonViewItemCheckbox: {
+    borderRadius: 1,
+    borderWidth: 1,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otherTaxButtonViewItemText: {
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 14,
+    textAlign: 'center',
+    marginLeft: 20,
+  },
+  otherTaxListEmptyComponent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  otherTaxListEmptyComponentText: {
+    flex: 1,
+    color: '#1C1C1C',
+    paddingVertical: 4,
+    fontFamily: FONT_FAMILY.semibold,
+    fontSize: 14,
+    textAlign: 'center',
+    alignSelf: 'center',
   }
-});
+}); 
