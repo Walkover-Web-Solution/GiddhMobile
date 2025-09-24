@@ -1093,10 +1093,11 @@ export class AddEntry extends React.Component<Props> {
           stockPrice: response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate,
           selectedStockUnit: response?.body?.stock?.variant?.unitRates[0],
           stockQuantity: 1
+        }, () => {
+          this.updateAmountStk();
+          this.updateStockPrice();
+          this.updateAmountQty();
         })
-        this.updateAmountStk();
-        this.updateStockPrice();
-        this.updateAmountQty();
       } else {
         this.setState({
           particularAccountStockData: {}
@@ -2340,10 +2341,11 @@ export class AddEntry extends React.Component<Props> {
             //   })
             // }}
             onChangeText={async (text) => {
-              await this.setState({
+              this.setState({
                 amountForEntry: text,
+              }, () => {
+                this.updateStockPrice();
               });
-              this.updateStockPrice();
             }}>
           </TextInput>
         </View>
@@ -2606,8 +2608,9 @@ export class AddEntry extends React.Component<Props> {
                 if (!this.state.searchAccountName) {
                   alert('Please select an account.');
                 } else {
-                 await this.setState({ stockQuantity: text });
-                 this.updateAmountQty();
+                this.setState({ stockQuantity: text }, () => {
+                  this.updateAmountQty();
+                 });
                 }
               }}
             />
@@ -2639,12 +2642,13 @@ export class AddEntry extends React.Component<Props> {
               placeholderTextColor={'#868686'}
               returnKeyType={'done'}
               // multiline={true}
-              onChangeText={async(text) => {
+              onChangeText={(text) => {
                 if (!this.state.searchAccountName) {
                   alert('Please select an account.');
                 } else {
-                  await this.setState({ stockPrice: text });
-                  this.updateAmountStk();
+                  this.setState({ stockPrice: text }, () => {
+                    this.updateAmountStk();
+                  });
                 }
               }}
             />
