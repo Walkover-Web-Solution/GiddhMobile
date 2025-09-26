@@ -2111,9 +2111,9 @@ export class SalesInvoice extends React.Component<Props> {
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
       const discount = item.discountValue ? item.discountValue : 0;
-      const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
+      const tax = this.calculatedTaxAmount(item, 'totalAmount');
       const amount = Number(item.rate) * Number(item.quantity);
-      total = total + amount - discount + tax;
+      total = total + amount - discount + Math.round(Number(tax.toFixed(2)));
     }
     return total.toFixed(2);
   }
@@ -2402,7 +2402,7 @@ export class SalesInvoice extends React.Component<Props> {
               <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {formatAmount((String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2))}
+                {formatAmount((String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2) - (this.state.tdsOrTcsArray.length > 0 ? (Number(this.state.tdsOrTcsArray.filter(item => item.name == 'TDS')?.[0]?.amount) - Number(this.state.tdsOrTcsArray.filter(item => item.name == 'TCS')?.[0]?.amount)) : 0))}
               </Text>
             </View>}
           </View>
