@@ -2118,6 +2118,24 @@ export class SalesInvoice extends React.Component<Props> {
     return total.toFixed(2);
   }
 
+  getTdsAmount() {
+    if (!this.state.tdsOrTcsArray || this.state.tdsOrTcsArray.length === 0) {
+      return 0;
+    }
+
+    const tdsItem = this.state.tdsOrTcsArray.find(item => item.name === 'TDS');
+    return tdsItem && tdsItem.amount ? Number(tdsItem.amount) || 0 : 0;
+  }
+
+  getTcsAmount() {
+    if (!this.state.tdsOrTcsArray || this.state.tdsOrTcsArray.length === 0) {
+      return 0;
+    }
+
+    const tcsItem = this.state.tdsOrTcsArray.find(item => item.name === 'TCS');
+    return tcsItem && tcsItem.amount ? Number(tcsItem.amount) || 0 : 0;
+  }
+
   downloadFile = async (voucherUniqueName, voucherNo, partyUniqueName, voucherType) => {
     try {
       if (Platform.OS == "android" && Platform.Version < 33) {
@@ -2402,7 +2420,7 @@ export class SalesInvoice extends React.Component<Props> {
               <Text style={{ color: '#1C1C1C' }}>Invoice Due</Text>
               <Text style={{ color: '#1C1C1C' }}>
                 {this.state.addedItems.length > 0 && this.state.currencySymbol}
-                {formatAmount((String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2) - (this.state.tdsOrTcsArray.length > 0 ? (Number(this.state.tdsOrTcsArray.filter(item => item.name == 'TDS')?.[0]?.amount) - Number(this.state.tdsOrTcsArray.filter(item => item.name == 'TCS')?.[0]?.amount)) : 0))}
+                {formatAmount((String(this.getInvoiceDueTotalAmount()) - Number(this.state.amountPaidNowText).toFixed(2)).toFixed(2) - this.getTdsAmount() + this.getTcsAmount())}
               </Text>
             </View>}
           </View>
