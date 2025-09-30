@@ -2642,7 +2642,7 @@ export class SalesInvoice extends React.Component<Props, State> {
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
       const discount = item.discountValue ? item.discountValue : 0;
-      const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
+      const tax = this.calculatedTaxAmount(item, 'totalAmount');
       const amount = Number(item.rate) * Number(item.quantity);
       total = total + amount - discount + tax;
     }
