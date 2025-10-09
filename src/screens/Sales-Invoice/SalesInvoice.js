@@ -39,6 +39,7 @@ import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
 import { createEndpoint, formatAmount } from '@/utils/helper';
+import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -2138,12 +2139,21 @@ export class SalesInvoice extends React.Component<Props> {
 
   downloadFile = async (voucherUniqueName, voucherNo, partyUniqueName, voucherType) => {
     try {
-      if (Platform.OS == "android" && Platform.Version < 33) {
-        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+      if (Platform.OS == "android") {
+        const hasPermission = await checkStoragePermission();
+        if (!hasPermission) {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+          title: 'Storage Permission',
+          message: 'App needs storage permission to download the file',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        });
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
-          this.setState({ ShareModal: false });
-          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
-          return;
+            this.setState({ ShareModal: false });
+            Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+            return;
+          }
         }
       }
       await this.onShare(voucherUniqueName, voucherNo, partyUniqueName,voucherType);
@@ -2169,36 +2179,42 @@ export class SalesInvoice extends React.Component<Props> {
           uniqueName: voucherUniqueName,
         })
       )
-        .then((res) => {
-          console.log(res)
+        .then(async (res) => {
+          console.log('res', res)
           const base64Str = res.base64();
           const pdfLocation = `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`;
-          RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
-          if (Platform.OS === "ios") {
-            RNFetchBlob.ios.previewDocument(pdfLocation)
+          try {
+            await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+            const exists = await RNFetchBlob.fs.exists(pdfLocation);
+            if (!exists) {
+                throw new Error('File was not created successfully');
+            }
+            setTimeout(async () => {
+              try {
+                const success = await attemptShare(pdfLocation, voucherNo);
+                if (!success) {
+                  Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                }
+              } catch (shareError) {
+                console.log('Share error:', shareError);
+                Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+              } finally {
+                this.setState({ loading: false });
+              }
+            }, 1000);
+
+          } catch (error) {
+            this.setState({ loading: false });
+            console.log("Error while writing file", error);
+            return;
           }
-          // this.setState({ loading: false });
-        })
-        .then(() => {
-          Share.open({
-            title: 'This is the report',
-            //message: 'Message:',
-            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${voucherNo}.pdf`,
-            subject: 'Transaction report'
-          })
-            .then((res) => {
-              console.log(res);
-              this.setState({ loading: false });
-            })
-            .catch((err) => {
-              this.setState({ loading: false });
-              // err && console.log(err);
-            });
+        }).catch((err) => {
+          this.setState({ loading: false });
+          console.log("Error in sharing", err);
         });
     } catch (e) {
       this.setState({ loading: false });
-      console.log(e);
-      console.log(e);
+      console.log("Error in sharing", e);
     }
   };
 

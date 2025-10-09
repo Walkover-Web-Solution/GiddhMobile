@@ -26,6 +26,7 @@ import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/Conf
 import { setBottomSheetVisible } from '@/components/BottomSheet'
 import { createEndpoint } from '@/utils/helper'
 import { MoreActionBottomSheet } from './components/MoreActionModalize'
+import { attemptShare, checkStoragePermission } from '@/utils/shareUtils'
 
 const ListnerEvents = [
     APP_EVENTS.comapnyBranchChange,
@@ -250,7 +251,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
         }
     }, [])
 
-    const onShare = async (uniqueName: string, voucherNumber: string) => {
+    const executeShare = async (uniqueName: string, voucherNumber: string) => {
         try {
 
             setIsSharing(true);
@@ -274,30 +275,45 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
             )
                 .then(async (res) => {
                     const base64Str = await res.base64();
-                    console.log(pdfName)
-                    const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`;
+                    console.log('PDF generated:', pdfName);
+                    
+                    let pdfLocation: string;
+                    if (Platform.OS === 'ios') {
+                        pdfLocation = `${RNFetchBlob.fs.dirs.DocumentDir}/${pdfName}.pdf`;
+                    } else {
+                        pdfLocation = `${RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`;
+                    }
+                    console.log('Writing file to:', pdfLocation);
+                    
                     try {
                         await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
-                    } catch (e) {
-                        console.log("Error", e)
-                        setIsSharing(false);
-                        return
-                    }
-                    setIsSharing(false);
-                }).then(async () => {
-                    setTimeout(async () => {
-                        await Share.open({
-                            title: 'This is the report',
-                            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`,
-                            subject: 'Transaction report'
-                        })
-                            .then((res) => {
-                                console.log(res);
-                            })
-                            .catch(() => {
+                        console.log('File written successfully');
+                        
+                        const exists = await RNFetchBlob.fs.exists(pdfLocation);
+                        if (!exists) {
+                            throw new Error('File was not created successfully');
+                        }
+                        console.log('File exists, proceeding with share...');
+                        
+                        setTimeout(async () => {
+                            try {
+                                const success = await attemptShare(pdfLocation, pdfName);
+                                if (!success) {
+                                    Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                                }
+                            } catch (shareError) {
+                                console.log('Share error:', shareError);
+                                Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                            } finally {
                                 setIsSharing(false);
-                            })
-                    }, 100)
+                            }
+                        }, 1000);
+                        
+                    } catch (e) {
+                        console.log("Error writing file", e);
+                        setIsSharing(false);
+                        return;
+                    }
                 });
         } catch (e) {
             setIsSharing(false);
@@ -305,15 +321,39 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
         }
     };
 
-    const shareFile = useCallback(async (uniqueName: string, voucherNumber: string) => {
+    const onShare = async (uniqueName: string, voucherNumber: string) => {
         try {
-            if (Platform.OS == "android" && Platform.Version < 33) {
-                const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-                if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                    Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
-                    return;
+            if (Platform.OS === 'android') {
+                const hasPermission = await checkStoragePermission();
+                if (!hasPermission) {
+                    const granted = await PermissionsAndroid.request(
+                        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                        {
+                            title: 'Storage Permission',
+                            message: 'App needs storage permission to share files',
+                            buttonNeutral: 'Ask Me Later',
+                            buttonNegative: 'Cancel',
+                            buttonPositive: 'OK',
+                        }
+                    );
+                    
+                    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                        Alert.alert('Permission Denied!', 'You need to give storage permission to share the file');
+                        return;
+                    }
+
+                    await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
                 }
             }
+            await executeShare(uniqueName, voucherNumber);
+        } catch (error) {
+            console.log('Error in onShare:', error);
+            setIsSharing(false);
+        }
+    };
+
+    const shareFile = useCallback(async (uniqueName: string, voucherNumber: string) => {
+        try {
             await onShare(uniqueName, voucherNumber);
         } catch (err) {
             console.warn(err);
