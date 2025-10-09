@@ -81,7 +81,7 @@ export default StyleSheet.create({
   balStyle: {
     color: colors.INPUT_COLOR,
     fontSize: constants.GD_FONT_SIZE.normal,
-    fontFamily: 'AvenirLTStd-Book'
+    fontFamily: constants.FONT_FAMILY.bold,
   },
   iconPlacingStyle: {
     flexDirection: 'row',
@@ -92,7 +92,10 @@ export default StyleSheet.create({
     height: GD_ICON_SIZE.input_icon,
     width: GD_ICON_SIZE.input_icon,
   },
-  inventoryData: { marginBottom: 5, color: baseColor.GRAY_LIGHT },
+  inventoryData: { 
+    marginBottom: 5, 
+    fontSize: constants.GD_FONT_SIZE.small,
+    color: baseColor.GRAY_LIGHT },
   seperator: {
     marginBottom: 5,
     borderBottomColor: baseColor.GRAY_LIGHT,
