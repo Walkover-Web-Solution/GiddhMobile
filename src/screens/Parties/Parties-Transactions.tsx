@@ -58,6 +58,7 @@ import { AccountsService } from '@/core/services/accounts/accounts.service';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import Toast from '@/components/Toast';
 import Notifee, { AndroidNotificationSetting } from '@notifee/react-native';
+import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -903,12 +904,22 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
   };
   permissonShare = async () => {
     try {
-      if (Platform.OS == "android" && Platform.Version < 33) {
-        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          this.setState({ ShareModal: false });
-          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
-          return;
+      if (Platform.OS === "android") {
+        const hasPermission = await checkStoragePermission();
+        if (!hasPermission) {
+          const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+            title: 'Storage Permission',
+            message: 'App needs storage permission to share files',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          });
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            this.setState({ ShareModal: false });
+            Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+            return;
+          }
+          await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
         }
       }
       await this.onShare();
@@ -972,31 +983,38 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           let base64Str = await res.base64();
           let base69 = await base64.decode(base64Str);
           let pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`;
-          await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
-          await this.setState({ ShareModal: false });
-          //if (Platform.OS === "ios") {
-          //RNFetchBlob.ios.previewDocument(pdfLocation)
-          //}
-        })
-        .then(async () => {
-          setTimeout(async () => await Share.open({
-            title: 'This is the report',
-            //message: 'Message:',
-            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`,
-            subject: 'Report',
-          })
-            .then((res) => {
-              this.setState({ ShareModal: false });
-              console.log(res);
-            })
-            .catch((err) => {
-              // this.setState({ ShareModal: false });
-              // err && console.log(err);
-            }), 100)
+          
+          try {
+            await RNFetchBlob.fs.writeFile(pdfLocation, JSON.parse(base69).body.file, 'base64');
+            // await this.setState({ ShareModal: false });
+            const exists = await RNFetchBlob.fs.exists(pdfLocation);
+            if (!exists) {
+              throw new Error('File was not created successfully');
+            }
+
+            setTimeout(async () => {
+              try {
+                  const success = await attemptShare(pdfLocation, pdfName);
+                  if (!success) {
+                      Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                  }
+              } catch (shareError) {
+                  console.log('Share error:', shareError);
+                  Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+              } finally {
+                  this.setState({ ShareModal: false });
+              }
+            }, 1000);
+            
+          } catch (error) {
+            this.setState({ ShareModal: false });
+            console.log("Error in while writing file", error);
+            return;
+          }
         });
     } catch (e) {
       this.setState({ ShareModal: false });
-      console.log(e);
+      console.log("Error in sharing", e);
     }
   };
 
