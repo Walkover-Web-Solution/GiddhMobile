@@ -49,6 +49,12 @@ export const fallbackShare = async (pdfLocation: string, pdfName: string): Promi
 
 export const attemptShare = async (pdfLocation: string, pdfName: string): Promise<boolean> => {        
     try {
+        const fallbackSuccess = await fallbackShare(pdfLocation, pdfName);
+        if (fallbackSuccess) {
+            console.log('Fallback share successful');
+            return true;
+        }
+        
         if (Platform.OS === 'android') {
             const nativeSuccess = await nativeAndroidShare(pdfLocation, pdfName);
             if (nativeSuccess) {
@@ -58,11 +64,6 @@ export const attemptShare = async (pdfLocation: string, pdfName: string): Promis
             console.log('Native Android share failed, trying fallback...');
         }
         
-        const fallbackSuccess = await fallbackShare(pdfLocation, pdfName);
-        if (fallbackSuccess) {
-            console.log('Fallback share successful');
-            return true;
-        }
         return false;
     } catch (error) {
         console.log(`Share attempt failed:`, error);
