@@ -58,6 +58,7 @@ import { AccountsService } from '@/core/services/accounts/accounts.service';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import Toast from '@/components/Toast';
 import Notifee, { AndroidNotificationSetting } from '@notifee/react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -498,6 +499,17 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     } else {
       return Alert.alert('', 'The phone number for this person is not available');
     }
+  };
+  onMail = () => {
+    if (this.props.route.params?.item?.email) {
+      Linking.openURL(`mailto:${this.props.route.params?.item?.email}`);
+    } else {
+      return Alert.alert('', 'The email for this person is not available');
+    }
+  };
+  copyToClipboard = (text: string) => {
+    Clipboard.setString(this.props.route.params?.item?.[text]);
+    Toast({ message: 'Copied to clipboard' });
   };
 
   phoneNo = () => {
@@ -1529,7 +1541,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               <TouchableOpacity style={{ paddingHorizontal: 8 }} onPress={() => this.setBottomSheetVisible(this.reminderBottomSheetRef, true)}>
                 <MaterialCommunityIcons name="bell-ring" size={20} color={"#FFFFFF"} />
               </TouchableOpacity>
-              {this.props.route?.params?.item?.mobileNo ? (
+              {this.props.route?.params?.item?.mobileNo || this.props.route?.params?.item?.email ? (
                 <TouchableOpacity
                   delayPressIn={0}
                   style={{ paddingHorizontal: 8 }}
@@ -1913,6 +1925,10 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
             setBottomSheetVisible={this.setBottomSheetVisible}
             onWhatsApp={this.onWhatsApp}
             onCall={this.onCall}
+            onMail={this.onMail}
+            isMailAvailable={this.props.route?.params?.item?.email ? true : false}
+            isPhoneAvailable={this.props.route?.params?.item?.mobileNo ? true : false}
+            copyToClipboard={this.copyToClipboard}
           />
           <ConfirmationBottomSheet
             bottomSheetRef={this.confirmationBottomSheetRef}
