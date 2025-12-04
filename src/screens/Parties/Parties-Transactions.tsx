@@ -1559,9 +1559,10 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: 16,
+              justifyContent:'space-between'
             }}>
             {/* Left Side - Credit and Debit Totals */}
-            <View style={{ flex: 1 }}>
+            <View style={{ maxWidth: '40%' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cr :</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 5 }}>
@@ -1579,11 +1580,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
             </View>
 
             {/* Right Side - Opening and Closing Balance */}
-            <View style={{ flex: 1, alignItems: 'flex-end', minWidth: 120 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, justifyContent: 'flex-end' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161', marginRight: 5 }}>Cl :</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline', minWidth: 80, justifyContent: 'flex-end' }}>
-                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, textAlign: 'right' }} numberOfLines={1}>
+            <View style={{  alignItems: 'flex-end', maxWidth: '40%' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cl :</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
+                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
                     {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                     {formatAmount(this.state.closingBalance?.amount)}
                   </Text>
@@ -1593,10 +1594,10 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   </Text>
                 </View>
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161', marginRight: 5 }}>Op :</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'baseline', minWidth: 80, justifyContent: 'flex-end' }}>
-                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, textAlign: 'right' }} numberOfLines={1}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Op :</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
+                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
                     {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                     {formatAmount(this.state.openingBalance?.amount)}
                   </Text>
