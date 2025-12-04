@@ -1102,7 +1102,7 @@ export class AddEntry extends React.Component<Props> {
           SelectedTaxData: {
             taxType: '',
             taxText: '',
-            taxDetailsArray: this.state.taxArray?.filter((item) => item?.uniqueName == response?.body?.stock?.taxes?.[0])
+            taxDetailsArray: this.state.taxArray?.filter((item) => response?.body?.stock?.taxes?.includes(item?.uniqueName)) || []
           }
         }, () => {
           this.updateAmountStk();
