@@ -1600,7 +1600,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
             {/* Right Side - Opening and Closing Balance */}
             <View style={{  alignItems: 'flex-end', maxWidth: '40%' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cl :</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cl : </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
                   <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
                     {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
@@ -1613,7 +1613,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 </View>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Op :</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Op : </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
                   <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
                     {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
