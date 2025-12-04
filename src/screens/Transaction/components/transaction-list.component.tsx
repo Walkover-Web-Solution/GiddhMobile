@@ -17,6 +17,8 @@ import { createEndpoint, formatAmount } from '@/utils/helper';
 import { Swipeable } from 'react-native-gesture-handler';
 import PdfPreviewModal from '@/screens/Parties/components/PdfPreviewModal';
 import PreviewIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Toast from '@/components/Toast';
+import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 
 type Props = {
   item: any
@@ -73,18 +75,28 @@ class TransactionList extends React.Component<Props> {
 
   shareFile = async () => {
     try {
-      if (Platform.OS == "android" && Platform.Version < 33) {
-        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+      if (Platform.OS == "android") {
+        const hasPermission = await checkStoragePermission();
+        if (!hasPermission) {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+          title: 'Storage Permission',
+          message: 'App needs storage permission to download the file',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        });
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.setState({ iosShare: false });
           Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
-          return;
+            return;
+          }
+          await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
         }
       }
       await this.onShare();
     } catch (err) {
       this.setState({ iosShare: false });
-      console.warn(err);
+      console.warn("Error in shareFile", err);
     }
   };
 
@@ -158,7 +170,6 @@ class TransactionList extends React.Component<Props> {
 
   onShare = async () => {
     try {
-      // await Platform.OS == "ios" ? this.setState({ DownloadModal: true }) : null
       const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
       const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
       let pdfName = this.props.item.voucherNo + " - " + moment();
@@ -178,42 +189,36 @@ class TransactionList extends React.Component<Props> {
       )
         .then(async (res) => {
           const base64Str = await res.base64();
-          console.log(pdfName)
+          console.log('pdfName', pdfName)
           const pdfLocation = await `${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`;
           try {
             await RNFetchBlob.fs.writeFile(pdfLocation, base64Str, 'base64');
+            const exists = await RNFetchBlob.fs.exists(pdfLocation);
+            if (!exists) {
+              throw new Error('File was not created successfully');
+            }
+            setTimeout(async () => {
+              try {
+                const success = await attemptShare(pdfLocation, pdfName);
+                if (!success) {
+                  Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                }
+              } catch (shareError) {
+                console.log('Share error:', shareError);
+                Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+              } finally {
+                this.setState({ iosShare: false });
+              }
+            }, 1000);
           } catch (e) {
-            console.log("Error", e)
+            console.log("Error while writing file", e)
             this.setState({ iosShare: false });
             return
           }
-          this.setState({ iosShare: false });
-          // if (Platform.OS === "ios") {
-          //   // await this.setState({ DownloadModal: false })
-          //   await RNFetchBlob.ios.previewDocument(pdfLocation)
-          // }
-          // else {
-          //   await this.props.downloadModal(false);
-          // }
-        }).then(async () => {
-          setTimeout(async () => await Share.open({
-            title: 'This is the report',
-            //message: 'Message:',
-            url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${pdfName}.pdf`,
-            subject: 'Transaction report'
-          })
-            .then((res) => {
-              console.log(res);
-            })
-            .catch(() => {
-              // err && console.log(err);
-            }),100)
         });
     } catch (e) {
       this.setState({ iosShare: false });
-      // this.props.downloadModal(false);
-      // this.setState({ DownloadModal: false })
-      console.log(e);
+      console.log("Error in onShare", e);
     }
   };
 
