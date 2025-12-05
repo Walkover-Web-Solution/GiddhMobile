@@ -16,7 +16,7 @@ import Toast from '@/components/Toast';
 export var timer;
 class BaseContainer extends Component {
   componentDidMount() {
-    SplashScreen.hide();
+    //  SplashScreen.hide()
     this.logoutListner = DeviceEventEmitter.addListener(APP_EVENTS.invalidAuthToken,async ()=>{
       Toast({message: "Your session has expired. Please log in again.", position:'BOTTOM',duration:'LONG'}) 
       appleAuth.Operation.LOGOUT;
