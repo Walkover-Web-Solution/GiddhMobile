@@ -16,7 +16,7 @@ import Loader from "@/components/Loader";
 
 const BankAccountList = () => {
     const {styles, theme, voucherBackground} = useCustomTheme(makeStyles, 'Stock');
-    const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
+    const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: '', endDate: '' });
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const [bankAccounts, setBankAccounts] = useState<any[]>([]);
@@ -49,6 +49,7 @@ const BankAccountList = () => {
             const response = await CommonService.fetchBankAccounts(date.startDate, date.endDate, page);
             if(response?.status == "success"){
                 setBankAccounts(prevAccoutns => [...prevAccoutns, ...response?.body?.results]);
+                setDate({ startDate: response?.body?.fromDate, endDate: response?.body?.toDate });
                 if(page*50 < response?.body?.totalItems){
                     setHasMore(true);
                 }else{
@@ -56,8 +57,8 @@ const BankAccountList = () => {
                 }
             }
         } catch (error) {
+            setDate({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
             console.log("Error while fetching bank accounts",error);
-            
         }
     }
 

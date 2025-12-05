@@ -162,7 +162,7 @@ const _RenderVoucher : React.FC<Props> = ({
                         <Text style={styles.amount}>{`${currencySymbol} ${formatAmount(amount)}`}</Text>
                     </View>
                     <View style={styles.voucherNumberRow}>
-                        <Text style={styles.voucherNumber}>{`#${voucherNumber}`}</Text>
+                        <Text style={styles.voucherNumber}>{voucherNumber ? `#${voucherNumber}` : '-'}</Text>
                         <Text style={styles.smallMediumText}>{`Due: ${currencySymbol} ${formatAmount(dueAmount)}`}</Text>
                     </View>
                     { !(voucherName === 'Receipt' || voucherName === 'Payment') &&

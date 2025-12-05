@@ -59,6 +59,7 @@ import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/Conf
 import Toast from '@/components/Toast';
 import Notifee, { AndroidNotificationSetting } from '@notifee/react-native';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -499,6 +500,17 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     } else {
       return Alert.alert('', 'The phone number for this person is not available');
     }
+  };
+  onMail = () => {
+    if (this.props.route.params?.item?.email) {
+      Linking.openURL(`mailto:${this.props.route.params?.item?.email}`);
+    } else {
+      return Alert.alert('', 'The email for this person is not available');
+    }
+  };
+  copyToClipboard = (text: string) => {
+    Clipboard.setString(this.props.route.params?.item?.[text]);
+    Toast({ message: 'Copied to clipboard' });
   };
 
   phoneNo = () => {
@@ -1547,7 +1559,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               <TouchableOpacity style={{ paddingHorizontal: 8 }} onPress={() => this.setBottomSheetVisible(this.reminderBottomSheetRef, true)}>
                 <MaterialCommunityIcons name="bell-ring" size={20} color={"#FFFFFF"} />
               </TouchableOpacity>
-              {this.props.route?.params?.item?.mobileNo ? (
+              {this.props.route?.params?.item?.mobileNo || this.props.route?.params?.item?.email ? (
                 <TouchableOpacity
                   delayPressIn={0}
                   style={{ paddingHorizontal: 8 }}
@@ -1564,53 +1576,54 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               backgroundColor: '#f3e5f5',
               flexDirection: 'row',
               alignItems: 'center',
-              paddingHorizontal: 20,
-              justifyContent: 'space-between',
+              paddingHorizontal: 16,
+              justifyContent:'space-between'
             }}>
-            <View style={{ alignSelf: 'center' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cr Total :</Text>
+            {/* Left Side - Credit and Debit Totals */}
+            <View style={{ maxWidth: '40%' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cr :</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 5 }}>
-                  {this.state.countryCode == 'IN'
-                    ? '₹'
-                    : getSymbolFromCurrency(this.state.co)}
+                  {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.creditTotal)}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Dr Total :</Text>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 8 }}>
-                  {this.state.countryCode == 'IN'
-                    ? '₹'
-                    : getSymbolFromCurrency(this.state.countryCode)}
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Dr :</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 5 }}>
+                  {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.debitTotal)}
                 </Text>
               </View>
             </View>
-            <View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cl Bal :</Text>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 5 }}>
-                  {this.state.countryCode == 'IN'
-                    ? '₹'
-                    : getSymbolFromCurrency(this.state.countryCode)}
-                  {formatAmount(this.state.closingBalance?.amount)}
-                  <Text style={{ fontSize: 10 }} >
-                    {this.state.closingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+
+            {/* Right Side - Opening and Closing Balance */}
+            <View style={{  alignItems: 'flex-end', maxWidth: '40%' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cl : </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
+                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
+                    {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
+                    {formatAmount(this.state.closingBalance?.amount)}
                   </Text>
-                </Text>
+                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 10, minWidth: 15, textAlign: 'center' }}>
+                    {this.state.closingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+
+                  </Text>
+                </View>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Op Bal :</Text>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 8 }}>
-                  {this.state.countryCode == 'IN'
-                    ? '₹'
-                    : getSymbolFromCurrency(this.state.countryCode)}
-                  {formatAmount(this.state.openingBalance?.amount)}
-                  <Text style={{ fontSize: 10 }}>
-                    {this.state.openingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Op : </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
+                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
+                    {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
+                    {formatAmount(this.state.openingBalance?.amount)}
                   </Text>
-                </Text>
+                  <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 10, minWidth: 15, textAlign: 'center' }}>
+                    {this.state.openingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -1931,6 +1944,10 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
             setBottomSheetVisible={this.setBottomSheetVisible}
             onWhatsApp={this.onWhatsApp}
             onCall={this.onCall}
+            onMail={this.onMail}
+            isMailAvailable={this.props.route?.params?.item?.email ? true : false}
+            isPhoneAvailable={this.props.route?.params?.item?.mobileNo ? true : false}
+            copyToClipboard={this.copyToClipboard}
           />
           <ConfirmationBottomSheet
             bottomSheetRef={this.confirmationBottomSheetRef}
@@ -2122,4 +2139,5 @@ function Screen(props) {
   const navigation = useNavigation();
   return <PartiesTransactionScreen {...props} isFocused={isFocused} navigation={navigation}/>;
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(Screen);
