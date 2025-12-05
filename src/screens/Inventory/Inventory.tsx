@@ -118,7 +118,7 @@ export class InventoryScreen extends React.Component<Props, State> {
           try {
             let InventoryPageData = null;
             try {
-              InventoryPageData = await InventoryService?.getInventories(
+              InventoryPageData = await InventoryService.getInventories(
                 companyName,
                 this.state.startDate,
                 this.state.endDate,
