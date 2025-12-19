@@ -527,11 +527,11 @@ class TransactionList extends React.Component<Props> {
     }
     return {
       backgroundColor: bgColor,
-      paddingLeft: 10,
-      paddingRight: 10,
-      height: 25,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      borderRadius: 4
     };
   }
 }

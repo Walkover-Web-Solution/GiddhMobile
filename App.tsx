@@ -6,7 +6,7 @@ import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import {Provider, useSelector} from 'react-redux';
 import '@/utils/i18n';
-import {BackHandler, EmitterSubscription, Platform} from 'react-native';
+import {AppState, BackHandler, EmitterSubscription, Platform} from 'react-native';
 import {default as mapping} from './mappings.json';
 import {PersistGate} from 'redux-persist/integration/react';
 import BaseContainer from './src/BaseContainer/BaseContainer';
@@ -76,18 +76,49 @@ const checkForAppUpdate = () => {
 
 export default class App extends React.Component<any> {
   private listener: EmitterSubscription | undefined;
+  private appStateSubscription: any;
+  private hideTimeout: ReturnType<typeof setTimeout> | null = null;
   static navigationOptions = {
     headerShown: false,
   };
   
   async componentDidMount() {
-    SplashScreen.hide();
+    this.hideSplashScreen();
     checkForAppUpdate();
+    this.appStateSubscription = AppState.addEventListener('change', this.handleAppStateChange)
+  }
+
+  hideSplashScreen = () => {
+    try {
+      this.hideTimeout = setTimeout(() => {
+        try {
+          SplashScreen.hide();
+          console.log('-----*** Splash screen hidden successfully ***-----');
+        } catch (error) {
+          console.warn('Failed to hide splash screen:', error);
+        }
+      }, 100);
+    } catch (error) {
+      console.warn('Error setting up splash screen hide:', error);
+    }
+  };
+
+  handleAppStateChange = (nextAppState: string) => {
+    console.log(`-----*** App State Changed to ${nextAppState} ***-----`);
+    if (nextAppState === 'active') {
+      this.hideSplashScreen();
+    }
   }
 
   componentWillUnmount() {
     if (this.listener) {
       this.listener.remove();
+    }
+    if (this.appStateSubscription) {
+      this.appStateSubscription.remove();
+    }
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
     }
   }
 
@@ -106,7 +137,7 @@ export default class App extends React.Component<any> {
 
 
 const InnerApp = () => {
-  const {toggleBiometric} = useSelector(state => state.LoginReducer);  
+  const {toggleBiometric} = useSelector((state: any) => state.LoginReducer);  
   const [unlocked, setUnlocked] = useState(false);
   const insets = useSafeAreaInsets();
   
