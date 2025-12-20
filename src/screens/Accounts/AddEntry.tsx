@@ -329,6 +329,9 @@ export class AddEntry extends React.Component<Props> {
     const formattedAmount = await giddhRoundOff(amount);
     this.setState({
       amountForEntry: formattedAmount
+    }, () => {
+      this.calculatedTaxAmounstForEntry();
+      this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
     })
   }
   updateAmountQty() {
@@ -336,6 +339,9 @@ export class AddEntry extends React.Component<Props> {
     const amount = stockQuantity !== 0 ? stockQuantity * stockPrice : amountForEntry;
     this.setState({
       amountForEntry: amount
+    }, () => {
+      this.calculatedTaxAmounstForEntry();
+      this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
     })
   }
 
@@ -1092,11 +1098,19 @@ export class AddEntry extends React.Component<Props> {
           particularAccountStockData: response?.body,
           stockPrice: response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate,
           selectedStockUnit: response?.body?.stock?.variant?.unitRates[0],
-          stockQuantity: 1
+          stockQuantity: 1,
+          SelectedTaxData: {
+            taxType: '',
+            taxText: '',
+            taxDetailsArray: this.state.taxArray?.filter((item) => response?.body?.stock?.taxes?.includes(item?.uniqueName)) || []
+          }
         }, () => {
           this.updateAmountStk();
           this.updateStockPrice();
           this.updateAmountQty();
+          if(this.state.allDiscounts?.find((discount) => discount.uniqueName == response?.body?.stock?.variant?.variantDiscount?.discounts?.[0]?.discount?.uniqueName)){
+            this.handleDiscountItemClick(this.state.allDiscounts?.find((discount) => discount.uniqueName == response?.body?.stock?.variant?.variantDiscount?.discounts?.[0]?.discount?.uniqueName))
+          }
         })
       } else {
         this.setState({
@@ -1551,6 +1565,8 @@ export class AddEntry extends React.Component<Props> {
                       isSearchingAccount: false,
                     },
                     () => {
+                      this.getTagsData();
+                      this.getDiscounts();
                       if (item?.hasOwnProperty("stock")) {
                         this.setState({
                           selectedStock: item?.stock,
@@ -1560,8 +1576,6 @@ export class AddEntry extends React.Component<Props> {
                       } else {
                         this.getParticularAccountData(item?.uniqueName);
                       }
-                      this.getTagsData();
-                      this.getDiscounts();
                       Keyboard.dismiss();
                     },
                   );
