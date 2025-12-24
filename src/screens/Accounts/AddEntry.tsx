@@ -315,8 +315,8 @@ export class AddEntry extends React.Component<Props> {
     // }
   }
 // Functions to handle the price/amount/quantity change
-  async updateStockPrice() {
-    const { stockPrice, stockQuantity ,amountForEntry} = this.state;
+  async updateStockPrice(stockPrice: number) {
+    const { stockQuantity ,amountForEntry} = this.state;
     const price = amountForEntry !== 0 ? amountForEntry / stockQuantity : stockPrice;
     const formattedPrice = await giddhRoundOff(price);
     this.setState({
@@ -1106,7 +1106,7 @@ export class AddEntry extends React.Component<Props> {
           }
         }, () => {
           this.updateAmountStk();
-          this.updateStockPrice();
+          // this.updateStockPrice();
           this.updateAmountQty();
           if(this.state.allDiscounts?.find((discount) => discount.uniqueName == response?.body?.stock?.variant?.variantDiscount?.discounts?.[0]?.discount?.uniqueName)){
             this.handleDiscountItemClick(this.state.allDiscounts?.find((discount) => discount.uniqueName == response?.body?.stock?.variant?.variantDiscount?.discounts?.[0]?.discount?.uniqueName))
@@ -2358,7 +2358,7 @@ export class AddEntry extends React.Component<Props> {
               this.setState({
                 amountForEntry: text,
               }, () => {
-                this.updateStockPrice();
+                this.updateStockPrice(this.state?.stockPrice);
               });
             }}>
           </TextInput>
