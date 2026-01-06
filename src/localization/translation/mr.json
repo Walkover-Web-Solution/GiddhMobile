@@ -1,0 +1,21 @@
+{
+  "DEMO": {
+    "TOTAL_COUNTRIES": "एकूण देश",
+    "SALES": "विक्री",
+    "LANGUAGE": "भाषा"
+  },
+  "BUTTONS": {
+    "PARTIES": "पक्ष",
+    "TRANSACTION": "व्यवहार",
+    "INVENTORY": "इन्व्हेंटरी"
+  },
+  "appLock": {
+    "locked": "Giddh लॉक आहे",
+    "tryAgain": "पुन्हा प्रयत्न करा",
+    "tryBiometricAgain": "{{type}} पुन्हा प्रयत्न करा",
+    "enterPassword": "लॉक स्क्रीन पासवर्ड प्रविष्ट करा",
+    "biometricAuth": "बायोमेट्रिक प्रमाणीकरण",
+    "authFailed": "प्रमाणीकरण अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
+    "authError": "प्रमाणीकरण दरम्यान काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा."
+  }
+}

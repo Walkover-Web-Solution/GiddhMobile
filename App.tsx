@@ -25,6 +25,7 @@ import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.servic
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
 import AppLock from '@/AppLock/AppLock';
 import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-controller";
+import '@/localization/i18n';
 
 injectStore(store); // Provides store to formateAmount function
 injectStoreToInvoiceUrls(store); // Provides store to invoice urls

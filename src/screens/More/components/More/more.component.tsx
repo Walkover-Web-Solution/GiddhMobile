@@ -1,6 +1,6 @@
 import React, { createRef } from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, Switch, ScrollView } from 'react-native';
 import { Country } from '@/models/interfaces/country';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
@@ -25,6 +25,7 @@ import { resetBiometricAuthentication, toggleBiometricAuthentication } from '@/s
 import Toast from '@/components/Toast';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import { setBottomSheetVisible } from '@/components/BottomSheet';
+import LanguageSelector from '@/components/LanguageSelector';
 const { height } = Dimensions.get('screen');
 
 type MoreComponentProp = WithTranslation &
@@ -292,7 +293,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
-    const { navigation } = this.props;
+    const { navigation, t } = this.props;
     if (this.props.isFetchingCompanyList) {
       return (
         <View
@@ -307,159 +308,164 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     } else {
       return (
         <View style={{ flex: 1, backgroundColor: 'white' }} >
-          <View style={{flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={{ padding: 20 }}
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}>
-              <Icon name={'Backward-arrow'} size={18} color={'#1C1C1C'} />
-            </TouchableOpacity>
-            <Text style={style.headerText}>More</Text>
-          </View>
-          {activeCompanyName && activeCompanyName.length > 1
-            ? (
+          <ScrollView>
+            <View style={{flexDirection: 'row', alignItems: 'center' }}>
               <TouchableOpacity
                 activeOpacity={0.7}
-                style={style.companyView}
+                style={{ padding: 20 }}
                 onPress={() => {
-                  navigation.navigate('ChangeCompany', {
-                    screen: 'ChangeCompany',
+                  this.props.navigation.goBack();
+                }}>
+                <Icon name={'Backward-arrow'} size={18} color={'#1C1C1C'} />
+              </TouchableOpacity>
+              <Text style={style.headerText}>More</Text>
+            </View>
+            {activeCompanyName && activeCompanyName.length > 1
+              ? (
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={style.companyView}
+                  onPress={() => {
+                    navigation.navigate('ChangeCompany', {
+                      screen: 'ChangeCompany',
+                      initial: false,
+                      params: { activeCompany: this.state.activeCompany }
+                    });
+                  }}>
+                  <View style={style.companyShortView}>
+                    <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
+                    <Text numberOfLines={1} style={style.companyNameText}>
+                      {activeCompanyName}
+                    </Text>
+
+                    <Entypo name="chevron-right" size={26} color={'#1A237E'} />
+                    {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
+                  </View>
+                </TouchableOpacity>
+              )
+              : (
+                <View style={style.companyView}>
+                  <View style={style.companyShortView}>
+                    <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
+                    <Text style={style.companyNameText}>{activeCompanyName}</Text>
+                  </View>
+                </View>
+              )}
+            {
+              // Switch Branch
+            }
+            {this.props.branchList && this.props.branchList.length > 1 && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={style.branchView}
+                onPress={() => {
+                  navigation.navigate('ChangeCompanyBranch', {
+                    screen: 'BranchChange',
                     initial: false,
-                    params: { activeCompany: this.state.activeCompany }
+                    params: {
+                      activeBranch: this.state.activeBranch,
+                      branches: this.props.branchList
+                    }
                   });
                 }}>
-                <View style={style.companyShortView}>
-                  <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                <View style={{ marginLeft: 15 }}>
+                  <MaterialIcons name="compare-arrows" size={26} color={'#1A237E'} />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
-                  <Text numberOfLines={1} style={style.companyNameText}>
-                    {activeCompanyName}
+                  <Text style={style.companyNameText}>
+                    {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
                   </Text>
 
                   <Entypo name="chevron-right" size={26} color={'#1A237E'} />
-                  {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
                 </View>
               </TouchableOpacity>
-            )
-            : (
-              <View style={style.companyView}>
-                <View style={style.companyShortView}>
-                  <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
-                  <Text style={style.companyNameText}>{activeCompanyName}</Text>
-                </View>
-              </View>
             )}
-          {
-            // Switch Branch
-          }
-          {this.props.branchList && this.props.branchList.length > 1 && (
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={style.branchView}
-              onPress={() => {
-                navigation.navigate('ChangeCompanyBranch', {
-                  screen: 'BranchChange',
-                  initial: false,
-                  params: {
-                    activeBranch: this.state.activeBranch,
-                    branches: this.props.branchList
-                  }
-                });
-              }}>
-              <View style={{ marginLeft: 15 }}>
-                <MaterialIcons name="compare-arrows" size={26} color={'#1A237E'} />
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
-                <Text style={style.companyNameText}>
-                  {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
-                </Text>
-
-                <Entypo name="chevron-right" size={26} color={'#1A237E'} />
-              </View>
-            </TouchableOpacity>
-          )}
-          {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
-          {
-            <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
-              <View style={style.textView}>
-                <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
-                <Text style={style.companyNameText}>Enable App Lock</Text>
-              </View>
-              <Switch
-                trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
-                thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
-                ios_backgroundColor={color.BORDER_COLOR}
-                onValueChange={this.authenticateUser}
-                value={this.props.toggleBiometric}
-              />
-            </TouchableOpacity>
-          }
-          {/* ------------ Contact Us View ------------ */}
-          <View style={style.contactUsView}>
-            <View style={{ margin: 15 }}>
-              <Text style={style.contactUsText}>
-                Contact Us
-              </Text>
-              <View style={style.emailField}>
-                <Text style={style.contactDtailsText}>
-                  {"Sales: "}
-                </Text>
-                <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:sales@giddh.com') }}>
-                  sales@giddh.com
-                </Text>
-                {this.copyEmailButton('sales@giddh.com')}
-              </View>
-              <View style={style.emailField}>
-                <Text style={style.contactDtailsText}>
-                  {"Support: "}
-                </Text>
-                <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:support@giddh.com') }}>
-                  support@giddh.com
-                </Text>
-                {this.copyEmailButton('support@giddh.com')}
-              </View>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
-                onPress={() => {
-                  this.setState({ isModalVisible: true })
-                }}
-              >
-                <Icon name={'Calendar'} color={'#1A237E'} size={18} style={{ marginLeft: 13, marginRight: 3 }} />
-                <Text style={style.buttonText}>
-                  Schedule A Meet
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
-                onPress={() => DeviceEventEmitter.emit('openChatbot', { type: 'openChatbot' })}
-              >
-                <ChatGPT style={{marginLeft: 14}}/>
-                <Text style={style.buttonText}>
-                  Chat With Bot
-                </Text>
-                <View style={style.chip}>
-                  <Text style={style.smallText}>BETA</Text>
+            {/* LANGUAGE SELECTOR */}
+            {
+              <LanguageSelector buttonStyle={style.branchView}/>
+            }
+            {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
+            {
+              <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
+                <View style={style.textView}>
+                  <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
+                  <Text style={style.companyNameText}>Enable App Lock</Text>
                 </View>
+                <Switch
+                  trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
+                  thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
+                  ios_backgroundColor={color.BORDER_COLOR}
+                  onValueChange={this.authenticateUser}
+                  value={this.props.toggleBiometric}
+                />
               </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={[style.contactUsButtons, { flexDirection: 'row' }]}
-                onPress={() => DeviceEventEmitter.emit("showHelloWidget", { status: true })}
-              >
-                <MaterialIcons name="support-agent" size={25} color={'#1A237E'} style={{ marginLeft: 10 }} />
-                <Text style={style.buttonText}>
-                  Chat With Us
+            }
+            {/* ------------ Contact Us View ------------ */}
+            <View style={style.contactUsView}>
+              <View style={{ margin: 15 }}>
+                <Text style={style.contactUsText}>
+                  Contact Us
                 </Text>
-              </TouchableOpacity>
+                <View style={style.emailField}>
+                  <Text style={style.contactDtailsText}>
+                    {"Sales: "}
+                  </Text>
+                  <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:sales@giddh.com') }}>
+                    sales@giddh.com
+                  </Text>
+                  {this.copyEmailButton('sales@giddh.com')}
+                </View>
+                <View style={style.emailField}>
+                  <Text style={style.contactDtailsText}>
+                    {"Support: "}
+                  </Text>
+                  <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:support@giddh.com') }}>
+                    support@giddh.com
+                  </Text>
+                  {this.copyEmailButton('support@giddh.com')}
+                </View>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
+                  onPress={() => {
+                    this.setState({ isModalVisible: true })
+                  }}
+                >
+                  <Icon name={'Calendar'} color={'#1A237E'} size={18} style={{ marginLeft: 13, marginRight: 3 }} />
+                  <Text style={style.buttonText}>
+                    Schedule A Meet
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
+                  onPress={() => DeviceEventEmitter.emit('openChatbot', { type: 'openChatbot' })}
+                >
+                  <ChatGPT style={{marginLeft: 14}}/>
+                  <Text style={style.buttonText}>
+                    Chat With Bot
+                  </Text>
+                  <View style={style.chip}>
+                    <Text style={style.smallText}>BETA</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={[style.contactUsButtons, { flexDirection: 'row' }]}
+                  onPress={() => DeviceEventEmitter.emit("showHelloWidget", { status: true })}
+                >
+                  <MaterialIcons name="support-agent" size={25} color={'#1A237E'} style={{ marginLeft: 10 }} />
+                  <Text style={style.buttonText}>
+                    Chat With Us
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-
+          </ScrollView>
           <TouchableOpacity
             activeOpacity={0.7}
             style={style.logoutButton}

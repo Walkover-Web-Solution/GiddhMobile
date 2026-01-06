@@ -5,6 +5,7 @@ import { CommonService } from '@/core/services/common/common.service';
 import MoreComponent from '@/screens/More/components/More/more.component';
 import * as CommonActions from '@/redux/CommonAction';
 import { useIsFocused } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 type Props = connectedProps & {navigation: any};
@@ -63,8 +64,8 @@ const mapDispatchToProps = (dispatch) => {
 
 function Screen (props) {
   const isFocused = useIsFocused();
-
-  return <MoreScreen {...props} isFocused={isFocused} />;
+  const { t } = useTranslation();
+  return <MoreScreen {...props} isFocused={isFocused} t={t} />;
 }
 
 // export default connect(mapStateToProps)(Screen);
