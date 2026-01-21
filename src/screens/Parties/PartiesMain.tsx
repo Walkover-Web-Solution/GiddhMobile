@@ -33,6 +33,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '@/utils/colors';
 import styles from './style'
 import Entypo from 'react-native-vector-icons/Entypo'
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
@@ -417,7 +418,7 @@ export class PartiesMainScreen extends React.Component {
 
                 <TextInput
                   autoFocus={true}
-                  placeholder={'Search Name'}
+                  placeholder={this.props.t('partiesMain.searchName')}
                   ref={this.inputRef}
                   placeholderTextColor={colors.WHITE}
                   style={styles.searchText}
@@ -440,7 +441,7 @@ export class PartiesMainScreen extends React.Component {
             )
             : (
               <>
-                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>Parties</Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>{this.props.t('partiesMain.parties')}</Text>
                 <View style={{ position: 'absolute', right: 0, flexDirection: 'row', padding: 10, alignItems: 'center' }}>
                   <TouchableOpacity
                     delayPressIn={0}
@@ -501,7 +502,7 @@ export class PartiesMainScreen extends React.Component {
                 color: this.state.currentPage == 0 ? '#5773FF' : '#808080',
                 fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal'
               }}>
-              Customers
+              {this.props.t('customerMain.customers')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -529,7 +530,7 @@ export class PartiesMainScreen extends React.Component {
                 color: this.state.currentPage == 1 ? '#5773FF' : '#808080',
                 fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal'
               }}>
-              Vendors
+              {this.props.t('customerMain.vendors')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -609,7 +610,8 @@ const mapStateToProps = () => {
 
 function Screen(props: JSX.IntrinsicAttributes & JSX.IntrinsicClassAttributes<PartiesMainScreen> & Readonly<{}> & Readonly<{ children?: React.ReactNode; }>) {
   const isFocused = useIsFocused();
+  const { t } = useTranslation();
 
-  return <PartiesMainScreen {...props} isFocused={isFocused} />;
+  return <PartiesMainScreen {...props} isFocused={isFocused} t={t} />;
 }
 export default connect(mapStateToProps)(Screen);

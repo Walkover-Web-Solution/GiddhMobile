@@ -9,10 +9,7 @@ import { Swipeable } from 'react-native-gesture-handler'
 import DateChipSeparator from './DateChipSeparator'
 import { useNavigation } from '@react-navigation/native'
 import { APP_EVENTS } from '@/utils/constants'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import PdfPreviewModal from '@/screens/Parties/components/PdfPreviewModal'
-import BottomSheet from '@/components/BottomSheet'
-import Toast from '@/components/Toast'
+import { useTranslation } from 'react-i18next'
 
 type Props = {
     ref:any,
@@ -63,13 +60,10 @@ const _RenderVoucher : React.FC<Props> = ({
 }) => {
     const swipeableRef = useRef<Swipeable>(null);
     const navigation = useNavigation();
-    const { theme, styles } = useCustomTheme(getVoucherStyles)
+    const { styles } = useCustomTheme(getVoucherStyles)
     const overDueDays : number = moment().clone().startOf('day').diff(moment(dueDate, 'DD MM YYYY'), 'days')
-    const [pdfPreviewLoading,setpdfPreviewLoading] = useState(false);
-    const [pdfModalVisible,setpdfModalVisible] = useState(false);
-    const moreActionModalizeRef = useRef(null);
     const isOverDue : boolean =(balanceStatus !== 'PAID' && balanceStatus !== 'HOLD' && balanceStatus !== 'CANCEL') && (!!dueDate && overDueDays >= 0)
-
+    const { t } = useTranslation();
     return (
         <>
             <DateChipSeparator date={date} showDivider={showDivider}/>
@@ -163,7 +157,7 @@ const _RenderVoucher : React.FC<Props> = ({
                     </View>
                     <View style={styles.voucherNumberRow}>
                         <Text style={styles.voucherNumber}>{voucherNumber ? `#${voucherNumber}` : '-'}</Text>
-                        <Text style={styles.smallMediumText}>{`Due: ${currencySymbol} ${formatAmount(dueAmount)}`}</Text>
+                        <Text style={styles.smallMediumText}>{`${t('common.dueAmount')}: ${currencySymbol} ${formatAmount(dueAmount)}`}</Text>
                     </View>
                     { !(voucherName === 'Receipt' || voucherName === 'Payment') &&
                         <View style={styles.row}>
@@ -185,7 +179,7 @@ const _RenderVoucher : React.FC<Props> = ({
                                         </Text>
                                     </View>
                                 :   
-                                    <Text style={styles.overDueText}><AntDesign name="exclamationcircleo" size={12} /> Overdue By {overDueDays === 0 ? 'Today' : `${overDueDays} Days`}</Text>
+                                    <Text style={styles.overDueText}><AntDesign name="exclamationcircleo" size={12} /> {t('common.overdueBy')} {overDueDays === 0 ? t('common.today') : `${overDueDays} ${t('common.days')}`}</Text>
                             }
                         </View>
                     }

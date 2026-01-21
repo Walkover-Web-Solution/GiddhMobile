@@ -17,10 +17,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { APP_EVENTS, STORAGE_KEYS } from "@/utils/constants";
 import _ from 'lodash';
 import Routes from "@/navigation/routes";
+import { useTranslation } from "react-i18next";
 
 const { height} = Dimensions.get('window');
 const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setPartyName, setSearchPartyName, searchAccount, focusRef}) => {
     const {styles} = useCustomTheme(getStyles,'Contra')
+    const { t } = useTranslation();
     const handleInputFocus = () =>{
         focusRef.current.focus()
     }
@@ -29,7 +31,7 @@ const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setPa
           <FlatList
             nestedScrollEnabled={true}
             showsVerticalScrollIndicator={false}
-            data={searchData.length == 0 ? ['Result Not found'] : searchData}
+            data={searchData.length == 0 ? [t('common.resultNotFound')] : searchData}
             style={{paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5}}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
@@ -46,7 +48,7 @@ const RenderSearchList = ({searchData, setIsSearchingParty, setSearchData, setPa
                         handleInputFocus();
                     }
                 }}>
-                <Text style={styles.searchItemText}>{item.name ? item.name : "Result Not found"}</Text>
+                <Text style={styles.searchItemText}>{item.name ? item.name : t('common.resultNotFound')}</Text>
               </TouchableOpacity>
             )}
           />
@@ -102,6 +104,7 @@ const ContraScreen = () => {
     const accountsModalizeRef = useRef(null);
     const focusRef = useRef(null);
     const navigation = useNavigation();
+    const { t } = useTranslation();
     const formatDate = (tempDate) => {
         const fulldays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -113,11 +116,11 @@ const ContraScreen = () => {
         const diffYears = new Date().getFullYear() - dt.getFullYear();
     
         if (diffYears === 0 && diffDays === 0) {
-          return 'Today';
+          return t('common.today');
         } else if (diffYears === 0 && diffDays === 1) {
-          return 'Yesterday';
+          return t('common.yesterday');
         } else if (diffYears === 0 && diffDays === -1) {
-          return 'Tomorrow';
+          return t('common.tomorrow');
         } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
           return fulldays[dt.getDay()];
         } else {
@@ -324,7 +327,7 @@ const ContraScreen = () => {
                 lang,
             );
             if (results.body) {
-                alert('Contra voucher created successfully!');
+                alert(t('common.contraVoucherCreatedSuccessfully'));
                 navigation.navigate("Home", {
                     screen: Routes.Parties,
                     params: {
@@ -354,11 +357,11 @@ const ContraScreen = () => {
 
     const genrateInvoice = () => {
         if (!partyName) {
-            alert('Please select a creditor.');
+            alert(t('common.pleaseSelectCreditor'));
         } else if (amountForReceipt == '' || parseInt(amountForReceipt) == 0 ) {
-            alert('Please enter amount.');
+            alert(t('common.pleaseEnterAmount'));
         } else if (!paymentMode.uniqueName){
-            alert('Please select payment method.');
+            alert(t('common.pleaseSelectPaymentMethod'));
         }else{
             createContraVoucher();
         }
@@ -398,7 +401,7 @@ const ContraScreen = () => {
                     <Icon name={'Profile'} color={voucherBackground} style={{margin: 16}} size={16} />
                     <TextInput
                         placeholderTextColor={'#808080'}
-                        placeholder={'From (CR)'}
+                        placeholder={t('common.fromCr')}
                         returnKeyType={'done'}
                         value={searchPartyName}
                         onChangeText={(text) => {
@@ -410,7 +413,7 @@ const ContraScreen = () => {
                     <ActivityIndicator color={'#5773FF'} size="small" animating={isSearchingParty} />
                 </View>
                 <TouchableOpacity onPress={clearAll}>
-                <Text style={styles.planText}>Clear All</Text>
+                <Text style={styles.planText}>{t('common.clearAll')}</Text>
                 </TouchableOpacity>
             </View>
             {/* Amount */}
@@ -432,7 +435,7 @@ const ContraScreen = () => {
                         }}
                         onChangeText={async (text) => {
                         if (!partyName) {
-                            alert('Please select a party.');
+                            alert(t('common.pleaseSelectParty'));
                         } else {
                             setAmountForReceipt(text.replace(/[^0-9]/g, ''));
                             setBalanceDetails({
@@ -450,7 +453,7 @@ const ContraScreen = () => {
                     style={styles.dateBtn}
                     onPress={() => {
                         if (!partyName) {
-                        alert('Please select a party.');
+                        alert(t('common.pleaseSelectParty'));
                         } else {
                             setShowDatePicker(true);
                         }
@@ -462,7 +465,7 @@ const ContraScreen = () => {
                     style={styles.dateBtnStyle}
                     onPress={() => {
                         if (!partyName) {
-                        alert('Please select a party.');
+                        alert(t('common.pleaseSelectParty'));
                         } else {
                         date.startOf('day').isSame(moment().startOf('day'))
                             ? getYesterdayDate()
@@ -470,7 +473,7 @@ const ContraScreen = () => {
                         }
                     }}>
                     <Text style={{color: '#808080'}}>
-                        {date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+                        {date.startOf('day').isSame(moment().startOf('day')) ? t('common.yesterday') + '?' : t('common.today') + '?'}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -478,7 +481,7 @@ const ContraScreen = () => {
             <View style={styles.fieldContainer}>
                 <View style={styles.rowContainer}>
                     <Icon name={'Path-12190'} color={voucherBackground} size={16} />
-                    <Text style={styles.fieldHeadingText}>{'To (DR)*'}</Text>
+                    <Text style={styles.fieldHeadingText}>{t('common.to') + ' (' + t('common.dr') + ')*'}</Text>
                 </View>
                 <View style={styles.paymentView}>
                     <View style={styles.rowContainer}>
@@ -488,7 +491,7 @@ const ContraScreen = () => {
                                 if (partyName) {
                                     setBottomSheetVisible(accountsModalizeRef, true);
                                 } else {
-                                    alert('Please select a creditor.');
+                                    alert(t('common.pleaseSelectCreditor'));
                                 }
                             }}
                             textColor={{colors}}>
@@ -505,7 +508,7 @@ const ContraScreen = () => {
                                     color: isSelectAccountButtonSelected ? voucherBackground : '#868686',
                                     },
                                 ]}>
-                                {isSelectAccountButtonSelected ? paymentMode.name : 'Select A/c'}
+                                {isSelectAccountButtonSelected ? paymentMode.name : t('common.selectAccount')}
                                 </Text>
                             </View>
                             {isSelectAccountButtonSelected ? (
@@ -519,7 +522,7 @@ const ContraScreen = () => {
             <View style={styles.fieldContainer}>
                 <View style={styles.rowContainer}>
                     <Icon name={'path-15'} color={voucherBackground} size={16} />
-                    <Text style={styles.fieldHeadingText}>{'Cheque Details'}</Text>
+                    <Text style={styles.fieldHeadingText}>{t('common.chequeDetails')}</Text>
                 </View>
                 <View style={styles.chequeView}>
                     <View style={styles.rowContainer}>
@@ -540,7 +543,7 @@ const ContraScreen = () => {
                                 ]}
                             autoCapitalize = {"characters"}
                             value={chequeNumber.toString()}
-                            placeholder={'Cheque #'}
+                            placeholder={t('common.chequeNumber')}
                             placeholderTextColor={'#868686'}
                             returnKeyType={"done"}
                             multiline={true}
@@ -550,9 +553,9 @@ const ContraScreen = () => {
                         <TouchableOpacity
                             onPress={() => {
                             if (!partyName) {
-                                alert('Please select a creditor.');
+                                alert(t('common.pleaseSelectCreditor'));
                             } else if (amountForReceipt == '' || parseInt(amountForReceipt) == 0) {
-                                alert('Please enter amount.');
+                                alert(t('common.pleaseEnterAmount'));
                             } else {
                                 setShowClearanceDatePicker(true);
                                 setIsClearanceDateSelelected(true);
@@ -570,7 +573,7 @@ const ContraScreen = () => {
                             ) : (
                                 <Text
                                 style={[styles.buttonText, { color: theme.colors.secondaryText }]}>
-                                Clearance Date
+                                {t('common.clearanceDate')}
                                 </Text>
                             )}
                             </View>
@@ -582,13 +585,13 @@ const ContraScreen = () => {
             <View style={styles.fieldContainer}>
                 <View style={styles.rowContainer}>
                     <Icon name={'path-15'} color={voucherBackground} size={16} />
-                    <Text style={styles.fieldHeadingText}>{'Add Description'}</Text>
+                    <Text style={styles.fieldHeadingText}>{t('common.addDescription')}</Text>
                 </View>
                 <View style={styles.chequeView}>
                     <TextInput
                         style={styles.descText}
                         value={addDescription}
-                        placeholder={'Note (Opional)'}
+                        placeholder={t('common.note') + ' (' + t('common.optional') + ')'}
                         onChangeText={(text) => setAddDescription(text)}>
                     </TextInput>
                 </View>

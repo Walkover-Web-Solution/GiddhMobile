@@ -23,8 +23,9 @@ import { Vendors } from './Vendors';
 import { Customers } from './Customers';
 import { APP_EVENTS } from '@/utils/constants';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface Props {
+interface Props extends WithTranslation {
   navigation: any;
 }
 
@@ -89,10 +90,10 @@ export class Customer extends React.Component<Props> {
         </TouchableOpacity>
         <View style={style.invoiceTypeButton}>
           <Text style={style.invoiceType}>
-            {this.state.currentPage == 1 ? (this.props.route.params.uniqueName ? "Enter Bank Detail" : "Create New Party") : "Create New Party"}
+            {this.state.currentPage == 1 ? (this.props.route.params.uniqueName ? this.props.t('customerMain.enterBankDetail') : this.props.t('customerMain.createNewParty')) : this.props.t('customerMain.createNewParty')}
           </Text>
           <TouchableOpacity onPress={this.resetFun}>
-            <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+            <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('common.clearAll')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -238,7 +239,7 @@ export class Customer extends React.Component<Props> {
                       // fontFamily: this.state.currentPage == 0 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
                       fontWeight: this.state.currentPage == 0 ? 'bold' : 'normal'
                     }}>
-                    Customers
+                    {this.props.t('customerMain.customers')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -268,7 +269,7 @@ export class Customer extends React.Component<Props> {
                       // fontFamily: this.state.currentPage == 1 ? 'AvenirLTStPd-Black' : 'AvenirLTStd-Book',
                       fontWeight: this.state.currentPage == 1 ? 'bold' : 'normal'
                     }}>
-                    Vendors
+                    {this.props.t('customerMain.vendors')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -313,6 +314,7 @@ export class Customer extends React.Component<Props> {
                         resetFun={this.setCustomerFun}
                         navigation={this.props.navigation}
                         insets={this.props.insets}
+                        t={this.props.t}
                       />
                     )}
                 </View>
@@ -345,6 +347,7 @@ export class Customer extends React.Component<Props> {
                         navigation={this.props.navigation}
                         uniqueName={this.props.route.params.uniqueName}
                         insets={insets}
+                        t={this.props.t}
                       />
                     )}
                 </View>
@@ -374,5 +377,5 @@ function Screen(props) {
   const insets = useSafeAreaInsets();
   return <Customer {...props} isFocused={isFocused} insets={insets}/>;
 }
-const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);
+const MyComponent = connect(mapStateToProps, mapDispatchToProps)(withTranslation()(Screen));
 export default MyComponent;

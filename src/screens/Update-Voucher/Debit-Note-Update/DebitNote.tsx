@@ -36,6 +36,7 @@ import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
+import { useTranslation } from 'react-i18next';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 
@@ -68,7 +69,8 @@ interface Props {
        */
       refetchDataOnNavigation: string
     }
-  } 
+  };
+  t: (key: string, options?: object) => string;
 }
 
 type State = {
@@ -639,7 +641,7 @@ export class DebiteNote extends React.Component<Props, State> {
       }
     } catch (e) {
       console.warn('----- Error in Get Party Data ------', e)
-      Toast({message: e?.data?.message ?? 'Error in Get Party Data', duration:'LONG', position:'BOTTOM'});
+      Toast({message: e?.data?.message ?? this.props.t('debitNote.errorInGetPartyData'), duration:'LONG', position:'BOTTOM'});
     } finally { 
       this.setState({ isSearchingParty: false });
     }
@@ -684,7 +686,7 @@ export class DebiteNote extends React.Component<Props, State> {
           <TouchableOpacity style={style.invoiceTypeButton}>
             <Text style={style.invoiceType}>
               {/* {this.state.invoiceType == INVOICE_TYPE.credit ? 'Sales Invoice' : 'Cash Invoice'} */}
-              Debit Note
+              {this.props.t('debitNote.title')}
             </Text>
             {/* <Icon style={{ marginLeft: 4 }} name={'9'} color={'white'} /> */}
           </TouchableOpacity>
@@ -737,12 +739,12 @@ export class DebiteNote extends React.Component<Props, State> {
             <TouchableOpacity
               style={{ height: 50, justifyContent: 'center', paddingHorizontal: 20 }}
               onPress={() => this.setCashTypeInvoice()}>
-              <Text style={{ color: this.state.invoiceType == 'Cash' ? '#5773FF' : 'black' }}>Cash Invoice</Text>
+              <Text style={{ color: this.state.invoiceType == 'Cash' ? '#5773FF' : 'black' }}>{this.props.t('creditNote.cashInvoice')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{ height: 50, justifyContent: 'center', paddingHorizontal: 20 }}
               onPress={() => this.setCreditTypeInvoice()}>
-              <Text style={{ color: this.state.invoiceType == 'Credit' ? '#5773FF' : 'black' }}>Credit Invoice</Text>
+              <Text style={{ color: this.state.invoiceType == 'Credit' ? '#5773FF' : 'black' }}>{this.props.t('creditNote.creditInvoice')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -761,7 +763,7 @@ export class DebiteNote extends React.Component<Props, State> {
           <Icon name={'Profile'} color={'#ff6961'} style={{ margin: 16 }} size={16} />
           <TextInput
             placeholderTextColor={'#808080'}
-            placeholder={'Search Party Name'}
+            placeholder={this.props.t('creditNote.searchCompanyName')}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
             onChangeText={(text) =>
@@ -775,7 +777,7 @@ export class DebiteNote extends React.Component<Props, State> {
           <ActivityIndicator color={'#5773FF'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <TouchableOpacity style={{ display: this.isVoucherUpdate ? 'none' : 'flex' }} onPress={() => this.clearAll()}>
-          <Text style={{ color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+          <Text style={{ color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('common.clearAll')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -913,7 +915,7 @@ export class DebiteNote extends React.Component<Props, State> {
 
         <FlatList
           nestedScrollEnabled={true}
-          data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
+          data={this.state.searchResults.length == 0 ? [this.props.t('common.resultNotFound')] : this.state.searchResults}
           showsVerticalScrollIndicator={false}
           style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
           renderItem={({ item }) => (
@@ -921,7 +923,7 @@ export class DebiteNote extends React.Component<Props, State> {
               style={{}}
               onFocus={() => this.onChangeText('')}
               onPress={async () => {
-                if (item != "Result Not found") {
+                if (item != this.props.t('common.resultNotFound')) {
 
                   this.setState(
                     {
@@ -942,7 +944,7 @@ export class DebiteNote extends React.Component<Props, State> {
                   this.setState({ isSearchingParty: false, searchResults: [] })
                 }
               }}>
-              <Text style={style.searchItemText}>{item.name ? item.name : "Result Not found"}</Text>
+              <Text style={style.searchItemText}>{item.name ? item.name : this.props.t('common.resultNotFound')}</Text>
             </TouchableOpacity>
           )}
         />
@@ -1314,11 +1316,11 @@ export class DebiteNote extends React.Component<Props, State> {
       if(response?.status === 'success') {
         this.setState({ loading: false });
         DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
-        alert('Invoice updated successfully!');
+        alert(this.props.t('debitNote.invoiceUpdatedSuccessfully'));
         this.props.navigation.goBack();
       }
     } catch (error) {
-      Alert.alert('Error', error?.data?.message ?? 'Something went wrong!');
+      Alert.alert(this.props.t('common.error'), error?.data?.message ?? this.props.t('common.somethingWentWrong'));
     } finally {
       this.setState({ loading: false });
     }
@@ -1486,7 +1488,7 @@ export class DebiteNote extends React.Component<Props, State> {
       this.setState({ loading: false });
       if (results.body) {
         // this.setState({loading: false});
-        alert('Debit Note created successfully!');
+        alert(this.props.t('debitNote.debitNoteCreatedSuccessfully'));
         this.resetState();
         this.setActiveCompanyCountry();
         this.getAllTaxes();
@@ -1533,11 +1535,11 @@ export class DebiteNote extends React.Component<Props, State> {
     const diffYears = new Date().getFullYear() - dt.getFullYear();
 
     if (diffYears === 0 && diffDays === 0) {
-      return 'Today';
+      return this.props.t('common.today');
     } else if (diffYears === 0 && diffDays === 1) {
-      return 'Yesterday';
+      return this.props.t('common.yesterday');
     } else if (diffYears === 0 && diffDays === -1) {
-      return 'Tomorrow';
+      return this.props.t('common.tomorrow');
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
     } else {
@@ -1592,7 +1594,7 @@ export class DebiteNote extends React.Component<Props, State> {
           style={{ flexDirection: 'row' }} 
           onPress={() => {
             if (!this.state.partyName) {
-              alert('Please select a party.');
+              alert(this.props.t('common.pleaseSelectParty'));
             } else {
               this.setState({ showDatePicker: true })
             }
@@ -1606,7 +1608,7 @@ export class DebiteNote extends React.Component<Props, State> {
           style={{ borderColor: '#D9D9D9', borderWidth: 1, display: this.isVoucherUpdate ? 'none' : 'flex' }}
           onPress={() => {
             if (!this.state.partyName) {
-              alert('Please select a party.');
+              alert(this.props.t('common.pleaseSelectParty'));
             } else {
               this.state.date.startOf('day').isSame(moment().startOf('day'))
                 ? this.getYesterdayDate()
@@ -1615,7 +1617,7 @@ export class DebiteNote extends React.Component<Props, State> {
           }
           }>
           <Text style={{ color: '#808080' }}>
-            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? this.props.t('common.yesterdayQ') : this.props.t('common.todayQ')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -1627,7 +1629,7 @@ export class DebiteNote extends React.Component<Props, State> {
       return (
         <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={style.regularText}>
-            No Invoice Exist
+            {this.props.t('creditNote.noInvoiceExist')}
           </Text>
         </View>
       )
@@ -1667,12 +1669,12 @@ export class DebiteNote extends React.Component<Props, State> {
         </Text>
         {this.state.allVoucherInvoice.length != 0 ? (
           <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
-            {'(Dated : ' + item.voucherDate + ')'}
+            {'(' + this.props.t('creditNote.dated') + ' : ' + item.voucherDate + ')'}
           </Text>
         ) : null}
         {this.state.allVoucherInvoice.length != 0 ? (
           <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
-            {'(Due : ' + item.voucherTotal.amountForAccount + ')'}
+            {'(' + this.props.t('creditNote.dueColon') + ' : ' + item.voucherTotal.amountForAccount + ')'}
           </Text>
         ) : null}
       </TouchableOpacity>
@@ -1681,7 +1683,7 @@ export class DebiteNote extends React.Component<Props, State> {
     return(
       <BottomSheet
         bottomSheetRef={this.invoiceBottomSheetRef}
-        headerText='Select Invoice'
+        headerText={this.props.t('creditNote.selectInvoice')}
         headerTextColor='#ff6961'
         flatListProps={{
           data: this.state.allVoucherInvoice,
@@ -1697,7 +1699,7 @@ export class DebiteNote extends React.Component<Props, State> {
       <View style={style.dateView}>
         <View style={{ flexDirection: 'row' }}>
           {/* <Icon name={'Calendar'} color={'#ff6961'} size={16} /> */}
-          <Text style={style.InvoiceHeading}>Invoice #</Text>
+          <Text style={style.InvoiceHeading}>{this.props.t('creditNote.invoiceHash')}</Text>
           <View style={{ flexDirection: 'row', width: '80%', marginHorizontal: 15, justifyContent: 'space-between' }}>
             <TouchableOpacity
               style={{flex: 1}}
@@ -1707,7 +1709,7 @@ export class DebiteNote extends React.Component<Props, State> {
             >
               <Text style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular }}>
                 {
-                  this.state.selectedInvoice != '' ? this.state.selectedInvoice : 'Select Account'
+                  this.state.selectedInvoice != '' ? this.state.selectedInvoice : this.props.t('creditNote.selectAccount')
                 }
               </Text>
             </TouchableOpacity>
@@ -1784,7 +1786,7 @@ export class DebiteNote extends React.Component<Props, State> {
       <View style={style.senderAddress}>
         <View style={{ flexDirection: 'row' }}>
           <Icon name={'8'} color={'#ff6961'} size={16} />
-          <Text style={style.addressHeaderText}>{'Address'}</Text>
+          <Text style={style.addressHeaderText}>{this.props.t('creditNote.address')}</Text>
         </View>
         <View style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -1792,7 +1794,7 @@ export class DebiteNote extends React.Component<Props, State> {
               style={{ width: '90%' }}
               onPress={() => {
                 if (!this.state.partyName) {
-                  alert('Please select a party.');
+                  alert(this.props.t('common.pleaseSelectParty'));
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.addressArray,
@@ -1806,14 +1808,14 @@ export class DebiteNote extends React.Component<Props, State> {
                 }
               }}>
               <Text numberOfLines={2} style={style.senderAddressText}>
-                {'Billing Address'}
+                {this.props.t('creditNote.billingAddress')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{ height: '250%', width: '10%', alignItems: "flex-end" }}
               onPress={() => {
                 if (!this.state.partyName) {
-                  alert('Please select a party.');
+                  alert(this.props.t('common.pleaseSelectParty'));
                 } else {
                   this.props.navigation.navigate('EditAddress', {
                     dontChangeCountry: true,
@@ -1832,7 +1834,7 @@ export class DebiteNote extends React.Component<Props, State> {
             style={{ width: '90%' }}
             onPress={() => {
               if (!this.state.partyName) {
-                alert('Please select a party.');
+                alert(this.props.t('common.pleaseSelectParty'));
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.addressArray,
@@ -1852,7 +1854,7 @@ export class DebiteNote extends React.Component<Props, State> {
                   ? this.state.partyBillingAddress.stateName
                   : this.state.countryDeatils.countryName
                     ? this.state.countryDeatils.countryName
-                    : 'Select Billing Address'}
+                    : this.props.t('creditNote.selectBillingAddress')}
             </Text>
           </TouchableOpacity>
           {/* Sender Address View */}
@@ -1870,7 +1872,7 @@ export class DebiteNote extends React.Component<Props, State> {
             }}
             isChecked={this.state.billSameAsShip}
           />
-          <Text style={style.addressSameCheckBoxText}>Shipping Address Same as Billing</Text>
+          <Text style={style.addressSameCheckBoxText}>{this.props.t('creditNote.shippingAddressSameAsBilling')}</Text>
           {/* <Text style={{ color: "#E04646", marginTop: 4 }}>*</Text> */}
         </View>
         <View style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
@@ -1879,7 +1881,7 @@ export class DebiteNote extends React.Component<Props, State> {
               style={{ width: '90%' }}
               onPress={() => {
                 if (!this.state.partyName) {
-                  alert('Please select a party.');
+                  alert(this.props.t('common.pleaseSelectParty'));
                 } else {
                   (!this.state.billSameAsShip
                     ? this.props.navigation.navigate('SelectAddress', {
@@ -1894,14 +1896,14 @@ export class DebiteNote extends React.Component<Props, State> {
                 }
               }}>
               <Text numberOfLines={2} style={style.senderAddressText}>
-                {'Shipping Address'}
+                {this.props.t('creditNote.shippingAddress')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{ height: '250%', width: '10%', alignItems: "flex-end" }}
               onPress={() => {
                 if (!this.state.partyName) {
-                  alert('Please select a party.');
+                  alert(this.props.t('common.pleaseSelectParty'));
                 } else if (!this.state.billSameAsShip) {
                   this.props.navigation.navigate('EditAddress', {
                     dontChangeCountry: true,
@@ -1919,7 +1921,7 @@ export class DebiteNote extends React.Component<Props, State> {
             style={{ width: '90%' }}
             onPress={() => {
               if (!this.state.partyName) {
-                alert('Please select a party.');
+                alert(this.props.t('common.pleaseSelectParty'));
               } else {
                 (!this.state.billSameAsShip
                   ? this.props.navigation.navigate('SelectAddress', {
@@ -1940,7 +1942,7 @@ export class DebiteNote extends React.Component<Props, State> {
                   ? this.state.partyShippingAddress.stateName
                   : this.state.countryDeatils.countryName
                     ? this.state.countryDeatils.countryName
-                    : 'Select Shipping Address'}
+                    : this.props.t('creditNote.selectShippingAddress')}
             </Text>
           </TouchableOpacity>
           {/* Shipping Address View */}
@@ -2183,7 +2185,7 @@ export class DebiteNote extends React.Component<Props, State> {
           width: '90%',
         }}>
         <AntDesign name={'plus'} color={'#ff6961'} size={18} style={{ marginHorizontal: 8 }} />
-        <Text style={style.addItemMain}> Add Item</Text>
+        <Text style={style.addItemMain}> {this.props.t('creditNote.addItem')}</Text>
       </TouchableOpacity>
     );
   }
@@ -2194,7 +2196,7 @@ export class DebiteNote extends React.Component<Props, State> {
         <View style={{ flexDirection: 'row', marginHorizontal: 16, marginVertical: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row' }}>
             <Icon name={'Path-13016'} color="#ff6961" size={18} />
-            <Text style={{ marginLeft: 10 }}>Select Product/Service</Text>
+            <Text style={{ marginLeft: 10 }}>{this.props.t('creditNote.selectProductService')}</Text>
           </View>
           <TouchableOpacity
             style={{
@@ -2214,7 +2216,7 @@ export class DebiteNote extends React.Component<Props, State> {
               });
             }}>
             <AntDesign name={'plus'} color={'#ff6961'} size={16} />
-            <Text style={[style.addItemMain, { fontFamily: FONT_FAMILY.regular, fontSize: 14 }]}> Add Item</Text>
+            <Text style={[style.addItemMain, { fontFamily: FONT_FAMILY.regular, fontSize: 14 }]}> {this.props.t('creditNote.addItem')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -2279,7 +2281,7 @@ export class DebiteNote extends React.Component<Props, State> {
         }}
         style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
         <AntDesign name={'delete'} size={16} color="#E04646" />
-        <Text style={{ color: '#E04646', marginLeft: 10 }}>Delete</Text>
+        <Text style={{ color: '#E04646', marginLeft: 10 }}>{this.props.t('creditNote.delete')}</Text>
       </TouchableOpacity>
     );
   }
@@ -2333,7 +2335,7 @@ export class DebiteNote extends React.Component<Props, State> {
             </View>
             <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignContent: 'flex-end', alignItems: 'center' }}>
               <Text style={{ color: '#808080' }}>
-                Tax : {this.state.currencySymbol}
+                {this.props.t('creditNote.tax')} : {this.state.currencySymbol}
                 {formatAmount(this.calculatedTaxAmount(item, 'taxAmount'))}
               </Text>
             </View>
@@ -2341,13 +2343,13 @@ export class DebiteNote extends React.Component<Props, State> {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
             <View style={{width: '50%', flexWrap: 'wrap'}}>
               <Text style={{ color: '#808080' }}>
-                Discount : {this.state.currencySymbol}
+                {this.props.t('creditNote.discount')} : {this.state.currencySymbol}
                 {formatAmount(item.discountValue ? item.discountValue : 0)}
               </Text>
             </View>
             <View style={{width: '50%', flexWrap: 'wrap', alignContent: 'flex-end', alignItems: 'center'}}>
               <Text style={{ color: '#808080' }}>
-                Total : {this.state.currencySymbol}
+                {this.props.t('creditNote.total')} : {this.state.currencySymbol}
                 {formatAmount(this.getTotalAmountOfCard(item))}
               </Text>
             </View>
@@ -2604,7 +2606,7 @@ export class DebiteNote extends React.Component<Props, State> {
         }}
         onPress={() => {
           if (!this.state.partyName) {
-            alert('Please select a party.');
+            alert(this.props.t('common.pleaseSelectParty'));
           } else {
             this.props.navigation.navigate('InvoiceOtherDetailScreen', {
               enteredDetails: this.state.otherDetails,
@@ -2615,7 +2617,7 @@ export class DebiteNote extends React.Component<Props, State> {
         }}>
         <View style={{ flexDirection: 'row' }}>
           <Icon style={{ marginRight: 16 }} name={'Sections'} size={16} color="#ff6961" />
-          <Text style={{ color: '#1C1C1C' }}>Other Details</Text>
+          <Text style={{ color: '#1C1C1C' }}>{this.props.t('creditNote.otherDetails')}</Text>
         </View>
         <AntDesign name={'right'} size={18} color={'#808080'} />
       </TouchableOpacity>
@@ -2650,7 +2652,7 @@ export class DebiteNote extends React.Component<Props, State> {
                 value={this.state.amountPaidNowText}
                 keyboardType="number-pad"
                 returnKeyType={'done'}
-                placeholder="Enter Amount"
+                placeholder={this.props.t('creditNote.enterAmount')}
                 placeholderTextColor="black"
                 onChangeText={(text) => {
                   this.setState({ amountPaidNowText: text });
@@ -2699,7 +2701,7 @@ export class DebiteNote extends React.Component<Props, State> {
           }}>
           <View style={{ flexDirection: 'row' }}>
             <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color="#ff6961" />
-            <Text style={{ color: '#1C1C1C' }}>Balance</Text>
+            <Text style={{ color: '#1C1C1C' }}>{this.props.t('creditNote.balance')}</Text>
           </View>
           <Icon
             style={{ transform: [{ rotate: this.state.expandedBalance ? '180deg' : '0deg' }] }}
@@ -2715,7 +2717,7 @@ export class DebiteNote extends React.Component<Props, State> {
         {this.state.expandedBalance && (
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#1C1C1C' }}>{'Total Amount ' + this.state.currencySymbol}</Text>
+              <Text style={{ color: '#1C1C1C' }}>{this.props.t('creditNote.totalAmount') + ' ' + this.state.currencySymbol}</Text>
               <Text style={{ color: '#1C1C1C' }}>{this.state.currencySymbol + formatAmount(Number(this.getTotalAmount()) + this.state.roundOffTotal)}</Text>
             </View>
           </View>
@@ -2765,15 +2767,15 @@ export class DebiteNote extends React.Component<Props, State> {
 
   genrateInvoice() {
     if (!this.state.partyName) {
-      alert('Please select a party.');
+      alert(this.props.t('common.pleaseSelectParty'));
     } else if (this.state.addedItems.length == 0) {
-      alert('Please select entries to proceed.');
+      alert(this.props.t('creditNote.pleaseSelectEntries'));
     } else if (
       this.state.currency != this.state.companyCountryDetails.currency.code &&
       this.state.totalAmountInINR <= 0 &&
       this.getTotalAmount() > 0
     ) {
-      Alert.alert('Error', 'Exchange rate/Total Amount in INR can not zero/negative', [
+      Alert.alert(this.props.t('common.error'), this.props.t('creditNote.exchangeRateError'), [
         { style: 'destructive', onPress: () => console.log('alert destroyed') },
         ,
       ]);
@@ -2783,8 +2785,8 @@ export class DebiteNote extends React.Component<Props, State> {
         !this.state.partyBillingAddress.stateCode ||
         !this.state.partyBillingAddress.state)
     ) {
-      Alert.alert('Empty state details', 'Please add state details for Billing From', [
-        { style: 'destructive', text: 'Okay' },
+      Alert.alert(this.props.t('creditNote.emptyStateDetails'), this.props.t('creditNote.pleaseAddStateBilling'), [
+        { style: 'destructive', text: this.props.t('creditNote.okay') },
         ,
       ]);
     } else if (
@@ -2793,8 +2795,8 @@ export class DebiteNote extends React.Component<Props, State> {
         !this.state.partyShippingAddress.stateCode ||
         !this.state.partyShippingAddress.state)
     ) {
-      Alert.alert('Empty state details', 'Please add state details for Shipping From', [
-        { style: 'destructive', text: 'Okay' },
+      Alert.alert(this.props.t('creditNote.emptyStateDetails'), this.props.t('creditNote.pleaseAddStateShipping'), [
+        { style: 'destructive', text: this.props.t('creditNote.okay') },
         ,
       ]);
     } else {
@@ -2980,8 +2982,9 @@ const _StatusBar = ({ statusBar }: { statusBar: string }) => {
   return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={ Platform.OS === 'ios' ? "dark-content" : "light-content"}/> : null
 }
 
-function Screen(props) {
-  return <DebiteNote {...props} />;
+function Screen(props: any) {
+  const { t } = useTranslation();
+  return <DebiteNote {...props} t={t} />;
 }
 const MyComponent = connect(mapStateToProps)(Screen);
 export default MyComponent;

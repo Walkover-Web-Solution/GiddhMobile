@@ -8,6 +8,7 @@ import colors from '@/utils/colors';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import MatButton from '@/components/OutlinedButton';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     startDate: string
@@ -25,6 +26,7 @@ type Props = {
 const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode, activeDateFilter, disabled, setActiveDateFilter, optionModalRef, consolidatedBranch, selectedBranch }) => {
     const navigation = useNavigation();
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
+    const { t } = useTranslation();
     const dateShift = (shiftTo: 'right' | 'left') => {
         let shiftedStartDate: string = startDate;
         let shiftedEndDate: string = endDate;
@@ -110,7 +112,7 @@ const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode,
             {consolidatedBranch?.length == 1 && (
                 <View style={styles.matBtn}>
                 <MatButton
-                    lable="Select branch"
+                    lable={t('balanceSheet.selectBranch')}
                     value={selectedBranch ? selectedBranch?.alias : ''}
                     onPress={() => {
                     setBottomSheetVisible(optionModalRef, true);

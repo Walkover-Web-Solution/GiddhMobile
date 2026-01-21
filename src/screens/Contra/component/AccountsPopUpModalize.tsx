@@ -2,14 +2,16 @@ import BottomSheet from "@/components/BottomSheet";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
+import { useTranslation } from "react-i18next";
 
 const AccountsPopUpModalize = ({modalizeRef, paymentModes, setBottomSheetVisible, setPaymentMode, setIsSelectAccountButtonSelected, paymentMode}) => {
     const {theme, styles, voucherBackground} = useCustomTheme(getStyles, 'Contra')
+    const { t } = useTranslation();
 
     return (
       <BottomSheet
         bottomSheetRef={modalizeRef}
-        headerText='Payment Mode'
+        headerText={t('common.paymentMode')}
         headerTextColor={voucherBackground}
         flatListProps={{
           data: paymentModes,

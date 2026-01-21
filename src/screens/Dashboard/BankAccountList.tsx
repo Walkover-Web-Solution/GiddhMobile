@@ -13,9 +13,11 @@ import { AccountsService } from "@/core/services/accounts/accounts.service";
 import { useNavigation } from "@react-navigation/native";
 import Routes from "@/navigation/routes";
 import Loader from "@/components/Loader";
+import { useTranslation } from "react-i18next";
 
 const BankAccountList = () => {
     const {styles, theme, voucherBackground} = useCustomTheme(makeStyles, 'Stock');
+    const { t } = useTranslation();
     const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: '', endDate: '' });
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
@@ -81,14 +83,14 @@ const BankAccountList = () => {
         return (
             <TouchableOpacity key={item?.uniqueName} style={styles.card} onPress={()=>getAccountData(item)}>
                 <Text style={[styles.text,{color:voucherBackground}]}>{item?.name}</Text>
-                <Text style={styles.price}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(item?.openingBalance?.amount)}{item?.openingBalance?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.'} </Text>
+                <Text style={styles.price}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(item?.openingBalance?.amount)}{item?.openingBalance?.type?.charAt(0) == 'C' ? ` ${t('common.cr')}.` : ` ${t('common.dr')}.`} </Text>
             </TouchableOpacity>
         )
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.heading}>Bank Accounts</Text>
+            <Text style={styles.heading}>{t('bankAccountList.bankAccounts')}</Text>
             {bankAccounts.length > 0 ? <FlatList
                 contentContainerStyle={styles.contentContainerStyle}
                 data={bankAccounts}
@@ -97,7 +99,7 @@ const BankAccountList = () => {
                 onEndReached={lodashWait}
                 scrollEnabled={false}
                 renderItem={renderItem}
-            /> : <View style={{alignItems:'center',marginVertical:30}}><Text style={styles.text}>Yet to add Bank Details</Text></View>}
+            /> : <View style={{alignItems:'center',marginVertical:30}}><Text style={styles.text}>{t('bankAccountList.yetToAddBankDetails')}</Text></View>}
             {loading && <Loader isLoading={loading}/>}
         </View>
     )

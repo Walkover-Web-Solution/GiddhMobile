@@ -18,6 +18,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
+import { withTranslation, WithTranslation } from 'react-i18next';
 import style from './addEntryStyles';
 import { connect } from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -50,7 +51,7 @@ import { getInvoiceListRequest } from './accountHelper';
 const { SafeAreaOffsetHelper } = NativeModules;
 const { width, height } = Dimensions.get('window');
 
-interface Props {
+interface Props extends WithTranslation {
   navigation: any;
 }
 
@@ -1472,6 +1473,7 @@ export class AddEntry extends React.Component<Props> {
 
 
   renderHeader() {
+    const { t } = this.props;
     return (
       <View style={[style.header, { paddingTop: 10 }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -1484,7 +1486,7 @@ export class AddEntry extends React.Component<Props> {
           </TouchableOpacity>
           <TouchableOpacity style={style.invoiceTypeButton}>
             <Text style={style.invoiceType}>
-              Add Entry
+              {t('addEntry.header')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -1497,23 +1499,25 @@ export class AddEntry extends React.Component<Props> {
           }}>
           <Text style={style.invoiceTypeTextRight}>
             {this.state.currentEntryType == 'Dr' ? this.state?.ledgerUnderstandingObject?.text?.cr : this.state?.ledgerUnderstandingObject?.text?.dr}
-            {' '}({this.state?.currentEntryType == 'Dr' ? 'Cr' : 'Dr'})
+            {' '}({this.state?.currentEntryType == 'Dr' ? t('common.cr') : t('common.dr')})
           </Text>
         </TouchableOpacity>
       </View>
     );
   }
   renderAccountFlow() {
+    const { t } = this.props;
     return (
       <View style={style.accountFlowView} >
         <Text style={style.accountFlowText}>
           {this.state?.currentEntryType == 'Dr' ? this.state?.ledgerUnderstandingObject?.text?.dr : this.state?.ledgerUnderstandingObject?.text?.cr}
-          {' '}({this.state?.currentEntryType})
+          {' '}({this.state?.currentEntryType == 'Dr' ? t('common.dr') : t('common.cr')})
         </Text>
       </View>
     )
   }
   renderSelectAccountName() {
+    const { t } = this.props;
     return (
       <View
         onLayout={this.onLayout}
@@ -1523,7 +1527,7 @@ export class AddEntry extends React.Component<Props> {
           <Icon name={'Profile'} color={'#A6D8BF'} style={{ margin: 16 }} size={16} />
           <TextInput
             placeholderTextColor={'#A6D8BF'}
-            placeholder={'Search account'}
+            placeholder={t('addEntry.searchAccount')}
             returnKeyType={'done'}
             value={this.state?.searchAccountName}
             // value={`${this.state.searchAccountName} ${this.state?.particularAccountStockData?.hasOwnProperty("stock") ? `(${this.state?.particularAccountStockData?.stock?.name})` : ''}`}
@@ -1536,26 +1540,28 @@ export class AddEntry extends React.Component<Props> {
           <ActivityIndicator color={'white'} size="small" animating={this.state.isSearchingAccount} />
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{ color: 'white', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+          <Text style={{ color: 'white', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>{t('common.clearAll')}</Text>
         </TouchableOpacity>
       </View>
     );
   }
   _renderSearchList() {
+    const { t } = this.props;
+    const noResultText = t('common.resultNotFound');
     return (
       <View style={[style.searchResultContainer, { top: height * 0.12 }]}>
 
         <FlatList
           nestedScrollEnabled={true}
           showsVerticalScrollIndicator={false}
-          data={this.state.searchResults.length == 0 ? ["Result Not found"] : this.state.searchResults}
+          data={this.state.searchResults.length == 0 ? [noResultText] : this.state.searchResults}
           style={{ paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5 }}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={{}}
               onFocus={() => this.onChangeText('')}
               onPress={async () => {
-                if (item != "Result Not found") {
+                if (item != noResultText) {
                   this.setState(
                     {
                       partyName: item,
@@ -1583,7 +1589,7 @@ export class AddEntry extends React.Component<Props> {
                   this.setState({ isSearchingAccount: false, searchResults: [] })
                 }
               }}>
-              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : "Result Not found"}
+              <Text style={{ color: '#1C1C1C', paddingVertical: 10 }}>{item.name ? item.name : noResultText}
                 {item?.hasOwnProperty("stock") ? ` (${item?.stock?.name})` : null}
               </Text>
             </TouchableOpacity>
@@ -1613,10 +1619,11 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderAssignTags() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.assignTagRef}
-        headerText='Select Tags'
+        headerText={t('addEntry.selectTags')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -1659,7 +1666,7 @@ export class AddEntry extends React.Component<Props> {
                     textAlign: 'center',
                     alignSelf: 'center',
                   }}>
-                  No Tags Available
+                  {t('addEntry.noTagsAvailable')}
                 </Text>
               </View>
             );
@@ -1669,10 +1676,11 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderVoucherTypes() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.voucherTypesRef}
-        headerText='Select Voucher'
+        headerText={t('addEntry.selectVoucher')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -1719,10 +1727,11 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderInvoicesTypes() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.invoicesRef}
-        headerText='Select Invoice'
+        headerText={t('addEntry.selectInvoice')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -1748,10 +1757,10 @@ export class AddEntry extends React.Component<Props> {
                   {item.voucherNumber}
                 </Text>
                 <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
-                  {'(Dated : ' + item.voucherDate + ')'}
+                  {'(' + t('addEntry.dated') + ' : ' + item.voucherDate + ')'}
                 </Text>
                 <Text style={{ color: 'grey', fontFamily: FONT_FAMILY.regular }}>
-                  {'(Due : ' + item.voucherTotal.amountForAccount + ')'}
+                  {'(' + t('addEntry.due') + ' : ' + item.voucherTotal.amountForAccount + ')'}
                 </Text>
               </TouchableOpacity>
             );
@@ -1769,7 +1778,7 @@ export class AddEntry extends React.Component<Props> {
                     textAlign: 'center',
                     alignSelf: 'center',
                   }}>
-                  No data Available
+                  {t('addEntry.noDataAvailable')}
                 </Text>
               </View>
             );
@@ -1780,10 +1789,11 @@ export class AddEntry extends React.Component<Props> {
   }
 
   _renderDiscountOptions() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.discountRef}
-        headerText='Select Discount'
+        headerText={t('addEntry.selectDiscount')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -1792,10 +1802,10 @@ export class AddEntry extends React.Component<Props> {
         <View style={style.discountSheetView} >
           <View style={style.discountField} >
             <Text style={style.discountOptions}>
-              Percent (%):
+              {t('addEntry.percent')}:
             </Text>
             <TextInput
-              placeholder='Input here'
+              placeholder={t('addEntry.inputHere')}
               keyboardType='numeric'
               editable={this.state?.discountAmount != 0 ? false : true}
               onChangeText={(text) => {
@@ -1810,11 +1820,11 @@ export class AddEntry extends React.Component<Props> {
           </View>
           <View style={style.discountField}  >
             <Text style={style.discountOptions} >
-              Value:
+              {t('addEntry.value')}:
             </Text>
             <TextInput
               editable={this.state?.discountPercent != 0 ? false : true}
-              placeholder='Input here'
+              placeholder={t('addEntry.inputHere')}
               keyboardType='numeric'
               value={this.state?.discountAmount}
               onChangeText={(text) => {
@@ -1830,7 +1840,7 @@ export class AddEntry extends React.Component<Props> {
           {this.state?.allDiscounts?.length > 0 && <View style={style.discountListView} >
             <View style={style.discountListSeparator}>
               <View style={style.line} />
-              <Text style={[style.discountListText, { fontFamily: FONT_FAMILY.bold }]}>AND</Text>
+              <Text style={[style.discountListText, { fontFamily: FONT_FAMILY.bold }]}>{t('addEntry.and')}</Text>
               <View style={style.line} />
             </View>
             <FlatList
@@ -1844,10 +1854,11 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderStockUnitModal() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.stockUnitRef}
-        headerText='Select Unit'
+        headerText={t('addEntry.selectUnit')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -1891,11 +1902,12 @@ export class AddEntry extends React.Component<Props> {
   }
 
   _renderTaxCalculationMethodModal() {
+    const { t } = this.props;
     return (
 
       <BottomSheet
         bottomSheetRef={this.taxCalculationModalRef}
-        headerText='Calculation Method'
+        headerText={t('addEntry.calculationMethod')}
         headerTextColor='#229F5F'
       >
         <TouchableOpacity
@@ -1913,7 +1925,7 @@ export class AddEntry extends React.Component<Props> {
             )}
             <Text
               style={style.taxCalculationMethodButtonText}>
-              {'On Taxable Value (Amt - Dis)'}
+              {t('addEntry.onTaxableValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -1932,7 +1944,7 @@ export class AddEntry extends React.Component<Props> {
             )}
             <Text
               style={style.taxCalculationMethodButtonText}>
-              {'On Total Value (Taxable + Gst + Cess)'}
+              {t('addEntry.onTotalValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -1941,10 +1953,11 @@ export class AddEntry extends React.Component<Props> {
   }
 
   _renderOtherTaxModal() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.otherTaxModalRef}
-        headerText='Select Other Taxes'
+        headerText={t('addEntry.selectOtherTaxes')}
         headerTextColor='#00B795'
 
         flatListProps={{
@@ -2040,7 +2053,7 @@ export class AddEntry extends React.Component<Props> {
                     activeOpacity={0.7}
                   >
                     <Text style={style.tdsTcsCalculationButtonText}>
-                      {this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? 'On Taxable Value' : 'On Total Value'}
+                      {this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? t('addEntry.onTaxableValueShort') : t('addEntry.onTotalValueShort')}
                     </Text>
                   </TouchableOpacity> : null}
                 </View>
@@ -2052,7 +2065,7 @@ export class AddEntry extends React.Component<Props> {
               <View style={[style.otherTaxListEmptyComponent, { height: height * 0.3 }]}>
                 <Text
                   style={style.otherTaxListEmptyComponentText}>
-                  No Taxes Available
+                  {t('addEntry.noTaxesAvailable')}
                 </Text>
               </View>
 
@@ -2064,10 +2077,11 @@ export class AddEntry extends React.Component<Props> {
   }
   
   _renderTaxModal() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.taxModalRef}
-        headerText='Select Taxes'
+        headerText={t('addEntry.selectTaxes')}
         headerTextColor='#00B795'
 
         flatListProps={{
@@ -2183,7 +2197,7 @@ export class AddEntry extends React.Component<Props> {
                     textAlign: 'center',
                     alignSelf: 'center'
                   }}>
-                  No Taxes Available
+                  {t('addEntry.noTaxesAvailable')}
                 </Text>
               </View>
 
@@ -2194,10 +2208,11 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderVariantModal() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.variantRef}
-        headerText='Select Variant'
+        headerText={t('addEntry.selectVariant')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -2242,10 +2257,11 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderWarehouseModal() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.warehouseRef}
-        headerText='Select Warehouse'
+        headerText={t('addEntry.selectWarehouse')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -2287,10 +2303,11 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderReverseChargeConfirmation() {
+    const { t } = this.props;
     return (
       <BottomSheet
         bottomSheetRef={this.reverseChargeConfirmation}
-        headerText='Reverse Charge Confirmation'
+        headerText={t('addEntry.reverseChargeConfirmation')}
         headerTextColor='#229F5F'
         onClose={() => {
 
@@ -2298,12 +2315,10 @@ export class AddEntry extends React.Component<Props> {
       >
         <View style={style.reverseChargeView} >
           <Text style={style.reverseChargeNoteText}>
-            {this.state?.reverseCharge ? 'If you uncheck this transaction from Reverse Charge, applied taxes will be considered as normal taxes and reverse charge effect will be removed from tax report.' :
-              'Note: If you check this transaction for Reverse Charge, applied taxes will be considered under Reverse Charge taxes and will be added in tax report.'}
+            {this.state?.reverseCharge ? t('addEntry.rcUnselectedNote') : t('addEntry.rcSelectedNote')}
           </Text>
           <Text style={style.reverseChargeConfirmationText} >
-            {this.state?.reverseCharge ? 'Are you sure you want to uncheck this transaction from Reverse Charge?' :
-              'Are you sure you want to check this transaction for Reverse Charge?            '}
+            {this.state?.reverseCharge ? t('addEntry.rcUnselectedQuestion') : t('addEntry.rcSelectedQuestion')}
           </Text>
           <View style={style.reverseChargeConfirmView}>
             <TouchableOpacity
@@ -2315,7 +2330,7 @@ export class AddEntry extends React.Component<Props> {
                 this.setBottomSheetVisible(this.reverseChargeConfirmation, false);
               }}
             >
-              <Text style={style.reverseChargeConfirmButtonText} >Yes</Text>
+              <Text style={style.reverseChargeConfirmButtonText} >{t('common.yes')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -2323,7 +2338,7 @@ export class AddEntry extends React.Component<Props> {
               }}
               style={style.reverseChargeConfirmButton}
             >
-              <Text style={style.reverseChargeConfirmButtonText} >No</Text>
+              <Text style={style.reverseChargeConfirmButtonText} >{t('common.no')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -2367,6 +2382,7 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderSaveButton() {
+    const { t } = this.props;
     return (
       <TouchableOpacity
         onPress={() => {
@@ -2375,7 +2391,7 @@ export class AddEntry extends React.Component<Props> {
           // }
         }}
         style={style.saveButton}>
-        <Text style={{ alignSelf: 'center', color: 'white', fontSize: 20 }}>Save</Text>
+        <Text style={{ alignSelf: 'center', color: 'white', fontSize: 20 }}>{t('BUTTONS.SAVE')}</Text>
       </TouchableOpacity>
     );
   }
@@ -2400,6 +2416,7 @@ export class AddEntry extends React.Component<Props> {
     )
   }
   _renderVoucherConditions() {
+    const { t } = this.props;
     return (
       <View>
 
@@ -2428,7 +2445,7 @@ export class AddEntry extends React.Component<Props> {
                 ]}
                 autoCapitalize={'characters'}
                 value={this.state.invoiceNumberAgainstVoucher.toString()}
-                placeholder={'Number'}
+                placeholder={t('addEntry.number')}
                 placeholderTextColor={'#868686'}
                 returnKeyType={'done'}
                 // multiline={true}
@@ -2457,7 +2474,7 @@ export class AddEntry extends React.Component<Props> {
                     fontFamily: this.state?.selectedReferenceInvoice?.voucherNumber ? FONT_FAMILY.bold : FONT_FAMILY.regular,
                   },
                 ]}>
-                {this.state?.selectedReferenceInvoice?.voucherNumber ? this.state?.selectedReferenceInvoice?.voucherNumber : 'Select Invoice'}
+                {this.state?.selectedReferenceInvoice?.voucherNumber ? this.state?.selectedReferenceInvoice?.voucherNumber : t('addEntry.selectInvoice')}
               </Text>
             </TouchableOpacity>}
         </View>
@@ -2490,10 +2507,10 @@ export class AddEntry extends React.Component<Props> {
 
             />
 
-            <Text style={[style.addressHeaderText, { marginHorizontal: 5 }]}>Adjust {this.state?.selectedVoucherType}</Text>
+            <Text style={[style.addressHeaderText, { marginHorizontal: 5 }]}>{t('addEntry.adjust')} {this.state?.selectedVoucherType}</Text>
             {this.state.adjustedAmountOfLinkedInvoices != null && this.state.adjustedAmountOfLinkedInvoices != 0 ? (
               <Text style={[style.fieldHeadingText, { color: '#808080' }]}>
-                {'Adjusted Amt.: ' + this.state.currencySymbol + ' ' + this.state.adjustedAmountOfLinkedInvoices}
+                {t('addEntry.adjustedAmt') + ': ' + this.state.currencySymbol + ' ' + this.state.adjustedAmountOfLinkedInvoices}
               </Text>
             ) : null}
           </TouchableOpacity>}
@@ -2501,26 +2518,34 @@ export class AddEntry extends React.Component<Props> {
     )
   }
   _renderDateView() {
-
+    const { t } = this.props;
     return (
       <View style={style.dateView}>
         <TouchableOpacity
           style={{ flexDirection: 'row' }}
           onPress={() => {
             if (!this.state.particularAccountStockData) {
-              alert('Please select a party.');
+              alert(t('addEntry.pleaseSelectParty'));
             } else {
               this.setState({ showDatePicker: true });
             }
           }}>
           <Icon name={'Calendar'} color={'#229F5F'} size={16} />
-          <Text style={style.selectedDateText}>{this.formatDate()}</Text>
+          <Text style={style.selectedDateText}>
+            {
+              this.formatDate() === 'Today'
+                ? t('common.today')
+                : this.formatDate() === 'Yesterday'
+                  ? t('common.yesterday')
+                  : this.formatDate()
+            }
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{ borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2 }}
           onPress={() => {
             if (!this.state.particularAccountStockData) {
-              alert('Please select a party.');
+              alert(t('addEntry.pleaseSelectParty'));
             } else {
               this.state.entryDate.startOf('day').isSame(moment().startOf('day'))
                 ? this.getYesterdayDate()
@@ -2528,13 +2553,14 @@ export class AddEntry extends React.Component<Props> {
             }
           }}>
           <Text style={{ color: '#808080' }}>
-            {this.state.entryDate.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+            {this.state.entryDate.startOf('day').isSame(moment().startOf('day')) ? t('addEntry.yesterday') + '?' : t('addEntry.today') + '?'}
           </Text>
         </TouchableOpacity>
       </View>
     );
   }
   _renderVariantsAndWarehouse() {
+    const { t } = this.props;
     return (
       <View style={style.sectionMainView} >
         <View style={style.voucherOptionsField} >
@@ -2557,7 +2583,7 @@ export class AddEntry extends React.Component<Props> {
               ]}>
               {this.state?.selectedStockVariant?.name ?
                 this.state?.selectedStockVariant?.name :
-                'Variants'}
+                t('addEntry.variants')}
             </Text>
           </TouchableOpacity>}
           {(this.state?.particularAccountStockData?.stock != null && this.state?.warehouseList?.length > 1) && <TouchableOpacity
@@ -2577,7 +2603,7 @@ export class AddEntry extends React.Component<Props> {
                   fontFamily: this.state?.selectedWarehouse?.name ? FONT_FAMILY.bold : FONT_FAMILY.regular,
                 },
               ]}>
-              {this.state?.selectedWarehouse?.name ? this.state?.selectedWarehouse?.name : 'Warehouse'}
+              {this.state?.selectedWarehouse?.name ? this.state?.selectedWarehouse?.name : t('addEntry.warehouse')}
             </Text>
           </TouchableOpacity>}
         </View>
@@ -2585,12 +2611,13 @@ export class AddEntry extends React.Component<Props> {
     )
   }
   _renderStockDetails() {
+    const { t } = this.props;
     return (
       <View style={style.sectionMainView} >
 
         <View style={{ flexDirection: 'row' }}>
           <Icon name={'path-15'} color={'#229F5F'} size={16} />
-          <Text style={style.addressHeaderText}>{'Stock Details'}</Text>
+          <Text style={style.addressHeaderText}>{t('addEntry.stockDetails')}</Text>
         </View>
         <View style={style.voucherOptionsField} >
           {<View
@@ -2613,14 +2640,14 @@ export class AddEntry extends React.Component<Props> {
               ]}
               autoCapitalize={'characters'}
               value={this.state.stockQuantity?.toString()}
-              placeholder={'Qty'}
+              placeholder={t('addEntry.qty')}
               placeholderTextColor={'#868686'}
               returnKeyType={'done'}
               keyboardType='numeric'
               // multiline={true}
               onChangeText={async(text) => {
                 if (!this.state.searchAccountName) {
-                  alert('Please select an account.');
+                  alert(t('addEntry.pleaseSelectAccount'));
                 } else {
                 this.setState({ stockQuantity: text }, () => {
                   this.updateAmountQty();
@@ -2651,14 +2678,14 @@ export class AddEntry extends React.Component<Props> {
               ]}
               autoCapitalize={'characters'}
               value={this.state?.stockPrice?.toString()}
-              placeholder={'Price'}
+              placeholder={t('addEntry.price')}
               keyboardType='numeric'
               placeholderTextColor={'#868686'}
               returnKeyType={'done'}
               // multiline={true}
               onChangeText={(text) => {
                 if (!this.state.searchAccountName) {
-                  alert('Please select an account.');
+                  alert(t('addEntry.pleaseSelectAccount'));
                 } else {
                   this.setState({ stockPrice: text }, () => {
                     this.updateAmountStk();
@@ -2687,25 +2714,26 @@ export class AddEntry extends React.Component<Props> {
             ]}>
             {this.state?.selectedStockUnit?.stockUnitCode ?
               this.state?.selectedStockUnit?.stockUnitCode :
-              'Unit'}
+              t('addEntry.unit')}
           </Text>
         </TouchableOpacity>}
       </View>
     )
   }
   _renderDiscountTaxField() {
+    const { t } = this.props;
     return (
       <View style={style.sectionMainView} >
 
         <View style={{ flexDirection: 'row' }}>
           <MaterialCommunityIcons name={'brightness-percent'} color={'#229F5F'} size={16} />
-          <Text style={style.addressHeaderText}>{'Discount & Tax'}</Text>
+          <Text style={style.addressHeaderText}>{t('addEntry.discountAndTax')}</Text>
         </View>
         <View style={style.voucherOptionsField} >
           {(this.state?.showDiscountAndTaxPopup) && <TouchableOpacity
             onPress={() => {
               if (this.state?.amountForEntry == 0) {
-                alert('Add amount')
+                alert(t('addEntry.addAmount'))
               } else {
                 this.setBottomSheetVisible(this.discountRef, true);
               }
@@ -2725,13 +2753,13 @@ export class AddEntry extends React.Component<Props> {
               ]}>
               {(this.state?.discountTotalValue != 0 || this.state?.selectedDiscounts?.length > 0) ?
                 `${this.state?.currencySymbol} ${this.calculateTotalDiscount()}` :
-                'Discount'}
+                t('addEntry.discount')}
             </Text>
           </TouchableOpacity>}
           {(this.state?.showDiscountAndTaxPopup) && <TouchableOpacity
             onPress={() => {
               if (this.state?.amountForEntry == 0) {
-                alert('Add amount')
+                alert(t('addEntry.addAmount'))
               } else {
                 this.setBottomSheetVisible(this.taxModalRef, true);
               }
@@ -2750,15 +2778,15 @@ export class AddEntry extends React.Component<Props> {
                 },
               ]}>
               {this.state?.totalTaxAmount != 0 ? `${this.state?.currencySymbol} ${this.state?.totalTaxAmount}` :
-                this.state?.reverseCharge ? <Text>Tax (RCM)<Text style={{ color: 'red' }} >*</Text></Text> :
-                  'Tax'}
+                this.state?.reverseCharge ? <Text>{t('addEntry.taxRCM')}<Text style={{ color: 'red' }} >*</Text></Text> :
+                  t('addEntry.tax')}
             </Text>
           </TouchableOpacity>}
         </View>
         {(this.state?.showDiscountAndTaxPopup) && <TouchableOpacity
             onPress={() => {
               if (this.state?.amountForEntry == 0) {
-                alert('Add amount')
+                alert(t('addEntry.addAmount'))
               } else {
                 this.setBottomSheetVisible(this.otherTaxModalRef, true);
               }
@@ -2776,19 +2804,20 @@ export class AddEntry extends React.Component<Props> {
                   fontFamily: this.state?.tdsOrTcsTaxObj ? FONT_FAMILY.bold : FONT_FAMILY.regular,
                 },
               ]}>
-              {this.state?.tdsOrTcsTaxObj ? (this.state?.currencySymbol + ' ' + this.state?.tdsOrTcsTaxObj?.amount) : 'Other Tax'}
+              {this.state?.tdsOrTcsTaxObj ? (this.state?.currencySymbol + ' ' + this.state?.tdsOrTcsTaxObj?.amount) : t('addEntry.otherTax')}
             </Text>
           </TouchableOpacity>}
       </View>
     )
   }
   _renderAdvanceTaxField() {
+    const { t } = this.props;
     return (
       <View style={style.sectionMainView} >
 
         <View style={{ flexDirection: 'row' }}>
           <MaterialCommunityIcons name={'brightness-percent'} color={'#229F5F'} size={16} />
-          <Text style={style.addressHeaderText}>{'Tax on Advance'}</Text>
+          <Text style={style.addressHeaderText}>{t('addEntry.taxOnAdvance')}</Text>
         </View>
         <View style={style.voucherOptionsField} >
           <View
@@ -2811,13 +2840,13 @@ export class AddEntry extends React.Component<Props> {
                 },
               ]}>
               {this.state?.taxInclusiveAmount != 0 ? `${this.state?.currencySymbol} ${this.state?.taxInclusiveAmount}` :
-                <Text>Amount</Text>}
+                <Text>{t('addEntry.amount')}</Text>}
             </Text>
           </View>
           <TouchableOpacity
             onPress={() => {
               if (this.state?.amountForEntry == 0) {
-                alert('Add amount')
+                alert(t('addEntry.addAmount'))
               } else {
                 this.setBottomSheetVisible(this.taxModalRef, true);
               }
@@ -2836,7 +2865,7 @@ export class AddEntry extends React.Component<Props> {
                 },
               ]}>
               {this.state?.totalTaxAmount != 0 ? `${this.state?.currencySymbol} ${this.state?.totalTaxAmount}` :
-                <Text>Tax on Advance<Text style={{ color: 'red' }} >{this.state?.reverseCharge ? '*' : null}</Text></Text>}
+                <Text>{t('addEntry.taxOnAdvance')}<Text style={{ color: 'red' }} >{this.state?.reverseCharge ? '*' : null}</Text></Text>}
             </Text>
           </TouchableOpacity>
         </View>
@@ -2844,11 +2873,12 @@ export class AddEntry extends React.Component<Props> {
     )
   }
   _renderVoucherField() {
+    const { t } = this.props;
     return (
       <View style={style.sectionMainView} >
         <View style={style.sectionView} >
           <FontAwesome name={'ticket'} size={16} color={'#229F5F'} />
-          <Text style={style.sectionText} >Voucher Type</Text>
+          <Text style={style.sectionText} >{t('addEntry.voucherType')}</Text>
         </View>
         <TouchableOpacity
           onPress={() => {
@@ -2867,7 +2897,7 @@ export class AddEntry extends React.Component<Props> {
                 fontFamily: this.state?.selectedVoucherType != '' ? FONT_FAMILY.bold : FONT_FAMILY.regular,
               },
             ]}>
-            {this.state?.selectedVoucherType != '' ? this.state?.selectedVoucherType : 'Select voucher'}
+            {this.state?.selectedVoucherType != '' ? this.state?.selectedVoucherType : t('addEntry.selectVoucher')}
           </Text>
         </TouchableOpacity>
         {this._renderVoucherConditions()}
@@ -2875,6 +2905,7 @@ export class AddEntry extends React.Component<Props> {
     )
   }
   _renderMoreDetailRow() {
+    const { t } = this.props;
     return (
       <TouchableOpacity
         style={{
@@ -2891,7 +2922,7 @@ export class AddEntry extends React.Component<Props> {
         }}
       >
         <View style={{ flexDirection: 'row' }}>
-          <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>More Details</Text>
+          <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{t('addEntry.moreDetails')}</Text>
         </View>
         <Icon
           style={{ transform: [{ rotate: this.state.showMoreDetails ? '180deg' : '0deg' }] }}
@@ -2903,11 +2934,12 @@ export class AddEntry extends React.Component<Props> {
     )
   }
   _renderChequeDetails() {
+    const { t } = this.props;
     return (
       <View style={style.senderAddress}>
         <View style={{ flexDirection: 'row' }}>
           <Icon name={'path-15'} color={'#229F5F'} size={16} />
-          <Text style={style.addressHeaderText}>{'Cheque Details'}</Text>
+          <Text style={style.addressHeaderText}>{t('addEntry.chequeDetails')}</Text>
         </View>
         <View style={{ paddingVertical: 6, marginTop: 10, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row' }}>
@@ -2931,15 +2963,15 @@ export class AddEntry extends React.Component<Props> {
                 ]}
                 autoCapitalize={'characters'}
                 value={this.state.chequeNumber.toString()}
-                placeholder={'Cheque #'}
+                placeholder={t('addEntry.chequeNumber')}
                 placeholderTextColor={'#868686'}
                 returnKeyType={'done'}
                 // multiline={true}
                 onChangeText={(text) => {
                   if (!this.state.partyName) {
-                    alert('Please select a party.');
+                    alert(t('addEntry.pleaseSelectParty'));
                   } else if (this.state.amountForReceipt == '') {
-                    alert('Please enter amount.');
+                    alert(t('addEntry.pleaseEnterAmount'));
                   } else {
                     this.setState({ chequeNumber: text });
                   }
@@ -2950,9 +2982,9 @@ export class AddEntry extends React.Component<Props> {
             <TouchableOpacity
               onPress={() => {
                 if (!this.state.partyName) {
-                  alert('Please select a party.');
+                  alert(t('addEntry.pleaseSelectParty'));
                 } else if (this.state.amountForReceipt == '') {
-                  alert('Please enter amount.');
+                  alert(t('addEntry.pleaseEnterAmount'));
                 } else {
                   this.setSelectedButton(4);
                   this.setState({ showClearanceDatePicker: true });
@@ -2987,7 +3019,7 @@ export class AddEntry extends React.Component<Props> {
                         fontFamily: this.state.isClearanceDateSelelected ? FONT_FAMILY.bold : FONT_FAMILY.regular,
                       },
                     ]}>
-                    Clearance Date
+                    {t('addEntry.clearanceDate')}
                   </Text>
                 )}
               </View>
@@ -3009,11 +3041,12 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderAssignTagView() {
+    const { t } = this.props;
     return (
       <View style={style.sectionMainView} >
         <View style={style.sectionView} >
           <FontAwesome name={'tag'} size={16} color={'#229F5F'} />
-          <Text style={style.sectionText} >Assign Tag</Text>
+          <Text style={style.sectionText} >{t('addEntry.assignTag')}</Text>
         </View>
         <View style={style.tagListVeiw} >
           {this.state?.selectedTags?.map(item => {
@@ -3047,14 +3080,14 @@ export class AddEntry extends React.Component<Props> {
                 fontFamily: this.state.selectedTags?.length > 0 ? FONT_FAMILY.bold : FONT_FAMILY.regular,
               },
             ]}>
-            {/* {this.state.selectedTag?.name != '' ? this.state?.selectedTag?.name : 'Select Tag'} */}
-            Select Tags
+            {t('addEntry.selectTags')}
           </Text>
         </TouchableOpacity>
       </View>
     )
   }
   _renderGenerateVoucher() {
+    const { t } = this.props;
     return (
       <View style={style.checkBoxView}>
         <CheckBox
@@ -3070,12 +3103,13 @@ export class AddEntry extends React.Component<Props> {
           isChecked={this.state.generateVoucher}
         />
 
-        <Text style={[style.checkBoxText, { marginLeft: 5 }]}>Generate Voucher</Text>
+        <Text style={[style.checkBoxText, { marginLeft: 5 }]}>{t('addEntry.generateVoucher')}</Text>
 
       </View>
     )
   }
   _renderReverseCharge() {
+    const { t } = this.props;
     return (
       <View style={style.checkBoxView}>
         <CheckBox
@@ -3090,13 +3124,14 @@ export class AddEntry extends React.Component<Props> {
 
         <Text onPress={() => {
           this.setBottomSheetVisible(this.reverseChargeConfirmation, true);
-        }} style={[style.checkBoxText, { marginLeft: 5 }]}>Is this transaction applicable for  Reverse Charge?{'\n'}
-          <Text style={style.checkBoxSmallText} >(Tax is compulsory)</Text></Text>
+        }} style={[style.checkBoxText, { marginLeft: 5 }]}>{t('addEntry.reverseChargeQuestion')}{'\n'}
+          <Text style={style.checkBoxSmallText} >({t('addEntry.taxIsCompulsory')})</Text></Text>
 
       </View>
     )
   }
   _renderTouristSchemeSection() {
+    const { t } = this.props;
     return (
       <View style={style.touristSchemeView} >
         <View style={[style.checkBoxView, { marginHorizontal: 0 }]}>
@@ -3116,7 +3151,7 @@ export class AddEntry extends React.Component<Props> {
           <Text onPress={() => {
 
           }} style={[style.checkBoxText, { marginLeft: 5 }]}>
-            Is this transaction applicable for Tourist Scheme?</Text>
+            {t('addEntry.touristSchemeQuestion')}</Text>
 
         </View>
         {this.state?.touristScheme && <View
@@ -3139,7 +3174,7 @@ export class AddEntry extends React.Component<Props> {
             ]}
             autoCapitalize={'characters'}
             value={this.state.passPortNumber}
-            placeholder={'Passport Number'}
+            placeholder={t('addEntry.passportNumber')}
             placeholderTextColor={'#868686'}
             returnKeyType={'done'}
             // multiline={true}
@@ -3152,10 +3187,11 @@ export class AddEntry extends React.Component<Props> {
     )
   }
   _renderDescriptionField() {
+    const { t } = this.props;
     return (
       <TextInput
         multiline={true}
-        placeholder='Add Description'
+        placeholder={t('addEntry.addDescription')}
         numberOfLines={5}
         value={this.state.description}
         onChangeText={(text) => {
@@ -3177,6 +3213,7 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderAttachmentField() {
+    const { t } = this.props;
     return (
       <View style={style.attchFileView} >
         <TouchableOpacity
@@ -3186,7 +3223,7 @@ export class AddEntry extends React.Component<Props> {
           }}
         >
           <Entypo name={'attachment'} size={16} color={'#229F5F'} />
-          <Text style={style.attachFileText} >Attach file</Text>
+          <Text style={style.attachFileText} >{t('addEntry.attachFile')}</Text>
         </TouchableOpacity>
         {this.state?.uploadedAttachment?.name && <View style={style.attachedTextView} >
           <Text style={[style.attachFileText, { marginRight: 5 }]} >
@@ -3206,21 +3243,23 @@ export class AddEntry extends React.Component<Props> {
     );
   }
   _renderTotalAmountField() {
+    const { t } = this.props;
     return (
       <View style={style.totalAmountView} >
-        <Text style={style.totalAmoutText} >Total in {this.state?.selectedAccountData?.currency}</Text>
+        <Text style={style.totalAmoutText} >{t('addEntry.totalIn')} {this.state?.selectedAccountData?.currency}</Text>
         <Text style={style.totalAmoutText}>{this.state?.currencySymbol} {formatAmount(this.calculateTotalAmount())}</Text>
       </View>
     )
   }
   _renderSuccessDialogue() {
+    const { t } = this.props;
     return (
       <Dialog.Container
         onRequestClose={() => { this.setState({ successDialog: false }) }}
         visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
         <Award />
-        <Text style={{ color: '#229F5F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Success</Text>
-        <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>Entry Created Successfully.</Text>
+        <Text style={{ color: '#229F5F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>{t('addEntry.success')}</Text>
+        <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{t('addEntry.entryCreatedSuccessfully')}</Text>
         <TouchableOpacity
           style={{
             alignItems: 'center',
@@ -3236,7 +3275,7 @@ export class AddEntry extends React.Component<Props> {
             this.props.navigation.goBack();
           }}
         >
-          <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book', marginTop: Platform.OS == "ios" ? 5 : 0 }}>Done</Text>
+          <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book', marginTop: Platform.OS == "ios" ? 5 : 0 }}>{t('common.done')}</Text>
         </TouchableOpacity>
       </Dialog.Container>
     )
@@ -3348,5 +3387,5 @@ function Screen(props) {
 
   return <AddEntry {...props} isFocused={isFocused} />;
 }
-const AddEntryScreen = connect(mapStateToProps, mapDispatchToProps)(Screen);
+const AddEntryScreen = connect(mapStateToProps, mapDispatchToProps)(withTranslation()(Screen));
 export default AddEntryScreen;

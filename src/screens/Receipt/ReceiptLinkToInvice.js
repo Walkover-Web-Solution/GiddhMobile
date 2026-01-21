@@ -18,6 +18,7 @@ import {connect} from 'react-redux';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import _ from 'lodash';
 import {useIsFocused} from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import CheckBox from 'react-native-check-box';
 import {FONT_FAMILY} from '@/utils/constants';
 
@@ -133,7 +134,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <Text style={style.invoiceType}>Link Receipt to Invoice</Text>
+          <Text style={style.invoiceType}>{this.props.t('receiptLink.linkReceiptToInvoice')}</Text>
         </View>
       </View>
     );
@@ -184,7 +185,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
 
     let totalUnadjustedAmount = parseInt(this.state.partyAmount) - adjustedAmount;
     if (totalUnadjustedAmount < 0) {
-      alert('Adjustment amount cannot exceed Receipt amount.');
+      alert(this.props.t('adjustLinkInvoice.adjustmentExceedReceipt'));
       this.editAdjustedAmount(item, '');
     } else {
       this.setState({totalUnadjustedAmount: totalUnadjustedAmount});
@@ -196,7 +197,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
     return (
       <View>
         <Text style={[style.invoiceText, {color: 'black', textAlign: 'center', margin: 10}]}>
-          Unadjusted Amount:{' '}
+          {this.props.t('adjustLinkInvoice.unadjustedAmount')}{' '}
           {this.state.totalUnadjustedAmount == null ? this.state.partyAmount : this.state.totalUnadjustedAmount}
         </Text>
       </View>
@@ -235,7 +236,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
 
                         if(item.isSelect == true){
                         if (parseInt(item.unadjustedAmount.amountForAccount) > this.state.partyAmount && this.state.totalUnadjustedAmount >= 0) {
-                          alert('Adjusted amount cannot exceed Receipt amount.');
+                          alert(this.props.t('adjustLinkInvoice.adjustedExceedReceipt'));
                           this.editAdjustedAmount(item, '');
                           this.handleUnadjustedAmount();
                         } else {
@@ -258,7 +259,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
                   marginHorizontal: 10,
                   paddingHorizontal: 20,
                 }}>
-                Sales
+                {this.props.t('Vouchers.Sales')}
               </Text>
               <Text style={style.invoiceText}>{item.voucherNumber}</Text>
               <Text
@@ -269,13 +270,13 @@ class ReceiptLinkToInvice extends React.Component<Props> {
             <View style={{flexDirection: 'row', flex: 1, marginTop: 10, marginHorizontal: 10}}>
               <View style={{flexDirection: 'column'}}>
                 <View style={{flexDirection: 'row'}}>
-                  <Text style={style.invoiceText}>Total: </Text>
+                  <Text style={style.invoiceText}>{this.props.t('adjustLinkInvoice.total')} </Text>
                   <Text style={style.invoiceText}>
                     {this.state.currencySymbol + ' ' + item.voucherTotal.amountForAccount}
                   </Text>
                 </View>
                 <View style={{flexDirection: 'row'}}>
-                  <Text style={style.invoiceText}>Due: </Text>
+                  <Text style={style.invoiceText}>{this.props.t('adjustLinkInvoice.due')} </Text>
                   <Text style={style.invoiceText}>
                     {this.state.currencySymbol + ' ' + item.unadjustedAmount.amountForAccount}
                   </Text>
@@ -283,7 +284,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
               </View>
               <View style={{flexDirection: 'column', flex: 1, alignItems: 'flex-end'}}>
                 <View style={{flexDirection: 'row'}}>
-                  <Text style={style.invoiceText}>Adjusted Amt.</Text>
+                  <Text style={style.invoiceText}>{this.props.t('adjustLinkInvoice.adjustedAmt')}</Text>
                 </View>
                 <View style={{flexDirection: 'column'}}>
                   <TextInput
@@ -293,16 +294,16 @@ class ReceiptLinkToInvice extends React.Component<Props> {
                     style={[style.invoiceText, {alignSelf: 'center', maxWidth: 100}]}
                     onChangeText={(text) => {
                       if (!item.isSelect) {
-                        alert('Please select an invoice.');
+                        alert(this.props.t('adjustLinkInvoice.pleaseSelectInvoice'));
                       }
                       else if(parseInt(text) > item.unadjustedAmount.amountForAccount){
-                        alert('Adjusted amount cannot exceed Due amount.');
+                        alert(this.props.t('adjustLinkInvoice.adjustedExceedDue'));
                         this.editAdjustedAmount(item, '');
                         this.handleUnadjustedAmount();
                       } 
                       else {
                         if (parseInt(text) > this.state.partyAmount && this.state.totalUnadjustedAmount >= 0) {
-                          alert('Adjusted amount cannot exceed Receipt amount.');
+                          alert(this.props.t('adjustLinkInvoice.adjustedExceedReceipt'));
                           this.editAdjustedAmount(item, '');
                           this.handleUnadjustedAmount();
                         } else {
@@ -325,7 +326,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
     const renderEmptyContainer = () => {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text style={style.invoiceText}>No Invoices Available</Text>
+          <Text style={style.invoiceText}>{this.props.t('adjustLinkInvoice.noInvoicesAvailable')}</Text>
         </View>
       );
     };
@@ -357,7 +358,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
                     }
                   })
                     if(isAdjustedAmountZeroForAnyInvoice.includes(true)){
-                      alert('Adjustment cannot be 0 for selected Invoices')
+                      alert(this.props.t('adjustLinkInvoice.adjustmentCannotBeZero'))
                     } else {
                       this.props.route.params.getLinkedInvoicesAdjustedAmount(this.state.totalAdjustedAmount, this.state.allVoucherInvoice);
                       this.props.navigation.goBack();
@@ -400,7 +401,7 @@ class ReceiptLinkToInvice extends React.Component<Props> {
                 color: '#fff',
                 fontSize: 20,
               }}>
-              Link
+              {this.props.t('adjustLinkInvoice.link')}
             </Text>
           </TouchableOpacity>
         )}
@@ -425,8 +426,9 @@ function mapDispatchToProps(dispatch) {
 
 function Screen(props) {
   const isFocused = useIsFocused();
+  const { t } = useTranslation();
 
-  return <ReceiptLinkToInvice {...props} isFocused={isFocused} />;
+  return <ReceiptLinkToInvice {...props} isFocused={isFocused} t={t} />;
 }
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);

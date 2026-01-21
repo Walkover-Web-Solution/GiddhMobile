@@ -4,7 +4,7 @@ import OtherDetails from '@/screens/Update-Voucher/Sales-Voucher-Update/OtherDet
 import AddInvoiceItemScreen from '@/screens/Update-Voucher/Sales-Voucher-Update/AddItemScreen';
 import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 import EditAddress from '@/core/components/Select-Address/EditAddress';
-import { SalesInvoice } from '@/screens/Update-Voucher/Sales-Voucher-Update/SalesInvoice';
+import SalesInvoice from '@/screens/Update-Voucher/Sales-Voucher-Update/SalesInvoice';
 
 const { Navigator, Screen } = createStackNavigator();
 

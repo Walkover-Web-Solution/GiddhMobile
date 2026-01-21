@@ -20,6 +20,7 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 
 const { SafeAreaOffsetHelper } = NativeModules;
@@ -166,7 +167,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <Text style={{ fontSize: 16, color: 'white' }}>Other Details</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>{this.props.t('purchaseBill.otherDetails')}</Text>
         </View>
       </View>
     );
@@ -185,13 +186,13 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
         <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 4, paddingHorizontal: 16 }}>
           <Icon name={'path-8'} size={16} color={'#808080'} />
 
-          <Text style={{ color: '#808080', marginLeft: 10 }}>Warehouse</Text>
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{this.props.t('otherDetails.warehouse')}</Text>
         </View>
         <Text style={{ color: '#808080', marginLeft: 10 }}>
           {' '}
           {this.props.route.params.selectedWareHouse
             ? this.props.route.params.selectedWareHouse.address
-            : 'Select Warehouse'}
+            : this.props.t('otherDetails.selectWarehouse')}
         </Text>
 
         {this._renderBottomSeprator(16)}
@@ -472,7 +473,7 @@ class PurchaseBillOtherDetails extends React.Component<Props> {
                 color: '#fff',
                 fontSize: 20
               }}>
-              Save
+              {this.props.t('otherDetails.save')}
             </Text>
           </TouchableOpacity>
         )}
@@ -497,8 +498,8 @@ function mapDispatchToProps(dispatch) {
 
 function Screen(props) {
   const isFocused = useIsFocused();
-
-  return <PurchaseBillOtherDetails {...props} isFocused={isFocused} />;
+  const { t } = useTranslation();
+  return <PurchaseBillOtherDetails {...props} isFocused={isFocused} t={t} />;
 }
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);

@@ -14,6 +14,7 @@ import _ from 'lodash';
 import Header from '@/components/Header';
 import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
 import { resetAccountSearch, updateAccountSearch } from '@/redux/CommonAction';
+import { useTranslation } from 'react-i18next';
 
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
@@ -39,7 +40,7 @@ type State = {
   loadingMoreSearch : boolean,
   showSearchSuggestion: boolean
 };
-export class AccountScreen extends React.Component<Props, State> {
+export class AccountScreen extends React.Component<Props & { t: any }, State> {
 
   listener: any;
   focusRef: React.RefObject<any>;
@@ -257,12 +258,13 @@ export class AccountScreen extends React.Component<Props, State> {
   }
 
   renderSearchSuggestionBox = () =>{
+    const { t } = this.props;
     return (
       <View style={style.searchResultContainer}>
         <View style={style.searchHeader}>
-          <Text style={style.searchHeading}>Recent</Text>
+          <Text style={style.searchHeading}>{t('common.recent')}</Text>
           <TouchableOpacity onPress={() =>this.props.resetAccountSearch()}>
-            <Text style={style.searchHeading}>Clear all</Text>
+            <Text style={style.searchHeading}>{t('common.clearAll')}</Text>
           </TouchableOpacity>
         </View>
         <FlatList
@@ -279,7 +281,7 @@ export class AccountScreen extends React.Component<Props, State> {
                 this.searchGroupAccountsData(item);
               }
               }>
-              <Text style={style.searchItemText}>{item ? item : "Result Not found"}</Text>
+              <Text style={style.searchItemText}>{item ? item : t('common.resultNotFound')}</Text>
               <TouchableOpacity
                 onPress={() => {this.props.updateAccountSearch(this.props.accountsSearchSuggestions?.filter((_:any, i:number) => i !== index))}}>
                 <AntDesign name="close" size={13} color={'#808080'} />
@@ -292,6 +294,7 @@ export class AccountScreen extends React.Component<Props, State> {
   }
 
   renderModalView = () => {
+    const { t } = this.props;
     return (
       <Modal visible={this.state.isSearchingModalVisible}
         onDismiss={() => { this.setState({ isSearchingModalVisible: false }) }}
@@ -303,7 +306,7 @@ export class AccountScreen extends React.Component<Props, State> {
             <TextInput
               ref={this.focusRef}
               value={this.state.searchedText}
-              placeholder={`Search ${this.state.selectedSearchOption == 'groups' ? 'Groups' : 'Accounts'}`}
+              placeholder={`${t('common.search')} ${this.state.selectedSearchOption == 'groups' ? t('common.groups') : t('Vouchers.Accounts')}`}
               placeholderTextColor={'#FFFFFF'}
               returnKeyType={"done"}
               style={style.searchText}
@@ -329,7 +332,7 @@ export class AccountScreen extends React.Component<Props, State> {
                 })
               }}
               style={[styles.switchButton, { borderColor: this.state.selectedSearchOption == 'groups' ? '#000080' : '#ededed' }]} >
-              <Text style={{ fontFamily: 'AvenirLTStd-Book', }}>Groups</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Book', }}>{t('common.groups')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -338,7 +341,7 @@ export class AccountScreen extends React.Component<Props, State> {
                 })
               }}
               style={[styles.switchButton, { borderColor: this.state.selectedSearchOption == 'accounts' ? '#000080' : '#ededed' }]} >
-              <Text style={{ fontFamily: 'AvenirLTStd-Book', }} >Accounts</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Book', }} >{t('Vouchers.Accounts')}</Text>
             </TouchableOpacity>
           </View>
           {this.state.showSearchLoader ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -460,12 +463,12 @@ export class AccountScreen extends React.Component<Props, State> {
   }
 
   render() {
-    const { activeCompany, isFocused }: any = this.props;
+    const { activeCompany, isFocused, t }: any = this.props;
     
     return (
       <View style={style.container}>
         <Header 
-          header='Accounts' 
+          header={t('Vouchers.Accounts')} 
           subHeader={this.state.selectedGroup.name}
           backgroundColor='#084EAD' 
           headerRightContent={
@@ -501,7 +504,7 @@ export class AccountScreen extends React.Component<Props, State> {
                     source={require('@/assets/images/noTransactions.png')}
                     style={{ resizeMode: 'contain', height: 250, width: 300 }}
                   />
-                  <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Accounts</Text>
+                  <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>{t('common.noAccounts')}</Text>
                 </View>
               )
               : (
@@ -541,7 +544,8 @@ function mapDispatchToProps(dispatch) {
 
 function Component(props: any) {
   const isFocused = useIsFocused();
-  return <AccountScreen {...props} isFocused={isFocused} />;
+  const { t } = useTranslation();
+  return <AccountScreen {...props} isFocused={isFocused} t={t} />;
 }
 
 const Screen = connect(mapStateToProps, mapDispatchToProps)(Component);

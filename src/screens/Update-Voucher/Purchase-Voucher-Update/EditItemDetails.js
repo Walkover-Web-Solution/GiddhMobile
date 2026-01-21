@@ -17,6 +17,7 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
 import { useIsFocused } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import style from './style';
 import BottomSheet from '@/components/BottomSheet';
 import { FONT_FAMILY } from '@/utils/constants';
@@ -159,7 +160,7 @@ class PurchaseItemEdit extends Component {
 
       <BottomSheet
         bottomSheetRef={this.taxCalculationModalRef}
-        headerText='Calculation Method'
+        headerText={this.props.t('purchaseItemEdit.calculationMethod')}
         headerTextColor='#FC8345'
       >
         <TouchableOpacity
@@ -182,7 +183,7 @@ class PurchaseItemEdit extends Component {
             )}
             <Text
               style={style.taxCalculationMethodButtonText}>
-              {'On Taxable Value (Amt - Dis)'}
+              {this.props.t('purchaseItemEdit.onTaxableValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -206,7 +207,7 @@ class PurchaseItemEdit extends Component {
             )}
             <Text
               style={style.taxCalculationMethodButtonText}>
-              {'On Total Value (Taxable + Gst + Cess)'}
+              {this.props.t('purchaseItemEdit.onTotalValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -218,7 +219,7 @@ class PurchaseItemEdit extends Component {
     return (
       <BottomSheet
         bottomSheetRef={this.taxBottomSheetRef}
-        headerText='Select Taxes'
+        headerText={this.props.t('purchaseItemEdit.selectTaxes')}
         headerTextColor='#FC8345'
         flatListProps={{
           data: this.props.taxArray,
@@ -304,7 +305,7 @@ class PurchaseItemEdit extends Component {
             return (
               <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={style.regularText}>
-                  No Tax Exist
+                  {this.props.t('purchaseItemEdit.noTaxExist')}
                 </Text>
               </View>
             )
@@ -318,7 +319,7 @@ class PurchaseItemEdit extends Component {
     return (
       <TextInput
         multiline={true}
-        placeholder='Add Description'
+        placeholder={this.props.t('purchaseItemEdit.addDescription')}
         numberOfLines={10}
         value={this.state.editItemDetails.description}
         onChangeText={(text) => {
@@ -345,7 +346,7 @@ class PurchaseItemEdit extends Component {
     return (
       <BottomSheet
         bottomSheetRef={this.unitBottomSheetRef}
-        headerText='Select Unit'
+        headerText={this.props.t('purchaseItemEdit.selectUnit')}
         headerTextColor='#FC8345'
         flatListProps={{
           data: this.state.unitArray,
@@ -387,7 +388,7 @@ class PurchaseItemEdit extends Component {
             return (
               <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={style.regularText}>
-                  No Unit Exist
+                  {this.props.t('purchaseItemEdit.noUnitExist')}
                 </Text>
               </View>
             )
@@ -566,7 +567,7 @@ class PurchaseItemEdit extends Component {
     return (
       <BottomSheet
         bottomSheetRef={this.discountBottomSheetRef}
-        headerText='Select Discounts'
+        headerText={this.props.t('purchaseItemEdit.selectDiscounts')}
         headerTextColor='#FC8345'
         flatListProps={{
           data: this.props.discountArray,
@@ -670,7 +671,7 @@ class PurchaseItemEdit extends Component {
             return (
               <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={style.regularText}>
-                  No Discount Exist
+                  {this.props.t('purchaseItemEdit.noDiscountExist')}
                 </Text>
               </View>
             )
@@ -758,7 +759,7 @@ class PurchaseItemEdit extends Component {
               )}
             </TouchableOpacity>
 
-            <Text style={{ marginLeft: 10 }}>HSN Code</Text>
+            <Text style={{ marginLeft: 10 }}>{this.props.t('editItemDetails.hsnCode')}</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 15 }}>
             <TouchableOpacity
@@ -776,7 +777,7 @@ class PurchaseItemEdit extends Component {
               )}
             </TouchableOpacity>
 
-            <Text style={{ marginLeft: 10 }}>SAC Code</Text>
+            <Text style={{ marginLeft: 10 }}>{this.props.t('editItemDetails.sacCode')}</Text>
           </View>
         </View>
         <TextInput
@@ -808,7 +809,7 @@ class PurchaseItemEdit extends Component {
   _renderFinalTotal() {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 16 }}>
-        <Text>Total Amount</Text>
+        <Text>{this.props.t('editItemDetails.totalAmount')}</Text>
         <Text style={style.finalItemAmount}>
           {`${(this.props.currencySymbol ? this.props.currencySymbol : '') + '' +formatAmount(this.calculateFinalAmountToDisplay(this.state.editItemDetails))}`}
         </Text>
@@ -881,7 +882,7 @@ class PurchaseItemEdit extends Component {
 
       case 'Rate':
         if (text > 99999999999) {
-          Alert.alert('', 'the value should be less than 99999999999');
+          Alert.alert('', this.props.t('purchaseItemEdit.valueTooLarge'));
         } else {
           editItemDetails.rateText = text;
         }
@@ -1031,7 +1032,7 @@ class PurchaseItemEdit extends Component {
 
         {this.props.itemDetails.stock &&
           this._renderTwoFieldsTextInput(
-            'Quantity',
+            this.props.t('purchaseItemEdit.quantity'),
             String(this.state.editItemDetails.quantityText),
             'Unit',
             String(this.state.editItemDetails.unitText),
@@ -1047,7 +1048,7 @@ class PurchaseItemEdit extends Component {
             Render Rate & Amount
           */}
         {this._renderTwoFieldsTextInput(
-          'Rate',
+          this.props.t('purchaseItemEdit.rate'),
           String(this.state.editItemDetails.rateText),
           'Amount',
           String(this.state.editItemDetails.amountText),
@@ -1091,7 +1092,7 @@ class PurchaseItemEdit extends Component {
             marginTop: 15,
             marginBottom:20
           }}>
-          <Text style={{ alignSelf: 'center', color: 'white', fontSize: 20 }}>Done</Text>
+          <Text style={{ alignSelf: 'center', color: 'white', fontSize: 20 }}>{this.props.t('common.done')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -1107,7 +1108,7 @@ class PurchaseItemEdit extends Component {
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Icon name={'path-7'} size={12} />
             <Text style={{ marginLeft: 10, color: this.props.discountArray.length > 0 ? 'black' : '#808080' }}>
-              Discount
+              {this.props.t('purchaseBill.discount')}
             </Text>
           </View>
           {this.state.editItemDetails.percentDiscountArray.length > 0
@@ -1117,7 +1118,7 @@ class PurchaseItemEdit extends Component {
               </Text>
             )
             : (
-              <Text style={style.bottomSheetSelectTaxText}>Select Discount</Text>
+              <Text style={style.bottomSheetSelectTaxText}>{this.props.t('purchaseItemEdit.selectDiscount')}</Text>
             )}
           {/* <Text style={style.bottomSheetSelectTaxText}>
             {this.state.editItemDetails.fixedDiscountUniqueName != ''
@@ -1129,7 +1130,7 @@ class PurchaseItemEdit extends Component {
         <View style={{ marginHorizontal: 16, flex: 1, alignItems: 'flex-start', width: '50%', flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 13 }}>
             <View style={{ flex: 1 }}>
-              <Text>Fixed Discount :</Text>
+              <Text>{this.props.t('purchaseItemEdit.fixedDiscount')} :</Text>
               <TextInput
                 placeholder={`${this.state.editItemDetails.fixedDiscount.discountValue}`}
                 keyboardType={'number-pad'}
@@ -1176,7 +1177,7 @@ class PurchaseItemEdit extends Component {
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Icon name={'Union-65'} size={12} />
-              <Text style={{ marginLeft: 10, color: this.props.taxArray.length > 0 ? 'black' : '#808080' }}>Tax</Text>
+              <Text style={{ marginLeft: 10, color: this.props.taxArray.length > 0 ? 'black' : '#808080' }}>{this.props.t('editItemDetails.tax')}</Text>
             </View>
             {this.state.editItemDetails.taxDetailsArray.length > 0
               ? (
@@ -1185,7 +1186,7 @@ class PurchaseItemEdit extends Component {
                 </Text>
               )
               : (
-                <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text>
+                <Text style={style.bottomSheetSelectTaxText}>{this.props.t('purchaseItemEdit.selectTax')}</Text>
               )}
             {/* <Text style={style.bottomSheetSelectTaxText} numberOfLines={1}>
               {
@@ -1224,8 +1225,9 @@ class PurchaseItemEdit extends Component {
 
 function Screen(props) {
   const isFocused = useIsFocused();
+  const { t } = useTranslation();
 
-  return <PurchaseItemEdit {...props} isFocused={isFocused} />;
+  return <PurchaseItemEdit {...props} isFocused={isFocused} t={t} />;
 }
 
 export default Screen;

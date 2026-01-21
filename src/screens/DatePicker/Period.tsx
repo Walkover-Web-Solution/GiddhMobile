@@ -6,6 +6,7 @@ import styles from './style';
 import { ScrollView } from 'react-native-gesture-handler';
 import { CompanyService } from '@/core/services/company/company.service';
 import colors from '@/utils/colors';
+import { withTranslation } from 'react-i18next';
 
 export class Period extends React.Component {
   constructor(props) {
@@ -56,7 +57,7 @@ export class Period extends React.Component {
             this.props.selectDate(moment().startOf('month').format('DD-MM-YYYY'), moment().endOf('month').format('DD-MM-YYYY'));
             this.props.navigation.goBack();
           }}>
-          <Text style={styles.periodText}>This Month</Text>
+          <Text style={styles.periodText}>{this.props.t('periodFilter.thisMonth')}</Text>
           {this.props.activeDateFilter == 'TM' && <View style={styles.periodDot} />}
         </TouchableOpacity>
         <TouchableOpacity
@@ -70,7 +71,7 @@ export class Period extends React.Component {
             );
             this.props.navigation.goBack();
           }}>
-          <Text style={styles.periodText}>Last Month</Text>
+          <Text style={styles.periodText}>{this.props.t('periodFilter.lastMonth')}</Text>
           {this.props.activeDateFilter == 'LM' && <View style={styles.periodDot} />}
         </TouchableOpacity>
         <TouchableOpacity
@@ -81,7 +82,7 @@ export class Period extends React.Component {
             this.props.selectDate(moment().startOf('quarter').format('DD-MM-YYYY'), moment().format('DD-MM-YYYY'));
             this.props.navigation.goBack();
           }}>
-          <Text style={styles.periodText}>This Quarter to Date</Text>
+          <Text style={styles.periodText}>{this.props.t('periodFilter.thisQuarterToDate')}</Text>
           {this.props.activeDateFilter == 'TQ' && <View style={styles.periodDot} />}
         </TouchableOpacity>
         <TouchableOpacity
@@ -95,7 +96,7 @@ export class Period extends React.Component {
             );
             this.props.navigation.goBack();
           }}>
-          <Text style={styles.periodText}>Last Quarter</Text>
+          <Text style={styles.periodText}>{this.props.t('periodFilter.lastQuarter')}</Text>
           {this.props.activeDateFilter == 'LQ' && <View style={styles.periodDot} />}
         </TouchableOpacity>
         <TouchableOpacity
@@ -109,7 +110,7 @@ export class Period extends React.Component {
             );
             this.props.navigation.goBack();
           }}>
-          <Text style={styles.periodText}>This Financial Year to Date</Text>
+          <Text style={styles.periodText}>{this.props.t('periodFilter.thisFinancialYearToDate')}</Text>
           <View style={styles.wrapper}>
             <ActivityIndicator color={colors.PRIMARY_NORMAL} size="small" animating={this.state.isLoading} />
             {this.props.activeDateFilter == 'FY' && <View style={styles.periodDot} />}
@@ -121,4 +122,4 @@ export class Period extends React.Component {
   }
 }
 
-export default Period;
+export default withTranslation()(Period);

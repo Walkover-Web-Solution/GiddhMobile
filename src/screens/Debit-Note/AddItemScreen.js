@@ -24,6 +24,7 @@ import { APP_EVENTS } from '@/utils/constants';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
+import { withTranslation } from 'react-i18next';
 const { SafeAreaOffsetHelper } = NativeModules;
 
 export const KEYBOARD_EVENTS = {
@@ -114,7 +115,7 @@ class AddItemScreen extends React.Component<Props> {
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
           <TextInput
-            placeholder={'Search Product/Service'}
+            placeholder={this.props.t('addItemScreen.searchProductService')}
             placeholderTextColor={'#fff'}
             returnKeyType={'done'}
             onChangeText={(text) =>
@@ -129,7 +130,7 @@ class AddItemScreen extends React.Component<Props> {
         <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
         <View style={{ marginRight: 10 }}>
           <Text style={style.footerItemsTotalText}>{this.props.route.params.currencySymbol+`${formatAmount(this.performCalulations())}`}</Text>
-          <Text style={{ color: 'white' }}>{`Items: ${this.state.addedItems.length}`}</Text>
+          <Text style={{ color: 'white' }}>{`${this.props.t('addItemScreen.items')}: ${this.state.addedItems.length}`}</Text>
         </View>
       </View>
     );
@@ -218,7 +219,7 @@ class AddItemScreen extends React.Component<Props> {
     return(
       <BottomSheet
         bottomSheetRef={this.variantsBottomSheetRef}
-        headerText={`Select Variants`}
+        headerText={this.props.t('addItemScreen.selectVariants')}
         headerTextColor='#ff6961'
         onClose={() => {
           this.setState({ selectedStock: {}});
@@ -256,7 +257,7 @@ class AddItemScreen extends React.Component<Props> {
               onPress={() => {
                 this.addItem(item);
               }}>
-              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{'ADD'}</Text>
+              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{this.props.t('addItemScreen.add')}</Text>
             </TouchableOpacity>
           </View>
             )
@@ -274,7 +275,7 @@ class AddItemScreen extends React.Component<Props> {
                   this.setState({selectedStock: item});
                   this.setBottomSheetVisible(this.variantsBottomSheetRef, true);
                 }}>
-                <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{'Select Variants'}</Text>
+                <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{this.props.t('addItemScreen.selectVariants')}</Text>
               </TouchableOpacity>
             </View>
             {filtered.map((item) => {
@@ -350,7 +351,7 @@ class AddItemScreen extends React.Component<Props> {
                     {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
                   </Text>
                   <Text style={style.smallText}>
-                  Rate: {filteredItem?.stock?.rate ? filteredItem?.stock?.rate : '0'}
+                  {this.props.t('addItemScreen.rate')}: {filteredItem?.stock?.rate ? filteredItem?.stock?.rate : '0'}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -442,7 +443,7 @@ class AddItemScreen extends React.Component<Props> {
               onPress={() => {
                 this.addItem(item);
               }}>
-              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>SELECT</Text>
+              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{this.props.t('addItemScreen.select')}</Text>
               {/* <Icon style={{marginLeft: 10}} name={'path-18'} size={10} color={'#1C1C1C'} /> */}
             </TouchableOpacity>
           </View>
@@ -455,7 +456,7 @@ class AddItemScreen extends React.Component<Props> {
                   {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
                 </Text>
                 <Text style={style.smallText}>
-                  Rate : {filteredItem.rate ? filteredItem.rate : '0'}
+                  {this.props.t('addItemScreen.rate')} : {filteredItem.rate ? filteredItem.rate : '0'}
                 </Text>
               </View>
               <TouchableOpacity
@@ -474,7 +475,7 @@ class AddItemScreen extends React.Component<Props> {
                   <Icon style={{ marginLeft: 10 }} name={'path-14'} size={10} color={'white'} />
                 )}
 
-                <Text style={[style.regularText, { paddingHorizontal: 14, alignSelf: 'center', color: 'white' }]}>{'Remove'}</Text>
+                <Text style={[style.regularText, { paddingHorizontal: 14, alignSelf: 'center', color: 'white' }]}>{this.props.t('addItemScreen.remove')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -501,7 +502,7 @@ class AddItemScreen extends React.Component<Props> {
         );
       }
     } catch (e) {
-      this.setState({ itemList: [], searchError: 'No Results', isSearchingParty: false });
+      this.setState({ itemList: [], searchError: this.props.t('addItemScreen.noResults'), isSearchingParty: false });
     }
   }
 
@@ -564,7 +565,7 @@ class AddItemScreen extends React.Component<Props> {
             }
           }
         } else {
-          this.setState({ searchError: 'No Results', loading: false });
+          this.setState({ searchError: this.props.t('addItemScreen.noResults'), loading: false });
         }
       } else {
         const results = await InvoiceService.getSalesDetails(item.uniqueName);
@@ -579,12 +580,12 @@ class AddItemScreen extends React.Component<Props> {
           }
           this.setState({ addedItems, loading: false });
         } else {
-          this.setState({ searchError: 'No Results', loading: false });
+          this.setState({ searchError: this.props.t('addItemScreen.noResults'), loading: false });
         }
       }
     } catch (e) {
       alert(e);
-      this.setState({ searchError: 'No Results', loading: false });
+      this.setState({ searchError: this.props.t('addItemScreen.noResults'), loading: false });
     }
   }
 
@@ -720,7 +721,7 @@ class AddItemScreen extends React.Component<Props> {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-          <Text style={style.addItemDone}>Done</Text>
+          <Text style={style.addItemDone}>{this.props.t('addItemScreen.done')}</Text>
         </TouchableOpacity>
       </Animated.View>
     );
@@ -802,5 +803,5 @@ function mapDispatchToProps (dispatch) {
   };
 }
 
-const MyComponent = connect(mapStateToProps, mapDispatchToProps)(AddItemScreen);
+const MyComponent = connect(mapStateToProps, mapDispatchToProps)(withTranslation()(AddItemScreen));
 export default MyComponent;

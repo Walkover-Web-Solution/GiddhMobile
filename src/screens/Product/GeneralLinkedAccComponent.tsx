@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Dimensions, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from "react-native-simple-radio-button";
 import makeStyle from './style';
 import useCustomTheme from "@/utils/theme";
@@ -10,10 +11,10 @@ import InputField from "@/components/InputField";
 import MatButton from "@/components/OutlinedButton";
 
 const GeneralLinkedAccComponent = ({
-    rateLabel = "Rate:",
+    rateLabel,
     initialRadioSelection = 1,
-    linkedAccountText = "Purchase Accounts",
-    textInputPlaceholder = "Rate",
+    linkedAccountText,
+    textInputPlaceholder,
     textInputKeyboardType = "number-pad",
     unitText = "Unit",
     unitName = "Unit",
@@ -30,18 +31,20 @@ const GeneralLinkedAccComponent = ({
     accountData,
     setAccount
 })=>{
+    const { t } = useTranslation();
     const [radioBtn,setRadioBtn] = useState(1);
     const radio_props = [
-        { label: 'MRP (Inclusive)', value: 0 },
-        { label: 'Exclusive', value: 1 }
+        { label: t('product.mrpInclusive'), value: 0 },
+        { label: t('product.exclusive'), value: 1 }
       ];
     const {theme,styles} = useCustomTheme(makeStyle);
+    const effectiveLinkedAccountText = linkedAccountText || t('product.purchaseAccounts');
     const {height,width} = Dimensions.get('window')
 
     const RenderSubUnitMappingModal = (
         <BottomSheet
         bottomSheetRef={unitModalRef}
-        headerText='Select Unit'
+        headerText={t('product.selectUnit')}
         headerTextColor='#084EAD'
         adjustToContentHeight={((subUnitData.length*47) > (height-100)) ? false : true}
         flatListProps={{
@@ -70,7 +73,7 @@ const GeneralLinkedAccComponent = ({
                 <View style={styles.modalCancelView}>
                 <Text
                     style={styles.modalCancelText}>
-                    No Unit Available
+                    {t('product.noUnitAvailable')}
                 </Text>
                 </View>
 
@@ -83,7 +86,7 @@ const GeneralLinkedAccComponent = ({
     const RenderAccountModal = (
         <BottomSheet
         bottomSheetRef={accountModalRef}
-        headerText='Select Unit'
+        headerText={t('product.selectAccount')}
         headerTextColor='#084EAD'
         adjustToContentHeight={((accountData.length*47) > (height-100)) ? false : true}
         flatListProps={{
@@ -109,7 +112,7 @@ const GeneralLinkedAccComponent = ({
                 <View style={styles.modalCancelView}>
                 <Text
                     style={styles.modalCancelText}>
-                    No Accounts Available
+                    {t('product.noAccountsAvailable')}
                 </Text>
                 </View>
 
@@ -138,7 +141,7 @@ const GeneralLinkedAccComponent = ({
                             index={i}
                             isSelected={radioBtn === i}
                             onPress={(val) => { setRadioBtn(val),
-                                linkedAccountText == "Purchase Accounts" ? (
+                                effectiveLinkedAccountText == t('product.purchaseAccounts') ? (
                                     val == 0 ? handleRateChange('purchaseMRPChecked',true) : handleRateChange('purchaseMRPChecked',false)
                                 ):(
                                     val == 0 ? handleRateChange('salesMRPChecked',true) : handleRateChange('salesMRPChecked',false)
@@ -157,7 +160,7 @@ const GeneralLinkedAccComponent = ({
                             index={i}
                             labelHorizontal={true}
                             onPress={(val) => { setRadioBtn(val),
-                                linkedAccountText == "Purchase Accounts" ? (
+                                effectiveLinkedAccountText == t('product.purchaseAccounts') ? (
                                     val == 0 ? handleRateChange('purchaseMRPChecked',true) : handleRateChange('purchaseMRPChecked',false)
                                 ):(
                                     val == 0 ? handleRateChange('salesMRPChecked',true) : handleRateChange('salesMRPChecked',false)
@@ -174,19 +177,19 @@ const GeneralLinkedAccComponent = ({
             {!variantsChecked && <View style={[styles.inputRow,{marginTop:0}]}>
                 <View style={{width:'48%'}}>
                     <InputField 
-                        lable="Rate"
+                        lable={t('product.rate')}
                         keyboardType="numeric"
                         isRequired={false}
                         placeholderTextColor={'#808080'}
                         containerStyle={{marginVertical:5}}
                         onChangeText={(val) => {
-                            linkedAccountText === "Purchase Accounts" ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
+                            effectiveLinkedAccountText === t('product.purchaseAccounts') ? handleRateChange('purchaseRate',val) : handleRateChange('salesRate',val)
                         }}
                     />    
                 </View>
                 <View style={{width:'48%'}}>
                     <MatButton 
-                        lable="Unit"
+                        lable={t('product.unit')}
                         value={subUnits?.uniqueName ? subUnits?.code : unitName==='Unit' ? "":unitName}
                         onPress={() => {
                             unitName !== 'Unit' ? setBottomSheetVisible(unitModalRef,true) : Toast({message: "Please select unit group", position:'BOTTOM',duration:'SHORT'});
@@ -197,7 +200,7 @@ const GeneralLinkedAccComponent = ({
             <View style={[styles.inputRow,{marginBottom:5}]}>
                 <View style={{width:'100%'}}>
                     <MatButton 
-                        lable={linkedAccountText === "Purchase Accounts" ?'Purchase Accounts' :'Sales Accounts'}
+                        lable={effectiveLinkedAccountText === t('product.purchaseAccounts') ? t('product.purchaseAccounts') : t('product.salesAccounts')}
                         value={selectedAccount?.name 
                             ? selectedAccount?.name 
                             : ""

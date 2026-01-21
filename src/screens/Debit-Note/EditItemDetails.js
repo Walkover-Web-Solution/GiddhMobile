@@ -20,6 +20,7 @@ import style from './style';
 import BottomSheet from '@/components/BottomSheet';
 import { FONT_FAMILY } from '@/utils/constants';
 import { formatAmount } from '@/utils/helper';
+import { withTranslation } from 'react-i18next';
 const { SafeAreaOffsetHelper } = NativeModules;
 
 const { width, height } = Dimensions.get('window');
@@ -176,7 +177,7 @@ class EditItemDetails extends Component {
 
       <BottomSheet
         bottomSheetRef={this.taxCalculationModalRef}
-        headerText='Calculation Method'
+        headerText={this.props.t('addEntry.calculationMethod')}
         headerTextColor='#ff6961'
       >
         <TouchableOpacity
@@ -204,7 +205,7 @@ class EditItemDetails extends Component {
             )}
             <Text
               style={style.taxCalculationMethodButtonText}>
-              {'On Taxable Value (Amt - Dis)'}
+              {this.props.t('addEntry.onTaxableValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -233,7 +234,7 @@ class EditItemDetails extends Component {
             )}
             <Text
               style={style.taxCalculationMethodButtonText}>
-              {'On Total Value (Taxable + Gst + Cess)'}
+              {this.props.t('addEntry.onTotalValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -245,7 +246,7 @@ class EditItemDetails extends Component {
     return (
       <BottomSheet
         bottomSheetRef={this.taxBottomSheetRef}
-        headerText='Select Taxes'
+        headerText={this.props.t('editItemDetails.selectTax')}
         headerTextColor='#ff6961'
         flatListProps={{
           data: this.props.taxArray,
@@ -340,7 +341,7 @@ class EditItemDetails extends Component {
                 </View>
                 {(item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc') && filtered.length > 0 ? 
                 <TouchableOpacity style={style.tdsTcsCalculationButton} onPress={() => this.setBottomSheetVisible(this.taxCalculationModalRef, true)}>
-                  <Text style={style.tdsTcsCalculationButtonText}>{this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? 'On Taxable Value' : 'On Total Value'}</Text>
+                  <Text style={style.tdsTcsCalculationButtonText}>{this.state.editItemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount' ? this.props.t('addEntry.onTaxableValueShort') : this.props.t('addEntry.onTotalValueShort')}</Text>
                 </TouchableOpacity> : null}
                 </View>
               </TouchableOpacity>
@@ -350,7 +351,7 @@ class EditItemDetails extends Component {
             return (
               <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={style.regularText}>
-                  No Tax Exist
+                  {this.props.t('editItemDetails.noTaxExist')}
                 </Text>
               </View>
             )
@@ -364,7 +365,7 @@ class EditItemDetails extends Component {
     return (
       <BottomSheet
         bottomSheetRef={this.unitBottomSheetRef}
-        headerText='Select Unit'
+        headerText={this.props.t('addEntry.selectUnit')}
         headerTextColor='#ff6961'
         flatListProps={{
           data: this.state.unitArray,
@@ -406,7 +407,7 @@ class EditItemDetails extends Component {
             return (
               <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={style.regularText}>
-                  No Unit Exist
+                  {this.props.t('editItemDetails.noUnitExist')}
                 </Text>
               </View>
             )
@@ -586,7 +587,7 @@ class EditItemDetails extends Component {
     return (
       <BottomSheet
         bottomSheetRef={this.discountBottomSheetRef}
-        headerText='Select Discounts'
+        headerText={this.props.t('editItemDetails.selectDiscounts')}
         headerTextColor='#ff6961'
         flatListProps={{
           data: this.props.discountArray,
@@ -697,7 +698,7 @@ class EditItemDetails extends Component {
                     <Text style={style.regularText}>{item.name}</Text>
                     <View style={{ flexDirection: 'row' }}>
                       <Text style={[{ color: '#808080', paddingTop: 4, fontSize: 12, fontFamily: FONT_FAMILY.regular }]}>
-                        {(item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage') + ' -'}
+                        {(item.discountType == 'FIX_AMOUNT' ? this.props.t('editItemDetails.fixed') : this.props.t('editItemDetails.percentage')) + ' -'}
                       </Text>
                       <Text style={[{ color: '#808080', paddingTop: 4, fontSize: 12, fontFamily: FONT_FAMILY.regular }]}>
                         {item.discountValue}
@@ -713,7 +714,7 @@ class EditItemDetails extends Component {
             return (
               <View style={{height: height * 0.3, justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={style.regularText}>
-                  No Discount Exist
+                  {this.props.t('editItemDetails.noDiscountExist')}
                 </Text>
               </View>
             )
@@ -768,7 +769,7 @@ class EditItemDetails extends Component {
               )}
             </TouchableOpacity>
 
-            <Text style={{ marginLeft: 10 }}>HSN Code</Text>
+            <Text style={{ marginLeft: 10 }}>{this.props.t('editItemDetails.hsnCode')}</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginTop: 15 }}>
             <TouchableOpacity
@@ -786,7 +787,7 @@ class EditItemDetails extends Component {
               )}
             </TouchableOpacity>
 
-            <Text style={{ marginLeft: 10 }}>SAC Code</Text>
+            <Text style={{ marginLeft: 10 }}>{this.props.t('editItemDetails.sacCode')}</Text>
           </View>
         </View>
         <TextInput
@@ -818,7 +819,7 @@ class EditItemDetails extends Component {
   _renderFinalTotal() {
     return (
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 16 }}>
-        <Text>Total Amount</Text>
+        <Text>{this.props.t('editItemDetails.totalAmount')}</Text>
         <Text style={style.finalItemAmount}>{`${(this.props.currencySymbol ? this.props.currencySymbol : '') +
           '' +
           formatAmount(this.calculateFinalAmountToDisplay(this.state.editItemDetails))
@@ -842,7 +843,7 @@ class EditItemDetails extends Component {
   _renderDescriptionField() {
     return (
       <TextInput
-        placeholder='Add Description'
+        placeholder={this.props.t('addEntry.addDescription')}
         multiline={true}
         numberOfLines={10}
         value={this.state.editItemDetails.description}
@@ -914,7 +915,7 @@ class EditItemDetails extends Component {
 
       case 'Rate':
         if (text > 99999999999) {
-          Alert.alert('', 'the value should be less than 99999999999');
+          Alert.alert('', this.props.t('editItemDetails.valueLimitError'));
         } else {
           editItemDetails.rateText = text;
         }
@@ -1068,9 +1069,9 @@ class EditItemDetails extends Component {
 
         {this.props.itemDetails.stock &&
           this._renderTwoFieldsTextInput(
-            'Quantity',
+            this.props.t('editItemDetails.quantity'),
             String(this.state.editItemDetails.quantityText),
-            'Unit',
+            this.props.t('addEntry.unit'),
             String(this.state.editItemDetails.unitText),
             'Product',
             'Product',
@@ -1083,9 +1084,9 @@ class EditItemDetails extends Component {
             Render Rate & Amount
           */}
         {this._renderTwoFieldsTextInput(
-          'Rate',
+          this.props.t('editItemDetails.rate'),
           String(this.state.editItemDetails.rateText),
-          'Amount',
+          this.props.t('addEntry.amount'),
           String(this.state.editItemDetails.amountText),
           'Product',
           'Product',
@@ -1127,7 +1128,7 @@ class EditItemDetails extends Component {
             marginTop: 15,
             marginBottom: 20,
           }}>
-          <Text style={{ alignSelf: 'center', color: 'white', fontSize: 20 }}>Done</Text>
+          <Text style={{ alignSelf: 'center', color: 'white', fontSize: 20 }}>{this.props.t('common.done')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -1144,7 +1145,7 @@ class EditItemDetails extends Component {
             <Icon name={'path-7'} size={12} />
 
             <Text style={{ marginLeft: 10, color: this.props.discountArray.length > 0 ? 'black' : '#808080' }}>
-              Discount
+              {this.props.t('addEntry.discount')}
             </Text>
           </View>
           {this.state.editItemDetails.percentDiscountArray.length > 0 ? (
@@ -1152,7 +1153,7 @@ class EditItemDetails extends Component {
               {this.state.editItemDetails.percentDiscountArray.map((item) => `${item.discountValue}%  `)}
             </Text>
           ) : (
-            <Text style={style.bottomSheetSelectTaxText}>Select Discount</Text>
+            <Text style={style.bottomSheetSelectTaxText}>{this.props.t('addEntry.selectDiscount')}</Text>
           )}
           {/* <Text style={style.bottomSheetSelectTaxText}>
             {this.state.editItemDetails.discountType ? this.state.editItemDetails.discountType : 'Select Discount'}
@@ -1162,7 +1163,7 @@ class EditItemDetails extends Component {
         <View style={{ marginHorizontal: 16, flex: 1, alignItems: 'flex-start', width: '50%', flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 13 }}>
             <View style={{ flex: 1 }}>
-              <Text>Fixed Discount :</Text>
+              <Text>{this.props.t('editItemDetails.fixedDiscount')} :</Text>
               <TextInput
                 placeholder={`${this.state.editItemDetails.fixedDiscount.discountValue}`}
                 keyboardType={'number-pad'}
@@ -1209,14 +1210,14 @@ class EditItemDetails extends Component {
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Icon name={'Union-65'} size={12} />
-              <Text style={{ marginLeft: 10, color: this.props.taxArray.length > 0 ? 'black' : '#808080' }}>Tax</Text>
+              <Text style={{ marginLeft: 10, color: this.props.taxArray.length > 0 ? 'black' : '#808080' }}>{this.props.t('addEntry.tax')}</Text>
             </View>
             {this.state.editItemDetails.taxDetailsArray.length > 0 ? (
               <Text style={style.TaxText} numberOfLines={2}>
                 {this.state.editItemDetails.taxDetailsArray.map((item) => `${item.name}  `)}
               </Text>
             ) : (
-              <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text>
+              <Text style={style.bottomSheetSelectTaxText}>{this.props.t('editItemDetails.selectTax')}</Text>
             )}
             {/* <Text style={style.bottomSheetSelectTaxText}>Select Tax</Text> */}
           </TouchableOpacity>
@@ -1250,4 +1251,4 @@ class EditItemDetails extends Component {
   }
 }
 
-export default EditItemDetails;
+export default withTranslation()(EditItemDetails);

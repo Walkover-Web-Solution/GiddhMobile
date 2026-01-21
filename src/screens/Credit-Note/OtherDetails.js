@@ -19,6 +19,8 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import _ from 'lodash';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import { withTranslation, WithTranslation } from 'react-i18next';
+
 
 const { SafeAreaOffsetHelper } = NativeModules;
 
@@ -33,7 +35,7 @@ export const KEYBOARD_EVENTS = {
   KEYBOARD_DID_HIDE: 'keyboardDidHide'
 };
 
-interface Props {
+interface Props extends WithTranslation {
   navigation: any;
 }
 class OtherDetails extends React.Component<Props> {
@@ -90,7 +92,6 @@ class OtherDetails extends React.Component<Props> {
 
 
   componentDidMount() {
-
     this.setHeadingName()
 
     if (Platform.OS == 'ios') {
@@ -167,7 +168,7 @@ class OtherDetails extends React.Component<Props> {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <Text style={{ fontSize: 16, color: 'white' }}>Other Details</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>{this.props.t('otherDetails.title')}</Text>
         </View>
       </View>
     );
@@ -186,13 +187,13 @@ class OtherDetails extends React.Component<Props> {
         <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 4, paddingHorizontal: 16 }}>
           <Icon name={'path-8'} size={16} color={'#808080'} />
 
-          <Text style={{ color: '#808080', marginLeft: 10 }}>Warehouse</Text>
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{this.props.t('otherDetails.warehouse')}</Text>
         </View>
         <Text style={{ color: '#808080', marginLeft: 10 }}>
           {' '}
           {this.props.route.params.selectedWareHouse
             ? this.props.route.params.selectedWareHouse.address
-            : 'Select Warehouse'}
+            : this.props.t('otherDetails.selectWarehouse')}
         </Text>
 
         {this._renderBottomSeprator(16)}
@@ -454,7 +455,7 @@ class OtherDetails extends React.Component<Props> {
                 color: '#fff',
                 fontSize: 20
               }}>
-              Save
+              {this.props.t('otherDetails.save')}
             </Text>
           </TouchableOpacity>
         )}
@@ -487,5 +488,5 @@ function mapDispatchToProps (dispatch) {
   };
 }
 
-const MyComponent = connect(mapStateToProps, mapDispatchToProps)(OtherDetails);
+const MyComponent = connect(mapStateToProps, mapDispatchToProps)(withTranslation()(OtherDetails));
 export default MyComponent;

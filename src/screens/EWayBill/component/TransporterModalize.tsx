@@ -1,6 +1,7 @@
 import BottomSheet from "@/components/BottomSheet";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 const RenderItem = ({item, handlePress, setBottomSheetVisible, modalRef}) => {
     const {styles} = useCustomTheme(getStyles);
@@ -18,11 +19,12 @@ const RenderItem = ({item, handlePress, setBottomSheetVisible, modalRef}) => {
 }
 
 const TransporterModalize = ({modalizeRef, setBottomSheetVisible, transporterData, setTransporter, addTrasporterModalRef}) => {
+    const { t } = useTranslation();
     const {styles, theme} = useCustomTheme(getStyles);
     return (
         <BottomSheet
             bottomSheetRef={modalizeRef}
-            headerText={'Select Transporter'}
+            headerText={t('ewayBill.selectTransporter')}
             headerTextColor={'#084EAD'}
             adjustToContentHeight
             customRenderer={
@@ -38,7 +40,7 @@ const TransporterModalize = ({modalizeRef, setBottomSheetVisible, transporterDat
                                     setBottomSheetVisible(modalizeRef, false)
                                     }}
                                     >
-                                    <Text style={styles.semiBoldText2}>+ Create New</Text>
+                                    <Text style={styles.semiBoldText2}>{t('ewayBill.createNew')}</Text>
                                 </TouchableOpacity>
                             </View>
                         )}

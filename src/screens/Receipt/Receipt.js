@@ -27,6 +27,7 @@ import {APP_EVENTS, STORAGE_KEYS} from '@/utils/constants';
 import {InvoiceService} from '@/core/services/invoice/invoice.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {useIsFocused} from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import style from './style';
 import {FONT_FAMILY} from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
@@ -329,7 +330,7 @@ export class Receipt extends React.Component<any> {
         this.setState({ loading: false });
       }
       if (results.body) {
-        alert('Receipt created successfully!');
+        alert(this.props.t('receipt.receiptCreatedSuccessfully'));
         const partyDetails = this.state.partyDetails;
         const partyName = this.state.partyName;
         if (type == 'navigate') {
@@ -432,7 +433,7 @@ export class Receipt extends React.Component<any> {
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
           <TouchableOpacity style={style.invoiceTypeButton}>
-            <Text style={style.invoiceType}>Receipt</Text>
+            <Text style={style.invoiceType}>{this.props.t('Vouchers.Receipt')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -449,7 +450,7 @@ export class Receipt extends React.Component<any> {
           <Icon name={'Profile'} color={'#1CB795'} style={{margin: 16}} size={16} />
           <TextInput
             placeholderTextColor={'#808080'}
-            placeholder={'Select Parties Name'}
+            placeholder={this.props.t('payment.selectPartiesName')}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
             onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
@@ -458,7 +459,7 @@ export class Receipt extends React.Component<any> {
           <ActivityIndicator color={'#5773FF'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
+          <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>{this.props.t('common.clearAll')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -512,7 +513,7 @@ export class Receipt extends React.Component<any> {
         <FlatList
           nestedScrollEnabled={true}
           showsVerticalScrollIndicator={false}
-          data={this.state.searchResults.length == 0 ? ['Result Not found'] : this.state.searchResults}
+          data={this.state.searchResults.length == 0 ? [this.props.t('common.resultNotFound')] : this.state.searchResults}
           style={{paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5}}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
@@ -520,7 +521,7 @@ export class Receipt extends React.Component<any> {
               style={{}}
               onFocus={() => this.onChangeText('')}
               onPress={async () => {
-                if (item != 'Result Not found') {
+                if (item != this.props.t('common.resultNotFound')) {
                   this.setState(
                     {
                       partyName: item,
@@ -539,7 +540,7 @@ export class Receipt extends React.Component<any> {
                   this.setState({isSearchingParty: false, searchResults: []});
                 }
               }}>
-              <Text style={style.searchItemText}>{item.name ? item.name : "Result Not found"}</Text>
+              <Text style={style.searchItemText}>{item.name ? item.name : this.props.t('common.resultNotFound')}</Text>
             </TouchableOpacity>
           )}
         />
@@ -572,7 +573,7 @@ export class Receipt extends React.Component<any> {
         this.setState({searchResults: results.body.results, isSearchingParty: false, searchError: ''});
       }
     } catch (e) {
-      this.setState({searchResults: [], searchError: 'No Results', isSearchingParty: false});
+      this.setState({searchResults: [], searchError: this.props.t('common.noResultsFound'), isSearchingParty: false});
     }
   }
 
@@ -595,7 +596,7 @@ export class Receipt extends React.Component<any> {
         });
       }
     } catch (e) {
-      this.setState({searchResults: [], searchError: 'No Results', isSearchingParty: false});
+      this.setState({searchResults: [], searchError: this.props.t('common.noResultsFound'), isSearchingParty: false});
     }
   }
 
@@ -691,7 +692,7 @@ export class Receipt extends React.Component<any> {
 
       <BottomSheet
         bottomSheetRef={this.calculationModalRef}
-        headerText='Calculation Method'
+        headerText={this.props.t('payment.calculationMethod')}
         headerTextColor='#00B795'
       >
         <TouchableOpacity
@@ -722,7 +723,7 @@ export class Receipt extends React.Component<any> {
                 marginLeft: 10,
                 fontFamily: FONT_FAMILY.semibold,
               }}>
-              {'On Taxable Value (Amt - Dis)'}
+              {this.props.t('payment.onTaxableValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -754,7 +755,7 @@ export class Receipt extends React.Component<any> {
                 marginLeft: 10,
                 fontFamily: FONT_FAMILY.semibold,
               }}>
-              {'On Total Value (Taxable + Gst + Cess)'}
+              {this.props.t('payment.onTotalValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -766,7 +767,7 @@ export class Receipt extends React.Component<any> {
     return (
       <BottomSheet
         bottomSheetRef={this.taxModalRef}
-        headerText='Select Taxes'
+        headerText={this.props.t('payment.selectTaxes')}
         headerTextColor='#00B795'
         onClose={() => {
           if(this.state.SelectedTaxData.taxDetailsArray.length == 0){
@@ -887,7 +888,7 @@ export class Receipt extends React.Component<any> {
                     textAlign: 'center',
                     alignSelf: 'center'
                   }}>
-                  No Taxes Available
+                  {this.props.t('payment.noTaxesAvailable')}
                 </Text>
               </View>
 
@@ -928,7 +929,7 @@ export class Receipt extends React.Component<any> {
             }}
             onChangeText={async(text) => {
               if (!this.state.partyName) {
-                alert('Please select a party.');
+                alert(this.props.t('common.pleaseSelectParty'));
               } else {
                 await this.setState({
                   amountForReceipt: text.replace(/[^0-9]/g, ''),
@@ -967,11 +968,11 @@ export class Receipt extends React.Component<any> {
     const diffYears = new Date().getFullYear() - dt.getFullYear();
 
     if (diffYears === 0 && diffDays === 0) {
-      return 'Today';
+      return this.props.t('common.today');
     } else if (diffYears === 0 && diffDays === 1) {
-      return 'Yesterday';
+      return this.props.t('common.yesterday');
     } else if (diffYears === 0 && diffDays === -1) {
-      return 'Tomorrow';
+      return this.props.t('common.tomorrow');
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
     } else {
@@ -991,11 +992,11 @@ export class Receipt extends React.Component<any> {
     const diffYears = new Date().getFullYear() - dt.getFullYear();
 
     if (diffYears === 0 && diffDays === 0) {
-      return 'Today';
+      return this.props.t('common.today');
     } else if (diffYears === 0 && diffDays === 1) {
-      return 'Yesterday';
+      return this.props.t('common.yesterday');
     } else if (diffYears === 0 && diffDays === -1) {
-      return 'Tomorrow';
+      return this.props.t('common.tomorrow');
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
     } else if (diffYears >= 1) {
@@ -1031,7 +1032,7 @@ export class Receipt extends React.Component<any> {
           style={{flexDirection: 'row'}}
           onPress={() => {
             if (!this.state.partyName) {
-              alert('Please select a party.');
+              alert(this.props.t('common.pleaseSelectParty'));
             } else {
               this.setState({showDatePicker: true});
             }
@@ -1043,7 +1044,7 @@ export class Receipt extends React.Component<any> {
           style={{borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2}}
           onPress={() => {
             if (!this.state.partyName) {
-              alert('Please select a party.');
+              alert(this.props.t('common.pleaseSelectParty'));
             } else {
               this.state.date.startOf('day').isSame(moment().startOf('day'))
                 ? this.getYesterdayDate()
@@ -1051,7 +1052,7 @@ export class Receipt extends React.Component<any> {
             }
           }}>
           <Text style={{color: '#808080'}}>
-            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? this.props.t('common.yesterdayQ') : this.props.t('common.todayQ')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -1063,7 +1064,7 @@ export class Receipt extends React.Component<any> {
     return (
       <BottomSheet
         bottomSheetRef={this.paymentModalRef}
-        headerText='Payment Mode'
+        headerText={this.props.t('common.paymentMode')}
         headerTextColor='#00B795'
         flatListProps={{
           data: this.state.allPaymentModes,
@@ -1121,7 +1122,7 @@ export class Receipt extends React.Component<any> {
       <View style={style.fieldContainer}>
         <View style={{flexDirection: 'row'}}>
           <Icon name={'Path-12190'} color={'#1CB795'} size={16} />
-          <Text style={style.fieldHeadingText}>{'Payment Mode*'}</Text>
+          <Text style={style.fieldHeadingText}>{this.props.t('payment.paymentMode')}</Text>
         </View>
 
         <View style={{paddingVertical: 6, marginTop: 10}}>
@@ -1132,7 +1133,7 @@ export class Receipt extends React.Component<any> {
                 if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
                   this.setBottomSheetVisible(this.paymentModalRef, true);
                 } else {
-                  alert('Please select a party.');
+                  alert(this.props.t('common.pleaseSelectParty'));
                 }
               }}
               textColor={{color}}>
@@ -1149,7 +1150,7 @@ export class Receipt extends React.Component<any> {
                       color: this.state.isSelectAccountButtonSelected ? '#00B795' : '#868686',
                     },
                   ]}>
-                  {this.state.isSelectAccountButtonSelected ? this.state.paymentMode.name : 'Select A/c'}
+                  {this.state.isSelectAccountButtonSelected ? this.state.paymentMode.name : this.props.t('common.selectAccount')}
                 </Text>
               </View>
               {this.state.isSelectAccountButtonSelected ? (
@@ -1166,11 +1167,11 @@ export class Receipt extends React.Component<any> {
       <TouchableOpacity
        style={[style.fieldContainer, {flex: 1}]}
        onPress={async () => {
-        if (!this.state.partyName) {
-          alert('Please select a party.');
-        } else if (this.state.amountForReceipt == '') {
-          alert('Please enter amount.');
-        } else {
+                if (!this.state.partyName) {
+                    alert(this.props.t('common.pleaseSelectParty'));
+                  } else if (this.state.amountForReceipt == '') {
+                    alert(this.props.t('common.pleaseEnterAmount'));
+                  } else {
           this.setBottomSheetVisible(this.taxModalRef, true);
           await this.setState({
             isChecked: true
@@ -1184,10 +1185,10 @@ export class Receipt extends React.Component<any> {
             uncheckedCheckBoxColor={'#1CB795'}
             style={{marginLeft: -4}}
             onClick={async () => {
-              if (!this.state.partyName) {
-                    alert('Please select a party.');
+                if (!this.state.partyName) {
+                    alert(this.props.t('common.pleaseSelectParty'));
                   } else if (this.state.amountForReceipt == '') {
-                    alert('Please enter amount.');
+                    alert(this.props.t('common.pleaseEnterAmount'));
                   } else {
               this.setBottomSheetVisible(this.taxModalRef, true);
              await this.setState({
@@ -1200,14 +1201,14 @@ export class Receipt extends React.Component<any> {
           { this.state.SelectedTaxData.taxDetailsArray.length > 0 
           ? <View style={{flexDirection: 'row', flex: 1}}>
               <View style={{flexDirection: 'row', flex: 1}}>
-              <Text style={[style.fieldHeadingText, {marginLeft: 5}]}>{'Tax'} </Text>
+              <Text style={[style.fieldHeadingText, {marginLeft: 5}]}>{this.props.t('payment.tax')} </Text>
               <Text style={[style.fieldHeadingText, {marginLeft: 5, color: '#00B795BF'}]}>{`(${this.state.SelectedTaxData.taxDetailsArray.map((item) => ` ${item.name}`) } )`} </Text>
               </View>
               <View style={{ alignSelf: 'center', justifyContent: 'flex-end'}}>
               <Entypo name="edit" size={16} color={'#00B795'} style={{ paddingRight: 10}}/>
               </View>
             </View>
-          : <Text style={[style.fieldHeadingText, {marginLeft: 5}]}>{'Tax'}</Text>}
+          : <Text style={[style.fieldHeadingText, {marginLeft: 5}]}>{this.props.t('payment.tax')}</Text>}
         </View>
       </TouchableOpacity>
     );
@@ -1219,7 +1220,7 @@ export class Receipt extends React.Component<any> {
       <View style={style.fieldContainer}>
         <View style={{flexDirection: 'row'}}>
           <Icon name={'path-15'} color={'#1CB795'} size={16} />
-          <Text style={style.fieldHeadingText}>{'Cheque Details'}</Text>
+          <Text style={style.fieldHeadingText}>{this.props.t('payment.chequeDetails')}</Text>
         </View>
         <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
           <View style={{flexDirection: 'row', }}>
@@ -1240,7 +1241,7 @@ export class Receipt extends React.Component<any> {
                   ]}
                 autoCapitalize = {"characters"}
                 value={this.state.chequeNumber.toString()}
-                placeholder={'Cheque #'}
+                placeholder={this.props.t('common.chequeNumber')}
                 placeholderTextColor={'#868686'}
                 returnKeyType={"done"}
                 multiline={true}
@@ -1259,10 +1260,10 @@ export class Receipt extends React.Component<any> {
             <TouchableOpacity
               onPress={() => {
                 if (!this.state.partyName) {
-                  alert('Please select a party.');
-                } else if (this.state.amountForReceipt == '') {
-                  alert('Please enter amount.');
-                } else {
+                    alert(this.props.t('common.pleaseSelectParty'));
+                  } else if (this.state.amountForReceipt == '') {
+                    alert(this.props.t('common.pleaseEnterAmount'));
+                  } else {
                   this.setState({showClearanceDatePicker: true});
                   this.setState({isClearanceDateSelelected: true});
                 }
@@ -1279,7 +1280,7 @@ export class Receipt extends React.Component<any> {
                 ) : (
                   <Text
                     style={[style.buttonText, { color: '#868686' }]}>
-                    Clearance Date
+                    {this.props.t('common.clearanceDate')}
                   </Text>
                 )}
               </View>
@@ -1297,9 +1298,9 @@ export class Receipt extends React.Component<any> {
       style={[style.fieldContainer, {flexDirection: 'row'}]}
       onPress={() => {
         if (!this.state.partyName) {
-          alert('Please select a party.');
+          alert(this.props.t('common.pleaseSelectParty'));
         } else if (!this.state.amountForReceipt) {
-          alert('Please enter amount.');
+          alert(this.props.t('common.pleaseEnterAmount'));
         } else {
           this.props.navigation.navigate('ReceiptLinkToInvice', {
             getLinkedInvoicesAdjustedAmount: this.getLinkedInvoicesAdjustedAmount.bind(this),
@@ -1315,12 +1316,12 @@ export class Receipt extends React.Component<any> {
           <View style={{flexDirection: 'row'}}>
             <Entypo name="link" size={21} color={'#1CB795'} />
 
-            <Text style={[style.fieldHeadingText, {marginLeft: 7}]}>{'Link Invoice'}</Text>
+            <Text style={[style.fieldHeadingText, {marginLeft: 7}]}>{this.props.t('payment.linkInvoice')}</Text>
           </View>
           <View style={{flexDirection: 'row', flex: 1}}>
             {this.state.adjustedAmountOfLinkedInvoices != null && this.state.adjustedAmountOfLinkedInvoices != 0 ? (
               <Text style={[style.fieldHeadingText, {color: '#808080'}]}>
-                {'Adjusted Amt.: ' + this.state.currencySymbol + ' ' + this.state.adjustedAmountOfLinkedInvoices}
+                {this.props.t('payment.adjustedAmt') + ': ' + this.state.currencySymbol + ' ' + this.state.adjustedAmountOfLinkedInvoices}
               </Text>
             ) : null}
           </View>
@@ -1340,13 +1341,13 @@ export class Receipt extends React.Component<any> {
       <View style={style.fieldContainer}>
         <View style={{flexDirection: 'row'}}>
           <Icon name={'path-15'} color={'#1CB795'} size={16} />
-          <Text style={style.fieldHeadingText}>{'Add Description'}</Text>
+          <Text style={style.fieldHeadingText}>{this.props.t('common.addDescription')}</Text>
         </View>
         <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
           <TextInput
             style={{marginLeft: 20, margin: 10, borderBottomColor: '#808080', borderBottomWidth: 1.5}}
             value={this.state.addDescription}
-            placeholder={'Note (Opional)'}
+            placeholder={this.props.t('payment.noteOptional')}
             onChangeText={(text) => {
               this.setState({addDescription: text});
             }}></TextInput>
@@ -1484,7 +1485,7 @@ export class Receipt extends React.Component<any> {
           }}>
           <View style={{ flexDirection: 'row' }}>
             <Icon style={{ marginRight: 10 }} name={'Path-12190'} size={16} color="#229F5F" />
-            <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>Balance</Text>
+            <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.props.t('payment.balance')}</Text>
           </View>
           <Icon
             style={{ transform: [{ rotate: this.state.expandedBalance ? '180deg' : '0deg' }] }}
@@ -1500,13 +1501,13 @@ export class Receipt extends React.Component<any> {
         {this.state.expandedBalance && (
           <View style={{ margin: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'Taxable Amount'}</Text>
+              <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.props.t('payment.taxableAmount')}</Text>
               <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.totalTaxableAmount))}</Text>
             </View>
             {(this.state.balanceDetails.mainTaxAmount > 0)
               ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'Tax'}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.props.t('payment.tax')}</Text>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.mainTaxAmount))}</Text>
                 </View>)
               : null}
@@ -1514,7 +1515,7 @@ export class Receipt extends React.Component<any> {
               this.state.selectedArrayType.includes('tdsrc'))
               ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'TDS'}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.props.t('payment.tds')}</Text>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'- ' + this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.tdsOrTcsTaxAmount))}</Text>
                 </View>)
               : null}
@@ -1523,7 +1524,7 @@ export class Receipt extends React.Component<any> {
               this.state.selectedArrayType.includes('tcsrc'))
                 ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'TCS'}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.props.t('payment.tcs')}</Text>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.tdsOrTcsTaxAmount))}</Text>
                 </View>)
                 : null
@@ -1534,7 +1535,7 @@ export class Receipt extends React.Component<any> {
               this.state.amountForReceipt != 0 && this.state.amountForReceipt != ''
                 ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{'Total'}</Text>
+                  <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.props.t('payment.total')}</Text>
                   <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold }}>{this.state.currencySymbol + formatAmount(Number(this.state.amountForReceipt))}</Text>
                 </View>)
                 : null
@@ -1549,11 +1550,11 @@ export class Receipt extends React.Component<any> {
 
   genrateInvoice(type) {
     if (!this.state.partyName) {
-      alert('Please select a party.');
+      alert(this.props.t('common.pleaseSelectParty'));
     } else if (this.state.amountForReceipt == '' || this.state.amountForReceipt == 0) {
-      alert('Please enter amount.');
+      alert(this.props.t('common.pleaseEnterAmount'));
     } else if (!this.state.paymentMode.uniqueName){
-      alert('Please select payment method.');
+      alert(this.props.t('common.pleaseSelectPaymentMethod'));
     } else {
       this.createReceipt(type);
     }
@@ -1648,8 +1649,9 @@ function mapDispatchToProps(dispatch) {
 
 function Screen(props) {
   const isFocused = useIsFocused();
+  const { t } = useTranslation();
 
-  return <Receipt {...props} isFocused={isFocused} />;
+  return <Receipt {...props} isFocused={isFocused} t={t} />;
 }
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);

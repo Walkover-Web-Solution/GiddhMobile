@@ -127,10 +127,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         const { available } = await BiometricAuth.isSensorAvailable();
 
         if (!available) {
-            Toast({message: 'Biometrics not available. Use PIN.', position:'BOTTOM', duration:'SHORT'});
+            Toast({message: this.props.t('more.biometricsNotAvailable'), position:'BOTTOM', duration:'SHORT'});
             await new Promise(resolve => setTimeout(resolve, 900));
             const response = await BiometricAuth.simplePrompt({
-                promptMessage: 'Confirm lock screen password',
+                promptMessage: this.props.t('more.confirmLockScreen'),
                 allowDeviceCredentials: true
             })
             if (response?.success) {
@@ -146,13 +146,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                 return ;
               }
-              Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+              Toast({message: this.props.t('more.authenticationFailed'), position:'BOTTOM', duration:'LONG'});
             }
             return;
         }
     
         const response = await BiometricAuth.simplePrompt({
-          promptMessage: 'Confirm Biometric',
+          promptMessage: this.props.t('more.confirmBiometric'),
           allowDeviceCredentials: true
         });
     
@@ -173,19 +173,19 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       if (!available) {
           await new Promise(resolve => setTimeout(resolve, 900));
           const response = await BiometricAuth.simplePrompt({
-              promptMessage: 'Confirm lock screen password',
+              promptMessage: this.props.t('more.confirmLockScreen'),
               allowDeviceCredentials: true
           })
           if (response?.success) {
             setBottomSheetVisible(this.confirmationBottomSheetRef, false);
             this.props.logout();
           }else {
-            Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+            Toast({message: this.props.t('more.authenticationFailed'), position:'BOTTOM', duration:'LONG'});
           }
           return;
       }
       const response = await BiometricAuth.simplePrompt({
-        promptMessage: 'Confirm biometric to logout',
+        promptMessage: this.props.t('more.confirmBiometricLogout'),
         allowDeviceCredentials: true
       });
       if (response?.success) {
@@ -252,8 +252,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           renderError={() => {
             return (
               <View style={style.renderErrorView}>
-                <Text style={style.renderErrorText}>Something Went Wrong.</Text>
-                <Text style={style.renderErrorText}>Please Try Again.</Text>
+                <Text style={style.renderErrorText}>{this.props.t('more.somethingWentWrong')}</Text>
+                <Text style={style.renderErrorText}>{this.props.t('more.pleaseTryAgain')}</Text>
               </View>
             )
           }}
@@ -268,7 +268,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         activeOpacity={0.7}
         onPress={() => {
           Clipboard.setString(email);
-          Platform.OS == "ios" ? TOAST.show('Email Copied to Clipboard', {
+          Platform.OS == "ios" ? TOAST.show(this.props.t('more.emailCopied'), {
             duration: TOAST.durations.LONG,
             position: -150,
             hideOnPress: true,
@@ -279,7 +279,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             animation: true,
             containerStyle: { borderRadius: 10 }
           }) :
-            ToastAndroid.show('Email Copied to Clipboard', ToastAndroid.LONG)
+            ToastAndroid.show(this.props.t('more.emailCopied'), ToastAndroid.LONG)
         }}
       >
         <AntDesign name="copy1" size={20} color={'#1A237E'} style={{ marginLeft: 10 }} />
@@ -318,7 +318,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 }}>
                 <Icon name={'Backward-arrow'} size={18} color={'#1C1C1C'} />
               </TouchableOpacity>
-              <Text style={style.headerText}>More</Text>
+              <Text style={style.headerText}>{t('more.more')}</Text>
             </View>
             {activeCompanyName && activeCompanyName.length > 1
               ? (
@@ -377,7 +377,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                   <Text style={style.companyNameText}>
-                    {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
+                    {activeBranchName.length > 0 ? t('more.switchBranch') + ' (' + activeBranchName + ')' : t('more.switchBranch')}
                   </Text>
 
                   <Entypo name="chevron-right" size={26} color={'#1A237E'} />
@@ -393,7 +393,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
                 <View style={style.textView}>
                   <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
-                  <Text style={style.companyNameText}>Enable App Lock</Text>
+                  <Text style={style.companyNameText}>{t('more.enableAppLock')}</Text>
                 </View>
                 <Switch
                   trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
@@ -408,11 +408,11 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             <View style={style.contactUsView}>
               <View style={{ margin: 15 }}>
                 <Text style={style.contactUsText}>
-                  Contact Us
+                  {t('more.contactUs')}
                 </Text>
                 <View style={style.emailField}>
                   <Text style={style.contactDtailsText}>
-                    {"Sales: "}
+                    {t('more.sales') + ": "}
                   </Text>
                   <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:sales@giddh.com') }}>
                     sales@giddh.com
@@ -421,7 +421,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 </View>
                 <View style={style.emailField}>
                   <Text style={style.contactDtailsText}>
-                    {"Support: "}
+                    {t('more.support') + ": "}
                   </Text>
                   <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:support@giddh.com') }}>
                     support@giddh.com
@@ -437,7 +437,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 >
                   <Icon name={'Calendar'} color={'#1A237E'} size={18} style={{ marginLeft: 13, marginRight: 3 }} />
                   <Text style={style.buttonText}>
-                    Schedule A Meet
+                    {t('more.scheduleAMeet')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -447,10 +447,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 >
                   <ChatGPT style={{marginLeft: 14}}/>
                   <Text style={style.buttonText}>
-                    Chat With Bot
+                    {t('more.chatWithBot')}
                   </Text>
                   <View style={style.chip}>
-                    <Text style={style.smallText}>BETA</Text>
+                    <Text style={style.smallText}>{t('more.beta')}</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -460,7 +460,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 >
                   <MaterialIcons name="support-agent" size={25} color={'#1A237E'} style={{ marginLeft: 10 }} />
                   <Text style={style.buttonText}>
-                    Chat With Us
+                    {t('more.chatWithUs')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -480,7 +480,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Feather name="power" size={26} color={'#5773FF'} style={{ marginRight: 12 }}/>
               <View>
-                <Text style={{ fontFamily: 'AvenirLTStd-Black'}}>Logout</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Black'}}>{t('more.logout')}</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book'}}>{this.state.activeUserEmail}</Text>
               </View>
             </View>
@@ -492,8 +492,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               description={ConfirmationMessages.APPLOCK.description}
               onConfirm={this.authenicateAndLogoutUser}
               onReject={() => setBottomSheetVisible(this.confirmationBottomSheetRef, false)}
-              confirmText='Logout'
-              rejectText='Cancel'
+              confirmText={ConfirmationMessages.APPLOCK.confirmText}
+              rejectText={ConfirmationMessages.APPLOCK.rejectText}
           />
         </View>
       );

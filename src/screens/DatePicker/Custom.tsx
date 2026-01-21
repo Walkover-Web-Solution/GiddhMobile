@@ -5,6 +5,7 @@ import styles from './style';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { withTranslation } from 'react-i18next';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -69,12 +70,12 @@ export class Custom extends React.Component {
       <View style={styles.customContainer}>
         <View style={{ height: '5%' }} />
 
-        <Text style={styles.customHeading}>Start Date :</Text>
+        <Text style={styles.customHeading}>{this.props.t('common.startDate')} :</Text>
         <TouchableWithoutFeedback style={styles.customDatePicker} onPress={() => this.showStartDatePicker()}>
           <Text style={styles.customDateStyle}>{this.state.startDate}</Text>
         </TouchableWithoutFeedback>
         <View style={{ height: '2%' }} />
-        <Text style={styles.customHeading}>End Date :</Text>
+        <Text style={styles.customHeading}>{this.props.t('common.endDate')} :</Text>
         <TouchableWithoutFeedback style={[styles.customDatePicker,{marginBottom:90}]} onPress={() => this.showEndDatePicker()}>
           <Text style={styles.customDateStyle}>{this.state.endDate}</Text>
         </TouchableWithoutFeedback>
@@ -86,7 +87,7 @@ export class Custom extends React.Component {
             this.props.navigation.goBack();
           }}
         >
-          <Text style={styles.buttonText}>Done</Text>
+          <Text style={styles.buttonText}>{this.props.t('common.done')}</Text>
         </TouchableOpacity>
         <DateTimePickerModal
           isVisible={this.state.isStartDatePickerVisible}
@@ -116,4 +117,4 @@ export class Custom extends React.Component {
   }
 }
 
-export default Custom;
+export default withTranslation()(Custom);

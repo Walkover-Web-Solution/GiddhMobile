@@ -32,6 +32,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 interface Props {
   navigation: any;
   resetFun: any;
+  t: (key: string) => string;
 }
 const PhoneNumber = require('awesome-phonenumber');
 export class Customers extends React.Component<Props> {
@@ -152,9 +153,9 @@ export class Customers extends React.Component<Props> {
     filteredCallingCode: ["590", "591", "350", "592", "230", "351", "593", "352", "231", "353", "595", "232", "354", "233", "234", "355", "597", "356", "235", "598", "236", "357", "237", "358", "359", "238", "239", "1473", "240", "241", "242", "1", "243", "244", "245", "246", "1345", "248", "249", "7", "20", "27", "1242", "370", "371", "250", "372", "251", "252", "373", "374", "253", "254", "375", "376", "255", "377", "256", "378", "257", "258", "379", "30", "31", "32", "33", "34", "36", "39", "1809", "380", "381", "260", "261", "382", "262", "263", "264", "385", "386", "265", "387", "266", "267", "1246", "389", "268", "269", "40", "41", "43", "44", "45", "46", "47", "48", "49", "1264", "51", "52", "53", "54", "55", "56", "57", "58", "960", "961", "1268", "962", "963", "964", "965", "966", "60", "967", "968", "61", "62", "63", "4779", "64", "65", "66", "290", "291", "1284", "297", "298", "299", "850", "971", "972", "852", "973", "974", "853", "975", "855", "976", "977", "856", "76", "500", "501", "502", "503", "504", "81", "505", "82", "506", "507", "84", "508", "86", "509", "992", "993", "994", "995", "996", "90", "91", "998", "92", "93", "94", "95", "98", "880", "886", "1869", "1868", "1 340", "1876", "1758", "1767", "420", "421", "423", "1649", "670", "672", "673", "674", "675", "676", "677", "678", "679", "1671", "1670", "680", "681", "682", "683", "1787", "685", "686", "1664", "1784", "687", "688", "689", "690", "691", "692", "212", "213", "216", "218", "220", "221", "222", "223", "224", "225", "1684", "226", "227", "1441", "228", "229"],
   }
 
-  radio_props = [
-    { label: 'I receive (Dr)', value: 0 },
-    { label: 'I pay (Cr)', value: 1 }
+  getRadioProps = () => [
+    { label: this.props.t('customers.iReceiveDr'), value: 0 },
+    { label: this.props.t('customers.iPayCr'), value: 1 }
   ];
 
   setStreetBilling = (text: string) => {
@@ -184,7 +185,7 @@ export class Customers extends React.Component<Props> {
   renderSavedAddress = () => {
     return (
       <View style={{ marginLeft: 46, marginTop: 10, marginBottom: 5 }}>
-        <Text style={{ fontFamily: FONT_FAMILY.regular }}>Billing Address*</Text>
+        <Text style={{ fontFamily: FONT_FAMILY.regular }}>{this.props.t('customers.billingAddress')}*</Text>
         {this.state.selectedCountry && this.state.savedAddress.state_billing != '' && <Text style={{ color: '#808080', fontFamily: 'AvenirLTStd-Book' }} >{this.state.selectedCountry.countryName}</Text>}
         {this.state.savedAddress.street_billing != '' && <Text style={{ color: '#808080', fontFamily: 'AvenirLTStd-Book' }} >{this.state.savedAddress.street_billing}</Text>}
         {this.state.savedAddress.state_billing.name != '' && <Text style={{ color: '#808080', fontFamily: 'AvenirLTStd-Book' }}>{this.state.savedAddress.state_billing.name}</Text>}
@@ -199,7 +200,7 @@ export class Customers extends React.Component<Props> {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >Set Currency (account)</Text>
+              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >{this.props.t('customers.setCurrency')}</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%', }}>Choose currency for opening Balance eg.INR  </Text> */}
@@ -219,7 +220,7 @@ export class Customers extends React.Component<Props> {
         {this.state.showForgeinBalance && <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
           <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >Foreign Opening Balance</Text>
+              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >{this.props.t('customers.foreignOpeningBalance')}</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             {/* <Text style={{ color: '#808080', fontSize: 12, maxWidth: '80%' }}>Enter Amount</Text> */}
@@ -229,14 +230,14 @@ export class Customers extends React.Component<Props> {
             keyboardType="number-pad"
             onChangeText={(val) => { this.setState({ foreignOpeningBalance: val }) }}
             value={this.state.foreignOpeningBalance}
-            placeholder="Amount"
+            placeholder={this.props.t('customers.amount')}
             placeholderTextColor={'rgba(80,80,80,0.5)'}
             style={{ borderWidth: 1, borderColor: '#d9d9d9', width: '30%', height: 40, paddingStart: 10, fontFamily: 'AvenirLTStd-Book' }} />
         </View>}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
           <View style={{ width: '70%' }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >Opening Balance</Text>
+              <Text style={{ color: '#1c1c1c', paddingRight: 5, marginTop: 10, fontFamily: 'AvenirLTStd-Book' }} >{this.props.t('customers.openingBalance')}</Text>
               <Foundation name="info" size={16} color="#b2b2b2" />
             </View>
             <RadioForm
@@ -246,7 +247,7 @@ export class Customers extends React.Component<Props> {
             >
 
               {
-                this.radio_props.map((obj, i) => (
+                this.getRadioProps().map((obj, i) => (
                   <RadioButton labelHorizontal={true} key={i} style={{ alignItems: 'center' }} >
                     <RadioButtonInput
                       obj={obj}
@@ -281,7 +282,7 @@ export class Customers extends React.Component<Props> {
             }}
             placeholderTextColor={'rgba(80,80,80,0.5)'}
             value={this.state.openingBalance}
-            placeholder="Amount"
+            placeholder={this.props.t('customers.amount')}
             style={{ borderWidth: 1, width: '30%', borderColor: '#d9d9d9', height: '70%', paddingStart: 10, marginTop: 5, fontFamily: 'AvenirLTStd-Book' }} />
         </View>
       </View>
@@ -343,7 +344,7 @@ export class Customers extends React.Component<Props> {
     }
     const expression = /(?!.*\.{2})^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([\t]*\r\n)?[\t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([\t]*\r\n)?[\t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
     if (!expression.test(String(this.state.emailId).toLowerCase())) {
-      Alert.alert('Error', 'Please enter correct email-address.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+      Alert.alert(this.props.t('customers.error'), this.props.t('customers.pleaseEnterCorrectEmail'), [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
       return false;
     }
     return true
@@ -351,7 +352,7 @@ export class Customers extends React.Component<Props> {
 
   genrateCustomer = () => {
     if (!this.state.partyName) {
-      Alert.alert('Error', 'Please select a party.', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
+      Alert.alert(this.props.t('customers.error'), this.props.t('customers.pleaseSelectParty'), [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
     } else {
       if (this.validateMobileNumber() && this.validateEmail()) {
         this.createCustomerRequest();
@@ -550,7 +551,7 @@ export class Customers extends React.Component<Props> {
 
   getMobilePlaceHolder = () => {
     var regionCode = getRegionCodeForCountryCode(this.state.selectedCallingCode)
-    let placeholder = regionCode != null ? PhoneNumber.getExample(regionCode, 'mobile').getNumber('significant') : "Enter Contact number"
+    let placeholder = regionCode != null ? PhoneNumber.getExample(regionCode, 'mobile').getNumber('significant') : this.props.t('customers.enterContactNumber')
     return placeholder
   }
 
@@ -628,7 +629,7 @@ export class Customers extends React.Component<Props> {
             </TouchableOpacity>
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
-              placeholder="Enter Calling Code"
+              placeholder={this.props.t('customers.enterCallingCode')}
               keyboardType={'number-pad'}
               returnKeyType={"done"}
               style={{ marginTop: 10, borderRadius: 5, width: "80%", marginHorizontal: 15, fontSize: 15, color: '#1c1c1c' }}
@@ -659,7 +660,7 @@ export class Customers extends React.Component<Props> {
           <View style={styles.cancelButtonModal} >
             <TextInput
               placeholderTextColor={'rgba(80,80,80,0.5)'}
-              placeholder="Enter Currency e.g. INR"
+              placeholder={this.props.t('customers.enterCurrency')}
               returnKeyType={"done"}
               style={{ height: 50, borderRadius: 5, width: "80%", fontSize: 15, fontFamily: 'AvenirLTStd-Book', color: '#1c1c1c' }}
               onChangeText={(text) => {
@@ -707,7 +708,7 @@ export class Customers extends React.Component<Props> {
     return(
       <BottomSheet
         bottomSheetRef={this.showGroupBottomSheetRef}
-        headerText='Select Group'
+        headerText={this.props.t('customers.selectGroup')}
         headerTextColor='#864DD3'
         onClose={() => {
           this.setState({ isGroupDD: false });
@@ -740,7 +741,7 @@ export class Customers extends React.Component<Props> {
     return(
       <BottomSheet
         bottomSheetRef={this.partyTypeBottomSheetRef}
-        headerText='Select Party Type'
+        headerText={this.props.t('customers.selectPartyType')}
         headerTextColor='#864DD3'
         onClose={() => {
           this.setState({ isPartyDD: false });
@@ -763,8 +764,8 @@ export class Customers extends React.Component<Props> {
               onRequestClose={() => { this.setState({ successDialog: false }) }}
               visible={this.state.successDialog} onBackdropPress={() => this.setState({ successDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center',backgroundColor: '#fff'}}>
               <Award />
-              <Text style={{ color: '#229F5F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Success</Text>
-              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>The Customer is created successfully.</Text>
+              <Text style={{ color: '#229F5F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.success')}</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.customerCreatedSuccessfully')}</Text>
               <TouchableOpacity
                 style={{
                   alignItems: 'center',
@@ -780,7 +781,7 @@ export class Customers extends React.Component<Props> {
                   this.props.navigation.goBack();
                 }}
               >
-                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book', marginTop: Platform.OS == "ios" ? 5 : 0 }}>Done</Text>
+                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book', marginTop: Platform.OS == "ios" ? 5 : 0 }}>{this.props.t('common.done')}</Text>
               </TouchableOpacity>
             </Dialog.Container>
             : null}
@@ -789,8 +790,8 @@ export class Customers extends React.Component<Props> {
               onRequestClose={() => { this.setState({ faliureDialog: false }) }}
               visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
               <Faliure />
-              <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Error!</Text>
-              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>Sorry, Failed to import the entries.</Text>
+              <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.errorTitle')}</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.failedToImportEntries')}</Text>
               <TouchableOpacity
                 style={{
                   alignItems: 'center',
@@ -805,7 +806,7 @@ export class Customers extends React.Component<Props> {
                   this.setState({ faliureDialog: false });
                 }}
               >
-                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>Try Again</Text>
+                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.tryAgain')}</Text>
               </TouchableOpacity>
             </Dialog.Container>
             : null}
@@ -826,7 +827,7 @@ export class Customers extends React.Component<Props> {
                 }
                 }
                 style={styles.input}>
-                <Text style={{ color: this.state.partyPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? 'Enter Party Name' : this.state.partyName}</Text>
+                <Text style={{ color: this.state.partyPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? this.props.t('customers.enterPartyName') : this.state.partyName}</Text>
                 <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyPlaceHolder == '' ? '*' : ''}</Text>
               </TextInput>
             </View>
@@ -859,7 +860,7 @@ export class Customers extends React.Component<Props> {
               <PhoneInput
                 ref={(ref) => { this.phone = ref; }}
                 textComponent={TextInput}
-                textProps={{placeholder: 'Enter Party Number'}}
+                textProps={{placeholder: this.props.t('customers.enterPartyNumber')}}
                 initialCountry={"in"} 
                 onChangeFormattedText={value => 
                   this.selectCountry(value)
@@ -893,7 +894,7 @@ export class Customers extends React.Component<Props> {
                 onClose={() => this.setState({picker:false})}
               />
             </View>
-            {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>Sorry! Invalid Number</Text>}
+            {this.state.isMobileNoValid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47 }}>{this.props.t('customers.invalidNumber')}</Text>}
             <View style={styles.rowContainer}>
               <MaterialCommunityIcons name="email-open" size={18} color="#864DD3" />
               <TextInput
@@ -902,11 +903,11 @@ export class Customers extends React.Component<Props> {
                   isEmailInvalid: !this.validateEmailTextInput(text)
                 })}
                 value={this.state.emailId}
-                placeholder="Email Address"
+                placeholder={this.props.t('customers.emailAddress')}
                 placeholderTextColor={'rgba(80,80,80,0.5)'}
                 style={styles.input} />
             </View>
-            {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>Sorry! Invalid Email-Id</Text>}
+            {this.state.isEmailInvalid && <Text style={{ fontSize: 10, color: 'red', paddingLeft: 47, marginTop: -7 }}>{this.props.t('customers.invalidEmailId')}</Text>}
             <TouchableOpacity 
               style={{ ...styles.rowContainer, paddingVertical: 20 }}
               onPress={() => {
@@ -933,7 +934,7 @@ export class Customers extends React.Component<Props> {
               }}
             >
               <MaterialIcons name="hourglass-full" size={18} color="#864DD3" style={{ marginLeft: -1 }} />
-                <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14, marginHorizontal: 10, flex: 1 }}>{this.state.partyType == '' ? 'Party Type' : this.state.partyType}
+                <Text style={{ color: this.state.partyType == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book', fontSize: 14, marginHorizontal: 10, flex: 1 }}>{this.state.partyType == '' ? this.props.t('customers.partyType') : this.state.partyType}
                 <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.partyType == '' ? '*' : ''}</Text></Text>
               <Icon
                 style={{ transform: [{ rotate: this.state.isPartyDD ? '180deg' : '0deg' }] }}
@@ -965,7 +966,7 @@ export class Customers extends React.Component<Props> {
                 color="#864DD3"
                 style={{ transform: [{ rotate: this.state.openAddress ? '45deg' : '0deg' }] }} />
               <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10, flexDirection: 'row' }}>
-                <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Address Details</Text>
+                <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.addressDetails')}</Text>
                 <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>*</Text>
               </View>
               <Icon
@@ -1004,7 +1005,7 @@ export class Customers extends React.Component<Props> {
                 color="#864DD3"
                 style={{ transform: [{ rotate: this.state.showBalanceDetails ? '45deg' : '0deg' }] }} />
               <View style={{ alignItems: 'flex-start', flex: 1, paddingLeft: 10 }}>
-                <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>Balance Details</Text>
+                <Text style={{ color: '#1C1C1C', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.balanceDetails')}</Text>
               </View>
               <Icon
                 style={{ transform: [{ rotate: this.state.showBalanceDetails ? '180deg' : '0deg' }] }}
@@ -1050,7 +1051,7 @@ export class Customers extends React.Component<Props> {
             onPress={() => {
               this.genrateCustomer();
             }}>
-            <Text style={styles.saveText}>Save</Text>
+            <Text style={styles.saveText}>{this.props.t('customers.save')}</Text>
           </TouchableOpacity>
         {this.allGroupsBottomSheet()}
         {this.partyTypeBottomSheet()}

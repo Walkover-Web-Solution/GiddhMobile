@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import BottomSheet from '@/components/BottomSheet';
 import { GD_FONT_SIZE } from '@/utils/constants';
 
@@ -13,10 +14,11 @@ const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
 function SortModal ({ bottomSheetRef, setBottomSheetVisible, filter, activeFilter }) {
+  const { t } = useTranslation();
   return (
     <BottomSheet
       bottomSheetRef={bottomSheetRef}
-      headerText='Sort By'
+      headerText={t('sortModal.sortBy')}
       headerTextColor='#864DD3'
     >
       <View style={styles.buttonContainer}>
@@ -26,7 +28,7 @@ function SortModal ({ bottomSheetRef, setBottomSheetVisible, filter, activeFilte
             filter('AZ');
             setBottomSheetVisible(bottomSheetRef, false);
           }}>
-          <Text style={styles.buttonText}>Name - A to Z</Text>
+          <Text style={styles.buttonText}>{t('sortModal.nameAToZ')}</Text>
         </TouchableOpacity>
         {activeFilter == 'AZ' && (
           <View style={styles.dot} />
@@ -39,7 +41,7 @@ function SortModal ({ bottomSheetRef, setBottomSheetVisible, filter, activeFilte
             filter('ZA');
             setBottomSheetVisible(bottomSheetRef, false);
           }}>
-          <Text style={styles.buttonText}>Name - Z to A</Text>
+          <Text style={styles.buttonText}>{t('sortModal.nameZToA')}</Text>
         </TouchableOpacity>
         {activeFilter == 'ZA' && (
           <View style={styles.dot} />
@@ -52,7 +54,7 @@ function SortModal ({ bottomSheetRef, setBottomSheetVisible, filter, activeFilte
             filter('10');
             setBottomSheetVisible(bottomSheetRef, false);
           }}>
-          <Text style={styles.buttonText}>Amount - Low to High</Text>
+          <Text style={styles.buttonText}>{t('sortModal.amountLowToHigh')}</Text>
         </TouchableOpacity>
         {activeFilter == '10' && (
           <View style={styles.dot} />
@@ -65,7 +67,7 @@ function SortModal ({ bottomSheetRef, setBottomSheetVisible, filter, activeFilte
             filter('01');
             setBottomSheetVisible(bottomSheetRef, false);
           }}>
-          <Text style={styles.buttonText}>Amount - High to Low </Text>
+          <Text style={styles.buttonText}>{t('sortModal.amountHighToLow')}</Text>
         </TouchableOpacity>
         {activeFilter == '01' && (
           <View style={styles.dot} />

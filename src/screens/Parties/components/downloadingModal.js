@@ -9,11 +9,13 @@ import {
   TouchableOpacity
 } from 'react-native';
 import LoaderKit  from 'react-native-loader-kit';
+import { useTranslation } from 'react-i18next';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
 function DownloadModal ({ modalVisible }) {
+  const { t } = useTranslation();
   return (
     <Modal animationType="none" transparent={true} visible={modalVisible} statusBarTranslucent>
       <TouchableOpacity style={styles.container}>
@@ -23,7 +25,7 @@ function DownloadModal ({ modalVisible }) {
               name={'LineScale'}
               color={colors.PRIMARY_NORMAL}
           />
-          <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
+          <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>{t('partiesTransaction.downloadingPDF')}</Text>
         </View>
       </TouchableOpacity>
     </Modal>

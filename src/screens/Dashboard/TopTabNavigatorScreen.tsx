@@ -12,6 +12,7 @@ import BalanceSheetScreen from './BalanceSheetScreen';
 import DateFilter from './component/DateFilter';
 import moment from 'moment';
 import ProfitLossScreen from './ProfitLossScreen';
+import { useTranslation } from 'react-i18next';
 
 
 //custom tab bar design
@@ -40,6 +41,7 @@ const CustomTopBar = ({ navigation }) => {
 const TopTab = () => {
     const TopTabs = createMaterialTopTabNavigator();
     const {theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
+    const { t } = useTranslation();
     // const navigation = useNavigation();
     return (
       <TopTabs.Navigator
@@ -58,21 +60,22 @@ const TopTab = () => {
           tabBarPressOpacity:0.7
         }}
       >
-        <TopTabs.Screen name={Routes.ProfitLossScreen} component={ProfitLossScreen} options={{title:'Profit & Loss'}}/>
-        <TopTabs.Screen name={Routes.BalanceSheetScreen} component={BalanceSheetScreen} options={{title:'Balance Sheet'}}/>
+        <TopTabs.Screen name={Routes.ProfitLossScreen} component={ProfitLossScreen} options={{title: t('dashboard.profitLoss')}}/>
+        <TopTabs.Screen name={Routes.BalanceSheetScreen} component={BalanceSheetScreen} options={{title: t('dashboard.balanceSheet')}}/>
       </TopTabs.Navigator>
     );
   };
 
 const TopTabNavigator = ()=> {
   const {statusBar,styles, theme,voucherBackground} = useCustomTheme(makeStyles, 'Stock');
+  const { t } = useTranslation();
   const _StatusBar = ({ statusBar }: { statusBar: string }) => {
       const isFocused = useIsFocused();
       return isFocused ? <StatusBar backgroundColor={statusBar} barStyle={Platform.OS === 'ios' ? "dark-content" : "light-content"} /> : null
   }
   return (
     <SafeAreaView style={styles.container}>
-      <Header header={'Dashboard'} backgroundColor={voucherBackground} />
+      <Header header={t('dashboard.title')} backgroundColor={voucherBackground} />
       <View style={{flex:1}}>
       <TopTab />
       </View>

@@ -2,9 +2,11 @@ import useCustomTheme from "@/utils/theme";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import makeStyle from "./style";
 import InputField from "@/components/InputField";
+import { useTranslation } from "react-i18next";
 
 const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})=>{
     const {theme,styles} = useCustomTheme(makeStyle)
+    const { t } = useTranslation();
     return (
         <View style={[styles.radioBtnView,{marginHorizontal:16}]}>
             <View style={{flexDirection:'row'}}>
@@ -18,7 +20,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                     )}
                     </TouchableOpacity>
                     <Pressable style={{padding:5}} onPress={() => setSelectedCode('hsn')}>
-                        <Text style={styles.radioText}>HSN Code</Text>
+                        <Text style={styles.radioText}>{t('otherInfo.hsnCode')}</Text>
                     </Pressable>
                 </View>
                 <View style={[styles.checkboxContainer ,{ marginVertical:5,justifyContent:'center'}]}>
@@ -30,13 +32,13 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                     )}
                     </TouchableOpacity>
                     <Pressable style={{padding:5}} onPress={() => setSelectedCode('sac')}>
-                        <Text style={styles.radioText}>SAC Code</Text>
+                        <Text style={styles.radioText}>{t('otherInfo.sacCode')}</Text>
                     </Pressable>
                 </View>
             </View>
             <View style={{width:'100%'}}>
                 <InputField
-                    lable={ selectedCode == 'hsn' ? 'Enter HSN Code' : 'Enter SAC Code' }
+                    lable={ selectedCode == 'hsn' ? t('otherInfo.enterHsnCode') : t('otherInfo.enterSacCode') }
                     value={codeNumber}
                     isRequired={false}
                     keyboardType="numeric"

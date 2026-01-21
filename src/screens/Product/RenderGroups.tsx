@@ -2,17 +2,19 @@ import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import makeStyle from "./style";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';
 import MatButton from "@/components/OutlinedButton";
 const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllParentGroup,parentGroupArr,setSelectedGroup,setSelectedGroupUniqueName})=>{
+  const { t } = useTranslation();
   const {theme,styles} = useCustomTheme(makeStyle);
   const {height,width} = Dimensions.get('window');
 
   const RenderGroupModal = (
     <BottomSheet
     bottomSheetRef={groupModalRef}
-    headerText='Select Group'
+    headerText={t('product.selectGroup')}
     headerTextColor='#084EAD'
     adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
     flatListProps={{
@@ -40,7 +42,7 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
             <View style={styles.modalCancelView}>
             <Text
                 style={styles.modalCancelText}>
-                No Group Available
+                {t('product.noGroupAvailable')}
             </Text>
             </View>
 
@@ -54,7 +56,7 @@ const RenderGroups = ({groupName, groupModalRef, setBottomSheetVisible,fetchAllP
       <>
         <View style={[styles.fieldContainer,{maxHeight:100}]}>
           <MatButton 
-            lable="Select Group"
+            lable={t('product.selectGroup')}
             value={groupName?.length > 0 ? groupName :""}
             onPress={async ()=>{
               await fetchAllParentGroup();

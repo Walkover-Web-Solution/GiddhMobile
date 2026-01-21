@@ -3,6 +3,7 @@ import useCustomTheme from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { DeviceEventEmitter, Dimensions, Keyboard, Platform, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { APP_EVENTS, STORAGE_KEYS } from "@/utils/constants";
 import RenderStockName from "./RenderStockName";
 import RenderUnitGroup from "./RenderUnitGroup";
@@ -125,6 +126,7 @@ interface Payload {
   }
   
 const ProductScreen = ()=>{
+    const { t } = useTranslation();
     
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
@@ -347,7 +349,7 @@ const ProductScreen = ()=>{
                     Toast({message: groupResponse?.data?.message, position:'BOTTOM',duration:'LONG'}) 
                 }
             }else{
-                Toast({message: "Please select group", position:'BOTTOM',duration:'SHORT'})
+                Toast({message: t('productScreen.pleaseSelectGroup'), position:'BOTTOM',duration:'SHORT'})
             }
         }
         
@@ -382,8 +384,8 @@ const ProductScreen = ()=>{
             onRequestClose={() => setSuccessDialog(false)}
             visible={successDialog} onBackdropPress={() => setSuccessDialog(false)} contentStyle={styles.dialogContainer}>
             <Award />
-            <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>Success</Text>
-            <Text style={styles.dialogMessage}>Stock Group created successfully.</Text>
+            <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>{t('common.success')}</Text>
+            <Text style={styles.dialogMessage}>{t('productScreen.stockGroupCreatedSuccessfully')}</Text>
             <TouchableOpacity
               style={[styles.dialogBtn,{backgroundColor: '#229F5F'}]}
               onPress={() => {
@@ -391,7 +393,7 @@ const ProductScreen = ()=>{
                 navigation.goBack();
               }}
             >
-              <Text style={styles.dialogBtnText}>Done</Text>
+              <Text style={styles.dialogBtnText}>{t('common.done')}</Text>
             </TouchableOpacity>
           </Dialog.Container>
           : null
@@ -403,7 +405,7 @@ const ProductScreen = ()=>{
             onRequestClose={() => { setFailureDialog(false) }}
             visible={failureDialog} onBackdropPress={() => setFailureDialog(false)} contentStyle={styles.dialogContainer}>
             <Faliure />
-            <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>Error!</Text>
+            <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>{t('common.error')}</Text>
             <Text style={styles.dialogMessage}>{failureMessage}</Text>
             <TouchableOpacity
             style={[styles.dialogBtn,{backgroundColor: '#F2596F'}]}
@@ -411,7 +413,7 @@ const ProductScreen = ()=>{
                 setFailureDialog(false);
             }}
             >
-            <Text style={styles.dialogBtnText}>Try Again</Text>
+            <Text style={styles.dialogBtnText}>{t('common.tryAgain')}</Text>
             </TouchableOpacity>
         </Dialog.Container>
         : null
@@ -532,31 +534,31 @@ const ProductScreen = ()=>{
                         if(payload?.variants?.[0]?.unitRates?.[0]?.accountUniqueName && payload?.variants?.[0]?.unitRates?.[1]?.accountUniqueName ){
                             if(payload?.variants?.[0]?.unitRates?.[0]?.rate && payload?.variants?.[0]?.unitRates?.[1]?.rate){
                                 if(!requiredFieldsCheck(payload)){
-                                    Toast({message: "Required custom fields can't be empty", position:'BOTTOM',duration:'LONG'})
+                                    Toast({message: t('productScreen.requiredCustomFieldsEmpty'), position:'BOTTOM',duration:'LONG'})
                                     return;
                                 }
                                 await createStockProduct(payload,selectedGroupUniqueName);
                             }else{
-                                Toast({message:"Specify rates for linked accounts.", position:'BOTTOM',duration:'LONG'})
+                                Toast({message: t('productScreen.specifyRatesForLinkedAccounts'), position:'BOTTOM',duration:'LONG'})
                             }
                         }else{
-                            Toast({message: "Linking account is mandatory if rates/unit is entered.", position:'BOTTOM',duration:'LONG'})
+                            Toast({message: t('productScreen.linkingAccountMandatory'), position:'BOTTOM',duration:'LONG'})
                         }
                     }else{
                         if(!requiredFieldsCheck(payload)){
-                            Toast({message: "Required custom fields can't be empty", position:'BOTTOM',duration:'LONG'})
+                            Toast({message: t('productScreen.requiredCustomFieldsEmpty'), position:'BOTTOM',duration:'LONG'})
                             return;
                         }
                         await createStockProduct(payload,selectedGroupUniqueName);
                     }
                 }else{
-                    Toast({message: "No unit selected!", position:'BOTTOM',duration:'SHORT'})
+                    Toast({message: t('productScreen.noUnitSelected'), position:'BOTTOM',duration:'SHORT'})
                 }
             }else{
-                Toast({message: "Select Unit group!", position:'BOTTOM',duration:'SHORT'})
+                Toast({message: t('productScreen.selectUnitGroup'), position:'BOTTOM',duration:'SHORT'})
             }
         }else{
-            Toast({message: "Enter stock name!", position:'BOTTOM',duration:'SHORT'})
+            Toast({message: t('productScreen.enterStockName'), position:'BOTTOM',duration:'SHORT'})
         }
     }
 
@@ -567,7 +569,7 @@ const ProductScreen = ()=>{
             onPress={onClickCreateStock}>
             <Text
             style={styles.createBtn}>
-            Create
+            {t('common.create')}
             </Text>
         </TouchableOpacity>
         // <TouchableOpacity
@@ -657,7 +659,7 @@ const ProductScreen = ()=>{
     
     return (
         <ScrollView style={[styles.backGround, styles.container]}>
-            <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
+            <Header header={t('productScreen.createStock')} isBackButtonVisible={true} backgroundColor={voucherBackground} 
                 headerRightContent={
                     <>
                     <TouchableOpacity
@@ -668,7 +670,7 @@ const ProductScreen = ()=>{
                             clearAll();
                         }}
                     >
-                        <Text style={styles.smallText}>Clear</Text>
+                        <Text style={styles.smallText}>{t('common.clear')}</Text>
                     </TouchableOpacity>
                     </>}
                 />

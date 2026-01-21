@@ -7,11 +7,13 @@ import {
   View,Text
 } from 'react-native';
 import LoaderKit  from 'react-native-loader-kit';
+import { useTranslation } from 'react-i18next';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
 
 function ShareModal ({ modalVisible }) {
+  const { t } = useTranslation();
   return (
     <Modal animationType="none" transparent={true} visible={modalVisible} statusBarTranslucent>
       <View style={styles.container}>
@@ -21,7 +23,7 @@ function ShareModal ({ modalVisible }) {
             name={'LineScale'}
             color={colors.PRIMARY_NORMAL}
         />
-        <Text style={{marginTop: 20, fontFamily: 'AvenirLTStd-Black'}}>Preparing PDF</Text>
+        <Text style={{marginTop: 20, fontFamily: 'AvenirLTStd-Black'}}>{t('partiesTransaction.preparingPDF')}</Text>
         </View>
       </View>
     </Modal>

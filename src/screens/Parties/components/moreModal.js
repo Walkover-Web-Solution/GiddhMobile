@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
+import { useTranslation } from 'react-i18next';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
@@ -24,10 +25,11 @@ function MoreModal ({
   isPhoneAvailable,
   copyToClipboard
 }) {
+  const { t } = useTranslation();
   return (
     <BottomSheet
       bottomSheetRef={bottomSheetRef}
-      headerText='Contact'
+      headerText={t('moreModal.contact')}
       headerTextColor='#864DD3'
     >
       {isPhoneAvailable && <TouchableOpacity
@@ -37,7 +39,7 @@ function MoreModal ({
           setBottomSheetVisible(bottomSheetRef, false);
         }}>
         <FontAwesome name="whatsapp" size={22} color={'#25D366'} />
-        <Text style={styles.buttonText}>Chat on WhatsApp</Text>
+        <Text style={styles.buttonText}>{t('moreModal.chatOnWhatsApp')}</Text>
       </TouchableOpacity>}
       {isPhoneAvailable && <View style={[styles.button, { justifyContent: 'space-between' }]}>
         <TouchableOpacity
@@ -47,7 +49,7 @@ function MoreModal ({
             setBottomSheetVisible(bottomSheetRef, false);
           }}>
           <FontAwesome name="phone" size={22} color={'#4285F4'} />
-          <Text style={styles.buttonText}>Phone Call </Text>
+          <Text style={styles.buttonText}>{t('moreModal.phoneCall')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -65,7 +67,7 @@ function MoreModal ({
             setBottomSheetVisible(bottomSheetRef, false);
           }}>
           <Feather name="mail" size={21} color={'#C41E3A'} />
-          <Text style={styles.buttonText}>Mail </Text>
+          <Text style={styles.buttonText}>{t('moreModal.mail')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.7}

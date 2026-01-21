@@ -31,11 +31,13 @@ import Feather from 'react-native-vector-icons/Feather'
 import RNFetchBlob from 'react-native-blob-util'
 import TOAST from "@/components/Toast";
 import { CommonService } from '@/core/services/common/common.service';
+import { useTranslation } from 'react-i18next';
 
 const {height, width} = Dimensions.get('window');
 
 const BalanceSheetScreen = () => {
   const { styles } = useCustomTheme(makeStyles, 'Stock');
+  const { t } = useTranslation();
   const [date, setDate] = useState<{startDate: string; endDate: string}>({
     startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
     endDate: moment().format('DD-MM-YYYY'),
@@ -103,7 +105,7 @@ const BalanceSheetScreen = () => {
         if (Platform.OS == "android" && Platform.Version < 33) {
             const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
             if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                Alert.alert(t('common.permissionDenied'), t('common.storagePermissionDownload'));
                 return;
             }
         }
@@ -136,7 +138,7 @@ const BalanceSheetScreen = () => {
     if (isApiCallInProgress) return;
     setIsApiCallInProgress(true);
     try {
-        DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Downloading Started... It may take while', open: null });
+        DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: t('common.downloadStarted'), open: null });
         const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
         const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
         const consolidateBranchName = consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : '';
@@ -154,7 +156,7 @@ const BalanceSheetScreen = () => {
         })
 
         if (!response.ok) {
-          TOAST({message: `Failed to fetch file: ${response.statusText}`, position:'BOTTOM',duration:'LONG'}) 
+          TOAST({message: `${t('balanceSheet.failedToFetchFile')}: ${response.statusText}`, position:'BOTTOM',duration:'LONG'}) 
           setIsApiCallInProgress(false);
         }
 
@@ -163,7 +165,7 @@ const BalanceSheetScreen = () => {
         const base64String = jsonResponse?.body;
         
         if (!base64String) {
-          TOAST({message: 'Failed to fetch file', position:'BOTTOM',duration:'LONG'});
+          TOAST({message: t('balanceSheet.failedToFetchFile'), position:'BOTTOM',duration:'LONG'});
           setIsApiCallInProgress(false);
           throw new Error('Base64 data is missing in the response');
         }
@@ -204,7 +206,7 @@ const BalanceSheetScreen = () => {
                 configfb.path // Path to the file being copied in the apps own storage
             );
           ToastAndroid.show(
-            'File saved to download folder',
+            t('common.fileSavedToDownload'),
             ToastAndroid.LONG,
           );
         }
@@ -212,7 +214,7 @@ const BalanceSheetScreen = () => {
         //notification for complete download
         RNFetchBlob.android.addCompleteDownload({
           title: configfb.title,
-          description: 'File downloaded successfully',
+          description: t('common.fileDownloadedSuccessfully'),
           mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           path: configfb.path,
           showNotification: true,
@@ -223,8 +225,8 @@ const BalanceSheetScreen = () => {
             :  () => RNFetchBlob.ios.openDocument(configfb.path)
 
         DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { 
-            message: 'Download Successful!', 
-            action: 'Open',
+            message: t('common.downloadSuccessful'), 
+            action: t('common.open'),
             open: openFile
         });
 
@@ -239,7 +241,7 @@ const BalanceSheetScreen = () => {
   const RenderBranchModal = (
     <BottomSheet
       bottomSheetRef={branchListModalRef}
-      headerText="Select Branch"
+      headerText={t('balanceSheet.selectBranch')}
       headerTextColor="#084EAD"
       adjustToContentHeight={branchList?.length * 47 > height - 100 ? false : true}
       flatListProps={{
@@ -265,7 +267,7 @@ const BalanceSheetScreen = () => {
         ListEmptyComponent: () => {
           return (
             <View style={styles.modalCancelView}>
-              <Text style={styles.modalCancelText}>No Data</Text>
+              <Text style={styles.modalCancelText}>{t('common.noData')}</Text>
             </View>
           );
         },
@@ -277,13 +279,14 @@ const BalanceSheetScreen = () => {
 const renderCategory = (category, items) => {
     const closingTotal = calculateClosingTotal(items,category);
     const forwardTotal = calculateForwardTotal(items,category);
+    const translatedCategory = category === 'Assets' ? t('balanceSheet.assets') : t('balanceSheet.liabilities');
     
     return (
     <View style={styles.categoryContainer}>
-      <Text style={styles.categoryTitle}>{category}</Text>
+      <Text style={styles.categoryTitle}>{translatedCategory}</Text>
       <View style={styles.headingContainer}>
-        <Text style={styles.dateText}>As of {longDateFormat(date?.startDate)}</Text>
-        <Text style={styles.dateText}>As of {longDateFormat(date?.endDate)}</Text>
+        <Text style={styles.dateText}>{t('balanceSheet.asOf')} {longDateFormat(date?.startDate)}</Text>
+        <Text style={styles.dateText}>{t('balanceSheet.asOf')} {longDateFormat(date?.endDate)}</Text>
       </View>
       {items.map((item, index) => (
         <View key={index} style={styles.card}>
@@ -299,7 +302,7 @@ const renderCategory = (category, items) => {
         </View>
       ))}
       <View style={styles.totalContainer}>
-        <Text style={[styles.dateText,{color:'#1a237e'}]}>Total {category}: </Text>
+        <Text style={[styles.dateText,{color:'#1a237e'}]}>{t('balanceSheet.total')} {translatedCategory}: </Text>
         <View style={[styles.headingContainer,{paddingVertical:3}]}>
             <Text style={styles.totalText}>{formatAmount(closingTotal)}</Text>
             <Text style={styles.totalText}>{formatAmount(forwardTotal)}</Text>
@@ -352,11 +355,11 @@ const renderCategory = (category, items) => {
                 <View style={styles.downloadBtnContainer}>
                 <TouchableOpacity style={styles.downloadBtn} disabled={isApiCallInProgress} onPress={() => downloadFile('collapsed')} >
                     <Feather name="download" size={15} color={'#1C1C1C'} style={{paddingHorizontal:4}}/>
-                    <Text style={styles.amountText}>Main Group Report</Text>
+                    <Text style={styles.amountText}>{t('balanceSheet.mainGroupReport')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.downloadBtn} disabled={isApiCallInProgress} onPress={()=> downloadFile('expanded')}>
                     <Feather name="download" size={15} color={'#1C1C1C'} style={{paddingHorizontal:4}}/>
-                    <Text style={styles.amountText}>Complete Report</Text>
+                    <Text style={styles.amountText}>{t('balanceSheet.completeReport')}</Text>
                 </TouchableOpacity>
                 </View>
             </View>

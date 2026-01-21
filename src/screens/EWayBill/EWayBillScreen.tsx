@@ -11,6 +11,7 @@ import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DeviceEventEmitter, Dimensions, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSelector } from "react-redux";
 import TransporterModalize from "./component/TransporterModalize";
@@ -27,28 +28,28 @@ import Dialog from 'react-native-dialog';
 import Faliure from '../../assets/images/icons/customer_faliure.svg';
 
 const {width} = Dimensions.get('window')
-const ModeOfTransport = [
+const getModeOfTransport = (t: any) => [
     {
-        name: "Road",
+        name: t('ewayBill.road'),
         isRegularChecked: false,
         overDimensionChecked: false,
         key: 'r',
         icon: <MaterialCommunityIcons name="truck-fast-outline" size={22}/>,
         id: 1
     },{
-        name: "Rail",
+        name: t('ewayBill.rail'),
         isRegularChecked: false,
         key: 't',
         icon: <MaterialIcons name="train" size={22}/>,
         id: 2
     },{
-        name: "Air",
+        name: t('ewayBill.air'),
         isRegularChecked: false,
         key: 'a',
         icon: <Entypo name="aircraft" size={22}/>,
         id: 3
     },{
-        name: "Ship",
+        name: t('ewayBill.ship'),
         isRegularChecked: false,
         key: 's',
         icon: <MaterialIcons name="directions-boat" size={22}/>,
@@ -57,6 +58,7 @@ const ModeOfTransport = [
 ]
 
 const EWayBillScreenComponent = ( {route} ) => {
+    const { t } = useTranslation();
     const {statusBar,styles, voucherBackground, theme} = useCustomTheme(getStyles, 'PdfPreview');
     const { isSalesCashInvoice, accountUniqueName : uniqueName, companyVersionNumber, voucherInfo, accountDetail,key } = route.params;
     const transporterModalizeRef = useRef(null);
@@ -73,14 +75,14 @@ const EWayBillScreenComponent = ( {route} ) => {
     const [selectedTransporter, setSelectedTransporter] = useState({});
     const [distance, setDistance] = useState('');
     const [selectedTransportMode, setSelectedTransportMode] = useState(null);
-    const [docType, setDocType] = useState("Bill of Supply");
+    const [docType, setDocType] = useState(t('ewayBill.billOfSupply'));
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [docDate, setDocDate] = useState("");
     const [vehicleNo, setVehicleNo] = useState("");
     const [docNo, setDocNo] = useState("");
     const [pincode, setPincode] = useState(accountDetail?.billingDetails?.pincode);
     const [hasNonNilRatedTax, setHasNonNilRatedTax] = useState(false);
-    const [subType, setSubType] = useState(baseCurrency === accountDetail?.currency?.code ? "Supply" : "Export");
+    const [subType, setSubType] = useState(baseCurrency === accountDetail?.currency?.code ? t('ewayBill.supply') : t('ewayBill.export'));
     const [refreshing, setRefreshing] = useState(false);
     const [faliureDialog, setFaliureDialog] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -153,9 +155,9 @@ const EWayBillScreenComponent = ( {route} ) => {
                     entry?.taxes?.some((tax: any) => tax.taxPercent !== 0)
                 );
                 if(hasNonNilRatedTax) {
-                    setDocType("Invoice")
+                    setDocType(t('ewayBill.invoice'))
                 } else {
-                    setDocType("Bill of Supply")
+                    setDocType(t('ewayBill.billOfSupply'))
                 }
             }
             
@@ -198,7 +200,7 @@ const EWayBillScreenComponent = ( {route} ) => {
             if(response && response?.status == "success") {
                 navigation.navigate('TaxStack', { screen: Routes.ListEWayBillsScreen });
                 DeviceEventEmitter.emit(APP_EVENTS.ListEWayBillsScreenRefresh);
-                Toast({message: "E-Way bill " + response?.body?.ewayBillNo + " generated successfully.", duration:'SHORT', position:'BOTTOM'});
+                Toast({message: t('ewayBill.ewayBillGeneratedSuccessfully', { billNo: response?.body?.ewayBillNo }), duration:'SHORT', position:'BOTTOM'});
                 resetAll();
             } else {
                 setErrorMsg(response?.data?.message);
@@ -222,7 +224,7 @@ const EWayBillScreenComponent = ( {route} ) => {
             return;
         }
         if(vehicleNo?.length > 0 && !vehicleNoRegex.test(vehicleNo)){
-            Toast({message: "Vehicle No. format must be like: mp01aa1234", duration:'SHORT', position:'BOTTOM'})
+            Toast({message: t('ewayBill.vehicleNoFormat'), duration:'SHORT', position:'BOTTOM'})
             return ;
         }
         setIsLoadingCreateBill(true);
@@ -237,7 +239,7 @@ const EWayBillScreenComponent = ( {route} ) => {
         }
         debounceTimeout.current = setTimeout(() => {
           if (text && !vehicleNoRegex.test(text)) {
-            Toast({message: "Vehicle No. format must be like: mp01aa1234", duration:'SHORT', position:'BOTTOM'})
+            Toast({message: t('ewayBill.vehicleNoFormat'), duration:'SHORT', position:'BOTTOM'})
           }
         }, 1000);
       };
@@ -252,7 +254,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                 disabled={isCreateButtonDisabled}
                 onPress={handleGenerate}
             >
-                <Text style={styles.createBtn}>Generate</Text>
+                <Text style={styles.createBtn}>{t('ewayBill.generate')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
                 activeOpacity={0.7}
@@ -262,7 +264,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                     resetAll();
                 }}
             >
-                <Text style={[styles.createBtn, { color: colors.PRIMARY_NORMAL }]}>Cancel</Text>
+                <Text style={[styles.createBtn, { color: colors.PRIMARY_NORMAL }]}>{t('common.cancel')}</Text>
             </TouchableOpacity>
         </View>
     )
@@ -284,11 +286,11 @@ const EWayBillScreenComponent = ( {route} ) => {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
                 >
-                <Header header={'Generate E-way Bill'} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+                <Header header={t('common.generateEWayBill')} statusBarColor={statusBar} isBackButtonVisible={true} backgroundColor={voucherBackground} />
                 <View style={styles.subContainer}>
-                    <Text style={styles.heading}>Part A</Text>
+                    <Text style={styles.heading}>{t('ewayBill.partA')}</Text>
                     <InputField 
-                        lable="Sub Type"
+                        lable={t('ewayBill.subType')}
                         isRequired={false}
                         containerStyle={styles.inputFieldStyleWithBackground}
                         placeholderTextColor={theme.colors.secondary}
@@ -296,7 +298,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         value={subType}
                     />
                     <InputField 
-                        lable="Document Type"
+                        lable={t('ewayBill.documentType')}
                         isRequired={false}
                         containerStyle={styles.inputFieldStyleWithBackground}
                         placeholderTextColor={theme.colors.secondary}
@@ -304,7 +306,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         value={docType}
                     />
                     <InputField 
-                        lable="GSTIN of Receiver"
+                        lable={t('ewayBill.gstinOfReceiver')}
                         isRequired={false}
                         containerStyle={styles.inputFieldStyleWithBackground}
                         placeholderTextColor={theme.colors.secondary}
@@ -312,7 +314,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         value={receiverDetail?.gstIn ?? 'URP'}
                     />
                     <InputField 
-                        lable="Pincode of Receiver"
+                        lable={t('ewayBill.pincodeOfReceiver')}
                         isRequired={true}
                         keyboardType='numeric'
                         containerStyle={styles.inputFieldStyle}
@@ -322,16 +324,16 @@ const EWayBillScreenComponent = ( {route} ) => {
                             setPincode(text);
                         }}
                     />
-                    <Text style={styles.subHeading}>Transportation Details</Text>
+                    <Text style={styles.subHeading}>{t('ewayBill.transportationDetails')}</Text>
                     <MatButton 
-                        lable="Transporter"
+                        lable={t('ewayBill.transporter')}
                         value={selectedTransporter?.transporterName}
                         onPress={()=>{
                             setBottomSheetVisible(transporterModalizeRef,true);
                         }}
                     />
                     <InputField 
-                        lable="Distance in KM"
+                        lable={t('ewayBill.distanceInKM')}
                         isRequired={true}
                         keyboardType='numeric'
                         containerStyle={styles.inputFieldStyle}
@@ -343,9 +345,9 @@ const EWayBillScreenComponent = ( {route} ) => {
                     />
                 </View>
                 <View style={styles.subContainer}>
-                    <Text style={styles.heading}>Part B</Text>
+                    <Text style={styles.heading}>{t('ewayBill.partB')}</Text>
                     <MatButton 
-                        lable="Mode of Transportation"
+                        lable={t('ewayBill.modeOfTransportation')}
                         value={selectedTransportMode?.name}
                         onPress={()=>{
                             setBottomSheetVisible(transportModeModalizeRef,true);
@@ -374,10 +376,10 @@ const EWayBillScreenComponent = ( {route} ) => {
                                     overDimensionChecked: false
                                 }))
                             }}>
-                                <Text style={styles.radioBtnText}>Regular</Text>
+                                <Text style={styles.radioBtnText}>{t('ewayBill.regular')}</Text>
                             </Pressable>
                         </View>
-                        {(selectedTransportMode?.name === "Road" || selectedTransportMode == null) && <View style={styles.radioBtnView}>
+                        {(selectedTransportMode?.key === 'r' || selectedTransportMode == null) && <View style={styles.radioBtnView}>
                             <TouchableOpacity
                             style={styles.radioBtn}
                             onPress={() =>{
@@ -399,12 +401,12 @@ const EWayBillScreenComponent = ( {route} ) => {
                                     isRegularChecked:false
                                 }))
                             }}>
-                                <Text style={styles.radioBtnText}>Over Dimensional Cargo</Text>
+                                <Text style={styles.radioBtnText}>{t('ewayBill.overDimensionalCargo')}</Text>
                             </Pressable>
                         </View>}
                     </View>}
                     <InputField 
-                        lable="Vehicle No."
+                        lable={t('ewayBill.vehicleNo')}
                         isRequired={false}
                         containerStyle={styles.inputFieldStyle}
                         value={vehicleNo}
@@ -414,7 +416,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         }}
                     />
                     <InputField 
-                        lable="Transporter’s Doc No"
+                        lable={t('ewayBill.transporterDocNo')}
                         isRequired={false}
                         containerStyle={styles.inputFieldStyle}
                         value={docNo}
@@ -424,7 +426,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         }}
                     />
                     <MatButton 
-                        lable="Transporter's Doc Date"
+                        lable={t('ewayBill.transporterDocDate')}
                         value={docDate}
                         onPress={()=>showDatePicker()}
                     />
@@ -442,8 +444,8 @@ const EWayBillScreenComponent = ( {route} ) => {
               onRequestClose={() => setFaliureDialog(false)}
               visible={faliureDialog} onBackdropPress={() => setFaliureDialog(false)} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
               <Faliure />
-              <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>Error!</Text>
-              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{errorMsg ?? 'Something went wrong'}</Text>
+              <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>{t('customers.errorTitle')}</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{errorMsg ?? t('ewayBill.somethingWentWrong')}</Text>
               <TouchableOpacity
                 style={{
                   alignItems: 'center',
@@ -456,7 +458,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                 }}
                 onPress={() => setFaliureDialog(false)}
               >
-                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>Try Again</Text>
+                <Text style={{ color: 'white', padding: 10, fontSize: 20, textAlignVertical: 'center', fontFamily: 'AvenirLTStd-Book' }}>{t('customers.tryAgain')}</Text>
               </TouchableOpacity>
             </Dialog.Container>
             <Loader isLoading={isLoading} />
@@ -464,7 +466,7 @@ const EWayBillScreenComponent = ( {route} ) => {
             <EwayBillLoginBottomSheet bottomSheetRef={ewayBillLoginBottomSheetRef} setIsLoadingCreateBill={setIsLoadingCreateBill} onCreateEwayBillAfterLogin={onCreateEwayBillAfterLogin}/>
             <TransporterModalize modalizeRef={transporterModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transporterData={transporterDetails} setTransporter={setSelectedTransporter} addTrasporterModalRef={addTransporterModalize}/>
             <AddTransporterModalize modalizeRef={addTransporterModalize} setBottomSheetVisible={setBottomSheetVisible} setTransporter={setTransporterDetails} transporterData={transporterDetails}/>
-            <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={ModeOfTransport} transportMode={selectedTransportMode} setTransportMode={setSelectedTransportMode}/>
+            <TransportModeModalize modalizeRef={transportModeModalizeRef} setBottomSheetVisible={setBottomSheetVisible} transportData={getModeOfTransport(t)} transportMode={selectedTransportMode} setTransportMode={setSelectedTransportMode}/>
         </>
     )
 }

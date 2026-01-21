@@ -77,22 +77,20 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       >
         <Icon name="language" size={26} color="#1A237E" style={styles.icon} />
         <View style={styles.buttonContent}>
-          <Text style={[styles.buttonLabel, buttonTextStyle]}>{t('DEMO.LANGUAGE')}</Text>
+          <Text style={[styles.buttonLabel, buttonTextStyle]}>{t('General.LANGUAGE')}</Text>
           <Text style={styles.currentLanguage}>{currentLanguage.nativeLabel}</Text>
         </View>
         <Entypo name="chevron-right" size={26} color={'#1A237E'} />
       </TouchableOpacity>
 
-      <BottomSheet bottomSheetRef={bottomSheetRef} headerText={t('DEMO.LANGUAGE')} adjustToContentHeight>
-        <View style={styles.modalOverlay}>
-          <FlatList
-            data={LANGUAGES}
-            renderItem={renderLanguageItem}
-            keyExtractor={(item) => item.code}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+      <BottomSheet bottomSheetRef={bottomSheetRef} headerText={t('General.LANGUAGE')} adjustToContentHeight>
+        <FlatList
+          data={LANGUAGES}
+          renderItem={renderLanguageItem}
+          keyExtractor={(item) => item.code}
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
+        />
       </BottomSheet>
     </>
   );

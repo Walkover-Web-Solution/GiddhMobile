@@ -14,11 +14,13 @@ import MatButton from '@/components/OutlinedButton';
 import BottomSheet from '@/components/BottomSheet';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
+import { useTranslation } from 'react-i18next';
 
 const {height, width} = Dimensions.get('window');
 
 const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBranch, setSelectedBranch, selectedBranch}) => {
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
+    const { t } = useTranslation();
     const [chartLoading, setChartLoading] = useState(true);
     const [totalExpense, setTotalExpense] = useState({});
     const [totalIncome, setTotalIncome] = useState({});
@@ -65,7 +67,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
     const RenderBranchModal = (
         <BottomSheet
           bottomSheetRef={modalRef}
-          headerText="Select Branch"
+          headerText={t('balanceSheet.selectBranch')}
           headerTextColor="#084EAD"
           adjustToContentHeight={branchList?.length * 47 > height - 100 ? false : true}
           flatListProps={{
@@ -91,7 +93,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
             ListEmptyComponent: () => {
               return (
                 <View style={styles.modalCancelView}>
-                  <Text style={styles.modalCancelText}>No Data</Text>
+                  <Text style={styles.modalCancelText}>{t('common.noData')}</Text>
                 </View>
               );
             },
@@ -112,14 +114,14 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
     {   value: (Object.keys(totalIncome).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0)) ? 50 : formatNumber(totalIncome?.amount), 
         color: (Object.keys(totalIncome).length === 0 || totalIncome?.amount == 0) ? theme.colors.solids.grey.light : '#a5292a', 
         gradientCenterColor: totalIncome?.amount == 0 ? theme.colors.solids.grey.light : theme.colors.solids.red.medium ,
-        tooltipText:'Income',
-        text:'Income'
+        tooltipText: t('chartComponent.income'),
+        text: t('chartComponent.income')
     },
     {   value: (Object.keys(totalExpense).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0)) ? 50 : formatNumber(totalExpense?.amount), 
         color: (Object.keys(totalExpense).length === 0 || totalExpense?.amount == 0) ? theme.colors.solids.grey.light : '#1a237e', 
         gradientCenterColor: totalExpense?.amount == 0 ? theme.colors.solids.grey.light : theme.colors.solids.blue.light,
-        tooltipText:'Expense',
-        text:'Expense'
+        tooltipText: t('chartComponent.expense'),
+        text: t('chartComponent.expense')
     }
     ];
 console.log("pie data", pieData, totalExpense, totalIncome, netPL);
@@ -153,21 +155,21 @@ console.log("pie data", pieData, totalExpense, totalIncome, netPL);
                             {item?.text}
                         </SvgText>
                     }}
-                    centerLabelComponent={(Object.keys(totalExpense).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0 )) ? ()=>(<><Text style={styles.spending}>No Data</Text></>) : ()=>(<></>)}
+                    centerLabelComponent={(Object.keys(totalExpense).length === 0 || (totalExpense?.amount == 0 && totalIncome?.amount == 0 )) ? ()=>(<><Text style={styles.spending}>{t('common.noData')}</Text></>) : ()=>(<></>)}
                 />
             </View>
             <View style={{paddingHorizontal: 16,width:'100%'}}>
                 <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center'}}>
-                    <Text style={styles.totalAmount}>Net Profit/Loss</Text>
+                    <Text style={styles.totalAmount}>{t('chartComponent.netProfitLoss')}</Text>
                     <Text style={styles.totalAmount}>{(netPL?.amount ? (netPL?.amount !==0 && (netPL?.type?.charAt?.(0) == 'C') ? '+ ' : '- ') : '') }{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(netPL?.amount)}</Text>
                 </View>
                 <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center'}}>
-                    <Text style={styles.totalAmount}>Total Income</Text>
-                    <Text style={[styles.totalAmount,{color:'#a5292a'}]}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(totalIncome?.amount)}{(formatNumber(totalIncome?.amount)!==0) && (totalIncome?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.')}</Text>
+                    <Text style={styles.totalAmount}>{t('chartComponent.totalIncome')}</Text>
+                    <Text style={[styles.totalAmount,{color:'#a5292a'}]}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(totalIncome?.amount)}{(formatNumber(totalIncome?.amount)!==0) && (totalIncome?.type?.charAt(0) == 'C' ? ` ${t('common.cr')}.` : ` ${t('common.dr')}.`)}</Text>
                 </View>
                 <View style={{flexDirection:'row',justifyContent:'space-between',alignContent:'center'}}>
-                    <Text style={styles.totalAmount}>Total Expenses</Text>
-                    <Text style={[styles.totalAmount,{color:'#1a237e'}]}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(totalExpense?.amount)}{(formatNumber(totalExpense?.amount)!==0) && (totalExpense?.type?.charAt(0) == 'C' ? ' Cr.' : ' Dr.')}</Text>
+                    <Text style={styles.totalAmount}>{t('chartComponent.totalExpenses')}</Text>
+                    <Text style={[styles.totalAmount,{color:'#1a237e'}]}>{countryV2?.currency?.symbol ? countryV2?.currency?.symbol : ''} {formatAmount(totalExpense?.amount)}{(formatNumber(totalExpense?.amount)!==0) && (totalExpense?.type?.charAt(0) == 'C' ? ` ${t('common.cr')}.` : ` ${t('common.dr')}.`)}</Text>
                 </View>
             </View>
         </View>

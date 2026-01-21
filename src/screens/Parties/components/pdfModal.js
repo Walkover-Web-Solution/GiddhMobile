@@ -13,6 +13,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import BottomSheet from '@/components/BottomSheet';
+import { useTranslation } from 'react-i18next';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
@@ -27,10 +28,11 @@ function PDFModal ({
   phoneNo,
   shareModal
 }) {
+  const { t } = useTranslation();
   return (
     <BottomSheet
       bottomSheetRef={bottomSheetRef}
-      headerText='Share'
+      headerText={t('common.share')}
       headerTextColor='#864DD3'
     >
       <TouchableOpacity
@@ -41,7 +43,7 @@ function PDFModal ({
           setBottomSheetVisible(bottomSheetRef, false);
         }}>
         <AntDesign name="download" size={22} color={'black'} />
-        <Text style={styles.text}>Export</Text>
+        <Text style={styles.text}>{t('common.export')}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
@@ -51,7 +53,7 @@ function PDFModal ({
           setBottomSheetVisible(bottomSheetRef, false);
         }}>
         <Entypo name="share" size={22} color={'black'} />
-        <Text style={styles.text}>Share</Text>
+        <Text style={styles.text}>{t('common.share')}</Text>
       </TouchableOpacity>
       {phoneNo && (
         <TouchableOpacity
@@ -61,7 +63,7 @@ function PDFModal ({
             setBottomSheetVisible(bottomSheetRef, false);
           }}>
           <MaterialCommunityIcons name="whatsapp" size={22} color={'#000000'} />
-          <Text style={styles.text}>Share on WhatsApp</Text>
+          <Text style={styles.text}>{t('partiesTransaction.shareOnWhatsApp')}</Text>
         </TouchableOpacity>
       )}
     </BottomSheet>

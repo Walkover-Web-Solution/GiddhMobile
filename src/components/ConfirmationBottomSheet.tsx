@@ -2,52 +2,57 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import BottomSheet from './BottomSheet'
 import { FONT_FAMILY } from '@/utils/constants'
+import { useTranslation } from 'react-i18next'
 
 export const ConfirmationMessages = {
     DELETE_ENTRY: {
-      message: 'Do you want to delete the selected Entry?',
-      description: 'All their corresponding vouchers and invoices will be deleted permanently and will no longer be accessible from other modules.'
+      message: 'confirmation.deleteEntry.message',
+      description: 'confirmation.deleteEntry.description'
     },
     DELETE_VOUCHER: {
-      message: 'Do you want to delete the voucher/invoice?',
-      description: 'It will be deleted permanently and will no longer be accessible from any other module.'
+      message: 'confirmation.deleteVoucher.message',
+      description: 'confirmation.deleteVoucher.description'
     },
     LOGOUT: {
-        message: 'Are you sure you want to logout?',
-        description: 'You will lose all of your entries.'
+        message: 'confirmation.logout.message',
+        description: 'confirmation.logout.description'
     },
     APPLOCK: {
-        message: 'Are You Sure You Want to Log Out?',
-        description: 'Logging out will disable App Lock. You’ll have to re-enable it after login.'
+        message: 'confirmation.appLock.message',
+        description: 'confirmation.appLock.description',
+        confirmText: 'confirmation.appLock.confirmText',
+        rejectText: 'confirmation.appLock.rejectText'
     }
 }
 
-const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', onConfirm, onReject, confirmText = 'Yes', rejectText= 'No' }) => {
+const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', onConfirm, onReject, confirmText, rejectText }) => {
+    const { t } = useTranslation();
+    
     return (
         <BottomSheet
             bottomSheetRef={bottomSheetRef}
-            headerText='Confirmation'
+            headerText={t('confirmation.title')}
             headerTextColor='#864DD3'
         >
             <View style={styles.confirmationSheetView} >
                 <Text style={styles.boldText} >
-                    {message}
+                    {t(message)}
                 </Text>
                 <Text style={styles.confirmationText} >
-                    {description}          
+                    {description ? t(description) : ''}          
                 </Text>
                 <View style={styles.confirmationInternalView}>
                     <TouchableOpacity
                         style={styles.confirmationButton}
                         onPress={onConfirm}
                     >
-                        <Text style={styles.buttonText} >{confirmText}</Text>
+                        <Text style={styles.buttonText} >{t(confirmText) || t('common.yes')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={onReject}
                         style={styles.confirmationButton}
                     >
-                        <Text style={styles.buttonText} >{rejectText}</Text>
+                        <Text style={styles.buttonText} >{t(rejectText) || t('common.no')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

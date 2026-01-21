@@ -17,7 +17,7 @@ import DebitNote from '@/assets/images/icons/options/DebitNote.svg'
 import Payment from '@/assets/images/icons/options/Payment.svg'
 import Receipt from '@/assets/images/icons/options/Receipt.svg'
 import VoucherSVG from '@/assets/images/icons/options/Voucher.svg'
-import ProductOptions from './ProductOptions'
+import { useTranslation } from 'react-i18next'
 
 const { height } = Dimensions.get('window');
 const SIZE = 48;
@@ -46,18 +46,21 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
     const moreOptionsRef = useRef(null);
     const plusButtonRef = useRef(null);
     const productOptionRef = useRef(null);
+    const { t } = useTranslation();
 
     return (
         <View style={styles.container}>
             { state.routes.map((route: any, index: number) => {
                 const { options } = descriptors[route.key];
+                
                 const label =
-                    options.tabBarLabel !== undefined
-                        ? options.tabBarLabel
-                        : options.title !== undefined
-                            ? options.title
-                            : route.name;
-
+                options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                ? options.title
+                : route.name;
+                
+                console.log('options', options, label);
                 const isFocused = state.index === index;
 
                 const onPress = () => {
@@ -138,9 +141,9 @@ const TabBar : React.FC<Props> = ({ state, descriptors, navigation, branchSelect
                             style={{ color: disableTabs ? '#808080' : isFocused ? '#5773FF' : '#808080', fontSize: 13, fontFamily: 'AvenirLTStd-Book' }}
                             numberOfLines={1}
                         >
-                            {   label === Routes.BottomTabScreen1 ? selectedVouchersForBottomTabs[0]
-                                    : label === Routes.BottomTabScreen2 ? selectedVouchersForBottomTabs[1]
-                                        : label
+                            {   label === Routes.BottomTabScreen1 ? t(`Vouchers.${selectedVouchersForBottomTabs[0]}`)
+                                    : label === Routes.BottomTabScreen2 ? t(`Vouchers.${selectedVouchersForBottomTabs[1]}`)
+                                        : t(`Vouchers.${label}`)
                             }
                         </Text>
                     </TouchableOpacity>
