@@ -246,7 +246,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                                     key={field.uniqueName}
                                     lable={field?.fieldName}
                                     isRequired={field?.isMandatory}
-                                    keyboardType={field?.fieldType?.type == 'NUMBER' ? "numeric": ""}
+                                    keyboardType={field?.fieldType?.type == 'NUMBER' ? "numeric" : undefined}
                                     containerStyle={{marginVertical:5}}
                                     placeholderTextColor={'#808080'}
                                     onChangeText={(text)=>{

@@ -67,6 +67,7 @@ const InventoryListScreen = (props) => {
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [filterFlag, setFilterFlag] = useState(false);
+    const [customFieldsDefinitions, setCustomFieldsDefinitions] = useState<any[]>([]);
     const [filterObject,setFilterObject] = useState<FilterObject>({
         expression:"",
         filterBy:"",
@@ -159,6 +160,13 @@ const InventoryListScreen = (props) => {
         _.delay(() => { setIsRefreshing(false) }, 500)
     }
 
+    const fetchVariantCustomfields = async ()=>{
+        const result = await InventoryService.fetchVariantCustomfields();
+        if(result?.data && result?.data?.status == 'success'){
+            setCustomFieldsDefinitions(result?.data?.body?.results || []);
+        }
+    }
+
     const fetchAllVariants = async (type:string,flag:boolean) => {
         
         if (!flag && !hasMore) return;
@@ -201,6 +209,7 @@ const InventoryListScreen = (props) => {
 
     useEffect(()=>{
         fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',false);
+        fetchVariantCustomfields();
         DeviceEventEmitter.addListener(APP_EVENTS.ServiceInventoryListRefresh, async () => {
             await clearAll();
             fetchAllVariants("SERVICE",false);
@@ -211,6 +220,19 @@ const InventoryListScreen = (props) => {
         });
     },[])
     
+    const getCustomFieldValue = (fieldUniqueName: string) => {
+        const customField = selectedItem?.customFields?.find((cf: any) => cf?.uniqueName === fieldUniqueName);
+        if (!customField?.value) return null;
+        if (customField.value === "true") return "Yes";
+        if (customField.value === "false") return "No";
+        return customField.value;
+    };
+
+    const customFieldsDetails = customFieldsDefinitions.map((field) => ({
+        label: field?.fieldName,
+        value: getCustomFieldValue(field?.uniqueName)
+    }));
+
     const VariantDetails = [
         { label: "Variant Name", value: selectedItem?.variantName },
         { label: "Variant Unique Name", value: selectedItem?.variantUniqueName },
@@ -233,9 +255,10 @@ const InventoryListScreen = (props) => {
         { label: "Archive", value: selectedItem?.archive ? 'Yes' : 'No' },
         { label: "Tax", value: selectedItem?.taxes?.join(', ') },
         { label: "Sales Tax Inclusive", value: selectedItem?.salesTaxInclusive ? 'Yes' : 'No' },
-        { label: "Purchase Tax Inclusive", value: selectedItem?.purchaseTaxInclusive ? 'Yes' : 'No' }
+        { label: "Purchase Tax Inclusive", value: selectedItem?.purchaseTaxInclusive ? 'Yes' : 'No' },
+        ...customFieldsDetails
     ];
-    
+
     const DetailModal = (
         <BottomSheet
         bottomSheetRef={modalizeRef}
