@@ -394,7 +394,7 @@ const ContraScreen = () => {
             <Animated.ScrollView
             keyboardShouldPersistTaps="never"
             bounces={false}>
-            <Header header={'Contra'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+            <Header header={t('voucherModal.contra')} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             {/* Party Name */}
             <View style={styles.partyContainer}>
                 <View style={styles.partySubView}>

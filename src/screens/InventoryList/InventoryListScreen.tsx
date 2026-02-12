@@ -945,7 +945,7 @@ const InventoryListScreen = (props) => {
     return (
         <View style={styles.container}>
             <Header 
-              header={t('inventoryList.inventory')} 
+              header={t('AddButton.Inventory')} 
               isBackButtonVisible={true} 
               backgroundColor={voucherBackground} 
               headerRightContent={HeaderRightComponent}

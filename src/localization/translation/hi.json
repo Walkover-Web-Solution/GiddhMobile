@@ -142,9 +142,9 @@
     }
   },
   "EditAddress": {
-    "headerText": "एड्रेस दर्ज करें",
-    "address": "एड्रेस",
-    "EnterAddress": "एड्रेस दर्ज करें",
+    "headerText": "पता दर्ज करें",
+    "address": "पता",
+    "EnterAddress": "पता दर्ज करें",
     "country": "देश",
     "EnterCountry": "देश दर्ज करें",
     "state": "राज्य",
@@ -324,7 +324,11 @@
     "fixedDiscount": "निश्चित छूट",
     "selectTax": "कर चुनें",
     "tax": "कर",
-    "addDescription": "विवरण जोड़ें"
+    "addDescription": "विवरण जोड़ें",
+    "amount": "राशि",
+    "unit": "इकाई",
+    "discountValue": "छूट मूल्य",
+    "discountPercentage": "छूट प्रतिशत"
   },
   "otherDetails": {
     "title": "अन्य विवरण",

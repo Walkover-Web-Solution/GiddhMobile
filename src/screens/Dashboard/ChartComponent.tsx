@@ -195,14 +195,14 @@ const makeStyles= (theme:ThemeProps) => StyleSheet.create({
   },
   totalAmount: {
     fontSize: theme.typography.fontSize.regular.size,
-    lineHeight: theme.typography.fontSize.regular.lineHeight,
+    // lineHeight: theme.typography.fontSize.regular.lineHeight,
     color: theme.colors.solids.black,
     fontFamily:theme.typography.fontFamily.semiBold,
     marginVertical:2
   },
   spending: {
     fontSize: theme.typography.fontSize.regular.size,
-    lineHeight: theme.typography.fontSize.regular.lineHeight,
+    // lineHeight: theme.typography.fontSize.regular.lineHeight,
     color: theme.colors.solids.grey.dark,
     fontFamily:theme.typography.fontFamily.bold,
   },

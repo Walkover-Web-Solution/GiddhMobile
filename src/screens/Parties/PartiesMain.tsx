@@ -441,7 +441,7 @@ export class PartiesMainScreen extends React.Component {
             )
             : (
               <>
-                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>{this.props.t('partiesMain.parties')}</Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>{this.props.t('Vouchers.Parties')}</Text>
                 <View style={{ position: 'absolute', right: 0, flexDirection: 'row', padding: 10, alignItems: 'center' }}>
                   <TouchableOpacity
                     delayPressIn={0}

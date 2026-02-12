@@ -5,6 +5,7 @@ import { Modalize, ModalizeProps, IHandles } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
+import useCustomTheme, { ThemeProps, getLineHeight } from '@/utils/theme';
 
 type Props = {
   bottomSheetRef: React.Ref<any>;
@@ -17,12 +18,13 @@ type Props = {
   searchPlaceholder?: string;
 } & ModalizeProps;
 
-const styles = StyleSheet.create({
+const getStyles = (theme: ThemeProps) => StyleSheet.create({
   headerText: {
     fontFamily: FONT_FAMILY.bold, 
     paddingHorizontal: 20, 
     paddingBottom: 10, 
-    fontSize: GD_FONT_SIZE.large
+    fontSize: GD_FONT_SIZE.large,
+    lineHeight: getLineHeight(theme.typography.fontSize.large),
   },
   divider: {
     borderTopWidth: 1, 
@@ -34,12 +36,14 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   searchInput: {
-    height: 40,
+    minHeight: 48,
     backgroundColor: '#FFFFFF',
   },
   searchInputContent: {
     fontFamily: FONT_FAMILY.regular,
-    fontSize: 14,
+    fontSize: theme.typography.fontSize.regular.size,
+    lineHeight: getLineHeight(theme.typography.fontSize.regular),
+    paddingVertical: 0,
   },
   searchOutline: {
     borderWidth: 1,
@@ -63,30 +67,33 @@ const BottomSheetHeader = memo<HeaderProps>(({
   searchValue = '', 
   onSearchChange, 
   searchPlaceholder = 'Search...' 
-}) => (
-  <View style={{ marginTop: 20 }}>
-    <Text style={[styles.headerText, { color: headerTextColor ?? '#000000'}]}>
-      {headerText}
-    </Text>
-    {searchable && (
-      <View style={styles.searchContainer}>
-        <TextInput
-          value={searchValue}
-          onChangeText={onSearchChange}
-          placeholder={searchPlaceholder}
-          mode="outlined"
-          style={styles.searchInput}
-          contentStyle={styles.searchInputContent}
-          outlineStyle={styles.searchOutline}
-          dense
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
-      </View>
-    )}
-    <View style={styles.divider}/>
-  </View>
-));
+}) => {
+  const { theme, styles } = useCustomTheme(getStyles);
+  return (
+    <View style={{ marginTop: 20 }}>
+      <Text style={[styles.headerText, { color: headerTextColor ?? '#000000'}]}>
+        {headerText}
+      </Text>
+      {searchable && (
+        <View style={styles.searchContainer}>
+          <TextInput
+            value={searchValue}
+            onChangeText={onSearchChange}
+            placeholder={searchPlaceholder}
+            mode="outlined"
+            style={styles.searchInput}
+            contentStyle={styles.searchInputContent}
+            outlineStyle={styles.searchOutline}
+            dense
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+        </View>
+      )}
+      <View style={styles.divider}/>
+    </View>
+  );
+});
 
 const BottomSheet: React.FC<Props> = ({
   children, headerText, headerTextColor, bottomSheetRef, searchable = false, searchValue = '', onSearchChange, searchPlaceholder = 'Search...', ...props

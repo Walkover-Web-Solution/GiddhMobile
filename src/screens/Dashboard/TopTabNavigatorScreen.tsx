@@ -50,7 +50,6 @@ const TopTab = () => {
           tabBarLabelStyle:{
             fontFamily:theme.typography.fontFamily.bold,
             fontSize:theme.typography.fontSize.regular.size,
-            lineHeight: theme.typography.fontSize.regular.lineHeight,
             textTransform:'none'
           },
           tabBarIndicatorStyle: {

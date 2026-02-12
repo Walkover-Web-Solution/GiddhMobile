@@ -166,12 +166,12 @@
   "AddButton": {
     "Stock": "स्टॉक",
     "Group": "गट",
-    "Inventory": "इन्व्हेंटरी",
+    "Inventory": "यादी",
     "Service Stock": "सेवा स्टॉक",
     "Service Group": "सेवा गट",
     "Service Inventory": "सेवा इन्व्हेंटरी",
     "E-Way Bill": "ई-वे बिल",
-    "Sales Invoice": "विक्री इनव्हॉइस",
+    "Sales Invoice": "विक्री पावती",
     "Credit Note": "क्रेडिट नोट",
     "Purchase Bill": "खरेदी बिल",
     "Debit Note": "डेबिट नोट",
@@ -324,7 +324,11 @@
     "fixedDiscount": "निश्चित सवलत",
     "selectTax": "कर निवडा",
     "tax": "कर",
-    "addDescription": "वर्णन जोडा"
+    "addDescription": "वर्णन जोडा",
+    "amount": "रक्कम",
+    "unit": "युनिट",
+    "discountValue": "सवलत मूल्य",
+    "discountPercentage": "सवलत प्रतिशत"
   },
   "otherDetails": {
     "title": "इतर तपशील",

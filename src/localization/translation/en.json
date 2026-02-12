@@ -324,7 +324,11 @@
     "fixedDiscount": "Fixed Discount",
     "selectTax": "Select Tax",
     "tax": "Tax",
-    "addDescription": "Add Description"
+    "addDescription": "Add Description",
+    "amount": "Amount",
+    "unit": "Unit",
+    "discountValue": "Discount Value",
+    "discountPercentage": "Discount Percentage"
   },
   "otherDetails": {
     "title": "Other Details",

@@ -369,8 +369,8 @@ class EditItemDetails extends Component {
                 style={{paddingHorizontal: 20, paddingVertical: 10, flexDirection: 'row', alignItems: 'center'}}
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
-                  this.onChangeTextBottomItemSheet(item.stockUnitCode, 'Unit');
-                  this.onChangeTextBottomItemSheet(item.rate, 'Rate');
+                  this.onChangeTextBottomItemSheet(item.stockUnitCode, this.props.t('editItemDetails.unit'));
+                  this.onChangeTextBottomItemSheet(item.rate, this.props.t('editItemDetails.rate'));
                   this.setBottomSheetVisible(this.unitBottomSheetRef, false);
                 }}
               >
@@ -899,15 +899,15 @@ class EditItemDetails extends Component {
   onChangeTextBottomItemSheet(text, field) {
     const editItemDetails = this.state.editItemDetails;
     switch (field) {
-      case 'Quantity':
+      case this.props.t('editItemDetails.quantity'):
         editItemDetails.quantityText = text;
         break;
 
-      case 'Unit':
+      case this.props.t('editItemDetails.unit'):
         editItemDetails.unitText = text;
         break;
 
-      case 'Rate':
+      case this.props.t('editItemDetails.rate'):
         if (text > 99999999999) {
           Alert.alert('', this.props.t('common.valueShouldBeLess'));
         } else {
@@ -915,15 +915,15 @@ class EditItemDetails extends Component {
         }
 
         break;
-      case 'Amount':
+      case this.props.t('editItemDetails.amount'):
         editItemDetails.amountText = text;
         break;
 
-      case 'Discount Value':
+      case this.props.t('editItemDetails.discountValue'):
         editItemDetails.discountValueText = text;
         break;
 
-      case 'Discount Percentage':
+      case this.props.t('editItemDetails.discountPercentage'):
         editItemDetails.discountPercentageText = text;
         break;
     }
