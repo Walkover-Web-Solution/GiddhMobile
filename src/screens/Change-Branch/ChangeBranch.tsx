@@ -65,7 +65,7 @@ export class ChangeBranch extends React.Component<Props & { t: any }> {
               <TouchableOpacity
                 hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
                 onPress={() => {
-                  this.props.navigation.goBack();
+                  this.props.navigation.navigate('MoreSettings');
                 }}
                 >
                 <Icon
@@ -78,11 +78,16 @@ export class ChangeBranch extends React.Component<Props & { t: any }> {
             <TouchableOpacity
               style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}
               onPress={async () => {
+                const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
                 await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
                 DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                 DeviceEventEmitter.emit(APP_EVENTS.consolidateBranch, {activeBranch : " "})
                 // this.props.getCompanyAndBranches();
-                this.props.navigation.goBack();
+                this.props.navigation.navigate('ChangeCompany', {
+                  screen: 'ChangeCompany',
+                  initial: false,
+                  params: { activeCompany: activeCompany }
+                });
               }}>
               <Text style={style.goToCompanyText}>{this.props.t('common.goToCompany')}</Text>
             </TouchableOpacity>

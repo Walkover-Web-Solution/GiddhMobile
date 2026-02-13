@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, FlatList, DeviceEventEmitter, StatusBar, 
 import style from './style';
 import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createNavigationContainerRef, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
 import { getCompanyAndBranches, updateStateDetails } from '../../redux/CommonAction';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -21,7 +21,6 @@ interface Props {
   navigation: any;
 }
 const SIZE = 48;
-export const navigationRef = createNavigationContainerRef();
 export class ChangeCompany extends React.Component<Props & { t: any }> {
   constructor(props: MoreComponentProp) {
     super(props);
@@ -77,11 +76,7 @@ export class ChangeCompany extends React.Component<Props & { t: any }> {
               <TouchableOpacity
                 style={{marginLeft: 20}}
                 hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
-                onPress={() => {
-                  console.log(navigationRef.getCurrentRoute(), navigationRef.getRootState());
-                  // this.props.navigation.goBack();
-                  // this.props.navigation.navigate('MoreSettings');
-                }}
+                onPress={() => this.props.navigation.navigate('MoreSettings')}
               >
                 <Icon
                   size={20}
