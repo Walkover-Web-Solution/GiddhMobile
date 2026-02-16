@@ -286,7 +286,7 @@ const renderCategory = (category, items) => {
       <Text style={styles.categoryTitle}>{translatedCategory}</Text>
       <View style={styles.headingContainer}>
         <Text style={styles.dateText}>{t('balanceSheet.asOf')} {longDateFormat(date?.startDate)}</Text>
-        <Text style={styles.dateText}>{t('balanceSheet.asOf')} {longDateFormat(date?.endDate)}</Text>
+        <Text style={styles.dateText}>{t('balanceSheet.asOf')} {moment(longDateFormat(date?.startDate), 'DD MMM YY').subtract(1, 'day').format('DD MMM YY')}</Text>
       </View>
       {items.map((item, index) => (
         <View key={index} style={styles.card}>
