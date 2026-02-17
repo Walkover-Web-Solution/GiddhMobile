@@ -2,6 +2,7 @@ import Header from "@/components/Header"
 import useCustomTheme, { DefaultTheme, ThemeProps } from "@/utils/theme"
 import { useIsFocused, useNavigation } from "@react-navigation/native"
 import { Animated, DeviceEventEmitter, Keyboard, KeyboardAvoidingView, Platform, StatusBar, Text, TouchableOpacity, View } from "react-native"
+import { useTranslation } from "react-i18next"
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { Dimensions } from "react-native"
 import { useEffect, useRef, useState } from "react"
@@ -22,6 +23,7 @@ import Toast from "@/components/Toast"
 
 
 const ProductGroupScreen = (props)=>{
+    const { t } = useTranslation();
     const [name,setName] = useState(props?.route?.params?.params?.name);
     const navigation = useNavigation();
     const [isLoading,setIsLoading] = useState(false);
@@ -161,12 +163,12 @@ const ProductGroupScreen = (props)=>{
           onPress={() => {
             if(groupName && groupUniqueName)createStockGroup();
             else{
-              Toast({message: "Group Unique name can not be empty!", position:'BOTTOM',duration:'LONG'})
+              Toast({message: t('productGroup.groupUniqueNameEmpty'), position:'BOTTOM',duration:'LONG'})
             }
           }}>
           <Text
           style={styles.createBtn}>
-          Create
+          {t('common.create')}
           </Text>
       </TouchableOpacity>
     //   <TouchableOpacity
@@ -186,7 +188,7 @@ const ProductGroupScreen = (props)=>{
     const RenderTaxModal = (
           <BottomSheet
             bottomSheetRef={taxModalRef}
-            headerText='Select Taxes'
+            headerText={t('product.selectTaxes')}
             headerTextColor='#084EAD'
             adjustToContentHeight={((taxArr.length*47) > (height-100)) ? false : true}
             flatListProps={{
@@ -239,7 +241,7 @@ const ProductGroupScreen = (props)=>{
                   <View style={styles.modalCancelView}>
                     <Text
                       style={styles.modalCancelText}>
-                      No Taxes Available
+                      {t('product.noTaxesAvailable')}
                     </Text>
                   </View>
     
@@ -252,7 +254,7 @@ const ProductGroupScreen = (props)=>{
     const RenderChildGroupModal = (
         <BottomSheet
           bottomSheetRef={childGroupModalRef}
-          headerText='Select Parent Group'
+          headerText={t('productGroup.selectParentGroup')}
           headerTextColor='#084EAD'
           adjustToContentHeight={((parentGroupArr.length*47) > (height-100)) ? false : true}
           flatListProps={{
@@ -280,7 +282,7 @@ const ProductGroupScreen = (props)=>{
                 <View style={styles.modalCancelView}>
                   <Text
                     style={styles.modalCancelText}>
-                    No Group Available
+                    {t('product.noGroupAvailable')}
                   </Text>
                 </View>
   
@@ -296,8 +298,8 @@ const ProductGroupScreen = (props)=>{
         onRequestClose={() => setSuccessDialog(false)}
         visible={successDialog} onBackdropPress={() => setSuccessDialog(false)} contentStyle={styles.dialogContainer}>
         <Award />
-        <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>Success</Text>
-        <Text style={styles.dialogMessage}>Stock Group created successfully.</Text>
+        <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>{t('common.success')}</Text>
+        <Text style={styles.dialogMessage}>{t('productScreen.stockGroupCreatedSuccessfully')}</Text>
         <TouchableOpacity
           style={[styles.dialogBtn,{backgroundColor: '#229F5F'}]}
           onPress={() => {
@@ -305,7 +307,7 @@ const ProductGroupScreen = (props)=>{
             navigation.goBack();
           }}
         >
-          <Text style={styles.dialogBtnText}>Done</Text>
+          <Text style={styles.dialogBtnText}>{t('common.done')}</Text>
         </TouchableOpacity>
       </Dialog.Container>
       : null
@@ -317,7 +319,7 @@ const ProductGroupScreen = (props)=>{
           onRequestClose={() => { setFailureDialog(false) }}
           visible={failureDialog} onBackdropPress={() => setFailureDialog(false)} contentStyle={styles.dialogContainer}>
           <Faliure />
-          <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>Error!</Text>
+          <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>{t('common.error')}</Text>
           <Text style={styles.dialogMessage}>{failureMessage}</Text>
           <TouchableOpacity
             style={[styles.dialogBtn,{backgroundColor: '#F2596F'}]}
@@ -325,7 +327,7 @@ const ProductGroupScreen = (props)=>{
               setFailureDialog(false);
             }}
           >
-            <Text style={styles.dialogBtnText}>Try Again</Text>
+            <Text style={styles.dialogBtnText}>{t('common.tryAgain')}</Text>
           </TouchableOpacity>
         </Dialog.Container>
       : null
@@ -339,7 +341,7 @@ const ProductGroupScreen = (props)=>{
             style={styles.animatedView}
             bounces={false}>
             <Header 
-              header={'Create Group'} 
+              header={t('productGroup.createGroup')} 
               isBackButtonVisible={true} 
               backgroundColor={voucherBackground} 
               headerRightContent={<>
@@ -351,7 +353,7 @@ const ProductGroupScreen = (props)=>{
                         clearAll();
                     }}
                 >
-                    <Text style={styles.smallText}>Clear</Text>
+                    <Text style={styles.smallText}>{t('common.clear')}</Text>
                 </TouchableOpacity>
                 </>}
               />

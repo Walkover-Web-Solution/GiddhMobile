@@ -1,19 +1,21 @@
 import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import useCustomTheme, { DefaultTheme } from '@/utils/theme';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import makeStyles from './style';
 import BottomSheet from '@/components/BottomSheet';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MatButton from '@/components/OutlinedButton';
 
 const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr,setSelectedUniqueTax})=>{
+    const { t } = useTranslation();
     const {styles,theme} = useCustomTheme(makeStyles);
     const {height,width} = Dimensions.get('window');
     
     const RenderTaxModal = (
         <BottomSheet
           bottomSheetRef={taxModalRef}
-          headerText='Select Taxes'
+          headerText={t('product.selectTaxes')}
           headerTextColor='#084EAD'
           adjustToContentHeight={((taxArr.length*47) > (height-100)) ? false : true}
           flatListProps={{
@@ -66,7 +68,7 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr
                 <View style={styles.modalCancelView}>
                   <Text
                     style={styles.modalCancelText}>
-                    No Taxes Available
+                    {t('product.noTaxesAvailable')}
                   </Text>
                 </View>
   
@@ -81,7 +83,7 @@ const RenderTaxes = ({selectedUniqueTax,setBottomSheetVisible,taxModalRef,taxArr
     <>
       <View style={[styles.fieldContainer,{maxHeight:100}]}>
         <MatButton 
-            lable="Tax"
+            lable={t('product.tax')}
             value={Object.keys(selectedUniqueTax).length > 0 && Object.keys(selectedUniqueTax).map((item)=> selectedUniqueTax?.[item]?.name)+"  " }
             onPress={()=>{
               setBottomSheetVisible(taxModalRef,true);

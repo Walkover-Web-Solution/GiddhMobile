@@ -14,6 +14,7 @@ import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import Modal1 from 'react-native-modal';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { WithTranslation, withTranslation } from 'react-i18next';
 
 const allCountry = [
    {
@@ -2570,7 +2571,7 @@ const allCountry = [
    }
 ];
 const allcountryCode: any = ["GT", "GN", "GW", "HN", "HK", "HU", "IS", "IN", "ID", "IQ", "IE", "IM", "IL", "IT", "JM", "JP", "JE", "JO", "KZ", "KE", "KI", "KW", "LV", "LB", "LY", "LI", "LT", "LU", "MG", "MY", "ML", "MT", "MH", "MU", "YT", "MX", "MC", "ME", "MS", "MA", "MZ", "MM", "NA", "NR", "NP", "NL", "NZ", "NI", "NE", "NG", "NU", "MP", "NO", "OM", "PK", "PA", "PY", "PE", "PH", "PL", "PT", "PR", "QA", "RO", "RW", "PM", "SM", "SA", "SN", "RS", "SG", "SK", "SI", "SO", "ZA", "ES", "LK", "SD", "SE", "CH", "TW", "AF", "AL", "DZ", "AS", "AD", "AI", "AQ", "AR", "AM", "AU", "AT", "AZ", "BH", "BD", "BE", "BZ", "BJ", "BA", "BW", "BR", "IO", "BG", "BF", "BI", "KH", "CM", "CA", "CF", "TD", "CL", "CN", "CX", "CC", "CO", "KM", "CK", "CR", "HR", "CY", "CZ", "DK", "DJ", "DM", "DO", "EC", "EG", "SV", "GQ", "ER", "AO", "AW", "BS", "BB", "BY", "BM", "BT", "KY", "CU", "AG", "BO", "VG", "VI", "BN", "CV", "CG", "CD", "FK", "VA", "CI", "IR", "LA", "MO", "MK", "FM", "MD", "KP", "PN", "RU", "BL", "SH", "KN", "LC", "MF", "VC", "KR", "SR", "SJ", "SY", "TZ", "TT", "EE", "ET", "FO", "FI", "FR", "GA", "GE", "DE", "GH", "GR", "GL", "GD", "GU", "FJ", "PF", "GM", "GI", "GY", "HT", "KG", "LS", "LR", "MW", "MV", "MR", "MN", "NC", "PW", "PG", "WS", "ST", "SC", "SL", "SB", "SZ", "TJ", "GB", "VE", "VN", "TH", "TL", "TG", "TK", "TO", "TN", "TR", "TC", "TV", "UG", "UA", "AE", "US", "UY", "UZ", "EH", "YE", "ZW", "TM", "VU", "WF", "ZM"]
-export class EditAddress extends React.Component<any, any> {
+export class EditAddress extends React.Component<any & WithTranslation, any> {
    constructor(props: any) {
       super(props);
       this.state = {
@@ -2866,6 +2867,7 @@ export class EditAddress extends React.Component<any, any> {
 
 
    render() {
+      const { t } = this.props;
       return (
          <SafeAreaInsetsContext.Consumer>
          {(insets)=>(<View style={style.container}>
@@ -2882,12 +2884,12 @@ export class EditAddress extends React.Component<any, any> {
                >
                   <Icon name={'Backward-arrow'} color="#fff" size={18} />
                </TouchableOpacity>
-               <Text style={style.title}>Enter Address</Text>
+               <Text style={style.title}>{t('EditAddress.headerText')}</Text>
             </View>
             <ScrollView style={style.body}>
-               <Text style={style.BMfieldTitle}>Address</Text>
+               <Text style={style.BMfieldTitle}>{t('EditAddress.address')}</Text>
                <TextInput
-                  placeholder={"Enter Address"}
+                  placeholder={t('EditAddress.EnterAddress')}
                   style={{
                      borderColor: '#D9D9D9',
                      borderBottomWidth: 1,
@@ -2899,7 +2901,7 @@ export class EditAddress extends React.Component<any, any> {
                   onChangeText={(text) => this.setState({ address: text })}
                   value={this.state.address}></TextInput>
                <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                  <Text style={style.BMfieldTitle}>Country</Text>
+                  <Text style={style.BMfieldTitle}>{t('EditAddress.country')}</Text>
                   <Text style={{ color: '#E04646', marginTop: 20 }}>*</Text>
                </View>
                <View style={{ flex: 1,backgroundColor: this.props.route.params.dontChangeCountry ? '#F1F1F2' : '', }}>
@@ -2962,7 +2964,7 @@ export class EditAddress extends React.Component<any, any> {
                   onSelect={(idx, value) => this.setCountrySelected(value)}
                /> */}
                <View style={{ flexDirection: 'row' }}>
-                  <Text style={style.BMfieldTitle}>State </Text>
+                  <Text style={style.BMfieldTitle}>{t('EditAddress.state')}</Text>
                   {(this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
                      : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
                         this.state.companyCountryDetails.alpha2CountryCode)) == this.state.activeCompanyCountryCode ? (
@@ -3021,7 +3023,7 @@ export class EditAddress extends React.Component<any, any> {
                            marginTop: Platform.OS == "ios" ? 10 : 0,
                            paddingTop: 5,
                         }}
-                     >{this.state.selectedState == null || this.state.selectedState == undefined || this.state.selectedState == "" ? <Text style={{ color: 'rgba(80,80,80,0.5)' }}>Enter State</Text> : this.state.selectedState}</Text>
+                     >{this.state.selectedState == null || this.state.selectedState == undefined || this.state.selectedState == "" ? <Text style={{ color: 'rgba(80,80,80,0.5)' }}>{t('EditAddress.EnterState')}</Text> : this.state.selectedState}</Text>
                      <View style={{
                         borderBottomWidth: 0.5,
                         paddingTop: 0,
@@ -3063,14 +3065,14 @@ export class EditAddress extends React.Component<any, any> {
                      : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
                         this.state.companyCountryDetails.alpha2CountryCode))
                      == "IN" ?
-                     <Text style={style.BMfieldTitle}>GSTIN</Text> :
-                     <Text style={style.BMfieldTitle}>TRN</Text>)
+                     <Text style={style.BMfieldTitle}>{t('EditAddress.GstIn')}</Text> :
+                     <Text style={style.BMfieldTitle}>{t('EditAddress.Trn')}</Text>)
                   : null}
                {this.state.allStates.length > 0 ? <TextInput
                   placeholder={(this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode
                      : (this.state.selectedCountry.countryCode != null ? this.state.selectedCountry.countryCode :
                         this.state.companyCountryDetails.alpha2CountryCode))
-                     == "IN" ? "Enter GSTIN" : "Enter TRN"}
+                     == "IN" ? t('EditAddress.EnterGstIn') : t('EditAddress.EnterTrn')}
                   placeholderTextColor={'rgba(80,80,80,0.5)'}
                   style={{
                      borderColor: '#D9D9D9',
@@ -3085,13 +3087,13 @@ export class EditAddress extends React.Component<any, any> {
                   value={this.state.gstNo}></TextInput> : null}
                {this.state.gstNumberWrong ? (
                   <Text style={{ fontSize: 10, color: 'red', marginTop: 6, marginLeft: 5, fontFamily: FONT_FAMILY.regular }}>
-                     Invalid GSTIN Number
+                     {t('EditAddress.invalidGstIn')}
                   </Text>
                ) : null}
 
-               <Text style={style.BMfieldTitle}>PinCode</Text>
+               <Text style={style.BMfieldTitle}>{t('EditAddress.pinCode')}</Text>
                <TextInput
-                  placeholder={"Enter PinCode"}
+                  placeholder={t('EditAddress.EnterPinCode')}
                   placeholderTextColor={'rgba(80,80,80,0.5)'}
                   returnKeyType={'done'}
                   keyboardType="number-pad"
@@ -3116,7 +3118,7 @@ export class EditAddress extends React.Component<any, any> {
           </View> */}
          </ScrollView>
             <TouchableOpacity style={style.button} onPress={() => this.onSubmit()}>
-               <Text style={style.buttonText}>Save</Text>
+               <Text style={style.buttonText}>{t('BUTTONS.SAVE')}</Text>
             </TouchableOpacity>
             {this.renderStateModalView(insets)}
             {this.state.loading && (
@@ -3144,4 +3146,4 @@ export class EditAddress extends React.Component<any, any> {
    }
 }
 
-export default EditAddress;
+export default withTranslation()(EditAddress);

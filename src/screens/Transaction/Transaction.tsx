@@ -28,8 +28,9 @@ import Foundation from 'react-native-vector-icons/Foundation';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import VoucherModal from '../Parties/components/voucherModal'
 import { EmitterSubscription } from 'react-native';
+import { useTranslation } from 'react-i18next';
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
-type Props = connectedProps;
+type Props = connectedProps & { t: (key: string) => string };
 export let previousItem = null
 
 export class TransactionScreen extends React.Component<Props, {}> {
@@ -659,7 +660,7 @@ export class TransactionScreen extends React.Component<Props, {}> {
                         source={require('@/assets/images/noTransactions.png')}
                         style={{ resizeMode: 'contain', height: 250, width: 300 }}
                       />
-                      <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
+                      <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>{this.props.t('transaction.noTransactions')}</Text>
                     </View>
                   )}
                 //extraData={this.state.refreshlist}
@@ -695,7 +696,8 @@ const mapDispatchToProps = (dispatch) => {
 function Tscreen (props) {
   const isFocused = useIsFocused();
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
-  return <TransactionScreen {...props} isFocused={isFocused} navigation={navigation} />;
+  return <TransactionScreen {...props} isFocused={isFocused} navigation={navigation} t={t} />;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Tscreen);

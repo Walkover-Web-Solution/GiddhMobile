@@ -1,6 +1,7 @@
 import { Animated, Dimensions, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { memo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import makeStyles from "./style";
 import BottomSheet from "@/components/BottomSheet";
 import Icons from '@/core/components/custom-icon/custom-icon';
@@ -23,6 +24,7 @@ const RenderUnitGroup = ({
     setUnitGroupMapping,
     fetchLinkedUnitMapping
     })=>{
+    const { t } = useTranslation();
     const {theme,styles} = useCustomTheme(makeStyles);
     const {height, width} = Dimensions.get('window')
     const HEADER_COLLAPSE = 32;
@@ -81,7 +83,7 @@ const RenderUnitGroup = ({
           ]}
         >
           <View style={{ marginTop: 20 }}>
-              <Text style={styles.headerText}>Select Unit</Text>
+              <Text style={styles.headerText}>{t('product.selectUnit')}</Text>
           </View>
   
           <ScrollView
@@ -109,7 +111,7 @@ const RenderUnitGroup = ({
     const RenderUnitMappingModal = (
         <BottomSheet
         bottomSheetRef={unitGroupMappingModalRef}
-        headerText='Select Unit Group'
+        headerText={t('product.selectUnitGroup')}
         headerTextColor='#084EAD'
         //can be usefull
         // adjustToContentHeight={((unitGroupMapping.length*47) > (height-100)) ? false : true}
@@ -146,7 +148,7 @@ const RenderUnitGroup = ({
                 <View style={styles.modalCancelView}>
                 <Text
                     style={styles.modalCancelText}>
-                    No Unit Available
+                    {t('product.noUnitAvailable')}
                 </Text>
                 </View>
 
@@ -163,7 +165,7 @@ const RenderUnitGroup = ({
         <View style={[styles.rowView,{width:'48%'}]}>
           <View style={{flex:1}}>
             <MatButton 
-              lable="Select Unit"
+              lable={t('product.selectUnit')}
               value={unit?.uniqueName?.length > 0 && unit?.name+" "+"("+unit?.code+")"}
               onPress={()=>{
                 setBottomSheetVisible(unitGroupMappingModalRef,true)

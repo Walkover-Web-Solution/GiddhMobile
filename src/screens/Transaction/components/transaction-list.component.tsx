@@ -19,8 +19,9 @@ import PdfPreviewModal from '@/screens/Parties/components/PdfPreviewModal';
 import PreviewIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Toast from '@/components/Toast';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-type Props = {
+type Props = WithTranslation & {
   item: any
   onPressDelete: (accountUniqueName: string, entryUniqueName: string) => void
   navigation:any
@@ -62,7 +63,7 @@ class TransactionList extends React.Component<Props> {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.props.downloadModal(false);
-          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          Alert.alert(this.props.t('transactionList.permissionDenied'), this.props.t('transactionList.storagePermissionRequired'));
           return;
         }
       }
@@ -79,15 +80,15 @@ class TransactionList extends React.Component<Props> {
         const hasPermission = await checkStoragePermission();
         if (!hasPermission) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-          title: 'Storage Permission',
-          message: 'App needs storage permission to download the file',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
+          title: this.props.t('transactionList.storagePermission'),
+          message: this.props.t('transactionList.appNeedsStoragePermission'),
+          buttonNeutral: this.props.t('transactionList.askMeLater'),
+          buttonNegative: this.props.t('common.cancel'),
+          buttonPositive: this.props.t('common.ok'),
         });
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
           this.setState({ iosShare: false });
-          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          Alert.alert(this.props.t('transactionList.permissionDenied'), this.props.t('transactionList.storagePermissionRequired'));
             return;
           }
           await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
@@ -159,7 +160,7 @@ class TransactionList extends React.Component<Props> {
           this.props.downloadModal(false)
         }
         if (Platform.OS !== "ios") {
-          ToastAndroid.show("Pdf saved successfully", ToastAndroid.LONG)
+          ToastAndroid.show(this.props.t('transactionList.pdfSavedSuccessfully'), ToastAndroid.LONG)
         }
       })
     } catch (e) {
@@ -201,11 +202,11 @@ class TransactionList extends React.Component<Props> {
               try {
                 const success = await attemptShare(pdfLocation, pdfName);
                 if (!success) {
-                  Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                  Toast({message: this.props.t('transactionList.unableToOpenShareDialog'), position:'BOTTOM',duration:'LONG'})
                 }
               } catch (shareError) {
                 console.log('Share error:', shareError);
-                Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                Toast({message: this.props.t('transactionList.unableToOpenShareDialog'), position:'BOTTOM',duration:'LONG'})
               } finally {
                 this.setState({ iosShare: false });
               }
@@ -227,7 +228,7 @@ class TransactionList extends React.Component<Props> {
       if (Platform.OS == "android" && Platform.Version < 33) {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if(granted !== PermissionsAndroid.RESULTS.GRANTED){
-          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          Alert.alert(this.props.t('transactionList.permissionDenied'), this.props.t('transactionList.storagePermissionRequired'));
           return;
         }
       }
@@ -241,19 +242,19 @@ class TransactionList extends React.Component<Props> {
     Linking.canOpenURL(`whatsapp://send?phone=${this.props.phoneNo.replace(/\D/g, '')}&text=${''}`)
       .then(async (supported) => {
         if (!supported) {
-          Alert.alert('', 'Please install whats app to send direct message via whats app');
+          Alert.alert('', this.props.t('transactionList.pleaseInstallWhatsApp'));
         } else {
           try {
             this.setState({ iosShare: true })
             const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
             const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
             const shareOptions = {
-              title: 'Share via',
-              message: 'Voucher share',
+              title: this.props.t('transactionList.shareVia'),
+              message: this.props.t('transactionList.voucherShare'),
               url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.CacheDir}/${this.props.item.voucherNo}.pdf`,
               social: Share.Social.WHATSAPP,
               whatsAppNumber: this.props.phoneNo.replace(/\D/g, ''),
-              filename: 'Voucher share'
+              filename: this.props.t('transactionList.voucherShare')
             };
             RNFetchBlob.fetch(
               'POST',
@@ -400,10 +401,10 @@ class TransactionList extends React.Component<Props> {
                 }
               </View>
             </View>
-            {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>Inventory</Text>}
+            {this.props.item.otherTransactions[0].inventory && <Text style={styles.inventoryData}>{this.props.t('transactionList.inventory')}</Text>}
             <View style={[styles.balData, { marginTop: this.props.item.otherTransactions[0].inventory ? 0 : 5 }]}>
               {this.props.transactionType == 'partyTransaction' && <View style={styles.balanceText}>
-                <Text style={styles.balStyle}>Total: </Text>
+                <Text style={styles.balStyle}>{this.props.t('transactionList.total')}: </Text>
                 <Text style={styles.balStyle}>
                   {getSymbolFromCurrency(this.props.item.otherTransactions[0].particular.currency.code)}
                   {this.props.item.creditAmount
@@ -535,4 +536,4 @@ class TransactionList extends React.Component<Props> {
     };
   }
 }
-export default TransactionList;
+export default withTranslation()(TransactionList);

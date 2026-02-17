@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Alert, Modal, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Modal, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { BiometricAuth } from '@msg91comm/sendotp-react-native'
 import Toast from "@/components/Toast";
 import { useDispatch } from "react-redux";
-import { resetBiometricAuthentication, toggleBiometricAuthentication } from "@/screens/Auth/Login/LoginAction";
+import { resetBiometricAuthentication } from "@/screens/Auth/Login/LoginAction";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import Feather from 'react-native-vector-icons/Feather';
+import { useTranslation } from "react-i18next";
 
 const AppLock = ({visible, onUnlock}) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,6 +14,7 @@ const AppLock = ({visible, onUnlock}) => {
     const [availableBiometricType, setAvailableBiometricType] = useState("");
     const {styles, theme} = useCustomTheme(getStyles, 'Payment');
     const dispatch = useDispatch();
+    const { t } = useTranslation();
 
     useEffect(() => {
       authenticateUser();
@@ -24,7 +26,7 @@ const AppLock = ({visible, onUnlock}) => {
             setAvailableBiometricType(biometryType? biometryType : "");
             if (!available) {
                 const response = await BiometricAuth.simplePrompt({
-                    promptMessage: 'Enter lock screen password',
+                    promptMessage: t('appLock.enterPassword'),
                     allowDeviceCredentials: true
                 })
                 if (response?.success) {
@@ -41,13 +43,13 @@ const AppLock = ({visible, onUnlock}) => {
                         Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                         return ;
                     }
-                    setErrorMessage('Authentication failed. Please try again.');
+                    setErrorMessage(t('appLock.authFailed'));
                 }
                 return;
             }
         
             const response = await BiometricAuth.simplePrompt({
-                promptMessage: 'Biometric Authentication',
+                promptMessage: t('appLock.biometricAuth'),
                 allowDeviceCredentials: true
             });
         
@@ -60,7 +62,7 @@ const AppLock = ({visible, onUnlock}) => {
             }
         } catch (error) {
             console.error('Authentication error:', error);
-            setErrorMessage('Something went wrong during authentication. Please try again.');
+            setErrorMessage(t('appLock.authError'));
         }
     };
     
@@ -71,9 +73,13 @@ const AppLock = ({visible, onUnlock}) => {
         <TouchableWithoutFeedback>
             <View style={styles.modal}>
                 <Feather name="lock" size={35} color={theme.colors.solids.white} />
-                <Text style={styles.heading}>Giddh Locked</Text>
+                <Text style={styles.heading}>{t('appLock.locked')}</Text>
                 <TouchableOpacity onPress={authenticateUser} style={styles.button} activeOpacity={0.7}>
-                    <Text style={styles.buttonText}>Try{availableBiometricType ? " "+availableBiometricType+" " : " "}Again</Text>
+                    <Text style={styles.buttonText}>
+                        {availableBiometricType 
+                            ? t('appLock.tryBiometricAgain', { type: availableBiometricType })
+                            : t('appLock.tryAgain')}
+                    </Text>
                 </TouchableOpacity>
                 {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
             </View>

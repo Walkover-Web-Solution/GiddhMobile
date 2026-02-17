@@ -54,7 +54,8 @@ export default StyleSheet.create({
     left: 40,
     fontFamily: FONT_FAMILY.bold,
     fontSize: 16,
-    width: '60%'
+    width: '60%',
+    lineHeight: 24,
     // backgroundColor: 'grey',
   },
 

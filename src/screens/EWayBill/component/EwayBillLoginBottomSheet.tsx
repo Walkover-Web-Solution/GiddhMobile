@@ -8,6 +8,7 @@ import { validateGST } from '@/utils/helper';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
 import Toast from '@/components/Toast';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     bottomSheetRef: any
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const EwayBillLoginBottomSheet: React.FC<Props> = ({ bottomSheetRef, setIsLoadingCreateBill, onCreateEwayBillAfterLogin }) => {
+    const { t } = useTranslation();
     const { bottom } = useSafeAreaInsets();
     const { styles } = useCustomTheme(getStyles);
     const [formData, setFormData] = useState({ userName: '', password: '', gstIn: '' });
@@ -43,29 +45,29 @@ const EwayBillLoginBottomSheet: React.FC<Props> = ({ bottomSheetRef, setIsLoadin
     return (
         <BottomSheet
             bottomSheetRef={bottomSheetRef}
-            headerText='E-way Bill Credentials'
+            headerText={t('ewayBill.ewayBillCredentials')}
             headerTextColor={'#084EAD'}
             scrollViewProps={{
                 keyboardShouldPersistTaps: 'handled'
             }}
         >
             <InputField
-                lable="Username"
-                placeholder='Enter Username'
+                lable={t('ewayBill.username')}
+                placeholder={t('ewayBill.enterUsername')}
                 containerStyle={styles.inputFieldStyle}
                 value={formData.userName}
                 onChangeText={(text) => handleFormData('userName', text)}
             />
             <InputField
-                lable="Password"
-                placeholder='Enter Password'
+                lable={t('ewayBill.password')}
+                placeholder={t('ewayBill.enterPassword')}
                 containerStyle={styles.inputFieldStyle}
                 value={formData.password}
                 onChangeText={(text) => handleFormData('password', text)}
             />
             <InputField 
-                lable="GSTIN"
-                placeholder='Enter GSTIN'
+                lable={t('ewayBill.gstin')}
+                placeholder={t('ewayBill.enterGstin')}
                 containerStyle={styles.inputFieldStyle}
                 value={formData.gstIn}
                 onChangeText={(text) => handleFormData('gstIn', text)}
@@ -77,14 +79,14 @@ const EwayBillLoginBottomSheet: React.FC<Props> = ({ bottomSheetRef, setIsLoadin
                     disabled={!isSubmitButtonEnabled}
                     onPress={onLoginEwayBill}
                 >
-                    <Text style={styles.buttonText} >Save & Validate</Text>
+                    <Text style={styles.buttonText} >{t('ewayBill.saveAndValidate')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles.button}
                     onPress={() => setBottomSheetVisible(bottomSheetRef, false)}
                 >
-                    <Text style={[styles.buttonText, { color: colors.PRIMARY_NORMAL }]} >Cancel</Text>
+                    <Text style={[styles.buttonText, { color: colors.PRIMARY_NORMAL }]} >{t('common.cancel')}</Text>
                 </TouchableOpacity>
             </View>
         </BottomSheet>

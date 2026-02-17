@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useColorScheme, Dimensions } from "react-native";
+import i18next from './i18n';
 
 const { height, width } = Dimensions.get('screen'); 
 interface DefaultConfigProps {
@@ -15,36 +16,36 @@ interface DefaultConfigProps {
     },
     fontSize: {
       xxxLarge: {
-        size: 26,
-        lineHeight: 24 | 28
+        size: number;
+        lineHeight: number;
       },
       xxLarge: {
-        size: 22,
-        lineHeight: 24 | 28
+        size: number;
+        lineHeight: number;
       },
       xLarge: {
-        size: 18,
-        lineHeight: 26
+        size: number;
+        lineHeight: number;
       },
       large: {
-        size: 20 | 16,
-        lineHeight: 22 | 18
+        size: number;
+        lineHeight: number;
       },
       regular: {
-        size: 18 | 14,
-        lineHeight: 26 | 16
+        size: number;
+        lineHeight: number;
       },
       small: {
-        size: 16 | 12,
-        lineHeight: 18 | 16
+        size: number;
+        lineHeight: number;
       },
       xSmall: {
-        size: 14 | 10,
-        lineHeight: 16 | 12
+        size: number;
+        lineHeight: number;
       },
       xxSmall: {
-        size: 12 | 8,
-        lineHeight: 12 | 10
+        size: number;
+        lineHeight: number;
       },
     },
   }
@@ -182,11 +183,11 @@ export const DefaultConfigs: DefaultConfigProps = {
     fontSize: {
       xxxLarge: {
         size: 26,
-        lineHeight: 28
+        lineHeight: 36
       },
       xxLarge: {
         size: 22,
-        lineHeight: 24
+        lineHeight: 30
       },
       xLarge: {
         size: 18,
@@ -194,11 +195,11 @@ export const DefaultConfigs: DefaultConfigProps = {
       },
       large: {
         size: height > 1024 ? 20 : 16,
-        lineHeight: height > 1024 ? 22 : 18
+        lineHeight: height > 1024 ? 28 : 22
       },
       regular: {
         size: height > 1024 ? 18 : 14,
-        lineHeight: height > 1024 ? 26 : 16
+        lineHeight: height > 1024 ? 26 : 20
       },
       small: {
         size: height > 1024 ? 16 : 12,
@@ -206,11 +207,11 @@ export const DefaultConfigs: DefaultConfigProps = {
       },
       xSmall: {
         size: height > 1024 ? 14 : 10,
-        lineHeight: height > 1024 ? 16 : 12
+        lineHeight: height > 1024 ? 16 : 14
       },
       xxSmall: {
         size: height > 1024 ? 12 : 8,
-        lineHeight: height > 1024 ? 12 : 10
+        lineHeight: height > 1024 ? 12 : 11
       },
       // xxxLarge: 26,        |
       // xxLarge: 22,         |
@@ -288,6 +289,82 @@ const LightTheme: ThemeProps = {
 };
 
 export const DefaultTheme = LightTheme;
+
+/**
+ * Languages that use Devanagari script (Hindi, Marathi, etc.) need more vertical space
+ * These languages require a higher lineHeight multiplier (1.4x - 1.45x) compared to English (1.25x - 1.3x)
+ * Headings (larger fonts >= 18px) get even more space to prevent text cutting
+ */
+const DEVANAGARI_LANGUAGES = ['hi', 'mr']; // Hindi, Marathi
+
+/**
+ * Gets the appropriate lineHeight for the current language.
+ * Devanagari scripts (Hindi, Marathi) need more vertical space, so we use a higher multiplier.
+ * 
+ * @param fontSizeConfig - The fontSize config object with size and lineHeight
+ * @param language - Optional language code (defaults to current i18n language)
+ * @returns Adjusted lineHeight value
+ * 
+ * @example
+ * const { theme } = useCustomTheme();
+ * const lineHeight = getLineHeight(theme.typography.fontSize.regular);
+ */
+export const getLineHeight = (
+  fontSizeConfig: { size: number; lineHeight: number },
+  language?: string
+): number => {
+  const currentLanguage = language || i18next.language || 'en';
+  const isDevanagari = DEVANAGARI_LANGUAGES.indexOf(currentLanguage) !== -1;
+  
+  // For Devanagari scripts, use a minimum multiplier of 1.35x
+  // For other languages, use the configured lineHeight or minimum 1.2x
+  const fontSize = fontSizeConfig.size;
+  const configuredLineHeight = fontSizeConfig.lineHeight;
+  
+  if (isDevanagari) {
+    // Use the higher of: configured lineHeight or 1.4x font size (increased from 1.35x)
+    // For larger fonts (headings), use even more space (1.45x for sizes >= 18)
+    const multiplier = fontSize >= 18 ? 1.45 : 1.4;
+    return Math.max(configuredLineHeight, Math.ceil(fontSize * multiplier));
+  }
+  
+  // For non-Devanagari languages, use configured lineHeight or minimum 1.25x (increased from 1.2x)
+  // For larger fonts (headings), use 1.3x for sizes >= 18
+  const multiplier = fontSize >= 18 ? 1.3 : 1.25;
+  return Math.max(configuredLineHeight, Math.ceil(fontSize * multiplier));
+};
+
+/**
+ * Gets the appropriate lineHeight specifically for labels (input field labels).
+ * Labels need more vertical space than regular text, especially for Devanagari scripts.
+ * 
+ * @param fontSizeConfig - The fontSize config object with size and lineHeight
+ * @param language - Optional language code (defaults to current i18n language)
+ * @returns Adjusted lineHeight value optimized for labels
+ * 
+ * @example
+ * const { theme } = useCustomTheme();
+ * const labelLineHeight = getLabelLineHeight(theme.typography.fontSize.regular);
+ */
+export const getLabelLineHeight = (
+  fontSizeConfig: { size: number; lineHeight: number },
+  language?: string
+): number => {
+  const currentLanguage = language || i18next.language || 'en';
+  const isDevanagari = DEVANAGARI_LANGUAGES.indexOf(currentLanguage) !== -1;
+  
+  const fontSize = fontSizeConfig.size;
+  const baseLineHeight = getLineHeight(fontSizeConfig, language);
+  
+  if (isDevanagari) {
+    // For Devanagari labels, use at least 2.0x font size (much more than regular text)
+    // This ensures labels have enough space for Devanagari characters with matras/diacritics
+    return Math.max(baseLineHeight + 8, Math.ceil(fontSize * 2.0));
+  }
+  
+  // For other languages, use at least 1.6x font size for labels
+  return Math.max(baseLineHeight + 6, Math.ceil(fontSize * 1.6));
+};
 
 const VOUCHERS = {
     'Sales': 'sales',

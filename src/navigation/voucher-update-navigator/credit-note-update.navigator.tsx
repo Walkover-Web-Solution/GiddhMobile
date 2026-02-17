@@ -4,7 +4,7 @@ import SelectAddress from '@/core/components/Select-Address/SelectAddress';
 import EditAddress from '@/core/components/Select-Address/EditAddress';
 import AddInvoiceItemScreen from '@/screens/Update-Voucher/Credit-Note-Update/AddItemScreen';
 import OtherDetails from '@/screens/Update-Voucher/Credit-Note-Update/OtherDetails';
-import { CreditNote } from '@/screens/Update-Voucher/Credit-Note-Update/CreditNote';
+import CreditNote from '@/screens/Update-Voucher/Credit-Note-Update/CreditNote';
 
 const { Navigator, Screen } = createStackNavigator();
 

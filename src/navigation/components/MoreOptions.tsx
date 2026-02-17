@@ -6,6 +6,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux'
 import { setVoucherForBottomTabs } from '@/redux/CommonAction'
 import { useNavigation } from '@react-navigation/native'
+import { useTranslation } from 'react-i18next';
 
 const Vouchers = {
     SALES: 'Sales',
@@ -26,6 +27,7 @@ const MoreOptions: React.FC<Props> = ({ moreOptionsRef, selectedVouchersForBotto
     const navigation = useNavigation();
     const vouchersArray: Array<string> = Object.values(Vouchers)
     const [selectedVouchers, setSelectedVouchers] = useState<Array<string>>(selectedVouchersForBottomTabs)
+    const { t } = useTranslation();
 
     const RenderFooter = () => {
         return (
@@ -37,7 +39,7 @@ const MoreOptions: React.FC<Props> = ({ moreOptionsRef, selectedVouchersForBotto
                     setBottomSheetVisible(moreOptionsRef, false)
                 }}
             >
-                <Text style={styles.boldText}>Done</Text>
+                <Text style={styles.boldText}>{t('common.done')}</Text>
             </TouchableOpacity>
         )
     }
@@ -49,12 +51,12 @@ const MoreOptions: React.FC<Props> = ({ moreOptionsRef, selectedVouchersForBotto
     return (
         <BottomSheet
             bottomSheetRef={moreOptionsRef}
-            headerText='Vouchers'
+            headerText={t('AddButton.Vouchers')}
             headerTextColor='#1C1C1C'
             FooterComponent={<RenderFooter />}
             onClose={() => setSelectedVouchers(selectedVouchersForBottomTabs)}
         >
-            <Text style={styles.smallText}>Click on <FontAwesome name={'star-o'} size={14} color={'#1C1C1C'}/> to Pin the voucher in menu</Text>
+            <Text style={styles.smallText}>{t('MoreOptions.clickOnStar')} <FontAwesome name={'star-o'} size={14} color={'#1C1C1C'}/> {t('MoreOptions.toPinTheVoucherInMenu')}</Text>
             {
                 vouchersArray.map((voucher) => {
                     const isSelected = selectedVouchers.includes(voucher);
@@ -87,7 +89,7 @@ const MoreOptions: React.FC<Props> = ({ moreOptionsRef, selectedVouchersForBotto
                                 }}
                             >
 
-                                <Text style={[styles.text, isSelected && { color: '#5773FF' }]}>{voucher}</Text>
+                                <Text style={[styles.text, isSelected && { color: '#5773FF' }]}>{t(`Vouchers.${voucher}`)}</Text>
                             </TouchableOpacity>
                         </View>
                     )

@@ -1,12 +1,14 @@
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useState } from "react";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MoreIcon from 'react-native-vector-icons/MaterialIcons';
 import makeStyles from "./style";
 import InputField from "@/components/InputField";
 
 const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,globalData})=>{
+    const { t } = useTranslation();
     const [expandAcc, setExpandAcc] = useState(false);
     const [selectedCode,setSelectedCode] = useState('hsn');
     const [customFieldsData, setCustomFieldsData] = useState<any>({});
@@ -39,7 +41,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 }}>
             <View style={styles.checkboxContainer}>
                 <MoreIcon name='more' size={16} color={DefaultTheme.colors.secondary} />
-                <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold }]}>Other</Text>
+                <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold }]}>{t('otherInfo.other')}</Text>
             </View>
             <Pressable style={{padding: 9}} onPress={() => {
                 setExpandAcc(!expandAcc);
@@ -76,7 +78,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         handleInputChange('sacChecked',false);
                         handleInputChange('sacChecked',"");
                     }}>
-                        <Text style={styles.radioBtnText}>HSN Code</Text>
+                        <Text style={styles.radioBtnText}>{t('otherInfo.hsnCode')}</Text>
                     </Pressable>
                 </View>
                 <View style={styles.radioBtnView}>
@@ -99,13 +101,13 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                         handleInputChange('sacChecked',true);
                         handleInputChange('hsnNumber',"");
                     }}>
-                        <Text style={styles.radioBtnText}>SAC Code</Text>
+                        <Text style={styles.radioBtnText}>{t('otherInfo.sacCode')}</Text>
                     </Pressable>
                 </View>
             </View>
             <View style={styles.inputContainer}>
                 <InputField
-                    lable={ selectedCode=='hsn'?'Enter HSN Code':'Enter SAC Code'}
+                    lable={selectedCode=='hsn' ? t('otherInfo.enterHsnCode') : t('otherInfo.enterSacCode')}
                     isRequired={false}
                     containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
@@ -127,7 +129,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 />
                 {!variantsChecked && 
                 <InputField 
-                    lable="SKU Code"
+                    lable={t('otherInfo.skuCode')}
                     isRequired={false}
                     containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
@@ -137,7 +139,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 />
                 }
                 <InputField 
-                    lable="Unique Name"
+                    lable={t('otherInfo.uniqueName')}
                     isRequired={false}
                     containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
@@ -148,7 +150,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                 {!variantsChecked && <View style={styles.inputRow}>
                     <View style={{width:'48%'}}>
                     <InputField 
-                        lable="Opening Quantity"
+                        lable={t('otherInfo.openingQuantity')}
                         isRequired={false}
                         keyboardType="numeric"
                         containerStyle={{marginVertical:5}}
@@ -160,7 +162,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                     </View>
                     <View style={{width:'48%'}}>
                     <InputField 
-                        lable="Opening Amount"
+                        lable={t('otherInfo.openingAmount')}
                         isRequired={false}
                         keyboardType="numeric"
                         containerStyle={{marginVertical:5}}
@@ -172,7 +174,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                     </View>
                 </View>}
                 <InputField 
-                    lable="Custom Field 1"
+                    lable={t('otherInfo.customField1')}
                     isRequired={false}
                     containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
@@ -183,7 +185,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                     }}
                 />
                 <InputField 
-                    lable="Custom Field 2"
+                    lable={t('otherInfo.customField2')}
                     isRequired={false}
                     containerStyle={{marginVertical:5}}
                     placeholderTextColor={'#808080'}
@@ -218,7 +220,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                                     <Pressable onPress={() => {
                                         handleCustomFieldsChange(field?.uniqueName,"true");
                                     }}>
-                                        <Text style={styles.radioBtnText}>True</Text>
+                                        <Text style={styles.radioBtnText}>{t('otherInfo.true')}</Text>
                                     </Pressable>
                                 </View>
                                 <View style={[styles.radioBtnView,{marginTop:0}]}>
@@ -234,7 +236,7 @@ const RenderOtherInfo = ({handleInputChange,variantsChecked,variantCustomFields,
                                     <Pressable onPress={() =>{
                                         handleCustomFieldsChange(field?.uniqueName,"false");
                                     }}>
-                                        <Text style={styles.radioBtnText}>False</Text>
+                                        <Text style={styles.radioBtnText}>{t('otherInfo.false')}</Text>
                                     </Pressable>
                                 </View>
                                 </View>

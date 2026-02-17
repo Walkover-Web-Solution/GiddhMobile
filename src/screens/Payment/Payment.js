@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 // import style from './style';
 import {connect} from 'react-redux';
+import { withTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -353,7 +354,7 @@ export class Payment extends React.Component {
         this.setState({loading: false});
       }
       if (results.body) {
-        alert('Payment created successfully!');
+        alert(this.props.t('payment.paymentCreatedSuccessfully'));
         const partyDetails = this.state.partyDetails;
         const partyName = this.state.partyName;
         this.resetState();
@@ -455,7 +456,7 @@ export class Payment extends React.Component {
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
           <TouchableOpacity style={style.invoiceTypeButton}>
-            <Text style={style.invoiceType}>Payment</Text>
+            <Text style={style.invoiceType}>{this.props.t('payment.payment')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -472,7 +473,7 @@ export class Payment extends React.Component {
           <Icon name={'Profile'} color={'#084EAD'} style={{margin: 16}} size={16} />
           <TextInput
             placeholderTextColor={'#808080'}
-            placeholder={'Select Parties Name'}
+            placeholder={this.props.t('payment.selectPartiesName')}
             returnKeyType={'done'}
             value={this.state.searchPartyName}
             onChangeText={(text) => this.setState({searchPartyName: text}, () => this.searchCalls())}
@@ -481,7 +482,7 @@ export class Payment extends React.Component {
           <ActivityIndicator color={'#5773FF'} size="small" animating={this.state.isSearchingParty} />
         </View>
         <TouchableOpacity onPress={() => this.clearAll()}>
-          <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>Clear All</Text>
+          <Text style={{color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book'}}>{this.props.t('common.clearAll')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -531,7 +532,7 @@ export class Payment extends React.Component {
         <FlatList
           nestedScrollEnabled={true}
           showsVerticalScrollIndicator={false}
-          data={this.state.searchResults.length == 0 ? ['Result Not found'] : this.state.searchResults}
+          data={this.state.searchResults.length == 0 ? [this.props.t('common.resultNotFound')] : this.state.searchResults}
           style={{paddingHorizontal: 20, paddingVertical: 10, paddingTop: 5}}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
@@ -539,7 +540,7 @@ export class Payment extends React.Component {
               style={{}}
               onFocus={() => this.onChangeText('')}
               onPress={async () => {
-                if (item != 'Result Not found') {
+                if (item != this.props.t('common.resultNotFound')) {
                   this.setState(
                     {
                       partyName: item,
@@ -558,7 +559,7 @@ export class Payment extends React.Component {
                   this.setState({isSearchingParty: false, searchResults: []});
                 }
               }}>
-              <Text style={style.searchItemText}>{item.name ? item.name : "Result Not found"}</Text>
+              <Text style={style.searchItemText}>{item.name ? item.name : this.props.t('common.resultNotFound')}</Text>
             </TouchableOpacity>
           )}
         />
@@ -748,7 +749,7 @@ export class Payment extends React.Component {
     return (
       <BottomSheet
         bottomSheetRef={this.calculationModalRef}
-        headerText='Calculation Method'
+        headerText={this.props.t('payment.calculationMethod')}
         headerTextColor='#084EAD'
       >
         <TouchableOpacity
@@ -779,7 +780,7 @@ export class Payment extends React.Component {
                 marginLeft: 10,
                 fontFamily: FONT_FAMILY.semibold,
               }}>
-              {'On Taxable Value (Amt - Dis)'}
+              {this.props.t('payment.onTaxableValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -811,7 +812,7 @@ export class Payment extends React.Component {
                 marginLeft: 10,
                 fontFamily: FONT_FAMILY.semibold,
               }}>
-              {'On Total Value (Taxable + Gst + Cess)'}
+              {this.props.t('payment.onTotalValue')}
             </Text>
           </View>
         </TouchableOpacity>
@@ -823,7 +824,7 @@ export class Payment extends React.Component {
     return (
       <BottomSheet
         bottomSheetRef={this.taxModalRef}
-        headerText='Select Taxes'
+        headerText={this.props.t('payment.selectTaxes')}
         headerTextColor='#084EAD'
         onClose={() => {
           if(this.state.SelectedTaxData.taxDetailsArray.length == 0){
@@ -951,7 +952,7 @@ export class Payment extends React.Component {
                     textAlign: 'center',
                     alignSelf: 'center',
                   }}>
-                  No Taxes Available
+                  {this.props.t('payment.noTaxesAvailable')}
                 </Text>
               </View>
             );
@@ -992,7 +993,7 @@ export class Payment extends React.Component {
             }}
             onChangeText={async (text) => {
               if (!this.state.partyName) {
-                alert('Please select a party.');
+                alert(this.props.t('payment.pleaseSelectParty'));
               } else {
                 await this.setState({
                   amountForReceipt: text.replace(/[^0-9]/g, ''),
@@ -1029,11 +1030,11 @@ export class Payment extends React.Component {
     const diffYears = new Date().getFullYear() - dt.getFullYear();
 
     if (diffYears === 0 && diffDays === 0) {
-      return 'Today';
+      return this.props.t('common.today');
     } else if (diffYears === 0 && diffDays === 1) {
-      return 'Yesterday';
+      return this.props.t('common.yesterday');
     } else if (diffYears === 0 && diffDays === -1) {
-      return 'Tomorrow';
+      return this.props.t('common.tomorrow');
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
     } else {
@@ -1053,11 +1054,11 @@ export class Payment extends React.Component {
     const diffYears = new Date().getFullYear() - dt.getFullYear();
 
     if (diffYears === 0 && diffDays === 0) {
-      return 'Today';
+      return this.props.t('common.today');
     } else if (diffYears === 0 && diffDays === 1) {
-      return 'Yesterday';
+      return this.props.t('common.yesterday');
     } else if (diffYears === 0 && diffDays === -1) {
-      return 'Tomorrow';
+      return this.props.t('common.tomorrow');
     } else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
       return fulldays[dt.getDay()];
     } else if (diffYears >= 1) {
@@ -1093,7 +1094,7 @@ export class Payment extends React.Component {
           style={{flexDirection: 'row'}}
           onPress={() => {
             if (!this.state.partyName) {
-              alert('Please select a party.');
+              alert(this.props.t('payment.pleaseSelectParty'));
             } else {
               this.setState({showDatePicker: true});
             }
@@ -1105,7 +1106,7 @@ export class Payment extends React.Component {
           style={{borderColor: '#D9D9D9', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 2}}
           onPress={() => {
             if (!this.state.partyName) {
-              alert('Please select a party.');
+              alert(this.props.t('payment.pleaseSelectParty'));
             } else {
               this.state.date.startOf('day').isSame(moment().startOf('day'))
                 ? this.getYesterdayDate()
@@ -1113,7 +1114,7 @@ export class Payment extends React.Component {
             }
           }}>
           <Text style={{color: '#808080'}}>
-            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? 'Yesterday?' : 'Today?'}
+            {this.state.date.startOf('day').isSame(moment().startOf('day')) ? this.props.t('common.yesterdayQ') : this.props.t('common.todayQ')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -1124,7 +1125,7 @@ export class Payment extends React.Component {
     return (
       <BottomSheet
         bottomSheetRef={this.paymentModalRef}
-        headerText='Select A/c'
+        headerText={this.props.t('payment.selectAccount')}
         headerTextColor='#084EAD'
         flatListProps={{
           data: this.state.allPaymentModes,
@@ -1181,7 +1182,7 @@ export class Payment extends React.Component {
       <View style={style.senderAddress}>
         <View style={{flexDirection: 'row'}}>
           <Icon name={'Path-12190'} color={'#084EAD'} size={16} />
-          <Text style={style.addressHeaderText}>{'Payment Mode*'}</Text>
+          <Text style={style.addressHeaderText}>{this.props.t('payment.paymentMode')}</Text>
         </View>
 
         <View style={{paddingVertical: 6, marginTop: 10}}>
@@ -1192,7 +1193,7 @@ export class Payment extends React.Component {
                 if (this.state.invoiceType == INVOICE_TYPE.cash || this.state.partyName) {
                   this.setBottomSheetVisible(this.paymentModalRef, true);
                 } else {
-                  alert('Please select a party.');
+                  alert(this.props.t('payment.pleaseSelectParty'));
                 }
               }}
               textColor={{color}}>
@@ -1209,7 +1210,7 @@ export class Payment extends React.Component {
                       color: this.state.isSelectAccountButtonSelected ? '#084EAD' : '#868686',
                     },
                   ]}>
-                  {this.state.isSelectAccountButtonSelected ? this.state.paymentMode.name : 'Select A/c'}
+                  {this.state.isSelectAccountButtonSelected ? this.state.paymentMode.name : this.props.t('payment.selectAccount')}
                 </Text>
               </View>
               {this.state.isSelectAccountButtonSelected ? (
@@ -1228,9 +1229,9 @@ export class Payment extends React.Component {
         style={[style.senderAddress]}
         onPress={async () => {
           if (!this.state.partyName) {
-            alert('Please select a party.');
+            alert(this.props.t('payment.pleaseSelectParty'));
           } else if (this.state.amountForReceipt == '') {
-            alert('Please enter amount.');
+            alert(this.props.t('payment.pleaseEnterAmount'));
           } else {
             this.setBottomSheetVisible(this.taxModalRef, true);
             await this.setState({
@@ -1245,9 +1246,9 @@ export class Payment extends React.Component {
             style={{marginLeft: -4}}
             onClick={async () => {
               if (!this.state.partyName) {
-                alert('Please select a party.');
+                alert(this.props.t('payment.pleaseSelectParty'));
               } else if (this.state.amountForReceipt == '') {
-                alert('Please enter amount.');
+                alert(this.props.t('payment.pleaseEnterAmount'));
               } else {
                 this.setBottomSheetVisible(this.taxModalRef, true);
                 await this.setState({
@@ -1260,7 +1261,7 @@ export class Payment extends React.Component {
           {this.state.SelectedTaxData.taxDetailsArray.length > 0 ? (
             <View style={{flexDirection: 'row', flex: 1}}>
               <View style={{flexDirection: 'row', flex: 1}}>
-                <Text style={[style.addressHeaderText, {marginLeft: 5}]}>{'Tax'} </Text>
+                <Text style={[style.addressHeaderText, {marginLeft: 5}]}>{this.props.t('payment.tax')} </Text>
                 <Text style={[style.addressHeaderText, {marginLeft: 5, color: '#084EADBF'}]}>
                   {`(${this.state.SelectedTaxData.taxDetailsArray.map((item) => ` ${item.name}`)} )`}{' '}
                 </Text>
@@ -1270,7 +1271,7 @@ export class Payment extends React.Component {
               </View>
             </View>
           ) : (
-            <Text style={[style.addressHeaderText, {marginLeft: 5}]}>{'Tax'}</Text>
+            <Text style={[style.addressHeaderText, {marginLeft: 5}]}>{this.props.t('payment.tax')}</Text>
           )}
         </View>
       </TouchableOpacity>
@@ -1283,7 +1284,7 @@ export class Payment extends React.Component {
       <View style={style.senderAddress}>
         <View style={{flexDirection: 'row'}}>
           <Icon name={'path-15'} color={'#084EAD'} size={16} />
-          <Text style={style.addressHeaderText}>{'Cheque Details'}</Text>
+          <Text style={style.addressHeaderText}>{this.props.t('payment.chequeDetails')}</Text>
         </View>
         <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
           <View style={{flexDirection: 'row'}}>
@@ -1307,7 +1308,7 @@ export class Payment extends React.Component {
                 ]}
                 autoCapitalize={'characters'}
                 value={this.state.chequeNumber.toString()}
-                placeholder={'Cheque #'}
+                placeholder={this.props.t('payment.chequeNo')}
                 placeholderTextColor={'#868686'}
                 returnKeyType={'done'}
                 multiline={true}
@@ -1321,9 +1322,9 @@ export class Payment extends React.Component {
                 // }}
                 onChangeText={(text) => {
                   if (!this.state.partyName) {
-                    alert('Please select a party.');
+                    alert(this.props.t('payment.pleaseSelectParty'));
                   } else if (this.state.amountForReceipt == '') {
-                    alert('Please enter amount.');
+                    alert(this.props.t('payment.pleaseEnterAmount'));
                   } else {
                     this.setState({chequeNumber: text});
                   }
@@ -1334,9 +1335,9 @@ export class Payment extends React.Component {
             <TouchableOpacity
               onPress={() => {
                 if (!this.state.partyName) {
-                  alert('Please select a party.');
+                  alert(this.props.t('payment.pleaseSelectParty'));
                 } else if (this.state.amountForReceipt == '') {
-                  alert('Please enter amount.');
+                  alert(this.props.t('payment.pleaseEnterAmount'));
                 } else {
                   this.setSelectedButton(4);
                   this.setState({showClearanceDatePicker: true});
@@ -1367,7 +1368,7 @@ export class Payment extends React.Component {
                         fontFamily: this.state.selectedButton == 4 ? FONT_FAMILY.bold : FONT_FAMILY.regular,
                       },
                     ]}>
-                    Clearance Date
+                    {this.props.t('payment.clearanceDate')}
                   </Text>
                 )}
               </View>
@@ -1385,9 +1386,9 @@ export class Payment extends React.Component {
         style={[style.senderAddress, {flexDirection: 'row'}]}
         onPress={() => {
           if (!this.state.partyName) {
-            alert('Please select a party.');
+            alert(this.props.t('payment.pleaseSelectParty'));
           } else if (!this.state.amountForReceipt) {
-            alert('Please enter amount.');
+            alert(this.props.t('payment.pleaseEnterAmount'));
           } else {
             this.props.navigation.navigate('PaymentLinkToInvice', {
               getLinkedInvoicesAdjustedAmount: this.getLinkedInvoicesAdjustedAmount.bind(this),
@@ -1402,12 +1403,12 @@ export class Payment extends React.Component {
         <View style={{flexDirection: 'row', flex: 1, padding: 10, marginLeft: -2.5, paddingLeft: 0}}>
           <View style={{flexDirection: 'row'}}>
             <Entypo name="link" size={21} color={'#084EAD'} />
-            <Text style={[style.addressHeaderText, {marginLeft: 7}]}>{'Link Invoice'}</Text>
+            <Text style={[style.addressHeaderText, {marginLeft: 7}]}>{this.props.t('payment.linkInvoice')}</Text>
           </View>
           <View style={{flexDirection: 'row', flex: 1}}>
             {this.state.adjustedAmountOfLinkedInvoices != null && this.state.adjustedAmountOfLinkedInvoices != 0 ? (
               <Text style={[style.addressHeaderText, {color: '#808080'}]}>
-                {'Adjusted Amt.: ' + this.state.currencySymbol + ' ' + this.state.adjustedAmountOfLinkedInvoices}
+                {this.props.t('payment.adjustedAmt') + ': ' + this.state.currencySymbol + ' ' + this.state.adjustedAmountOfLinkedInvoices}
               </Text>
             ) : null}
           </View>
@@ -1426,13 +1427,13 @@ export class Payment extends React.Component {
       <View style={style.senderAddress}>
         <View style={{flexDirection: 'row'}}>
           <Icon name={'path-15'} color={'#084EAD'} size={16} />
-          <Text style={style.addressHeaderText}>{'Add Description'}</Text>
+          <Text style={style.addressHeaderText}>{this.props.t('payment.addDescription')}</Text>
         </View>
         <View style={{paddingVertical: 6, marginTop: 10, justifyContent: 'space-between'}}>
           <TextInput
             style={{marginLeft: 20, margin: 10, borderBottomColor: '#808080', borderBottomWidth: 1.5}}
             value={this.state.addDescription}
-            placeholder={'Note (Opional)'}
+            placeholder={this.props.t('payment.noteOptional')}
             onChangeText={(text) => {
               this.setState({addDescription: text});
             }}></TextInput>
@@ -1586,7 +1587,7 @@ export class Payment extends React.Component {
           }}>
           <View style={{flexDirection: 'row'}}>
             <Icon style={{marginRight: 10}} name={'Path-12190'} size={16} color="#084EAD" />
-            <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>Balance</Text>
+            <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{this.props.t('payment.balance')}</Text>
           </View>
           <Icon
             style={{transform: [{rotate: this.state.expandedBalance ? '180deg' : '0deg'}]}}
@@ -1602,14 +1603,14 @@ export class Payment extends React.Component {
         {this.state.expandedBalance && (
           <View style={{margin: 16}}>
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{'Taxable Amount'}</Text>
+              <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{this.props.t('payment.taxableAmount')}</Text>
               <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>
                 {this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.totalTaxableAmount))}
               </Text>
             </View>
             {this.state.balanceDetails.mainTaxAmount > 0 ? (
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{'Tax'}</Text>
+                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{this.props.t('payment.tax')}</Text>
                 <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>
                   {this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.mainTaxAmount))}
                 </Text>
@@ -1617,7 +1618,7 @@ export class Payment extends React.Component {
             ) : null}
             {this.state.selectedArrayType.includes('tdspay') || this.state.selectedArrayType.includes('tdsrc') ? (
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{'TDS'}</Text>
+                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{this.props.t('payment.tds')}</Text>
                 <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>
                   {'- ' + this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.tdsOrTcsTaxAmount))}
                 </Text>
@@ -1625,7 +1626,7 @@ export class Payment extends React.Component {
             ) : null}
             {this.state.selectedArrayType.includes('tcspay') || this.state.selectedArrayType.includes('tcsrc') ? (
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{'TCS'}</Text>
+                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{this.props.t('payment.tcs')}</Text>
                 <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>
                   {this.state.currencySymbol + formatAmount(Number(this.state.balanceDetails.tdsOrTcsTaxAmount))}
                 </Text>
@@ -1635,7 +1636,7 @@ export class Payment extends React.Component {
 
             {this.state.amountForReceipt != 0 && this.state.amountForReceipt != '' ? (
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{'Total'}</Text>
+                <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>{this.props.t('payment.total')}</Text>
                 <Text style={{color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold}}>
                   {this.state.currencySymbol + formatAmount(Number(this.state.amountForReceipt))}
                 </Text>
@@ -1649,11 +1650,11 @@ export class Payment extends React.Component {
 
   genrateInvoice(type) {
     if (!this.state.partyName) {
-      alert('Please select a party.');
+      alert(this.props.t('payment.pleaseSelectParty'));
     } else if (this.state.amountForReceipt == '') {
-      alert('Please enter amount.');
+      alert(this.props.t('payment.pleaseEnterAmount'));
     } else if (!this.state.paymentMode.uniqueName) {
-      alert('Please select account.');
+      alert(this.props.t('payment.pleaseSelectAccount'));
     } else {
       this.createPayment(type);
     }
@@ -1748,10 +1749,12 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+const PaymentWithTranslation = withTranslation()(Payment);
+
 function Screen(props) {
   const isFocused = useIsFocused();
 
-  return <Payment {...props} isFocused={isFocused} />;
+  return <PaymentWithTranslation {...props} isFocused={isFocused} />;
 }
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);

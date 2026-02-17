@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import { useTranslation } from 'react-i18next';
 
 const Screen_height = Dimensions.get('window').height;
 const Screen_width = Dimensions.get('window').width;
@@ -29,6 +30,7 @@ function VoucherModal ({
   filter,
   loader
   }: Props) {
+  const { t } = useTranslation();
   const [sales, setsales] = React.useState(false);
   const [purchase, setPurchase] = React.useState(false);
   const [debitNote, setDebitNote] = React.useState(false);
@@ -41,7 +43,7 @@ function VoucherModal ({
   return (
     <BottomSheet
       bottomSheetRef={bottomSheetRef}
-      headerText='Select Filters'
+      headerText={t('voucherModal.selectFilters')}
       headerTextColor='#864DD3'
     >
       <ScrollView>
@@ -68,7 +70,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily:'AvenirLTStd-Book'}}>Sales</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily:'AvenirLTStd-Book'}}>{t('voucherModal.sales')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -93,7 +95,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book'}}>Purchase</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book'}}>{t('voucherModal.purchase')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -118,7 +120,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Credit Note</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>{t('voucherModal.creditNote')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -143,7 +145,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily:'AvenirLTStd-Book' }}>Debit Note</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily:'AvenirLTStd-Book' }}>{t('voucherModal.debitNote')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -168,7 +170,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Receipt</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>{t('voucherModal.receipt')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -193,7 +195,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Payment</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>{t('voucherModal.payment')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -218,7 +220,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Journal</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>{t('voucherModal.journal')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -243,7 +245,7 @@ function VoucherModal ({
                   )}
             </View>
 
-            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>Contra</Text>
+            <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 10,fontFamily: 'AvenirLTStd-Book' }}>{t('voucherModal.contra')}</Text>
           </TouchableOpacity>
 
           <View style={[{ flexDirection: 'row', justifyContent: 'space-around' }, styles.divider]} >
@@ -265,7 +267,7 @@ function VoucherModal ({
                 <AntDesign name="close" size={20} color={'#FF1717'} />
               </View>
 
-              <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 5, fontFamily: 'AvenirLTStd-Book' }}>Clear All</Text>
+              <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 5, fontFamily: 'AvenirLTStd-Book' }}>{t('common.clearAll')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, {paddingVertical: 20}]}
@@ -274,7 +276,7 @@ function VoucherModal ({
                 <AntDesign name="check" size={20} color={'#25D366'} />
               </View>
 
-              <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 5, fontFamily: 'AvenirLTStd-Book' }}>Done</Text>
+              <Text style={{ fontSize: GD_FONT_SIZE.medium, marginLeft: 5, fontFamily: 'AvenirLTStd-Book' }}>{t('common.done')}</Text>
             </TouchableOpacity>
         </View>
         </ScrollView>

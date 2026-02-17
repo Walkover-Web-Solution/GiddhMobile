@@ -1,7 +1,7 @@
 import React, { memo, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { TextInput } from "react-native-paper";
-import useCustomTheme, { ThemeProps } from "../utils/theme";
+import useCustomTheme, { getLineHeight, getLabelLineHeight, ThemeProps } from "../utils/theme";
 
 type InputProps = {
   lable: string,
@@ -37,9 +37,19 @@ const InputField : React.FC<InputProps> = ({
 }) => {
   const { theme, styles } = useCustomTheme(getInputStyles, 'Stock');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [hasValue, setHasValue] = useState<boolean>(false);
+  const showLabelAbove = hasValue || isFocused;
 
   return (
-    <View>
+    <View style={styles.wrapper}>
+      {showLabelAbove && (
+        <View style={styles.externalLabelContainer} pointerEvents="none">
+          <Text style={styles.externalLabelText}>
+            {lable}{isRequired && <Text style={{color: theme.colors.solids.red.dark }}>  *</Text>}
+          </Text>
+        </View>
+      )}
       <TextInput
         value={value}
         left={leftIcon 
@@ -64,18 +74,24 @@ const InputField : React.FC<InputProps> = ({
           // },
           roundness: 6
         }}
-        onFocus={()=> onfocus ? onfocus() : {}}
+        onFocus={() => {
+          setIsFocused(true);
+          if(onfocus) onfocus();
+        }}
+        onBlur={() => {
+          setIsFocused(false);
+          if(onblur) onblur();
+        }}
         mode={'outlined'}
         editable={editable}
-        label={<Text style={styles.labelText}>{lable}{isRequired && <Text style={{color: theme.colors.solids.red.dark }}>  *</Text>}</Text>}
-        placeholder={placeholder}
+        // label={hasValue ? <Text style={styles.labelText}>{lable}{isRequired && <Text style={{color: theme.colors.solids.red.dark }}>  *</Text>}</Text> : undefined}
+        placeholder={lable}
         placeholderTextColor={theme.colors.secondaryText}
         outlineStyle={styles.outlineStyle}
         activeOutlineColor={theme.colors.vouchers.stock.background}
         outlineColor={theme.colors.solids.grey.light}          
         style={[styles.input, containerStyle ? containerStyle : undefined]}
         contentStyle={[styles.inputTextStyle, {color: !editable ? theme.colors.secondaryText : theme.colors.text}]}
-        onBlur={() => onblur ? onblur() : {}}
         keyboardType={keyboardType}
         onChangeText={(text) => {
           if(typeof validate === "function"){
@@ -90,6 +106,7 @@ const InputField : React.FC<InputProps> = ({
             }
           }
           onChangeText(text);
+          setHasValue(text.length > 0);
         }}
       />
       { errorMessage.length > 0 && 
@@ -102,22 +119,46 @@ const InputField : React.FC<InputProps> = ({
 }
 
 const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
+  wrapper: {
+    position: 'relative',
+  },
+  externalLabelContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 12,
+    zIndex: 1,
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: 4,
+    paddingVertical: 0,
+    height: 16,
+    justifyContent: 'center',
+  },
+  externalLabelText: {
+    fontFamily: theme.typography.fontFamily.regular,
+    fontSize: 12,
+    lineHeight: 16,
+    color: theme.colors.shadow,
+    includeFontPadding: false,
+  },
   labelText: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.regular.size,
+    lineHeight: getLabelLineHeight(theme.typography.fontSize.regular),
+    includeFontPadding: false,
   },
   input: {
-    height: 40,
+    height: 50,
     backgroundColor: theme.colors.background,
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.regular.size,
-    lineHeight : theme.typography.fontSize.regular.lineHeight,
+    lineHeight: getLineHeight(theme.typography.fontSize.regular),
   },
   inputContentStyle: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.regular.size,
-    lineHeight: theme.typography.fontSize.regular.lineHeight,
+    lineHeight: getLineHeight(theme.typography.fontSize.regular),
     color: theme.colors.text,
+    paddingVertical: 0,
   },
   outlineStyle: {
     borderWidth: 1.4
@@ -125,7 +166,7 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
   inputValidationError: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.xSmall.size,
-    lineHeight: theme.typography.fontSize.xSmall.lineHeight,
+    lineHeight: getLineHeight(theme.typography.fontSize.xSmall),
     color: theme.colors.solids.red.dark,
     position: 'absolute',
     bottom: 8,
@@ -133,7 +174,8 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
   },
   inputTextStyle: {
     fontFamily: theme.typography.fontFamily.regular,
-    fontSize: theme.typography.fontSize.regular.size
+    fontSize: theme.typography.fontSize.regular.size,
+    lineHeight: getLineHeight(theme.typography.fontSize.regular),
   }
 });
 

@@ -11,12 +11,13 @@ import Icon from '@/core/components/custom-icon/custom-icon';
 import color from '@/utils/colors';
 // import LogRocket from '@logrocket/react-native';
 import Loader from '@/components/Loader';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   navigation: any;
 }
 
-export class ChangeBranch extends React.Component<Props> {
+export class ChangeBranch extends React.Component<Props & { t: any }> {
   FocusAwareStatusBar = (isFocused) => {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS=='ios'?"dark-content":"light-content"} /> : null;
   };
@@ -64,7 +65,7 @@ export class ChangeBranch extends React.Component<Props> {
               <TouchableOpacity
                 hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
                 onPress={() => {
-                  this.props.navigation.goBack();
+                  this.props.navigation.navigate('MoreSettings');
                 }}
                 >
                 <Icon
@@ -72,18 +73,23 @@ export class ChangeBranch extends React.Component<Props> {
                   name={'Backward-arrow'}
                   />
               </TouchableOpacity>
-              <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>Switch Branch</Text>
+              <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>{this.props.t('common.switchBranch')}</Text>
             </View>
             <TouchableOpacity
               style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}
               onPress={async () => {
+                const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
                 await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
                 DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                 DeviceEventEmitter.emit(APP_EVENTS.consolidateBranch, {activeBranch : " "})
                 // this.props.getCompanyAndBranches();
-                this.props.navigation.goBack();
+                this.props.navigation.navigate('ChangeCompany', {
+                  screen: 'ChangeCompany',
+                  initial: false,
+                  params: { activeCompany: activeCompany }
+                });
               }}>
-              <Text style={style.goToCompanyText}>Go To Company</Text>
+              <Text style={style.goToCompanyText}>{this.props.t('common.goToCompany')}</Text>
             </TouchableOpacity>
             
             { !this.props.isFetchingCompanyList ? <FlatList
@@ -151,8 +157,8 @@ function mapDispatchToProps (dispatch) {
 
 function Screen (props) {
   const isFocused = useIsFocused();
-
-  return <ChangeBranch {...props} isFocused={isFocused} />;
+  const { t } = useTranslation();
+  return <ChangeBranch {...props} isFocused={isFocused} t={t} />;
 }
 
 // export default connect(mapStateToProps)(Screen);

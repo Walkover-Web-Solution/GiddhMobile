@@ -2,6 +2,7 @@ import BottomSheet from "@/components/BottomSheet";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from '@/core/components/custom-icon/custom-icon';
+import { useTranslation } from "react-i18next";
 
 const RenderItem = ({item, isSelected, handlePress, setBottomSheetVisible, modalRef}) => {
     const {styles} = useCustomTheme(getStyles);
@@ -25,12 +26,13 @@ const RenderItem = ({item, isSelected, handlePress, setBottomSheetVisible, modal
 }
 
 const TransportModeModalize = ({modalizeRef, setBottomSheetVisible, transportData, transportMode, setTransportMode}) => {
+    const { t } = useTranslation();
     const {styles} = useCustomTheme(getStyles);
 
     return (
         <BottomSheet
             bottomSheetRef={modalizeRef}
-            headerText={'Select Mode'}
+            headerText={t('ewayBill.selectMode')}
             headerTextColor={'#084EAD'}
             adjustToContentHeight
             customRenderer={
