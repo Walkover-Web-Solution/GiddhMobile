@@ -41,6 +41,7 @@ import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
 import { createEndpoint, formatAmount } from '@/utils/helper';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -150,8 +151,13 @@ export class PurchaseBill extends React.Component {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -993,6 +999,7 @@ export class PurchaseBill extends React.Component {
             pincode: this.state.shipToAddress.pincode,
           },
         },
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       } : {
         account: {
           attentionTo: '',
@@ -1098,6 +1105,7 @@ export class PurchaseBill extends React.Component {
             pincode: this.state.shipToAddress.pincode,
           },
         },
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       }
 
       if (this.state.selectedInvoice != '') {
@@ -1159,6 +1167,7 @@ export class PurchaseBill extends React.Component {
   }
 
   clearAll = () => {
+    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.searchCalls();
     this.setActiveCompanyCountry();
@@ -2729,6 +2738,7 @@ export class PurchaseBill extends React.Component {
               {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#FC8345"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

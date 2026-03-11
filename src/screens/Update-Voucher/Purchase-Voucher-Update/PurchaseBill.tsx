@@ -43,6 +43,7 @@ import BottomSheet from '@/components/BottomSheet';
 import { createEndpoint, formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -172,7 +173,8 @@ type State = {
     customField2: null,
     customField3: null
   },
-  selectedInvoice: string
+  selectedInvoice: string,
+  selectedSalesPerson: any
 }
 
 const { width, height } = Dimensions.get('window');
@@ -317,9 +319,14 @@ export class PurchaseBill extends React.Component<Props, State> {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
-      allStockVariants: {}
+      allStockVariants: {},
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson: any) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -869,6 +876,9 @@ export class PurchaseBill extends React.Component<Props, State> {
       modifiedEntryObj.discountValue = this.calculateDiscountedAmount(modifiedEntryObj)
       modifiedEntryObj.tdsOrTcsTaxObj = this.calculateTdsTcsTaxToDisplay(entry);
       modifiedEntryObj.tdsTcsTaxCalculationMethod = modifiedEntryObj.tdsOrTcsTaxObj?.calculationMethod;
+      if(entry.salesPerson && !this.state.selectedSalesPerson){
+        this.setSelectedSalesPerson(entry.salesPerson);
+      }
       addedItems.push(modifiedEntryObj);
     }))
 
@@ -1175,6 +1185,7 @@ export class PurchaseBill extends React.Component<Props, State> {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      selectedSalesPerson: undefined,
       ...(this.isVoucherUpdate && {
         invoiceType: this.props.route?.params?.isSalesCashInvoice ? INVOICE_TYPE.cash : INVOICE_TYPE.credit,
         partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
@@ -1458,7 +1469,8 @@ export class PurchaseBill extends React.Component<Props, State> {
       updateAccountDetails: false,
       adjustments: this.state.adjustments,
       uniqueName: this.props.route?.params.voucherUniqueName,
-      number: this.state.selectedInvoice
+      number: this.state.selectedInvoice,
+      salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
     }
     
     return paylaod;
@@ -3356,6 +3368,7 @@ export class PurchaseBill extends React.Component<Props, State> {
             <View style={style.headerConatiner}>
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#FC8345"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

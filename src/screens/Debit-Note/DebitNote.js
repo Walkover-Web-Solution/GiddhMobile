@@ -37,6 +37,7 @@ import CheckBox from 'react-native-check-box';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 import { withTranslation } from 'react-i18next';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -139,9 +140,14 @@ export class DebiteNote extends React.Component<Props> {
       tdsOrTcsArray: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson: any) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -387,6 +393,7 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   clearAll = async () => {
+    this.setState({ selectedSalesPerson: undefined });
     await this.resetState();
     await this.searchCalls()
     await this.setActiveCompanyCountry();
@@ -895,6 +902,7 @@ export class DebiteNote extends React.Component<Props> {
         touristSchemeApplicable: false,
         type: this.state.invoiceType,
         updateAccountDetails: false,
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       } : {
         account: {
           attentionTo: '',
@@ -966,6 +974,7 @@ export class DebiteNote extends React.Component<Props> {
         //   "name": "",
         //   "uniqueName": ""
         // },
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       }
 
       if (this.state.selectedInvoice != '') {
@@ -2353,6 +2362,7 @@ export class DebiteNote extends React.Component<Props> {
               {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#ff6961"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

@@ -98,7 +98,15 @@
     "confirmation": "पुष्टी",
     "alert": "इशारा",
     "delete": "हटवा",
-    "somethingWentWrong": "काहीतरी चूक झाली!"
+    "somethingWentWrong": "काहीतरी चूक झाली!",
+    "selectSalesPerson": "बिक्री व्यक्ति निवडा",
+    "noSalesPersonFound": "कोणतेही बिक्री व्यक्ति नाहीत",
+    "createNew": "नवीन तयार करा",
+    "salesPerson": "बिक्री व्यक्ति",
+    "enterSalesPersonName": "बिक्री व्यक्ति का नाम दर्ज करें",
+    "enterSalesPersonEmail": "बिक्री व्यक्ति का ईमेल दर्ज करें",
+    "enterSalesPersonPhone": "बिक्री व्यक्ति का फ़ोन नंबर दर्ज करें",
+    "createNewSalesPerson": "नया बिक्री व्यक्ति बनाएं"
   },
   "addItemScreen": {
     "searchProductService": "उत्पादन/सेवा शोधा",

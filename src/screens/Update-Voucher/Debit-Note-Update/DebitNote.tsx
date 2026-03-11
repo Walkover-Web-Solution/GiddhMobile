@@ -37,6 +37,7 @@ import { formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import { useTranslation } from 'react-i18next';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 
@@ -135,6 +136,7 @@ type State = {
   showAllInvoice: false,
   allVoucherInvoice: [],
   selectedInvoice: string,
+  selectedSalesPerson: any
 }
 
 export class DebiteNote extends React.Component<Props, State> {
@@ -245,9 +247,14 @@ export class DebiteNote extends React.Component<Props, State> {
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
       allStockVariants: {},
-      referenceVoucher: {}
+      referenceVoucher: {},
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson: any) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -526,6 +533,9 @@ export class DebiteNote extends React.Component<Props, State> {
       modifiedEntryObj.discountValue = this.calculateDiscountedAmount(modifiedEntryObj)
       modifiedEntryObj.tdsOrTcsTaxObj = this.calculateTdsTcsTaxToDisplay(entry);
       modifiedEntryObj.tdsTcsTaxCalculationMethod = modifiedEntryObj.tdsOrTcsTaxObj?.calculationMethod;
+      if(entry.salesPerson && !this.state.selectedSalesPerson){
+        this.setSelectedSalesPerson(entry.salesPerson);
+      }
       addedItems.push(modifiedEntryObj);
     }))
 
@@ -1118,6 +1128,7 @@ export class DebiteNote extends React.Component<Props, State> {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      selectedSalesPerson: undefined,
       ...(this.isVoucherUpdate && {
         partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
         searchPartyName: this.props.route?.params?.accountUniqueName
@@ -1300,7 +1311,8 @@ export class DebiteNote extends React.Component<Props, State> {
       uniqueName: this.props.route?.params.voucherUniqueName,
       number: this.props.route?.params.voucherNumber,
       invoiceNumberAgainstVoucher: this.props.route?.params.voucherNumber,
-      referenceVoucher: { uniqueName : this.state.linkedInvoices?.uniqueName }
+      referenceVoucher: { uniqueName : this.state.linkedInvoices?.uniqueName },
+      salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
     }
     
     return paylaod;
@@ -2905,6 +2917,7 @@ export class DebiteNote extends React.Component<Props, State> {
             <View style={style.headerConatiner}>
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#ff6961"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
