@@ -2643,14 +2643,11 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
                : this.state.companyCountryDetails,
       });
       console.log(this.state.selectedCountry);
-      const allStateName = await CustomerVendorService.getAllStateName(
-         this.state.selectedCountry.alpha2CountryCode
-            ? this.state.selectedCountry.alpha2CountryCode
-            : this.state.selectedCountry.countryCode,
-      );
+      const countryAlpha2Code = this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode : this.state.selectedCountry.countryCode;
+      const allStateName = await CustomerVendorService.getAllStateName(countryAlpha2Code);
       await this.setState({
-         allStates: allStateName.body.stateList,
-         filteredStates: allStateName.body.stateList
+         allStates: countryAlpha2Code == "GB" ? allStateName.body.countyList : allStateName.body.stateList,
+         filteredStates: countryAlpha2Code == "GB" ? allStateName.body.countyList : allStateName.body.stateList
       });
       await this.setState({ loading: false });
    };
@@ -2757,7 +2754,7 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
          selectedState: ''
       });
       const allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode);
-      await this.setState({ allStates: allStateName.body.stateList });
+      await this.setState({ allStates: value.alpha2CountryCode == "GB" ? allStateName.body.countyList : allStateName.body.stateList });
       // await this.state.addresssDropDown.select(-1);
       await this.setState({ loading: false });
    };

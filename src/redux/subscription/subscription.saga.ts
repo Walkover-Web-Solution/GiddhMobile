@@ -60,9 +60,8 @@ function* getAllCountries() {
 function* getCountryStates(action: any) {
     try {
         const response =  yield call(CompanyService.getCountryStates, action.payload);
-
         if (response.status === 201) {
-            yield put(setCountryStates(response.data.body.stateList))
+            yield put(setCountryStates(action.payload == "GB" ? response.data.body.countyList : response.data.body.stateList))
         }
     }
     catch (error) {

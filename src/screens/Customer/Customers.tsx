@@ -178,7 +178,7 @@ export class Customers extends React.Component<Props> {
     this.setState({ loading: true });
     await this.setState({ state_billing: '', selectedCountry: value, selectedCurrency: value.currency.code, selectedCallingCode: value.callingCode })
     const allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
-    await this.setState({ allStates: allStateName.body.stateList })
+    await this.setState({ allStates: value.alpha2CountryCode == "GB" ? allStateName.body.countyList : allStateName.body.stateList })
     this.setState({ loading: false });
   }
 
