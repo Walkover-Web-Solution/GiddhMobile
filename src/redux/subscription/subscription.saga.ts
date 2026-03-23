@@ -114,6 +114,7 @@ function* subscribePlan(action: any) {
                 companyName: state.subscriptionReducer.formData.companyName,
                 country: state.subscriptionReducer.formData.country,
                 state: state.subscriptionReducer.formData.state,
+                county: state.subscriptionReducer.formData.state,
                 email: state.subscriptionReducer.formData.email,
                 mobileNumber: state.subscriptionReducer.formData.mobile?.mobileCode + state.subscriptionReducer.formData.mobile?.mobileNumber,
                 pincode: state.subscriptionReducer.formData.pinCode,

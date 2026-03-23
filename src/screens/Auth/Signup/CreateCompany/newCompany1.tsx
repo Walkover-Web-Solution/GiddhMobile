@@ -15,7 +15,8 @@ import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as CommonActions from '@/redux/CommonAction';
-import { FlagButton } from 'react-native-country-picker-modal'
+import { FlagButton, isCountryCode, CountryCode } from 'react-native-country-picker-modal'
+import GlobeIcon from '@/assets/images/icons/globe.svg'
 import Modal from 'react-native-modal';
 import { getRegionCodeForCountryCode } from '@/core/services/storage/storage.service';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -459,11 +460,17 @@ class NewCompany extends React.Component<any, any> {
                                     onPress={() => this.countryPickerBottomSheetRef?.current?.open()}
                                     style={{ flexDirection: 'row', alignItems: 'center'}}
                                 >
-                                    <FlagButton
-                                        countryCode={this.state.countryName.alpha2CountryCode}
-                                        placeholder={""}
-                                        containerButtonStyle={{marginTop:-3}}
-                                    />
+                                    {this.state.countryName?.alpha3CountryCode === 'GLB' || !isCountryCode(this.state.countryName.alpha2CountryCode) ? (
+                                        <View style={{ paddingLeft: 5, paddingRight: 16 }}>
+                                            <GlobeIcon height={19} width={19} />
+                                        </View>
+                                    ) : (
+                                        <FlagButton
+                                            countryCode={this.state.countryName.alpha2CountryCode}
+                                            placeholder={""}
+                                            containerButtonStyle={{marginTop:-3}}
+                                        />
+                                    )}
                                     <Text style={style.regularText}>{this.state.countryName?.countryName}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -651,23 +658,34 @@ class NewCompany extends React.Component<any, any> {
                     headerTextColor={'#084EAD'}
                     adjustToContentHeight={false}
                     flatListProps={{
-                        data: this.state.countryList,
-                        renderItem: ({ item }) => (
-                            <TouchableOpacity
-                                activeOpacity={0.7}
-                                style={style.listButton}
-                                onPress={() => {
-                                    this.countryPickerBottomSheetRef?.current?.close()
-                                }}
-                            >
-                                <FlagButton
-                                    countryCode={item?.alpha2CountryCode}
-                                    placeholder={""}
-                                    containerButtonStyle={{marginTop:-3}}
-                                />
-                                <Text style={style.regularText}>{item?.alpha2CountryCode} - {item?.countryName}</Text>
-                            </TouchableOpacity>
-                        )
+                        data: this.state.countryList ?? [],
+                        renderItem: ({ item }) => {
+                            const alpha2 = item?.alpha2CountryCode ?? '';
+                            const useGlobe =item?.alpha3CountryCode === 'GLB' || !isCountryCode(alpha2);
+                            return (
+                                <TouchableOpacity
+                                    activeOpacity={0.7}
+                                    style={style.listButton}
+                                    onPress={() => {
+                                        this.onSelect(item);
+                                        this.countryPickerBottomSheetRef?.current?.close()
+                                    }}
+                                >
+                                    {useGlobe ? (
+                                        <View style={{ paddingLeft: 5, paddingRight: 16 }}>
+                                            <GlobeIcon height={19} width={19} />
+                                        </View>
+                                    ) : (
+                                        <FlagButton
+                                            countryCode={alpha2 as CountryCode}
+                                            placeholder={""}
+                                            containerButtonStyle={{ marginTop: -3 }}
+                                        />
+                                    )}
+                                    <Text style={style.regularText}>{item?.alpha2CountryCode} - {item?.countryName}</Text>
+                                </TouchableOpacity>
+                            );
+                        }
                     }}
                 />
             </View>)}
