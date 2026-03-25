@@ -667,6 +667,7 @@ export class Vendors extends React.Component<Props> {
             gstNumber: this.state.savedAddress.gstin_billing,
             address: this.state.savedAddress.street_billing,
             state: this.state.savedAddress.state_billing != '' ? this.state.savedAddress.state_billing : { code: null, name: '', stateGstCode: '' },
+            county: this.state.savedAddress.state_billing != '' ? this.state.savedAddress.state_billing : { code: null, name: '', stateGstCode: '' },
             stateCode: this.state.savedAddress.state_billing ? this.state.savedAddress.state_billing.stateGstCode : null,
             isDefault: this.state.savedAddress.isDefault ? this.state.savedAddress.isDefault : false,
             isComposite: false,

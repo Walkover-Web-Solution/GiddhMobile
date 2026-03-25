@@ -826,6 +826,10 @@ export class CreditNote extends React.Component<Props> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress?.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress?.stateName,
+            },
             stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : this.state.partyBillingAddress?.state?.code ,
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName :  this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
@@ -846,6 +850,10 @@ export class CreditNote extends React.Component<Props> {
             state: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
+            },
+            county: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress?.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress?.stateName,
             },
             stateCode: this.state.partyShippingAddress.stateCode ? this.state.partyShippingAddress.stateCode : this.state.partyShippingAddress?.state?.code,
             stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : this.state.partyShippingAddress?.state?.name,
@@ -888,6 +896,10 @@ export class CreditNote extends React.Component<Props> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
+            },
             country: {
               code: this.state.countryDeatils.countryCode,
               name: this.state.countryDeatils.countryName,
@@ -913,6 +925,10 @@ export class CreditNote extends React.Component<Props> {
             taxNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
+            },
+            county: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
             },

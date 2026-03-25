@@ -919,6 +919,10 @@ export class SalesInvoice extends React.Component<Props> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+            },
             country: {
               code: this.state.countryDeatils.countryCode,
               name: this.state.countryDeatils.countryName,
@@ -946,6 +950,10 @@ export class SalesInvoice extends React.Component<Props> {
             state: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName
+            },
+            county: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
             country: {
               code: this.state.countryDeatils.countryCode,
@@ -2536,7 +2544,7 @@ export class SalesInvoice extends React.Component<Props> {
         !this.state.partyBillingAddress.stateCode ||
         !this.state.partyBillingAddress.state)
     ) {
-      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateBillingFrom'), [
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateDetailsBillingFrom'), [
         { style: 'destructive', text: this.props.t('common.okay') }
       ]);
     } else if (
@@ -2546,7 +2554,7 @@ export class SalesInvoice extends React.Component<Props> {
         !this.state.partyShippingAddress.stateCode ||
         !this.state.partyShippingAddress.state)
     ) {
-      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateShippingFrom'), [
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateDetailsShippingFrom'), [
         { style: 'destructive', text: this.props.t('common.okay') }
       ]);
     } else {

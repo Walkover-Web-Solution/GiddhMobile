@@ -2723,6 +2723,10 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
                code: this.state.stateCode,
                name: this.state.selectedState
             },
+            county: {
+               code: this.state.stateCode,
+               name: this.state.selectedState
+            },
             stateCode: this.state.stateCode,
             stateName: this.state.state_billing.name
                ? this.state.state_billing.name
