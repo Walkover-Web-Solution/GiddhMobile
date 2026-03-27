@@ -619,6 +619,7 @@ export class Payment extends React.Component {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
+          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
       }
     } catch (e) {
@@ -739,11 +740,11 @@ export class Payment extends React.Component {
         mainTaxAmount: 0,
         tdsOrTcsTaxAmount: 0,
       },
+      selectedSalesPerson: undefined
     });
   };
 
   clearAll = () => {
-    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.resetOnUncheckTax();
     this.searchCalls();

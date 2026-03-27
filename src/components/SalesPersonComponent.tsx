@@ -8,10 +8,10 @@ import InputField from "./InputField";
 import Toast from "./Toast";
 import SalesPersonIcon from 'react-native-vector-icons/FontAwesome5';import { FONT_FAMILY } from "@/utils/constants";
 import AntDesign from "react-native-vector-icons/AntDesign";
+import { validateEmail, validatePhoneNumber } from "@/utils/helper";
 ;
 
 const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, themecolor}: {setSelectedSalesPerson: (salesPerson: any) => void, selectedSalesPerson: any, themecolor: string}) => {
-    console.log("themecolor", themecolor);
     const modalRef = useRef<Modalize>(null);
     const addSalesPersonModalRef = useRef<Modalize>(null);
     const [salesPersonData, setSalesPersonData] = useState<any[]>([]);
@@ -27,6 +27,9 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
     }
 
     const createSalesPerson = async () => {
+        if(!validateTextInput()) {
+            return;
+        }
         const response = await CommonService.createSalesPerson(newSalesPersonObj?.name, newSalesPersonObj?.email, newSalesPersonObj?.mobileNumber);
         if(response?.status === "success") {
             fetchSalesPersonData();
@@ -35,6 +38,22 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
         } else {
             Toast({message: response?.message, position:'BOTTOM',duration:'LONG'});
         }
+    }
+
+    const validateTextInput = () => {
+        if(!newSalesPersonObj?.name || newSalesPersonObj?.name?.length < 3) {
+            Toast({message: t('common.enterValidName'), position:'BOTTOM',duration:'LONG'});
+            return false;
+        }
+        if(newSalesPersonObj?.email && !validateEmail(newSalesPersonObj?.email)) {
+                Toast({message: t('common.enterValidEmail'), position:'BOTTOM',duration:'LONG'});
+                return false;
+            }
+        if(!newSalesPersonObj?.mobileNumber || !validatePhoneNumber(newSalesPersonObj?.mobileNumber)) {
+            Toast({message: t('common.enterValidPhoneNumber'), position:'BOTTOM',duration:'LONG'});
+            return false;
+        }
+        return true;
     }
 
     return (
@@ -73,7 +92,6 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                     },
                     ListHeaderComponent: () => {
                         return <TouchableOpacity onPress={() => {
-                            console.log('Add Sales Person');
                             addSalesPersonModalRef.current?.open();
                         }}
                         activeOpacity={0.7}
@@ -89,7 +107,11 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
             <BottomSheet
                 bottomSheetRef={addSalesPersonModalRef}
                 headerText={t('common.createNewSalesPerson')}
-                headerTextColor={themecolor}>
+                headerTextColor={themecolor}
+                scrollViewProps={{
+                    keyboardShouldPersistTaps: 'handled'
+                }}
+                >
                 <View style={{paddingHorizontal: 16, marginTop: 10}}>
                     <InputField
                         lable={t('common.enterSalesPersonName')}
@@ -103,6 +125,7 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                     <InputField
                         lable={t('common.enterSalesPersonEmail')}
                         containerStyle={{marginVertical:5}}
+                        keyboardType="email-address"
                         placeholder={t('common.enterSalesPersonEmail')}
                         value={newSalesPersonObj?.email || ''}
                         onChangeText={(text) => {
@@ -112,6 +135,7 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                     <InputField
                         lable={t('common.enterSalesPersonPhone')}
                         containerStyle={{marginVertical:5}}
+                        keyboardType="numeric"
                         placeholder={t('common.enterSalesPersonPhone')}
                         value={newSalesPersonObj?.mobileNumber || ''}
                         onChangeText={(text) => {
@@ -125,7 +149,6 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                      style={styles.clearButton}
                         onPress={() => {
                         setNewSalesPersonObj({});
-                        addSalesPersonModalRef.current?.close();
                     }}>
                         <Text style={styles.clearButtonText}>{t('common.clear')}</Text>
                     </TouchableOpacity>

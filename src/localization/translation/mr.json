@@ -106,7 +106,10 @@
     "enterSalesPersonName": "बिक्री व्यक्ति का नाम दर्ज करें",
     "enterSalesPersonEmail": "बिक्री व्यक्ति का ईमेल दर्ज करें",
     "enterSalesPersonPhone": "बिक्री व्यक्ति का फ़ोन नंबर दर्ज करें",
-    "createNewSalesPerson": "नया बिक्री व्यक्ति बनाएं"
+    "createNewSalesPerson": "नया बिक्री व्यक्ति बनाएं",
+    "enterValidName": "कृपया वैध नाव प्रविष्ट करा",
+    "enterValidEmail": "कृपया वैध ईमेल प्रविष्ट करा",
+    "enterValidPhoneNumber": "कृपया वैध फोन नंबर प्रविष्ट करा"
   },
   "addItemScreen": {
     "searchProductService": "उत्पादन/सेवा शोधा",

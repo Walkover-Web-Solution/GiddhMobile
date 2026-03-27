@@ -106,7 +106,10 @@
     "enterSalesPersonName": "Enter Sales Person Name",
     "enterSalesPersonEmail": "Enter Sales Person Email",
     "enterSalesPersonPhone": "Enter Sales Person Phone",
-    "createNewSalesPerson": "Create New Sales Person"
+    "createNewSalesPerson": "Create New Sales Person",
+    "enterValidName": "Please enter valid name",
+    "enterValidEmail": "Please enter valid email",
+    "enterValidPhoneNumber": "Please enter valid phone number"
   },
   "addItemScreen": {
     "searchProductService": "Search Product/Service",

@@ -8,7 +8,7 @@ type InputProps = {
   placeholder: string,
   value: string,
   isRequired?: boolean,
-  keyboardType?: 'numeric', 
+  keyboardType?: 'numeric' | 'email-address' | 'phone-pad' | 'default',
   editable?: boolean,
   containerStyle?: any,
   errorStyle?: any,
