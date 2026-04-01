@@ -109,7 +109,8 @@
     "createNewSalesPerson": "नया बिक्री व्यक्ति बनाएं",
     "enterValidName": "कृपया वैध नाव प्रविष्ट करा",
     "enterValidEmail": "कृपया वैध ईमेल प्रविष्ट करा",
-    "enterValidPhoneNumber": "कृपया वैध फोन नंबर प्रविष्ट करा"
+    "enterValidPhoneNumber": "कृपया वैध फोन नंबर प्रविष्ट करा",
+    "enterValidMobileNumber": "वैध मोबाइल नंबर प्रविष्ट करा"
   },
   "addItemScreen": {
     "searchProductService": "उत्पादन/सेवा शोधा",

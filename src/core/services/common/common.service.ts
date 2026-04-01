@@ -419,7 +419,7 @@ export class CommonService {
     return httpInstance.post(commonUrls.createSalesPerson, {
       name: salesPersonName,
       email: salesPersonEmail,
-      phone: salesPersonPhone
+      mobileNumber: salesPersonPhone
     })
     .then((res) => {
       return res?.data;

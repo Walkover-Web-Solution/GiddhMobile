@@ -109,7 +109,8 @@
     "createNewSalesPerson": "Create New Sales Person",
     "enterValidName": "Please enter valid name",
     "enterValidEmail": "Please enter valid email",
-    "enterValidPhoneNumber": "Please enter valid phone number"
+    "enterValidPhoneNumber": "Please enter valid phone number",
+    "enterValidMobileNumber": "Enter valid mobile number"
   },
   "addItemScreen": {
     "searchProductService": "Search Product/Service",
