@@ -1453,11 +1453,11 @@ export class PurchaseBill extends React.Component {
               }
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
-              {this.state.BillFromAddress.address
+              {this.state.BillFromAddress?.address
                 ? this.state.BillFromAddress.address
-                : this.state.BillFromAddress.stateName
+                : this.state.BillFromAddress?.stateName
                   ? this.state.BillFromAddress.stateName
-                  : this.state.countryDeatils.countryName
+                  : this.state.countryDeatils?.countryName
                     ? this.state.countryDeatils.countryName
                     : this.props.t('purchaseBill.selectBillingAddress')}
             </Text>
@@ -1543,12 +1543,12 @@ export class PurchaseBill extends React.Component {
               }
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
-              {this.state.shipFromAddress.address
+              {this.state.shipFromAddress?.address
                 ? this.state.shipFromAddress.address
-                : this.state.shipFromAddress.stateName
+                : this.state.shipFromAddress?.stateName
                   ? this.state.shipFromAddress.stateName
                   : this.state.countryDeatils.countryName
-                    ? this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils?.countryName
                     : this.props.t('purchaseBill.selectShippingAddress')}
             </Text>
           </TouchableOpacity>

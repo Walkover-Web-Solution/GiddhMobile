@@ -219,6 +219,7 @@ class NewCompany extends React.Component<any, any> {
             if (response.status === 200) {
                 this.setState({ countryList: response.data.body })
             }
+            this.onSelect(response.data.body[0]);
         }
         catch (error) {
             console.error('----- Error in CreateCompanyCountryList -----', error?.data?.message);
@@ -233,15 +234,7 @@ class NewCompany extends React.Component<any, any> {
 
         getuserName();
         this.getCountryList();
-    }
-
-    componentDidUpdate(prevProps) {
-
-    }
-
-    componentWillUnmount() {
-
-    }
+    }   
 
     handlePersistData = (payload: any) => {
         this.setState({

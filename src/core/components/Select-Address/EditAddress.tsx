@@ -2618,14 +2618,15 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
 
    componentDidMount() {
       this.setActiveCompanyCountry();
-      this.getDetails();
+      // this.getDetails();
    }
 
    getDetails = async () => {
       this.setState({ loading: true });
-      var countryCode = (this.props.route.params.address.selectedCountry.alpha2CountryCode != null ? this.props.route.params.address.selectedCountry.alpha2CountryCode
-         : (this.props.route.params.address.selectedCountry.countryCode != null ? this.props.route.params.address.selectedCountry.countryCode :
-            this.state.companyCountryDetails.alpha2CountryCode))
+      const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
+      var countryCode = (this.props.route.params.address.selectedCountry?.alpha2CountryCode != null ? this.props.route.params.address.selectedCountry?.alpha2CountryCode
+         : (this.props.route.params.address.selectedCountry?.countryCode != null ? this.props.route.params.address.selectedCountry?.countryCode :
+            activeCompanyCountryCode))
       if (
          (this.state.gstNo != '' ||
             (this.props.route.params.address.taxNumber != undefined && this.props.route.params.address.taxNumber != '')) && countryCode == "IN") {
@@ -2634,8 +2635,7 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
             ? this.setState({ gstNo: this.props.route.params.address.taxNumber })
             : null;
       }
-      const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
-      await this.setState({
+      this.setState({
          activeCompanyCountryCode: activeCompanyCountryCode,
          selectedCountry:
             this.props.route.params.address.selectedCountry != null
@@ -2643,7 +2643,7 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
                : this.state.companyCountryDetails,
       });
       console.log(this.state.selectedCountry);
-      const countryAlpha2Code = this.state.selectedCountry.alpha2CountryCode != null ? this.state.selectedCountry.alpha2CountryCode : this.state.selectedCountry.countryCode;
+      const countryAlpha2Code = this.props.route.params.address?.selectedCountry?.alpha2CountryCode != null ? this.props.route.params.address?.selectedCountry?.alpha2CountryCode : activeCompanyCountryCode;
       const allStateName = await CustomerVendorService.getAllStateName(countryAlpha2Code);
       await this.setState({
          allStates: countryAlpha2Code == "GB" ? allStateName.body.countyList : allStateName.body.stateList,
@@ -2661,8 +2661,10 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
          const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
          const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
          if (results.body && results.status == 'success') {
-            await this.setState({
+            this.setState({
                companyCountryDetails: results.body.country,
+            }, () => {
+               this.getDetails();
             });
          }
       } catch (e) { }

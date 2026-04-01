@@ -169,7 +169,7 @@ export class SelectAddress extends React.Component<any & WithTranslation, any> {
         {this.state.dataPresent ? <TouchableOpacity
           style={style.button}
           onPress={() => {
-            this.props.route.params.selectAddress(this.state.addressList[this.state.activeIndex]);
+            this.props.route.params.selectAddress(this.state.addressList[this.state.activeIndex] ?? {});
             this.props.navigation.goBack();
             // console.log(this.props.route.params.addressArray);
           }}

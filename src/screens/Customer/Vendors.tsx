@@ -112,7 +112,11 @@ export class Vendors extends React.Component<Props> {
     await this.getAllDeatils();
     await this.setActiveCompanyCountry()
     await this.checkStoredCountryCode();
-    await this.phone.setValue('91');
+    this.setState({}, () => {
+      if (this.phone) {
+        this.phone.setValue(String(this.state.selectedCallingCode ?? '91'));
+      }
+    });
     await this.state.partyDropDown.select(-1);
   }
 
@@ -705,12 +709,16 @@ export class Vendors extends React.Component<Props> {
       if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
-        this.phone.setValue('91');
         // this.state.partyDropDown.select(-1);
         await this.setState({ successDialog: true });
         this.setActiveCompanyCountry()
         this.getAllDeatils();
         this.checkStoredCountryCode();
+        this.setState({}, () => {
+          if (this.phone) {
+            this.phone.setValue(String(this.state.selectedCallingCode ?? '91'));
+          }
+        });
         await this.setState({ loading: false });
       } else {
         this.setState({ faliureDialog: true, faliureMessage: results.message });
@@ -1171,10 +1179,11 @@ export class Vendors extends React.Component<Props> {
             <View style={[styles.rowContainer,{marginVertical:10}]} >
             <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
             <PhoneInput
+              key={`vendor-phone-${this.state.selectedCountry?.alpha2CountryCode ?? 'init'}-${this.state.selectedCallingCode ?? ''}`}
               ref={(ref) => { this.phone = ref; }}
               //  initialValue={this.getInitialNumber()}
               textProps={{placeholder: this.props.t('customers.enterPartyNumber')}}
-              initialCountry={"in"} 
+              initialCountry={this.state.selectedCountry?.alpha2CountryCode?.toLowerCase()} 
               onChangeFormattedText={value => 
                 this.selectCountry(value)
               }
