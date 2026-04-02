@@ -11,7 +11,6 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 ;
 
 const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, themecolor}: {setSelectedSalesPerson: (salesPerson: any) => void, selectedSalesPerson: any, themecolor: string}) => {
-    console.log("themecolor", themecolor);
     const modalRef = useRef<Modalize>(null);
     const addSalesPersonModalRef = useRef<Modalize>(null);
     const [salesPersonData, setSalesPersonData] = useState<any[]>([]);
@@ -21,8 +20,6 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
 
     const fetchSalesPersonData = async () => {
         const response = await CommonService.fetchSalesPersonData(false);
-        console.log("response", response?.body?.results);
-
         setSalesPersonData(response?.body?.results);
     }
 
@@ -44,7 +41,6 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                 onPress={() => {
                     fetchSalesPersonData();
                     modalRef.current?.open();
-                    console.log('Sales Person Component');
                 }}
             >
                 <View style={{ flexDirection: 'row' }}>
@@ -73,7 +69,6 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                     },
                     ListHeaderComponent: () => {
                         return <TouchableOpacity onPress={() => {
-                            console.log('Add Sales Person');
                             addSalesPersonModalRef.current?.open();
                         }}
                         activeOpacity={0.7}
