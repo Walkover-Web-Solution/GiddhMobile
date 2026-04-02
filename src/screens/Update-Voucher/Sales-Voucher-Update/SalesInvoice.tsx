@@ -1302,6 +1302,10 @@ export class SalesInvoice extends React.Component<Props, State> {
             code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
             name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName
           },
+          county: {
+            code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+            name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+          },
           country: {
             code: this.state.countryDeatils.countryCode,
             name: this.state.countryDeatils.countryName,
@@ -1326,6 +1330,10 @@ export class SalesInvoice extends React.Component<Props, State> {
           state: {
             code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
             name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName
+          },
+          county: {
+            code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+            name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
           },
           country: {
             code: this.state.countryDeatils.countryCode,
@@ -1418,6 +1426,10 @@ export class SalesInvoice extends React.Component<Props, State> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+            },
             country: {
               code: this.state.countryDeatils.countryCode,
               name: this.state.countryDeatils.countryName,
@@ -1445,6 +1457,10 @@ export class SalesInvoice extends React.Component<Props, State> {
             state: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName
+            },
+            county: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
             country: {
               code: this.state.countryDeatils.countryCode,

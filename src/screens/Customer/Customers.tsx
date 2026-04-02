@@ -63,9 +63,13 @@ export class Customers extends React.Component<Props> {
     await this.resetState();
     await Keyboard.dismiss();
     await this.getAllDeatils();
-    await this.setActiveCompanyCountry()
+    await this.setActiveCompanyCountry();
     await this.checkStoredCountryCode();
-    this.phone.setValue('91');
+    this.setState({}, () => {
+      if (this.phone) {
+        this.phone.setValue(String(this.state.selectedCallingCode ?? '91'));
+      }
+    });
   }
 
   async getAllDeatils() {
@@ -178,7 +182,7 @@ export class Customers extends React.Component<Props> {
     this.setState({ loading: true });
     await this.setState({ state_billing: '', selectedCountry: value, selectedCurrency: value.currency.code, selectedCallingCode: value.callingCode })
     const allStateName = await CustomerVendorService.getAllStateName(value.alpha2CountryCode)
-    await this.setState({ allStates: allStateName.body.stateList })
+    await this.setState({ allStates: value.alpha2CountryCode == "GB" ? allStateName.body.countyList : allStateName.body.stateList })
     this.setState({ loading: false });
   }
 
@@ -381,6 +385,7 @@ export class Customers extends React.Component<Props> {
             gstNumber: this.state.savedAddress.gstin_billing,
             address: this.state.savedAddress.street_billing,
             state: this.state.savedAddress.state_billing != '' ? this.state.savedAddress.state_billing : { code: null, name: '', stateGstCode: '' },
+            county: this.state.savedAddress.state_billing != '' ? this.state.savedAddress.state_billing : { code: null, name: '', stateGstCode: '' },
             stateCode: this.state.savedAddress.state_billing.stateGstCode ? this.state.savedAddress.state_billing.stateGstCode : null,
             isDefault: false,
             isComposite: false,
@@ -405,11 +410,15 @@ export class Customers extends React.Component<Props> {
       if (results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
-        this.phone.setValue('91');
         await this.setState({ successDialog: true });
-        this.setActiveCompanyCountry()
+        await this.setActiveCompanyCountry();
         this.getAllDeatils();
         this.checkStoredCountryCode();
+        this.setState({}, () => {
+          if (this.phone) {
+            this.phone.setValue(String(this.state.selectedCallingCode ?? '91'));
+          }
+        });
         await this.setState({ loading: false });
       } else {
         this.setState({ faliureDialog: true });
@@ -509,13 +518,10 @@ export class Customers extends React.Component<Props> {
 
   componentDidMount() {
     console.log('mounting Customer');
-    this.setActiveCompanyCountry()
+    this.setActiveCompanyCountry();
     this.getAllDeatils();
     this.checkStoredCountryCode();
     this.props.resetFun(this.clearAll);
-    this.setState({
-      pickerData: this.phone.getPickerData(),
-    });
   }
   onPressFlag() {
   this.setState({picker:true})
@@ -858,10 +864,11 @@ export class Customers extends React.Component<Props> {
             <View style={[styles.rowContainer,{marginVertical:10}]} >
               <Zocial name="call" size={18} style={{ marginRight: 10 }} color="#864DD3" />
               <PhoneInput
+                key={`customer-phone-${this.state.selectedCountry?.alpha2CountryCode ?? 'init'}-${this.state.selectedCallingCode ?? ''}`}
                 ref={(ref) => { this.phone = ref; }}
                 textComponent={TextInput}
                 textProps={{placeholder: this.props.t('customers.enterPartyNumber')}}
-                initialCountry={"in"} 
+                initialCountry={this.state.selectedCountry?.alpha2CountryCode?.toLowerCase()}
                 onChangeFormattedText={value => 
                   this.selectCountry(value)
                 }

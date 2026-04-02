@@ -28,8 +28,6 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
 
     const fetchSalesPersonData = async () => {
         const response = await CommonService.fetchSalesPersonData(false);
-        console.log("response", response?.body?.results);
-
         setSalesPersonData(response?.body?.results);
     }
 
@@ -76,7 +74,6 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                 onPress={() => {
                     fetchSalesPersonData();
                     modalRef.current?.open();
-                    console.log('Sales Person Component');
                 }}
             >
                 <View style={{ flexDirection: 'row' }}>
