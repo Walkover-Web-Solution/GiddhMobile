@@ -38,6 +38,7 @@ import { formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import { useTranslation } from 'react-i18next';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -124,6 +125,7 @@ type State = {
   showAllInvoice: false,
   allVoucherInvoice: [],
   selectedInvoice: '',
+  selectedSalesPerson: any
 }
 
 const { width, height } = Dimensions.get('window');
@@ -249,9 +251,14 @@ export class CreditNote extends React.Component<Props, State> {
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
       allStockVariants: {},
-      referenceVoucher: {}
+      referenceVoucher: {},
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson: any) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -498,6 +505,9 @@ export class CreditNote extends React.Component<Props, State> {
       modifiedEntryObj.discountValue = this.calculateDiscountedAmount(modifiedEntryObj)
       modifiedEntryObj.tdsOrTcsTaxObj = this.calculateTdsTcsTaxToDisplay(entry);
       modifiedEntryObj.tdsTcsTaxCalculationMethod = modifiedEntryObj.tdsOrTcsTaxObj?.calculationMethod;
+      if(entry.salesPerson && !this.state.selectedSalesPerson){
+        this.setSelectedSalesPerson(entry.salesPerson);
+      }
       addedItems.push(modifiedEntryObj);
     }))
 
@@ -1097,6 +1107,7 @@ export class CreditNote extends React.Component<Props, State> {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      selectedSalesPerson: undefined,
       ...(this.isVoucherUpdate && {
         partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
         searchPartyName: this.props.route?.params?.accountUniqueName
@@ -1221,6 +1232,10 @@ export class CreditNote extends React.Component<Props, State> {
             code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
             name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName
           },
+          county: {
+            code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+            name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+          },
           country: {
             code: this.state.countryDeatils.countryCode,
             name: this.state.countryDeatils.countryName,
@@ -1245,6 +1260,10 @@ export class CreditNote extends React.Component<Props, State> {
           state: {
             code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
             name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName
+          },
+          county: {
+            code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+            name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
           },
           country: {
             code: this.state.countryDeatils.countryCode,
@@ -1279,7 +1298,8 @@ export class CreditNote extends React.Component<Props, State> {
       uniqueName: this.props.route?.params.voucherUniqueName,
       number: this.props.route?.params.voucherNumber,
       invoiceNumberAgainstVoucher: this.props.route?.params.voucherNumber,
-      referenceVoucher: { uniqueName : this.state.linkedInvoices?.uniqueName }
+      referenceVoucher: { uniqueName : this.state.linkedInvoices?.uniqueName }, 
+      salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
     }
     
     return paylaod;
@@ -1329,6 +1349,10 @@ export class CreditNote extends React.Component<Props, State> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+            },
             stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : this.state.partyBillingAddress?.state?.code ,
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName :  this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
@@ -1347,6 +1371,10 @@ export class CreditNote extends React.Component<Props, State> {
             gstNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
+            },
+            county: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
@@ -1390,6 +1418,10 @@ export class CreditNote extends React.Component<Props, State> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : '',
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : '',
+            },
             country: {
               code: this.state.countryDeatils.countryCode,
               name: this.state.countryDeatils.countryName,
@@ -1415,6 +1447,10 @@ export class CreditNote extends React.Component<Props, State> {
             taxNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
+            },
+            county: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : '',
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : '',
             },
@@ -2877,6 +2913,7 @@ export class CreditNote extends React.Component<Props, State> {
             <View style={style.headerConatiner}>
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#3497FD"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

@@ -35,6 +35,7 @@ import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
@@ -148,8 +149,13 @@ export class Payment extends React.Component {
         tdsOrTcsTaxAmount: 0,
       },
       isAmountFieldInFocus: false,
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -333,6 +339,7 @@ export class Payment extends React.Component {
         valuesInAccountCurrency: true,
         selectedCurrencyToDisplay: 0,
         isOtherTaxesApplicable: true,
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName,
         ...(this.state.selectedArrayType?.length > 0 && {
           otherTaxType: this.state.selectedArrayType.filter((item) => {
             if (item == 'tdspay' || item == 'tcspay' || item == 'tdsrc' || item == 'tcsrc') {
@@ -736,6 +743,7 @@ export class Payment extends React.Component {
   };
 
   clearAll = () => {
+    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.resetOnUncheckTax();
     this.searchCalls();
@@ -1677,6 +1685,7 @@ export class Payment extends React.Component {
               {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#084EAD"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

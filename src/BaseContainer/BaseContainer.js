@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import AppNavigator from '@/navigation/app.navigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
-import { getCompanyAndBranches, logout, renewAccessToken, reset } from '../redux/CommonAction';
+import { logout, renewAccessToken, reset } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import { getExpireInTime } from '@/utils/helper';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -89,12 +89,6 @@ class BaseContainer extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.isUserAuthenticated && !prevProps.isUserAuthenticated) {
-      this.props.getCompanyAndBranches();
-    }
-  }
-
   render() {
     return <AppNavigator />;
   }
@@ -114,9 +108,6 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
   return {
-    getCompanyAndBranches: () => {
-      dispatch(getCompanyAndBranches());
-    },
     renewAccessToken: () => {
       dispatch(renewAccessToken());
     },

@@ -41,6 +41,7 @@ import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
 import { createEndpoint, formatAmount } from '@/utils/helper';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -150,8 +151,13 @@ export class PurchaseBill extends React.Component {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -909,6 +915,10 @@ export class PurchaseBill extends React.Component {
               code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : this.state.BillFromAddress.stateCode,
               name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : this.state.BillFromAddress.stateName,
             },
+            county: {
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : this.state.BillFromAddress.stateCode,
+              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : this.state.BillFromAddress.stateName,
+            },
             stateCode: this.state.BillFromAddress.stateCode ? this.state.BillFromAddress.stateCode : this.state.BillFromAddress?.state?.code,
             stateName: this.state.BillFromAddress.stateName ? this.state.BillFromAddress.stateName : this.state.BillFromAddress?.state?.name,
             pincode: this.state.BillFromAddress.pincode ? this.state.BillFromAddress.pincode : '',
@@ -927,6 +937,10 @@ export class PurchaseBill extends React.Component {
             gstNumber: this.state.shipFromAddress.gstNumber ? this.state.shipFromAddress.gstNumber : '',
             panNumber: '',
             state: {
+              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : this.state.shipFromAddress.stateCode,
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : this.state.shipFromAddress.stateName,
+            },
+            county: {
               code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : this.state.shipFromAddress.stateCode,
               name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : this.state.shipFromAddress.stateName,
             },
@@ -975,6 +989,10 @@ export class PurchaseBill extends React.Component {
               code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : this.state.BillToAddress.stateCode,
               name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : this.state.BillToAddress.stateName,
             },
+            county: {
+              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : this.state.BillToAddress.stateCode,
+              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : this.state.BillToAddress.stateName,
+            },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
             pincode: this.state.BillToAddress.pincode,
@@ -988,11 +1006,16 @@ export class PurchaseBill extends React.Component {
               code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : this.state.shipToAddress.stateCode,
               name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : this.state.shipToAddress.stateName,
             },
+            county: {
+              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : this.state.shipToAddress.stateCode,
+              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : this.state.shipToAddress.stateName,
+            },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
             pincode: this.state.shipToAddress.pincode,
           },
         },
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       } : {
         account: {
           attentionTo: '',
@@ -1002,7 +1025,11 @@ export class PurchaseBill extends React.Component {
             taxNumber: this.state.BillFromAddress.gstNumber ? this.state.BillFromAddress.gstNumber : '',
             panNumber: '',
             state: {
-              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code :  this.state.BillFromAddress.stateCode,
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : this.state.BillFromAddress.stateCode,
+              name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : this.state.BillFromAddress.stateName,
+            },
+            county: {
+              code: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.code : this.state.BillFromAddress.stateCode,
               name: this.state.BillFromAddress.state ? this.state.BillFromAddress.state.name : this.state.BillFromAddress.stateName,
             },
             country: {
@@ -1033,7 +1060,11 @@ export class PurchaseBill extends React.Component {
             panNumber: '',
             state: {
               code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : this.state.shipFromAddress.stateCode,
-              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name :  this.state.shipFromAddress.stateName,
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : this.state.shipFromAddress.stateName,
+            },
+            county: {
+              code: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.code : this.state.shipFromAddress.stateCode,
+              name: this.state.shipFromAddress.state ? this.state.shipFromAddress.state.name : this.state.shipFromAddress.stateName,
             },
             stateCode: this.state.shipFromAddress.stateCode ? this.state.shipFromAddress.stateCode : this.state.shipFromAddress?.state?.code,
             stateName: this.state.shipFromAddress.stateName ? this.state.shipFromAddress.stateName : this.state.shipFromAddress?.state?.name,
@@ -1079,6 +1110,10 @@ export class PurchaseBill extends React.Component {
               code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : this.state.BillToAddress.stateCode,
               name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : this.state.BillToAddress.stateName,
             },
+            county: {
+              code: this.state.BillToAddress.state ? this.state.BillToAddress.state.code : this.state.BillToAddress.stateCode,
+              name: this.state.BillToAddress.state ? this.state.BillToAddress.state.name : this.state.BillToAddress.stateName,
+            },
             stateCode: this.state.BillToAddress.stateCode,
             stateName: this.state.BillToAddress.stateName,
             pincode: this.state.BillToAddress.pincode,
@@ -1093,11 +1128,16 @@ export class PurchaseBill extends React.Component {
               code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : this.state.shipToAddress.stateCode,
               name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : this.state.shipToAddress.stateName,
             },
+            county: {
+              code: this.state.shipToAddress.state ? this.state.shipToAddress.state.code : this.state.shipToAddress.stateCode,
+              name: this.state.shipToAddress.state ? this.state.shipToAddress.state.name : this.state.shipToAddress.stateName,
+            },
             stateCode: this.state.shipToAddress.stateCode,
             stateName: this.state.shipToAddress.stateName,
             pincode: this.state.shipToAddress.pincode,
           },
         },
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       }
 
       if (this.state.selectedInvoice != '') {
@@ -1159,6 +1199,7 @@ export class PurchaseBill extends React.Component {
   }
 
   clearAll = () => {
+    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.searchCalls();
     this.setActiveCompanyCountry();
@@ -1412,11 +1453,11 @@ export class PurchaseBill extends React.Component {
               }
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
-              {this.state.BillFromAddress.address
+              {this.state.BillFromAddress?.address
                 ? this.state.BillFromAddress.address
-                : this.state.BillFromAddress.stateName
+                : this.state.BillFromAddress?.stateName
                   ? this.state.BillFromAddress.stateName
-                  : this.state.countryDeatils.countryName
+                  : this.state.countryDeatils?.countryName
                     ? this.state.countryDeatils.countryName
                     : this.props.t('purchaseBill.selectBillingAddress')}
             </Text>
@@ -1502,12 +1543,12 @@ export class PurchaseBill extends React.Component {
               }
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>
-              {this.state.shipFromAddress.address
+              {this.state.shipFromAddress?.address
                 ? this.state.shipFromAddress.address
-                : this.state.shipFromAddress.stateName
+                : this.state.shipFromAddress?.stateName
                   ? this.state.shipFromAddress.stateName
                   : this.state.countryDeatils.countryName
-                    ? this.state.countryDeatils.countryName
+                    ? this.state.countryDeatils?.countryName
                     : this.props.t('purchaseBill.selectShippingAddress')}
             </Text>
           </TouchableOpacity>
@@ -2729,6 +2770,7 @@ export class PurchaseBill extends React.Component {
               {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#FC8345"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

@@ -37,6 +37,7 @@ import CheckBox from 'react-native-check-box';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 import { withTranslation } from 'react-i18next';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -139,9 +140,14 @@ export class DebiteNote extends React.Component<Props> {
       tdsOrTcsArray: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson: any) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -387,6 +393,7 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   clearAll = async () => {
+    this.setState({ selectedSalesPerson: undefined });
     await this.resetState();
     await this.searchCalls()
     await this.setActiveCompanyCountry();
@@ -844,6 +851,10 @@ export class DebiteNote extends React.Component<Props> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+            },
             stateCode: this.state.partyBillingAddress.stateCode ? this.state.partyBillingAddress.stateCode : this.state.partyBillingAddress?.state?.code,
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
@@ -862,6 +873,10 @@ export class DebiteNote extends React.Component<Props> {
             gstNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
+            },
+            county: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
@@ -895,6 +910,7 @@ export class DebiteNote extends React.Component<Props> {
         touristSchemeApplicable: false,
         type: this.state.invoiceType,
         updateAccountDetails: false,
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       } : {
         account: {
           attentionTo: '',
@@ -904,6 +920,10 @@ export class DebiteNote extends React.Component<Props> {
             taxNumber: this.state.partyBillingAddress.gstNumber ? this.state.partyBillingAddress.gstNumber : '',
             panNumber: '',
             state: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+            },
+            county: {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
             },
@@ -932,6 +952,10 @@ export class DebiteNote extends React.Component<Props> {
             taxNumber: this.state.partyShippingAddress.gstNumber ? this.state.partyShippingAddress.gstNumber : '',
             panNumber: '',
             state: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
+            },
+            county: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
@@ -966,6 +990,7 @@ export class DebiteNote extends React.Component<Props> {
         //   "name": "",
         //   "uniqueName": ""
         // },
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       }
 
       if (this.state.selectedInvoice != '') {
@@ -2353,6 +2378,7 @@ export class DebiteNote extends React.Component<Props> {
               {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#ff6961"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

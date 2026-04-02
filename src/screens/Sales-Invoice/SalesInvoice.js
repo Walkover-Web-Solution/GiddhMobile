@@ -41,6 +41,7 @@ import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
 import { createEndpoint, formatAmount } from '@/utils/helper';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
+import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -170,9 +171,14 @@ export class SalesInvoice extends React.Component<Props> {
       showExtraDetails: false,
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     };
     this.keyboardMargin = new Animated.Value(0);
+  }
+
+  setSelectedSalesPerson = (salesPerson) => {
+    this.setState({ selectedSalesPerson: salesPerson });
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -270,6 +276,7 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   clearAll = () => {
+    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.searchCalls();
     this.setActiveCompanyCountry();
@@ -912,6 +919,10 @@ export class SalesInvoice extends React.Component<Props> {
               code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
               name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName
             },
+            county: {
+              code: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.code : this.state.partyBillingAddress.stateCode,
+              name: this.state.partyBillingAddress.state ? this.state.partyBillingAddress.state.name : this.state.partyBillingAddress.stateName,
+            },
             country: {
               code: this.state.countryDeatils.countryCode,
               name: this.state.countryDeatils.countryName,
@@ -939,6 +950,10 @@ export class SalesInvoice extends React.Component<Props> {
             state: {
               code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
               name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName
+            },
+            county: {
+              code: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.code : this.state.partyShippingAddress.stateCode,
+              name: this.state.partyShippingAddress.state ? this.state.partyShippingAddress.state.name : this.state.partyShippingAddress.stateName,
             },
             country: {
               code: this.state.countryDeatils.countryCode,
@@ -974,7 +989,8 @@ export class SalesInvoice extends React.Component<Props> {
         touristSchemeApplicable: false,
         type: this.state.companyVersionNumber == 1 && this.state.invoiceType == 'cash' ? 'cash' : 'sales',
         updateAccountDetails: false,
-        voucherAdjustments: { adjustments: [] }
+        voucherAdjustments: { adjustments: [] },
+        salesPersonUniqueName: this.state.selectedSalesPerson?.uniqueName
       };
       console.log('postBody is---------------', JSON.stringify(postBody));
       let uniqueName = this.state.invoiceType == 'sales' ? this.state.partyName.uniqueName : "cash"
@@ -2528,7 +2544,7 @@ export class SalesInvoice extends React.Component<Props> {
         !this.state.partyBillingAddress.stateCode ||
         !this.state.partyBillingAddress.state)
     ) {
-      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateBillingFrom'), [
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateDetailsBillingFrom'), [
         { style: 'destructive', text: this.props.t('common.okay') }
       ]);
     } else if (
@@ -2538,7 +2554,7 @@ export class SalesInvoice extends React.Component<Props> {
         !this.state.partyShippingAddress.stateCode ||
         !this.state.partyShippingAddress.state)
     ) {
-      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateShippingFrom'), [
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateDetailsShippingFrom'), [
         { style: 'destructive', text: this.props.t('common.okay') }
       ]);
     } else {
@@ -2621,7 +2637,6 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   render() {
-    
     return (
       <View style={{ flex: 1, backgroundColor: 'yellow' }}>
         <Animated.ScrollView
@@ -2633,6 +2648,7 @@ export class SalesInvoice extends React.Component<Props> {
               {this.renderHeader()}
               {this.renderSelectPartyName()}
               {this.renderAmount()}
+              <SalesPersonComponent setSelectedSalesPerson={this.setSelectedSalesPerson} selectedSalesPerson={this.state.selectedSalesPerson} themecolor={"#229F5F"} />
             </View>
             {this._renderDateView()}
             {this._renderAddress()}

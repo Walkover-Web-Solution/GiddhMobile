@@ -60,9 +60,8 @@ function* getAllCountries() {
 function* getCountryStates(action: any) {
     try {
         const response =  yield call(CompanyService.getCountryStates, action.payload);
-
         if (response.status === 201) {
-            yield put(setCountryStates(response.data.body.stateList))
+            yield put(setCountryStates(action.payload == "GB" ? response.data.body.countyList : response.data.body.stateList))
         }
     }
     catch (error) {
@@ -115,6 +114,7 @@ function* subscribePlan(action: any) {
                 companyName: state.subscriptionReducer.formData.companyName,
                 country: state.subscriptionReducer.formData.country,
                 state: state.subscriptionReducer.formData.state,
+                county: state.subscriptionReducer.formData.state,
                 email: state.subscriptionReducer.formData.email,
                 mobileNumber: state.subscriptionReducer.formData.mobile?.mobileCode + state.subscriptionReducer.formData.mobile?.mobileNumber,
                 pincode: state.subscriptionReducer.formData.pinCode,

@@ -24,6 +24,7 @@
   "common": {
     "yes": "होय",
     "no": "नाही",
+    "okay": "ठीक आहे",
     "done": "करा",
     "recent": "अलीकडील",
     "clearAll": "सर्व साफ करा",
@@ -98,7 +99,15 @@
     "confirmation": "पुष्टी",
     "alert": "इशारा",
     "delete": "हटवा",
-    "somethingWentWrong": "काहीतरी चूक झाली!"
+    "somethingWentWrong": "काहीतरी चूक झाली!",
+    "selectSalesPerson": "विक्री प्रतिनिधी निवडा",
+    "noSalesPersonFound": "कोणतेही विक्री प्रतिनिधी नाहीत",
+    "createNew": "नवीन तयार करा",
+    "salesPerson": "विक्री प्रतिनिधी",
+    "enterSalesPersonName": "विक्री प्रतिनिधीचे नाव प्रविष्ट करा",
+    "enterSalesPersonEmail": "विक्री प्रतिनिधीचा ईमेल प्रविष्ट करा",
+    "enterSalesPersonPhone": "विक्री प्रतिनिधीचा फोन नंबर प्रविष्ट करा",
+    "createNewSalesPerson": "नवीन विक्री प्रतिनिधी तयार करा"
   },
   "addItemScreen": {
     "searchProductService": "उत्पादन/सेवा शोधा",

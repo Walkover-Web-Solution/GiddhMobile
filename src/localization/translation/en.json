@@ -24,6 +24,7 @@
   "common": {
     "yes": "Yes",
     "no": "No",
+    "okay": "Okay",
     "done": "Done",
     "recent": "Recent",
     "clearAll": "Clear All",
@@ -98,7 +99,15 @@
     "confirmation": "Confirmation",
     "alert": "Alert",
     "delete": "Delete",
-    "somethingWentWrong": "Something went wrong!"
+    "somethingWentWrong": "Something went wrong!", 
+    "selectSalesPerson": "Select Sales Person",
+    "noSalesPersonFound": "No Sales Person Found",
+    "createNew": "Create New",
+    "salesPerson": "Sales Person",
+    "enterSalesPersonName": "Enter Sales Person Name",
+    "enterSalesPersonEmail": "Enter Sales Person Email",
+    "enterSalesPersonPhone": "Enter Sales Person Phone",
+    "createNewSalesPerson": "Create New Sales Person"
   },
   "addItemScreen": {
     "searchProductService": "Search Product/Service",
