@@ -107,7 +107,11 @@
     "enterSalesPersonName": "विक्री प्रतिनिधीचे नाव प्रविष्ट करा",
     "enterSalesPersonEmail": "विक्री प्रतिनिधीचा ईमेल प्रविष्ट करा",
     "enterSalesPersonPhone": "विक्री प्रतिनिधीचा फोन नंबर प्रविष्ट करा",
-    "createNewSalesPerson": "नवीन विक्री प्रतिनिधी तयार करा"
+    "createNewSalesPerson": "नवीन विक्री प्रतिनिधी तयार करा",
+    "enterValidName": "कृपया वैध नाव प्रविष्ट करा",
+    "enterValidEmail": "कृपया वैध ईमेल प्रविष्ट करा",
+    "enterValidPhoneNumber": "कृपया वैध फोन नंबर प्रविष्ट करा",
+    "enterValidMobileNumber": "वैध मोबाइल नंबर प्रविष्ट करा"
   },
   "addItemScreen": {
     "searchProductService": "उत्पादन/सेवा शोधा",

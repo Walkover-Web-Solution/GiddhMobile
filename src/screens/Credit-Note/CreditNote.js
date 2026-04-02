@@ -346,7 +346,6 @@ export class CreditNote extends React.Component<Props> {
   }
 
   clearAll = async () => {
-    this.setState({ selectedSalesPerson: undefined });
     await this.resetState();
     await this.searchCalls();
     await this.setActiveCompanyCountry();
@@ -610,6 +609,7 @@ export class CreditNote extends React.Component<Props> {
           addressArray: results.body.addresses,
           partyBillingAddress: results.body.addresses[0],
           partyShippingAddress: results.body.addresses[0],
+          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
       }
     } catch (e) {
@@ -694,7 +694,8 @@ export class CreditNote extends React.Component<Props> {
       tdsOrTcsArray: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     });
   };
 
