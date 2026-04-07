@@ -675,6 +675,7 @@ export class SalesInvoice extends React.Component<Props> {
                 stateName: ''
               }
               : results.body.addresses[0],
+          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
       }
     } catch (e) {
@@ -785,7 +786,8 @@ export class SalesInvoice extends React.Component<Props> {
       showExtraDetails: false,
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     });
   };
 

@@ -615,6 +615,7 @@ export class PurchaseBill extends React.Component {
           // BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           shipFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           // shipToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
         await this.getBillToAndShipToAddress();
       }
@@ -709,6 +710,7 @@ export class PurchaseBill extends React.Component {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     });
   };
 

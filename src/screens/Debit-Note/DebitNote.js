@@ -635,6 +635,7 @@ export class DebiteNote extends React.Component<Props> {
           addressArray: results.body.addresses,
           partyBillingAddress: results.body.addresses[0],
           partyShippingAddress: results.body.addresses[0],
+          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
       }
     } catch (e) {
@@ -719,7 +720,8 @@ export class DebiteNote extends React.Component<Props> {
       tdsOrTcsArray: [],
       defaultAccountTax: [],
       defaultAccountDiscount: [],
-      companyVersionNumber: 1
+      companyVersionNumber: 1,
+      selectedSalesPerson: undefined
     });
   };
 

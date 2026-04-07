@@ -600,6 +600,7 @@ export class Receipt extends React.Component<any> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
+          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
       }
     } catch (e) {
@@ -679,7 +680,8 @@ export class Receipt extends React.Component<any> {
         mainTaxAmount: 0,
         tdsOrTcsTaxAmount: 0
       },
-      isAmountFieldInFocus: false
+      isAmountFieldInFocus: false,
+      selectedSalesPerson: undefined
 
     })
   };

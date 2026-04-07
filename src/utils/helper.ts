@@ -1,6 +1,7 @@
 import { Dimensions } from 'react-native';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
+import PhoneNumber from 'awesome-phonenumber';
 import { API_URL } from '@/env.json';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
@@ -210,6 +211,31 @@ export const validatePhoneNumber = (phoneNumber: string) => {
   const re = /^[1-9]\d{9,11}$/;
   return re.test(String(phoneNumber));
 }
+
+const isMobileLineKind = (pn: InstanceType<typeof PhoneNumber>): boolean =>
+  pn.isMobile() || pn.getType() === 'fixed-line-or-mobile';
+
+export const validatePhoneNumberWithRegion = (phoneNumber: string, regionCode: string = 'IN'): boolean => {
+  const raw = String(phoneNumber ?? '').trim();
+  if (!raw) {
+    return false;
+  }
+
+  const normalized = raw.replace(/[\s\-().]/g, '');
+
+  try {
+    const pn = normalized.startsWith('+')
+      ? new PhoneNumber(normalized)
+      : new PhoneNumber(normalized, String(regionCode || 'IN').toUpperCase());
+
+    if (!pn.isValid()) {
+      return false;
+    }
+    return isMobileLineKind(pn);
+  } catch {
+    return false;
+  }
+};
 
 export const validateGST = (gstNumber: string) => {
   // Regular expression to validate the GST number format
