@@ -21,6 +21,7 @@ import RenderLinkedAcc from "../Product/RenderLinkedAcc";
 import RenderVariants from "../Product/RenderVariants";
 import RenderOtherInfo from "../Product/RenderOtherInfo";
 import Toast from "@/components/Toast";
+import { useTranslation } from "react-i18next";
 
 
 
@@ -125,6 +126,7 @@ interface Payload {
   }
   
 const ServiceScreen = ()=>{
+    const { t } = useTranslation();
     
     const _StatusBar = ({ statusBar }: { statusBar: string }) => {
         const isFocused = useIsFocused();
@@ -347,7 +349,7 @@ const ServiceScreen = ()=>{
                     Toast({message: groupResponse?.data?.message, position:'BOTTOM',duration:'LONG'}) 
                 }
             }else{
-                Toast({message: "Please select group", position:'BOTTOM',duration:'SHORT'})
+                Toast({message: t('productScreen.pleaseSelectGroup'), position:'BOTTOM',duration:'SHORT'})
             }
         }
         
@@ -382,8 +384,8 @@ const ServiceScreen = ()=>{
             onRequestClose={() => setSuccessDialog(false)}
             visible={successDialog} onBackdropPress={() => setSuccessDialog(false)} contentStyle={styles.dialogContainer}>
             <Award />
-            <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>Success</Text>
-            <Text style={styles.dialogMessage}>Stock created successfully.</Text>
+            <Text style={[{ color: '#229F5F'},styles.dialogTypeText]}>{t('common.success')}</Text>
+            <Text style={styles.dialogMessage}>{t('productScreen.stockCreatedSuccessfully')}</Text>
             <TouchableOpacity
               style={[styles.dialogBtn,{backgroundColor: '#229F5F'}]}
               onPress={() => {
@@ -391,7 +393,7 @@ const ServiceScreen = ()=>{
                 navigation.goBack();
               }}
             >
-              <Text style={styles.dialogBtnText}>Done</Text>
+              <Text style={styles.dialogBtnText}>{t('addItemScreen.done')}</Text>
             </TouchableOpacity>
           </Dialog.Container>
           : null
@@ -403,7 +405,7 @@ const ServiceScreen = ()=>{
             onRequestClose={() => { setFailureDialog(false) }}
             visible={failureDialog} onBackdropPress={() => setFailureDialog(false)} contentStyle={styles.dialogContainer}>
             <Faliure />
-            <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>Error!</Text>
+            <Text style={[{ color: '#F2596F'},styles.dialogTypeText]}>{t('common.error')}!</Text>
             <Text style={styles.dialogMessage}>{failureMessage}</Text>
             <TouchableOpacity
             style={[styles.dialogBtn,{backgroundColor: '#F2596F'}]}
@@ -411,7 +413,7 @@ const ServiceScreen = ()=>{
                 setFailureDialog(false);
             }}
             >
-            <Text style={styles.dialogBtnText}>Try Again</Text>
+            <Text style={styles.dialogBtnText}>{t('common.tryAgain')}</Text>
             </TouchableOpacity>
         </Dialog.Container>
         : null
@@ -532,31 +534,31 @@ const ServiceScreen = ()=>{
                         if(payload?.variants?.[0]?.unitRates?.[0]?.accountUniqueName && payload?.variants?.[0]?.unitRates?.[1]?.accountUniqueName ){
                             if(payload?.variants?.[0]?.unitRates?.[0]?.rate && payload?.variants?.[0]?.unitRates?.[1]?.rate){
                                 if(!requiredFieldsCheck(payload)){
-                                    Toast({message: "Required custom fields can't be empty", position:'BOTTOM',duration:'LONG'})
+                                    Toast({message: t('serviceScreen.requiredCustomFieldsEmpty'), position:'BOTTOM',duration:'LONG'})
                                     return;
                                 }
                                 await createStockProduct(payload,selectedGroupUniqueName);
                             }else{
-                                Toast({message:"Specify rates for linked accounts.", position:'BOTTOM',duration:'LONG'})
+                                Toast({message: t('serviceScreen.specifyRatesForLinkedAccounts'), position:'BOTTOM',duration:'LONG'})
                             }
                         }else{
-                            Toast({message: "Linking account is mandatory if rates/unit is entered.", position:'BOTTOM',duration:'LONG'})
+                            Toast({message: t('serviceScreen.linkingAccountMandatory'), position:'BOTTOM',duration:'LONG'})
                         }
                     }else{
                         if(!requiredFieldsCheck(payload)){
-                            Toast({message: "Required custom fields can't be empty", position:'BOTTOM',duration:'LONG'})
+                            Toast({message: t('serviceScreen.requiredCustomFieldsEmpty'), position:'BOTTOM',duration:'LONG'})
                             return;
                         }
                         await createStockProduct(payload,selectedGroupUniqueName);
                     }
                 }else{
-                    Toast({message: "No unit selected!", position:'BOTTOM',duration:'SHORT'})
+                    Toast({message: t('serviceScreen.noUnitSelected'), position:'BOTTOM',duration:'SHORT'})
                 }
             }else{
-                Toast({message: "Select Unit group!", position:'BOTTOM',duration:'SHORT'})
+                Toast({message: t('serviceScreen.selectUnitGroup'), position:'BOTTOM',duration:'SHORT'})
             }
         }else{
-            Toast({message: "Enter stock name!", position:'BOTTOM',duration:'SHORT'})
+            Toast({message: t('serviceScreen.enterStockName'), position:'BOTTOM',duration:'SHORT'})
         }
     }
 
@@ -567,7 +569,7 @@ const ServiceScreen = ()=>{
             onPress={onClickCreateStock}>
             <Text
             style={styles.createBtn}>
-            Create
+            {t('common.create')}
             </Text>
         </TouchableOpacity>
         // <TouchableOpacity
@@ -660,7 +662,7 @@ const ServiceScreen = ()=>{
                 <Animated.ScrollView
                     style={styles.backGround}
                     bounces={false}>
-                    <Header header={'Create Stock'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
+                    <Header header={t('serviceScreen.createStock')} isBackButtonVisible={true} backgroundColor={voucherBackground} 
                         headerRightContent={
                             <>
                             <TouchableOpacity
@@ -671,7 +673,7 @@ const ServiceScreen = ()=>{
                                     clearAll();
                                 }}
                             >
-                                <Text style={styles.smallText}>Clear</Text>
+                                <Text style={styles.smallText}>{t('common.clear')}</Text>
                             </TouchableOpacity>
                             </>
                         }

@@ -1,6 +1,7 @@
 import BottomSheet from "@/components/BottomSheet";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 
 const RenderItem = ({item, handlePress, setBottomSheetVisible, modalRef}) => {
@@ -19,11 +20,12 @@ const RenderItem = ({item, handlePress, setBottomSheetVisible, modalRef}) => {
 }
 
 const TaxNumbersModalize = ({modalizeRef, setBottomSheetVisible, taxData, setSelectedGst}) => {
+    const { t } = useTranslation();
     const {styles} = useCustomTheme(getStyles);
     return (
         <BottomSheet
             bottomSheetRef={modalizeRef}
-            headerText={'Select GSTIN'}
+            headerText={t('ewayBill.selectGstin')}
             headerTextColor={'#084EAD'}
             adjustToContentHeight
             customRenderer={

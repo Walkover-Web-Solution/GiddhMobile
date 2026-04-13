@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleProp, Text, TouchableOpacity, View, ViewStyle, DeviceEventEmitter, Alert, Platform, ToastAndroid } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import styles from '@/screens/Parties/components/PMstyle';
 import { GdSVGIcons } from '@/utils/icons-pack';
 import { SwipeListView } from 'react-native-swipe-list-view';
@@ -56,6 +57,7 @@ let selectedItemTemp :any=[]
 let selectedItemDeatilsTemp:any=[]
 export const Vendors = (props) => {
   const { partiesData, activeCompany, handleRefresh, loadMore, navigation, dataLoadedTime } = props;
+  const { t } = useTranslation();
   const [selectedItem, setSelectedItem] = useState(selectedItemTemp)
   const [selectedItemDeatils, setselectedItemDeatils] = useState(selectedItemDeatilsTemp)
   const [refreshData, setRefreshData] = useState(false)
@@ -79,7 +81,7 @@ export const Vendors = (props) => {
     if (item.country.code != "IN") {
       if (Platform.OS == "ios") {
         await setTimeout(() => {
-          TOAST.show(`Country should be INDIA for ${item.name} account`, {
+          TOAST.show(t('vendors.countryMustBeIndia', { name: item.name }), {
             duration: TOAST.durations.SHORT,
             position: -150,
             hideOnPress: true,
@@ -92,7 +94,7 @@ export const Vendors = (props) => {
           }), 100
         });
       } else {
-        ToastAndroid.show(`Country should be INDIA for ${item.name} account`, ToastAndroid.SHORT)
+        ToastAndroid.show(t('vendors.countryMustBeIndia', { name: item.name }), ToastAndroid.SHORT)
       }
       return
     }
@@ -197,9 +199,9 @@ export const Vendors = (props) => {
       }
     });
     if (count > 0) {
-      Alert.alert("Missing Bank Details", `${count} out of ${selectedItemDeatils.length} transactions could not be processed as bank details of those accounts are not updated`,
+      Alert.alert(t('vendors.missingBankDetails'), t('vendors.bankDetailsNotUpdated', { count: count, total: selectedItemDeatils.length }),
         [{
-          text: "OK", onPress: async () => {
+          text: t('common.ok'), onPress: async () => {
             if (finalSelectedItems.length > 0) {
               await navigation.navigate('BulkPayment', { selectedItem: finalSelectedItems, activeCompany: activeCompany,activeCompanyName:(activeCompanyName) ,getback: getback})
             }
@@ -265,7 +267,7 @@ export const Vendors = (props) => {
                       {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
                         await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
                           await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                      }} ><Text style={{ color: "orange", fontSize: 13,fontFamily: 'AvenirLTStd-Book',marginTop:5 }}>Add Bank Details</Text></TouchableOpacity>}
+                      }} ><Text style={{ color: "orange", fontSize: 13,fontFamily: 'AvenirLTStd-Book',marginTop:5 }}>{t('common.addBankDetails')}</Text></TouchableOpacity>}
                     </View>
                   </View>
                 </View>
@@ -276,19 +278,19 @@ export const Vendors = (props) => {
                   {item.bankPaymentDetails === false && <TouchableOpacity onPress={async () => {
                     await navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: item.uniqueName } }),
                       await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
-                  }} ><Text style={{ color: "orange", fontSize: 13,fontFamily: 'AvenirLTStd-Book' }}>Add Bank Details</Text></TouchableOpacity>}
+                  }} ><Text style={{ color: "orange", fontSize: 13,fontFamily: 'AvenirLTStd-Book' }}>{t('common.addBankDetails')}</Text></TouchableOpacity>}
                 </View>
               )}
             </View>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<ListEmptyComponent message={'No Vendor Exist'} buttonLable={'Add Vendor'} partiesScreenIndex={1} />}
+        ListEmptyComponent={<ListEmptyComponent message={t('vendors.noVendorExist')} buttonLable={t('vendors.addVendor')} partiesScreenIndex={1} />}
         keyExtractor={(item, index) => index.toString()}
       />
       {selectedItem.length > 0 ?
         <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
           <TouchableOpacity onPress={() => { navigateToBulkPaymentScreen() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-            <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book'  }}>Bulk Payment</Text>
+            <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book'  }}>{t('bulkPayment.bulkPayment')}</Text>
           </TouchableOpacity>
         </View> : null}
       {bulkPaymentprocessing && (

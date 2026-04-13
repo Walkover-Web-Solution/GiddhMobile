@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Dimensions, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { CustomFields} from "./ProductScreen";
 import React, { useRef, useState } from "react";
 import BottomSheet from "@/components/BottomSheet";
@@ -12,6 +13,7 @@ import Toast from "@/components/Toast";
 
 const {height, width} = Dimensions.get('window');
 const VariantTableScreen = ({route})=>{
+    const { t } = useTranslation();
     
     const {variantCombination,handleGlobalInputChange,globalData,unit,subUnits,purchaseAccount,salesAccount,variantCustomFields} = route.params;
     const navigation = useNavigation();
@@ -187,7 +189,7 @@ const VariantTableScreen = ({route})=>{
         const RenderVariantSubUnitModal = (
             <BottomSheet
             bottomSheetRef={variantSubUnitModal}
-            headerText='Select Unit'
+            headerText={t('product.selectUnit')}
             headerTextColor='#084EAD'
             flatListProps={{
                 data: subUnits,
@@ -215,7 +217,7 @@ const VariantTableScreen = ({route})=>{
                     <View style={styles.modalCancelView}>
                     <Text
                         style={styles.modalCancelText}>
-                        No Unit Available
+                        {t('product.noUnitAvailable')}
                     </Text>
                     </View>
     
@@ -228,7 +230,7 @@ const VariantTableScreen = ({route})=>{
         const RenderVariantPurchaseSubUnitModal = (
             <BottomSheet
             bottomSheetRef={variantPurchaseSubUnitModal}
-            headerText='Select Unit'
+            headerText={t('product.selectUnit')}
             headerTextColor='#084EAD'
             flatListProps={{
                 data: subUnits,
@@ -256,7 +258,7 @@ const VariantTableScreen = ({route})=>{
                     <View style={styles.modalCancelView}>
                     <Text
                         style={styles.modalCancelText}>
-                        No Unit Available
+                        {t('product.noUnitAvailable')}
                     </Text>
                     </View>
     
@@ -269,7 +271,7 @@ const VariantTableScreen = ({route})=>{
         const RenderVariantSalesSubUnitModal = (
             <BottomSheet
             bottomSheetRef={variantSalesSubUnitModal}
-            headerText='Select Unit'
+            headerText={t('product.selectUnit')}
             headerTextColor='#084EAD'
             flatListProps={{
                 data: subUnits,
@@ -297,7 +299,7 @@ const VariantTableScreen = ({route})=>{
                     <View style={styles.modalCancelView}>
                     <Text
                         style={styles.modalCancelText}>
-                        No Unit Available
+                        {t('product.noUnitAvailable')}
                     </Text>
                     </View>
     
@@ -331,14 +333,14 @@ const VariantTableScreen = ({route})=>{
                                     : <></> 
                             }
                             </View>
-                            <Text style={styles.checkboxLabel}>Archive</Text>
+                            <Text style={styles.checkboxLabel}>{t('variantTable.archive')}</Text>
                         </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
                     <TouchableOpacity
                         onPress={()=>{
                             if(!unit?.uniqueName){
-                                Toast({message: "Please select unit", position:'BOTTOM',duration:'SHORT'})
+                                Toast({message: t('variantTable.pleaseSelectUnit'), position:'BOTTOM',duration:'SHORT'})
 
                             }else
                             handleUnitFocus(index,variantSubUnitModal);
@@ -350,13 +352,13 @@ const VariantTableScreen = ({route})=>{
                         </Text>
                         ) : (
                         <Text style={{fontFamily:theme.typography.fontFamily.semiBold,color:unit?.uniqueName ? voucherBackground : '#000'}}>
-                            {unit?.uniqueName ? unit?.name + " ("+ unit?.code +")" : 'Unit'}
+                            {unit?.uniqueName ? unit?.name + " ("+ unit?.code +")" : t('product.unit')}
                         </Text>
                         )}
                     </TouchableOpacity>
                     <TextInput
                         style={styles.input}
-                        placeholder={globalData?.variants?.[index]?.skuCode ? globalData?.variants?.[index]?.skuCode : (globalData?.skuCode ? globalData?.skuCode : 'SKU Code' )}
+                        placeholder={globalData?.variants?.[index]?.skuCode ? globalData?.variants?.[index]?.skuCode : (globalData?.skuCode ? globalData?.skuCode : t('otherInfo.skuCode') )}
                         placeholderTextColor={'#000'}
                         onChangeText={text =>{
                             const updatedObj = [...globalData?.variants]
@@ -374,7 +376,7 @@ const VariantTableScreen = ({route})=>{
                     <TextInput
                         style={styles.input}
                         keyboardType="number-pad"
-                        placeholder={globalData?.variants?.[index]?.warehouseBalance[0]?.openingAmount ? globalData?.variants?.[index]?.warehouseBalance[0]?.openingAmount : "Opening Amount" }
+                        placeholder={globalData?.variants?.[index]?.warehouseBalance[0]?.openingAmount ? globalData?.variants?.[index]?.warehouseBalance[0]?.openingAmount : t('otherInfo.openingAmount') }
                         placeholderTextColor={'#000'}
                         onChangeText={text =>{
                             const updatedObj = [...globalData?.variants]
@@ -392,7 +394,7 @@ const VariantTableScreen = ({route})=>{
                     <TextInput
                         style={styles.input}
                         keyboardType="number-pad"
-                        placeholder={globalData?.variants?.[index]?.warehouseBalance[0]?.openingQuantity ? globalData?.variants?.[index]?.warehouseBalance[0]?.openingQuantity : "Opening Quantity" }
+                        placeholder={globalData?.variants?.[index]?.warehouseBalance[0]?.openingQuantity ? globalData?.variants?.[index]?.warehouseBalance[0]?.openingQuantity : t('otherInfo.openingQuantity') }
                         placeholderTextColor={'#000'}
                         onChangeText={text =>{
                             const updatedObj = [...globalData?.variants]
@@ -408,12 +410,12 @@ const VariantTableScreen = ({route})=>{
                     />
                 </View>
                 {/* purchase unit */}
-                {purchaseAccount?.uniqueName && <><Text style={[styles.unitRateHeading,{width:'75%'}]}>Purchase Unit Rates</Text>
+                {purchaseAccount?.uniqueName && <><Text style={[styles.unitRateHeading,{width:'75%'}]}>{t('variantTable.purchaseUnitRates')}</Text>
                     <View style={styles.row}>
                         <TouchableOpacity
                             onPress={()=>{
                                 if(!unit?.uniqueName){
-                                    Toast({message: "Please select unit", position:'BOTTOM',duration:'SHORT'})
+                                    Toast({message: t('variantTable.pleaseSelectUnit'), position:'BOTTOM',duration:'SHORT'})
 
                                 }else
                                 handleUnitFocus(index,variantPurchaseSubUnitModal);
@@ -425,7 +427,7 @@ const VariantTableScreen = ({route})=>{
                             </Text>
                             ) : (
                             <Text style={{fontFamily:theme.typography.fontFamily.semiBold,color:unit?.uniqueName ? voucherBackground : '#000'}}>
-                                {unit?.uniqueName ? unit?.name + " ("+ unit?.code +")" : 'Unit'}
+                                {unit?.uniqueName ? unit?.name + " ("+ unit?.code +")" : t('product.unit')}
                             </Text>
                             )}
                         </TouchableOpacity>
@@ -434,7 +436,7 @@ const VariantTableScreen = ({route})=>{
                             keyboardType='number-pad'
                             placeholder={globalData?.variants?.[index]?.unitRates?.some(item=>item?.accountUniqueName === purchaseAccount?.uniqueName && item?.rate != null ) 
                                 ? globalData?.variants?.[index]?.unitRates?.filter(item=>item?.accountUniqueName == purchaseAccount?.uniqueName)?.[0]?.rate 
-                                : 'Rate' }
+                                : t('product.rate') }
                             placeholderTextColor={'#000'}
                             onChangeText={text =>{
                                 const updatedObj = [...globalData?.variants]
@@ -459,12 +461,12 @@ const VariantTableScreen = ({route})=>{
                         
                     </View></>}
                 {/* sales unit */}
-                {salesAccount?.uniqueName && <><Text style={[styles.unitRateHeading,{width:'75%'}]}>Sales Unit Rates</Text>
+                {salesAccount?.uniqueName && <><Text style={[styles.unitRateHeading,{width:'75%'}]}>{t('variantTable.salesUnitRates')}</Text>
                 <View style={styles.row}>
                     <TouchableOpacity
                         onPress={()=>{
                             if(!unit?.uniqueName){
-                                Toast({message: "Please select unit", position:'BOTTOM',duration:'SHORT'})
+                                Toast({message: t('variantTable.pleaseSelectUnit'), position:'BOTTOM',duration:'SHORT'})
 
                             }else
                             handleUnitFocus(index,variantSalesSubUnitModal);
@@ -476,7 +478,7 @@ const VariantTableScreen = ({route})=>{
                         </Text>
                         ) : (
                         <Text style={{fontFamily:theme.typography.fontFamily.semiBold,color:unit?.uniqueName ? voucherBackground : '#000'}}>
-                            {unit?.uniqueName ? unit?.name + " ("+ unit?.code +")" : 'Unit'}
+                            {unit?.uniqueName ? unit?.name + " ("+ unit?.code +")" : t('product.unit')}
                         </Text>
                         )}
                     </TouchableOpacity>
@@ -485,7 +487,7 @@ const VariantTableScreen = ({route})=>{
                         keyboardType='number-pad'
                         placeholder={globalData?.variants?.[index]?.unitRates?.some(item=>item?.accountUniqueName === salesAccount?.uniqueName && item?.rate != null ) 
                             ? globalData?.variants?.[index]?.unitRates?.filter(item=>item?.accountUniqueName == salesAccount?.uniqueName)?.[0]?.rate 
-                            : 'Rate' }
+                            : t('product.rate') }
                         placeholderTextColor={'#000'}
                         onChangeText={text =>{
                             const updatedObj = [...globalData?.variants]
@@ -511,7 +513,7 @@ const VariantTableScreen = ({route})=>{
                 </View></>}
                 {customFields.length > 0 && 
                 <>
-                    <Text style={styles.unitRateHeading}>Custom Fields</Text>
+                    <Text style={styles.unitRateHeading}>{t('variantTable.customFields')}</Text>
                     <ScrollView 
                         horizontal
                         style={{height:60}}
@@ -538,7 +540,7 @@ const VariantTableScreen = ({route})=>{
                                         <Pressable onPress={() => {
                                             handleTempCustomFields(index,"true",field?.uniqueName);
                                         }}>
-                                            <Text style={styles.radioBtnText}>True</Text>
+                                            <Text style={styles.radioBtnText}>{t('otherInfo.true')}</Text>
                                         </Pressable>
                                     </View>
                                     <View style={[styles.radioBtnView,{marginTop:0}]}>
@@ -556,7 +558,7 @@ const VariantTableScreen = ({route})=>{
                                         <Pressable onPress={() =>{
                                             handleTempCustomFields(index,"false",field?.uniqueName);
                                         }}>
-                                            <Text style={styles.radioBtnText}>False</Text>
+                                            <Text style={styles.radioBtnText}>{t('otherInfo.false')}</Text>
                                         </Pressable>
                                     </View>
                                 </View>
@@ -567,7 +569,7 @@ const VariantTableScreen = ({route})=>{
                                         key={field.uniqueName}
                                         placeholder={ globalData?.variants?.[index]?.customFields?.some(item => item?.uniqueName == field?.uniqueName && item?.value !=="" ) 
                                         ? globalData?.variants?.[index]?.customFields?.filter(item => item?.uniqueName == field?.uniqueName)?.[0]?.value  
-                                        : field?.isMandatory ? field?.fieldName+'(Required*)' : field?.fieldName }
+                                        : field?.isMandatory ? field?.fieldName + t('variantTable.required') : field?.fieldName }
                                         keyboardType={field?.fieldType?.type == 'NUMBER' ? 'number-pad' : 'default'}
                                         placeholderTextColor={'#000'}
                                         style={[styles.input,{width:field?.fieldType?.type != 'BOOLEAN' ? (width-72)/2 : 250}]}
@@ -592,7 +594,7 @@ const VariantTableScreen = ({route})=>{
 
     return (
         <KeyboardAvoidingView behavior={ Platform.OS == 'ios' ? "padding" : "height" } style={styles.container}>
-            <Header header={'Variants'} isBackButtonVisible={true} backgroundColor={voucherBackground} 
+            <Header header={t('variantTable.variants')} isBackButtonVisible={true} backgroundColor={voucherBackground} 
             headerRightContent={
                 <>
                   <TouchableOpacity
@@ -603,7 +605,7 @@ const VariantTableScreen = ({route})=>{
                         navigation.goBack();
                     }}
                   >
-                    <Text style={styles.smallText}>Done</Text>
+                    <Text style={styles.smallText}>{t('common.done')}</Text>
                   </TouchableOpacity>
                 </>
               }/>

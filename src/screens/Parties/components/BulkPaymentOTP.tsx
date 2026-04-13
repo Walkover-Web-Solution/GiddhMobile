@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { withTranslation, WithTranslation } from 'react-i18next';
 import {
     View,
     TouchableOpacity,
@@ -22,7 +23,13 @@ interface SMSMessage {
     receivedOtpMessage: string
 }
 
-class BulkPaymentOTP extends React.Component {
+interface Props extends WithTranslation {
+    route: any;
+    navigation: any;
+    isFocused: boolean;
+}
+
+class BulkPaymentOTP extends React.Component<Props> {
     constructor(props: Props) {
         super(props)
         this.getSMSMessage()
@@ -159,29 +166,29 @@ class BulkPaymentOTP extends React.Component {
             }
         } catch (e) {
             this.setState({ disableResendButton: false })
-            if (Platform.OS == "ios") {
-                TOAST.show("Error - Please try again", {
-                    duration: TOAST.durations.LONG,
-                    position: -150,
-                    hideOnPress: true,
-                    backgroundColor: "#1E90FF",
-                    textColor: "white",
-                    opacity: 1,
-                    shadow: false,
-                    animation: true,
-                    containerStyle: { borderRadius: 10 }
-                });
-            } else {
-                ToastAndroid.show("Error - Please try again", ToastAndroid.LONG)
-            }
-            console.log("Error in sending OTP " + JSON.stringify(e))
+                if (Platform.OS == "ios") {
+                    TOAST.show(this.props.t('bulkPayment.errorTryAgain'), {
+                        duration: TOAST.durations.LONG,
+                        position: -150,
+                        hideOnPress: true,
+                        backgroundColor: "#1E90FF",
+                        textColor: "white",
+                        opacity: 1,
+                        shadow: false,
+                        animation: true,
+                        containerStyle: { borderRadius: 10 }
+                    });
+                } else {
+                    ToastAndroid.show(this.props.t('bulkPayment.errorTryAgain'), ToastAndroid.LONG)
+                }
+                console.log("Error in sending OTP " + JSON.stringify(e))
         }
     }
 
     onSubmit = async () => {
         if (this.state.code.length != 6) {
-            Alert.alert("Missing Fields", "Enter complete OTP",
-                [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+            Alert.alert(this.props.t('common.missingFields'), this.props.t('bulkPayment.enterCompleteOTP'),
+                [{ text: this.props.t('common.ok'), onPress: () => { console.log("Alert cancelled") } }])
             return
         }
         // Confirm Payment
@@ -257,7 +264,7 @@ class BulkPaymentOTP extends React.Component {
                     </TouchableOpacity>
 
                     <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
-                        Bulk Payment
+                        {this.props.t('bulkPayment.bulkPayment')}
                     </Text>
                 </View>
                 <View style={{
@@ -266,14 +273,14 @@ class BulkPaymentOTP extends React.Component {
                     paddingHorizontal: 20,
                     flex: 1,
                 }}>
-                    <Text style={{ fontSize: 18, color: 'black',fontFamily: 'AvenirLTStd-Book' }}>{
-                        `Paying ${this.state.selectedItems.length} vendors payment of`}
+                    <Text style={{ fontSize: 18, color: 'black',fontFamily: 'AvenirLTStd-Book' }}>
+                        {this.props.t('bulkPayment.payingVendors', { count: this.state.selectedItems.length })}
                     </Text>
                     <Text style={{ fontSize: 18, color: 'black',fontFamily: 'AvenirLTStd-Black', }} >{this.state.selectedItems[0].country.code == 'IN'
                         ? '₹'
                         : getSymbolFromCurrency(this.state.selectedItems[0].country.code)}
                         {this.numberWithCommas(this.state.totalAmount)} </Text>
-                    <Text style={{ fontSize: 18, color: 'black', marginTop: 30 ,fontFamily: 'AvenirLTStd-Book'}} >Enter OTP</Text>
+                    <Text style={{ fontSize: 18, color: 'black', marginTop: 30 ,fontFamily: 'AvenirLTStd-Book'}} >{this.props.t('common.enterOTP')}</Text>
                     <OTPInputView
                         style={{ width: '85%', height: 100, }}
                         pinCount={6}
@@ -289,12 +296,12 @@ class BulkPaymentOTP extends React.Component {
                     <Text style={{
                         fontSize: 16, color: '#808080', marginHorizontal: 25,fontFamily: 'AvenirLTStd-Book'}} >{this.state.OTPMessage}</Text>
                     <TouchableOpacity disabled={this.state.disableResendButton} onPress={() => this.resendOTP()}>
-                        <Text style={{ fontSize: 16, color: this.state.disableResendButton ? '#ACBAFF' : '#5773FF', marginTop: 10,fontFamily: 'AvenirLTStd-Book' }} >Resend</Text>
+                        <Text style={{ fontSize: 16, color: this.state.disableResendButton ? '#ACBAFF' : '#5773FF', marginTop: 10,fontFamily: 'AvenirLTStd-Book' }} >{this.props.t('common.resend')}</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                     <TouchableOpacity disabled={this.state.paymentProcessing} onPress={() => { this.onSubmit() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.paymentProcessing ? '#ACBAFF' : '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                        <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book' }}>Confirm</Text>
+                        <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('common.confirm')}</Text>
                     </TouchableOpacity>
                 </View>
                 {this.state.paymentProcessing && (
@@ -331,10 +338,12 @@ const mapDispatchToProps = () => {
     };
 };
 
+const BulkPaymentOTPWithTranslation = withTranslation()(BulkPaymentOTP);
+
 function Screen(props: any) {
     const isFocused = useIsFocused();
 
-    return <BulkPaymentOTP {...props} isFocused={isFocused} />;
+    return <BulkPaymentOTPWithTranslation {...props} isFocused={isFocused} />;
 }
 const styles = StyleSheet.create({
     underlineStyleBase: {

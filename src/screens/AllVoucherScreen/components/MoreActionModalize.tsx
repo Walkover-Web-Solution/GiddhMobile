@@ -18,12 +18,14 @@ import Toast from '@/components/Toast';
 import { APP_EVENTS } from '@/utils/constants';
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: any) => void;}> = ({downloadFile, shareFile }, ref) => {
     const [data, setData]:any = useState({});
     const bottomSheetRef = useRef(null);
     const navigation = useNavigation();
     const { styles } = useCustomTheme(getVoucherStyles);
+    const { t } = useTranslation();
     useImperativeHandle(ref, () => ({
         open: (data: any) => {
             setData(data);
@@ -34,7 +36,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
     return (
     <BottomSheet
       bottomSheetRef={bottomSheetRef}
-      headerText="Voucher Options"
+      headerText={t('common.voucherOptions')}
       headerTextColor="#084EAD"
       adjustToContentHeight
       customRenderer={(
@@ -49,7 +51,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
             }}
           >
             <Feather name="send" size={20} color="#1C1C1C" />
-            <Text style={styles.modalText}>Share</Text>
+            <Text style={styles.modalText}>{t('common.share')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -61,7 +63,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
             }}
           >
             <Feather name="download" size={20} color="#1C1C1C" />
-            <Text style={styles.modalText}>Download</Text>
+            <Text style={styles.modalText}>{t('common.download')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -81,7 +83,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
             }}
           >
             <MaterialCommunityIcons name="file-eye-outline" size={20} color="#000" />
-            <Text style={styles.modalText}>Preview</Text>
+            <Text style={styles.modalText}>{t('common.preview')}</Text>
           </TouchableOpacity>
 
           {data?.voucherName === "Sales" && !(data?.isConsolidatedBranch) && (
@@ -110,7 +112,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
                     });
                   } else {
                     Toast({
-                      message: "Please update pincode in voucher before creating eway bill.",
+                      message: t('common.pleaseUpdatePincode'),
                       position: 'BOTTOM',
                       duration: 'LONG',
                     });
@@ -118,7 +120,7 @@ const _MoreActionBottomSheet: React.ForwardRefRenderFunction<{}, { open: (data: 
                 }}
               >
                 <MaterialCommunityIcons name="truck-fast-outline" size={20} color="#000" />
-                <Text style={styles.modalText}>Generate E-way Bill</Text>
+                <Text style={styles.modalText}>{t('common.generateEWayBill')}</Text>
               </TouchableOpacity>
           )}
         </View>

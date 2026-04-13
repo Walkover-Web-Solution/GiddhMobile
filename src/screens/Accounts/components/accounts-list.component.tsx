@@ -14,6 +14,7 @@ import routes from '@/navigation/routes';
 import { formatAmount } from '@/utils/helper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { useTranslation } from 'react-i18next';
 
 type PartiesListProp = {
     item: any;
@@ -39,6 +40,7 @@ const amountColorStyle = (type: string) => {
 export const AccountsList = (props: PartiesListProp) => {
     const { item, activeCompany } = props;
     const navigationRef = useNavigation();
+    const { t } = useTranslation();
 
 
     const renderRightAction = (item) => {
@@ -59,7 +61,7 @@ export const AccountsList = (props: PartiesListProp) => {
                     size={14}
                     color={colors.PRIMARY_NORMAL}
                 />
-                <Text style={styles.addEntryText} >Add entry</Text>
+                <Text style={styles.addEntryText} >{t('common.addEntry')}</Text>
             </TouchableOpacity>
         )
 

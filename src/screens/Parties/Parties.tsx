@@ -3,17 +3,17 @@ import { connect } from 'react-redux';
 import { View, DeviceEventEmitter, Text, Image, EmitterSubscription } from 'react-native';
 import style from '@/screens/Parties/style';
 import color from '@/utils/colors';
-import { PartiesList } from '@/screens/Parties/components/parties-list.component';
 import { CommonService } from '@/core/services/common/common.service';
 import * as CommonActions from '@/redux/CommonAction';
 import { PartiesPaginatedResponse } from '@/models/interfaces/parties';
 // @ts-ignore
 import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS } from '@/utils/constants';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
 type PartiesScreenProp = {
   logout: Function;
-};
+} & WithTranslation;
 
 type PartiesScreenState = {
   showLoader: boolean;
@@ -103,13 +103,12 @@ export class PartiesScreen extends React.Component<PartiesScreenProp, PartiesScr
                 source={require('@/assets/images/noParty.png')}
                 style={{ resizeMode: 'contain', height: 230, width: 300 }}
               />
-              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 0 }}>No Parties</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 0 }}>{this.props.t('parties.noParties')}</Text>
             </View>
           )
           :
           (<View style={style.container}>
-            {this.state.debtData.length > 1 ? <Text style={{ textAlign: "center",  fontFamily:'AvenirLTStd-Black' }}>TOP 20 Creditors and Debtors</Text> : null}
-            <PartiesList partiesData={this.state.debtData} activeCompany={activeCompany} />
+            {this.state.debtData.length > 1 ? <Text style={{ textAlign: "center",  fontFamily:'AvenirLTStd-Black' }}>{this.props.t('parties.top20CreditorsDebtors')}</Text> : null}
           </View>)
       );
     }
@@ -159,4 +158,4 @@ const mapDispatchToProps = (dispatch: any) => {
     }
   };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(PartiesScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(PartiesScreen));

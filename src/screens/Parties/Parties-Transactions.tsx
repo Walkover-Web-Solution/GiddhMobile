@@ -60,12 +60,15 @@ import Toast from '@/components/Toast';
 import Notifee, { AndroidNotificationSetting } from '@notifee/react-native';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useTranslation } from 'react-i18next';
 
 interface SMSMessage {
   receivedOtpMessage: string
 }
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
-type Props = connectedProps
+type Props = connectedProps & {
+  t: (key: string) => string;
+}
 
 const { width, height } = Dimensions.get('window');
 
@@ -237,7 +240,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       this.setState({
         selectedPayor: null,
         selectPayorData: [],
-        payorErrorMessage: response?.message ?? 'Something Went Wrong'
+        payorErrorMessage: response?.message ?? this.props.t('more.somethingWentWrong')
       });
     }
 
@@ -299,7 +302,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       if (notificationExist) {
         console.log("Notification Exist, After all notifications set Array " + notificationSetArr)
         await AsyncStorage.setItem(STORAGE_KEYS.NOTIFICATION_SET_ARR, JSON.stringify(notificationSetArr))
-        alert(`Reminder for ${data.name} is already set for selected date and time`)
+        alert(this.props.t('partiesTransaction.reminderAlreadySet').replace('{{name}}', data.name))
         return
       }
 
@@ -310,15 +313,15 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
 
       await PushNotification.localNotificationSchedule({
         date: this.state.dateTime,
-        message: 'Payment to ' + data.name + " is due",
+        message: this.props.t('partiesTransaction.paymentDue').replace('{{name}}', data.name),
         allowWhileIdle: true,
         channelId: 'channel-id',
         smallIcon: 'ic_launcher',
-        title: 'Reminder',
+        title: this.props.t('partiesTransaction.reminder'),
         userInfo: { item: JSON.stringify(data), activeCompanyUniqueName: activeCompanyUniqueName, activeCompanyName: activeCompanyName, activeCompany: this.props.route.params.activeCompany }
       });
       this.setBottomSheetVisible(this.reminderBottomSheetRef, false);
-      await setTimeout(() => { Alert.alert("Success", "Reminder successfully activated", [{ style: 'destructive', text: 'Okay' }]) }, 400)
+      await setTimeout(() => { Alert.alert(this.props.t('partiesTransaction.success'), this.props.t('partiesTransaction.reminderActivated'), [{ style: 'destructive', text: this.props.t('partiesTransaction.okay') }]) }, 400)
     } catch (error) {
       console.log("failed to push notification" + error);
       let notificationSetArr: any = await AsyncStorage.getItem(STORAGE_KEYS.NOTIFICATION_SET_ARR)
@@ -337,7 +340,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           }
         }
       }
-      Alert.alert("Fail", "Failed to activat reminder", [{ style: 'destructive', text: 'Okay' }])
+      Alert.alert(this.props.t('partiesTransaction.fail'), this.props.t('partiesTransaction.failedToActivateReminder'), [{ style: 'destructive', text: this.props.t('partiesTransaction.okay') }])
     }
   }
 
@@ -491,33 +494,33 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     if (this.props.route.params?.item?.mobileNo) {
       Linking.openURL(`whatsapp://send?phone=${this.props.route?.params?.item?.mobileNo}&text=${''}`);
     } else {
-      return Alert.alert('', 'The phone number for this person is not available');
+      return Alert.alert('', this.props.t('partiesTransaction.phoneNotAvailable'));
     }
   };
   onCall = () => {
     if (this.props.route.params?.item?.mobileNo) {
       Linking.openURL(`tel://${this.props.route.params?.item?.mobileNo}`);
     } else {
-      return Alert.alert('', 'The phone number for this person is not available');
+      return Alert.alert('', this.props.t('partiesTransaction.phoneNotAvailable'));
     }
   };
   onMail = () => {
     if (this.props.route.params?.item?.email) {
       Linking.openURL(`mailto:${this.props.route.params?.item?.email}`);
     } else {
-      return Alert.alert('', 'The email for this person is not available');
+      return Alert.alert('', this.props.t('partiesTransaction.emailNotAvailable'));
     }
   };
   copyToClipboard = (text: string) => {
     Clipboard.setString(this.props.route.params?.item?.[text]);
-    Toast({ message: 'Copied to clipboard' });
+    Toast({ message: this.props.t('partiesTransaction.copiedToClipboard') });
   };
 
   phoneNo = () => {
     if (this.props.route.params?.item?.mobileNo) {
       return `${this.props.route.params?.item?.mobileNo}`;
     } else {
-      return Alert.alert('', 'The phone number for this person is not available');
+      return Alert.alert('', this.props.t('partiesTransaction.phoneNotAvailable'));
     }
   };
 
@@ -890,7 +893,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           this.downloadModalVisible(false)
         }
         if (Platform.OS !== "ios") {
-          ToastAndroid.show("Pdf saved successfully", ToastAndroid.LONG)
+          ToastAndroid.show(this.props.t('partiesTransaction.pdfSavedSuccessfully'), ToastAndroid.LONG)
         }
       })
     } catch (e) {
@@ -904,7 +907,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.downloadModalVisible(false);
-          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          Alert.alert(this.props.t('common.permissionDenied'), this.props.t('common.storagePermissionDownload'));
           return;
         }
       }
@@ -920,15 +923,15 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         const hasPermission = await checkStoragePermission();
         if (!hasPermission) {
           const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-            title: 'Storage Permission',
-            message: 'App needs storage permission to share files',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
+            title: this.props.t('common.storagePermission'),
+            message: this.props.t('partiesTransaction.appNeedsStoragePermission'),
+            buttonNeutral: this.props.t('partiesTransaction.askMeLater'),
+            buttonNegative: this.props.t('common.cancel'),
+            buttonPositive: this.props.t('partiesTransaction.ok'),
           });
           if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
             this.setState({ ShareModal: false });
-            Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+            Alert.alert(this.props.t('common.permissionDenied'), this.props.t('common.storagePermissionDownload'));
             return;
           }
           await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
@@ -946,7 +949,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           this.setState({ ShareModal: false });
-          Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+          Alert.alert(this.props.t('common.permissionDenied'), this.props.t('common.storagePermissionDownload'));
           return;
         }
       }
@@ -1008,11 +1011,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               try {
                   const success = await attemptShare(pdfLocation, pdfName);
                   if (!success) {
-                      Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                      Toast({message: this.props.t('common.unableToShare'), position:'BOTTOM',duration:'LONG'})
                   }
               } catch (shareError) {
                   console.log('Share error:', shareError);
-                  Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                  Toast({message: this.props.t('common.unableToShare'), position:'BOTTOM',duration:'LONG'})
               } finally {
                   this.setState({ ShareModal: false });
               }
@@ -1034,19 +1037,19 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     Linking.canOpenURL(`whatsapp://send?phone=${this.props?.route?.params?.item?.mobileNo.replace(/\D/g, '')}&text=${''}`)
       .then(async (supported) => {
         if (!supported) {
-          Alert.alert('', 'Please install whats app to send direct message via whats app');
+          Alert.alert('', this.props.t('partiesTransaction.pleaseInstallWhatsapp'));
         } else {
           try {
             this.setState({ ShareModal: true });
             const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
             const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
             const shareOptions = {
-              title: 'Share via',
-              message: 'Transactions report',
+              title: this.props.t('partiesTransaction.shareVia'),
+              message: this.props.t('partiesTransaction.transactionsReport'),
               url: `file://${Platform.OS == 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir}/${this.state.startDate}-${this.state.endDate}.pdf`,
               social: Share.Social.WHATSAPP,
               whatsAppNumber: this.props.route?.params?.item?.mobileNo.replace(/\D/g, ''),
-              filename: 'Transactions report',
+              filename: this.props.t('partiesTransaction.transactionsReport'),
             };
             RNFetchBlob.fetch(
               'POST',
@@ -1167,19 +1170,19 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     if (Platform.OS == "android" && Platform.Version >= 33) {
       const settings = await Notifee.getNotificationSettings();
       if (settings.android.alarm == AndroidNotificationSetting.DISABLED) {
-        Alert.alert("No permission to set Alarm/Reminder", "Please provide permission to set Alarm/Reminder",
+        Alert.alert(this.props.t('partiesTransaction.noAlarmPermission'), this.props.t('partiesTransaction.provideAlarmPermission'),
           [{
-            text: "OK", onPress: () => {
+            text: this.props.t('partiesTransaction.ok'), onPress: () => {
               Notifee.openAlarmPermissionSettings()
             }
-          }, { text: "Cancel", onPress: () => { } }])
+          }, { text: this.props.t('common.cancel'), onPress: () => { } }])
         return;
       }
     }
     const today = new Date(Date.now());
     const selected: Date = this.state.dateTime;
     if (today.getDate() == selected.getDate() && today.getMonth() == selected.getMonth() && today.getFullYear() == selected.getFullYear() && this.state.dateTime.getTime() <= new Date(Date.now()).getTime()) {
-      Alert.alert("Invalid time", "Please enter a valid time", [{ style: 'destructive', text: 'Okay' }]);
+      Alert.alert(this.props.t('partiesTransaction.invalidTime'), this.props.t('partiesTransaction.enterValidTime'), [{ style: 'destructive', text: this.props.t('partiesTransaction.okay') }]);
     } else {
       this.sendNotification(this.props.route?.params?.item);
     }
@@ -1262,7 +1265,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     } catch (e) {
       this.setState({ disableResendButton: false })
       if (Platform.OS == "ios") {
-        TOAST.show("Error - Please try again", {
+        TOAST.show(this.props.t('partiesTransaction.errorTryAgain'), {
           duration: TOAST.durations.LONG,
           position: -150,
           hideOnPress: true,
@@ -1274,7 +1277,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           containerStyle: { borderRadius: 10 }
         });
       } else {
-        ToastAndroid.show("Error - Please try again", ToastAndroid.LONG)
+        ToastAndroid.show(this.props.t('partiesTransaction.errorTryAgain'), ToastAndroid.LONG)
       }
       console.log("Error in sending OTP " + JSON.stringify(e))
     }
@@ -1282,8 +1285,8 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
 
   confirmPayment = async () => {
     if (this.state.code.length != 6) {
-      Alert.alert("Missing Fields", "Enter complete OTP",
-        [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+      Alert.alert(this.props.t('partiesTransaction.missingFields'), this.props.t('partiesTransaction.enterCompleteOTP'),
+        [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
       return
     }
     // Confirm Payment
@@ -1343,16 +1346,16 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           this.resendOTP();
         } else {
           if ((this.state.totalAmount).substr(1, 1) == 0) {
-            Alert.alert("Invalid", "Amount should be greater than or equal to 1",
-              [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+            Alert.alert(this.props.t('partiesTransaction.invalid'), this.props.t('partiesTransaction.amountGreaterThan1'),
+              [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
           } else {
-            Alert.alert("Invalid", "Please Enter Valid Amount",
-              [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+            Alert.alert(this.props.t('partiesTransaction.invalid'), this.props.t('partiesTransaction.enterValidAmount'),
+              [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
           }
         }
       } else {
-        Alert.alert("Missing Fields", "Enter all the mandatory fields",
-          [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+        Alert.alert(this.props.t('partiesTransaction.missingFields'), this.props.t('partiesTransaction.enterAllMandatory'),
+          [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
       }
     } else {
       await this.setState({ payNowButtonPressed: true })
@@ -1364,7 +1367,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       return (
         <View style={{ height: height * 0.3, justifyContent: 'center', alignItems: 'center' }}>
           <Text style={style.regularText}>
-            No Bank Exist
+            {this.props.t('partiesTransaction.noBankExist')}
           </Text>
         </View>
       )
@@ -1384,10 +1387,10 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
               {item?.bankName}
             </Text>
             <Text style={style.buttonSmallText}>
-              {`A/c No: ${item?.accountNo}`}
+              {`${this.props.t('partiesTransaction.accountNo')}: ${item?.accountNo}`}
             </Text>
             <Text style={style.buttonSmallText}>
-              {`Clo Bal: ${item?.effectiveBal} dr.`}
+              {`${this.props.t('partiesTransaction.closingBalance')}: ${item?.effectiveBal} dr.`}
             </Text>
           </View>
         </TouchableOpacity>
@@ -1396,7 +1399,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     return (
       <BottomSheet
         bottomSheetRef={this.bankBottomSheetRef}
-        headerText='Select Bank'
+        headerText={this.props.t('partiesTransaction.selectBank')}
         headerTextColor='#864DD3'
         flatListProps={{
           data: this.state.bankAccounts,
@@ -1412,7 +1415,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       return (
         <View style={{ height: height * 0.3, justifyContent: 'center', alignItems: 'center' }}>
           <Text style={style.regularText}>
-            No Payor Exist
+            {this.props.t('partiesTransaction.noPayorExist')}
           </Text>
         </View>
       )
@@ -1437,7 +1440,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
     return (
       <BottomSheet
         bottomSheetRef={this.payorBottomSheetRef}
-        headerText='Select Payor'
+        headerText={this.props.t('partiesTransaction.selectPayor')}
         headerTextColor='#864DD3'
         flatListProps={{
           data: this.state.selectPayorData,
@@ -1582,14 +1585,14 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
             {/* Left Side - Credit and Debit Totals */}
             <View style={{ maxWidth: '40%' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cr :</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>{this.props.t('common.cr')} :</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 5 }}>
                   {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.creditTotal)}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Dr :</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>{this.props.t('common.dr')} :</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 5 }}>
                   {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                   {formatAmount(this.state.debitTotal)}
@@ -1600,27 +1603,27 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
             {/* Right Side - Opening and Closing Balance */}
             <View style={{  alignItems: 'flex-end', maxWidth: '40%' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Cl : </Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>{this.props.t('partiesTransaction.cl')} : </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
                   <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
                     {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                     {formatAmount(this.state.closingBalance?.amount)}
                   </Text>
                   <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 10, minWidth: 15, textAlign: 'center' }}>
-                    {this.state.closingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+                    {this.state.closingBalance?.type == 'DEBIT' ? this.props.t('common.dr') : this.props.t('common.cr')}
 
                   </Text>
                 </View>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>Op : </Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Book', color: '#616161' }}>{this.props.t('partiesTransaction.op')} : </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', }}>
                   <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16 }}>
                     {this.state.countryCode == 'IN' ? '₹' : getSymbolFromCurrency(this.state.countryCode)}
                     {formatAmount(this.state.openingBalance?.amount)}
                   </Text>
                   <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 10, minWidth: 15, textAlign: 'center' }}>
-                    {this.state.openingBalance?.type == 'DEBIT' ? 'Dr' : 'Cr'}
+                    {this.state.openingBalance?.type == 'DEBIT' ? this.props.t('common.dr') : this.props.t('common.cr')}
 
                   </Text>
                 </View>
@@ -1712,7 +1715,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   }}
                 >
                   <Text style={{ color: this.state.selectedBank == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book', marginLeft: 10 }}>
-                    {this.state.selectedBank == null ? 'Select Bank' : this.state.selectedBank.bankName}
+                    {this.state.selectedBank == null ? this.props.t('partiesTransaction.selectBank') : this.state.selectedBank.bankName}
                     <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.selectedBank == null ? '*' : ''}</Text>
                   </Text>
                   <Icon name={'9'} size={12} color="#808080" style={{ padding: 5, marginLeft: 20 }} />
@@ -1731,7 +1734,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 >
                   <View style={{ flexDirection: "row", flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
                     <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book', marginLeft: 10 }}>
-                      {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor.user.name}
+                      {this.state.selectedPayor == null ? this.props.t('partiesTransaction.selectPayor') : this.state.selectedPayor.user.name}
                       <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
                     </Text>
                     <Icon
@@ -1757,7 +1760,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                       console.log("Total Amount " + (this.state.totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '') + " currency symbol " + this.state.currencySymbol)
                       if (amount == "NaN") {
                         if (Platform.OS == "ios") {
-                          TOAST.show("Invalid Amount", {
+                          TOAST.show(this.props.t('partiesTransaction.invalidAmount'), {
                             duration: TOAST.durations.LONG,
                             position: -140,
                             hideOnPress: true,
@@ -1769,7 +1772,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                             containerStyle: { borderRadius: 10 }
                           });
                         } else {
-                          ToastAndroid.show("Invalid Amount", ToastAndroid.SHORT)
+                          ToastAndroid.show(this.props.t('partiesTransaction.invalidAmount'), ToastAndroid.SHORT)
                         }
                         await this.setState({ totalAmount: '', totalAmountPlaceHolder: '' })
                         return
@@ -1791,7 +1794,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   <Text style={{ color: '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder != '' ? ((this.state.totalAmount.length > 1 || this.state.totalAmount == this.state?.currencySymbol) && this.state?.currencySymbol != "" ? (this.state?.currencySymbol).substring(1)
                     : (this.state.currencySymbol)) : ''}</Text>
                   <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' &&
-                    'Total Amount'}</Text>
+                    this.props.t('partiesTransaction.totalAmount')}</Text>
                   <Text style={{ color: this.state.totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder != '' &&
                     (this.state.totalAmount)}</Text>
                   <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.totalAmountPlaceHolder == '' ? '*' : ''}</Text>
@@ -1824,7 +1827,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   }
                   }
                   style={{ fontSize: 15, marginHorizontal: 10, padding: 0, flex: 1, alignSelf: 'center' }}>
-                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? 'Comments' : this.state.review}</Text>
+                  <Text style={{ color: this.state.reviewPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c', fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? this.props.t('partiesTransaction.comments') : this.state.review}</Text>
                   <Text style={{ color: '#E04646', fontFamily: 'AvenirLTStd-Book' }}>{this.state.reviewPlaceHolder == '' ? '*' : ''}</Text>
                 </TextInput>
               </View>
@@ -1835,7 +1838,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   flex: 1,
                   marginBottom: 30
                 }}>
-                  <Text style={{ fontSize: 18, color: 'black', marginTop: 40, fontFamily: 'AvenirLTStd-Book' }} >Enter OTP</Text>
+                  <Text style={{ fontSize: 18, color: 'black', marginTop: 40, fontFamily: 'AvenirLTStd-Book' }} >{this.props.t('partiesTransaction.enterOTP')}</Text>
                   <OTPInputView
                     style={{ width: '85%', height: 100, }}
                     pinCount={6}
@@ -1851,7 +1854,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   />
                   <Text style={{ fontSize: 16, color: '#808080', fontFamily: 'AvenirLTStd-Book', alignSelf: "center", width: '85%' }} >{this.state.OTPMessage}</Text>
                   <TouchableOpacity disabled={this.state.disableResendButton} onPress={() => this.resendOTP()}>
-                    <Text style={{ fontSize: 16, color: this.state.disableResendButton ? colors.PRIMARY_DISABLED : '#5773FF', marginTop: 10, marginBottom: 20, fontFamily: 'AvenirLTStd-Book' }} >Resend</Text>
+                    <Text style={{ fontSize: 16, color: this.state.disableResendButton ? colors.PRIMARY_DISABLED : '#5773FF', marginTop: 10, marginBottom: 20, fontFamily: 'AvenirLTStd-Book' }} >{this.props.t('partiesTransaction.resend')}</Text>
                   </TouchableOpacity>
                 </View> : null}
             </ScrollView>
@@ -1895,7 +1898,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                       source={require('@/assets/images/noTransactions.png')}
                       style={{ resizeMode: 'contain', height: 250, width: 300 }}
                     />
-                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>No Transactions</Text>
+                    <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 25, marginTop: 10, marginBottom: 20 }}>{this.props.t('common.noTransactions')}</Text>
                   </ScrollView>
                 ) : (
                   <FlatList
@@ -1960,11 +1963,11 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
           {this.payorBottomSheet()}
           <BottomSheet
             bottomSheetRef={this.reminderBottomSheetRef}
-            headerText='Set Reminder'
+            headerText={this.props.t('partiesTransaction.setReminder')}
             headerTextColor='#864DD3'
           >
             <View style={{ padding: 20 }}>
-              <Text style={{ fontFamily: 'AvenirLTStd-Book' }}>Date</Text>
+              <Text style={{ fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('partiesTransaction.date')}</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ datePicker: true })}
                 style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
@@ -1972,7 +1975,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   <Text style={{ color: '#808080', paddingVertical: 10, fontFamily: 'AvenirLTStd-Book' }}>{format(this.state.dateTime, "dd/MM/yyyy")}</Text>
                 </View>
               </TouchableOpacity>
-              <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Book' }}>Time</Text>
+              <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('partiesTransaction.time')}</Text>
               <TouchableOpacity
                 onPress={() => this.setState({ timePicker: true })}
                 style={{ borderBottomColor: "#808080", borderBottomWidth: 0.55 }}>
@@ -1988,7 +1991,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                     height: height * 0.05,
                     width: width * 0.6, justifyContent: 'center', alignItems: 'center', backgroundColor: '#5773FF', marginTop: 30, borderRadius: 50
                   }}>
-                  <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book' }}>Done</Text>
+                  <Text style={{ color: 'white', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('common.done')}</Text>
                 </TouchableOpacity>
               </View>
               <DateTimePickerModal
@@ -1998,10 +2001,10 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                 date={this.state.dateTime}
                 onConfirm={(date) => {
                   if (Number(format(date, "MM")) < Number(format(new Date(Date.now()), "MM"))) {
-                    Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
+                    Alert.alert(this.props.t('partiesTransaction.invalid'), this.props.t('partiesTransaction.cannotScheduleBeforeToday'), [{ style: 'destructive', text: this.props.t('partiesTransaction.okay') }]);
                   }
                   else if (Number(format(date, "MM")) == Number(format(new Date(Date.now()), "MM")) && Number(format(date, "dd")) < Number(format(new Date(Date.now()), "dd"))) {
-                    Alert.alert("Invalid", "You cannot schedule reminder on any day before today", [{ style: 'destructive', text: 'Okay' }]);
+                    Alert.alert(this.props.t('partiesTransaction.invalid'), this.props.t('partiesTransaction.cannotScheduleBeforeToday'), [{ style: 'destructive', text: this.props.t('partiesTransaction.okay') }]);
                   } else {
                     const newDate: Date = this.state.dateTime;
                     newDate.setDate(date.getDate());
@@ -2065,7 +2068,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                     name={'LineScale'}
                     color={color.PRIMARY_NORMAL}
                 />
-                <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>Downloading PDF</Text>
+                <Text style={{ marginTop: 20, fontFamily: 'AvenirLTStd-Black' }}>{this.props.t('partiesTransaction.downloadingPDF')}</Text>
               </View>
             </View>
           )}
@@ -2095,7 +2098,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   await this.props.navigation.navigate("CustomerVendorScreens", { screen: 'CustomerVendorScreens', params: { index: 1, uniqueName: this.props.route?.params?.item?.uniqueName } }),
                     await DeviceEventEmitter.emit(APP_EVENTS.REFRESHPAGE, {});
                 }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                  <Text style={{ fontSize: 20, color: "black", fontFamily: 'AvenirLTStd-Book' }}>Add Bank Details</Text>
+                  <Text style={{ fontSize: 20, color: "black", fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('partiesTransaction.addBankDetails')}</Text>
                 </TouchableOpacity>
               </View> :
               this.props.route.params.type == 'Vendors' && this.state.countryCode == "IN" &&
@@ -2104,13 +2107,13 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                   <TouchableOpacity onPress={() => {
                     this.PayButtonPressed()
                   }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.payNowButtonPressed ? '#5773FF' : '#F5F5F5', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                    <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black", fontFamily: 'AvenirLTStd-Book' }}>{this.state.payNowButtonPressed ? "Pay" : "Pay Now"}</Text>
+                    <Text style={{ fontSize: 20, color: this.state.payNowButtonPressed ? "white" : "black", fontFamily: 'AvenirLTStd-Book' }}>{this.state.payNowButtonPressed ? this.props.t('partiesTransaction.pay') : this.props.t('partiesTransaction.payNow')}</Text>
                   </TouchableOpacity>
                 </View> :
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                   <TouchableOpacity disabled={this.state.paymentProcessing} onPress={async () => { this.confirmPayment() }}
                     style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.paymentProcessing ? '#ACBAFF' : '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                    <Text style={{ fontSize: 20, color: "white", fontFamily: 'AvenirLTStd-Book' }}>{"Confirm"}</Text>
+                    <Text style={{ fontSize: 20, color: "white", fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('partiesTransaction.confirm')}</Text>
                   </TouchableOpacity>
                 </View>))
             : null}
@@ -2137,7 +2140,8 @@ const mapDispatchToProps = () => {
 function Screen(props) {
   const isFocused = useIsFocused();
   const navigation = useNavigation();
-  return <PartiesTransactionScreen {...props} isFocused={isFocused} navigation={navigation}/>;
+  const { t } = useTranslation();
+  return <PartiesTransactionScreen {...props} isFocused={isFocused} navigation={navigation} t={t}/>;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Screen);

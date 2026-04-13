@@ -1,6 +1,6 @@
 import React, { createRef } from 'react';
 import { WithTranslation, withTranslation, WithTranslationProps } from 'react-i18next';
-import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, DeviceEventEmitter, Linking, Platform, ToastAndroid,Dimensions, Switch, ScrollView } from 'react-native';
 import { Country } from '@/models/interfaces/country';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { BadgeTab } from '@/models/interfaces/badge-tabs';
@@ -25,6 +25,7 @@ import { resetBiometricAuthentication, toggleBiometricAuthentication } from '@/s
 import Toast from '@/components/Toast';
 import ConfirmationBottomSheet, { ConfirmationMessages } from '@/components/ConfirmationBottomSheet';
 import { setBottomSheetVisible } from '@/components/BottomSheet';
+import LanguageSelector from '@/components/LanguageSelector';
 const { height } = Dimensions.get('screen');
 
 type MoreComponentProp = WithTranslation &
@@ -126,10 +127,10 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         const { available } = await BiometricAuth.isSensorAvailable();
 
         if (!available) {
-            Toast({message: 'Biometrics not available. Use PIN.', position:'BOTTOM', duration:'SHORT'});
+            Toast({message: this.props.t('more.biometricsNotAvailable'), position:'BOTTOM', duration:'SHORT'});
             await new Promise(resolve => setTimeout(resolve, 900));
             const response = await BiometricAuth.simplePrompt({
-                promptMessage: 'Confirm lock screen password',
+                promptMessage: this.props.t('more.confirmLockScreen'),
                 allowDeviceCredentials: true
             })
             if (response?.success) {
@@ -145,13 +146,13 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
                 Toast({message: response?.error, position:'BOTTOM', duration:'LONG'});
                 return ;
               }
-              Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+              Toast({message: this.props.t('more.authenticationFailed'), position:'BOTTOM', duration:'LONG'});
             }
             return;
         }
     
         const response = await BiometricAuth.simplePrompt({
-          promptMessage: 'Confirm Biometric',
+          promptMessage: this.props.t('more.confirmBiometric'),
           allowDeviceCredentials: true
         });
     
@@ -172,19 +173,19 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
       if (!available) {
           await new Promise(resolve => setTimeout(resolve, 900));
           const response = await BiometricAuth.simplePrompt({
-              promptMessage: 'Confirm lock screen password',
+              promptMessage: this.props.t('more.confirmLockScreen'),
               allowDeviceCredentials: true
           })
           if (response?.success) {
             setBottomSheetVisible(this.confirmationBottomSheetRef, false);
             this.props.logout();
           }else {
-            Toast({message: 'Authentication failed. Please try again.', position:'BOTTOM', duration:'LONG'});
+            Toast({message: this.props.t('more.authenticationFailed'), position:'BOTTOM', duration:'LONG'});
           }
           return;
       }
       const response = await BiometricAuth.simplePrompt({
-        promptMessage: 'Confirm biometric to logout',
+        promptMessage: this.props.t('more.confirmBiometricLogout'),
         allowDeviceCredentials: true
       });
       if (response?.success) {
@@ -251,8 +252,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
           renderError={() => {
             return (
               <View style={style.renderErrorView}>
-                <Text style={style.renderErrorText}>Something Went Wrong.</Text>
-                <Text style={style.renderErrorText}>Please Try Again.</Text>
+                <Text style={style.renderErrorText}>{this.props.t('more.somethingWentWrong')}</Text>
+                <Text style={style.renderErrorText}>{this.props.t('more.pleaseTryAgain')}</Text>
               </View>
             )
           }}
@@ -267,7 +268,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
         activeOpacity={0.7}
         onPress={() => {
           Clipboard.setString(email);
-          Platform.OS == "ios" ? TOAST.show('Email Copied to Clipboard', {
+          Platform.OS == "ios" ? TOAST.show(this.props.t('more.emailCopied'), {
             duration: TOAST.durations.LONG,
             position: -150,
             hideOnPress: true,
@@ -278,7 +279,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             animation: true,
             containerStyle: { borderRadius: 10 }
           }) :
-            ToastAndroid.show('Email Copied to Clipboard', ToastAndroid.LONG)
+            ToastAndroid.show(this.props.t('more.emailCopied'), ToastAndroid.LONG)
         }}
       >
         <AntDesign name="copy1" size={20} color={'#1A237E'} style={{ marginLeft: 10 }} />
@@ -292,7 +293,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
 
     const activeCompanyName = this.state.activeCompany ? this.state.activeCompany.name : '';
     const activeBranchName = this.state.activeBranch ? this.state.activeBranch.alias : '';
-    const { navigation } = this.props;
+    const { navigation, t } = this.props;
     if (this.props.isFetchingCompanyList) {
       return (
         <View
@@ -307,159 +308,164 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
     } else {
       return (
         <View style={{ flex: 1, backgroundColor: 'white' }} >
-          <View style={{flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={{ padding: 20 }}
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}>
-              <Icon name={'Backward-arrow'} size={18} color={'#1C1C1C'} />
-            </TouchableOpacity>
-            <Text style={style.headerText}>More</Text>
-          </View>
-          {activeCompanyName && activeCompanyName.length > 1
-            ? (
+          <ScrollView>
+            <View style={{flexDirection: 'row', alignItems: 'center' }}>
               <TouchableOpacity
                 activeOpacity={0.7}
-                style={style.companyView}
+                style={{ padding: 20 }}
                 onPress={() => {
-                  navigation.navigate('ChangeCompany', {
-                    screen: 'ChangeCompany',
+                  this.props.navigation.goBack();
+                }}>
+                <Icon name={'Backward-arrow'} size={18} color={'#1C1C1C'} />
+              </TouchableOpacity>
+              <Text style={style.headerText}>{t('more.more')}</Text>
+            </View>
+            {activeCompanyName && activeCompanyName.length > 1
+              ? (
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={style.companyView}
+                  onPress={() => {
+                    navigation.navigate('ChangeCompany', {
+                      screen: 'ChangeCompany',
+                      initial: false,
+                      params: { activeCompany: this.state.activeCompany }
+                    });
+                  }}>
+                  <View style={style.companyShortView}>
+                    <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
+                    <Text numberOfLines={1} style={style.companyNameText}>
+                      {activeCompanyName}
+                    </Text>
+
+                    <Entypo name="chevron-right" size={26} color={'#1A237E'} />
+                    {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
+                  </View>
+                </TouchableOpacity>
+              )
+              : (
+                <View style={style.companyView}>
+                  <View style={style.companyShortView}>
+                    <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
+                    <Text style={style.companyNameText}>{activeCompanyName}</Text>
+                  </View>
+                </View>
+              )}
+            {
+              // Switch Branch
+            }
+            {this.props.branchList && this.props.branchList.length > 1 && (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={style.branchView}
+                onPress={() => {
+                  navigation.navigate('ChangeCompanyBranch', {
+                    screen: 'BranchChange',
                     initial: false,
-                    params: { activeCompany: this.state.activeCompany }
+                    params: {
+                      activeBranch: this.state.activeBranch,
+                      branches: this.props.branchList
+                    }
                   });
                 }}>
-                <View style={style.companyShortView}>
-                  <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
+                <View style={{ marginLeft: 15 }}>
+                  <MaterialIcons name="compare-arrows" size={26} color={'#1A237E'} />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
-                  <Text numberOfLines={1} style={style.companyNameText}>
-                    {activeCompanyName}
+                  <Text style={style.companyNameText}>
+                    {activeBranchName.length > 0 ? t('more.switchBranch') + ' (' + activeBranchName + ')' : t('more.switchBranch')}
                   </Text>
 
                   <Entypo name="chevron-right" size={26} color={'#1A237E'} />
-                  {/* <GdSVGIcons.arrowRight style={style.iconStyle} width={18} height={18} /> */}
                 </View>
               </TouchableOpacity>
-            )
-            : (
-              <View style={style.companyView}>
-                <View style={style.companyShortView}>
-                  <Text style={style.companyShortText}>{this.getInitails(activeCompanyName)}</Text>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
-                  <Text style={style.companyNameText}>{activeCompanyName}</Text>
-                </View>
-              </View>
             )}
-          {
-            // Switch Branch
-          }
-          {this.props.branchList && this.props.branchList.length > 1 && (
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={style.branchView}
-              onPress={() => {
-                navigation.navigate('ChangeCompanyBranch', {
-                  screen: 'BranchChange',
-                  initial: false,
-                  params: {
-                    activeBranch: this.state.activeBranch,
-                    branches: this.props.branchList
-                  }
-                });
-              }}>
-              <View style={{ marginLeft: 15 }}>
-                <MaterialIcons name="compare-arrows" size={26} color={'#1A237E'} />
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
-                <Text style={style.companyNameText}>
-                  {activeBranchName.length > 0 ? 'Switch Branch (' + activeBranchName + ')' : 'Switch Branch'}
-                </Text>
-
-                <Entypo name="chevron-right" size={26} color={'#1A237E'} />
-              </View>
-            </TouchableOpacity>
-          )}
-          {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
-          {
-            <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
-              <View style={style.textView}>
-                <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
-                <Text style={style.companyNameText}>Enable App Lock</Text>
-              </View>
-              <Switch
-                trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
-                thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
-                ios_backgroundColor={color.BORDER_COLOR}
-                onValueChange={this.authenticateUser}
-                value={this.props.toggleBiometric}
-              />
-            </TouchableOpacity>
-          }
-          {/* ------------ Contact Us View ------------ */}
-          <View style={style.contactUsView}>
-            <View style={{ margin: 15 }}>
-              <Text style={style.contactUsText}>
-                Contact Us
-              </Text>
-              <View style={style.emailField}>
-                <Text style={style.contactDtailsText}>
-                  {"Sales: "}
-                </Text>
-                <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:sales@giddh.com') }}>
-                  sales@giddh.com
-                </Text>
-                {this.copyEmailButton('sales@giddh.com')}
-              </View>
-              <View style={style.emailField}>
-                <Text style={style.contactDtailsText}>
-                  {"Support: "}
-                </Text>
-                <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:support@giddh.com') }}>
-                  support@giddh.com
-                </Text>
-                {this.copyEmailButton('support@giddh.com')}
-              </View>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
-                onPress={() => {
-                  this.setState({ isModalVisible: true })
-                }}
-              >
-                <Icon name={'Calendar'} color={'#1A237E'} size={18} style={{ marginLeft: 13, marginRight: 3 }} />
-                <Text style={style.buttonText}>
-                  Schedule A Meet
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
-                onPress={() => DeviceEventEmitter.emit('openChatbot', { type: 'openChatbot' })}
-              >
-                <ChatGPT style={{marginLeft: 14}}/>
-                <Text style={style.buttonText}>
-                  Chat With Bot
-                </Text>
-                <View style={style.chip}>
-                  <Text style={style.smallText}>BETA</Text>
+            {/* LANGUAGE SELECTOR */}
+            {
+              <LanguageSelector buttonStyle={style.branchView}/>
+            }
+            {/* TOGGLE BIOMETRIC AUTHORISATION SWITCH */}
+            {
+              <TouchableOpacity activeOpacity={0.7} style={style.biometicContainer} onPress={this.authenticateUser}>
+                <View style={style.textView}>
+                  <MaterialIcons name="fingerprint" size={26} color={'#1A237E'} />
+                  <Text style={style.companyNameText}>{t('more.enableAppLock')}</Text>
                 </View>
+                <Switch
+                  trackColor={{false: color.BORDER_COLOR, true: color.BORDER_COLOR}}
+                  thumbColor={this.props.toggleBiometric ? color.SECONDARY : color.SECONDARY_DISABLED}
+                  ios_backgroundColor={color.BORDER_COLOR}
+                  onValueChange={this.authenticateUser}
+                  value={this.props.toggleBiometric}
+                />
               </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={[style.contactUsButtons, { flexDirection: 'row' }]}
-                onPress={() => DeviceEventEmitter.emit("showHelloWidget", { status: true })}
-              >
-                <MaterialIcons name="support-agent" size={25} color={'#1A237E'} style={{ marginLeft: 10 }} />
-                <Text style={style.buttonText}>
-                  Chat With Us
+            }
+            {/* ------------ Contact Us View ------------ */}
+            <View style={style.contactUsView}>
+              <View style={{ margin: 15 }}>
+                <Text style={style.contactUsText}>
+                  {t('more.contactUs')}
                 </Text>
-              </TouchableOpacity>
+                <View style={style.emailField}>
+                  <Text style={style.contactDtailsText}>
+                    {t('more.sales') + ": "}
+                  </Text>
+                  <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:sales@giddh.com') }}>
+                    sales@giddh.com
+                  </Text>
+                  {this.copyEmailButton('sales@giddh.com')}
+                </View>
+                <View style={style.emailField}>
+                  <Text style={style.contactDtailsText}>
+                    {t('more.support') + ": "}
+                  </Text>
+                  <Text style={style.contactDtailsText} onPress={() => { Linking.openURL('mailto:support@giddh.com') }}>
+                    support@giddh.com
+                  </Text>
+                  {this.copyEmailButton('support@giddh.com')}
+                </View>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
+                  onPress={() => {
+                    this.setState({ isModalVisible: true })
+                  }}
+                >
+                  <Icon name={'Calendar'} color={'#1A237E'} size={18} style={{ marginLeft: 13, marginRight: 3 }} />
+                  <Text style={style.buttonText}>
+                    {t('more.scheduleAMeet')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={[style.contactUsButtons, { marginBottom: 0, flexDirection: 'row' }]}
+                  onPress={() => DeviceEventEmitter.emit('openChatbot', { type: 'openChatbot' })}
+                >
+                  <ChatGPT style={{marginLeft: 14}}/>
+                  <Text style={style.buttonText}>
+                    {t('more.chatWithBot')}
+                  </Text>
+                  <View style={style.chip}>
+                    <Text style={style.smallText}>{t('more.beta')}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={[style.contactUsButtons, { flexDirection: 'row' }]}
+                  onPress={() => DeviceEventEmitter.emit("showHelloWidget", { status: true })}
+                >
+                  <MaterialIcons name="support-agent" size={25} color={'#1A237E'} style={{ marginLeft: 10 }} />
+                  <Text style={style.buttonText}>
+                    {t('more.chatWithUs')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-
+          </ScrollView>
           <TouchableOpacity
             activeOpacity={0.7}
             style={style.logoutButton}
@@ -474,7 +480,7 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Feather name="power" size={26} color={'#5773FF'} style={{ marginRight: 12 }}/>
               <View>
-                <Text style={{ fontFamily: 'AvenirLTStd-Black'}}>Logout</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Black'}}>{t('more.logout')}</Text>
                 <Text style={{ fontFamily: 'AvenirLTStd-Book'}}>{this.state.activeUserEmail}</Text>
               </View>
             </View>
@@ -486,8 +492,8 @@ class MoreComponent extends React.Component<MoreComponentProp, MoreComponentStat
               description={ConfirmationMessages.APPLOCK.description}
               onConfirm={this.authenicateAndLogoutUser}
               onReject={() => setBottomSheetVisible(this.confirmationBottomSheetRef, false)}
-              confirmText='Logout'
-              rejectText='Cancel'
+              confirmText={ConfirmationMessages.APPLOCK.confirmText}
+              rejectText={ConfirmationMessages.APPLOCK.rejectText}
           />
         </View>
       );

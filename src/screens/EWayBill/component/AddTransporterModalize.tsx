@@ -5,10 +5,12 @@ import { InvoiceService } from "@/core/services/invoice/invoice.service";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { useState } from "react";
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 const {height,width} = Dimensions.get('window')
 
 const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTransporter, transporterData}) => {
+    const { t } = useTranslation();
     const {styles, theme} = useCustomTheme(getStyles);
     const [transporterName, setTransporterName] = useState("");
     const [transporterId, setTransporterId] = useState("");
@@ -18,7 +20,7 @@ const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTranspor
             const regex = /^[0-9]{2}[0-9A-Z]{13}$/;
             const isMatch = regex.test(transporterId);
             if(!isMatch){
-                Toast({message: "Transporter ID should contain atleast 4 characters.", duration:'LONG', position:'BOTTOM'}) 
+                Toast({message: t('ewayBill.transporterIdValidation'), duration:'LONG', position:'BOTTOM'}) 
                 return ;
             }
             const payload = {
@@ -42,13 +44,13 @@ const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTranspor
     return (
         <BottomSheet
             bottomSheetRef={modalizeRef}
-            headerText={'Add Transporter'}
+            headerText={t('ewayBill.addTransporter')}
             headerTextColor={'#084EAD'}
             adjustToContentHeight
             customRenderer={
                 <View style={styles.modalStyle}>
                     <InputField 
-                        lable="Transporter Name"
+                        lable={t('ewayBill.transporterName')}
                         isRequired={true}
                         containerStyle={styles.inputFieldStyle}
                         placeholderTextColor={theme.colors.secondary}
@@ -58,7 +60,7 @@ const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTranspor
                         }}
                         />
                     <InputField 
-                        lable="Transporter ID"
+                        lable={t('ewayBill.transporterId')}
                         isRequired={true}
                         containerStyle={styles.inputFieldStyle}
                         placeholderTextColor={theme.colors.secondary}
@@ -72,7 +74,7 @@ const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTranspor
                             style={[styles.createButton,{backgroundColor: (false) ? '#E6E6E6' :'#5773FF'}]}
                             disabled = {false}
                             onPress={()=>{handleSave()}}>
-                            <Text style={styles.createBtn}>Save</Text>
+                            <Text style={styles.createBtn}>{t('otherDetails.save')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.createButton,{backgroundColor: '#5773FF'}]}
@@ -80,7 +82,7 @@ const AddTransporterModalize = ({modalizeRef, setBottomSheetVisible, setTranspor
                                 setTransporterName("");
                                 setTransporterId("");
                             }}>
-                            <Text style={styles.createBtn}>Clear</Text>
+                            <Text style={styles.createBtn}>{t('ewayBill.clear')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

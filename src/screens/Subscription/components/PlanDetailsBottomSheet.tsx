@@ -93,7 +93,7 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
             ref={bottomSheetRef}
             adjustToContentHeight={Platform.OS === "ios" ? false: true}
             handlePosition='inside'
-            modalStyle={{ minHeight: '25%', marginTop: insets.top}}
+            modalStyle={{ minHeight: '25%'}}
             keyboardAvoidingBehavior="padding"
         >
             <View style={styles.card}>

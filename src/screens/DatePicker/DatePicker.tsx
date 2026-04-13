@@ -7,6 +7,7 @@ import Custom from './Custom';
 import Period from './Period';
 import colors from '@/utils/colors';
 import { FONT_FAMILY, GD_FONT_SIZE } from '@/utils/constants';
+import { withTranslation } from 'react-i18next';
 
 const initialLayout = { width: Dimensions.get('window').width };
 
@@ -47,13 +48,14 @@ export class AppDatePicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      index: 0,
-      routes: [
-        { key: 'first', title: 'Period' },
-        { key: 'second', title: 'Custom' }
-      ]
+      index: 0
     };
   }
+
+  getRoutes = () => [
+    { key: 'first', title: this.props.t('common.period') },
+    { key: 'second', title: this.props.t('common.custom') }
+  ];
 
   handleIndexChange = (index) => {
     this.setState({
@@ -127,7 +129,7 @@ export class AppDatePicker extends React.Component {
       <View style={styles.container}>
         {this.props.route.params.DateRangeOnly ? SecondRoute()
           : <TabView
-            navigationState={{ index: this.state.index, routes: this.state.routes }}
+            navigationState={{ index: this.state.index, routes: this.getRoutes() }}
             renderScene={renderScene}
             onIndexChange={this.handleIndexChange}
             initialLayout={initialLayout}
@@ -140,4 +142,4 @@ export class AppDatePicker extends React.Component {
   }
 }
 
-export default AppDatePicker;
+export default withTranslation()(AppDatePicker);

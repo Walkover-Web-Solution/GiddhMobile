@@ -405,4 +405,28 @@ export class CommonService {
     })
   }
 
+  static fetchSalesPersonData(archive: boolean) {
+    return httpInstance.get(commonUrls.fetchSalesPersonData(archive))
+    .then((res) => {
+      return res?.data;
+    }).catch((err) => {
+      console.log("Error while fetching sales person data");
+      return err;
+    })
+  }
+
+  static createSalesPerson(salesPersonName: string, salesPersonEmail: string, salesPersonPhone: string) {
+    return httpInstance.post(commonUrls.createSalesPerson, {
+      name: salesPersonName,
+      email: salesPersonEmail,
+      mobileNumber: salesPersonPhone
+    })
+    .then((res) => {
+      return res?.data;
+    }).catch((err) => {
+      console.log("Error while creating sales person");
+      return err;
+    })
+  }
+
 }

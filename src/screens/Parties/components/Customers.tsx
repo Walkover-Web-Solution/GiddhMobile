@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import styles from '@/screens/Parties/components/PMstyle';
 import { GdSVGIcons } from '@/utils/icons-pack';
 import { SwipeListView } from 'react-native-swipe-list-view';
@@ -29,6 +30,7 @@ const amountColorStyle = (type: string) => {
 
 export const Customers = (props) => {
   const { partiesData, activeCompany, handleRefresh, loadMore, navigation, dataLoadedTime } = props;
+  const { t } = useTranslation();
 
   function _renderFooter() {
     if (!loadMore) return null;
@@ -147,7 +149,7 @@ export const Customers = (props) => {
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}
-        ListEmptyComponent={<ListEmptyComponent message={'No Customer Exist'} buttonLable={'Add Customer'} partiesScreenIndex={0} />}
+        ListEmptyComponent={<ListEmptyComponent message={t('customers.noCustomerExist')} buttonLable={t('customers.addCustomer')} partiesScreenIndex={0} />}
       />
     </View>
   );

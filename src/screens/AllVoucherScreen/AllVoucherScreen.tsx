@@ -27,6 +27,7 @@ import { setBottomSheetVisible } from '@/components/BottomSheet'
 import { createEndpoint } from '@/utils/helper'
 import { MoreActionBottomSheet } from './components/MoreActionModalize'
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils'
+import { useTranslation } from 'react-i18next'
 
 const ListnerEvents = [
     APP_EVENTS.comapnyBranchChange,
@@ -67,7 +68,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const [voucherToDelete, setVoucherToDelete] = useState({ accountUniqueName: '', voucherUniqueName: '', voucherType: '' });
     const { branchList } = useSelector(state => state.commonReducer);
     const [isConsolidatedBranch, setIsConsolidatedBranch] = useState(false);
-
+    const { t } = useTranslation();
+    
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
     }
@@ -132,7 +134,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                     source={require('@/assets/images/noTransactions.png')}
                     style={{ resizeMode: 'contain', height: 250, width: 300 }}
                 />
-                <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>No Transactions</Text>
+                <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>{t('common.noTransactions')}</Text>
             </View>
         )
     }, [isLoading])
@@ -140,7 +142,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const exportFile = async (uniqueName: string, voucherNumber: string) => {
         try {
 
-            DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Downloading Started', open: null });
+            DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: t('common.downloadStarted'), open: null });
             const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
             const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
 
@@ -198,20 +200,20 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                                 pdfLocation // Path to the file being copied in the apps own storage
                             );
                             ToastAndroid.show(
-                            'File saved to download folder',
+                            t('common.fileSavedToDownload'),
                             ToastAndroid.LONG,
                             );
                         } catch(error) {
                             console.error('----- Error copying to MediaStore -----', error);
                             ToastAndroid.show(
-                                'Error saving file to download folder',
+                                t('common.errorSavingFile'),
                                 ToastAndroid.LONG,
                             );
                         }
                         //notification for complete download
                         RNFetchBlob.android.addCompleteDownload({
                             title: pdfName,
-                            description: 'File downloaded successfully',
+                            description: t('common.fileDownloadedSuccessfully'),
                             mime: 'application/pdf',
                             path: pdfLocation,
                             showNotification: true,
@@ -223,8 +225,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                         :  () => RNFetchBlob.ios.openDocument(pdfLocation)
 
                     DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { 
-                        message: 'Download Successful!', 
-                        action: 'Open',
+                        message: t('common.downloadSuccessful'), 
+                        action: t('common.open'),
                         open: openFile
                     });
                 } catch (e) {
@@ -241,7 +243,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
             if (Platform.OS == "android" && Platform.Version < 33) {
                 const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
                 if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                    Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                    Alert.alert(t('common.permissionDenied'), t('common.storagePermissionDownload'));
                     return;
                 }
             }
@@ -299,11 +301,11 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                             try {
                                 const success = await attemptShare(pdfLocation, pdfName);
                                 if (!success) {
-                                    Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                                    Toast({message: t('common.unableToShare'), position:'BOTTOM',duration:'LONG'})
                                 }
                             } catch (shareError) {
                                 console.log('Share error:', shareError);
-                                Toast({message: "Unable to open share dialog. Please try again.", position:'BOTTOM',duration:'LONG'})
+                                Toast({message: t('common.unableToShare'), position:'BOTTOM',duration:'LONG'})
                             } finally {
                                 setIsSharing(false);
                             }
@@ -329,16 +331,16 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                     const granted = await PermissionsAndroid.request(
                         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
                         {
-                            title: 'Storage Permission',
-                            message: 'App needs storage permission to share files',
-                            buttonNeutral: 'Ask Me Later',
-                            buttonNegative: 'Cancel',
-                            buttonPositive: 'OK',
+                            title: t('common.storagePermission'),
+                            message: t('common.storagePermissionMessage'),
+                            buttonNeutral: t('common.askMeLater'),
+                            buttonNegative: t('common.cancel'),
+                            buttonPositive: t('common.ok'),
                         }
                     );
                     
                     if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                        Alert.alert('Permission Denied!', 'You need to give storage permission to share the file');
+                        Alert.alert(t('common.permissionDenied'), t('common.storagePermissionShare'));
                         return;
                     }
 
@@ -465,7 +467,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
 
     return (
         <View style={styles.container}>
-            <Header header={voucherName} isBackButtonVisible={isBackButtonVisible} backgroundColor={voucherBackground} />
+            <Header header={t(`Vouchers.${voucherName}`)} isBackButtonVisible={isBackButtonVisible} backgroundColor={voucherBackground} />
             <View style={styles.container}>
                 <DateFilter
                     startDate={date.startDate}

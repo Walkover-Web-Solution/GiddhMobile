@@ -30,6 +30,7 @@ import { Modalize } from 'react-native-modalize';
 import { Portal } from 'react-native-portalize';
 import { DefaultTheme } from '@/utils/theme';
 import { Pressable } from 'react-native-gesture-handler';
+import { withTranslation } from 'react-i18next';
 
 const SIZE = 48;
 const padding = 10;
@@ -131,7 +132,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
     render() {
         const dataInventory = Object.keys(inventoryButtons).map(key => inventoryButtons[key]);
         const dataTax = Object.keys(taxButtons).map(key => taxButtons[key]);
-
+        const { t } = this.props as any;
         const getRows = (items:any, itemsPerRow:number) => {
             const rows = [];
             for (let i = 0; i < items.length; i += itemsPerRow) {
@@ -154,7 +155,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                     modalStyle={styles.modalStyle}
                 >
                     <View style={[styles.sectionContainer, { alignSelf:'flex-start' }]}>
-                        <Text style={styles.listTitle}>Tax</Text>
+                        <Text style={styles.listTitle}>{t('AddButton.Tax')}</Text>
                         { taxRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
                                 { rowItems.map((item) => (
@@ -170,14 +171,14 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                         <View style={styles.iconContainer}>
                                             {item.icon}
                                         </View>
-                                        <Text style={styles.name}>{item.name}</Text>
+                                        <Text style={styles.name}>{t(`AddButton.${item.name}`)}</Text>
                                     </WorkingTouchableOpacity>
                                 ))}
                             </View>
                         ))}
                     </View>
                     <View style={styles.sectionContainer}>
-                        <Text style={styles.listTitle}>Inventory</Text>
+                        <Text style={styles.listTitle}>{t('AddButton.Inventory')}</Text>
                         { inventoryRows.map((rowItems, rowIndex) => (
                             <View style={styles.buttonContainer} key={rowIndex}>
                             {rowItems.map((item) => (
@@ -195,7 +196,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                 <View style={styles.iconContainer}>
                                     {item.icon}
                                 </View>
-                                <Text style={styles.name}>{item.name}</Text>
+                                <Text style={styles.name}>{t(`AddButton.${item.name}`)}</Text>
                                 </WorkingTouchableOpacity>
                             ))}
                             </View>
@@ -206,7 +207,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                         data={arrButtons}
                         showsVerticalScrollIndicator={false}
                         style={styles.flatlistStyle}
-                        ListHeaderComponent = {()=>(<Text style={styles.listTitle}>Vouchers</Text>)}
+                        ListHeaderComponent = {()=>(<Text style={styles.listTitle}>{t('AddButton.Vouchers')}</Text>)}
                         scrollEnabled={false}
                         renderItem={({ item }) => (
                             <WorkingTouchableOpacity
@@ -227,7 +228,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                 <View style={styles.iconContainer}>
                                     {item.icon}
                                 </View>
-                                <Text style={styles.name}>{item.name}</Text>
+                                <Text style={styles.name}>{t(`AddButton.${item.name}`)}</Text>
                             </WorkingTouchableOpacity>
                         )}
                         keyExtractor={(item) => item.name}
@@ -238,7 +239,7 @@ class AddButtonOptions extends React.PureComponent<Props> {
     }
 }
 
-export default AddButtonOptions;
+export default withTranslation()(AddButtonOptions);
 
 const styles = StyleSheet.create({
     buttonContainer : {
