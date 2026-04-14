@@ -1095,20 +1095,28 @@ export class AddEntry extends React.Component<Props> {
         this.checkShowDiscountAndTaxField(response?.body)
         this.shouldShowRcmSection(response?.body);
         this.shouldShowTouristScheme(response?.body);
+        const newStockPrice = response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate;
+        const newStockQuantity = 1;
+        const newAmountForEntry = newStockQuantity * newStockPrice;
+        
         this.setState({
           particularAccountStockData: response?.body,
-          stockPrice: response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate,
+          stockPrice: newStockPrice,
           selectedStockUnit: response?.body?.stock?.variant?.unitRates[0],
-          stockQuantity: 1,
+          stockQuantity: newStockQuantity,
           SelectedTaxData: {
             taxType: '',
             taxText: '',
             taxDetailsArray: this.state.taxArray?.filter((item) => response?.body?.stock?.taxes?.includes(item?.uniqueName)) || []
           }
-        }, () => {
-          this.updateAmountStk();
-          this.updateStockPrice();
-          this.updateAmountQty();
+        }, async () => {
+          const formattedAmount = await giddhRoundOff(newAmountForEntry);
+          this.setState({
+            amountForEntry: formattedAmount
+          }, () => {
+            this.calculatedTaxAmounstForEntry();
+            this.calculateFinalTcsOrTdsToDisplay('OnTaxableAmount', this.state.totalTaxAmount);
+          });
           if(this.state.allDiscounts?.find((discount) => discount.uniqueName == response?.body?.stock?.variant?.variantDiscount?.discounts?.[0]?.discount?.uniqueName)){
             this.handleDiscountItemClick(this.state.allDiscounts?.find((discount) => discount.uniqueName == response?.body?.stock?.variant?.variantDiscount?.discounts?.[0]?.discount?.uniqueName))
           }
@@ -1569,6 +1577,39 @@ export class AddEntry extends React.Component<Props> {
                       searchAccountName: item?.stock?.name ? `${item?.name} (${item?.stock?.name})` : item?.name,
                       searchError: '',
                       isSearchingAccount: false,
+                      particularAccountStockData: {},
+                      shouldShowRCMSection: false,
+                      shouldShowTouristSchemeSection: false,
+                      showDiscountAndTaxPopup: false,
+                      reverseCharge: false,
+                      touristScheme: false,
+                      passPortNumber: '',
+                      stockLists: [],
+                      selectedStockVariant: {},
+                      warehouseList: [],
+                      selectedWarehouse: {},
+                      stockQuantity: 0,
+                      stockPrice: 0,
+                      selectedStockUnit: {},
+                      selectedStock: {},
+                      oppositeAccountUniqueName: '',
+                      allTags: [],
+                      selectedTags: [],
+                      allDiscounts: [],
+                      selectedDiscounts: [],
+                      discountPercent: 0,
+                      discountAmount: 0,
+                      discountTotalValue: 0,
+                      SelectedTaxData: {
+                        taxType: '',
+                        taxText: '',
+                        taxDetailsArray: [],
+                      },
+                      totalTaxAmount: 0,
+                      selectedTaxUniqueNameList: [],
+                      selectedArrayType: [],
+                      tdsOrTcsTaxObj: null,
+                      tdsTcsTaxCalculationMethod: 'OnTaxableAmount',
                     },
                     () => {
                       this.getTagsData();
@@ -2225,7 +2266,23 @@ export class AddEntry extends React.Component<Props> {
                 style={{ paddingHorizontal: 20 }}
                 onPress={async () => {
                   this.setState({
-                    selectedStockVariant: item
+                    selectedStockVariant: item,
+                    stockQuantity: 0,
+                    stockPrice: 0,
+                    selectedStockUnit: {},
+                    selectedDiscounts: [],
+                    discountPercent: 0,
+                    discountAmount: 0,
+                    discountTotalValue: 0,
+                    SelectedTaxData: {
+                      taxType: '',
+                      taxText: '',
+                      taxDetailsArray: [],
+                    },
+                    totalTaxAmount: 0,
+                    tdsOrTcsTaxObj: null,
+                    amountForEntry: 0,
+                    totalAmount: 0,
                   });
                   let payload = {
                     stockUniqueName: this.state?.selectedStock?.uniqueName,
