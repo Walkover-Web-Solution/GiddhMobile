@@ -346,7 +346,6 @@ export class CreditNote extends React.Component<Props> {
   }
 
   clearAll = async () => {
-    this.setState({ selectedSalesPerson: undefined });
     await this.resetState();
     await this.searchCalls();
     await this.setActiveCompanyCountry();

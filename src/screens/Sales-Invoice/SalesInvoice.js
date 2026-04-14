@@ -276,7 +276,6 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   clearAll = () => {
-    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.searchCalls();
     this.setActiveCompanyCountry();

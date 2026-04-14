@@ -687,7 +687,6 @@ export class Receipt extends React.Component<any> {
   };
 
   clearAll = () => {
-    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.resetOnUncheckTax();
     this.searchCalls();

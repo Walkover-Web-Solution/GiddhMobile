@@ -745,7 +745,6 @@ export class Payment extends React.Component {
   };
 
   clearAll = () => {
-    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.resetOnUncheckTax();
     this.searchCalls();

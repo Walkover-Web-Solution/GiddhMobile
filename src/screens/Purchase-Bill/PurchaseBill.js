@@ -1201,7 +1201,6 @@ export class PurchaseBill extends React.Component {
   }
 
   clearAll = () => {
-    this.setState({ selectedSalesPerson: undefined });
     this.resetState();
     this.searchCalls();
     this.setActiveCompanyCountry();
