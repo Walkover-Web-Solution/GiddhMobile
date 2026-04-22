@@ -58,6 +58,10 @@ const _PlanCard: React.FC<Props> = ({ plan, setSelectedPlan, index, isMonthlyPla
     const planDuration = isMonthlyPlan ? 'Month' : 'Year';
     const planDescription = plan.description;
     const currencySymbol = plan?.currency?.symbol;
+    const isGbp = plan?.currency?.code === 'GBP';
+    const invoicesAllowedValue = isGbp ? plan?.monthlyInvoicesAllowed : plan?.invoicesAllowed;
+    const billsAllowedValue = isGbp ? plan?.monthlyBillsAllowed : plan?.billsAllowed;
+    const companiesLimitValue = isGbp ? plan?.monthlyCompaniesLimit : plan?.companiesLimit;
 
     const {
         planName,
@@ -76,15 +80,15 @@ const _PlanCard: React.FC<Props> = ({ plan, setSelectedPlan, index, isMonthlyPla
     const features = [
         {
             featureName: 'Invoice Count',
-            value: formatAmount(plan?.invoicesAllowed, false)
+            value: formatAmount(invoicesAllowedValue, false)
         },
         {
             featureName: 'Bill Count',
-            value: formatAmount(plan?.billsAllowed, false)
+            value: formatAmount(billsAllowedValue, false)
         },
         {
             featureName: 'Companies allowed',
-            value: formatAmount(plan?.companiesLimit, false)
+            value: formatAmount(companiesLimitValue, false)
         }
     ]
 
