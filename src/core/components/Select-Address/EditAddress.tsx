@@ -2643,7 +2643,9 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
                : this.state.companyCountryDetails,
       });
       console.log(this.state.selectedCountry);
-      const countryAlpha2Code = this.props.route.params.address?.selectedCountry?.alpha2CountryCode != null ? this.props.route.params.address?.selectedCountry?.alpha2CountryCode : activeCompanyCountryCode;
+      const countryAlpha2Code = this.props.route.params.address?.selectedCountry?.countryCode != null 
+      ? this.props.route.params.address?.selectedCountry?.countryCode : this.props.route.params.address?.selectedCountry?.alpha2CountryCode != null
+      ? this.props.route.params.address?.selectedCountry?.alpha2CountryCode : activeCompanyCountryCode;
       const allStateName = await CustomerVendorService.getAllStateName(countryAlpha2Code);
       await this.setState({
          allStates: countryAlpha2Code == "GB" ? allStateName.body.countyList : allStateName.body.stateList,
