@@ -26,6 +26,7 @@ import { APP_EVENTS } from '@/utils/constants';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
+import { useTranslation } from 'react-i18next';
 const { SafeAreaOffsetHelper } = NativeModules;
 
 export const KEYBOARD_EVENTS = {
@@ -38,6 +39,7 @@ export const KEYBOARD_EVENTS = {
 };
 interface Props {
   navigation: any;
+  t: (key: string, options?: object) => string;
 }
 class PurchaseAddItem extends React.Component<Props> {
   constructor (props) {
@@ -122,7 +124,7 @@ class PurchaseAddItem extends React.Component<Props> {
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
           <TextInput
-            placeholder={'Search Product/Service'}
+            placeholder={this.props.t('addItemScreen.searchProductService')}
             placeholderTextColor={'#fafafa'}
             returnKeyType={'done'}
             onChangeText={(text) =>
@@ -137,7 +139,7 @@ class PurchaseAddItem extends React.Component<Props> {
         <Text style={style.invoiceTypeTextRight}>{this.state.invoiceType}</Text>
         <View style={{ marginRight: 10 }}>
           <Text style={style.footerItemsTotalText}>{this.props.route.params.currencySymbol+` ${formatAmount(this.performCalulations())}`}</Text>
-          <Text style={{ color: 'white' }}>{`Items: ${this.state.addedItems.length}`}</Text>
+          <Text style={{ color: 'white' }}>{`${this.props.t('addItemScreen.items')}: ${this.state.addedItems.length}`}</Text>
         </View>
       </View>
     );
@@ -226,7 +228,7 @@ class PurchaseAddItem extends React.Component<Props> {
     return(
       <BottomSheet
         bottomSheetRef={this.variantsBottomSheetRef}
-        headerText={`Select Variants`}
+        headerText={this.props.t('addItemScreen.selectVariants')}
         headerTextColor='#FC8345'
         onClose={() => {
           this.setState({ selectedStock: {}});
@@ -262,7 +264,7 @@ class PurchaseAddItem extends React.Component<Props> {
               onPress={() => {
                 this.addItem(item);
               }}>
-              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{'ADD'}</Text>
+              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{this.props.t('addItemScreen.add')}</Text>
             </TouchableOpacity>
           </View>
             )
@@ -280,7 +282,7 @@ class PurchaseAddItem extends React.Component<Props> {
                   this.setState({selectedStock: item});
                   this.setBottomSheetVisible(this.variantsBottomSheetRef, true);
                 }}>
-                <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{'Select Variants'}</Text>
+                <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{this.props.t('addItemScreen.selectVariants')}</Text>
               </TouchableOpacity>
             </View>
             {filtered.map((item) => {
@@ -292,7 +294,7 @@ class PurchaseAddItem extends React.Component<Props> {
                       {item?.stock?.variant?.name}
                     </Text>
                     <Text style={style.smallText}>
-                    Rate: {item?.stock?.rate ? item?.stock?.rate : '0'}
+                    {this.props.t('addItemScreen.rate')}: {item?.stock?.rate ? item?.stock?.rate : '0'}
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center'}}>
@@ -353,7 +355,7 @@ class PurchaseAddItem extends React.Component<Props> {
                     {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
                   </Text>
                   <Text style={style.smallText}>
-                  Rate: {filteredItem?.stock?.rate ? filteredItem?.stock?.rate : '0'}
+                  {this.props.t('addItemScreen.rate')}: {filteredItem?.stock?.rate ? filteredItem?.stock?.rate : '0'}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -443,7 +445,7 @@ class PurchaseAddItem extends React.Component<Props> {
               onPress={() => {
                 this.addItem(item);
               }}>
-              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>SELECT</Text>
+              <Text style={[{ paddingHorizontal: 14, alignSelf: 'center' }, style.regularText]}>{this.props.t('addItemScreen.select')}</Text>
               {/* <Icon style={{marginLeft: 10}} name={'path-18'} size={10} color={'#1C1C1C'} /> */}
             </TouchableOpacity>
           </View>
@@ -456,7 +458,7 @@ class PurchaseAddItem extends React.Component<Props> {
                   {item.stock && item.stock.name ? item.name + ' (' + item.stock.name + ')' : item.name}
                 </Text>
                 <Text style={style.smallText}>
-                  Rate : {filteredItem.rate ? filteredItem.rate : '0'}
+                  {this.props.t('addItemScreen.rate')} : {filteredItem.rate ? filteredItem.rate : '0'}
                 </Text>
               </View>
               <TouchableOpacity
@@ -475,7 +477,7 @@ class PurchaseAddItem extends React.Component<Props> {
                   <Icon style={{ marginLeft: 10 }} name={'path-14'} size={10} color={'white'} />
                 )}
 
-                <Text style={[style.regularText, { paddingHorizontal: 14, alignSelf: 'center', color: 'white' }]}>{'Remove'}</Text>
+                <Text style={[style.regularText, { paddingHorizontal: 14, alignSelf: 'center', color: 'white' }]}>{this.props.t('addItemScreen.remove')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -719,7 +721,7 @@ class PurchaseAddItem extends React.Component<Props> {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-          <Text style={style.addItemDone}>Done</Text>
+          <Text style={style.addItemDone}>{this.props.t('common.done')}</Text>
         </TouchableOpacity>
       </Animated.View>
     );
@@ -802,8 +804,9 @@ function mapDispatchToProps (dispatch) {
 }
 function Screen (props) {
   const isFocused = useIsFocused();
+  const { t } = useTranslation();
 
-  return <PurchaseAddItem {...props} isFocused={isFocused} />;
+  return <PurchaseAddItem {...props} isFocused={isFocused} t={t} />;
 }
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);

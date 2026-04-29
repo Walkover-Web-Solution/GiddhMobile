@@ -21,12 +21,14 @@ import { setBottomSheetVisible } from "@/components/BottomSheet";
 import Loader from "@/components/Loader";
 import NoData from "@/components/NoData";
 import { REDUX_STATE } from "@/redux/types";
+import { useTranslation } from "react-i18next";
+import i18n from "@/localization/i18n";
 
 const exportFile = async (uniqueName) => {
     // if (isApiCallInProgress) return;
     // setIsApiCallInProgress(true);
     try {
-        DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: 'Downloading Started... It may take while', open: null });
+        DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, { message: i18n.t('ewayBill.downloadingStarted'), open: null });
         const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
         const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
 
@@ -42,7 +44,7 @@ const exportFile = async (uniqueName) => {
         })
 
         if (!response.ok) {
-            TOAST({ message: `Failed to fetch file: ${response.statusText}`, position: 'BOTTOM', duration: 'LONG' })
+            TOAST({ message: i18n.t('ewayBill.failedToFetchFileWithStatus', { status: response.statusText }), position: 'BOTTOM', duration: 'LONG' })
             //   setIsApiCallInProgress(false);
         }
 
@@ -51,7 +53,7 @@ const exportFile = async (uniqueName) => {
         const base64String = jsonResponse?.body;
 
         if (!base64String) {
-            TOAST({ message: 'Failed to fetch file', position: 'BOTTOM', duration: 'LONG' });
+            TOAST({ message: i18n.t('balanceSheet.failedToFetchFile'), position: 'BOTTOM', duration: 'LONG' });
             //   setIsApiCallInProgress(false);
             throw new Error('Base64 data is missing in the response');
         }
@@ -92,7 +94,7 @@ const exportFile = async (uniqueName) => {
                 configfb.path // Path to the file being copied in the apps own storage
             );
             ToastAndroid.show(
-                'File saved to download folder',
+                i18n.t('common.fileSavedToDownload'),
                 ToastAndroid.LONG,
             );
         }
@@ -100,7 +102,7 @@ const exportFile = async (uniqueName) => {
         //notification for complete download
         RNFetchBlob.android.addCompleteDownload({
             title: configfb.title,
-            description: 'File downloaded successfully',
+            description: i18n.t('common.fileDownloadedSuccessfully'),
             mime: 'application/pdf',
             path: configfb.path,
             showNotification: true,
@@ -111,8 +113,8 @@ const exportFile = async (uniqueName) => {
             : () => RNFetchBlob.ios.openDocument(configfb.path)
 
         DeviceEventEmitter.emit(APP_EVENTS.DownloadAlert, {
-            message: 'Download Successful!',
-            action: 'Open',
+            message: i18n.t('common.downloadSuccessful'),
+            action: i18n.t('common.open'),
             open: openFile
         });
 
@@ -128,7 +130,7 @@ const downloadEWayBill = async (uniqueName: string) => {
         if (Platform.OS == "android" && Platform.Version < 33) {
             const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
             if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+                Alert.alert(i18n.t('common.permissionDenied'), i18n.t('common.storagePermissionDownload'));
                 return;
             }
         }
@@ -139,6 +141,7 @@ const downloadEWayBill = async (uniqueName: string) => {
 }
 
 const RenderItem = ({ item, currency }) => {
+    const { t } = useTranslation();
     const { styles, theme } = useCustomTheme(getStyles);
 
     return (
@@ -155,17 +158,18 @@ const RenderItem = ({ item, currency }) => {
             <View style={styles.detailsContainer}>
                 <View style={styles.detailsView}>
                     <Text style={styles.regularText}>{item.invoiceDate}</Text>
-                    <Text style={[styles.regularText, { fontFamily: theme.typography.fontFamily.semiBold }]}>{item.customerName || 'N/A'}</Text>
+                    <Text style={[styles.regularText, { fontFamily: theme.typography.fontFamily.semiBold }]}>{item.customerName || t('ewayBill.na')}</Text>
                 </View>
-                <Text style={styles.regularText}>Bill#: {item.ewbNo}</Text>
-                <Text style={styles.regularText}>Customer GSTIN: {item.customerGstin || 'N/A'}</Text>
-                <Text style={styles.regularText}>Bill Date: {item.ewayBillDate}</Text>
+                <Text style={styles.regularText}>{t('ewayBill.billHash')} {item.ewbNo}</Text>
+                <Text style={styles.regularText}>{t('ewayBill.customerGstin')} {item.customerGstin || t('ewayBill.na')}</Text>
+                <Text style={styles.regularText}>{t('ewayBill.billDate')} {item.ewayBillDate}</Text>
             </View>
         </View>
     )
 }
 
 const ListEWayBillsScreen = () => {
+    const { t } = useTranslation();
     const { statusBar, styles, voucherBackground, theme } = useCustomTheme(getStyles, 'PdfPreview');
     const { countryV2: currencyDetails } = useSelector((state: REDUX_STATE) => state?.commonReducer?.companyDetails);
     const [taxNumbers, setTaxNumbers] = useState([]);
@@ -248,7 +252,7 @@ const ListEWayBillsScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Header header={'E-way Bills'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+            <Header header={t('ewayBill.ewayBills')} isBackButtonVisible={true} backgroundColor={voucherBackground} />
             <DateFilter
                 startDate={date.startDate}
                 endDate={date.endDate}
@@ -259,7 +263,7 @@ const ListEWayBillsScreen = () => {
                 setActiveDateFilter={_setActiveDateFilter}
                 optionModalRef={dropDownModalizeRef}
                 showDropdown={true}
-                dropdownLabel={'GSTIN'}
+                dropdownLabel={t('ewayBill.gstin')}
                 dropdownValue={selectedGst}
             />
             <FlatList
@@ -271,8 +275,8 @@ const ListEWayBillsScreen = () => {
                 ListEmptyComponent={
                     !isLoading ? (
                         <NoData
-                            primaryMessage="No Records found."
-                            secondaryMessage="There is no E-way Bill recorded in the selected date range."
+                            primaryMessage={t('ewayBill.noRecordsFound')}
+                            secondaryMessage={t('ewayBill.noEwayBillInDateRange')}
                         />
                     ) : null
                 }

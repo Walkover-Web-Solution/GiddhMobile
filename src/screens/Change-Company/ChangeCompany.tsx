@@ -14,14 +14,14 @@ import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 // import LogRocket from '@logrocket/react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
+import { useTranslation } from 'react-i18next';
 
 
 interface Props {
   navigation: any;
 }
 const SIZE = 48;
-
-export class ChangeCompany extends React.Component<Props> {
+export class ChangeCompany extends React.Component<Props & { t: any }> {
   constructor(props: MoreComponentProp) {
     super(props);
     this.state = {
@@ -33,6 +33,7 @@ export class ChangeCompany extends React.Component<Props> {
     return isFocused ? <StatusBar backgroundColor="#1A237E" barStyle={Platform.OS == 'ios' ? "dark-content" : "light-content"} /> : null;
   };
 
+  
   /**
    * Add user deatils and current company to log Rocket
    * @param companyName 
@@ -75,16 +76,14 @@ export class ChangeCompany extends React.Component<Props> {
               <TouchableOpacity
                 style={{marginLeft: 20}}
                 hitSlop={{right: 20, left: 20, top: 10, bottom: 10}}
-                onPress={() => {
-                  this.props.navigation.goBack();
-                }}
+                onPress={() => this.props.navigation.navigate('MoreSettings')}
               >
                 <Icon
                   size={20}
                   name={'Backward-arrow'}
                 />
               </TouchableOpacity>
-              <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>Switch Company</Text>
+              <Text style={{ fontSize: 20, margin: 20, fontFamily: 'AvenirLTStd-Black' }}>{this.props.t('common.switchCompany')}</Text>
             </View>
             <FlatList
               data={companyList}
@@ -205,8 +204,8 @@ function mapDispatchToProps(dispatch) {
 
 function Screen(props) {
   const isFocused = useIsFocused();
-
-  return <ChangeCompany {...props} isFocused={isFocused} />;
+  const { t } = useTranslation();
+  return <ChangeCompany {...props} isFocused={isFocused} t={t} />;
 }
 
 const MyComponent = connect(mapStateToProps, mapDispatchToProps)(Screen);

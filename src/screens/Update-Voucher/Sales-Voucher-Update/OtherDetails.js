@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import style from './style';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Icon from '@/core/components/custom-icon/custom-icon';
@@ -34,6 +35,7 @@ export const KEYBOARD_EVENTS = {
 
 interface Props {
   navigation: any;
+  t: (key: string, options?: object) => string;
 }
 class OtherDetails extends React.Component<Props> {
   constructor(props) {
@@ -163,7 +165,7 @@ class OtherDetails extends React.Component<Props> {
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
-          <Text style={{ fontSize: 16, color: 'white' }}>Other Details</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>{this.props.t('otherDetails.title')}</Text>
         </View>
       </View>
     );
@@ -182,13 +184,13 @@ class OtherDetails extends React.Component<Props> {
         <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 4, paddingHorizontal: 16 }}>
           <Icon name={'path-8'} size={16} color={'#808080'} />
 
-          <Text style={{ color: '#808080', marginLeft: 10 }}>Warehouse</Text>
+          <Text style={{ color: '#808080', marginLeft: 10 }}>{this.props.t('otherDetails.warehouse')}</Text>
         </View>
         <Text style={{ color: '#808080', marginLeft: 10 }}>
           {' '}
           {this.props.route.params.selectedWareHouse
             ? this.props.route.params.selectedWareHouse.address
-            : 'Select Warehouse'}
+            : this.props.t('otherDetails.selectWarehouse')}
         </Text>
 
         {this._renderBottomSeprator(16)}
@@ -451,7 +453,7 @@ class OtherDetails extends React.Component<Props> {
                 color: '#fff',
                 fontSize: 20
               }}>
-              Save
+              {this.props.t('otherDetails.save')}
             </Text>
           </TouchableOpacity>
         )}
@@ -485,5 +487,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const MyComponent = connect(mapStateToProps, mapDispatchToProps)(OtherDetails);
-export default MyComponent;
+const ConnectedComponent = connect(mapStateToProps, mapDispatchToProps)(OtherDetails);
+
+const Screen = (props) => {
+  const { t } = useTranslation();
+  return <ConnectedComponent {...props} t={t} />;
+};
+
+export default Screen;

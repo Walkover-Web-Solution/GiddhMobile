@@ -25,6 +25,7 @@ import TOAST from 'react-native-root-toast';
 import { PaymentServices } from '@/core/services/payment/payment';
 import LoaderKit  from 'react-native-loader-kit';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useTranslation } from 'react-i18next';
 
 class BulkPayment extends React.Component {
     constructor(props: Props) {
@@ -214,7 +215,7 @@ class BulkPayment extends React.Component {
             }
         } catch (e) {
             if (Platform.OS == "ios") {
-                TOAST.show("Error - Please try again", {
+                TOAST.show(this.props.t('partiesTransaction.errorTryAgain'), {
                     duration: TOAST.durations.LONG,
                     position: -150,
                     hideOnPress: true,
@@ -226,7 +227,7 @@ class BulkPayment extends React.Component {
                     containerStyle: { borderRadius: 10 }
                 });
             } else {
-                ToastAndroid.show("Error - Please try again", ToastAndroid.LONG)
+                ToastAndroid.show(this.props.t('partiesTransaction.errorTryAgain'), ToastAndroid.LONG)
             }
             console.log("Error in sending OTP " + JSON.stringify(e))
         }
@@ -236,8 +237,8 @@ class BulkPayment extends React.Component {
         this.setState({ disablePayButton: true })
         if (this.state.selectedPayor == null) {
             this.setState({ disablePayButton: false })
-            Alert.alert("Missing Fields", "Enter all the mandatory fields",
-                [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+            Alert.alert(this.props.t('partiesTransaction.missingFields'), this.props.t('partiesTransaction.enterAllMandatory'),
+                [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
             return
         }
         let totalAmountAndReviews = { ...this.state.selectedItemTextinputAndReview }
@@ -246,18 +247,18 @@ class BulkPayment extends React.Component {
             let review = totalAmountAndReviews[key].remark
             if (amount == '' || review == '') {
                 this.setState({ disablePayButton: false })
-                Alert.alert("Missing Fields", "Enter all the mandatory fields",
-                    [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+                Alert.alert(this.props.t('partiesTransaction.missingFields'), this.props.t('partiesTransaction.enterAllMandatory'),
+                    [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
                 return
             } else if (Number(amount) == null || Number(amount) == undefined || Number(amount).toString() == "NaN") {
                 this.setState({ disablePayButton: false })
-                Alert.alert("Invalid", "Please Enter Valid Amount",
-                    [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+                Alert.alert(this.props.t('partiesTransaction.invalid'), this.props.t('partiesTransaction.enterValidAmount'),
+                    [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
                 return
             } else if (Number(amount) < 1) {
                 this.setState({ disablePayButton: false })
-                Alert.alert("Invalid", "Amount should be greater than or equal to 1",
-                    [{ text: "OK", onPress: () => { console.log("Alert cancelled") } }])
+                Alert.alert(this.props.t('partiesTransaction.invalid'), this.props.t('partiesTransaction.amountGreaterThan1'),
+                    [{ text: this.props.t('partiesTransaction.ok'), onPress: () => { console.log("Alert cancelled") } }])
                 return
             }
         }
@@ -316,7 +317,7 @@ class BulkPayment extends React.Component {
                                 console.log("Total Amount " + (totalAmount).replace(/[^0-9.]/g, '').replace(/,/g, '') + " currency symbol " + currencySymbol)
                                 if (amount == "NaN") {
                                     if (Platform.OS == "ios") {
-                                        TOAST.show("Invalid Amount", {
+                                        TOAST.show(this.props.t('partiesTransaction.invalidAmount'), {
                                             duration: TOAST.durations.LONG,
                                             position: -140,
                                             hideOnPress: true,
@@ -328,7 +329,7 @@ class BulkPayment extends React.Component {
                                             containerStyle: { borderRadius: 10 }
                                         });
                                     } else {
-                                        ToastAndroid.show("Invalid Amount", ToastAndroid.SHORT)
+                                        ToastAndroid.show(this.props.t('partiesTransaction.invalidAmount'), ToastAndroid.SHORT)
                                     }
                                     deatils.totalAmount = ''
                                     deatils.totalAmountPlaceHolder = ''
@@ -357,7 +358,7 @@ class BulkPayment extends React.Component {
                         }
                         style={{ fontSize: 15, textAlignVertical: "center", marginHorizontal: 10, width: "90%", padding: 0, paddingTop: 8 }}>
                         <Text style={{ fontFamily: 'AvenirLTStd-Book',color: this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>
-                            {this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? 'Total Amount' :
+                            {this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmountPlaceHolder == '' ? this.props.t('partiesTransaction.totalAmount') :
                                 ((this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount.length > 1 ||
                                     this.state.selectedItemTextinputAndReview[item.uniqueName].totalAmount == currencySymbol) && currencySymbol != "" ?
                                     (currencySymbol).substring(1)
@@ -400,7 +401,7 @@ class BulkPayment extends React.Component {
                         }
                         }
                         style={{ fontSize: 15, marginHorizontal: 10, textAlignVertical: "center", padding: 0, width: "90%", }}>
-                        <Text style={{ fontFamily: 'AvenirLTStd-Book',color: this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'Remark' : this.state.selectedItemTextinputAndReview[item.uniqueName].remark}</Text>
+                        <Text style={{ fontFamily: 'AvenirLTStd-Book',color: this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? 'rgba(80,80,80,0.5)' : '#1c1c1c' }}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? this.props.t('bulkPayment.remark') : this.state.selectedItemTextinputAndReview[item.uniqueName].remark}</Text>
                         <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book'}}>{this.state.selectedItemTextinputAndReview[item.uniqueName].remarkPlaceHolder == '' ? '*' : ''}</Text>
                     </TextInput>
                 </View>
@@ -429,7 +430,7 @@ class BulkPayment extends React.Component {
                         </TouchableOpacity>
 
                         <Text style={{ fontFamily: 'OpenSans-Bold', fontSize: 16, marginLeft: 20, color: '#FFFFFF' }}>
-                            Bulk Payment
+                            {this.props.t('bulkPayment.bulkPayment')}
                         </Text>
                     </View>
                     <View style={{
@@ -443,7 +444,7 @@ class BulkPayment extends React.Component {
                             ref={(ref) => this.state.payorDropDown = ref}
                             style={{ flex: 1, paddingLeft: 10 }}
                             textStyle={{ color: 'black', fontSize: 15 ,fontFamily: 'AvenirLTStd-Book' }}
-                            options={this.state.selectPayorData.length > 0 ? this.state.selectPayorData : ["No results found"]}
+                            options={this.state.selectPayorData.length > 0 ? this.state.selectPayorData : [this.props.t('common.noResultsFound')]}
                             renderSeparator={() => {
                                 return (<View></View>);
                             }}
@@ -452,16 +453,16 @@ class BulkPayment extends React.Component {
                             dropdownStyle={{ width: '78%', height: this.state.selectPayorData.length > 1 ? 100 : 50, marginTop: 5, borderRadius: 5 }}
                             dropdownTextStyle={{ color: '#1C1C1C' }}
                             renderRow={(options) => {
-                                return (<Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book',backgroundColor:"white"  }}>{options == "No results found" ? options : options.user.name}</Text>);
+                                return (<Text style={{ padding: 10, color: '#1C1C1C',fontFamily: 'AvenirLTStd-Book',backgroundColor:"white"  }}>{options == this.props.t('common.noResultsFound') ? options : options.user.name}</Text>);
                             }}
                             onSelect={(index, value) => {
-                                if (value != "No results found") {
+                                if (value != this.props.t('common.noResultsFound')) {
                                     this.setState({ selectedPayor: value })
                                 }
                             }} >
                             <View style={{ flexDirection: "row" }}>
                                 <Text style={{ color: this.state.selectedPayor == null ? 'rgba(80,80,80,0.5)' : '#1c1c1c',fontFamily: 'AvenirLTStd-Book'  }}>
-                                    {this.state.selectedPayor == null ? 'Select Payor' : this.state.selectedPayor.user.name}</Text>
+                                    {this.state.selectedPayor == null ? this.props.t('partiesTransaction.selectPayor') : this.state.selectedPayor.user.name}</Text>
                                 <Text style={{ color: '#E04646',fontFamily: 'AvenirLTStd-Book'  }}>{this.state.selectedPayor == null ? '*' : ''}</Text>
                             </View>
                         </Dropdown>
@@ -477,7 +478,7 @@ class BulkPayment extends React.Component {
                         />
                     </View>
                     {this.state.selectedPayor ? <Text style={{ paddingHorizontal: 20, marginLeft: 35, color: '#808080', fontSize: 12, marginBottom: 10,fontFamily: 'AvenirLTStd-Book'  }}>
-                        {`Bank Bal ${this.state.bankAccounts.length > 0 ? this.state.bankAccounts[0].effectiveBal : 0} dr`}</Text> : <View style={{ marginBottom: 10 }}></View>}
+                        {`${this.props.t('bulkPayment.bankBal')} ${this.state.bankAccounts.length > 0 ? this.state.bankAccounts[0].effectiveBal : 0} dr`}</Text> : <View style={{ marginBottom: 10 }}></View>}
                     <FlatList
                         data={this.state.selectedItem}
                         renderItem={({ item }) => this.renderItem(item)}
@@ -487,7 +488,7 @@ class BulkPayment extends React.Component {
                 </KeyboardAwareScrollView>
                 <View style={{ justifyContent: "flex-end", alignItems: "center", marginBottom: 10 }}>
                     <TouchableOpacity disabled={this.state.disablePayButton} onPress={() => { this.submit() }} style={{ justifyContent: "center", alignItems: "center", backgroundColor: this.state.disablePayButton ? '#ACBAFF' : '#5773FF', height: 50, borderRadius: 25, marginBottom: 10, width: "90%", }}>
-                        <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book'  }}>Pay</Text>
+                        <Text style={{ fontSize: 20, color: "white",fontFamily: 'AvenirLTStd-Book'  }}>{this.props.t('partiesTransaction.pay')}</Text>
                     </TouchableOpacity>
                 </View>
                 {this.state.disablePayButton && (
@@ -528,7 +529,8 @@ const mapDispatchToProps = () => {
 
 function Screen(props: any) {
     const isFocused = useIsFocused();
+    const { t } = useTranslation();
 
-    return <BulkPayment {...props} isFocused={isFocused} />;
+    return <BulkPayment {...props} isFocused={isFocused} t={t} />;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Screen);

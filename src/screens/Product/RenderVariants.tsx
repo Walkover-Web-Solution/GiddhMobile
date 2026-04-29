@@ -2,6 +2,7 @@ import { STORAGE_KEYS } from "@/utils/constants";
 import useCustomTheme, { DefaultTheme } from "@/utils/theme";
 import React, { useEffect, useState } from "react";
 import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -15,6 +16,7 @@ import makeStyles from "./style";
 import Toast from "@/components/Toast";
 import InputField from "@/components/InputField";
 const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalData,subUnits,purchaseAccount,salesAccount,variantCustomFields})=>{
+    const { t } = useTranslation();
     const {theme,styles} = useCustomTheme(makeStyles);
     const [expandAcc, setExpandAcc] = useState(false);
     const [optionCount,setOptionCount] = useState(0);
@@ -113,7 +115,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         }
         setTypingTimeout(setTimeout(()=>{
             if(optionAndDataMapping?.[optionname]){
-                Toast({message: "Duplicate option name found!", position:'CENTER',duration:'LONG'})
+                Toast({message: t('variants.duplicateOptionNameFound'), position:'CENTER',duration:'LONG'})
             }
         },1000))
     }
@@ -128,7 +130,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
         setTypingTimeout(setTimeout(() => {
             const isDuplicate = fields.some(field => field.value === value && field.id !== id);
             if (isDuplicate) {
-                Toast({message: "Duplicate Value, This value already exists.", position:'CENTER',duration:'LONG'})
+                Toast({message: t('variants.duplicateValueExists'), position:'CENTER',duration:'LONG'})
                 setFields(fields.map(field => field.id === id ? { ...field, value: '' } : field));
             }
         }, 500));
@@ -158,13 +160,13 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
     const addOptionToMap = ()=>{
         const removedEmptyFields = fields.filter((item)=>item.value !== "");
         if(removedEmptyFields.length == 0){
-            Toast({message: "No option field added!", position:'BOTTOM',duration:'LONG'})
+            Toast({message: t('variants.noOptionFieldAdded'), position:'BOTTOM',duration:'LONG'})
             setAddOption(false);
             setOptionCount(optionCount-1);
             return ;
         }
         if(optionAndDataMapping?.[optionName]){
-            Toast({message: "Option name must be unique!", position:'BOTTOM',duration:'LONG'})
+            Toast({message: t('variants.optionNameMustBeUnique'), position:'BOTTOM',duration:'LONG'})
             setAddOption(false);
             setOptionCount(optionCount-1);
             return ;
@@ -254,7 +256,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             }
             setTypingTimeout(setTimeout(()=>{
                 if(optionAndDataMapping?.[optionname]){
-                    Toast({message: "Option already exists!", position:'CENTER',duration:'LONG'})
+                    Toast({message: t('variants.optionAlreadyExists'), position:'CENTER',duration:'LONG'})
                     setLocalOptionName(optionName);
                 }
             },1000))
@@ -270,7 +272,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             setTypingTimeout(setTimeout(() => {
                 const isDuplicate = localFields.some(field => field.value === value && field.id !== id);
                 if (isDuplicate) {
-                    Toast({message: "Duplicate Value, This value already exists.", position:'CENTER',duration:'LONG'})
+                    Toast({message: t('variants.duplicateValueExists'), position:'CENTER',duration:'LONG'})
                     setLocalFields(localFields.map(field => field.id === id ? { ...field, value: '' } : field));
                 }
             }, 500));
@@ -315,7 +317,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
             setFields(removedEmptyFields);
 
             if(localOptionName.length == 0 ){
-                Toast({message: "Option name can't be empty!", position:'BOTTOM',duration:'LONG'})
+                Toast({message: t('variants.optionNameCantBeEmpty'), position:'BOTTOM',duration:'LONG'})
                 return ;
             }
             
@@ -349,7 +351,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 <View style={styles.inputRow}>
                     <View style={{width:'93%'}}>
                         <InputField 
-                            lable="Option Name"
+                            lable={t('variants.optionName')}
                             value={localOptionName}
                             isRequired={false}
                             containerStyle={{marginVertical:5}}
@@ -362,15 +364,15 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     <TouchableOpacity style={{padding:10}} 
                     onPress={() =>{
                         Alert.alert(
-                        'Confirmation',
-                        'Deleting the option will also remove all the variants of the option. Do you still want to delete the option?',
+                        t('common.confirmation'),
+                        t('variants.deleteOptionConfirmation'),
                         [
                         {
-                            text: 'No',
+                            text: t('common.no'),
                             style: 'cancel'
                         },
                         {
-                            text: 'Yes',
+                            text: t('common.yes'),
                             onPress: () => handleDeleteOption(optionName)
                         }
                         ])}
@@ -378,12 +380,12 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         <MaterialIcons name={'delete'} size={20} color={'#808080'} />
                     </TouchableOpacity>
                 </View>
-                <Text style={[styles.optionTitle,{marginBottom:10}]} >Option Values</Text> 
+                <Text style={[styles.optionTitle,{marginBottom:10}]} >{t('variants.optionValues')}</Text> 
                 {localFields?.map((field, index) => (
                     <View key={index} style={styles.inputRow}>
                         <View style={{width:'93%'}}>
                             <InputField 
-                                lable={`Option ${index + 1}`}
+                                lable={`${t('variants.option')} ${index + 1}`}
                                 value={field.value}
                                 isRequired={false}
                                 containerStyle={{marginVertical:5}}
@@ -405,7 +407,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                     >
                     <Text
                     style={styles.doneBtnText}>
-                    Done
+                    {t('common.done')}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -456,7 +458,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 >
                 <Text
                 style={styles.doneBtnText}>
-                Done
+                {t('common.done')}
                 </Text>
             </TouchableOpacity>
         )
@@ -470,7 +472,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                 }}>
                 <View style={styles.checkboxContainer} >
                     <Icons name='plus-circle-multiple' size={17} color={DefaultTheme.colors.secondary} />
-                    <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold}]}>Variant</Text>
+                    <Text style={[styles.radiobuttonText,{fontFamily: theme.typography.fontFamily.semiBold}]}>{t('variants.variant')}</Text>
                 </View>
                 <Pressable style={{padding:9}} onPress={() => {
                     setExpandAcc(!expandAcc);
@@ -508,7 +510,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         <View style={styles.inputRow}>
                             <View style={{width:'93%'}}>
                             <InputField 
-                                lable="Option Name"
+                                lable={t('variants.optionName')}
                                 isRequired={false}
                                 containerStyle={{marginVertical:5}}
                                 placeholderTextColor={'#808080'}
@@ -519,15 +521,15 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                             </View>
                             <TouchableOpacity style={{padding:10}} onPress={() =>{
                                 Alert.alert(
-                                'Confirmation',
-                                'Deleting the option will also remove all the variants of the option. Do you still want to delete the option?',
+                                t('common.confirmation'),
+                                t('variants.deleteOptionConfirmation'),
                                 [
                                 {
-                                    text: 'No',
+                                    text: t('common.no'),
                                     style: 'cancel'
                                 },
                                 {
-                                    text: 'Yes',
+                                    text: t('common.yes'),
                                     onPress: () => {
                                         setAddOption(false) ,
                                         setOptionCount(optionCount-1),
@@ -539,12 +541,12 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                                 <MaterialIcons name={'delete'} size={20} color={'#808080'} />
                             </TouchableOpacity>
                         </View>
-                        <Text style={[styles.optionTitle,{marginBottom:0}]} >Option Values</Text> 
+                        <Text style={[styles.optionTitle,{marginBottom:0}]} >{t('variants.optionValues')}</Text> 
                         {fields.map((field, index) => (
                             <View key={field.id} style={styles.inputRow}>
                                 <View style={{width:'93%'}}>
                                 <InputField 
-                                    lable={`Option ${index + 1}`}
+                                    lable={`${t('variants.option')} ${index + 1}`}
                                     value={field.value}
                                     isRequired={false}
                                     containerStyle={{marginVertical:5}}
@@ -567,8 +569,8 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                         style={styles.variantHeading}>
                         <AntDesign name={'plus'} color={'#084EAD'} size={18} style={{ marginHorizontal: 8,paddingVertical:5 }} />
                         {optionCount == 0 
-                        ? <Text numberOfLines={1} style={[styles.addItemMain,{paddingVertical:5}]}> Add options like multiple size or colours etc...</Text> 
-                        : optionCount == 3 ? <></> : <Text numberOfLines={1} style={styles.addItemMain}> Another option</Text> }
+                        ? <Text numberOfLines={1} style={[styles.addItemMain,{paddingVertical:5}]}> {t('variants.addOptionsHint')}</Text> 
+                        : optionCount == 3 ? <></> : <Text numberOfLines={1} style={styles.addItemMain}> {t('variants.anotherOption')}</Text> }
                     </TouchableOpacity>}
                     {optionIds.length > 0 && <View>
                     <TouchableOpacity
@@ -576,7 +578,7 @@ const RenderVariants = ({setVariantsChecked,handleGlobalInputChange,unit,globalD
                             navigation.navigate(Routes.VariantTableScreen,{variantCombination,handleGlobalInputChange,globalData,unit,subUnits,purchaseAccount,salesAccount,variantCustomFields});
                         }}
                         style={styles.tableText}>
-                        <Text numberOfLines={1} style={styles.addItemMain}>Look Table</Text> 
+                        <Text numberOfLines={1} style={styles.addItemMain}>{t('variants.lookTable')}</Text> 
                         <MaterialIcons name={'play-arrow'} size={18} color={'blue'} />
                     </TouchableOpacity>
                     </View>}

@@ -10,10 +10,11 @@ import {
 import style from './style';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AddressItem from './AddressItem';
+import { WithTranslation, withTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
 
-export class SelectAddress extends React.Component<any, any> {
+export class SelectAddress extends React.Component<any & WithTranslation, any> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -82,6 +83,7 @@ export class SelectAddress extends React.Component<any, any> {
   }
 
   render() {
+    const { t } = this.props;
     return (
       <View style={style.container}>
         <View
@@ -95,7 +97,7 @@ export class SelectAddress extends React.Component<any, any> {
             <Icon name={'Backward-arrow'} color="#fff" size={18} />
           </TouchableOpacity>
           <Text style={style.title}>
-            {this.props.route.params.type == 'warehouse' ? 'Select Warehouse' : 'Select Address'}
+            {this.props.route.params.type == 'warehouse' ? t('SelectAddress.SelectWarehouse') : t('SelectAddress.SelectAddress')}
           </Text>
           {/* {this.props.route.params.type == 'address' ?
             <TouchableOpacity
@@ -162,18 +164,18 @@ export class SelectAddress extends React.Component<any, any> {
           <Text style={{
             fontFamily: 'AvenirLTStd-Book',
             fontSize: 20,
-          }}>Not Exist</Text>
+          }}>{t('SelectAddress.Not Exist')}</Text>
         </View>}
         {this.state.dataPresent ? <TouchableOpacity
           style={style.button}
           onPress={() => {
-            this.props.route.params.selectAddress(this.state.addressList[this.state.activeIndex]);
+            this.props.route.params.selectAddress(this.state.addressList[this.state.activeIndex] ?? {});
             this.props.navigation.goBack();
             // console.log(this.props.route.params.addressArray);
           }}
         // onPress={() => console.log(this.state.array)}
         >
-          <Text style={style.buttonText}>Select</Text>
+          <Text style={style.buttonText}>{t('SelectAddress.Select')}</Text>
         </TouchableOpacity> : null}
         {/* {this.state.editAddress && this._renderBottomSheetForItemDetails()} */}
       </View>
@@ -181,4 +183,4 @@ export class SelectAddress extends React.Component<any, any> {
   }
 }
 
-export default SelectAddress;
+export default withTranslation()(SelectAddress);

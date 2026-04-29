@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
 import Feather from 'react-native-vector-icons/Feather'
@@ -23,6 +23,10 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
     const { theme, styles } = useCustomTheme(getStyles, 'Payment');
     const planDuration = isMonthlyPlan ? 'Month' : 'Year';
     const currencySymbol = plan?.currency?.symbol;
+    const isGbp = plan?.currency?.code === 'GBP';
+    const invoicesAllowedValue = isGbp ? plan?.monthlyInvoicesAllowed : plan?.invoicesAllowed;
+    const billsAllowedValue = isGbp ? plan?.monthlyBillsAllowed : plan?.billsAllowed;
+    const companiesLimitValue = isGbp ? plan?.monthlyCompaniesLimit : plan?.companiesLimit;
 
     const planDescription = plan.description;
 
@@ -43,15 +47,15 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
     const features = [
         {
             featureName: 'Invoice Count',
-            value: formatAmount(plan?.invoicesAllowed, false)
+            value: formatAmount(invoicesAllowedValue, false)
         },
         {
             featureName: 'Bill Count',
-            value: formatAmount(plan?.billsAllowed, false)
+            value: formatAmount(billsAllowedValue, false)
         },
         {
             featureName: 'Companies allowed',
-            value: formatAmount(plan?.companiesLimit, false)
+            value: formatAmount(companiesLimitValue, false)
         },
         {
             featureName: 'Accountant consultant',
@@ -91,10 +95,13 @@ const PlanDetailsBottomSheet: React.FC<Props> = ({ bottomSheetRef, plan, isMonth
         <Portal>
         <Modalize
             ref={bottomSheetRef}
-            adjustToContentHeight={Platform.OS === "ios" ? false: true}
-            handlePosition='inside'
-            modalStyle={{ minHeight: '25%', marginTop: insets.top}}
+            adjustToContentHeight={false}
+            disableScrollIfPossible={false}
+            handlePosition="inside"
             keyboardAvoidingBehavior="padding"
+            scrollViewProps={{
+                contentContainerStyle: { flexGrow: 1, paddingBottom: insets.bottom },
+            }}
         >
             <View style={styles.card}>
                 <View style={styles.headerSection}>
@@ -148,7 +155,6 @@ export default PlanDetailsBottomSheet
 const getStyles = (theme: ThemeProps) => StyleSheet.create({
     card: {
         paddingVertical: 20,
-        justifyContent: 'space-around',   
     },
     headerSection: {
         alignItems: 'center',

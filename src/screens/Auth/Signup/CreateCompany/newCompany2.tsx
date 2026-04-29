@@ -95,8 +95,8 @@ class NewCompanyDetails extends React.Component<any, any> {
   getStates = async () => {
     const allStateName = await CustomerVendorService.getAllStateName(this.props.route.params.country.alpha2CountryCode);
     await this.setState({
-      stateData: allStateName.body.stateList,
-      filteredStates: allStateName.body.stateList
+      stateData: this.props.route.params.country.alpha2CountryCode == "GB" ? allStateName.body.countyList : allStateName.body.stateList,
+      filteredStates: this.props.route.params.country.alpha2CountryCode == "GB" ? allStateName.body.countyList : allStateName.body.stateList
     });
   }
 

@@ -4,7 +4,7 @@ import * as ActionConstants from './ActionConstants';
 import * as LoginAction from './LoginAction';
 import * as LoginService from './LoginService';
 import * as CommonActions from '../../../redux/CommonAction';
-import { getCompanyAndBranches } from '../../../redux/CommonAction';
+import { getCompanyAndBranches as getCompanyAndBranchesSaga } from '../../../redux/CommonSaga';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LogRocket from '@logrocket/react-native';
 import { STORAGE_KEYS } from '@/utils/constants';
@@ -149,7 +149,7 @@ export function* verifyUserEmailPasswordLogin(action) {
       const { companyUniqueName,branchUniqueName } = activeCompany
       yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
       yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
-      yield put(getCompanyAndBranches());
+      yield call(getCompanyAndBranchesSaga);
       yield put(
         LoginAction.loginUserSuccess({
           token: response.body.session.id,
@@ -226,7 +226,7 @@ export function* signupUsingEmailPassword(action) {
         const { companyUniqueName,branchUniqueName } = activeCompany
         yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
         yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
-        yield put(getCompanyAndBranches());
+        yield call(getCompanyAndBranchesSaga);
         yield put(
           LoginAction.loginUserSuccess({
             token: response.body.session.id,
@@ -281,7 +281,7 @@ export function* verifySignupOTP(action) {
     const { companyUniqueName,branchUniqueName } = activeCompany
     yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
-    yield put(getCompanyAndBranches());
+    yield call(getCompanyAndBranchesSaga);
     yield put(
       LoginAction.loginUserSuccess({
         token: response.body.session.id,
@@ -333,7 +333,7 @@ export function* googleLogin(action) {
     const { companyUniqueName,branchUniqueName } = activeCompany
     yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
-    yield put(getCompanyAndBranches());
+    yield call(getCompanyAndBranchesSaga);
     yield put(
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
@@ -386,6 +386,7 @@ export function* verifyOTP(action) {
     const { companyUniqueName,branchUniqueName } = activeCompany
     yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
+    yield call(getCompanyAndBranchesSaga);
     yield put(
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
@@ -434,7 +435,7 @@ export function* appleLogin(action) {
     const { companyUniqueName,branchUniqueName } = activeCompany
     yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
-    yield put(getCompanyAndBranches());
+    yield call(getCompanyAndBranchesSaga);
     yield put(
       LoginAction.googleLoginUserSuccess({
         token: response.body.session.id,
@@ -486,7 +487,7 @@ export function* loginWithOTP(action) {
     const { companyUniqueName,branchUniqueName } = activeCompany
     yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyUniqueName, companyUniqueName ? companyUniqueName : '');
     yield AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, branchUniqueName ? branchUniqueName : '');
-    yield put(getCompanyAndBranches());
+    yield call(getCompanyAndBranchesSaga);
     yield put(
       LoginAction.loginWithOtpSuccess({
         token: response.body.session.id,

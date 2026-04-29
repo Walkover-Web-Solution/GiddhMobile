@@ -29,5 +29,7 @@ export const commonUrls = {
   generateEWayBill: createEndpoint('company/:companyUniqueName/ewb?lang=en'),
   downloadEWB: (billNo) => createEndpoint(`company/:companyUniqueName/ewb/${billNo}/download?`),
   fetchTaxNumbers: createEndpoint('company/:companyUniqueName/tax-numbers'),
-  fetchEWayBills: (startDate, endDate, gstno, page: number) => createEndpoint(`company/:companyUniqueName/ewb?fromDate=${startDate}&toDate=${endDate}&gstin=${gstno}&page=${page}&count=20&branchUniqueName=:branchUniqueName&`)
+  fetchEWayBills: (startDate, endDate, gstno, page: number) => createEndpoint(`company/:companyUniqueName/ewb?fromDate=${startDate}&toDate=${endDate}&gstin=${gstno}&page=${page}&count=20&branchUniqueName=:branchUniqueName&`),
+  fetchSalesPersonData: (archive: boolean) => createEndpoint(`company/:companyUniqueName/salesperson?page=1&count=200&archive=${archive}&branchUniqueName=:branchUniqueName&lang=en`),
+  createSalesPerson: createEndpoint('company/:companyUniqueName/salesperson?&branchUniqueName=:branchUniqueName&lang=en'),
 };

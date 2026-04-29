@@ -3,61 +3,62 @@ import { GDContainer } from '@/core/components/container/container.component';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import style from '@/screens/Settings/style';
 import { GdSVGIcons } from '@/utils/icons-pack';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface Props {
+interface Props extends WithTranslation {
   navigation: any;
 }
 
 export class SettingsScreen extends React.Component<Props> {
-  listData = [
+  getListData = () => [
     {
       id: 1,
-      item_name: 'Company Profile',
+      item_name: this.props.t('settings.companyProfile'),
       icon: <GdSVGIcons.company style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 2,
-      item_name: 'User Profile',
+      item_name: this.props.t('settings.userProfile'),
       icon: <GdSVGIcons.profile style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 3,
-      item_name: 'Manage Users (Permission)',
+      item_name: this.props.t('settings.manageUsers'),
       icon: <GdSVGIcons.lock style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 4,
-      item_name: 'Taxes',
+      item_name: this.props.t('settings.taxes'),
       icon: <GdSVGIcons.gstr style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 5,
-      item_name: 'Integration',
+      item_name: this.props.t('settings.integration'),
       icon: <GdSVGIcons.notifications style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 6,
-      item_name: 'Trigger',
+      item_name: this.props.t('settings.trigger'),
       icon: <GdSVGIcons.trigger style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 7,
-      item_name: 'Discount',
+      item_name: this.props.t('settings.discount'),
       icon: <GdSVGIcons.discount style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 8,
-      item_name: 'Invoice $ Templates',
+      item_name: this.props.t('settings.invoiceTemplates'),
       icon: <GdSVGIcons.download style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 9,
-      item_name: 'Subscription',
+      item_name: this.props.t('settings.subscription'),
       icon: <GdSVGIcons.currency style={style.iconStyle} width={22} height={22} />
     },
     {
       id: 10,
-      item_name: 'Notification Settings',
+      item_name: this.props.t('settings.notificationSettings'),
       icon: <GdSVGIcons.notifications style={style.iconStyle} width={22} height={22} />
     }
   ];
@@ -65,9 +66,9 @@ export class SettingsScreen extends React.Component<Props> {
   render () {
     return (
         <View style={style.container}>
-          <Text style={{ fontSize: 20, fontFamily: 'AvenirLTStd-Black', margin: 20 }}>Settings</Text>
+          <Text style={{ fontSize: 20, fontFamily: 'AvenirLTStd-Black', margin: 20 }}>{this.props.t('settings.settings')}</Text>
           <FlatList
-            data={this.listData}
+            data={this.getListData()}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -86,4 +87,4 @@ export class SettingsScreen extends React.Component<Props> {
   }
 }
 
-export default SettingsScreen;
+export default withTranslation()(SettingsScreen);

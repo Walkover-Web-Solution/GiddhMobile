@@ -58,6 +58,7 @@ export default StyleSheet.create({
     position: 'absolute',
     left: 40,
     fontFamily: FONT_FAMILY.bold,
+    lineHeight: 24,
     fontSize: 16,
     width: '100%'
   },

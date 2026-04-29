@@ -14,6 +14,7 @@ import BottomSheet from '@/components/BottomSheet';
 import InputField from '@/components/InputField';
 import MatButton from '@/components/OutlinedButton';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 
 interface FilterObject {
@@ -26,20 +27,21 @@ interface FilterObject {
     search:string
 }
 
-const ColumnNames:any = {
-    variant_name : 'Variant Name',
-    variant_unique_name:'Variant UN',
-    stock_name:'Stock Name',
-    stock_unique_name:'Stock UN',
-    stock_group_name:'Stock Group Name',
-    hsn:'HSN',
-    sac:'SAC',
-    sku:'SKU Code'
-}
+const getColumnNames = (t: any) => ({
+    variant_name : t('inventoryList.variantName'),
+    variant_unique_name: t('inventoryList.variantUN'),
+    stock_name: t('inventoryList.stockName'),
+    stock_unique_name: t('inventoryList.stockUN'),
+    stock_group_name: t('inventoryList.stockGroupName'),
+    hsn: t('inventoryList.hsn'),
+    sac: t('inventoryList.sac'),
+    sku: t('inventoryList.skuCode')
+})
 
 
 const { height, width } = Dimensions.get('window');
 const _Card = ({ item,index, onPress }) => {
+    const { t } = useTranslation();
     const {statusBar,styles, theme} = useCustomTheme(style);
     
     return(
@@ -48,7 +50,7 @@ const _Card = ({ item,index, onPress }) => {
             <Text style={styles.title}>{item.variantName}</Text>
             <View style={styles.cardView}>
                 <View style={{maxWidth:'70%'}}>
-                    <Text style={[styles.subtitle,{fontFamily:theme.typography.fontFamily.semiBold}]}>Stock: <Text style={styles.subtitle}>{item.stockName}</Text></Text>
+                    <Text style={[styles.subtitle,{fontFamily:theme.typography.fontFamily.semiBold}]}>{t('inventoryList.stock')}: <Text style={styles.subtitle}>{item.stockName}</Text></Text>
                 </View>
                 <View style={{maxWidth:'30%'}}>
                     <Text style={[styles.subtitle,{fontSize:theme.typography.fontSize.small.size}]}>{item.stockUnitName+'('+item.stockUnitCode+')'}</Text>
@@ -60,6 +62,7 @@ const _Card = ({ item,index, onPress }) => {
 const Card = React.memo(_Card)
 
 const InventoryListScreen = (props) => {
+    const { t } = useTranslation();
     const [dataArr,setDataArr] = useState<any[]>([]);
     const [selectedItem, setSelectedItem]:any = useState(null);
     const [page, setPage] = useState(1);
@@ -67,6 +70,7 @@ const InventoryListScreen = (props) => {
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [filterFlag, setFilterFlag] = useState(false);
+    const [customFieldsDefinitions, setCustomFieldsDefinitions] = useState<any[]>([]);
     const [filterObject,setFilterObject] = useState<FilterObject>({
         expression:"",
         filterBy:"",
@@ -159,6 +163,13 @@ const InventoryListScreen = (props) => {
         _.delay(() => { setIsRefreshing(false) }, 500)
     }
 
+    const fetchVariantCustomfields = async ()=>{
+        const result = await InventoryService.fetchVariantCustomfields();
+        if(result?.data && result?.data?.status == 'success'){
+            setCustomFieldsDefinitions(result?.data?.body?.results || []);
+        }
+    }
+
     const fetchAllVariants = async (type:string,flag:boolean) => {
         
         if (!flag && !hasMore) return;
@@ -201,6 +212,7 @@ const InventoryListScreen = (props) => {
 
     useEffect(()=>{
         fetchAllVariants(props?.route?.params?.params?.name === 'Inventory' ? 'PRODUCT' : 'SERVICE',false);
+        fetchVariantCustomfields();
         DeviceEventEmitter.addListener(APP_EVENTS.ServiceInventoryListRefresh, async () => {
             await clearAll();
             fetchAllVariants("SERVICE",false);
@@ -211,35 +223,48 @@ const InventoryListScreen = (props) => {
         });
     },[])
     
+    const getCustomFieldValue = (fieldUniqueName: string) => {
+        const customField = selectedItem?.customFields?.find((cf: any) => cf?.uniqueName === fieldUniqueName);
+        if (!customField?.value) return null;
+        if (customField.value === "true") return "Yes";
+        if (customField.value === "false") return "No";
+        return customField.value;
+    };
+
+    const customFieldsDetails = customFieldsDefinitions.map((field) => ({
+        label: field?.fieldName,
+        value: getCustomFieldValue(field?.uniqueName)
+    }));
+
     const VariantDetails = [
-        { label: "Variant Name", value: selectedItem?.variantName },
-        { label: "Variant Unique Name", value: selectedItem?.variantUniqueName },
-        { label: "Stock Name", value: selectedItem?.stockName },
-        { label: "Stock Unique Name", value: selectedItem?.stockUniqueName },
-        { label: "Stock Group Name", value: selectedItem?.stockGroupName },
-        { label: "Stock Group Unique Name", value: selectedItem?.stockGroupUniqueName },
-        { label: "Stock Unit", value: `${selectedItem?.stockUnitName} (${selectedItem?.stockUnitCode})` },
-        { label: "HSN", value: selectedItem?.hsnNo },
-        { label: "SAC", value: selectedItem?.sacNo },
-        { label: "SKU Code", value: selectedItem?.skuCode },
-        { label: "Purchases Account Name", value: selectedItem?.purchaseAccountName },
-        { label: "Purchase Account UN", value: selectedItem?.purchaseAccountUniqueName },
-        { label: "Purchase Rate", value: selectedItem?.purchaseRate },
-        { label: "Purchase Unit", value: selectedItem?.purchaseUnits?.[0]?.uniqueName },
-        { label: "Sales Account Name", value: selectedItem?.salesAccountName },
-        { label: "Sales Account UN", value: selectedItem?.salesAccountUniqueName },
-        { label: "Sales Rate", value: selectedItem?.salesRate },
-        { label: "Sales Unit", value: selectedItem?.salesUnits?.[0]?.uniqueName },
-        { label: "Archive", value: selectedItem?.archive ? 'Yes' : 'No' },
-        { label: "Tax", value: selectedItem?.taxes?.join(', ') },
-        { label: "Sales Tax Inclusive", value: selectedItem?.salesTaxInclusive ? 'Yes' : 'No' },
-        { label: "Purchase Tax Inclusive", value: selectedItem?.purchaseTaxInclusive ? 'Yes' : 'No' }
+        { label: t('inventoryList.variantName'), value: selectedItem?.variantName },
+        { label: t('inventoryList.variantUniqueName'), value: selectedItem?.variantUniqueName },
+        { label: t('inventoryList.stockName'), value: selectedItem?.stockName },
+        { label: t('inventoryList.stockUniqueName'), value: selectedItem?.stockUniqueName },
+        { label: t('inventoryList.stockGroupName'), value: selectedItem?.stockGroupName },
+        { label: t('inventoryList.stockGroupUniqueName'), value: selectedItem?.stockGroupUniqueName },
+        { label: t('inventoryList.stockUnit'), value: `${selectedItem?.stockUnitName} (${selectedItem?.stockUnitCode})` },
+        { label: t('inventoryList.hsn'), value: selectedItem?.hsnNo },
+        { label: t('inventoryList.sac'), value: selectedItem?.sacNo },
+        { label: t('inventoryList.skuCode'), value: selectedItem?.skuCode },
+        { label: t('inventoryList.purchasesAccountName'), value: selectedItem?.purchaseAccountName },
+        { label: t('inventoryList.purchaseAccountUN'), value: selectedItem?.purchaseAccountUniqueName },
+        { label: t('inventoryList.purchaseRate'), value: selectedItem?.purchaseRate },
+        { label: t('inventoryList.purchaseUnit'), value: selectedItem?.purchaseUnits?.[0]?.uniqueName },
+        { label: t('inventoryList.salesAccountName'), value: selectedItem?.salesAccountName },
+        { label: t('inventoryList.salesAccountUN'), value: selectedItem?.salesAccountUniqueName },
+        { label: t('inventoryList.salesRate'), value: selectedItem?.salesRate },
+        { label: t('inventoryList.salesUnit'), value: selectedItem?.salesUnits?.[0]?.uniqueName },
+        { label: t('inventoryList.archive'), value: selectedItem?.archive ? t('common.yes') : t('common.no') },
+        { label: t('inventoryList.tax'), value: selectedItem?.taxes?.join(', ') },
+        { label: t('inventoryList.salesTaxInclusive'), value: selectedItem?.salesTaxInclusive ? t('common.yes') : t('common.no') },
+        { label: t('inventoryList.purchaseTaxInclusive'), value: selectedItem?.purchaseTaxInclusive ? t('common.yes') : t('common.no') }
     ];
-    
+
     const DetailModal = (
         <BottomSheet
         bottomSheetRef={modalizeRef}
-        headerText='Details'
+        headerText={t('inventoryList.details')}
         headerTextColor={voucherBackground}
         adjustToContentHeight={false}
         modalTopOffset={height/4}
@@ -260,15 +285,15 @@ const InventoryListScreen = (props) => {
     const FilterModal = (
         <BottomSheet
             bottomSheetRef={filterModalizeRef}
-            headerText='Advanced Filter'
+            headerText={t('inventoryList.advancedFilter')}
             headerTextColor={voucherBackground}
             >
             <View style={styles.modalContent}>
                 <View style={styles.row}>
                     <View style={{width:'48%'}}>
                         <MatButton 
-                            lable="Filter By"
-                            value={filterObject?.filterBy?.length > 0 && (filterObject?.filterBy === "sales_rate" ? "Sales Rate" : "Purchase Rate") }
+                            lable={t('inventoryList.filterBy')}
+                            value={filterObject?.filterBy?.length > 0 && (filterObject?.filterBy === "sales_rate" ? t('inventoryList.salesRate') : t('inventoryList.purchaseRate')) }
                             onPress={()=>{
                                 setBottomSheetVisible(filterByModalizeRef,true)
                             }}
@@ -276,8 +301,8 @@ const InventoryListScreen = (props) => {
                     </View>
                     <View style={{width:'48%'}}>
                         <MatButton 
-                            lable="Type"
-                            value="Rate"
+                            lable={t('inventoryList.type')}
+                            value={t('inventoryList.rate')}
                             onPress={()=>{
                                 setBottomSheetVisible(filterTypeModalizeRef,true)
                             }}
@@ -287,7 +312,7 @@ const InventoryListScreen = (props) => {
                 <View style={styles.row}>
                     <View style={{width:'48%'}}>
                         <MatButton 
-                            lable="Expression"
+                            lable={t('inventoryList.expression')}
                             value={filterObject?.expression?.length > 0 && (filterObject?.expression) }
                             onPress={() => {
                                 setBottomSheetVisible(filterExpModalizeRef,true)
@@ -296,7 +321,7 @@ const InventoryListScreen = (props) => {
                     </View>
                     <View style={{width:'48%'}}>
                         <InputField 
-                            lable="Amount"
+                            lable={t('inventoryList.amount')}
                             keyboardType="numeric"
                             value={filterObject?.rate > 0 ? filterObject?.rate : ""}
                             isRequired={false}
@@ -327,7 +352,7 @@ const InventoryListScreen = (props) => {
                             }
                         }}
                         >
-                        <Text style={styles.doneBtnText}>Filter</Text>
+                        <Text style={styles.doneBtnText}>{t('inventoryList.filter')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.doneBtn,{marginLeft:10}]}
@@ -340,7 +365,7 @@ const InventoryListScreen = (props) => {
                             setFilterObject(tempObj);
                         }}
                         >
-                        <Text style={styles.doneBtnText}>Reset</Text>
+                        <Text style={styles.doneBtnText}>{t('inventoryList.reset')}</Text>
                     </TouchableOpacity>
                     {filterFlag && <TouchableOpacity
                         activeOpacity={0.7}
@@ -352,7 +377,7 @@ const InventoryListScreen = (props) => {
                             DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
                         }}
                     >
-                        <Text style={[styles.smallText,{color:voucherBackground,fontSize:theme.typography.fontSize.large.size}]}>Clear Filter</Text>
+                        <Text style={[styles.smallText,{color:voucherBackground,fontSize:theme.typography.fontSize.large.size}]}>{t('inventoryList.clearFilter')}</Text>
                     </TouchableOpacity>}
                 </View>
             </View>
@@ -362,7 +387,7 @@ const InventoryListScreen = (props) => {
     const FilterByModal = (
         <BottomSheet
         bottomSheetRef={filterByModalizeRef}
-        headerText='Filter by'
+        headerText={t('inventoryList.filterBy')}
         headerTextColor={voucherBackground}
         >
             <TouchableOpacity 
@@ -378,7 +403,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.filterBy === 'purchase_rate' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />                
                 <Text style={styles.radiobuttonText}>
-                    Purchase Rate
+                    {t('inventoryList.purchaseRate')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -394,7 +419,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.filterBy === 'sales_rate' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                    Sales Rate
+                    {t('inventoryList.salesRate')}
                 </Text>
             </TouchableOpacity>
         </BottomSheet>
@@ -403,7 +428,7 @@ const InventoryListScreen = (props) => {
     const FilterTypeModal = (
         <BottomSheet
         bottomSheetRef={filterTypeModalizeRef}
-        headerText='Type'
+        headerText={t('inventoryList.type')}
         headerTextColor={voucherBackground}
         >
             <TouchableOpacity 
@@ -415,7 +440,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={true ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                    Rate
+                    {t('inventoryList.rate')}
                 </Text>
             </TouchableOpacity>
         </BottomSheet>
@@ -424,7 +449,7 @@ const InventoryListScreen = (props) => {
     const FilterExpModal = (
         <BottomSheet
         bottomSheetRef={filterExpModalizeRef}
-        headerText='Expression'
+        headerText={t('inventoryList.expression')}
         headerTextColor={voucherBackground}
         >
             <TouchableOpacity 
@@ -440,7 +465,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.expression === "EQUAL" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                    Equals
+                    {t('inventoryList.equals')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -456,7 +481,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.expression === "NOT_EQUALS" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                    Not Equals
+                    {t('inventoryList.notEquals')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -472,7 +497,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.expression === "GREATER_THAN" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                    Greater Than
+                    {t('inventoryList.greaterThan')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -488,7 +513,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.expression === "GREATER_THAN_OR_EQUAL" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                Greater Than or Equals
+                    {t('inventoryList.greaterThanOrEquals')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -504,7 +529,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.expression === "LESS_THAN" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                Less Than
+                    {t('inventoryList.lessThan')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -520,7 +545,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.expression === "LESS_THAN_OR_EQUAL" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                Less Than or Equals
+                    {t('inventoryList.lessThanOrEquals')}
                 </Text>
             </TouchableOpacity>
         </BottomSheet>
@@ -529,7 +554,7 @@ const InventoryListScreen = (props) => {
     const SortByModal = (
         <BottomSheet
         bottomSheetRef={sortModalizeRef}
-        headerText='Sort By'
+        headerText={t('inventoryList.sortBy')}
         headerTextColor={voucherBackground}
         >
             <TouchableOpacity 
@@ -547,7 +572,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sortBy === "variant_name" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                    Variant Name
+                    {t('inventoryList.variantName')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -565,7 +590,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sortBy === "variant_unique_name" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                    Variant UN
+                    {t('inventoryList.variantUN')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -583,7 +608,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sortBy === "stock_name" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                    Stock Name
+                    {t('inventoryList.stockName')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -601,7 +626,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sortBy === "stock_unique_name" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                Stock UN
+                    {t('inventoryList.stockUN')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -619,7 +644,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sortBy === "stock_group_name" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                Stock Group Name
+                    {t('inventoryList.stockGroupName')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -637,7 +662,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sortBy === "purchase_rate" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                Purchase Rate
+                    {t('inventoryList.purchaseRate')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -655,7 +680,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sortBy === "sales_rate" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                Sales Rate
+                    {t('inventoryList.salesRate')}
                 </Text>
             </TouchableOpacity>
         </BottomSheet>
@@ -664,7 +689,7 @@ const InventoryListScreen = (props) => {
     const SortByTypeModal = (
         <BottomSheet
         bottomSheetRef={sortByTypeModalizeRef}
-        headerText='Sort'
+        headerText={t('inventoryList.sort')}
         headerTextColor={voucherBackground}
         >
             <TouchableOpacity 
@@ -687,7 +712,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sort === "desc" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                    Ascending
+                    {t('inventoryList.ascending')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -710,7 +735,7 @@ const InventoryListScreen = (props) => {
                 <Icon name={filterObject?.sort === "asc" ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 
                 <Text style={styles.radiobuttonText}>
-                    Descending
+                    {t('inventoryList.descending')}
                 </Text>
             </TouchableOpacity>
         </BottomSheet>
@@ -719,7 +744,7 @@ const InventoryListScreen = (props) => {
     const SearchByModal = (
         <BottomSheet
         bottomSheetRef={searchModalizeRef}
-        headerText='Search By'
+        headerText={t('inventoryList.searchBy')}
         headerTextColor={voucherBackground}
         >
             <TouchableOpacity 
@@ -736,7 +761,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'variant_name' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                    Variant Name
+                    {t('inventoryList.variantName')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -753,7 +778,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'variant_unique_name' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                    Variant UN
+                    {t('inventoryList.variantUN')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -770,7 +795,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'stock_name' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                    Stock Name
+                    {t('inventoryList.stockName')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -787,7 +812,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'stock_unique_name' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                Stock UN
+                    {t('inventoryList.stockUN')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -804,7 +829,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'stock_group_name' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                Stock Group Name
+                    {t('inventoryList.stockGroupName')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -821,7 +846,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'hsn' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                HSN
+                    {t('inventoryList.hsn')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -838,7 +863,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'sac' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                SAC
+                    {t('inventoryList.sac')}
                 </Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -855,7 +880,7 @@ const InventoryListScreen = (props) => {
                 >
                 <Icon name={filterObject?.searchBy === 'sku' ? 'radio-checked2' : 'radio-unchecked'} color={"#084EAD"} size={16} />
                 <Text style={styles.radiobuttonText}>
-                SKU Code
+                    {t('inventoryList.skuCode')}
                 </Text>
             </TouchableOpacity>
         </BottomSheet>
@@ -864,12 +889,12 @@ const InventoryListScreen = (props) => {
     const SearchSubModal = (
         <BottomSheet
         bottomSheetRef={searchSubModalizeRef}
-        headerText={'Search'}
+        headerText={t('common.search')}
         headerTextColor={voucherBackground}
         >
             <View style={styles.searchContainer}>
                 <InputField 
-                    lable= {ColumnNames[filterObject?.searchBy]}
+                    lable= {getColumnNames(t)[filterObject?.searchBy]}
                     isRequired={false}
                     containerStyle={{marginVertical:5}}
                     onChangeText={(text)=>{
@@ -893,7 +918,7 @@ const InventoryListScreen = (props) => {
                         }
                     }}
                     >
-                    <Text style={styles.doneBtnText}>Search</Text>
+                    <Text style={styles.doneBtnText}>{t('common.search')}</Text>
                 </TouchableOpacity>
             </View>
         </BottomSheet>
@@ -942,27 +967,27 @@ const InventoryListScreen = (props) => {
     return (
         <View style={styles.container}>
             <Header 
-              header={'Inventory'} 
+              header={t('AddButton.Inventory')} 
               isBackButtonVisible={true} 
               backgroundColor={voucherBackground} 
               headerRightContent={HeaderRightComponent}
             />
             <View style={{flex:1}}>   
                 {dataArr.length == 0 && !(refresh) && <View style={{alignItems:'center',paddingVertical:20}}>
-                    <Text style={styles.title}>No data found!</Text>
+                    <Text style={styles.title}>{t('inventoryList.noDataFound')}</Text>
                     <TouchableOpacity
                         style={[{marginTop:20}]}
                         onPress={() => {
                             DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})
                         }}
                         >
-                        <Text style={{color:voucherBackground,fontFamily:theme.typography.fontFamily.regular,fontSize:theme.typography.fontSize.large.size}}>Click to reset</Text>
+                        <Text style={{color:voucherBackground,fontFamily:theme.typography.fontFamily.regular,fontSize:theme.typography.fontSize.large.size}}>{t('inventoryList.clickToReset')}</Text>
                     </TouchableOpacity>
                 </View>}            
                 {dataArr.length > 0 ? <View>
                     <View style={styles.columnHeader}>
-                        <Text style={styles.columnHeading}>Variant Name</Text>
-                        <Text style={styles.columnHeading}>Unit</Text>
+                        <Text style={styles.columnHeading}>{t('inventoryList.variantName')}</Text>
+                        <Text style={styles.columnHeading}>{t('inventoryList.unit')}</Text>
                     </View>
                     {filterObject?.search !== "" && 
                     <View style={styles.clearFilter}>
@@ -970,7 +995,7 @@ const InventoryListScreen = (props) => {
                             style={[styles.buttonContainer, styles.clearButton, {borderColor:voucherBackground}]}
                             onPress={() => {DeviceEventEmitter.emit(APP_EVENTS?.[props?.route?.params?.params?.name === 'Inventory' ? 'ProductInventoryListRefresh' : 'ServiceInventoryListRefresh'], {})}}
                             >
-                            <Text style={[styles.clearText, {color:voucherBackground}]}>Clear Filter</Text>
+                            <Text style={[styles.clearText, {color:voucherBackground}]}>{t('inventoryList.clearFilter')}</Text>
                             <AntDesign name="closecircleo" size={13} color={voucherBackground} />
                         </TouchableOpacity>
                     </View>
