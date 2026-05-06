@@ -1012,7 +1012,66 @@ export class AddEntry extends React.Component<Props> {
     return   amount / this.state?.exchangeRate;
   }
 
+  resolveTaxAndGroupTaxNames(
+    taxes: any,
+    groupTaxes: any,
+    opts?: { whenBothNonEmpty?: 'intersection' | 'preferTaxes' }
+  ): string[] {
+    const whenBoth = opts?.whenBothNonEmpty ?? 'intersection';
+    const toNames = (arr: any): string[] => {
+      if (!Array.isArray(arr) || arr.length === 0) {
+        return [];
+      }
+      return arr
+        .map((entry: any) => (typeof entry === 'string' ? entry : entry?.uniqueName))
+        .filter((name: any): name is string => Boolean(name));
+    };
+    const t = toNames(taxes);
+    const g = toNames(groupTaxes);
+    if (t.length > 0 && g.length === 0) {
+      return t;
+    }
+    if (g.length > 0 && t.length === 0) {
+      return g;
+    }
+    if (t.length > 0 && g.length > 0) {
+      if (whenBoth === 'preferTaxes') {
+        return t;
+      }
+      const gSet = new Set(g);
+      return t.filter((name) => gSet.has(name));
+    }
+    return [];
+  }
 
+  calculateHierarchicalTaxes(payload: any) {
+    const stock = payload?.stock;
+    const stockTaxNames = this.resolveTaxAndGroupTaxNames(stock?.taxes, stock?.groupTaxes, {
+      whenBothNonEmpty: 'preferTaxes'
+    });
+    const stockHasAny =
+      (Array.isArray(stock?.taxes) && stock.taxes.length > 0) ||
+      (Array.isArray(stock?.groupTaxes) && stock.groupTaxes.length > 0);
+
+    let resolvedNames: string[] = [];
+    if (stockHasAny) {
+      resolvedNames = stockTaxNames;
+    } else {
+      resolvedNames = this.resolveTaxAndGroupTaxNames(payload?.taxes, payload?.groupTaxes, {
+        whenBothNonEmpty: 'intersection'
+      });
+    }
+
+    const taxArr = this.state?.taxArray ?? [];
+    const details: any[] = [];
+    for (let i = 0; i < resolvedNames.length; i++) {
+      const row = taxArr.find((t: any) => t?.uniqueName === resolvedNames[i]);
+      if (row) {
+        details.push(row);
+      }
+    }
+    return details;
+  }
   // ************************ BELOW ARE API CALLS AND HANDLING ************************
 
 
@@ -1091,6 +1150,7 @@ export class AddEntry extends React.Component<Props> {
     const ledgerType = (this.state?.selectedAccountData?.uniqueName == 'sales' || this.state?.selectedAccountData?.uniqueName == 'purchases') ? this.state?.selectedAccountData?.uniqueName : this.state?.oppositeAccountUniqueName;
     try {
       const response = await AccountsService.getParticularStockData(ledgerType, stockUniqueName, oppositeAccountUniqueName, variantUniqueName);
+      console.log('response', response)
       if (response?.body) {
         this.checkShowDiscountAndTaxField(response?.body)
         this.shouldShowRcmSection(response?.body);
@@ -1098,16 +1158,18 @@ export class AddEntry extends React.Component<Props> {
         const newStockPrice = response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate;
         const newStockQuantity = 1;
         const newAmountForEntry = newStockQuantity * newStockPrice;
-        
+        const linkedTaxDetails = this.calculateHierarchicalTaxes(response?.body);
+
         this.setState({
           particularAccountStockData: response?.body,
           stockPrice: newStockPrice,
           selectedStockUnit: response?.body?.stock?.variant?.unitRates[0],
           stockQuantity: newStockQuantity,
+          selectedArrayType: linkedTaxDetails.map((t: any) => t?.taxType).filter(Boolean),
           SelectedTaxData: {
             taxType: '',
             taxText: '',
-            taxDetailsArray: this.state.taxArray?.filter((item) => response?.body?.stock?.taxes?.includes(item?.uniqueName)) || []
+            taxDetailsArray: linkedTaxDetails
           }
         }, async () => {
           const formattedAmount = await giddhRoundOff(newAmountForEntry);
@@ -1141,6 +1203,7 @@ export class AddEntry extends React.Component<Props> {
           stockLists: response?.body,
           selectedStockVariant: response?.body[0],
         })
+        console.log('response?.body[0]', response)
         let payload = {
           stockUniqueName: stockUniqueName,
           variantUniqueName: response?.body[0]?.uniqueName,
@@ -1305,11 +1368,12 @@ export class AddEntry extends React.Component<Props> {
   async getAllTaxes() {
     try {
       const results = await InvoiceService.getTaxes();
+      console.log('results', results)
       if (results.body && results.status == 'success') {
-        const taxes = results.body.filter((item) => {
-          return item.taxType != 'inputgst';
-        });
-        this.setState({ taxArray: taxes });
+        // const taxes = results.body.filter((item) => {
+        //   return item.taxType != 'inputgst';
+        // });
+        this.setState({ taxArray: results.body });
         // this.getTdsTcsTaxes();
       }
     } catch (e) {
@@ -1619,6 +1683,7 @@ export class AddEntry extends React.Component<Props> {
                           selectedStock: item?.stock,
                           oppositeAccountUniqueName: item?.uniqueName
                         })
+                        console.log('item?.stock?.uniqueName', item)
                         this.getStocksAndVariants(item?.stock?.uniqueName, item?.uniqueName);
                       } else {
                         this.getParticularAccountData(item?.uniqueName);
@@ -2734,7 +2799,7 @@ export class AddEntry extends React.Component<Props> {
                 },
               ]}
               autoCapitalize={'characters'}
-              value={this.state?.stockPrice?.toString()}
+              value={giddhRoundOff(this.state?.stockPrice)?.toString()}
               placeholder={t('addEntry.price')}
               keyboardType='numeric'
               placeholderTextColor={'#868686'}
@@ -2809,7 +2874,7 @@ export class AddEntry extends React.Component<Props> {
                 },
               ]}>
               {(this.state?.discountTotalValue != 0 || this.state?.selectedDiscounts?.length > 0) ?
-                `${this.state?.currencySymbol} ${this.calculateTotalDiscount()}` :
+                `${this.state?.currencySymbol} ${this.calculateTotalDiscount()?.toFixed(2)}` :
                 t('addEntry.discount')}
             </Text>
           </TouchableOpacity>}
@@ -2834,7 +2899,7 @@ export class AddEntry extends React.Component<Props> {
                   fontFamily: this.state?.totalTaxAmount != 0 ? FONT_FAMILY.bold : FONT_FAMILY.regular,
                 },
               ]}>
-              {this.state?.totalTaxAmount != 0 ? `${this.state?.currencySymbol} ${this.state?.totalTaxAmount}` :
+              {this.state?.totalTaxAmount != 0 ? `${this.state?.currencySymbol} ${this.state?.totalTaxAmount?.toFixed(2)}` :
                 this.state?.reverseCharge ? <Text>{t('addEntry.taxRCM')}<Text style={{ color: 'red' }} >*</Text></Text> :
                   t('addEntry.tax')}
             </Text>
