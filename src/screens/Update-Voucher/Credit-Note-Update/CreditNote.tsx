@@ -809,7 +809,11 @@ export class CreditNote extends React.Component<Props, State> {
     try {
       const results = await InvoiceService.getTaxes();
       if (results.body && results.status == 'success') {
-        this.setState({ taxArray: results.body, fetechingTaxList: false });
+        await new Promise<void>((resolve) => {
+          this.setState({ taxArray: results.body, fetechingTaxList: false }, () => resolve());
+        });
+      } else {
+        this.setState({ fetechingTaxList: false });
       }
     } catch (e) {
       this.setState({ fetechingTaxList: false });
@@ -826,6 +830,172 @@ export class CreditNote extends React.Component<Props, State> {
       return filtered[0];
     }
     return undefined;
+  }
+
+  resolveTaxAndGroupTaxNames(taxes: any, groupTaxes: any, opts?: { whenBothNonEmpty?: string }) {
+    const whenBoth = (opts && opts.whenBothNonEmpty) || 'intersection';
+    const toNames = (arr: any) => {
+      if (!Array.isArray(arr) || arr.length === 0) {
+        return [];
+      }
+      return arr
+        .map((entry: any) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+        .filter((name: any) => Boolean(name));
+    };
+    const t = toNames(taxes);
+    const g = toNames(groupTaxes);
+    if (t.length > 0 && g.length === 0) {
+      return t;
+    }
+    if (g.length > 0 && t.length === 0) {
+      return g;
+    }
+    if (t.length > 0 && g.length > 0) {
+      if (whenBoth === 'preferTaxes') {
+        return t;
+      }
+      const gSet = new Set(g);
+      return t.filter((name: string) => gSet.has(name));
+    }
+    return [];
+  }
+
+  shouldSkipTaxDueToTdsTcsConflict(selectedTaxArray: any[], taxDetails: any) {
+    if (!taxDetails) {
+      return true;
+    }
+    return (
+      (selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
+      ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+        taxDetails.taxType == 'tcspay') ||
+      ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
+        taxDetails.taxType == 'tdsrc') ||
+      ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
+        taxDetails.taxType == 'tcsrc') ||
+      ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
+        taxDetails.taxType == 'tdspay')
+    );
+  }
+
+  pushLinkedTaxDetail(taxDetailsArray: any[], selectedTaxArray: any[], uniqueName: any) {
+    const taxDetails = this.getTaxDeatilsForUniqueName(uniqueName);
+    if (!taxDetails) {
+      return;
+    }
+    if (taxDetailsArray.some((t) => t.uniqueName === taxDetails.uniqueName)) {
+      return;
+    }
+    if (this.shouldSkipTaxDueToTdsTcsConflict(selectedTaxArray, taxDetails)) {
+      return;
+    }
+    taxDetailsArray.push(taxDetails);
+    selectedTaxArray.push(taxDetails.taxType);
+  }
+
+  isTdsOrTcsTaxType(taxType: string) {
+    return (
+      taxType === 'tdspay' ||
+      taxType === 'tcspay' ||
+      taxType === 'tcsrc' ||
+      taxType === 'tdsrc'
+    );
+  }
+
+  filterTaxDetailsByApplicableAndLinked(
+    taxDetailsArray: any[],
+    selectedTaxArray: any[],
+    resolvedLinkedTaxNames: string[],
+    itemDetails: any
+  ) {
+    const applicable = itemDetails?.applicableTaxes;
+    if (!Array.isArray(applicable) || applicable.length === 0) {
+      return { taxDetailsArray, selectedTaxArray };
+    }
+    const allowed = new Set(resolvedLinkedTaxNames || []);
+    applicable.forEach((t) => {
+      const u = typeof t === 'string' ? t : t && t.uniqueName;
+      if (u) {
+        allowed.add(u);
+      }
+    });
+    const next = taxDetailsArray.filter(
+      (row) => row && (this.isTdsOrTcsTaxType(row.taxType) || allowed.has(row.uniqueName))
+    );
+    return {
+      taxDetailsArray: next,
+      selectedTaxArray: next.map((r) => r.taxType)
+    };
+  }
+
+  getHierarchicalResolvedTaxRows(itemDetails: any) {
+    const taxArr = this.state.taxArray || [];
+    let resolvedNames: string[] = [];
+    if (itemDetails.stock) {
+      const stock = itemDetails.stock;
+      const stockHasAny =
+        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
+        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
+      resolvedNames = stockHasAny
+        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
+        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
+            whenBothNonEmpty: 'intersection'
+          });
+    } else {
+      resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
+        whenBothNonEmpty: 'intersection'
+      });
+    }
+    const rows: any[] = [];
+    for (let i = 0; i < resolvedNames.length; i++) {
+      const row = taxArr.find((t: any) => t && t.uniqueName === resolvedNames[i]);
+      if (row && row.taxDetail && Array.isArray(row.taxDetail) && row.taxDetail.length > 0) {
+        rows.push(row);
+      }
+    }
+    return rows;
+  }
+
+  dedupeTaxDetailRows(rows: any[]) {
+    const seen = new Set<string>();
+    const out: any[] = [];
+    const list = rows || [];
+    for (let i = 0; i < list.length; i++) {
+      const row = list[i];
+      if (!row || !row.uniqueName || seen.has(row.uniqueName)) {
+        continue;
+      }
+      if (!row.taxDetail || !row.taxDetail[0]) {
+        continue;
+      }
+      seen.add(row.uniqueName);
+      out.push(row);
+    }
+    return out;
+  }
+
+  getCanonicalTaxRowsForLine(itemDetails: any) {
+    const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
+    const hSet = new Set(hierarchicalRows.map((r: any) => r && r.uniqueName).filter(Boolean));
+
+    if (!itemDetails.taxDetailsArray || itemDetails.taxDetailsArray.length === 0) {
+      return hierarchicalRows;
+    }
+    if (hierarchicalRows.length === 0) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
+    }
+
+    const fromDetails = itemDetails.taxDetailsArray.filter(
+      (row: any) =>
+        row &&
+        row.uniqueName &&
+        (hSet.has(row.uniqueName) || this.isTdsOrTcsTaxType(row.taxType))
+    );
+
+    return fromDetails.length > 0 ? this.dedupeTaxDetailRows(fromDetails) : hierarchicalRows;
+  }
+
+  getTaxRowsForCalculation(itemDetails: any) {
+    return this.getCanonicalTaxRowsForLine(itemDetails);
   }
 
   getDiscountDeatilsForUniqueName(uniqueName) {
@@ -2002,7 +2172,7 @@ export class CreditNote extends React.Component<Props, State> {
 
     for (let i = 0; i < updateAmountToCurrentCurrency.length; i++) {
       if (updateAmountToCurrentCurrency[i].isNew == undefined || updateAmountToCurrentCurrency[i].isNew == true) { 
-        this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i]) 
+        await this.DefaultStockAndAccountTax(updateAmountToCurrentCurrency[i]) 
         this.calculateTdsOrTcsAmountToDisplay(updateAmountToCurrentCurrency[i])
       }
     }
@@ -2054,94 +2224,79 @@ export class CreditNote extends React.Component<Props, State> {
 
   async DefaultStockAndAccountTax(itemDetails) {
     let editItemDetails = itemDetails
+    const stockInputHadTaxIds =
+      !!itemDetails.stock &&
+      ((Array.isArray(itemDetails.stock.taxes) && itemDetails.stock.taxes.length > 0) ||
+        (Array.isArray(itemDetails.stock.groupTaxes) && itemDetails.stock.groupTaxes.length > 0));
+    const stockTaxesSnapshot =
+      editItemDetails.stock && Array.isArray(editItemDetails.stock.taxes)
+        ? [...editItemDetails.stock.taxes]
+        : undefined;
+    const stockGroupTaxesSnapshot =
+      editItemDetails.stock && Array.isArray(editItemDetails.stock.groupTaxes)
+        ? [...editItemDetails.stock.groupTaxes]
+        : undefined;
     let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
     let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
     let discountDetailsArray = editItemDetails.percentDiscountArray ? editItemDetails.percentDiscountArray : []
+    let resolvedLinkedTaxNames: string[] = []
 
-    // Stock taxes 
     if (itemDetails.stock) {
-      // Stock taxes
-      if (itemDetails.stock.taxes) {
-        for (var i = 0; i < itemDetails.stock.taxes.length; i++) {
-          var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.taxes[i])
-          if (taxDetails) {
-            taxDetailsArray.push(taxDetails)
-            selectedTaxArray.push(taxDetails.taxType)
-          }
-        }
+      const stock = itemDetails.stock;
+      const stockHasAny =
+        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
+        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
+      const resolvedStockOrAccountNames = stockHasAny
+        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
+        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
+            whenBothNonEmpty: 'intersection'
+          });
+      resolvedLinkedTaxNames = resolvedStockOrAccountNames.slice();
+      for (let i = 0; i < resolvedStockOrAccountNames.length; i++) {
+        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedStockOrAccountNames[i]);
       }
-      // Stock group taxes
-      if (itemDetails.stock.groupTaxes) {
-        for (var i = 0; i < itemDetails.stock.groupTaxes.length; i++) {
-          var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.stock.groupTaxes[i])
-          if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
-            ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
-              taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
-                taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
-                  taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
-                    taxDetails.taxType == 'tdspay'))) {
-            taxDetailsArray.push(taxDetails)
-            selectedTaxArray.push(taxDetails.taxType)
-          }
-        }
-      }
-    } else if (itemDetails.taxes) {
-      // sales taxes
-      for (var i = 0; i < itemDetails.taxes.length; i++) {
-        var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.taxes[i])
-        if (taxDetails) {
-          taxDetailsArray.push(taxDetails)
-          selectedTaxArray.push(taxDetails.taxType)
-        }
+    } else {
+      const resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
+        whenBothNonEmpty: 'intersection'
+      });
+      resolvedLinkedTaxNames = resolvedNames.slice();
+      for (let i = 0; i < resolvedNames.length; i++) {
+        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedNames[i]);
       }
     }
 
-    // hsnNumber
     if (itemDetails.stock && editItemDetails.hsnNumber == null) {
       if (itemDetails.stock.hsnNumber) {
         editItemDetails.hsnNumber = itemDetails.stock.hsnNumber
       }
     }
-    // SacNumber
     if (itemDetails.stock && editItemDetails.sacNumber == null) {
       if (itemDetails.stock.sacNumber) {
         editItemDetails.sacNumber = itemDetails.stock.sacNumber
       }
     }
 
-    // Account tax
     if (this.state.defaultAccountTax) {
       for (var i = 0; i < this.state.defaultAccountTax.length; i++) {
-        var taxDetails = this.getTaxDeatilsForUniqueName(this.state.defaultAccountTax[i])
-        if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
-          ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
-            taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
-              taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
-                taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
-                  taxDetails.taxType == 'tdspay'))) {
-          taxDetailsArray.push(taxDetails)
-          selectedTaxArray.push(taxDetails.taxType)
-        }
+        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, this.state.defaultAccountTax[i]);
       }
     }
 
-    // Account group taxes 
     if (itemDetails.groupTaxes) {
       for (var i = 0; i < itemDetails.groupTaxes.length; i++) {
-        var taxDetails = this.getTaxDeatilsForUniqueName(itemDetails.groupTaxes[i])
-        if (!((selectedTaxArray.includes(taxDetails.taxType) && !selectedTaxArray.includes(taxDetails)) ||
-          ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
-            taxDetails.taxType == 'tcspay') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tcsrc')) &&
-              taxDetails.taxType == 'tdsrc') || ((selectedTaxArray.includes('tdspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcspay')) &&
-                taxDetails.taxType == 'tcsrc') || ((selectedTaxArray.includes('tcspay') || selectedTaxArray.includes('tdsrc') || selectedTaxArray.includes('tcsrc')) &&
-                  taxDetails.taxType == 'tdspay'))) {
-          taxDetailsArray.push(taxDetails)
-          selectedTaxArray.push(taxDetails.taxType)
-        }
+        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, itemDetails.groupTaxes[i]);
       }
     }
 
-    // Account default discount
+    const filtered = this.filterTaxDetailsByApplicableAndLinked(
+      taxDetailsArray,
+      selectedTaxArray,
+      resolvedLinkedTaxNames,
+      editItemDetails
+    );
+    taxDetailsArray = filtered.taxDetailsArray;
+    selectedTaxArray = filtered.selectedTaxArray;
+
     if (this.state.defaultAccountDiscount) {
       for (var i = 0; i < this.state.defaultAccountDiscount.length; i++) {
         var discountDetails = this.getDiscountDeatilsForUniqueName(this.state.defaultAccountDiscount[i])
@@ -2156,7 +2311,6 @@ export class CreditNote extends React.Component<Props, State> {
     editItemDetails.percentDiscountArray = discountDetailsArray
     editItemDetails.amountText = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
     editItemDetails.amount = editItemDetails.quantityText > 1 ? editItemDetails.quantityText * editItemDetails.rate : editItemDetails.rate
-    editItemDetails.stock ? (editItemDetails.stock.taxes = []) : (null)
     editItemDetails.discountValue = this.calculateDiscountedAmount(editItemDetails)
     editItemDetails.isNew = false
     if(editItemDetails?.stock?.variant){
@@ -2166,7 +2320,16 @@ export class CreditNote extends React.Component<Props, State> {
     }
     editItemDetails.tax = this.calculatedTaxAmount(editItemDetails, 'taxAmount')
 
-    console.log("FINAL ITEM " + JSON.stringify(editItemDetails))
+    if (editItemDetails.stock) {
+      if (stockGroupTaxesSnapshot !== undefined && stockGroupTaxesSnapshot.length > 0) {
+        editItemDetails.stock.groupTaxes = [...stockGroupTaxesSnapshot];
+      }
+      if (stockTaxesSnapshot !== undefined && stockTaxesSnapshot.length > 0) {
+        editItemDetails.stock.taxes = [...stockTaxesSnapshot];
+      } else if (stockInputHadTaxIds && resolvedLinkedTaxNames.length > 0) {
+        editItemDetails.stock.taxes = [...resolvedLinkedTaxNames];
+      }
+    }
   }
 
   addItem = (item) => {
@@ -2454,44 +2617,75 @@ export class CreditNote extends React.Component<Props, State> {
     return totalDiscount;
   }
 
-  calculatedTaxAmount(itemDetails) {
+  getLineQtyForItem(itemDetails) {
+    const raw =
+      itemDetails.quantityText != null && itemDetails.quantityText !== ''
+        ? itemDetails.quantityText
+        : itemDetails.quantity;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  getLineRateForItem(itemDetails) {
+    const raw =
+      itemDetails.rateText != null && itemDetails.rateText !== '' ? itemDetails.rateText : itemDetails.rate;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  getTaxableAmountForItem(itemDetails) {
+    const base = this.getLineQtyForItem(itemDetails) * this.getLineRateForItem(itemDetails);
+    const disc = Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
+    const d = Number.isFinite(disc) ? disc : 0;
+    return Math.max(0, base - d);
+  }
+
+  calculatedTaxAmount(itemDetails, calculateFor = 'taxAmount') {
     let totalTax = 0;
-    console.log('rate', itemDetails.rate);
-    const taxArr = this.state.taxArray;
-    let amt = Number(itemDetails.rate) * Number(itemDetails.quantity);
-    amt = amt - Number(itemDetails.discountValue ? itemDetails.discountValue : 0);
-    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
-      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-        const item = itemDetails.taxDetailsArray[i];
+    const companyInr =
+      this.state.currency != this.state.companyCountryDetails?.currency?.code &&
+      this.state.companyCountryDetails?.currency?.code == 'INR';
+    if (companyInr && calculateFor == 'totalAmount') {
+      return 0;
+    }
+    let amt = this.getTaxableAmountForItem(itemDetails);
+    const rows = this.getTaxRowsForCalculation(itemDetails);
+    const useInrSez =
+      this.state.companyCountryDetails?.currency?.code == 'INR' &&
+      this.state.currency != this.state.companyCountryDetails?.currency?.code;
+
+    for (let i = 0; i < rows.length; i++) {
+      const item = rows[i];
+      if (!item?.taxDetail?.[0]) {
+        continue;
+      }
+      if (useInrSez) {
         const taxPercent = Number(item.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        totalTax =
-          item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc'
-            ? totalTax
-            : totalTax + taxAmount;
-      }
-    }
-    else if (itemDetails.stock != null && itemDetails.stock.taxes.length > 0) {
-      for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
-        const item = itemDetails.stock.taxes[i];
-        for (let j = 0; j < taxArr.length; j++) {
-          if (item == taxArr[j].uniqueName) {
-            // console.log('tax value is ', taxArr[j].taxDetail[0].taxValue);
-            const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-            const taxAmount = (taxPercent * Number(amt)) / 100;
-            totalTax =
-              taxArr[j].taxType == 'tdspay' ||
-                taxArr[j].taxType == 'tcspay' ||
-                taxArr[j].taxType == 'tcsrc' ||
-                taxArr[j].taxType == 'tdsrc'
-                ? totalTax
-                : totalTax + taxAmount;
-            break;
-          }
+        if (
+          (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') &&
+          calculateFor != 'taxAmount'
+        ) {
+          totalTax = item.taxType == 'tdspay' || item.taxType == 'tdsrc' ? totalTax - taxAmount : totalTax + taxAmount;
+        } else if (calculateFor == 'taxAmount') {
+          totalTax =
+            item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc'
+              ? totalTax
+              : totalTax + taxAmount;
+        }
+      } else {
+        const taxPercent = Number(item.taxDetail[0].taxValue);
+        const taxAmount = (taxPercent * Number(amt)) / 100;
+        if (calculateFor == 'InvoiceDue') {
+          totalTax = item.taxType == 'tdspay' || item.taxType == 'tdsrc' ? totalTax - taxAmount : totalTax + taxAmount;
+        } else {
+          totalTax =
+            item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc'
+              ? totalTax
+              : totalTax + taxAmount;
         }
       }
     }
-    console.log('calculated tax is ', totalTax);
     return Number(totalTax.toFixed(2));
   }
 
@@ -2586,8 +2780,8 @@ export class CreditNote extends React.Component<Props, State> {
     for (let i = 0; i < this.state.addedItems.length; i++) {
       const item = this.state.addedItems[i];
       const discount = item.discountValue ? item.discountValue : 0;
-      const tax = this.calculatedTaxAmount(item);
-      const amount = Number(item.rate) * Number(item.quantity);
+      const tax = this.calculatedTaxAmount(item, 'totalAmount');
+      const amount = this.getLineRateForItem(item) * this.getLineQtyForItem(item);
       total = total + amount - discount + tax;
     }
     return total.toFixed(2);
@@ -2595,8 +2789,8 @@ export class CreditNote extends React.Component<Props, State> {
 
   getTotalAmountOfCard(item){
     const discount = item.discountValue ? item.discountValue : 0;
-    const tax = this.calculatedTaxAmount(item, 'InvoiceDue');
-    const amount = Number(item.rate) * Number(item.quantity);
+    const tax = this.calculatedTaxAmount(item, 'totalAmount');
+    const amount = this.getLineRateForItem(item) * this.getLineQtyForItem(item);
     const total = amount - discount + tax;
     return total;
   }
@@ -2954,11 +3148,18 @@ export class CreditNote extends React.Component<Props, State> {
           <EditItemDetail
             currencySymbol={this.state.currencySymbol}
             notIncludeTax={
-              (this.state.invoiceType == INVOICE_TYPE.credit &&
-                this.state.currency != this.state.companyCountryDetails.currency.code &&
-                this.state.companyCountryDetails.currency.code == 'INR')
+              this.state.currency != this.state.companyCountryDetails?.currency?.code &&
+              this.state.companyCountryDetails?.currency?.code == 'INR'
                 ? false
                 : true
+            }
+            zeroLineTotalTax={
+              this.state.currency != this.state.companyCountryDetails?.currency?.code &&
+              this.state.companyCountryDetails?.currency?.code == 'INR'
+            }
+            useInrSezTaxRowLogic={
+              this.state.companyCountryDetails?.currency?.code == 'INR' &&
+              this.state.currency != this.state.companyCountryDetails?.currency?.code
             }
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}

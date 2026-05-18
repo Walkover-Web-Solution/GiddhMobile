@@ -534,6 +534,30 @@ class AddItemScreen extends React.Component<Props> {
           const addedItems = this.state.addedItems;
           // if (!this.checkIfItemIsSelcted(results.body)) {
             const data = results.body;
+            // Search row includes stock.taxes / groupTaxes; detail API often omits them.
+            if (item.stock && data.stock) {
+              const listT = item.stock.taxes;
+              const listG = item.stock.groupTaxes;
+              const detailT = data.stock.taxes;
+              const detailG = data.stock.groupTaxes;
+              const missingTaxes = !Array.isArray(detailT) || detailT.length === 0;
+              const missingGroup = !Array.isArray(detailG) || detailG.length === 0;
+              if (missingTaxes && Array.isArray(listT) && listT.length > 0) {
+                data.stock = { ...data.stock, taxes: [...listT] };
+              }
+              if (missingGroup && Array.isArray(listG) && listG.length > 0) {
+                data.stock = { ...data.stock, groupTaxes: [...listG] };
+              }
+            }
+            if (Array.isArray(item.taxes) && item.taxes.length > 0 && (!Array.isArray(data.taxes) || data.taxes.length === 0)) {
+              data.taxes = [...item.taxes];
+            }
+            if (Array.isArray(item.groupTaxes) && item.groupTaxes.length > 0 && (!Array.isArray(data.groupTaxes) || data.groupTaxes.length === 0)) {
+              data.groupTaxes = [...item.groupTaxes];
+            }
+            if (Array.isArray(item.applicableTaxes) && item.applicableTaxes.length > 0 && (!Array.isArray(data.applicableTaxes) || data.applicableTaxes.length === 0)) {
+              data.applicableTaxes = item.applicableTaxes.map((t) => ({ ...t }));
+            }
             if(data?.stock?.variant){
               data.rate = data.stock.variant.unitRates[0].rate;
               data.stock.rate = data.stock.variant.unitRates[0].rate;
