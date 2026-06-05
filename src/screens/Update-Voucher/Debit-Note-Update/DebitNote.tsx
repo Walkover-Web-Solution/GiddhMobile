@@ -923,7 +923,11 @@ export class DebiteNote extends React.Component<Props, State> {
         return t;
       }
       const gSet = new Set(g);
-      return t.filter((name: string) => gSet.has(name));
+      const isSame = t.length === g.length && t.every((name: string) => gSet.has(name));
+      if (isSame) {
+        return t.slice();
+      }
+      return t.filter((name: string) => !gSet.has(name));
     }
     return [];
   }
@@ -969,26 +973,48 @@ export class DebiteNote extends React.Component<Props, State> {
     );
   }
 
+  lineHasTaxHierarchyLinkage(itemDetails: any) {
+    if (!itemDetails) {
+      return false;
+    }
+    if (itemDetails.stock) {
+      const stock = itemDetails.stock;
+      return (
+        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
+        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0)
+      );
+    }
+    return (
+      (Array.isArray(itemDetails.taxes) && itemDetails.taxes.length > 0) ||
+      (Array.isArray(itemDetails.groupTaxes) && itemDetails.groupTaxes.length > 0)
+    );
+  }
+
   filterTaxDetailsByApplicableAndLinked(
     taxDetailsArray: any[],
     selectedTaxArray: any[],
     resolvedLinkedTaxNames: string[],
     itemDetails: any
   ) {
+    const linked = (resolvedLinkedTaxNames || []).filter(Boolean);
     const applicable = itemDetails?.applicableTaxes;
-    if (!Array.isArray(applicable) || applicable.length === 0) {
+    const hasApplicable = Array.isArray(applicable) && applicable.length > 0;
+
+    if (linked.length === 0 && !hasApplicable) {
       return { taxDetailsArray, selectedTaxArray };
     }
-    const allowed = new Set(resolvedLinkedTaxNames || []);
-    applicable.forEach((t) => {
-      const u = typeof t === 'string' ? t : t && t.uniqueName;
-      if (u) {
-        allowed.add(u);
-      }
-    });
-    const next = taxDetailsArray.filter(
-      (row) => row && (this.isTdsOrTcsTaxType(row.taxType) || allowed.has(row.uniqueName))
-    );
+
+    const allowed = new Set(linked);
+    if (hasApplicable && linked.length === 0) {
+      applicable.forEach((t) => {
+        const u = typeof t === 'string' ? t : t && t.uniqueName;
+        if (u) {
+          allowed.add(u);
+        }
+      });
+    }
+
+    const next = taxDetailsArray.filter((row) => row && row.uniqueName && allowed.has(row.uniqueName));
     return {
       taxDetailsArray: next,
       selectedTaxArray: next.map((r) => r.taxType)
@@ -1049,6 +1075,9 @@ export class DebiteNote extends React.Component<Props, State> {
       return hierarchicalRows;
     }
     if (hierarchicalRows.length === 0) {
+      if (this.lineHasTaxHierarchyLinkage(itemDetails)) {
+        return hierarchicalRows;
+      }
       return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
     }
 
@@ -1056,14 +1085,21 @@ export class DebiteNote extends React.Component<Props, State> {
       (row: any) =>
         row &&
         row.uniqueName &&
-        (hSet.has(row.uniqueName) || this.isTdsOrTcsTaxType(row.taxType))
+        hSet.has(row.uniqueName)
     );
 
     return fromDetails.length > 0 ? this.dedupeTaxDetailRows(fromDetails) : hierarchicalRows;
   }
 
   getTaxRowsForCalculation(itemDetails: any) {
-    return this.getCanonicalTaxRowsForLine(itemDetails);
+    const canonical = this.getCanonicalTaxRowsForLine(itemDetails);
+    if (canonical.length > 0) {
+      return canonical;
+    }
+    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
+    }
+    return canonical;
   }
 
   getDiscountDeatilsForUniqueName(uniqueName) {
@@ -2262,9 +2298,9 @@ export class DebiteNote extends React.Component<Props, State> {
       editItemDetails.stock && Array.isArray(editItemDetails.stock.groupTaxes)
         ? [...editItemDetails.stock.groupTaxes]
         : undefined;
-    let taxDetailsArray = editItemDetails.taxDetailsArray ? editItemDetails.taxDetailsArray : []
-    let selectedTaxArray = editItemDetails.selectedArrayType ? editItemDetails.selectedArrayType : []
-    let discountDetailsArray = editItemDetails.percentDiscountArray ? editItemDetails.percentDiscountArray : []
+    let taxDetailsArray: any[] = []
+    let selectedTaxArray: any[] = []
+    let discountDetailsArray = editItemDetails.percentDiscountArray ? [...editItemDetails.percentDiscountArray] : []
     let resolvedLinkedTaxNames: string[] = []
 
     if (itemDetails.stock) {
@@ -2302,15 +2338,10 @@ export class DebiteNote extends React.Component<Props, State> {
       }
     }
 
-    if (this.state.defaultAccountTax) {
+    const accountHasTaxHierarchy = !itemDetails.stock && this.lineHasTaxHierarchyLinkage(itemDetails);
+    if (this.state.defaultAccountTax && !accountHasTaxHierarchy) {
       for (var i = 0; i < this.state.defaultAccountTax.length; i++) {
         this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, this.state.defaultAccountTax[i]);
-      }
-    }
-
-    if (itemDetails.groupTaxes) {
-      for (var i = 0; i < itemDetails.groupTaxes.length; i++) {
-        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, itemDetails.groupTaxes[i]);
       }
     }
 
@@ -2646,19 +2677,27 @@ export class DebiteNote extends React.Component<Props, State> {
   }
 
   getLineQtyForItem(itemDetails) {
-    const raw =
+    const fromField = Number(itemDetails.quantity);
+    const fromText =
       itemDetails.quantityText != null && itemDetails.quantityText !== ''
-        ? itemDetails.quantityText
-        : itemDetails.quantity;
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : 0;
+        ? Number(itemDetails.quantityText)
+        : NaN;
+    if (Number.isFinite(fromText) && !(fromText === 0 && Number.isFinite(fromField) && fromField !== 0)) {
+      return fromText;
+    }
+    return Number.isFinite(fromField) ? fromField : 0;
   }
 
   getLineRateForItem(itemDetails) {
-    const raw =
-      itemDetails.rateText != null && itemDetails.rateText !== '' ? itemDetails.rateText : itemDetails.rate;
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : 0;
+    const fromField = Number(itemDetails.rate);
+    const fromText =
+      itemDetails.rateText != null && itemDetails.rateText !== ''
+        ? Number(itemDetails.rateText)
+        : NaN;
+    if (Number.isFinite(fromText) && !(fromText === 0 && Number.isFinite(fromField) && fromField !== 0)) {
+      return fromText;
+    }
+    return Number.isFinite(fromField) ? fromField : 0;
   }
 
   getTaxableAmountForItem(itemDetails) {
@@ -3052,11 +3091,14 @@ export class DebiteNote extends React.Component<Props, State> {
     );
     const item = this.state.addedItems[index];
     item.quantity = Number(details.quantityText);
+    item.quantityText = details.quantityText;
     item.description = details.description;
     item.rate = Number(details.rateText);
+    item.rateText = details.rateText;
     item.unit = Number(details.unitText);
     item.total = Number(details.total);
     item.amount = Number(details.amountText);
+    item.amountText = details.amountText;
     item.discountPercentage = Number(details.discountPercentageText);
     item.discountValue = Number(details.discountValueText);
     item.discountType = Number(details.discountType);

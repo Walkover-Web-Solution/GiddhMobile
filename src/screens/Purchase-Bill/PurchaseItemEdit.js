@@ -128,7 +128,11 @@ class PurchaseItemEdit extends Component {
         return t;
       }
       const gSet = new Set(g);
-      return t.filter((name) => gSet.has(name));
+      const isSame = t.length === g.length && t.every((name) => gSet.has(name));
+      if (isSame) {
+        return t.slice();
+      }
+      return t.filter((name) => !gSet.has(name));
     }
     return [];
   }
@@ -139,6 +143,23 @@ class PurchaseItemEdit extends Component {
       taxType === 'tcspay' ||
       taxType === 'tcsrc' ||
       taxType === 'tdsrc'
+    );
+  }
+
+  lineHasTaxHierarchyLinkage(itemDetails) {
+    if (!itemDetails) {
+      return false;
+    }
+    if (itemDetails.stock) {
+      const stock = itemDetails.stock;
+      return (
+        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
+        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0)
+      );
+    }
+    return (
+      (Array.isArray(itemDetails.taxes) && itemDetails.taxes.length > 0) ||
+      (Array.isArray(itemDetails.groupTaxes) && itemDetails.groupTaxes.length > 0)
     );
   }
 
@@ -196,31 +217,50 @@ class PurchaseItemEdit extends Component {
       return hierarchicalRows;
     }
     if (hierarchicalRows.length === 0) {
+      if (this.lineHasTaxHierarchyLinkage(itemDetails)) {
+        return hierarchicalRows;
+      }
       return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
     }
 
     const fromDetails = itemDetails.taxDetailsArray.filter(
-      (row) =>
-        row &&
-        row.uniqueName &&
-        (hSet.has(row.uniqueName) || this.isTdsOrTcsTaxType(row.taxType))
+      (row) => row && row.uniqueName && hSet.has(row.uniqueName)
     );
 
     return fromDetails.length > 0 ? this.dedupeTaxDetailRows(fromDetails) : hierarchicalRows;
   }
 
   getTaxRowsForCalculation(itemDetails) {
+    const canonical = this.getCanonicalTaxRowsForLine(itemDetails);
+    if (canonical.length > 0) {
+      return canonical;
+    }
     if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
       return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
     }
-    return this.getHierarchicalResolvedTaxRows(itemDetails);
+    return canonical;
   }
 
   sanitizeTaxDetailsForEdit(lineItem, taxDetailsArray) {
     const arr = Array.isArray(taxDetailsArray) ? taxDetailsArray.slice() : [];
+    if (arr.length === 0 && lineItem && Array.isArray(lineItem.taxDetailsArray) && lineItem.taxDetailsArray.length > 0) {
+      return lineItem.taxDetailsArray.slice();
+    }
     const merged = { ...(lineItem || {}), taxDetailsArray: arr };
     const rows = this.getCanonicalTaxRowsForLine(merged);
     return rows && rows.length > 0 ? rows.slice() : arr;
+  }
+
+  refreshLineAmounts(editItemDetails) {
+    const line = editItemDetails || this.state.editItemDetails;
+    line.amountText = String(
+      this.getLineQtyForItem(line) * this.getLineRateForItem(line)
+    );
+    line.discountValueText = this.calculateDiscountedAmountToDisplayTotalAmount(line);
+    line.taxText = this.calculatedTaxAmount(line);
+    line.total = this.calculateFinalAmount(line);
+    line.taxText = this.calculatedTaxAmount(line);
+    return line;
   }
 
   getTaxPickerRows() {
@@ -233,12 +273,21 @@ class PurchaseItemEdit extends Component {
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
 
     const line = this.props.itemDetails;
-    const raw = line.taxDetailsArray ? [...line.taxDetailsArray] : [];
+    let raw;
+    if (!line.stock && this.lineHasTaxHierarchyLinkage(line)) {
+      const hierarchical = this.getHierarchicalResolvedTaxRows(line);
+      raw =
+        hierarchical.length > 0
+          ? hierarchical
+          : line.taxDetailsArray
+            ? [...line.taxDetailsArray]
+            : [];
+    } else {
+      raw = line.taxDetailsArray ? [...line.taxDetailsArray] : [];
+    }
     const sanitized = this.sanitizeTaxDetailsForEdit(line, raw);
     const editItemDetails = { ...this.state.editItemDetails, taxDetailsArray: sanitized };
-    editItemDetails.discountValueText = this.calculateDiscountedAmountToDisplayTotalAmount(editItemDetails);
-    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
-    editItemDetails.total = this.calculateFinalAmount(editItemDetails);
+    this.refreshLineAmounts(editItemDetails);
     const typesFromRows = sanitized.map((r) => r && r.taxType).filter(Boolean);
     this.setState(
       {
@@ -550,9 +599,9 @@ class PurchaseItemEdit extends Component {
     );
   }
 
-  caluclateTotalAmount() {
-    const amount = Number(this.state.editItemDetails.rateText) * Number(this.state.editItemDetails.quantityText);
-    return amount;
+  caluclateTotalAmount(editItemDetails) {
+    const line = editItemDetails || this.state.editItemDetails;
+    return this.getLineQtyForItem(line) * this.getLineRateForItem(line);
   }
 
   // calculateDiscountedAmount(itemDetails) {
@@ -604,19 +653,27 @@ class PurchaseItemEdit extends Component {
   }
 
   getLineQtyForItem(itemDetails) {
-    const raw =
+    const fromField = Number(itemDetails.quantity);
+    const fromText =
       itemDetails.quantityText != null && itemDetails.quantityText !== ''
-        ? itemDetails.quantityText
-        : itemDetails.quantity;
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : 0;
+        ? Number(itemDetails.quantityText)
+        : NaN;
+    if (Number.isFinite(fromText) && !(fromText === 0 && Number.isFinite(fromField) && fromField !== 0)) {
+      return fromText;
+    }
+    return Number.isFinite(fromField) ? fromField : 0;
   }
 
   getLineRateForItem(itemDetails) {
-    const raw =
-      itemDetails.rateText != null && itemDetails.rateText !== '' ? itemDetails.rateText : itemDetails.rate;
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : 0;
+    const fromField = Number(itemDetails.rate);
+    const fromText =
+      itemDetails.rateText != null && itemDetails.rateText !== ''
+        ? Number(itemDetails.rateText)
+        : NaN;
+    if (Number.isFinite(fromText) && !(fromText === 0 && Number.isFinite(fromField) && fromField !== 0)) {
+      return fromText;
+    }
+    return Number.isFinite(fromField) ? fromField : 0;
   }
 
   getTaxableAmountForItem(itemDetails) {
@@ -708,8 +765,7 @@ class PurchaseItemEdit extends Component {
         percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
         console.log(percentDiscount, '%');
       }
-      const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
-      // console.log('amt is ', amt);
+      const amt = this.getLineQtyForItem(itemDetails) * this.getLineRateForItem(itemDetails);
       totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
     }
     console.log(totalDiscount, 'is the discount');
@@ -1101,19 +1157,19 @@ class PurchaseItemEdit extends Component {
         editItemDetails.discountPercentageText = text;
         break;
     }
-    editItemDetails.amountText = this.caluclateTotalAmount(editItemDetails);
-    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
-    editItemDetails.total = this.calculateFinalAmount(editItemDetails);
-    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
-    this.calculateFinalTcsOrTdsToDisplay(editItemDetails)
-    this.setState({ editItemDetails });
+    this.refreshLineAmounts(editItemDetails);
+    this.calculateFinalTcsOrTdsToDisplay();
+    this.setState({ editItemDetails: { ...editItemDetails } });
   }
 
   fixedDiscountValueChange = (text) => {
-    const editItemDetails = this.state.editItemDetails;
-    editItemDetails.fixedDiscount.discountValue = text;
-    const total = this.calculateFinalAmount(editItemDetails);
-    editItemDetails.total = total;
+    const editItemDetails = { ...this.state.editItemDetails };
+    editItemDetails.fixedDiscount = {
+      ...editItemDetails.fixedDiscount,
+      discountValue: text,
+    };
+    this.refreshLineAmounts(editItemDetails);
+    this.calculateFinalTcsOrTdsToDisplay();
     this.setState({ editItemDetails });
   };
 
@@ -1407,7 +1463,9 @@ class PurchaseItemEdit extends Component {
           {this._renderBottomSeprator()}
         </View>
         <View style={{ marginHorizontal: 16, flex: 1, paddingTop: 16, paddingBottom: 8 }}>
-          <Text style={{ paddingTop: 16 }}>{this.state.editItemDetails.taxText.toFixed(2)}</Text>
+          <Text style={{ paddingTop: 16 }}>
+            {Number(this.state.editItemDetails.taxText || 0).toFixed(2)}
+          </Text>
           {/* <TextInput
             placeholder={'00.00'}
             placeholderTextColor={'#808080'}

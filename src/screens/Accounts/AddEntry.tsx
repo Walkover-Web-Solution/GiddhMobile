@@ -1039,39 +1039,124 @@ export class AddEntry extends React.Component<Props> {
         return t;
       }
       const gSet = new Set(g);
-      return t.filter((name) => gSet.has(name));
+      const isSame = t.length === g.length && t.every((name) => gSet.has(name));
+      if (isSame) {
+        return t.slice();
+      }
+      return t.filter((name) => !gSet.has(name));
     }
     return [];
   }
 
-  calculateHierarchicalTaxes(payload: any) {
+  taxNamesFromArray(arr: any): string[] {
+    if (!Array.isArray(arr) || arr.length === 0) {
+      return [];
+    }
+    return arr
+      .map((entry: any) => (typeof entry === 'string' ? entry : entry?.uniqueName))
+      .filter((name: any): name is string => Boolean(name));
+  }
+
+  calculateHierarchicalTaxes(payload: any, taxArrInput?: any[]) {
+    const taxArr = taxArrInput ?? this.state?.taxArray ?? [];
+    const toNames = (arr: any) => this.taxNamesFromArray(arr);
+
+    const rowForName = (name: string) => {
+      const row = taxArr.find((t: any) => t?.uniqueName === name);
+      if (row?.taxDetail && Array.isArray(row.taxDetail) && row.taxDetail.length > 0) {
+        return row;
+      }
+      return null;
+    };
+
+    const details: any[] = [];
+    const seen = new Set<string>();
+    const pushNames = (names: string[]) => {
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i];
+        if (!name || seen.has(name)) {
+          continue;
+        }
+        const row = rowForName(name);
+        if (row) {
+          seen.add(name);
+          details.push(row);
+        }
+      }
+    };
+
     const stock = payload?.stock;
-    const stockTaxNames = this.resolveTaxAndGroupTaxNames(stock?.taxes, stock?.groupTaxes, {
-      whenBothNonEmpty: 'preferTaxes'
-    });
     const stockHasAny =
       (Array.isArray(stock?.taxes) && stock.taxes.length > 0) ||
       (Array.isArray(stock?.groupTaxes) && stock.groupTaxes.length > 0);
 
-    let resolvedNames: string[] = [];
     if (stockHasAny) {
-      resolvedNames = stockTaxNames;
-    } else {
-      resolvedNames = this.resolveTaxAndGroupTaxNames(payload?.taxes, payload?.groupTaxes, {
-        whenBothNonEmpty: 'intersection'
+      const stockTaxNames = this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, {
+        whenBothNonEmpty: 'preferTaxes',
       });
+      pushNames(stockTaxNames);
+      return details;
     }
 
-    const taxArr = this.state?.taxArray ?? [];
-    const details: any[] = [];
-    for (let i = 0; i < resolvedNames.length; i++) {
-      const row = taxArr.find((t: any) => t?.uniqueName === resolvedNames[i]);
-      if (row) {
-        details.push(row);
+    const accountTaxNames = this.resolveTaxAndGroupTaxNames(payload?.taxes, payload?.groupTaxes, {
+      whenBothNonEmpty: 'intersection',
+    });
+    pushNames(accountTaxNames);
+
+    const groupNames = toNames(payload?.groupTaxes);
+    const groupTdsNames = groupNames.filter((name) => {
+      const row = rowForName(name);
+      if (!row?.taxType) {
+        return false;
+      }
+      return row.taxType.includes('tds') || row.taxType.includes('tcs');
+    });
+    pushNames(groupTdsNames);
+
+    if (details.length === 0) {
+      const applicable = toNames(payload?.applicableTaxes);
+      if (applicable.length > 0) {
+        pushNames(applicable);
+      } else {
+        pushNames(toNames(payload?.taxes));
       }
     }
+
     return details;
   }
+
+  applyLinkedTaxesFromPayload = async (payload: any, afterApply?: () => void) => {
+    let taxArr = this.state?.taxArray ?? [];
+    if (!taxArr.length) {
+      const loaded = await this.getAllTaxes();
+      taxArr = loaded?.length ? loaded : this.state?.taxArray ?? [];
+    }
+    const linkedTaxDetails = this.calculateHierarchicalTaxes(payload, taxArr);
+    const selectedArrayType = linkedTaxDetails.map((t: any) => t?.taxType).filter(Boolean);
+    this.setState(
+      {
+        selectedArrayType,
+        SelectedTaxData: {
+          taxType: '',
+          taxText: '',
+          taxDetailsArray: linkedTaxDetails,
+        },
+        selectedTaxUniqueNameList: linkedTaxDetails.map((t: any) => t?.uniqueName).filter(Boolean),
+      },
+      () => {
+        if (Number(this.state.amountForEntry) > 0) {
+          this.calculatedTaxAmounstForEntry();
+          this.calculateFinalTcsOrTdsToDisplay(
+            this.state.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount',
+            this.state.totalTaxAmount
+          );
+        }
+        if (afterApply) {
+          afterApply();
+        }
+      }
+    );
+  };
   // ************************ BELOW ARE API CALLS AND HANDLING ************************
 
 
@@ -1119,28 +1204,29 @@ export class AddEntry extends React.Component<Props> {
     }
   }
   getParticularAccountData = async (accountName: string) => {
-    //this method is to get second(to) account data
     try {
       const response = await AccountsService.getParticularToAccountData(accountName);
       if (response?.body) {
         this.checkShowDiscountAndTaxField(response?.body);
         this.shouldShowRcmSection(response?.body);
         this.shouldShowTouristScheme(response?.body);
-        this.setState({
-          particularAccountStockData: response?.body
-        })
+        this.setState({ particularAccountStockData: response?.body }, () => {
+          if (!response?.body?.stock) {
+            this.applyLinkedTaxesFromPayload(response?.body);
+          }
+        });
       } else {
         this.setState({
-          particularAccountStockData: {}
-        })
+          particularAccountStockData: {},
+        });
       }
     } catch (e) {
-      console.log('error', e)
+      console.log('error', e);
       this.setState({
-        particularAccountStockData: {}
-      })
+        particularAccountStockData: {},
+      });
     }
-  }
+  };
   getParticularStockDataHandler = async (payload: any) => {
     //this method is to get second(to) account data
     const { stockUniqueName,
@@ -1368,17 +1454,15 @@ export class AddEntry extends React.Component<Props> {
   async getAllTaxes() {
     try {
       const results = await InvoiceService.getTaxes();
-      console.log('results', results)
+      console.log('results', results);
       if (results.body && results.status == 'success') {
-        // const taxes = results.body.filter((item) => {
-        //   return item.taxType != 'inputgst';
-        // });
         this.setState({ taxArray: results.body });
-        // this.getTdsTcsTaxes();
+        return results.body;
       }
     } catch (e) {
       this.setState({ fetechingTaxList: false });
     }
+    return [];
   }
   async loadMoreSearchAccount() {
     this.setState({ isSearchingAccount: true });
