@@ -157,6 +157,7 @@ const ProductScreen = ()=>{
     const [selectedUnitGroup,setSelectedUnitGroup] = useState('');
     const [selectedUnitGroupUniqueName,setSelectedUnitGroupUniqueName] = useState('');
     const [unitGroupMapping, setUnitGroupMapping] = useState([]);
+    const [isUnitGroupMappingLoading, setIsUnitGroupMappingLoading] = useState(false);
     const [unit,setUnit] = useState<Unit>({
         code: "", 
         name: "", 
@@ -241,7 +242,7 @@ const ProductScreen = ()=>{
             setUnitGroupArr(results);
             setSelectedUnitGroup(results?.[0]?.name)
             setSelectedUnitGroupUniqueName(results?.[0]?.uniqueName)
-            await fetchUnitGroupMappingDebounce(results?.[0]?.uniqueName)
+            triggerUnitGroupMappingFetch(results?.[0]?.uniqueName)
         }
     }
 
@@ -261,9 +262,16 @@ const ProductScreen = ()=>{
     }
 
     const fetchUnitGroupMapping = async (uniqueName:string) => {
-        const result = await InventoryService.fetchUnitGroupMapping([uniqueName])
-        if(result?.data && result?.data?.status == 'success'){
-            setUnitGroupMapping(result?.data?.body);
+        setIsUnitGroupMappingLoading(true);
+        try {
+            const result = await InventoryService.fetchUnitGroupMapping([uniqueName])
+            if(result?.data && result?.data?.status == 'success'){
+                setUnitGroupMapping(result?.data?.body ?? []);
+            } else {
+                setUnitGroupMapping([]);
+            }
+        } finally {
+            setIsUnitGroupMappingLoading(false);
         }
     }
 
@@ -366,6 +374,11 @@ const ProductScreen = ()=>{
     }
 
     const fetchUnitGroupMappingDebounce = _.debounce(fetchUnitGroupMapping,600);
+
+    const triggerUnitGroupMappingFetch = (uniqueName: string) => {
+        setIsUnitGroupMappingLoading(true);
+        fetchUnitGroupMappingDebounce(uniqueName);
+    };
 
 
     const setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -691,9 +704,9 @@ const ProductScreen = ()=>{
                 unitGroupArr={unitGroupArr} 
                 setSelectedUnitGroup={setSelectedUnitGroup} 
                 setSelectedUnitGroupUniqueName={setSelectedUnitGroupUniqueName} 
-                fetchUnitGroupMappingDebounce={fetchUnitGroupMappingDebounce} 
-                selectedUnitGroup={selectedUnitGroup} 
+                triggerUnitGroupMappingFetch={triggerUnitGroupMappingFetch}
                 unitGroupMapping={unitGroupMapping}
+                isUnitGroupMappingLoading={isUnitGroupMappingLoading}
                 setUnit={setUnit}
                 setUnitGroupMapping={setUnitGroupMapping}
                 fetchLinkedUnitMapping={fetchLinkedUnitMapping}/>
