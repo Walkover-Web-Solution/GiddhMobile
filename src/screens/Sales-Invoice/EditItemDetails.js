@@ -223,18 +223,27 @@ class EditItemDetails extends Component {
     if (!itemDetails.taxDetailsArray || itemDetails.taxDetailsArray.length === 0) {
       return hierarchicalRows;
     }
+    const tdsTcsRows = itemDetails.taxDetailsArray.filter(
+      (row) => row && row.uniqueName && this.isTdsOrTcsTaxType(row.taxType)
+    );
+
     if (hierarchicalRows.length === 0) {
       if (this.lineHasTaxHierarchyLinkage(itemDetails)) {
-        return hierarchicalRows;
+        return this.dedupeTaxDetailRows(tdsTcsRows);
       }
       return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
     }
 
     const fromDetails = itemDetails.taxDetailsArray.filter(
-      (row) => row && row.uniqueName && hSet.has(row.uniqueName)
+      (row) =>
+        row &&
+        row.uniqueName &&
+        (hSet.has(row.uniqueName) || this.isTdsOrTcsTaxType(row.taxType))
     );
 
-    return fromDetails.length > 0 ? this.dedupeTaxDetailRows(fromDetails) : hierarchicalRows;
+    return fromDetails.length > 0
+      ? this.dedupeTaxDetailRows(fromDetails)
+      : this.dedupeTaxDetailRows([...hierarchicalRows, ...tdsTcsRows]);
   }
 
   /** Rows that drive tax sums — same canonical hierarchy as SalesInvoice list totals. */
@@ -281,10 +290,12 @@ class EditItemDetails extends Component {
   componentDidMount() {
     const line = this.props.itemDetails;
     let raw;
-    if (!line.stock && this.lineHasTaxHierarchyLinkage(line)) {
+    if (line.taxDetailsArray && line.taxDetailsArray.length > 0) {
+      raw = [...line.taxDetailsArray];
+    } else if (!line.stock && this.lineHasTaxHierarchyLinkage(line)) {
       raw = this.getHierarchicalResolvedTaxRows(line);
     } else {
-      raw = line.taxDetailsArray ? [...line.taxDetailsArray] : [];
+      raw = [];
     }
     const sanitized = this.sanitizeTaxDetailsForEdit(line, raw);
     const editItemDetails = { ...this.state.editItemDetails, taxDetailsArray: sanitized };
