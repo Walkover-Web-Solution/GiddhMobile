@@ -287,6 +287,9 @@ const InventoryListScreen = (props) => {
             bottomSheetRef={filterModalizeRef}
             headerText={t('inventoryList.advancedFilter')}
             headerTextColor={voucherBackground}
+            scrollViewProps={{
+                keyboardShouldPersistTaps: 'handled'
+            }}
             >
             <View style={styles.modalContent}>
                 <View style={styles.row}>
@@ -339,7 +342,8 @@ const InventoryListScreen = (props) => {
                 </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                        style={styles.doneBtn}
+                        disabled={filterObject?.rate > 0 ? false : true}
+                        style={[styles.doneBtn, filterObject?.rate > 0 ? {backgroundColor: voucherBackground} : {backgroundColor: '#808080'}]}
                         onPress={() => {
                             if(filterObject?.expression?.length > 0 && filterObject?.filterBy?.length > 0 && filterObject?.rate > 0){
                                 setFilterFlag(true);
