@@ -48,6 +48,26 @@ export class CommonService {
   }
 
   /**
+   * Get last (most recent) vouchers of a given type, used for the
+   * "Copy Previous Invoice" feature on the voucher creation screens.
+   * Pass `accountUniqueName` inside the payload to scope the result to a
+   * single account, omit it to get company-wide vouchers.
+   * @returns {Promise<BaseResponse<any>>}
+   */
+  static getLastVouchers(voucherType: string, count: number, companyVoucherVersion: number, payload: object) {
+    return httpInstance.post(
+      commonUrls.getLastVouchers
+        .replace(':voucherType', voucherType)
+        .replace(':count', String(count))
+        .replace(':voucherVersion', String(companyVoucherVersion)),
+      payload
+    )
+    .then((res) => {
+      return res.data;
+    })
+  }
+
+  /**
    * Delete Voucher Voucher
    * @returns {Promise<BaseResponse<UserStateDetails[]>>}
    */

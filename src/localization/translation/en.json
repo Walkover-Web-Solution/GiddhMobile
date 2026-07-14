@@ -28,6 +28,9 @@
     "done": "Done",
     "recent": "Recent",
     "clearAll": "Clear All",
+    "Copy Previous Sales Invoices": "Copy Previous Sales Invoices",
+    "Copy Previous Credit Notes": "Copy Previous Credit Notes",
+    "Copy Previous Purchase Bills": "Copy Previous Purchase Bills",
     "noResultsFound": "No results found",
     "resultNotFound": "Result Not found",
     "groups": "Groups",
@@ -889,7 +892,13 @@
     "invoiceDue": "Invoice Due",
     "createAndShare": "Create and Share",
     "billingAddress": "Billing Address",
-    "shippingAddress": "Shipping Address"
+    "shippingAddress": "Shipping Address",
+    "accountInvoices": "Account Invoices",
+    "allInvoices": "All Invoices",
+    "name": "NAME",
+    "invoiceNo": "INVOICE NO.",
+    "date": "DATE",
+    "amount": "AMOUNT"
   },
   "serviceScreen": {
     "createStock": "Create Stock",
