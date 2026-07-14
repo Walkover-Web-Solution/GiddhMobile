@@ -543,7 +543,7 @@ export class DebiteNote extends React.Component<Props, State> {
   }
 
   mapAddressFromVoucherData(voucherBillingDetails: any, voucherShippingDetails: any) {
-    let partyBillingAddress = {
+    const emptyAddress = {
       address: '',
       gstNumber: '',
       state: {
@@ -555,22 +555,29 @@ export class DebiteNote extends React.Component<Props, State> {
       pincode: ''
     }
 
-    let partyShippingAddress = { ...partyBillingAddress }
+    const formateVoucherAddress = (details: any) => {
+      if (!details) {
+        return { ...emptyAddress }
+      }
 
-    const formateVoucherAddress = (details: any) => ({
-      address: details.address[0] ?? '',
-      gstNumber: details.gstNumber ?? '',
-      state: {
-        code: details.state.code ?? '',
-        name: details.state.name ?? ''
-      },
-      stateCode: details.state.code ?? '',
-      stateName: details.state.name ?? '',
-      pincode: details.pincode ?? ''
-    })
+      const stateCode = details.state?.code ?? details.county?.code ?? ''
+      const stateName = details.state?.name ?? details.county?.name ?? ''
 
-    partyBillingAddress = formateVoucherAddress(voucherBillingDetails);
-    partyShippingAddress = formateVoucherAddress(voucherShippingDetails);
+      return {
+        address: details.address?.[0] ?? '',
+        gstNumber: details.gstNumber ?? '',
+        state: {
+          code: stateCode,
+          name: stateName
+        },
+        stateCode,
+        stateName,
+        pincode: details.pincode ?? ''
+      }
+    }
+
+    const partyBillingAddress = formateVoucherAddress(voucherBillingDetails)
+    const partyShippingAddress = formateVoucherAddress(voucherShippingDetails)
 
     return { partyBillingAddress, partyShippingAddress } as const
   }

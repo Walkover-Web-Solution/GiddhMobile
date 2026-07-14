@@ -515,7 +515,7 @@ export class CreditNote extends React.Component<Props, State> {
   }
 
   mapAddressFromVoucherData(voucherBillingDetails: any, voucherShippingDetails: any) {
-    let partyBillingAddress = {
+    const emptyAddress = {
       address: '',
       gstNumber: '',
       state: {
@@ -527,54 +527,66 @@ export class CreditNote extends React.Component<Props, State> {
       pincode: ''
     }
 
-    let partyShippingAddress = { ...partyBillingAddress }
+    const formateVoucherAddress = (details: any) => {
+      if (!details) {
+        return { ...emptyAddress }
+      }
 
-    const formateVoucherAddress = (details: any) => ({
-      address: details.address[0] ?? '',
-      gstNumber: details.gstNumber ?? '',
-      state: {
-        code: details.state.code ?? '',
-        name: details.state.name ?? ''
-      },
-      stateCode: details.state.code ?? '',
-      stateName: details.state.name ?? '',
-      pincode: details.pincode ?? ''
-    })
+      const stateCode = details.state?.code ?? details.county?.code ?? ''
+      const stateName = details.state?.name ?? details.county?.name ?? ''
+      
+      return {
+        address: details.address?.[0] ?? '',
+        gstNumber: details.gstNumber ?? '',
+        state: {
+          code: stateCode,
+          name: stateName
+        },
+        stateCode,
+        stateName,
+        pincode: details.pincode ?? ''
+      }
+    }
 
-    partyBillingAddress = formateVoucherAddress(voucherBillingDetails);
-    partyShippingAddress = formateVoucherAddress(voucherShippingDetails);
+    const partyBillingAddress = formateVoucherAddress(voucherBillingDetails)
+    const partyShippingAddress = formateVoucherAddress(voucherShippingDetails)
 
     return { partyBillingAddress, partyShippingAddress } as const
   }
 
   async getPartyDataForUpdateVoucher(_name: string) {
-    const name = (_name ?? this.state.searchPartyName).toLocaleLowerCase()
+    const accountUniqueName = this.props?.route?.params?.accountUniqueName ?? '';
+    const name = (_name ?? this.state.searchPartyName ?? accountUniqueName).toLocaleLowerCase()
+    const preserveSearchPartyName = this.state.searchPartyName || accountUniqueName;
     this.setState({ isSearchingParty: true });
     try {
       let addressArray : any = []
 
       const results = await InvoiceService.search(name, 1, 'sundrydebtors', false);
       if (results.body && results.body.results) {
-        const accountData = results.body.results.find((account: any) => account?.uniqueName === name);
-        this.setState({
-          partyName: accountData,
-          searchResults: [],
-          searchPartyName: accountData?.name,
-          searchError: '',
-          isSearchingParty: false,
-        },
-        () => {
-          // this.searchAccount();
-          this.getAllAccountsModes();
-          Keyboard.dismiss();
-        })
+        const accountData = results.body.results.find(
+          (account: any) => account?.uniqueName?.toLocaleLowerCase() === name
+            || account?.uniqueName?.toLocaleLowerCase() === accountUniqueName.toLocaleLowerCase()
+        );
+        if (accountData) {
+          this.setState({
+            partyName: accountData,
+            searchResults: [],
+            searchPartyName: accountData.name ?? preserveSearchPartyName,
+            searchError: '',
+            isSearchingParty: false,
+          },
+          () => {
+            this.getAllAccountsModes();
+            Keyboard.dismiss();
+          })
 
-        // Get Addresses of the Accoount
-        addressArray = await this.searchAccount();
+          // Get Addresses of the Accoount
+          addressArray = await this.searchAccount();
+        }
       }
 
       // Get the Voucher to Update
-      const accountUniqueName = this.props?.route?.params?.accountUniqueName;
       const payload = {
         number: this.props?.route?.params?.voucherNumber ?? '',
         uniqueName: this.props?.route?.params?.voucherUniqueName ?? '',
@@ -584,16 +596,28 @@ export class CreditNote extends React.Component<Props, State> {
       const response = await CommonService.getVoucher(accountUniqueName, this.state.companyVersionNumber, payload)
 
       if(response?.status === 'success'){
+        const voucherAccount = response?.body?.account;
+        const partyDisplayName = voucherAccount?.name
+          ?? voucherAccount?.customerName
+          ?? this.state.searchPartyName
+          ?? preserveSearchPartyName;
 
-        const { partyBillingAddress, partyShippingAddress } = this.mapAddressFromVoucherData(response?.body?.account?.billingDetails, response?.body?.account?.shippingDetails); 
+        const { partyBillingAddress, partyShippingAddress } = this.mapAddressFromVoucherData(voucherAccount?.billingDetails, voucherAccount?.shippingDetails); 
         
         this.setState({
+          partyName: voucherAccount ? {
+            ...this.state.partyName,
+            ...voucherAccount,
+            name: partyDisplayName,
+            uniqueName: voucherAccount.uniqueName ?? accountUniqueName,
+          } : this.state.partyName,
+          searchPartyName: partyDisplayName,
           countryDeatils: {
-            countryName: response?.body?.account?.billingDetails?.country?.name,
-            countryCode: response?.body?.account?.billingDetails?.country?.code
+            countryName: voucherAccount?.billingDetails?.country?.name,
+            countryCode: voucherAccount?.billingDetails?.country?.code
           },
-          currency: response.body.account?.currency?.code,
-          currencySymbol: response.body.account?.currency?.symbol,
+          currency: voucherAccount?.currency?.code,
+          currencySymbol: voucherAccount?.currency?.symbol,
           totalAmountInINR : response?.body?.voucherTotal?.amountForAccount,
           amountPaidNowText: response?.body?.voucherTotal?.amountForAccount - response?.body?.balanceTotal?.amountForAccount,
           roundOffTotal: response?.body?.roundOffTotal?.amountForAccount ?? 0,

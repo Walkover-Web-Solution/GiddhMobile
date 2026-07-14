@@ -17,9 +17,9 @@ const RenderUnitGroup = ({
     unitGroupArr, 
     setSelectedUnitGroup, 
     setSelectedUnitGroupUniqueName,
-    fetchUnitGroupMappingDebounce, 
-    selectedUnitGroup, 
+    triggerUnitGroupMappingFetch,
     unitGroupMapping,
+    isUnitGroupMappingLoading,
     setUnit,
     setUnitGroupMapping,
     fetchLinkedUnitMapping
@@ -54,7 +54,7 @@ const RenderUnitGroup = ({
         name: "", 
         uniqueName: ""
       });
-      fetchUnitGroupMappingDebounce(uniqueName)
+      triggerUnitGroupMappingFetch(uniqueName)
     };
 
     const Item = memo(({ active, name, uniqueName, onPress }) => (
@@ -142,8 +142,13 @@ const RenderUnitGroup = ({
             );
             },
             ListEmptyComponent: () => {
-            if(selectedUnitGroup !== '' && unitGroupMapping.length == 0) return (<View style={styles.modalCancelView}><Loader isLoading={unitGroupMapping.length == 0}/></View>);
-            else 
+            if (isUnitGroupMappingLoading) {
+                return (
+                    <View style={styles.modalCancelView}>
+                        <Loader isLoading={true}/>
+                    </View>
+                );
+            }
             return (
                 <View style={styles.modalCancelView}>
                 <Text
@@ -151,7 +156,6 @@ const RenderUnitGroup = ({
                     {t('product.noUnitAvailable')}
                 </Text>
                 </View>
-
             );
             }
         }}

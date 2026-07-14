@@ -1049,7 +1049,7 @@ export class SalesInvoice extends React.Component<Props, State> {
   }
 
   mapAddressFromVoucherData(voucherBillingDetails: any, voucherShippingDetails: any) {
-    let partyBillingAddress = {
+    const emptyAddress = {
       address: '',
       gstNumber: '',
       state: {
@@ -1061,22 +1061,29 @@ export class SalesInvoice extends React.Component<Props, State> {
       pincode: ''
     }
 
-    let partyShippingAddress = { ...partyBillingAddress }
+    const formateVoucherAddress = (details: any) => {
+      if (!details) {
+        return { ...emptyAddress }
+      }
+console.log('details', details);
+      const stateCode = details.state?.code ?? details.county?.code ?? ''
+      const stateName = details.state?.name ?? details.county?.name ?? ''
 
-    const formateVoucherAddress = (details: any) => ({
-      address: details.address[0] ?? '',
-      gstNumber: details.gstNumber ?? '',
-      state: {
-        code: details.state.code ?? '',
-        name: details.state.name ?? ''
-      },
-      stateCode: details.state.code ?? '',
-      stateName: details.state.name ?? '',
-      pincode: details.pincode ?? ''
-    })
+      return {
+        address: details.address?.[0] ?? '',
+        gstNumber: details.gstNumber ?? '',
+        state: {
+          code: stateCode,
+          name: stateName
+        },
+        stateCode,
+        stateName,
+        pincode: details.pincode ?? ''
+      }
+    }
 
-    partyBillingAddress = formateVoucherAddress(voucherBillingDetails);
-    partyShippingAddress = formateVoucherAddress(voucherShippingDetails);
+    const partyBillingAddress = formateVoucherAddress(voucherBillingDetails)
+    const partyShippingAddress = formateVoucherAddress(voucherShippingDetails)
 
     return { partyBillingAddress, partyShippingAddress } as const
   }
