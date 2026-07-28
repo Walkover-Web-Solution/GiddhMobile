@@ -49,10 +49,13 @@ class PurchaseItemEdit extends Component {
     this.taxCalculationModalRef = React.createRef();
     this.unitBottomSheetRef = createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
+    const line = this.props.itemDetails;
+    const rawTaxDetails = line.taxDetailsArray ? [...line.taxDetailsArray] : [];
+    const sanitizedTaxDetails = this.sanitizeTaxDetailsForEdit(line, rawTaxDetails);
     this.state = {
       bottomOffset: 0,
       itemDetails: this.props.itemDetails,
-      selectedArrayType: this.props.itemDetails.selectedArrayType ? this.props.itemDetails.selectedArrayType : [],
+      selectedArrayType: sanitizedTaxDetails.map((r) => r && r.taxType).filter(Boolean),
       fixedDiscountSelected: false,
       unitArray: this.props.itemDetails.stock ? this.props.itemDetails.stock.variant ? this.props.itemDetails.stock.variant.unitRates : this.props.itemDetails.stock.unitRates : [],
       selectedCode: this.props.itemDetails.hsnNumber != '' ? 'hsn' : 'sac',
@@ -74,7 +77,7 @@ class PurchaseItemEdit extends Component {
         warehouse: this.props.itemDetails.warehouse ? this.props.itemDetails.warehouse : '',
         total: this.props.itemDetails.total ? this.props.itemDetails.total : 0,
         discountDetails: this.props.itemDetails.discountDetails ? this.props.itemDetails.discountDetails : {},
-        taxDetailsArray: this.props.itemDetails.taxDetailsArray ? this.props.itemDetails.taxDetailsArray : [],
+        taxDetailsArray: sanitizedTaxDetails,
         percentDiscountArray: this.props.itemDetails.percentDiscountArray
           ? this.props.itemDetails.percentDiscountArray
           : [],
@@ -102,11 +105,206 @@ class PurchaseItemEdit extends Component {
     return isFocused ? <StatusBar backgroundColor="#ef6c00" barStyle={Platform.OS=="ios"?"dark-content":"light-content"} /> : null;
   };
 
+  resolveTaxAndGroupTaxNames(taxes, groupTaxes, opts) {
+    const whenBoth = (opts && opts.whenBothNonEmpty) || 'intersection';
+    const toNames = (arr) => {
+      if (!Array.isArray(arr) || arr.length === 0) {
+        return [];
+      }
+      return arr
+        .map((entry) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+        .filter((name) => Boolean(name));
+    };
+    const t = toNames(taxes);
+    const g = toNames(groupTaxes);
+    if (t.length > 0 && g.length === 0) {
+      return t;
+    }
+    if (g.length > 0 && t.length === 0) {
+      return g;
+    }
+    if (t.length > 0 && g.length > 0) {
+      if (whenBoth === 'preferTaxes') {
+        return t;
+      }
+      const gSet = new Set(g);
+      const isSame = t.length === g.length && t.every((name) => gSet.has(name));
+      if (isSame) {
+        return t.slice();
+      }
+      return t.filter((name) => !gSet.has(name));
+    }
+    return [];
+  }
+
+  isTdsOrTcsTaxType(taxType) {
+    return (
+      taxType === 'tdspay' ||
+      taxType === 'tcspay' ||
+      taxType === 'tcsrc' ||
+      taxType === 'tdsrc'
+    );
+  }
+
+  lineHasTaxHierarchyLinkage(itemDetails) {
+    if (!itemDetails) {
+      return false;
+    }
+    if (itemDetails.stock) {
+      const stock = itemDetails.stock;
+      return (
+        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
+        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0)
+      );
+    }
+    return (
+      (Array.isArray(itemDetails.taxes) && itemDetails.taxes.length > 0) ||
+      (Array.isArray(itemDetails.groupTaxes) && itemDetails.groupTaxes.length > 0)
+    );
+  }
+
+  getHierarchicalResolvedTaxRows(itemDetails) {
+    const taxArr = this.props.taxArray || [];
+    let resolvedNames = [];
+    if (itemDetails.stock) {
+      const stock = itemDetails.stock;
+      const stockHasAny =
+        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
+        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
+      resolvedNames = stockHasAny
+        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
+        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
+            whenBothNonEmpty: 'intersection',
+          });
+    } else {
+      resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
+        whenBothNonEmpty: 'intersection',
+      });
+    }
+    const rows = [];
+    for (let i = 0; i < resolvedNames.length; i++) {
+      const row = taxArr.find((t) => t && t.uniqueName === resolvedNames[i]);
+      if (row && row.taxDetail && Array.isArray(row.taxDetail) && row.taxDetail.length > 0) {
+        rows.push(row);
+      }
+    }
+    return rows;
+  }
+
+  dedupeTaxDetailRows(rows) {
+    const seen = new Set();
+    const out = [];
+    const list = rows || [];
+    for (let i = 0; i < list.length; i++) {
+      const row = list[i];
+      if (!row || !row.uniqueName || seen.has(row.uniqueName)) {
+        continue;
+      }
+      if (!row.taxDetail || !row.taxDetail[0]) {
+        continue;
+      }
+      seen.add(row.uniqueName);
+      out.push(row);
+    }
+    return out;
+  }
+
+  getCanonicalTaxRowsForLine(itemDetails) {
+    const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
+    const hSet = new Set(hierarchicalRows.map((r) => r && r.uniqueName).filter(Boolean));
+
+    if (!itemDetails.taxDetailsArray || itemDetails.taxDetailsArray.length === 0) {
+      return hierarchicalRows;
+    }
+    const tdsTcsRows = itemDetails.taxDetailsArray.filter(
+      (row) => row && row.uniqueName && this.isTdsOrTcsTaxType(row.taxType)
+    );
+
+    if (hierarchicalRows.length === 0) {
+      if (this.lineHasTaxHierarchyLinkage(itemDetails)) {
+        return this.dedupeTaxDetailRows(tdsTcsRows);
+      }
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
+    }
+
+    const fromDetails = itemDetails.taxDetailsArray.filter(
+      (row) =>
+        row &&
+        row.uniqueName &&
+        (hSet.has(row.uniqueName) || this.isTdsOrTcsTaxType(row.taxType))
+    );
+
+    return fromDetails.length > 0
+      ? this.dedupeTaxDetailRows(fromDetails)
+      : this.dedupeTaxDetailRows([...hierarchicalRows, ...tdsTcsRows]);
+  }
+
+  getTaxRowsForCalculation(itemDetails) {
+    const canonical = this.getCanonicalTaxRowsForLine(itemDetails);
+    if (canonical.length > 0) {
+      return canonical;
+    }
+    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray);
+    }
+    return canonical;
+  }
+
+  sanitizeTaxDetailsForEdit(lineItem, taxDetailsArray) {
+    const arr = Array.isArray(taxDetailsArray) ? taxDetailsArray.slice() : [];
+    if (arr.length === 0 && lineItem && Array.isArray(lineItem.taxDetailsArray) && lineItem.taxDetailsArray.length > 0) {
+      return lineItem.taxDetailsArray.slice();
+    }
+    const merged = { ...(lineItem || {}), taxDetailsArray: arr };
+    const rows = this.getCanonicalTaxRowsForLine(merged);
+    return rows && rows.length > 0 ? rows.slice() : arr;
+  }
+
+  refreshLineAmounts(editItemDetails) {
+    const line = editItemDetails || this.state.editItemDetails;
+    line.amountText = String(
+      this.getLineQtyForItem(line) * this.getLineRateForItem(line)
+    );
+    line.discountValueText = this.calculateDiscountedAmountToDisplayTotalAmount(line);
+    line.taxText = this.calculatedTaxAmount(line);
+    line.total = this.calculateFinalAmount(line);
+    line.taxText = this.calculatedTaxAmount(line);
+    return line;
+  }
+
+  getTaxPickerRows() {
+    const taxArr = this.props.taxArray || [];
+    return taxArr.slice();
+  }
+
   componentDidMount() {
-    this.caluclateTotalAmount();
-    this.calculateFinalTcsOrTdsToDisplay();
+    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
+    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
+
+    const line = this.props.itemDetails;
+    let raw;
+    if (line.taxDetailsArray && line.taxDetailsArray.length > 0) {
+      raw = [...line.taxDetailsArray];
+    } else if (!line.stock && this.lineHasTaxHierarchyLinkage(line)) {
+      raw = this.getHierarchicalResolvedTaxRows(line);
+    } else {
+      raw = [];
+    }
+    const sanitized = this.sanitizeTaxDetailsForEdit(line, raw);
+    const editItemDetails = { ...this.state.editItemDetails, taxDetailsArray: sanitized };
+    this.refreshLineAmounts(editItemDetails);
+    const typesFromRows = sanitized.map((r) => r && r.taxType).filter(Boolean);
+    this.setState(
+      {
+        editItemDetails,
+        selectedArrayType: typesFromRows,
+      },
+      () => {
+        this.caluclateTotalAmount();
+        this.calculateFinalTcsOrTdsToDisplay();
+      }
+    );
     if (Platform.OS == 'ios') {
-      // Native Bridge for giving the bottom offset //Our own created
       SafeAreaOffsetHelper.getBottomOffset().then((offset) => {
         const { bottomOffset } = offset;
         this.setState({ bottomOffset });
@@ -229,9 +427,10 @@ class PurchaseItemEdit extends Component {
         headerText={this.props.t('purchaseItemEdit.selectTaxes')}
         headerTextColor='#FC8345'
         flatListProps={{
-          data: this.props.taxArray,
+          data: this.getTaxPickerRows(),
+          extraData: this.state.editItemDetails.taxDetailsArray,
           renderItem: ({ item }) => {
-            const selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
+            const selectedTaxArray = [...this.state.editItemDetails.taxDetailsArray];
             const selectedTaxTypeArr = [...this.state.selectedArrayType];
             const filtered = _.filter(selectedTaxArray, function (o) {
               if (o.uniqueName == item.uniqueName) {
@@ -267,7 +466,7 @@ class PurchaseItemEdit extends Component {
                       }
                       const total = this.calculateFinalAmount(itemDetails);
                       itemDetails.total = total;
-                      this.setState({ itemDetails, selectedArrayType: arr1 });
+                      this.setState({ editItemDetails: itemDetails, selectedArrayType: arr1 });
                     } else {
                       var filtered = _.filter(selectedTaxArray, function (o) {
                         if (o.uniqueName !== item.uniqueName) return o;
@@ -281,7 +480,7 @@ class PurchaseItemEdit extends Component {
                       itemDetails.taxText = tax;
                       const total = this.calculateFinalAmount(itemDetails);
                       itemDetails.total = total;
-                      this.setState({ itemDetails, selectedArrayType: arr2 });
+                      this.setState({ editItemDetails: itemDetails, selectedArrayType: arr2 });
                     }
                     this.calculateFinalTcsOrTdsToDisplay();
                   }
@@ -405,9 +604,9 @@ class PurchaseItemEdit extends Component {
     );
   }
 
-  caluclateTotalAmount() {
-    const amount = Number(this.state.editItemDetails.rateText) * Number(this.state.editItemDetails.quantityText);
-    return amount;
+  caluclateTotalAmount(editItemDetails) {
+    const line = editItemDetails || this.state.editItemDetails;
+    return this.getLineQtyForItem(line) * this.getLineRateForItem(line);
   }
 
   // calculateDiscountedAmount(itemDetails) {
@@ -426,50 +625,129 @@ class PurchaseItemEdit extends Component {
   // }
 
   calculateDiscountedAmount(itemDetails) {
-    let totalDiscount = 0;
-    let percentDiscount = 0;
-    const editItemDetails = this.state.editItemDetails;
-    if (itemDetails.fixedDiscount.discountValue > 0) {
-      totalDiscount = totalDiscount + Number(itemDetails.fixedDiscount.discountValue);
+    const totalDiscount = this.calculateDiscountedAmountToDisplayTotalAmount(itemDetails);
+    if (itemDetails) {
+      itemDetails.discountValueText = totalDiscount;
     }
-    if (itemDetails.percentDiscountArray.length > 0) {
-      for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
-        percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
-        console.log(percentDiscount, '%');
-      }
-      // console.log(percentDiscount, 'total % discount');
-      const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
-      // console.log('amt is ', amt);
-      totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
-    }
-    console.log(totalDiscount, 'is the discount');
-    editItemDetails.discountValueText = totalDiscount;
-    this.setState({ editItemDetails });
     return totalDiscount;
   }
 
-  calculatedTaxAmount(itemDetails) {
+  buildMergedLineForTax(editItemDetails) {
+    const base = this.props.itemDetails || {};
+    const e = editItemDetails || {};
+    const computedDiscount = this.calculateDiscountedAmountToDisplayTotalAmount(e);
+    const storedDiscount = Number(
+      e.discountValue != null && e.discountValue !== ''
+        ? e.discountValue
+        : base.discountValue != null
+          ? base.discountValue
+          : 0
+    );
+    const discountValue = computedDiscount > 0 ? computedDiscount : Number.isFinite(storedDiscount) ? storedDiscount : 0;
+    const qtyRaw = e.quantityText != null && e.quantityText !== '' ? e.quantityText : base.quantity;
+    const rateRaw = e.rateText != null && e.rateText !== '' ? e.rateText : base.rate;
+    return {
+      ...base,
+      quantityText: qtyRaw,
+      quantity: qtyRaw,
+      rateText: rateRaw,
+      rate: rateRaw,
+      discountValue,
+      taxDetailsArray: e.taxDetailsArray || [],
+    };
+  }
+
+  getLineQtyForItem(itemDetails) {
+    const fromField = Number(itemDetails.quantity);
+    const fromText =
+      itemDetails.quantityText != null && itemDetails.quantityText !== ''
+        ? Number(itemDetails.quantityText)
+        : NaN;
+    if (Number.isFinite(fromText) && !(fromText === 0 && Number.isFinite(fromField) && fromField !== 0)) {
+      return fromText;
+    }
+    return Number.isFinite(fromField) ? fromField : 0;
+  }
+
+  getLineRateForItem(itemDetails) {
+    const fromField = Number(itemDetails.rate);
+    const fromText =
+      itemDetails.rateText != null && itemDetails.rateText !== ''
+        ? Number(itemDetails.rateText)
+        : NaN;
+    if (Number.isFinite(fromText) && !(fromText === 0 && Number.isFinite(fromField) && fromField !== 0)) {
+      return fromText;
+    }
+    return Number.isFinite(fromField) ? fromField : 0;
+  }
+
+  getTaxableAmountForItem(itemDetails) {
+    const base = this.getLineQtyForItem(itemDetails) * this.getLineRateForItem(itemDetails);
+    const disc = Number(itemDetails.discountValue != null ? itemDetails.discountValue : 0);
+    const d = Number.isFinite(disc) ? disc : 0;
+    return Math.max(0, base - d);
+  }
+
+  calculatedTaxAmount(itemDetails, calculateFor = 'taxAmount') {
+    if (calculateFor === 'totalAmount' && this.props.zeroLineTotalTax) {
+      return 0;
+    }
+    const merged = this.buildMergedLineForTax(itemDetails);
+    let amt = this.getTaxableAmountForItem(merged);
+    const rows = this.getTaxRowsForCalculation(merged);
     let totalTax = 0;
-    const totalDiscount = this.calculateDiscountedAmount(itemDetails);
-    const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
-    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
-      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-        const TaxItem = itemDetails.taxDetailsArray[i];
-        const taxPercent = Number(TaxItem.taxDetail[0].taxValue);
+    const useInrSez = !!this.props.useInrSezTaxRowLogic;
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row?.taxDetail?.[0]) {
+        continue;
+      }
+      if (useInrSez) {
+        const taxPercent = Number(row.taxDetail[0].taxValue);
         const taxAmount = (taxPercent * Number(amt)) / 100;
-        // totalTax = totalTax + taxAmount;
-        totalTax = TaxItem.taxType == 'tdspay' || TaxItem.taxType == 'tcspay' || TaxItem.taxType == 'tcsrc' || TaxItem.taxType == 'tdsrc'? totalTax: totalTax + taxAmount;
+        if (
+          (row.taxType == 'tdspay' ||
+            row.taxType == 'tcspay' ||
+            row.taxType == 'tcsrc' ||
+            row.taxType == 'tdsrc') &&
+          calculateFor != 'taxAmount'
+        ) {
+          totalTax = row.taxType == 'tdspay' || row.taxType == 'tdsrc' ? totalTax - taxAmount : totalTax + taxAmount;
+        } else if (calculateFor == 'taxAmount') {
+          totalTax =
+            row.taxType == 'tdspay' ||
+            row.taxType == 'tcspay' ||
+            row.taxType == 'tcsrc' ||
+            row.taxType == 'tdsrc'
+              ? totalTax
+              : totalTax + taxAmount;
+        }
+      } else {
+        const taxPercent = Number(row.taxDetail[0].taxValue);
+        const taxAmount = (taxPercent * Number(amt)) / 100;
+        if (calculateFor == 'InvoiceDue') {
+          totalTax = row.taxType == 'tdspay' || row.taxType == 'tdsrc' ? totalTax - taxAmount : totalTax + taxAmount;
+        } else {
+          totalTax =
+            row.taxType == 'tdspay' ||
+            row.taxType == 'tcspay' ||
+            row.taxType == 'tcsrc' ||
+            row.taxType == 'tdsrc'
+              ? totalTax
+              : totalTax + taxAmount;
+        }
       }
     }
-    return Number(totalTax);
+    return Number(totalTax.toFixed(2));
   }
 
   calculateFinalAmount(editItemDetails) {
     const discountAmount = this.calculateDiscountedAmount(editItemDetails);
 
-    const totalTax = this.calculatedTaxAmount(editItemDetails);
+    const totalTax = this.calculatedTaxAmount(editItemDetails, 'totalAmount');
 
-    const amt = Number(this.state.editItemDetails.rateText) * Number(editItemDetails.quantityText);
+    const amt = this.getLineQtyForItem(editItemDetails) * this.getLineRateForItem(editItemDetails);
     let finalAmt = amt;
 
     if (discountAmount) {
@@ -492,8 +770,7 @@ class PurchaseItemEdit extends Component {
         percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
         console.log(percentDiscount, '%');
       }
-      const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
-      // console.log('amt is ', amt);
+      const amt = this.getLineQtyForItem(itemDetails) * this.getLineRateForItem(itemDetails);
       totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
     }
     console.log(totalDiscount, 'is the discount');
@@ -501,19 +778,7 @@ class PurchaseItemEdit extends Component {
   }
 
   calculatedTaxAmountToDisplayTotalAmount(itemDetails) {
-    let totalTax = 0;
-    const totalDiscount = this.calculateDiscountedAmountToDisplayTotalAmount(itemDetails);
-    const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText) - Number(totalDiscount);
-    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
-      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-        const item = itemDetails.taxDetailsArray[i];
-        const taxPercent = Number(item.taxDetail[0].taxValue);
-        const taxAmount = (taxPercent * Number(amt)) / 100;
-        // totalTax = totalTax + taxAmount;
-        totalTax = item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc'? totalTax: totalTax + taxAmount;
-      }
-    }
-    return Number(totalTax);
+    return this.calculatedTaxAmount(itemDetails, 'taxAmount');
   }
 
   calculateFinalAmountToDisplay(editItemDetails) {
@@ -523,7 +788,7 @@ class PurchaseItemEdit extends Component {
     if(this.props.notIncludeTax){
      totalTax = this.calculatedTaxAmountToDisplayTotalAmount(editItemDetails);
     }
-    const amt = Number(this.state.editItemDetails.rateText) * Number(editItemDetails.quantityText);
+    const amt = this.getLineQtyForItem(editItemDetails) * this.getLineRateForItem(editItemDetails);
     let finalAmt = amt;
     if (discountAmount) {
       finalAmt = finalAmt - discountAmount;
@@ -708,21 +973,6 @@ class PurchaseItemEdit extends Component {
       return filtered[0];
     }
     return undefined;
-  }
-
-  componentDidMount() {
-    this.keyboardWillShowSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_SHOW, this.keyboardWillShow);
-    this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
-    const editDetails = this.state.editItemDetails;
-    editDetails.total = this.calculateFinalAmount(editDetails);
-    this.setState({ editItemDetails: editDetails });
-    // if (Platform.OS == 'ios') {
-    //     //Native Bridge for giving the bottom offset //Our own created
-    //     SafeAreaOffsetHelper.getBottomOffset().then(offset => {
-    //         let { bottomOffset } = offset;
-    //         this.setState({ bottomOffset })
-    //     })
-    // }
   }
 
   /*
@@ -912,19 +1162,19 @@ class PurchaseItemEdit extends Component {
         editItemDetails.discountPercentageText = text;
         break;
     }
-    editItemDetails.amountText = this.caluclateTotalAmount(editItemDetails);
-    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
-    editItemDetails.total = this.calculateFinalAmount(editItemDetails);
-    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
-    this.calculateFinalTcsOrTdsToDisplay(editItemDetails)
-    this.setState({ editItemDetails });
+    this.refreshLineAmounts(editItemDetails);
+    this.calculateFinalTcsOrTdsToDisplay();
+    this.setState({ editItemDetails: { ...editItemDetails } });
   }
 
   fixedDiscountValueChange = (text) => {
-    const editItemDetails = this.state.editItemDetails;
-    editItemDetails.fixedDiscount.discountValue = text;
-    const total = this.calculateFinalAmount(editItemDetails);
-    editItemDetails.total = total;
+    const editItemDetails = { ...this.state.editItemDetails };
+    editItemDetails.fixedDiscount = {
+      ...editItemDetails.fixedDiscount,
+      discountValue: text,
+    };
+    this.refreshLineAmounts(editItemDetails);
+    this.calculateFinalTcsOrTdsToDisplay();
     this.setState({ editItemDetails });
   };
 
@@ -1090,8 +1340,18 @@ class PurchaseItemEdit extends Component {
             // this._renderTaxName();
             const editItemDetails = this.state.editItemDetails;
             editItemDetails.item = this.props.itemDetails;
-            if (editItemDetails.item.stock) { editItemDetails.item.stock.taxes = this.state.selectedArrayType } else { editItemDetails.item.taxes = this.state.selectedArrayType }
-            this.props.updateItems(editItemDetails, this.state.selectedArrayType, this.state.selectedCode);
+            const selectedUniqueNames = (editItemDetails.taxDetailsArray || [])
+              .map((t) => (t && t.uniqueName ? t.uniqueName : null))
+              .filter(Boolean);
+            const selectedTypesFromRows = (editItemDetails.taxDetailsArray || [])
+              .map((t) => t && t.taxType)
+              .filter(Boolean);
+            if (editItemDetails.item.stock) {
+              editItemDetails.item.stock.taxes = selectedUniqueNames;
+            } else {
+              editItemDetails.item.taxes = selectedUniqueNames;
+            }
+            this.props.updateItems(editItemDetails, selectedTypesFromRows, this.state.selectedCode);
           }}
           style={{
             marginHorizontal: 16,
@@ -1208,7 +1468,9 @@ class PurchaseItemEdit extends Component {
           {this._renderBottomSeprator()}
         </View>
         <View style={{ marginHorizontal: 16, flex: 1, paddingTop: 16, paddingBottom: 8 }}>
-          <Text style={{ paddingTop: 16 }}>{this.state.editItemDetails.taxText.toFixed(2)}</Text>
+          <Text style={{ paddingTop: 16 }}>
+            {Number(this.state.editItemDetails.taxText || 0).toFixed(2)}
+          </Text>
           {/* <TextInput
             placeholder={'00.00'}
             placeholderTextColor={'#808080'}
