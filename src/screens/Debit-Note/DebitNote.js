@@ -24,11 +24,13 @@ import { FONT_FAMILY } from '../../utils/constants';
 
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import LoaderKit  from 'react-native-loader-kit';
 import color from '@/utils/colors';
 import _ from 'lodash';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 import { InvoiceService } from '@/core/services/invoice/invoice.service';
+import { CommonService } from '@/core/services/common/common.service';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
@@ -63,6 +65,7 @@ export class DebiteNote extends React.Component<Props> {
   constructor(props) {
     super(props);
     this.invoiceBottomSheetRef = createRef();
+    this.copyVoucherBottomSheetRef = createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       loading: false,
@@ -141,13 +144,355 @@ export class DebiteNote extends React.Component<Props> {
       defaultAccountTax: [],
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
-      selectedSalesPerson: undefined
+      selectedSalesPerson: undefined,
+      copyVoucherList: [],
+      fetchingCopyVouchers: false,
+      allStockVariants: {}
     };
     this.keyboardMargin = new Animated.Value(0);
   }
 
   setSelectedSalesPerson = (salesPerson: any) => {
     this.setState({ selectedSalesPerson: salesPerson });
+  }
+
+  openCopyVoucherSheet = () => {
+    this.setBottomSheetVisible(this.copyVoucherBottomSheetRef, true);
+    this.setState({ copyVoucherList: [] });
+    this.fetchPreviousVouchers();
+  };
+
+  fetchPreviousVouchers = async () => {
+    this.setState({ fetchingCopyVouchers: true });
+    try {
+      const payload = {
+        count: 10,
+        isLastInvoicesRequest: true,
+        sortBy: 'voucherDate',
+        sort: 'desc'
+      };
+      const response = await CommonService.getLastVouchers(
+        INVOICE_TYPE.debit,
+        10,
+        this.state.companyVersionNumber,
+        payload
+      );
+      if (response?.status === 'success' && Array.isArray(response?.body?.items)) {
+        this.setState({ copyVoucherList: response.body.items });
+      } else {
+        this.setState({ copyVoucherList: [] });
+      }
+    } catch (e) {
+      this.setState({ copyVoucherList: [] });
+    } finally {
+      this.setState({ fetchingCopyVouchers: false });
+    }
+  };
+
+  copyVoucherFromList = async (item) => {
+    const accountUniqueName = item?.account?.uniqueName;
+    if (!accountUniqueName) return;
+    this.setBottomSheetVisible(this.copyVoucherBottomSheetRef, false);
+    this.setState({ loading: true });
+    try {
+      // Make sure taxes are available (needed while mapping entries)
+      if (!this.state.taxArray || this.state.taxArray.length === 0) {
+        await this.getAllTaxes();
+      }
+
+      // Fetch the full voucher and copy ONLY the product/service line items.
+      // Party, addresses, sales person, currency etc. are intentionally left untouched so
+      // the current new-note context (the selected party and its details) is preserved.
+      // accountUniqueName here belongs to the previous voucher and is only used to fetch it.
+      const payload = {
+        number: item?.voucherNumber ?? '',
+        uniqueName: item?.uniqueName ?? '',
+        type: INVOICE_TYPE.debit
+      };
+      const response = await CommonService.getVoucher(accountUniqueName, this.state.companyVersionNumber, payload);
+
+      if (response?.status === 'success') {
+        const addedItems = await this.mapEntriesToUIData(response?.body?.entries ?? []);
+        this.updateTCSAndTDSTaxAmount(addedItems);
+        this.setState({ addedItems }, () => {
+          const totalAmount = this.getTotalAmount();
+          this.setState({
+            totalAmountInINR: (Math.round(totalAmount * this.state.exchangeRate * 100) / 100).toFixed(2)
+          });
+        });
+      }
+    } catch (e) {
+      console.warn('----- Error copying voucher -----', e);
+      Alert.alert(this.props.t('common.alert'), e?.data?.message ?? 'Error while copying debit note');
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
+  async getParticularServiceStockVariants(accountUniqueName, stockUniqueName, variantUniqueName) {
+    try {
+      // ----- If the item is a Stock -----
+      if (!!stockUniqueName) {
+        if (!this.state.allStockVariants[stockUniqueName]) {
+          const stockVariantsResult = await InvoiceService.getStockVariants(stockUniqueName);
+          if (stockVariantsResult.status == 'success' && stockVariantsResult.body) {
+            await this.setState({
+              allStockVariants: {
+                ...this.state.allStockVariants,
+                [stockUniqueName]: stockVariantsResult.body
+              }
+            });
+          }
+        }
+        const results = await InvoiceService.getStockDetails(
+          accountUniqueName,
+          stockUniqueName,
+          variantUniqueName ?? this.state.allStockVariants[stockUniqueName][0].uniqueName
+        );
+        if (results && results.body) {
+          const data = results.body;
+          if (!!data?.stock?.variant) {
+            data.rate = data.stock.variant.unitRates[0].rate;
+            data.stock.rate = data.stock.variant.unitRates[0].rate;
+            data.stock.stockUnitCode = data.stock.variant.unitRates[0].stockUnitCode;
+            data.stock.stockUnitName = data.stock.variant.unitRates[0].stockUnitName;
+            data.stock.stockUnitUniqueName = data.stock.variant.unitRates[0].stockUnitUniqueName;
+          } else {
+            data.rate = data.stock.unitRates[0].rate;
+            data.stock.rate = data.stock.unitRates[0].rate;
+            data.stock.stockUnitCode = data.stock.unitRates[0].stockUnitCode;
+            data.stock.stockUnitName = data.stock.unitRates[0].stockUnitName;
+            data.stock.stockUnitUniqueName = data.stock.unitRates[0].stockUnitUniqueName;
+          }
+          data.quantity = 1;
+          if (this.state.companyVersionNumber == 2) {
+            const variantObj = this.state.allStockVariants[stockUniqueName].find((variant) => variant?.uniqueName == variantUniqueName);
+            data.stock.variant.name = variantObj?.name ?? this.state.allStockVariants[stockUniqueName][0].name;
+            data.stock.isMultiVariant = this.state.allStockVariants[stockUniqueName]?.length > 1;
+          }
+          data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+          return data;
+        }
+        // ----- If the item is a Service -----
+      } else {
+        const results = await InvoiceService.getSalesDetails(accountUniqueName);
+        if (results && results.body) {
+          const data = results.body;
+          data.quantity = 1;
+          data["newUniqueName"] = data.uniqueName + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+          return data;
+        }
+      }
+    } catch (e) {
+      console.warn('----- Error in getParticularServiceStockVariants -----', e);
+    }
+  }
+
+  async mapEntriesToUIData(entries) {
+    let addedItems = [];
+
+    await Promise.all(entries.map(async (entry) => {
+      const accountUniqueName = entry.transactions[0].account?.uniqueName;
+      const stockUniqueName = entry.transactions[0].stock?.uniqueName;
+      const variantUniqueName = entry.transactions[0].stock?.variant?.uniqueName;
+
+      const particularData = await this.getParticularServiceStockVariants(accountUniqueName, stockUniqueName, variantUniqueName);
+
+      // Inserting Tax according to the tax present in voucher.
+      let taxDetailsArray = [];
+      let selectedArrayType = [];
+      // Capture the TDS/TCS calculation method coming with the voucher entry so the
+      // amount can be recomputed for display (independent of otherTaxTotal).
+      let tdsTcsCalculationMethod = null;
+
+      entry?.taxes?.forEach((entryTax) => {
+        // Resolve the full tax object from the master list and rely on its taxType
+        // for de-duplication. The entry tax does not always carry a reliable taxType,
+        // and keying off it can cause a TDS/TCS tax to be skipped so it never reaches the UI.
+        const tax = this.state.taxArray.find((tax) => tax.uniqueName === entryTax.uniqueName);
+        if (!tax) return;
+        if (selectedArrayType.includes(tax.taxType)) return;
+        taxDetailsArray.push(tax);
+        selectedArrayType.push(tax.taxType);
+        if (tax.taxType == 'tdspay' || tax.taxType == 'tcspay' || tax.taxType == 'tcsrc' || tax.taxType == 'tdsrc') {
+          tdsTcsCalculationMethod = entryTax?.calculationMethod ?? tax?.taxDetail?.[0]?.calculationMethod ?? 'OnTaxableAmount';
+        }
+      });
+
+      const isStock = !!particularData?.stock;
+
+      let percentDiscountArray = [];
+      let fixedDiscount = {
+        discountValue: 0,
+        discountType: '',
+        name: undefined,
+        uniqueName: undefined,
+        linkAccount: {
+          name: undefined,
+          uniqueName: undefined
+        }
+      };
+
+      entry?.discounts?.forEach((_discount) => {
+        const discount = {
+          name: _discount?.name,
+          uniqueName: _discount?.uniqueName,
+          discountValue: _discount?.discountValue,
+          discountType: _discount?.calculationMethod,
+          linkAccount: {
+            name: _discount?.accountName,
+            uniqueName: _discount?.accountUniqueName
+          }
+        };
+        if (_discount?.calculationMethod === 'FIX_AMOUNT') {
+          fixedDiscount = discount;
+        } else if (_discount?.calculationMethod === 'PERCENTAGE') {
+          percentDiscountArray.push(discount);
+        }
+      });
+
+      const modifiedEntryObj = {
+        ...particularData,
+        "hsnNumber": entry?.hsnNumber,
+        "sacNumber": entry?.sacNumber,
+        "quantity": isStock ? entry.transactions[0].stock.quantity : (entry?.usedQuantity !== 0 ? entry?.usedQuantity : 1),
+        "quantityText": isStock ? entry.transactions[0].stock.quantity : (entry?.usedQuantity !== 0 ? entry?.usedQuantity : 1),
+        "rate": isStock ? entry.transactions[0].stock.rate.rateForAccount : entry?.subTotal?.amountForAccount,
+        "rateText": isStock ? entry.transactions[0].stock.rate.rateForAccount : entry?.subTotal?.amountForAccount,
+        "taxDetailsArray": taxDetailsArray,
+        "selectedArrayType": selectedArrayType,
+        "unitText": isStock ? entry.transactions[0].stock.quantity : '',
+        "amount": entry?.subTotal?.amountForAccount,
+        "amountText": entry?.subTotal?.amountForAccount,
+        "isNew": false,
+        "description": entry?.description,
+        "unit": isStock ? entry.transactions[0].stock.quantity : '',
+        "total": entry?.subTotal?.amountForAccount,
+        "taxType": 0,
+        "tax": entry?.taxTotal?.amountForAccount ?? 0,
+        "warehouse": 0,
+        "discountDetails": {},
+        "discountPercentage": percentDiscountArray[0]?.discountValue,
+        "discountPercentageText": percentDiscountArray[0]?.discountValue,
+        "percentDiscountArray": percentDiscountArray,
+        "discountValue": 0,
+        "discountType": null,
+        "fixedDiscount": fixedDiscount,
+        "fixedDiscountUniqueName": fixedDiscount?.uniqueName,
+        "tdsTcsTaxCalculationMethod": null,
+        "tdsOrTcsTaxObj": null
+      };
+
+      modifiedEntryObj.discountValue = this.calculateDiscountedAmount(modifiedEntryObj);
+      // Set the calculation method first so the TDS/TCS amount can be derived from the
+      // selected taxes, then compute the display object off the taxDetailsArray. This works
+      // even when the voucher entry does not include an otherTaxTotal.
+      modifiedEntryObj.tdsTcsTaxCalculationMethod = tdsTcsCalculationMethod ?? 'OnTaxableAmount';
+      modifiedEntryObj.taxText = entry?.taxTotal?.amountForAccount ?? modifiedEntryObj.tax ?? 0;
+      this.calculateTdsOrTcsAmountToDisplay(modifiedEntryObj);
+      if (!modifiedEntryObj.tdsOrTcsTaxObj) {
+        // Fallback: use the TDS/TCS amount already computed on the voucher entry.
+        const fallbackTdsTcs = this.calculateTdsTcsTaxToDisplay(entry);
+        if (fallbackTdsTcs) {
+          modifiedEntryObj.tdsOrTcsTaxObj = fallbackTdsTcs;
+          modifiedEntryObj.tdsTcsTaxCalculationMethod = fallbackTdsTcs.calculationMethod ?? modifiedEntryObj.tdsTcsTaxCalculationMethod;
+        }
+      }
+      addedItems.push(modifiedEntryObj);
+    }));
+
+    return addedItems;
+  }
+
+  calculateTdsTcsTaxToDisplay(itemDetails) {
+    try {
+      let totalTcsorTdsTax = 0;
+      let totalTcsorTdsTaxName = '';
+      let calculationMethod = '';
+      if (itemDetails?.taxes && itemDetails?.taxes?.length > 0) {
+        for (let i = 0; i < itemDetails?.taxes?.length; i++) {
+          const item = itemDetails?.taxes[i];
+          if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
+            if (itemDetails?.otherTaxTotal) {
+              totalTcsorTdsTax = itemDetails?.otherTaxTotal?.amountForAccount < 0 ? ((-1) * itemDetails?.otherTaxTotal?.amountForAccount) : itemDetails?.otherTaxTotal?.amountForAccount;
+              totalTcsorTdsTaxName = item.taxType;
+              calculationMethod = item.calculationMethod;
+              break;
+            }
+          }
+        }
+      }
+      if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
+        return { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2), calculationMethod: calculationMethod };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log("errr", error);
+      return null;
+    }
+  }
+
+  _renderCopyVoucherRow = ({ item }) => {
+    const name = item?.account?.name ?? item?.account?.customerName ?? '';
+    const voucherNumber = item?.voucherNumber ?? '';
+    const amount = item?.grandTotal?.amountForAccount ?? 0;
+    return (
+      <TouchableOpacity
+        style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' }}
+        onPress={() => this.copyVoucherFromList(item)}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold, fontSize: 16 }} numberOfLines={1}>{name}</Text>
+          {voucherNumber ? (
+            <View style={{ alignSelf: 'flex-start', backgroundColor: '#FDE6E5', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginTop: 4 }}>
+              <Text style={{ color: '#ff6961', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }} numberOfLines={1}>{voucherNumber}</Text>
+            </View>
+          ) : null}
+        </View>
+        <Text style={{ color: '#1C1C1C', textAlign: 'right', fontFamily: FONT_FAMILY.semibold, fontSize: 15 }} numberOfLines={1}>{formatAmount(amount)}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  _renderCopyVoucherListHeader = () => {
+    return (
+      <View style={{ flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E6E6E6' }}>
+        <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }}>{this.props.t('common.name')}</Text>
+        <Text style={{ color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'right' }}>{this.props.t('common.amount')}</Text>
+      </View>
+    );
+  };
+
+  _renderCopyVoucherEmpty = () => {
+    return (
+      <View style={{ paddingVertical: 30, alignItems: 'center' }}>
+        {this.state.fetchingCopyVouchers ? (
+          <ActivityIndicator color={'#ff6961'} size="small" />
+        ) : (
+          <Text style={{ color: '#808080', fontFamily: FONT_FAMILY.regular }}>{this.props.t('common.noResultsFound')}</Text>
+        )}
+      </View>
+    );
+  };
+
+  _renderCopyVoucherSheet() {
+    return (
+      <BottomSheet
+        bottomSheetRef={this.copyVoucherBottomSheetRef}
+        headerText={this.props.t('common.Copy Previous Debit Notes')}
+        headerTextColor='#ff6961'
+        onClose={() => Keyboard.dismiss()}
+        flatListProps={{
+          data: this.state.copyVoucherList,
+          keyExtractor: (item, index) => `${item?.uniqueName ?? item?.voucherNumber ?? index}`,
+          renderItem: this._renderCopyVoucherRow,
+          ListHeaderComponent: this._renderCopyVoucherListHeader,
+          ListEmptyComponent: this._renderCopyVoucherEmpty,
+          showsVerticalScrollIndicator: false,
+          contentContainerStyle: { paddingHorizontal: 16, paddingBottom: 10 }
+        }}
+      />
+    );
   }
 
   setBottomSheetVisible = (modalRef: React.Ref<BottomSheet>, visible: boolean) => {
@@ -363,6 +708,7 @@ export class DebiteNote extends React.Component<Props> {
 
   renderSelectPartyName() {
     return (
+      <>
       <View
         onLayout={this.onLayout}
         style={{ flexDirection: 'row', minHeight: 50, alignItems: 'center', paddingTop: 10 }}
@@ -389,6 +735,17 @@ export class DebiteNote extends React.Component<Props> {
           <Text style={{ color: '#1C1C1C', marginRight: 16, fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('common.clearAll')}</Text>
         </TouchableOpacity>
       </View>
+      <View
+        onLayout={this.onLayout}
+        style={{ flexDirection: 'row',alignItems: 'center', marginVertical: 10 }}>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}
+          onPress={() => this.openCopyVoucherSheet()}>
+          <FontAwesome5 name={'copy'} color={'#ff6961'} style={{ marginLeft: 16 }} size={18} />
+          <Text style={{ color: '#1C1C1C', marginLeft: 10, fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('common.Copy Previous Debit Notes')}</Text>
+        </TouchableOpacity>
+      </View>
+      </>
     );
   }
 
@@ -2440,6 +2797,7 @@ export class DebiteNote extends React.Component<Props> {
         )}
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
         {this.invoiceBottomSheet()}
+        {this._renderCopyVoucherSheet()}
       </View>
     );
   }

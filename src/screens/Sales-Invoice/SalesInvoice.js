@@ -2627,8 +2627,8 @@ export class SalesInvoice extends React.Component<Props> {
   _renderCopyVoucherListHeader = () => {
     return (
       <View style={{ flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E6E6E6' }}>
-        <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }}>{this.props.t('salesInvoice.name')}</Text>
-        <Text style={{ color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'right' }}>{this.props.t('salesInvoice.amount')}</Text>
+        <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }}>{this.props.t('common.name')}</Text>
+        <Text style={{ color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'right' }}>{this.props.t('common.amount')}</Text>
       </View>
     );
   };
