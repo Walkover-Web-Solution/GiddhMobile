@@ -54,12 +54,16 @@ export class CommonService {
    * single account, omit it to get company-wide vouchers.
    * @returns {Promise<BaseResponse<any>>}
    */
-  static getLastVouchers(voucherType: string, count: number, companyVoucherVersion: number, payload: object) {
+  static getLastVouchers(voucherType: string, count: number, companyVoucherVersion: number, payload: any) {
+    let endpoint = commonUrls.getLastVouchers
+      .replace(':voucherType', voucherType)
+      .replace(':count', String(count))
+      .replace(':voucherVersion', String(companyVoucherVersion));
+    if (payload?.q) {
+      endpoint = endpoint + `&q=${encodeURIComponent(payload.q)}`;
+    }
     return httpInstance.post(
-      commonUrls.getLastVouchers
-        .replace(':voucherType', voucherType)
-        .replace(':count', String(count))
-        .replace(':voucherVersion', String(companyVoucherVersion)),
+      endpoint,
       payload
     )
     .then((res) => {

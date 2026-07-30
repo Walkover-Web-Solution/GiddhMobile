@@ -40,6 +40,7 @@ import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
+import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -148,6 +149,9 @@ export class CreditNote extends React.Component<Props> {
       selectedSalesPerson: undefined,
       copyVoucherList: [],
       fetchingCopyVouchers: false,
+      copyVoucherTab: 'account',
+      pdfPreviewVisible: false,
+      pdfPreviewParams: null,
       allStockVariants: {}
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -157,13 +161,53 @@ export class CreditNote extends React.Component<Props> {
     this.setState({ selectedSalesPerson: salesPerson });
   }
 
-  openCopyVoucherSheet = () => {
-    this.setBottomSheetVisible(this.copyVoucherBottomSheetRef, true);
-    this.setState({ copyVoucherList: [] });
-    this.fetchPreviousVouchers();
+  getCopyPartyName = () => {
+    return this.state.partyName?.name ?? (this.state.searchPartyName ? this.state.searchPartyName : '');
   };
 
-  fetchPreviousVouchers = async () => {
+  openCopyVoucherSheet = () => {
+    const defaultTab = this.getCopyPartyName() ? 'account' : 'all';
+    this.setBottomSheetVisible(this.copyVoucherBottomSheetRef, true);
+    this.setState({ copyVoucherList: [], copyVoucherTab: defaultTab });
+    this.fetchPreviousVouchers(defaultTab);
+  };
+
+  switchCopyVoucherTab = (tab) => {
+    if (this.state.copyVoucherTab === tab) return;
+    this.setState({ copyVoucherTab: tab, copyVoucherList: [] });
+    this.fetchPreviousVouchers(tab);
+  };
+
+  openPreviousVoucherPdf = (item) => {
+    const voucherUniqueName = item?.uniqueName;
+    const voucherNumber = item?.voucherNumber ?? '';
+    if (!voucherUniqueName && !voucherNumber) return;
+    this.setBottomSheetVisible(this.copyVoucherBottomSheetRef, false);
+    setTimeout(() => {
+      this.setState({
+        pdfPreviewVisible: true,
+        pdfPreviewParams: {
+          companyVersionNumber: this.state.companyVersionNumber,
+          uniqueName: item?.account?.uniqueName,
+          voucherInfo: {
+            voucherNumber: [`${voucherNumber}`],
+            uniqueName: voucherUniqueName,
+            voucherType: INVOICE_TYPE.creditNote
+          }
+        }
+      });
+    }, 300);
+  };
+
+  closePreviousVoucherPdf = () => {
+    this.setState({ pdfPreviewVisible: false, pdfPreviewParams: null });
+  };
+
+  fetchPreviousVouchers = async (tab = this.state.copyVoucherTab) => {
+    // Tag every request so a stale/overlapping response can never wedge the
+    // loader (e.g. an old fetch resolving after a newer one has started).
+    const requestId = (this._copyVoucherRequestId || 0) + 1;
+    this._copyVoucherRequestId = requestId;
     this.setState({ fetchingCopyVouchers: true });
     try {
       const payload = {
@@ -172,21 +216,38 @@ export class CreditNote extends React.Component<Props> {
         sortBy: 'voucherDate',
         sort: 'desc'
       };
-      const response = await CommonService.getLastVouchers(
-        INVOICE_TYPE.creditNote,
-        10,
-        this.state.companyVersionNumber,
-        payload
-      );
+      const partyName = this.getCopyPartyName();
+      if (tab === 'account' && partyName) {
+        payload.q = partyName;
+      }
+      // Safety net: the axios timeout only covers the network round-trip, not
+      // the async request interceptor (AsyncStorage reads / session refresh),
+      // so a hang there would keep the loader spinning forever. Race the call
+      // against a timeout so the UI always recovers.
+      const response = await Promise.race([
+        CommonService.getLastVouchers(
+          INVOICE_TYPE.creditNote,
+          10,
+          this.state.companyVersionNumber,
+          payload
+        ),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('COPY_VOUCHER_TIMEOUT')), 30000)
+        )
+      ]);
+      if (this._copyVoucherRequestId !== requestId) return;
       if (response?.status === 'success' && Array.isArray(response?.body?.items)) {
         this.setState({ copyVoucherList: response.body.items });
       } else {
         this.setState({ copyVoucherList: [] });
       }
     } catch (e) {
+      if (this._copyVoucherRequestId !== requestId) return;
       this.setState({ copyVoucherList: [] });
     } finally {
-      this.setState({ fetchingCopyVouchers: false });
+      if (this._copyVoucherRequestId === requestId) {
+        this.setState({ fetchingCopyVouchers: false });
+      }
     }
   };
 
@@ -438,28 +499,60 @@ export class CreditNote extends React.Component<Props> {
     const name = item?.account?.name ?? item?.account?.customerName ?? '';
     const voucherNumber = item?.voucherNumber ?? '';
     const amount = item?.grandTotal?.amountForAccount ?? 0;
+    const voucherDate = item?.voucherDate ? moment(item.voucherDate, 'DD-MM-YYYY').format('MMM DD') : '';
     return (
       <TouchableOpacity
         style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' }}
         onPress={() => this.copyVoucherFromList(item)}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold, fontSize: 16 }} numberOfLines={1}>{name}</Text>
+        <View style={{ flex: 2, paddingRight: 6 }}>
+          <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold, fontSize: 15 }} numberOfLines={1}>{name}</Text>
           {voucherNumber ? (
-            <View style={{ alignSelf: 'flex-start', backgroundColor: '#EAF1FC', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginTop: 4 }}>
-              <Text style={{ color: '#2C7BE5', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }} numberOfLines={1}>{voucherNumber}</Text>
-            </View>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => this.openPreviousVoucherPdf(item)}
+              style={{ alignSelf: 'flex-start', backgroundColor: '#EAF1FC', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginTop: 4 }}>
+              <Text style={{ color: '#2C7BE5', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textDecorationLine: 'underline' }} numberOfLines={1}>{voucherNumber}</Text>
+            </TouchableOpacity>
           ) : null}
         </View>
-        <Text style={{ color: '#1C1C1C', textAlign: 'right', fontFamily: FONT_FAMILY.semibold, fontSize: 15 }} numberOfLines={1}>{formatAmount(amount)}</Text>
+        <Text style={{ flex: 1, color: '#808080', textAlign: 'center', fontFamily: FONT_FAMILY.regular, fontSize: 13 }} numberOfLines={1}>{voucherDate}</Text>
+        <Text style={{ flex: 1, color: '#1C1C1C', textAlign: 'right', fontFamily: FONT_FAMILY.semibold, fontSize: 14 }} numberOfLines={1}>{formatAmount(amount)}</Text>
       </TouchableOpacity>
+    );
+  };
+
+  _renderCopyVoucherTabs = () => {
+    const tabs = [
+      { key: 'account', label: this.props.t('common.accountInvoices') },
+      { key: 'all', label: this.props.t('common.allInvoices') }
+    ];
+    return (
+      <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#E6E6E6' }}>
+        {tabs.map((tab) => {
+          const active = this.state.copyVoucherTab === tab.key;
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              activeOpacity={0.7}
+              style={{ flex: 1, alignItems: 'center', paddingVertical: 12, borderBottomWidth: 2, borderBottomColor: active ? '#229F5F' : 'transparent' }}
+              onPress={() => this.switchCopyVoucherTab(tab.key)}>
+              <Text style={{ color: active ? '#229F5F' : '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 14 }}>{tab.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     );
   };
 
   _renderCopyVoucherListHeader = () => {
     return (
-      <View style={{ flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E6E6E6' }}>
-        <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }}>{this.props.t('common.name')}</Text>
-        <Text style={{ color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'right' }}>{this.props.t('common.amount')}</Text>
+      <View>
+        {this._renderCopyVoucherTabs()}
+        <View style={{ flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E6E6E6' }}>
+          <Text style={{ flex: 2, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }}>{this.props.t('common.name')}</Text>
+          <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'center' }}>{this.props.t('common.date')}</Text>
+          <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'right' }}>{this.props.t('common.amount')}</Text>
+        </View>
       </View>
     );
   };
@@ -475,6 +568,22 @@ export class CreditNote extends React.Component<Props> {
       </View>
     );
   };
+
+  _renderPdfPreviewModal() {
+    return (
+      <Modal
+        visible={this.state.pdfPreviewVisible}
+        animationType="slide"
+        onRequestClose={this.closePreviousVoucherPdf}>
+        {this.state.pdfPreviewVisible && this.state.pdfPreviewParams ? (
+          <PdfPreviewScreen
+            {...this.state.pdfPreviewParams}
+            onClose={this.closePreviousVoucherPdf}
+          />
+        ) : null}
+      </Modal>
+    );
+  }
 
   _renderCopyVoucherSheet() {
     return (
@@ -2764,6 +2873,7 @@ export class CreditNote extends React.Component<Props> {
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
         {this.invoiceBottomSheet()}
         {this._renderCopyVoucherSheet()}
+        {this._renderPdfPreviewModal()}
       </View>
     );
   }
