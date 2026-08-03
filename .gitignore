@@ -73,3 +73,8 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Local env configs (secrets) — keep *.json.example committed
+environments/*.json
+!environments/*.json.example
+src/env.json

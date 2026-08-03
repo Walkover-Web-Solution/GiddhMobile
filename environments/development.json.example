@@ -1,0 +1,5 @@
+{
+  "API_URL": "https://apitest.giddh.com/",
+  "WEBCLIENT_ID": "your-google-webclient-id.apps.googleusercontent.com",
+  "BOT_JWT_SECRET": "your-bot-jwt-secret"
+}
