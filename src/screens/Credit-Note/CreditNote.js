@@ -504,19 +504,19 @@ export class CreditNote extends React.Component<Props> {
       <TouchableOpacity
         style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' }}
         onPress={() => this.copyVoucherFromList(item)}>
-        <View style={{ flex: 2, paddingRight: 6 }}>
+        <View style={{ width: '50%', paddingRight: 6 }}>
           <Text style={{ color: '#1C1C1C', fontFamily: FONT_FAMILY.semibold, fontSize: 15 }} numberOfLines={1}>{name}</Text>
-          {voucherNumber ? (
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => this.openPreviousVoucherPdf(item)}
-              style={{ alignSelf: 'flex-start', backgroundColor: '#EAF1FC', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginTop: 4 }}>
-              <Text style={{ color: '#2C7BE5', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textDecorationLine: 'underline' }} numberOfLines={1}>{voucherNumber}</Text>
-            </TouchableOpacity>
-          ) : null}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => this.openPreviousVoucherPdf(item)}
+            style={{ alignSelf: 'flex-start', backgroundColor: '#EAF1FC', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginTop: 4 }}>
+            <Text style={{ color: '#2C7BE5', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textDecorationLine: 'underline' }} numberOfLines={1}>
+              {voucherNumber ? `#${voucherNumber}` : this.props.t('common.na')}
+            </Text>
+          </TouchableOpacity>
         </View>
-        <Text style={{ flex: 1, color: '#808080', textAlign: 'center', fontFamily: FONT_FAMILY.regular, fontSize: 13 }} numberOfLines={1}>{voucherDate}</Text>
-        <Text style={{ flex: 1, color: '#1C1C1C', textAlign: 'right', fontFamily: FONT_FAMILY.semibold, fontSize: 14 }} numberOfLines={1}>{formatAmount(amount)}</Text>
+        <Text style={{ width: '18%', color: '#808080', textAlign: 'center', fontFamily: FONT_FAMILY.regular, fontSize: 13 }} numberOfLines={1}>{voucherDate}</Text>
+        <Text style={{ width: '32%', color: '#1C1C1C', textAlign: 'right', fontFamily: FONT_FAMILY.semibold, fontSize: 14 }} numberOfLines={1}>{formatAmount(amount)}</Text>
       </TouchableOpacity>
     );
   };
@@ -549,9 +549,9 @@ export class CreditNote extends React.Component<Props> {
       <View>
         {this._renderCopyVoucherTabs()}
         <View style={{ flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E6E6E6' }}>
-          <Text style={{ flex: 2, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }}>{this.props.t('common.name')}</Text>
-          <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'center' }}>{this.props.t('common.date')}</Text>
-          <Text style={{ flex: 1, color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'right' }}>{this.props.t('common.amount')}</Text>
+          <Text style={{ width: '50%', color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12 }}>{this.props.t('common.name')}</Text>
+          <Text style={{ width: '18%', color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'center' }}>{this.props.t('common.date')}</Text>
+          <Text style={{ width: '32%', color: '#808080', fontFamily: FONT_FAMILY.semibold, fontSize: 12, textAlign: 'right' }}>{this.props.t('common.amount')}</Text>
         </View>
       </View>
     );
@@ -590,6 +590,7 @@ export class CreditNote extends React.Component<Props> {
       <BottomSheet
         bottomSheetRef={this.copyVoucherBottomSheetRef}
         headerText={this.props.t('common.Copy Previous Credit Notes')}
+        headerSubText={this.props.t('common.Tap a bill to copy it · tap the #voucher to preview')}
         headerTextColor='#3497FD'
         onClose={() => Keyboard.dismiss()}
         flatListProps={{
