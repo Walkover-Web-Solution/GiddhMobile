@@ -459,6 +459,8 @@ export class DebiteNote extends React.Component<Props> {
           modifiedEntryObj.tdsTcsTaxCalculationMethod = fallbackTdsTcs.calculationMethod ?? modifiedEntryObj.tdsTcsTaxCalculationMethod;
         }
       }
+      // Keep card/total amount in sync with discount + tax without requiring an item edit.
+      modifiedEntryObj.total = this.getTotalAmountOfCard(modifiedEntryObj);
       addedItems.push(modifiedEntryObj);
     }));
 
@@ -2381,16 +2383,18 @@ export class DebiteNote extends React.Component<Props> {
   calculateDiscountedAmount(itemDetails) {
     let totalDiscount = 0;
     let percentDiscount = 0;
+    // Fixed discount was only applied inside EditItemDetails, so copied vouchers showed
+    // the value as a placeholder but left discountValue/total as 0 until Done was pressed.
+    if (itemDetails?.fixedDiscount && Number(itemDetails.fixedDiscount.discountValue) > 0) {
+      totalDiscount = totalDiscount + Number(itemDetails.fixedDiscount.discountValue);
+    }
     if (itemDetails.percentDiscountArray && itemDetails.percentDiscountArray.length > 0) {
       for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
         percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
       }
-      // console.log(percentDiscount, 'total % discount');
       const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
-      // console.log('amt is ', amt);
       totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
     }
-    console.log(totalDiscount, 'is the discount');
     return totalDiscount;
   }
 

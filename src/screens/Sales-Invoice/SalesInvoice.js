@@ -393,14 +393,22 @@ export class SalesInvoice extends React.Component<Props> {
       // Inserting Tax according to the tax present in voucher.
       let taxDetailsArray = [];
       let selectedArrayType = [];
+      // Capture the TDS/TCS calculation method coming with the voucher entry so the
+      // amount can be recomputed for display (independent of otherTaxTotal).
+      let tdsTcsCalculationMethod = null;
 
       entry?.taxes?.forEach((entryTax) => {
-        if (selectedArrayType.includes(entryTax?.taxType)) {
-          return;
-        }
+        // Resolve the full tax object from the master list and rely on its taxType
+        // for de-duplication. The entry tax does not always carry a reliable taxType,
+        // and keying off it can cause a TDS/TCS tax to be skipped so it never reaches the UI.
         const tax = this.state.taxArray.find((tax) => tax.uniqueName === entryTax.uniqueName);
-        if (tax) taxDetailsArray.push(tax);
-        if (!selectedArrayType.includes(entryTax?.taxType)) selectedArrayType.push(entryTax?.taxType);
+        if (!tax) return;
+        if (selectedArrayType.includes(tax.taxType)) return;
+        taxDetailsArray.push(tax);
+        selectedArrayType.push(tax.taxType);
+        if (tax.taxType == 'tdspay' || tax.taxType == 'tcspay' || tax.taxType == 'tcsrc' || tax.taxType == 'tdsrc') {
+          tdsTcsCalculationMethod = entryTax?.calculationMethod ?? tax?.taxDetail?.[0]?.calculationMethod ?? 'OnTaxableAmount';
+        }
       });
 
       const isStock = !!particularData?.stock;
@@ -468,8 +476,22 @@ export class SalesInvoice extends React.Component<Props> {
       };
 
       modifiedEntryObj.discountValue = this.calculateDiscountedAmount(modifiedEntryObj);
-      modifiedEntryObj.tdsOrTcsTaxObj = this.calculateTdsTcsTaxToDisplay(entry);
-      modifiedEntryObj.tdsTcsTaxCalculationMethod = modifiedEntryObj.tdsOrTcsTaxObj?.calculationMethod;
+      // Set the calculation method first so the TDS/TCS amount can be derived from the
+      // selected taxes, then compute the display object off the taxDetailsArray. This works
+      // even when the voucher entry does not include an otherTaxTotal.
+      modifiedEntryObj.tdsTcsTaxCalculationMethod = tdsTcsCalculationMethod ?? 'OnTaxableAmount';
+      modifiedEntryObj.taxText = entry?.taxTotal?.amountForAccount ?? modifiedEntryObj.tax ?? 0;
+      this.calculateTdsOrTcsAmountToDisplay(modifiedEntryObj);
+      if (!modifiedEntryObj.tdsOrTcsTaxObj) {
+        // Fallback: use the TDS/TCS amount already computed on the voucher entry.
+        const fallbackTdsTcs = this.calculateTdsTcsTaxToDisplay(entry);
+        if (fallbackTdsTcs) {
+          modifiedEntryObj.tdsOrTcsTaxObj = fallbackTdsTcs;
+          modifiedEntryObj.tdsTcsTaxCalculationMethod = fallbackTdsTcs.calculationMethod ?? modifiedEntryObj.tdsTcsTaxCalculationMethod;
+        }
+      }
+      // Keep card/total amount in sync with discount + tax without requiring an item edit.
+      modifiedEntryObj.total = this.getTotalAmountOfCard(modifiedEntryObj);
       addedItems.push(modifiedEntryObj);
     }));
 
@@ -2256,19 +2278,18 @@ export class SalesInvoice extends React.Component<Props> {
   calculateDiscountedAmount(itemDetails) {
     let totalDiscount = 0;
     let percentDiscount = 0;
-    // if (itemDetails.fixedDiscount.discountValue != undefined) {
-    //   totalDiscount = totalDiscount + itemDetails.fixedDiscount.discountValue;
-    // }
+    // Fixed discount was only applied inside EditItemDetails, so copied vouchers showed
+    // the value as a placeholder but left discountValue/total as 0 until Done was pressed.
+    if (itemDetails?.fixedDiscount && Number(itemDetails.fixedDiscount.discountValue) > 0) {
+      totalDiscount = totalDiscount + Number(itemDetails.fixedDiscount.discountValue);
+    }
     if (itemDetails.percentDiscountArray && itemDetails.percentDiscountArray.length > 0) {
       for (let i = 0; i < itemDetails.percentDiscountArray.length; i++) {
         percentDiscount = percentDiscount + itemDetails.percentDiscountArray[i].discountValue;
       }
-      // console.log(percentDiscount, 'total % discount');
       const amt = Number(itemDetails.rateText) * Number(itemDetails.quantityText);
-      // console.log('amt is ', amt);
       totalDiscount = totalDiscount + (Number(percentDiscount) * amt) / 100;
     }
-    console.log(totalDiscount, 'is the discount');
     return totalDiscount;
   }
 
