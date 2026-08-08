@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { TextInput } from "react-native-paper";
 import useCustomTheme, { getLineHeight, getLabelLineHeight, ThemeProps } from "../utils/theme";
@@ -18,7 +18,9 @@ type InputProps = {
   onChangeText: (text: string) => void,
   onfocus?: () => void
   leftIcon?: React.ReactNode
-}
+  /** Increment on refresh/clear to reset touched/error state (works even when value is already empty). */
+  resetKey?: number | string
+} 
 
 const InputField : React.FC<InputProps> = ({ 
   lable,
@@ -33,23 +35,47 @@ const InputField : React.FC<InputProps> = ({
   customErrorMessage,
   containerStyle,
   errorStyle,
-  leftIcon
+  leftIcon,
+  resetKey
 }) => {
   const { theme, styles } = useCustomTheme(getInputStyles, 'Stock');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [hasValue, setHasValue] = useState<boolean>(false);
-  const showLabelAbove = hasValue || isFocused;
+  const [hasValue, setHasValue] = useState<boolean>(value?.trim()?.length > 0);// set hasValue to true if value is not empty
+  const [isTouched, setIsTouched] = useState<boolean>(false);
+  const isFirstResetKeyEffect = useRef(true);
 
+  useEffect(() => {
+    if (resetKey === undefined) return;
+    if (isFirstResetKeyEffect.current) {
+      isFirstResetKeyEffect.current = false;
+      return;
+    }
+    setIsTouched(false);
+    setErrorMessage('');
+    setHasValue(value?.trim()?.length > 0);
+  }, [resetKey]);
+
+  // Controlled: use value prop. Uncontrolled (no value prop): use hasValue from typing.
+  const isEmpty =
+    value === undefined
+      ? !hasValue
+      : value === null || value?.trim()?.length === 0;
+  const isMandatoryEmpty = isRequired && isTouched && isEmpty;
+  // Show error for required-empty and for failed validate() (e.g. invalid mobile), not only when empty
+  const hasError = isMandatoryEmpty || (isTouched && errorMessage.length > 0);
   return (
     <View style={styles.wrapper}>
-      {showLabelAbove && (
+      {/* {showLabelAbove && (
         <View style={styles.externalLabelContainer} pointerEvents="none">
           <Text style={styles.externalLabelText}>
-            {lable}{isRequired && <Text style={{color: theme.colors.solids.red.dark }}>  *</Text>}
+            {lable}
           </Text>
+          {isRequired && (
+            <Text style={styles.requiredAsterisk}>  *</Text>
+          )}
         </View>
-      )}
+      )} */}
       <TextInput
         value={value}
         left={leftIcon 
@@ -72,6 +98,9 @@ const InputField : React.FC<InputProps> = ({
           //     fontFamily: theme.typography.fontFamily.regular,
           //   }
           // },
+          colors: {
+            error: theme.colors.solids.red.dark,
+          },
           roundness: 6
         }}
         onFocus={() => {
@@ -80,12 +109,19 @@ const InputField : React.FC<InputProps> = ({
         }}
         onBlur={() => {
           setIsFocused(false);
+          setIsTouched(true);
           if(onblur) onblur();
         }}
         mode={'outlined'}
         editable={editable}
-        // label={hasValue ? <Text style={styles.labelText}>{lable}{isRequired && <Text style={{color: theme.colors.solids.red.dark }}>  *</Text>}</Text> : undefined}
-        placeholder={lable}
+        error={hasError}
+        label={
+          <Text style={styles.labelText}>
+            {lable}
+            {isRequired ? <Text style={styles.requiredAsterisk}> *</Text> : null}
+          </Text>
+        }
+        placeholder= {`${lable} ${isRequired ? '*' : ''}`} // if isRequired is true, then show * in the placeholder
         placeholderTextColor={theme.colors.secondaryText}
         outlineStyle={styles.outlineStyle}
         activeOutlineColor={theme.colors.vouchers.stock.background}
@@ -94,24 +130,31 @@ const InputField : React.FC<InputProps> = ({
         contentStyle={[styles.inputTextStyle, {color: !editable ? theme.colors.secondaryText : theme.colors.text}]}
         keyboardType={keyboardType}
         onChangeText={(text) => {
-          if(typeof validate === "function"){
-            if(!validate(text)){
-              if(customErrorMessage != ''){
+          setIsTouched(true);
+
+          if (isRequired && text?.trim()?.length === 0) {
+            setErrorMessage(customErrorMessage || `${lable} is required`);
+          } else if (typeof validate === "function") {
+            if (!validate(text)) {
+              if (customErrorMessage != '') {
                 setErrorMessage(customErrorMessage + '');
-              }else{
+              } else {
                 setErrorMessage('Enter Valid ' + lable);
               }
-            } else{
+            } else {
               setErrorMessage('');
             }
+          } else {
+            setErrorMessage('');
           }
-          onChangeText(text);
-          setHasValue(text.length > 0);
+
+          onChangeText?.(text);
+          setHasValue(text?.trim()?.length > 0)
         }}
       />
-      { errorMessage.length > 0 && 
+      { hasError && (errorMessage?.length > 0 || isMandatoryEmpty)  && 
         <Text style={[styles.inputValidationError, errorStyle ? errorStyle : undefined]}>
-          {errorMessage}
+          {errorMessage || `${lable} is required`}
         </Text>
       }
     </View>
@@ -127,11 +170,12 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
     top: 0,
     left: 12,
     zIndex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: theme.colors.background,
     paddingHorizontal: 4,
     paddingVertical: 0,
     height: 16,
-    justifyContent: 'center',
   },
   externalLabelText: {
     fontFamily: theme.typography.fontFamily.regular,
@@ -139,12 +183,23 @@ const getInputStyles = (theme: ThemeProps) => StyleSheet.create({
     lineHeight: 16,
     color: theme.colors.shadow,
     includeFontPadding: false,
+    flexShrink: 0,
+  },
+  requiredAsterisk: {
+    fontFamily: theme.typography.fontFamily.regular,
+    fontSize: 12,
+    lineHeight: 16,
+    color: theme.colors.solids.red.dark,
+    includeFontPadding: false,
+    flexShrink: 0,
+    paddingRight: 2,
   },
   labelText: {
     fontFamily: theme.typography.fontFamily.regular,
     fontSize: theme.typography.fontSize.regular.size,
     lineHeight: getLabelLineHeight(theme.typography.fontSize.regular),
     includeFontPadding: false,
+
   },
   input: {
     height: 50,

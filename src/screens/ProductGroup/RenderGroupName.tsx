@@ -2,7 +2,7 @@ import { View } from "react-native";
 import InputField from "@/components/InputField";
 import { useTranslation } from "react-i18next";
 
-const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll})=>{
+const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,groupName,groupUniqueName,setGroupName,setGroupUniqueName,clearAll,resetKey})=>{
     const { t } = useTranslation();
     const cleanText = (text:string)=> {
         const pattern = /[^a-zA-Z0-9]/g;
@@ -13,23 +13,25 @@ const RenderGroupName = ({isGroupUniqueNameEdited,setIsGroupUniqueNameEdited,gro
             <InputField
                 lable={t('productGroup.enterGroupName')}
                 value={groupName}
+                resetKey={resetKey}
                 containerStyle={{marginVertical:5}}
                 placeholderTextColor={'#808080'}
                 onChangeText={(text)=>{
                     setGroupName(text);
                     if(!isGroupUniqueNameEdited){
                         const uniqueName = cleanText(text);
-                        setGroupUniqueName(uniqueName.toLowerCase());
+                        setGroupUniqueName(uniqueName);
                     }
                 }}
             />
             <InputField
                 lable={t('productGroup.enterUniqueName')}
                 value={groupUniqueName}
+                resetKey={resetKey}
                 containerStyle={{marginVertical:5}}
                 placeholderTextColor={'#808080'}
                 onChangeText={(text)=>{
-                    setGroupUniqueName(text.toLowerCase());
+                    setGroupUniqueName(text);
                     setIsGroupUniqueNameEdited(true);
                 }}
             />

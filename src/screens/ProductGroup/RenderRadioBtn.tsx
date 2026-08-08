@@ -4,7 +4,7 @@ import makeStyle from "./style";
 import InputField from "@/components/InputField";
 import { useTranslation } from "react-i18next";
 
-const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})=>{
+const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber,resetKey})=>{
     const {theme,styles} = useCustomTheme(makeStyle)
     const { t } = useTranslation();
     return (
@@ -40,6 +40,7 @@ const RenderRadioBtn = ({codeNumber,selectedCode,setSelectedCode,setCodeNumber})
                 <InputField
                     lable={ selectedCode == 'hsn' ? t('otherInfo.enterHsnCode') : t('otherInfo.enterSacCode') }
                     value={codeNumber}
+                    resetKey={resetKey}
                     isRequired={false}
                     keyboardType="numeric"
                     containerStyle={{marginVertical:5}}

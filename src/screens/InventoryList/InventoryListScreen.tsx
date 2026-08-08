@@ -310,7 +310,7 @@ const InventoryListScreen = (props) => {
                     </View>
                 </View>
                 <View style={styles.row}>
-                    <View style={{width:'48%'}}>
+                    <View style={{width:'48%',marginTop:7}}>
                         <MatButton 
                             lable={t('inventoryList.expression')}
                             value={filterObject?.expression?.length > 0 && (filterObject?.expression) }

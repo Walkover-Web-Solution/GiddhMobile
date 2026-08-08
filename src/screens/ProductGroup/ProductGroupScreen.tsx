@@ -45,6 +45,7 @@ const ProductGroupScreen = (props)=>{
     const [groupName,setGroupName] = useState('');
     const [groupUniqueName,setGroupUniqueName] = useState('');
     const [codeNumber,setCodeNumber] = useState('');
+    const [formResetKey, setFormResetKey] = useState(0);
 
     useEffect(()=>{
       resetState();
@@ -96,7 +97,8 @@ const ProductGroupScreen = (props)=>{
       Object.keys(selectedUniqueTax).map((item)=>{
         taxesArr.push(selectedUniqueTax?.[item]?.uniqueName);
       })
-      const type = props?.route?.params?.params?.name === 'Product Group' ? 'PRODUCT' : 'SERVICE'
+      const type = props?.route?.params?.params?.name === 'Group' ? 'PRODUCT' : 'SERVICE'
+      console.log("payload",props?.route?.params);
       const payload = {
         hsnNumber : selectedCode === 'hsn' ? codeNumber : null,
         isSubGroup : isChecked,
@@ -106,12 +108,13 @@ const ProductGroupScreen = (props)=>{
         showCodeType : selectedCode,
         taxes : taxesArr,
         type : type,
-        uniqueName : groupUniqueName
+        uniqueName : groupUniqueName.toLowerCase()
       }
       if(!payload?.isSubGroup){
         delete payload?.parentStockGroupUniqueName
       }
       const result = await InventoryService.createStockGroup(payload);
+      Toast({message: result?.data?.status, position:'BOTTOM',duration:'LONG'})//TODO: remove this
       if(result?.data && result?.data?.status == 'success'){
         setIsLoading(false);
         setSuccessDialog(true);
@@ -135,6 +138,7 @@ const ProductGroupScreen = (props)=>{
       setGroupUniqueName('')
       setCodeNumber('')
       setIsGroupUniqueNameEdited(false)
+      setFormResetKey((prev) => prev + 1)
     }
     const clearAll = () => {
       resetState();
@@ -365,12 +369,14 @@ const ProductGroupScreen = (props)=>{
               setGroupName={setGroupName} 
               setGroupUniqueName={setGroupUniqueName} 
               clearAll={clearAll}
+              resetKey={formResetKey}
               />
             <RenderRadioBtn 
               codeNumber = {codeNumber} 
               selectedCode={selectedCode} 
               setSelectedCode={setSelectedCode}
               setCodeNumber={setCodeNumber}
+              resetKey={formResetKey}
               />
             <RenderTaxes 
               selectedUniqueTax={selectedUniqueTax} 

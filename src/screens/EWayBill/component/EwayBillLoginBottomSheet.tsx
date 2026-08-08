@@ -55,21 +55,24 @@ const EwayBillLoginBottomSheet: React.FC<Props> = ({ bottomSheetRef, setIsLoadin
                 lable={t('ewayBill.username')}
                 placeholder={t('ewayBill.enterUsername')}
                 containerStyle={styles.inputFieldStyle}
-                value={formData.userName}
+                errorStyle={styles.errorStyle}
+                // value={formData.userName}
                 onChangeText={(text) => handleFormData('userName', text)}
             />
             <InputField
                 lable={t('ewayBill.password')}
                 placeholder={t('ewayBill.enterPassword')}
                 containerStyle={styles.inputFieldStyle}
-                value={formData.password}
+                errorStyle={styles.errorStyle}
+                // value={formData.password}
                 onChangeText={(text) => handleFormData('password', text)}
             />
             <InputField 
                 lable={t('ewayBill.gstin')}
                 placeholder={t('ewayBill.enterGstin')}
                 containerStyle={styles.inputFieldStyle}
-                value={formData.gstIn}
+                errorStyle={styles.errorStyle}
+                // value={formData.gstIn}
                 onChangeText={(text) => handleFormData('gstIn', text)}
             />
             <View style={[styles.buttonView, { marginBottom: bottom }]} >
@@ -117,6 +120,11 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
     inputFieldStyle: {
         marginTop: 8,
         marginHorizontal: 16
+    },
+    errorStyle: {
+        marginLeft: 15,
+        left: 15,
+        bottom: 5
     }
 })
 
