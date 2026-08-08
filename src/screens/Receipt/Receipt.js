@@ -128,6 +128,7 @@ export class Receipt extends React.Component<any> {
       allPaymentModes: [],
       isSelectAccountButtonSelected: false,
       selectedArrayType: [],
+      defaultAccountTax: [],
       tdsTcsTaxCalculationMethod: 'OnTaxableAmount',
       balanceDetails: {
         totalTaxableAmount: 0,
@@ -498,20 +499,128 @@ export class Receipt extends React.Component<any> {
         const taxes = results.body.filter((item) => {
           return item.taxType != 'inputgst';
         });
-        this.setState({taxArray: taxes, fetechingTaxList: false});
+        await new Promise((resolve) => {
+          this.setState({taxArray: taxes, fetechingTaxList: false}, resolve);
+        });
         this.getTdsTcsTaxes(taxes);
+        return taxes;
       }
     } catch (e) {
       this.setState({fetechingTaxList: false});
     }
+    return [];
   }
 
   getTdsTcsTaxes(taxArray) {
     const taxes = taxArray.filter((item) => {
       return item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc';
     });
-     this.setState({tdsTcsTaxArray: taxes});
-     this.setState({tdsOrTcsArray: taxes});
+    this.setState({tdsTcsTaxArray: taxes});
+    this.setState({tdsOrTcsArray: taxes});
+  }
+
+  isTdsOrTcsTaxType(taxType) {
+    return (
+      taxType === 'tdspay' ||
+      taxType === 'tcspay' ||
+      taxType === 'tcsrc' ||
+      taxType === 'tdsrc'
+    );
+  }
+
+  getTaxDeatilsForUniqueName(uniqueName) {
+    const taxArr = this.state.taxArray || [];
+    const name = typeof uniqueName === 'string' ? uniqueName : uniqueName && uniqueName.uniqueName;
+    if (!name) {
+      return null;
+    }
+    return taxArr.find((t) => t && t.uniqueName === name) || null;
+  }
+
+  /** From a taxes/groupTaxes array (uniqueNames or objects), keep only TDS/TCS-type names. */
+  getTdsTcsNamesFromSource(source) {
+    if (!Array.isArray(source) || source.length === 0) {
+      return [];
+    }
+    const names = source
+      .map((entry) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+      .filter(Boolean);
+    return names.filter((name) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /**
+   * Receipt has no stock/item lines. TDS/TCS hierarchy for the party account:
+   * account.taxes -> account.groupTaxes -> account default (applicableTaxes difference).
+   * First source that has a TDS/TCS wins.
+   */
+  resolveHierarchicalTdsTcsNames(accountDetails, accountDefaultTaxNames) {
+    const sources = [];
+    if (accountDetails) {
+      sources.push(accountDetails.taxes);
+      sources.push(accountDetails.groupTaxes);
+    }
+    sources.push(
+      accountDefaultTaxNames != null ? accountDefaultTaxNames : this.state.defaultAccountTax,
+    );
+    for (let i = 0; i < sources.length; i++) {
+      const tdsTcs = this.getTdsTcsNamesFromSource(sources[i]);
+      if (tdsTcs.length > 0) {
+        return tdsTcs;
+      }
+    }
+    return [];
+  }
+
+  setDefaultAccountTax(tax) {
+    const allDefaultTax = [];
+    if (tax) {
+      for (let j = 0; j < tax.length; j++) {
+        const name = typeof tax[j] === 'string' ? tax[j] : tax[j] && tax[j].uniqueName;
+        if (name) {
+          allDefaultTax.push(name);
+        }
+      }
+    }
+    this.setState({defaultAccountTax: allDefaultTax});
+    return allDefaultTax;
+  }
+
+  /**
+   * Apply party TDS/TCS into the selected tax list (same separation as voucher screens).
+   */
+  applyPartyTdsTcsTaxes(accountDetails, accountDefaultTaxNames) {
+    const tdsTcsNames = this.resolveHierarchicalTdsTcsNames(accountDetails, accountDefaultTaxNames);
+    const taxDetailsArray = [];
+    const selectedArrayType = [];
+    for (let i = 0; i < tdsTcsNames.length; i++) {
+      const row = this.getTaxDeatilsForUniqueName(tdsTcsNames[i]);
+      if (row && row.taxDetail && row.taxDetail[0] && !selectedArrayType.includes(row.taxType)) {
+        // Only one TDS/TCS family at a time (same mutual-exclusion as the tax picker).
+        if (selectedArrayType.length === 0) {
+          taxDetailsArray.push(row);
+          selectedArrayType.push(row.taxType);
+        }
+      }
+    }
+    const SelectedTaxData = {
+      ...this.state.SelectedTaxData,
+      taxDetailsArray,
+    };
+    this.setState(
+      {
+        SelectedTaxData,
+        selectedArrayType,
+        isChecked: taxDetailsArray.length > 0,
+      },
+      () => {
+        if (Number(this.state.amountForReceipt) > 0) {
+          this.calculatedTaxAmounstForReceipt();
+        }
+      },
+    );
   }
 
   _renderSearchList() {
@@ -593,15 +702,53 @@ export class Receipt extends React.Component<any> {
           await this.getExchangeRateToINR(results.body.currency);
         }
         this.getAllInvoice();
-        await this.setState({
-          partyDetails: results.body,
-          isSearchingParty: false,
-          searchError: '',
-          countryDeatils: results.body.country,
-          currency: results.body.currency,
-          currencySymbol: results.body.currencySymbol,
-          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
+
+        // Same account-tax difference rule as voucher screens:
+        // if applicableTaxes and otherApplicableTaxes differ in length, keep only the difference.
+        const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
+        const otherApplicableTaxes = results.body.otherApplicableTaxes
+          ? results.body.otherApplicableTaxes
+          : [];
+        let taxesToApply;
+        if (applicableTaxes.length === otherApplicableTaxes.length) {
+          taxesToApply = applicableTaxes;
+        } else {
+          const otherTaxUniqueNames = otherApplicableTaxes.map((tax) => tax.uniqueName);
+          taxesToApply = applicableTaxes.filter(
+            (tax) => !otherTaxUniqueNames.includes(tax.uniqueName),
+          );
+        }
+
+        // Ensure company tax list is loaded before resolving TDS/TCS rows.
+        if (!this.state.taxArray || this.state.taxArray.length === 0) {
+          await this.getAllTaxes();
+        }
+
+        const accountDefaultTaxNames = this.setDefaultAccountTax(taxesToApply);
+        await new Promise((resolve) => {
+          this.setState(
+            {
+              defaultAccountTax: accountDefaultTaxNames,
+              partyDetails: results.body,
+              isSearchingParty: false,
+              searchError: '',
+              countryDeatils: results.body.country,
+              currency: results.body.currency,
+              currencySymbol: results.body.currencySymbol,
+              selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
+              // Clear previous party's tax selection before applying the new hierarchy.
+              SelectedTaxData: {
+                ...this.state.SelectedTaxData,
+                taxDetailsArray: [],
+              },
+              selectedArrayType: [],
+              isChecked: false,
+            },
+            resolve,
+          );
         });
+
+        this.applyPartyTdsTcsTaxes(results.body, accountDefaultTaxNames);
       }
     } catch (e) {
       this.setState({searchResults: [], searchError: this.props.t('common.noResultsFound'), isSearchingParty: false});
@@ -674,6 +821,7 @@ export class Receipt extends React.Component<any> {
       allPaymentModes: [],
       isSelectAccountButtonSelected: false,
       selectedArrayType: [],
+      defaultAccountTax: [],
       tdsTcsTaxCalculationMethod: 'OnTaxableAmount',
       balanceDetails: {
         totalTaxableAmount: 0,
@@ -781,6 +929,7 @@ export class Receipt extends React.Component<any> {
         onClose={() => {
           if(this.state.SelectedTaxData.taxDetailsArray.length == 0){
             this.setState({ isChecked: false });
+            this.resetOnUncheckTax();
           }
         }}
         flatListProps={{
@@ -798,7 +947,6 @@ export class Receipt extends React.Component<any> {
                 style={{paddingHorizontal: 20}}
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
-                  
                   if (
                     (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
                     ((selectedTaxTypeArr.includes('tdspay') ||
@@ -819,40 +967,54 @@ export class Receipt extends React.Component<any> {
                       item.taxType == 'tdspay')
                   ) {
                     console.log('did not select');
-                  } else {
-                    const itemDetails = this.state.SelectedTaxData;
-                    var filtered = _.filter(selectedTaxArray, function (o) {
-                      if (o.uniqueName == item.uniqueName) {
-                        return o;
-                      }
-                    });
-                    if (filtered.length == 0) {
-                      selectedTaxArray.push(item);
-                      itemDetails.taxDetailsArray = selectedTaxArray;
-                      const arr1 = [...selectedTaxTypeArr, item.taxType];
-                      if(item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc'){
-                        await this.calculatedTaxAmounstForReceipt()
-                        this.setBottomSheetVisible(this.calculationModalRef, true);
-                      } 
-                      this.setState({selectedArrayType: arr1});
-                    } else {
-                      await this.calculatedTaxAmounstForReceipt()
-                      var filtered = _.filter(selectedTaxArray, function (o) {
-                        if (o.uniqueName !== item.uniqueName) {
-                          return o;
-                        }
-                      });
-
-                      const arr2 = _.filter(selectedTaxTypeArr, function (o) {
-                        if (o !== item.taxType) {
-                          return o;
-                        }
-                      });
-                      itemDetails.taxDetailsArray = filtered;
-                      this.setState({selectedArrayType: arr2});
-                    }
+                    return;
                   }
-                  this.calculatedTaxAmounstForReceipt()
+
+                  const currentlySelected = _.filter(selectedTaxArray, function (o) {
+                    return o.uniqueName == item.uniqueName;
+                  });
+                  const isSelecting = currentlySelected.length === 0;
+                  let nextTaxDetailsArray;
+                  let nextSelectedArrayType;
+                  let openCalculationModal = false;
+
+                  if (isSelecting) {
+                    nextTaxDetailsArray = [...selectedTaxArray, item];
+                    nextSelectedArrayType = [...selectedTaxTypeArr, item.taxType];
+                    openCalculationModal = this.isTdsOrTcsTaxType(item.taxType);
+                  } else {
+                    nextTaxDetailsArray = _.filter(selectedTaxArray, function (o) {
+                      return o.uniqueName !== item.uniqueName;
+                    });
+                    nextSelectedArrayType = _.filter(selectedTaxTypeArr, function (o) {
+                      return o !== item.taxType;
+                    });
+                  }
+
+                  // Commit both arrays first, then recalculate from the updated state.
+                  await new Promise((resolve) => {
+                    this.setState(
+                      {
+                        SelectedTaxData: {
+                          ...this.state.SelectedTaxData,
+                          taxDetailsArray: nextTaxDetailsArray,
+                        },
+                        selectedArrayType: nextSelectedArrayType,
+                        isChecked: nextTaxDetailsArray.length > 0,
+                      },
+                      resolve,
+                    );
+                  });
+
+                  if (nextTaxDetailsArray.length === 0) {
+                    this.resetOnUncheckTax();
+                  } else {
+                    this.calculatedTaxAmounstForReceipt();
+                  }
+
+                  if (openCalculationModal) {
+                    this.setBottomSheetVisible(this.calculationModalRef, true);
+                  }
                 }}>
                 <View style={{flexDirection: 'row', alignItems: 'center', paddingVertical: 8}}>
                   <View
@@ -936,17 +1098,22 @@ export class Receipt extends React.Component<any> {
                 isAmountFieldInFocus: this.state.amountForReceipt!= 0 || this.state.amountForReceipt != ''? true : false
               })
             }}
-            onChangeText={async(text) => {
+            onChangeText={(text) => {
               if (!this.state.partyName) {
                 alert(this.props.t('common.pleaseSelectParty'));
               } else {
-                await this.setState({
-                  amountForReceipt: text.replace(/[^0-9]/g, ''),
-                  amountPaidNowText: text.replace(/[^0-9]/g, ''),
-                  balanceDetails: {totalTaxableAmount: text.replace(/[^0-9]/g, '')}
-                });
-
-                this.calculatedTaxAmounstForReceipt()
+                const amountText = text.replace(/[^0-9]/g, '');
+                // Pass amountText into calc — await setState does not wait for commit,
+                // so reading this.state.amountForReceipt here would be one keystroke behind.
+                this.setState(
+                  {
+                    amountForReceipt: amountText,
+                    amountPaidNowText: amountText,
+                  },
+                  () => {
+                    this.calculatedTaxAmounstForReceipt(amountText);
+                  },
+                );
               }
             }}>
           </TextInput>
@@ -1408,76 +1575,91 @@ export class Receipt extends React.Component<any> {
     })
   }
 
-  calculatedTaxAmounstForReceipt() {
-    const receiptAmount = Number(this.state.amountForReceipt);
+  calculatedTaxAmounstForReceipt(amountOverride) {
+    const receiptAmount = Number(
+      amountOverride !== undefined && amountOverride !== null
+        ? amountOverride
+        : this.state.amountForReceipt,
+    );
+    const taxDetailsArray = this.state.SelectedTaxData?.taxDetailsArray || [];
     let mainTaxPercentage = 0;
 
-    let mainTax = 0;
-    this.state.SelectedTaxData.taxDetailsArray.map((item) => {
-      if(item.taxType != 'tdspay' && item.taxType != 'tcspay' && item.taxType != 'tdsrc' && item.taxType != 'tcsrc') { mainTaxPercentage = mainTaxPercentage + item.taxDetail[0].taxValue}
-    })
+    // Non-TDS/TCS and TDS/TCS kept separate — derive from taxDetailsArray (source of truth),
+    // not selectedArrayType, so unselect/reselect always recalculates correctly.
+    taxDetailsArray.forEach((item) => {
+      if (item?.taxDetail?.[0] && !this.isTdsOrTcsTaxType(item.taxType)) {
+        mainTaxPercentage = mainTaxPercentage + item.taxDetail[0].taxValue;
+      }
+    });
 
-    let SelectedTdsOrTcsTaxDetails = (this.state.selectedArrayType.includes('tcspay') ||
-    this.state.selectedArrayType.includes('tcsrc') ||
-    this.state.selectedArrayType.includes('tdspay') ||
-    this.state.selectedArrayType.includes('tdsrc')) ? 
-    this.state.SelectedTaxData.taxDetailsArray.map((item) => {
-      if(item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tdsrc' || item.taxType == 'tcsrc') {return {taxValue: item.taxDetail[0].taxValue, taxType: item.taxType} }
-    }).filter(notUndefined => notUndefined !== undefined) : [{taxValue: 0, taxType: 'tdspay'}];
+    const tdsTcsFromDetails = taxDetailsArray
+      .filter((item) => item?.taxDetail?.[0] && this.isTdsOrTcsTaxType(item.taxType))
+      .map((item) => ({taxValue: item.taxDetail[0].taxValue, taxType: item.taxType}));
+    const SelectedTdsOrTcsTaxDetails =
+      tdsTcsFromDetails.length > 0 ? tdsTcsFromDetails : [{taxValue: 0, taxType: 'tdspay'}];
 
     let totalTaxableAmount = 0;
-    
-    if( SelectedTdsOrTcsTaxDetails[0].taxValue != 0){
-    if(this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
-      if(SelectedTdsOrTcsTaxDetails[0].taxType == 'tdspay' || SelectedTdsOrTcsTaxDetails[0].taxType == 'tdsrc'){
-        const tdsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
-        totalTaxableAmount = Number(receiptAmount/(1+(mainTaxPercentage - tdsTaxRate)/100));
-      } else if(SelectedTdsOrTcsTaxDetails[0].taxType == 'tcspay' || SelectedTdsOrTcsTaxDetails[0].taxType == 'tcsrc'){
-        const tcsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
-        totalTaxableAmount = Number(receiptAmount/(1+(mainTaxPercentage + tcsTaxRate)/100));
+
+    if (SelectedTdsOrTcsTaxDetails[0].taxValue != 0) {
+      if (this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount') {
+        if (SelectedTdsOrTcsTaxDetails[0].taxType == 'tdspay' || SelectedTdsOrTcsTaxDetails[0].taxType == 'tdsrc') {
+          const tdsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
+          totalTaxableAmount = Number(receiptAmount / (1 + (mainTaxPercentage - tdsTaxRate) / 100));
+        } else if (
+          SelectedTdsOrTcsTaxDetails[0].taxType == 'tcspay' ||
+          SelectedTdsOrTcsTaxDetails[0].taxType == 'tcsrc'
+        ) {
+          const tcsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
+          totalTaxableAmount = Number(receiptAmount / (1 + (mainTaxPercentage + tcsTaxRate) / 100));
+        }
+      } else if (this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount') {
+        if (SelectedTdsOrTcsTaxDetails[0].taxType == 'tdspay' || SelectedTdsOrTcsTaxDetails[0].taxType == 'tdsrc') {
+          const tdsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
+          totalTaxableAmount = Number(((receiptAmount / (100 - tdsTaxRate)) * 100) / (100 + mainTaxPercentage)) * 100;
+        } else if (
+          SelectedTdsOrTcsTaxDetails[0].taxType == 'tcspay' ||
+          SelectedTdsOrTcsTaxDetails[0].taxType == 'tcsrc'
+        ) {
+          const tcsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
+          totalTaxableAmount = Number(((receiptAmount / (100 + tcsTaxRate)) * 100) / (100 + mainTaxPercentage)) * 100;
+        }
       }
-    } else if(this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
-      if(SelectedTdsOrTcsTaxDetails[0].taxType == 'tdspay' || SelectedTdsOrTcsTaxDetails[0].taxType == 'tdsrc'){
-        const tdsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
-        totalTaxableAmount = Number(((receiptAmount / (100 - tdsTaxRate)) * 100) / (100 + mainTaxPercentage)) * 100;
-      } else if(SelectedTdsOrTcsTaxDetails[0].taxType == 'tcspay' || SelectedTdsOrTcsTaxDetails[0].taxType == 'tcsrc'){
-        const tcsTaxRate = SelectedTdsOrTcsTaxDetails[0].taxValue;
-        totalTaxableAmount = Number(((receiptAmount / (100 + tcsTaxRate)) * 100) / (100 + mainTaxPercentage)) * 100;      }
+    } else {
+      totalTaxableAmount = Number(receiptAmount / (1 + mainTaxPercentage / 100));
     }
-  } else {
-    totalTaxableAmount = Number(receiptAmount/(1+(mainTaxPercentage)/100));
-  }
 
-  let mainTaxAmount = 0;
-  if( mainTaxPercentage != 0){
-    mainTaxAmount =  Number((totalTaxableAmount * mainTaxPercentage)/100);
-  }
+    let mainTaxAmount = 0;
+    if (mainTaxPercentage != 0) {
+      mainTaxAmount = Number((totalTaxableAmount * mainTaxPercentage) / 100);
+    }
 
-
-  let tdsOrTcsTaxAmount = 0;
-  if( SelectedTdsOrTcsTaxDetails[0].taxValue != 0){
-    if(this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
-    tdsOrTcsTaxAmount =  Number(((totalTaxableAmount ) * SelectedTdsOrTcsTaxDetails[0].taxValue)/100);
-    }    
-    else if(this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
-    tdsOrTcsTaxAmount =  Number(((totalTaxableAmount + mainTaxAmount) * SelectedTdsOrTcsTaxDetails[0].taxValue)/100);
-    }    
-  }
+    let tdsOrTcsTaxAmount = 0;
+    if (SelectedTdsOrTcsTaxDetails[0].taxValue != 0) {
+      if (this.state.tdsTcsTaxCalculationMethod == 'OnTaxableAmount') {
+        tdsOrTcsTaxAmount = Number((totalTaxableAmount * SelectedTdsOrTcsTaxDetails[0].taxValue) / 100);
+      } else if (this.state.tdsTcsTaxCalculationMethod == 'OnTotalAmount') {
+        tdsOrTcsTaxAmount = Number(
+          ((totalTaxableAmount + mainTaxAmount) * SelectedTdsOrTcsTaxDetails[0].taxValue) / 100,
+        );
+      }
+    }
 
     function roundToTwo(num) {
-      return +(Math.round(num + "e+2")  + "e-2");
-  }
-
-  this.setState({
-    balanceDetails: {
-      totalTaxableAmount: totalTaxableAmount != 0 ? roundToTwo(totalTaxableAmount) : this.state.amountForReceipt,
-      mainTaxAmount: mainTaxAmount != 0 ? roundToTwo(mainTaxAmount) : 0,
-      tdsOrTcsTaxAmount: SelectedTdsOrTcsTaxDetails[0].taxValue != 0 ? roundToTwo(tdsOrTcsTaxAmount) : 0
+      return +(Math.round(num + 'e+2') + 'e-2');
     }
 
-  })
+    const fallbackAmount =
+      amountOverride !== undefined && amountOverride !== null
+        ? amountOverride
+        : this.state.amountForReceipt;
 
-
+    this.setState({
+      balanceDetails: {
+        totalTaxableAmount: totalTaxableAmount != 0 ? roundToTwo(totalTaxableAmount) : fallbackAmount,
+        mainTaxAmount: mainTaxAmount != 0 ? roundToTwo(mainTaxAmount) : 0,
+        tdsOrTcsTaxAmount: SelectedTdsOrTcsTaxDetails[0].taxValue != 0 ? roundToTwo(tdsOrTcsTaxAmount) : 0,
+      },
+    });
   }
 
   // Balance Dropdown View

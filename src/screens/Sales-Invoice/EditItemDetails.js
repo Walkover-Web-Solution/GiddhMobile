@@ -151,6 +151,78 @@ class EditItemDetails extends Component {
     );
   }
 
+  /** From a taxes/groupTaxes array (of uniqueNames or objects), keep only the TDS/TCS-type names. */
+  getTdsTcsNamesFromSource(source) {
+    if (!Array.isArray(source) || source.length === 0) {
+      return [];
+    }
+    const names = source
+      .map((entry) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+      .filter(Boolean);
+    return names.filter((name) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /** From a taxes/groupTaxes array (of uniqueNames or objects), keep only the non-TDS/TCS names. */
+  getNonTdsTcsNamesFromSource(source) {
+    if (!Array.isArray(source) || source.length === 0) {
+      return [];
+    }
+    const names = source
+      .map((entry) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+      .filter(Boolean);
+    return names.filter((name) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && !this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /**
+   * Non-TDS/TCS taxes follow their own hierarchy:
+   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes.
+   * First source that has a non-TDS/TCS tax wins (TDS/TCS in that source are ignored here).
+   */
+  resolveHierarchicalNonTdsTcsNames(itemDetails) {
+    const sources = [];
+    if (itemDetails.stock) {
+      sources.push(itemDetails.stock.taxes);
+      sources.push(itemDetails.stock.groupTaxes);
+    }
+    sources.push(itemDetails.taxes);
+    sources.push(itemDetails.groupTaxes);
+    for (let i = 0; i < sources.length; i++) {
+      const nonTdsTcs = this.getNonTdsTcsNamesFromSource(sources[i]);
+      if (nonTdsTcs.length > 0) {
+        return nonTdsTcs;
+      }
+    }
+    return [];
+  }
+
+  /**
+   * TDS/TCS follow their own hierarchy:
+   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes.
+   * First source that has a TDS/TCS wins.
+   */
+  resolveHierarchicalTdsTcsNames(itemDetails) {
+    const sources = [];
+    if (itemDetails.stock) {
+      sources.push(itemDetails.stock.taxes);
+      sources.push(itemDetails.stock.groupTaxes);
+    }
+    sources.push(itemDetails.taxes);
+    sources.push(itemDetails.groupTaxes);
+    for (let i = 0; i < sources.length; i++) {
+      const tdsTcs = this.getTdsTcsNamesFromSource(sources[i]);
+      if (tdsTcs.length > 0) {
+        return tdsTcs;
+      }
+    }
+    return [];
+  }
+
   lineHasTaxHierarchyLinkage(itemDetails) {
     if (!itemDetails) {
       return false;
@@ -171,22 +243,12 @@ class EditItemDetails extends Component {
   /** Same as SalesInvoice.js — full rows from props.taxArray for hierarchical names. */
   getHierarchicalResolvedTaxRows(itemDetails) {
     const taxArr = this.props.taxArray || [];
-    let resolvedNames = [];
-    if (itemDetails.stock) {
-      const stock = itemDetails.stock;
-      const stockHasAny =
-        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
-        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
-      resolvedNames = stockHasAny
-        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
-        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-            whenBothNonEmpty: 'intersection',
-          });
-    } else {
-      resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-        whenBothNonEmpty: 'intersection',
-      });
-    }
+    // Non-TDS/TCS and TDS/TCS each follow their own hierarchical scan
+    // (stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes), matching SalesInvoice.
+    const resolvedNames = [
+      ...this.resolveHierarchicalNonTdsTcsNames(itemDetails),
+      ...this.resolveHierarchicalTdsTcsNames(itemDetails)
+    ];
     const rows = [];
     for (let i = 0; i < resolvedNames.length; i++) {
       const row = taxArr.find((t) => t && t.uniqueName === resolvedNames[i]);
@@ -217,6 +279,9 @@ class EditItemDetails extends Component {
 
   /** Aligns noisy parent taxDetailsArray when opening edit (same as SalesInvoice.getCanonicalTaxRowsForLine). */
   getCanonicalTaxRowsForLine(itemDetails) {
+    if (itemDetails.taxesUserCleared) {
+      return [];
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(hierarchicalRows.map((r) => r && r.uniqueName).filter(Boolean));
 
@@ -262,6 +327,9 @@ class EditItemDetails extends Component {
    * Trim stale rows when opening edit; user toggles then use full taxDetailsArray for amounts.
    */
   sanitizeTaxDetailsForEdit(lineItem, taxDetailsArray) {
+    if (lineItem && lineItem.taxesUserCleared) {
+      return [];
+    }
     const arr = Array.isArray(taxDetailsArray) ? taxDetailsArray.slice() : [];
     const merged = { ...(lineItem || {}), taxDetailsArray: arr };
     const rows = this.getCanonicalTaxRowsForLine(merged);
@@ -434,7 +502,9 @@ class EditItemDetails extends Component {
           data: this.getTaxPickerRows(),
           extraData: this.state.editItemDetails.taxDetailsArray,
           renderItem: ({ item }) => {
+
             const selectedTaxArray = [...this.state.editItemDetails.taxDetailsArray];
+            console.log(selectedTaxArray, 'selectedTaxArray');
             const selectedTaxTypeArr = [...this.state.selectedArrayType];
             const filtered = _.filter(selectedTaxArray, function (o) {
               if (o.uniqueName == item.uniqueName) {
@@ -448,7 +518,8 @@ class EditItemDetails extends Component {
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
                   if (
-                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                    (selectedTaxTypeArr.includes(item.taxType) &&
+                      !selectedTaxArray.some((o) => o.uniqueName == item.uniqueName)) ||
                     ((selectedTaxTypeArr.includes('tdspay') ||
                       selectedTaxTypeArr.includes('tdsrc') ||
                       selectedTaxTypeArr.includes('tcsrc')) &&
@@ -1381,6 +1452,7 @@ class EditItemDetails extends Component {
             } else {
               editItemDetails.item.taxes = selectedUniqueNames;
             }
+            console.log(editItemDetails, 'editItemDetails');
             this.props.updateItems(editItemDetails, selectedTypesFromRows, this.state.selectedCode);
           }}
           style={{
