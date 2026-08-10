@@ -48,7 +48,7 @@ class EditItemDetails extends Component {
     this.unitBottomSheetRef = createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     const line = this.props.itemDetails;
-    const rawTaxDetails = line.taxDetcailsArray ? [...line.taxDetailsArray] : [];
+    const rawTaxDetails = line.taxDetailsArray ? [...line.taxDetailsArray] : [];
     const sanitizedTaxDetails = this.sanitizeTaxDetailsForEdit(line, rawTaxDetails);
     this.state = {
       bottomOffset: 0,
