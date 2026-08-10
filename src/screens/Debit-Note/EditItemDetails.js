@@ -80,7 +80,14 @@ class EditItemDetails extends Component {
         percentDiscountArray: this.props.itemDetails.percentDiscountArray
           ? this.props.itemDetails.percentDiscountArray
           : [],
-        fixedDiscount: this.props.itemDetails.fixedDiscount ? this.props.itemDetails.fixedDiscount : { discountValue: 0 },
+        fixedDiscount: this.props.itemDetails.fixedDiscount
+          ? {
+              ...this.props.itemDetails.fixedDiscount,
+              // TextInput is controlled and requires a string; copied vouchers often pass a number,
+              // which makes RN ignore `value` and only show the placeholder.
+              discountValue: String(this.props.itemDetails.fixedDiscount.discountValue ?? '')
+            }
+          : { discountValue: '' },
         fixedDiscountUniqueName: this.props.itemDetails.fixedDiscountUniqueName
           ? this.props.itemDetails.fixedDiscountUniqueName
           : '',
@@ -1426,11 +1433,11 @@ class EditItemDetails extends Component {
             <View style={{ flex: 1 }}>
               <Text>{this.props.t('editItemDetails.fixedDiscount')} :</Text>
               <TextInput
-                placeholder={`${this.state.editItemDetails.fixedDiscount.discountValue}`}
+                placeholder={'0'}
                 keyboardType={'number-pad'}
                 placeholderTextColor={'#808080'}
                 style={{ paddingTop: 8, paddingBottom: 6, flex: 1 }}
-                value={this.state.editItemDetails.fixedDiscount.discountValue}
+                value={String(this.state.editItemDetails.fixedDiscount?.discountValue ?? '')}
                 // returnKeyType={'done'}
                 onChangeText={(text) => {
                   this.fixedDiscountValueChange(text);

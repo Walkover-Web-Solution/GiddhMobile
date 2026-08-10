@@ -5,7 +5,7 @@ export const invoiceUrls = {
     'company/:companyUniqueName/v2/account-search?q=&page=&group=&branchUniqueName=:branchUniqueName&withStocks='
   ),
   purchaseBillsearch: createEndpoint(
-    'company/:companyUniqueName/account-search?q=&page=&group=%2C%20bankaccounts%2C%20cash&branchUniqueName=:branchUniqueName'
+    'company/:companyUniqueName/v3/account-search?q=&page=&group=%2C%20bankaccounts%2C%20cash&branchUniqueName=:branchUniqueName'
   ),
   getAccountDetails: createEndpoint('v2/company/:companyUniqueName/accounts/:q?branchUniqueName=:branchUniqueName'),
   stockDetailService: createEndpoint(
