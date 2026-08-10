@@ -49,8 +49,12 @@ export default StyleSheet.create({
   loginTextStyle: {
     fontSize: 26,
     fontFamily: 'AvenirLTStd-Black',
-    // marginBottom: 30,
     color: colors.TEXT_HEADING
+  },
+  loginButtonLabelStyle: {
+    color: colors.WHITE,
+    lineHeight: 16,
+    fontFamily: 'AvenirLTStd-Book'
   },
   gmailButton: {
     marginBottom: 10,
@@ -106,7 +110,8 @@ export default StyleSheet.create({
 
   loginButtonStyle: {
     width: 152,
-    fontSize: GD_FONT_SIZE.large
+    padding: 10,
+    fontSize: GD_FONT_SIZE.medium,
   },
   forgotStyle: {
     fontSize: 16,
@@ -151,7 +156,7 @@ export default StyleSheet.create({
     borderBottomWidth: 2,
     borderColor: colors.PRIMARY_BASIC,
     color: colors.PRIMARY_BASIC,
-    marginLeft:2
+    marginLeft: 2
   },
   underlineStyleHighLighted: {
     borderColor: colors.PRIMARY_BASIC

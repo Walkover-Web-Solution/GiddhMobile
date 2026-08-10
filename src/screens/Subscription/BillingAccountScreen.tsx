@@ -75,6 +75,7 @@ const BillingAccountScreen = () => {
                         lable='Billing Name'
                         placeholder='Enter Billing Name'
                         containerStyle={styles.inputContainerStyle}
+                        errorStyle={styles.errorStyle}
                         onChangeText={(text: string) => setFormData(text, 'billingName')}
                     />
 
@@ -83,6 +84,7 @@ const BillingAccountScreen = () => {
                         lable='Company Name'
                         placeholder='Enter Company Name'
                         containerStyle={styles.inputContainerStyle}
+                        errorStyle={styles.errorStyle}
                         onChangeText={(text: string) => setFormData(text, 'companyName')}
                     />
                     <InputField

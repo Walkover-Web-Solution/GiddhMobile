@@ -13,9 +13,13 @@ import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { createEndpoint } from "@/utils/helper";
 
 const Screen_width = Dimensions.get('window').width;
-const PdfPreviewScreen = ( route ) => {
+const PdfPreviewScreen = ( props: any ) => {
     const {styles, voucherBackground} = useCustomTheme(getStyles, 'PdfPreview');
-    const {companyVersionNumber,uniqueName,voucherInfo} = route?.route?.params 
+    // Supports two usages:
+    // 1. As a navigated screen -> params come from props.route.params
+    // 2. As an in-screen modal -> params (and onClose) are passed directly as props
+    const params = props?.route?.params ?? props;
+    const {companyVersionNumber,uniqueName,voucherInfo,onClose} = params;
     const [pdfBlobUri,setPdfBlobUri] = useState("");
     const [isLoading,setLoading] = useState(true);
     const exportFile = async () => {
@@ -67,11 +71,11 @@ const PdfPreviewScreen = ( route ) => {
             setLoading(true);
             setPdfBlobUri("");
         })
-    },[route?.route])
+    },[companyVersionNumber, uniqueName, JSON.stringify(voucherInfo)])
     
     return ( 
         <View style={styles.container}>
-            <Header header={'Pdf Preview'} isBackButtonVisible={true} backgroundColor={voucherBackground} />
+            <Header header={'Pdf Preview'} isBackButtonVisible={true} backgroundColor={voucherBackground} onBackButtonPress={onClose} />
             <View style={styles.container}>
                 {!isLoading ? <View style={styles.container}>
                     <Pdf

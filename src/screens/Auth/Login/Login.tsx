@@ -18,10 +18,11 @@ import LoaderKit  from 'react-native-loader-kit';
 import { googleLogin, appleLogin, userEmailLogin, loginWithOTP } from './LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
-import { STORAGE_KEYS } from '@/utils/constants';
+import { GD_CIRCLE_BUTTON, GD_FONT_SIZE, STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {OTPVerification} from '@msg91comm/react-native-sendotp'
 import Toast from 'react-native-root-toast';
+import colors from '@/utils/colors';
 
 class Login extends React.Component<any, any> {
   constructor(props: any) {
@@ -260,8 +261,9 @@ class Login extends React.Component<any, any> {
           <View style={style.loginButtonContainer}>
             <GDButton
               size={ButtonSize.medium}
-              style={style.loginButtonStyle}
+              style={style.loginButtonStyle }
               label={'Login'}
+              labelStyle={style.loginButtonLabelStyle}
               onPress={() => this.signInWithUsernamePassword()}
             />
             <TouchableOpacity onPress={() => {
