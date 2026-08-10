@@ -84,6 +84,7 @@ const EWayBillScreenComponent = ( {route} ) => {
     const [hasNonNilRatedTax, setHasNonNilRatedTax] = useState(false);
     const [subType, setSubType] = useState(baseCurrency === accountDetail?.currency?.code ? t('ewayBill.supply') : t('ewayBill.export'));
     const [refreshing, setRefreshing] = useState(false);
+    const [formResetKey, setFormResetKey] = useState(0);
     const [faliureDialog, setFaliureDialog] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const navigation = useNavigation();
@@ -176,6 +177,7 @@ const EWayBillScreenComponent = ( {route} ) => {
         setVehicleNo("");
         setDocNo("");
         setPincode(accountDetail?.billingDetails?.pincode);
+        setFormResetKey((prev) => prev + 1);
     }
 
     const onCreateEwayBill = async () => {
@@ -244,7 +246,7 @@ const EWayBillScreenComponent = ( {route} ) => {
         }, 1000);
       };
 
-    const isCreateButtonDisabled = distance?.length === 0
+    const isCreateButtonDisabled = (distance?.trim().length === 0 || vehicleNo?.trim().length === 0) // makes the button disabled if distance or vehicle no is not filled
     
     const CreateButton = (
         <View style={styles.buttonWrapper}>
@@ -281,7 +283,7 @@ const EWayBillScreenComponent = ( {route} ) => {
             { !isLoading && <ScrollView
                 style={styles.container}
                 key={key}
-                keyboardShouldPersistTaps="handled"
+                // keyboardShouldPersistTaps="handled"
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
@@ -296,6 +298,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={subType}
+                        resetKey={formResetKey}
                     />
                     <InputField 
                         lable={t('ewayBill.documentType')}
@@ -304,6 +307,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={docType}
+                        resetKey={formResetKey}
                     />
                     <InputField 
                         lable={t('ewayBill.gstinOfReceiver')}
@@ -312,6 +316,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         placeholderTextColor={theme.colors.secondary}
                         editable={false}
                         value={receiverDetail?.gstIn ?? 'URP'}
+                        resetKey={formResetKey}
                     />
                     <InputField 
                         lable={t('ewayBill.pincodeOfReceiver')}
@@ -320,6 +325,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         containerStyle={styles.inputFieldStyle}
                         placeholderTextColor={theme.colors.secondary}
                         value={pincode}
+                        resetKey={formResetKey}
                         onChangeText={(text) => {
                             setPincode(text);
                         }}
@@ -342,6 +348,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                             setDistance(text)
                         }}
                         value={distance}
+                        resetKey={formResetKey}
                     />
                 </View>
                 <View style={styles.subContainer}>
@@ -407,10 +414,11 @@ const EWayBillScreenComponent = ( {route} ) => {
                     </View>}
                     <InputField 
                         lable={t('ewayBill.vehicleNo')}
-                        isRequired={false}
+                        isRequired={true}
                         containerStyle={styles.inputFieldStyle}
                         value={vehicleNo}
                         placeholderTextColor={theme.colors.secondary}
+                        resetKey={formResetKey}
                         onChangeText={(text) => {
                             handleTextChange(text)
                         }}
@@ -421,6 +429,7 @@ const EWayBillScreenComponent = ( {route} ) => {
                         containerStyle={styles.inputFieldStyle}
                         value={docNo}
                         placeholderTextColor={theme.colors.secondary}
+                        resetKey={formResetKey}
                         onChangeText={(text) => {
                             setDocNo(text)
                         }}
