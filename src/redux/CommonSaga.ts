@@ -80,7 +80,9 @@ export function* getCompanyAndBranches() {
           }
         }
       }
-      yield put(CommonActions.getCompanyDetails());
+      // Wait for details so companyDetails (e.g. balanceDecimalPlaces) is set
+      // before company/branch change listeners refresh the UI.
+      yield call(getCompanyDetails);
     }
     const branchesResponse = yield call(CommonService.getCompanyBranches);
     if (branchesResponse && branchesResponse.status == 'success') {
