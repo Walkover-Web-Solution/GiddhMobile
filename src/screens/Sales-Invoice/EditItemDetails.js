@@ -48,7 +48,7 @@ class EditItemDetails extends Component {
     this.unitBottomSheetRef = createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     const line = this.props.itemDetails;
-    const rawTaxDetails = line.taxDetailsArray ? [...line.taxDetailsArray] : [];
+    const rawTaxDetails = line.taxDetcailsArray ? [...line.taxDetailsArray] : [];
     const sanitizedTaxDetails = this.sanitizeTaxDetailsForEdit(line, rawTaxDetails);
     this.state = {
       bottomOffset: 0,
@@ -74,17 +74,24 @@ class EditItemDetails extends Component {
         taxText: this.props.itemDetails.tax ? this.props.itemDetails.tax : 0,
         warehouse: this.props.itemDetails.warehouse ? this.props.itemDetails.warehouse : '',
         total: this.props.itemDetails.total ? this.props.itemDetails.total : 0,
-        discountDetails: this.props.itemDetails.discountDetails ? this.props.itemDetails.discountDetails : {},
+        discountDetails: this.props.itemDetails.discountDetails
+          ? { ...this.props.itemDetails.discountDetails }
+          : {},
         taxDetailsArray: sanitizedTaxDetails,
+        // Clone discount state so Back without Done does not mutate the parent line item
         percentDiscountArray: this.props.itemDetails.percentDiscountArray
-          ? this.props.itemDetails.percentDiscountArray
+          ? this.props.itemDetails.percentDiscountArray.map((d) => ({ ...d }))
           : [],
-        fixedDiscount: this.props.itemDetails.fixedDiscount ? this.props.itemDetails.fixedDiscount : { discountValue: 0 },
+        fixedDiscount: this.props.itemDetails.fixedDiscount
+          ? { ...this.props.itemDetails.fixedDiscount }
+          : { discountValue: 0 },
         fixedDiscountUniqueName: this.props.itemDetails.fixedDiscountUniqueName
           ? this.props.itemDetails.fixedDiscountUniqueName
           : '',
         tdsTcsTaxCalculationMethod: this.props.itemDetails?.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount',
-        tdsOrTcsTaxObj: this.props.itemDetails?.tdsOrTcsTaxObj ?? null
+        tdsOrTcsTaxObj: this.props.itemDetails?.tdsOrTcsTaxObj
+          ? { ...this.props.itemDetails.tdsOrTcsTaxObj }
+          : null
       },
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -802,13 +809,13 @@ class EditItemDetails extends Component {
     return finalAmt;
   }
 
-  calculateFinalTcsOrTdsToDisplay() {
-    const editItemDetails = this.state.editItemDetails;
+  calculateFinalTcsOrTdsToDisplay(editItemDetailsParam) {
+    const editItemDetails = editItemDetailsParam || this.state.editItemDetails;
     let totalTcsorTdsTax = 0;
     let totalTcsorTdsTaxName = '';
     const discountAmount = this.calculateDiscountedAmountToDisplayTotalAmount(editItemDetails);
     let totalTaxableAmount = 0;
-    let amt = Number(this.state.editItemDetails.rateText) * Number(editItemDetails.quantityText);
+    let amt = Number(editItemDetails.rateText) * Number(editItemDetails.quantityText);
     amt = amt - (discountAmount ? discountAmount : 0) ;
 
     if (editItemDetails.taxDetailsArray && editItemDetails.taxDetailsArray.length > 0) {
@@ -829,13 +836,14 @@ class EditItemDetails extends Component {
       }
     }
     if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
-      const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
-      editItemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
-      this.setState({ editItemDetails: editItemDetails });
+      editItemDetails.tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
     } else {
       editItemDetails.tdsOrTcsTaxObj = null;
-      this.setState({ editItemDetails: editItemDetails});
     }
+    if (!editItemDetailsParam) {
+      this.setState({ editItemDetails });
+    }
+    return editItemDetails;
   }
 
   _renderDiscounts() {
@@ -861,30 +869,21 @@ class EditItemDetails extends Component {
                     if (this.state.fixedDiscountSelected == true) {
                       if (this.state.editItemDetails.fixedDiscount == item) {
                         const itemDetails = this.state.editItemDetails;
-                        const tax = this.calculatedTaxAmount(itemDetails);
-                        itemDetails.taxText = tax;
                         itemDetails.fixedDiscount = { discountValue: 0 };
                         itemDetails.fixedDiscountUniqueName = '';
-                        const total = this.calculateFinalAmount(itemDetails);
-                        itemDetails.total = total;
-                        // console.log('unselected');
+                        itemDetails.taxText = this.calculatedTaxAmount(itemDetails);
+                        itemDetails.total = this.calculateFinalAmount(itemDetails);
+                        this.calculateFinalTcsOrTdsToDisplay(itemDetails);
                         this.setState({ fixedDiscountSelected: false, editItemDetails: itemDetails });
                       }
-                      // console.log('didnt select');
                     } else {
                       const itemDetails = this.state.editItemDetails;
-                      const tax = this.calculatedTaxAmount(itemDetails);
-                      itemDetails.taxText = tax;
                       itemDetails.fixedDiscount = item;
                       itemDetails.fixedDiscountUniqueName = item.uniqueName;
-                      const total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
-                      // let discount = this.calculateDiscountedAmount(itemDetails);
-                      // itemDetails.discountPercentageText = String(discount);
-                      // let total = this.calculateFinalAmount(itemDetails);
-                      // itemDetails.total = total;
-                      this.setState({ editItemDetails: itemDetails, fixedDiscountSelected: true }, () => { });
+                      itemDetails.taxText = this.calculatedTaxAmount(itemDetails);
+                      itemDetails.total = this.calculateFinalAmount(itemDetails);
+                      this.calculateFinalTcsOrTdsToDisplay(itemDetails);
+                      this.setState({ editItemDetails: itemDetails, fixedDiscountSelected: true });
                     }
                   } else {
                     const selectedDiscountArray = this.state.editItemDetails.percentDiscountArray;
@@ -894,21 +893,12 @@ class EditItemDetails extends Component {
                       }
                     });
                     if (filtered.length == 0) {
-                      console.log('this should run');
                       const itemDetails = this.state.editItemDetails;
-                      itemDetails.percentDiscountArray.push(item);
-                      const tax = this.calculatedTaxAmount(itemDetails);
-                      itemDetails.taxText = tax;
-                      const total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      // itemDetails.discountDetails = item;
-                      // itemDetails.discountValueText = String(item.discountValue);
-                      // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
-                      // let discount = this.calculateDiscountedAmount(itemDetails);
-                      // itemDetails.discountPercentageText = String(discount);
-                      // let total = this.calculateFinalAmount(itemDetails);
-                      // itemDetails.total = total;
-                      this.setState({ editItemDetails: itemDetails }, () => { });
+                      itemDetails.percentDiscountArray = [...itemDetails.percentDiscountArray, item];
+                      itemDetails.taxText = this.calculatedTaxAmount(itemDetails);
+                      itemDetails.total = this.calculateFinalAmount(itemDetails);
+                      this.calculateFinalTcsOrTdsToDisplay(itemDetails);
+                      this.setState({ editItemDetails: itemDetails });
                     } else {
                       const newArr = _.filter(selectedDiscountArray, function (o) {
                         if (o.uniqueName !== item.uniqueName) {
@@ -917,15 +907,12 @@ class EditItemDetails extends Component {
                       });
                       const itemDetails = this.state.editItemDetails;
                       itemDetails.percentDiscountArray = newArr;
-                      const tax = this.calculatedTaxAmount(itemDetails);
-                      itemDetails.taxText = tax;
-                      const total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      this.setState({ editItemDetails: itemDetails }, () => { });
+                      itemDetails.taxText = this.calculatedTaxAmount(itemDetails);
+                      itemDetails.total = this.calculateFinalAmount(itemDetails);
+                      this.calculateFinalTcsOrTdsToDisplay(itemDetails);
+                      this.setState({ editItemDetails: itemDetails });
                     }
                   }
-                  this.calculatedTaxAmount(this.state.editItemDetails);
-                  this.calculateFinalAmount(this.state.editItemDetails);
                 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View
@@ -1172,14 +1159,15 @@ class EditItemDetails extends Component {
   fixedDiscountValueChange = (text) => {
     const editItemDetails = this.state.editItemDetails;
     const selectedTaxArray = this.state.editItemDetails.taxDetailsArray;
-    editItemDetails.fixedDiscount.discountValue = text;
-    console.log('changed discount value ', text);
+    editItemDetails.fixedDiscount = {
+      ...(editItemDetails.fixedDiscount || {}),
+      discountValue: text,
+    };
     editItemDetails.taxDetailsArray = selectedTaxArray;
-    const tax = this.calculatedTaxAmount(editItemDetails);
-    editItemDetails.taxText = tax;
-    const total = this.calculateFinalAmount(editItemDetails);
-    editItemDetails.total = total;
-    this.setState({ editItemDetails });
+    editItemDetails.taxText = this.calculatedTaxAmount(editItemDetails);
+    editItemDetails.total = this.calculateFinalAmount(editItemDetails);
+    this.calculateFinalTcsOrTdsToDisplay(editItemDetails);
+    this.setState({ editItemDetails: { ...editItemDetails } });
   };
 
   _renderTwoFieldsTextInput(
@@ -1438,7 +1426,6 @@ class EditItemDetails extends Component {
                 // returnKeyType={'done'}
                 onChangeText={(text) => {
                   this.fixedDiscountValueChange(text);
-                  this.calculateFinalTcsOrTdsToDisplay(this.state.editItemDetails)
                 }}
               />
               {this._renderBottomSeprator(8)}
