@@ -828,6 +828,11 @@ export class SalesInvoice extends React.Component<Props, State> {
     if (itemDetails.taxesUserCleared) {
       return [];
     }
+    // Existing voucher lines use the getVoucher snapshot; manually changed
+    // taxes use the user's selection. Untouched new lines use stock/account defaults.
+    if (itemDetails.isNew === false || itemDetails.taxesUserModified) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray || []);
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(hierarchicalRows.map((r: any) => r && r.uniqueName).filter(Boolean));
 
@@ -1236,6 +1241,11 @@ console.log('details', details);
           }
         })
 
+        // Entry taxes contain unique names only, so load the tax master before
+        // mapping them. This also avoids stock/account defaults winning a race.
+        if (!this.state.taxArray?.length) {
+          await this.getAllTaxes();
+        }
         const addedItems = await this.mapEntriesToUIData(response.body.entries);
         this.updateTCSAndTDSTaxAmount(addedItems);
         this.setState({ addedItems, loading: false });
@@ -3366,6 +3376,9 @@ console.log('details', details);
     item.sacNumber = selectedCode == 'sac' ? details.sacNumber : '';
     item.warehouse = Number(details.warehouse);
     item.discountDetails = details.discountDetails ? details.discountDetails : undefined;
+    const previousTaxNames = (item.taxDetailsArray || []).map((tax: any) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    const updatedTaxNames = (details.taxDetailsArray || []).map((tax: any) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    item.taxesUserModified = item.taxesUserModified || previousTaxNames !== updatedTaxNames;
     item.taxDetailsArray = details.taxDetailsArray;
     item.taxesUserCleared = !details.taxDetailsArray || details.taxDetailsArray.length === 0;
     item.percentDiscountArray = details.percentDiscountArray ? details.percentDiscountArray : [];

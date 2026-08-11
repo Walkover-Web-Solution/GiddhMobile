@@ -282,6 +282,11 @@ class PurchaseItemEdit extends Component {
     if (itemDetails.taxesUserCleared) {
       return [];
     }
+    // Keep the voucher API tax snapshot for existing lines. Any taxes selected
+    // by the user are written back to this same array.
+    if (itemDetails.isNew === false || itemDetails.taxesUserModified) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray || []);
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(hierarchicalRows.map((r) => r && r.uniqueName).filter(Boolean));
 
@@ -709,8 +714,10 @@ class PurchaseItemEdit extends Component {
           : 0
     );
     const discountValue = computedDiscount > 0 ? computedDiscount : Number.isFinite(storedDiscount) ? storedDiscount : 0;
-    const qtyRaw = e.quantityText != null && e.quantityText !== '' ? e.quantityText : base.quantity;
-    const rateRaw = e.rateText != null && e.rateText !== '' ? e.rateText : base.rate;
+    // A cleared field means zero. The saved line is only a fallback for state
+    // that has not been initialised yet.
+    const qtyRaw = e.quantityText === '' ? 0 : e.quantityText != null ? e.quantityText : base.quantity;
+    const rateRaw = e.rateText === '' ? 0 : e.rateText != null ? e.rateText : base.rate;
     return {
       ...base,
       quantityText: qtyRaw,
@@ -1106,7 +1113,7 @@ class PurchaseItemEdit extends Component {
               : this.state.editItemDetails.sacNumber
           }
           keyboardType={'number-pad'}
-          style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16 }}
+          style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16 }]}
           // editable={false}
           onChangeText={(text) => {
             const item = this.state.editItemDetails;
@@ -1272,7 +1279,7 @@ class PurchaseItemEdit extends Component {
             keyboardType={keyboardType1}
             editable={editable1}
             returnKeyType={'done'}
-            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+            style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1 }]}
             onChangeText={(text) => {
               this.onChangeTextBottomItemSheet(text, field1);
             }}
@@ -1306,7 +1313,7 @@ class PurchaseItemEdit extends Component {
                 placeholderTextColor={'#808080'}
                 value={field2Value}
                 keyboardType={keyboardType2}
-                style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, color: 'black' }}
+                style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1, color: 'black' }]}
                 editable={false}
                 onChangeText={(text) => {
                   this.onChangeTextBottomItemSheet(text, field2);
@@ -1325,7 +1332,7 @@ class PurchaseItemEdit extends Component {
               placeholderTextColor={'#808080'}
               value={field2Value}
               keyboardType={keyboardType2}
-              style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+              style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1 }]}
               editable={editable2}
               onChangeText={(text) => {
                 this.onChangeTextBottomItemSheet(text, field2);
@@ -1474,7 +1481,7 @@ class PurchaseItemEdit extends Component {
                 placeholder={`${this.state.editItemDetails.fixedDiscount.discountValue}`}
                 keyboardType={'number-pad'}
                 placeholderTextColor={'#808080'}
-                style={{ paddingTop: 8, paddingBottom: 6, flex: 1 }}
+                style={[style.itemFieldValue, { paddingTop: 8, paddingBottom: 6, flex: 1 }]}
                 value={this.state.editItemDetails.fixedDiscount.discountValue}
                 // returnKeyType={'done'}
                 onChangeText={(text) => {
@@ -1535,7 +1542,7 @@ class PurchaseItemEdit extends Component {
           {this._renderBottomSeprator()}
         </View>
         <View style={{ marginHorizontal: 16, flex: 1, paddingTop: 16, paddingBottom: 8 }}>
-          <Text style={{ paddingTop: 16 }}>
+          <Text style={[style.itemFieldValue, { paddingTop: 16 }]}>
             {Number(this.state.editItemDetails.taxText || 0).toFixed(2)}
           </Text>
           {/* <TextInput
