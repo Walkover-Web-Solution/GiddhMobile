@@ -429,4 +429,95 @@ export class CommonService {
     })
   }
 
+  static getAllDocuments(
+    page: number,
+    count: number,
+    from: string,
+    to: string,
+    ocrType: 'income' | 'expense',
+    payload: {
+      convertedStatus: string | null;
+      fileName: string | null;
+      status: string | null;
+      uploadedBy: string | null;
+    } = { convertedStatus: null, fileName: null, status: null, uploadedBy: null }
+  ) {
+    return httpInstance
+      .post(commonUrls.getAllDocuments(page, count, from, to, ocrType), payload)
+      .then((res) => {
+        return res?.data;
+      })
+      .catch((err) => {
+        console.log('Error while fetching all documents');
+        throw err;
+      });
+  }
+
+  static getDocumentSignedUrl(fileName: string) {
+    return httpInstance
+      .get(commonUrls.getDocumentSignedUrl(fileName))
+      .then((res) => {
+        return res?.data;
+      })
+      .catch((err) => {
+        console.log('Error while getting document signed url');
+        throw err;
+      });
+  }
+
+  static getOcrData(params: {
+    requestId: string;
+    ocrType: 'income' | 'expense';
+    voucherType: string;
+    voucherVersion: string | number;
+  }) {
+    const { requestId, ocrType, voucherType, voucherVersion } = params;
+    return httpInstance
+      .get(commonUrls.getOcrData({ requestId, ocrType, voucherType, voucherVersion }))
+      .then((res) => {
+        return res?.data;
+      })
+      .catch((err) => {
+        console.log('Error while fetching OCR data');
+        throw err;
+      });
+  }
+
+  static markOcrDocumentComplete(params: {
+    nextToken: string;
+    ocrType: 'income' | 'expense';
+    voucherType: string;
+    voucherVersion: string | number;
+  }) {
+    const { nextToken, ocrType, voucherType, voucherVersion } = params;
+    return httpInstance
+      .get(commonUrls.getOcrData({ nextToken, requestId: '', ocrType, voucherType, voucherVersion }))
+      .then((res) => {
+        return res?.data;
+      })
+      .catch((err) => {
+        console.log('Error marking OCR document complete');
+        throw err;
+      });
+  }
+
+  static uploadDocument(
+    ocrType: 'income' | 'expense',
+    payload: {
+      requestId: string;
+      signedUrl: string;
+      filePath: string;
+    }
+  ) {
+    return httpInstance
+      .post(commonUrls.uploadDocument(ocrType), payload)
+      .then((res) => {
+        return res?.data;
+      })
+      .catch((err) => {
+        console.log('Error while uploading document');
+        throw err;
+      });
+  }
+
 }

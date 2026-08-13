@@ -12,6 +12,8 @@
 	<string>We use Face ID to authenticate you securely.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To upload bills and records</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>To save captured documents to your photo library when needed</string>
 	<key>CFBundleGetInfoString</key>
 	<string/>
 	<key>CFBundleIdentifier</key>
@@ -112,5 +114,10 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+
+	<!-- Camera Access -->
+	<key>NSCameraUsageDescription</key>
+	<string>We use camera to capture document images and invoices.</string>
+
 </dict>
 </plist>

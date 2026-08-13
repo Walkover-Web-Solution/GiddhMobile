@@ -43,6 +43,15 @@ import { createEndpoint, formatAmount } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
+import OcrDocumentPreviewModal from '@/screens/Scan2/components/OcrDocumentPreviewModal';
+import {
+  fetchScan2OcrData,
+  getOcrMatchedAccount,
+  markScan2DocumentComplete,
+  navigateBackToScan2,
+  resolveScan2VoucherVersion,
+  shouldUseOcrPartyAddresses,
+} from '@/screens/Scan2/scan2Ocr.utils';
 
 const { SafeAreaOffsetHelper } = NativeModules;
 const INVOICE_TYPE = {
@@ -63,6 +72,11 @@ interface Props {
        * Used trigger componentDidMount to refresh page data when navigated from voucher screen 
        */
       refetchDataOnNavigation: string
+      /** Scan2 OCR create flow — ignored by edit/update path */
+      isFromScan2?: boolean
+      requestId?: string
+      ocrType?: 'income' | 'expense'
+      voucherType?: string
     }
   } 
 }
@@ -139,12 +153,14 @@ export const KEYBOARD_EVENTS = {
 };
 export class SalesInvoice extends React.Component<Props, State> {
   private isVoucherUpdate: boolean
+  private ocrDataBody: any | null = null
+  private ocrFetchPromise: Promise<any | null> | null = null
   constructor(props) {
     super(props);
     this.paymentModeBottomSheetRef = React.createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.searchCalls = this.searchCalls.bind(this);
-    this.isVoucherUpdate = !!this.props.route?.params
+    this.isVoucherUpdate = !!this.props.route?.params?.voucherUniqueName
     this.state = {
       searchNamesOnly: [],
       test: Dropdown,
@@ -252,7 +268,9 @@ export class SalesInvoice extends React.Component<Props, State> {
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
       allStockVariants: {},
-      selectedSalesPerson: undefined
+      selectedSalesPerson: undefined,
+      ocrEncodedData: null as string | null,
+      showOcrPreview: false,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -352,14 +370,30 @@ export class SalesInvoice extends React.Component<Props, State> {
         this.setState({ bottomOffset });
       });
     }
+
+    void this.bootstrapScan2OcrFlow();
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
     if (prevProps?.route?.params?.refetchDataOnNavigation !== this.props?.route?.params?.refetchDataOnNavigation) {
       console.log('---------- REFRESH VOUCHER DATA --------------')
-      this.clearAll();
+      this.isVoucherUpdate = !!this.props.route?.params?.voucherUniqueName
+      this.handleScan2VoucherRouteRefresh();
     }
   }
+
+  bootstrapScan2OcrFlow = async () => {
+    await this.getCompanyVersionNumber();
+    await this.initializeScan2OcrFlow();
+  };
+
+  handleScan2VoucherRouteRefresh = () => {
+    this.clearAll();
+    const scanParams = this.props.route?.params;
+    if (scanParams?.isFromScan2 && scanParams?.requestId && !this.isVoucherUpdate) {
+      void this.bootstrapScan2OcrFlow();
+    }
+  };
   getCompanyVersionNumber = async () => {
     let companyVersionNumber = await AsyncStorage.getItem(STORAGE_KEYS.companyVersionNumber)
     if (companyVersionNumber != null || companyVersionNumber != undefined) {
@@ -418,20 +452,32 @@ export class SalesInvoice extends React.Component<Props, State> {
             {/* <Icon style={{ marginLeft: 4 }} name={'9'} color={'white'} /> */}
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={{ marginRight: 16, alignSelf: 'center', display: this.isVoucherUpdate ? 'none' : 'flex' }}
-          onPress={() => {
-            if (this.state.invoiceType == INVOICE_TYPE.credit) {
-              this.setCashTypeInvoice();
-            } else {
-              this.setCreditTypeInvoice();
-            }
-            // this.setState({ showInvoiceModal: true })
-          }}>
-          <Text style={style.invoiceTypeTextRight}>
-            {this.state.invoiceType == INVOICE_TYPE.credit ? this.props.t('salesInvoice.cashQ') : this.props.t('salesInvoice.salesQ')}
-          </Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {!!this.state.ocrEncodedData && (
+            <TouchableOpacity
+              style={{ marginRight: 12, alignSelf: 'center' }}
+              onPress={() => this.setState({ showOcrPreview: true })}
+            >
+              <Text style={style.invoiceTypeTextRight}>
+                {this.props.t('scan2.preview', { defaultValue: 'Preview' })}
+              </Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={{ marginRight: 16, alignSelf: 'center', display: this.isVoucherUpdate ? 'none' : 'flex' }}
+            onPress={() => {
+              if (this.state.invoiceType == INVOICE_TYPE.credit) {
+                this.setCashTypeInvoice();
+              } else {
+                this.setCreditTypeInvoice();
+              }
+              // this.setState({ showInvoiceModal: true })
+            }}>
+            <Text style={style.invoiceTypeTextRight}>
+              {this.state.invoiceType == INVOICE_TYPE.credit ? this.props.t('salesInvoice.cashQ') : this.props.t('salesInvoice.salesQ')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -836,10 +882,11 @@ export class SalesInvoice extends React.Component<Props, State> {
                       searchError: '',
                       isSearchingParty: false,
                     },
-                    () => {
-                      this.searchAccount(true);
+                    async () => {
+                      await this.searchAccount(true);
                       this.getAllAccountsModes();
                       Keyboard.dismiss();
+                      await this.prefillFromOcrData();
                     },
                   );
                 } else {
@@ -1090,7 +1137,7 @@ console.log('details', details);
 
   async getPartyDataForUpdateVoucher(_name: string) {
     const name = (_name ?? this.state.searchPartyName).toLocaleLowerCase()
-    this.setState({ isSearchingParty: true });
+    this.setState({ isSearchingParty: true, loading: true });
     try {
       let addressArray : any = []
 
@@ -1161,15 +1208,199 @@ console.log('details', details);
 
         const addedItems = await this.mapEntriesToUIData(response.body.entries);
         this.updateTCSAndTDSTaxAmount(addedItems);
-        this.setState({ addedItems, loading: false });
+        this.setState({ addedItems });
       }
     } catch (e) {
       console.warn('----- Error in Get Party Data ------', e)
       Toast({message: e?.data?.message ?? 'Error in Get Party Data', duration:'LONG', position:'BOTTOM'});
     } finally { 
-      this.setState({ isSearchingParty: false });
+      this.setState({ isSearchingParty: false, loading: false });
     }
   }
+
+  applyOcrBodyToState = async (body: any) => {
+    const encodedData = body?.encodedData ?? body?.encodedFile ?? null;
+    const useOcrPartyAddresses = shouldUseOcrPartyAddresses(body, this.state.partyName?.uniqueName);
+
+    let partyAddressState: Record<string, any> = {};
+    if (useOcrPartyAddresses) {
+      const { partyBillingAddress, partyShippingAddress } = this.mapAddressFromVoucherData(
+        body?.account?.billingDetails,
+        body?.account?.shippingDetails
+      );
+      partyAddressState = {
+        countryDeatils: {
+          countryName: body?.account?.billingDetails?.country?.name,
+          countryCode: body?.account?.billingDetails?.country?.code,
+        },
+        partyBillingAddress,
+        partyShippingAddress,
+        billSameAsShip:
+          partyBillingAddress.address === partyShippingAddress.address &&
+          partyBillingAddress.stateCode === partyShippingAddress.stateCode,
+      };
+    }
+
+    this.setState({
+      ocrEncodedData: encodedData,
+      ...partyAddressState,
+      // Keep party currency from searchAccount (same as create-voucher flow).
+      // OCR currency is often empty/wrong and would show a second total amount row.
+      totalAmountInINR: body?.voucherTotal?.amountForAccount,
+      amountPaidNowText:
+        (body?.voucherTotal?.amountForAccount ?? 0) - (body?.balanceTotal?.amountForAccount ?? 0),
+      roundOffTotal: body?.roundOffTotal?.amountForAccount ?? 0,
+      date: body?.date ? moment(body.date, 'DD-MM-YYYY') : this.state.date,
+      dueDate: body?.dueDate ? moment(body.dueDate, 'DD-MM-YYYY') : this.state.dueDate,
+      adjustments: body?.adjustments,
+      otherDetails: {
+        shipDate: body?.templateDetails?.other?.shippingDate ?? '',
+        shippedVia: body?.templateDetails?.other?.shippedVia ?? null,
+        trackingNumber: body?.templateDetails?.other?.trackingNumber ?? null,
+        customField1: body?.templateDetails?.other?.customField1 ?? null,
+        customField2: body?.templateDetails?.other?.customField2 ?? null,
+        customField3: body?.templateDetails?.other?.customField3 ?? null,
+      },
+    });
+
+    const addedItems = await this.mapEntriesToUIData(body.entries ?? []);
+    this.updateTCSAndTDSTaxAmount(addedItems);
+    this.setState({ addedItems });
+  };
+
+  loadScan2OcrBody = async () => {
+    if (this.ocrDataBody) {
+      return this.ocrDataBody;
+    }
+    if (this.ocrFetchPromise) {
+      return this.ocrFetchPromise;
+    }
+
+    this.ocrFetchPromise = (async () => {
+      const scanParams = this.props.route?.params;
+      if (!scanParams?.isFromScan2 || !scanParams?.requestId) {
+        return null;
+      }
+
+      try {
+        const voucherVersion = await resolveScan2VoucherVersion(
+          this.state.companyVersionNumber,
+          () => AsyncStorage.getItem(STORAGE_KEYS.companyVersionNumber)
+        );
+
+        const response = await fetchScan2OcrData(scanParams, voucherVersion, {
+          ocrType: 'income',
+          voucherType: 'sales',
+        });
+
+        if (response?.status !== 'success' || !response?.body) {
+          Toast({
+            message: response?.message ?? 'Unable to load OCR data',
+            duration: 'LONG',
+            position: 'BOTTOM',
+          });
+          return null;
+        }
+
+        this.ocrDataBody = response.body;
+        return this.ocrDataBody;
+      } catch (e: any) {
+        console.warn('----- Error fetching Scan2 OCR data ------', e);
+        Toast({
+          message: e?.data?.message ?? e?.message ?? 'Unable to load OCR data',
+          duration: 'LONG',
+          position: 'BOTTOM',
+        });
+        return null;
+      }
+    })();
+
+    try {
+      return await this.ocrFetchPromise;
+    } finally {
+      this.ocrFetchPromise = null;
+    }
+  };
+
+  initializeScan2OcrFlow = async () => {
+    const scanParams = this.props.route?.params;
+    if (this.isVoucherUpdate || !scanParams?.isFromScan2 || !scanParams?.requestId) {
+      return;
+    }
+
+    this.setState({ loading: true });
+    try {
+      const body = await this.loadScan2OcrBody();
+      if (!body) {
+        return;
+      }
+
+      const matched = getOcrMatchedAccount(body);
+      if (matched) {
+        await new Promise<void>((resolve) => {
+          this.setState({ partyName: matched }, () => resolve());
+        });
+        await this.searchAccount(true);
+        if (!this.state.partyDetails?.uniqueName) {
+          await this.setState({
+            partyName: undefined,
+            searchPartyName: '',
+          });
+          Toast({
+            message: 'Unable to load matched party. Please select an account.',
+            duration: 'LONG',
+            position: 'BOTTOM',
+          });
+          return;
+        }
+        await this.setState({
+          searchPartyName: this.state.partyDetails?.name ?? matched.name,
+        });
+        await this.applyOcrBodyToState(body);
+      } else {
+        this.setState({ searchPartyName: '' });
+      }
+    } catch (e: any) {
+      console.warn('----- Error in Scan2 OCR init ------', e);
+      Toast({
+        message: e?.data?.message ?? e?.message ?? 'Error loading OCR data',
+        duration: 'LONG',
+        position: 'BOTTOM',
+      });
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
+  /**
+   * Scan2 OCR create flow only: after account selection, fetch OCR voucher data and prefill.
+   * Does not run for voucher edit/update (isVoucherUpdate).
+   */
+  prefillFromOcrData = async () => {
+    const scanParams = this.props.route?.params;
+    if (this.isVoucherUpdate || !scanParams?.isFromScan2 || !scanParams?.requestId) {
+      return;
+    }
+
+    this.setState({ loading: true });
+    try {
+      const body = await this.loadScan2OcrBody();
+      if (!body) {
+        return;
+      }
+      await this.applyOcrBodyToState(body);
+    } catch (e: any) {
+      console.warn('----- Error in OCR Prefill ------', e);
+      Toast({
+        message: e?.data?.message ?? e?.message ?? 'Error loading OCR data',
+        duration: 'LONG',
+        position: 'BOTTOM',
+      });
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
   async searchUser() {
     this.setState({ isSearchingParty: true });
     try {
@@ -1292,6 +1523,8 @@ console.log('details', details);
   }
 
   resetState = () => {
+    this.ocrDataBody = null;
+    this.ocrFetchPromise = null;
     this.setState({
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
@@ -1396,6 +1629,8 @@ console.log('details', details);
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
       selectedSalesPerson: undefined,
+      ocrEncodedData: null,
+      showOcrPreview: false,
       ...(this.isVoucherUpdate && {
         invoiceType: this.props.route?.params?.isSalesCashInvoice ? INVOICE_TYPE.cash : INVOICE_TYPE.credit,
         partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
@@ -1727,6 +1962,11 @@ console.log('details', details);
         this.setState({ loading: false });
       }
       if (results.body) {
+        const scanParams = this.props.route?.params;
+        await markScan2DocumentComplete(scanParams, this.state.companyVersionNumber, {
+          ocrType: 'income',
+          voucherType: 'sales',
+        });
         // this.setState({loading: false});
         alert(this.props.t('salesInvoice.invoiceCreatedSuccessfully'));
         const partyDetails = this.state.partyDetails;
@@ -1741,6 +1981,9 @@ console.log('details', details);
         await this.getAllAccountsModes();
         await this.getCompanyVersionNumber();
         DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+        if (navigateBackToScan2(this.props.navigation, scanParams)) {
+          return;
+        }
         if (type == 'navigate') {
           if (invoiceType == INVOICE_TYPE.cash) {
             this.props.navigation.goBack();
@@ -2168,6 +2411,10 @@ console.log('details', details);
 
   // https://api.giddh.com/company/mobileindore15161037983790ggm19/account-search?q=c&page=1&group=sundrydebtors&branchUniqueName=allmobileshop
   setCashTypeInvoice = async () => {
+    if (this.props.route?.params?.isFromScan2) {
+      this.setState({ invoiceType: INVOICE_TYPE.cash, showInvoiceModal: false });
+      return;
+    }
     await this.resetState();
     await this.setActiveCompanyCountry();
     await this.getCompanyVersionNumber()
@@ -2179,6 +2426,10 @@ console.log('details', details);
   };
 
   setCreditTypeInvoice = async () => {
+    if (this.props.route?.params?.isFromScan2) {
+      this.setState({ invoiceType: INVOICE_TYPE.credit, showInvoiceModal: false });
+      return;
+    }
     await this.resetState();
     await this.setActiveCompanyCountry();
     await this.getCompanyVersionNumber()
@@ -3417,6 +3668,11 @@ console.log('details', details);
               />
             </View>
           </Modal>
+          <OcrDocumentPreviewModal
+            visible={this.state.showOcrPreview}
+            encodedData={this.state.ocrEncodedData}
+            onClose={() => this.setState({ showOcrPreview: false })}
+          />
         </Animated.ScrollView>
         {this.state.showItemDetails && (
           <EditItemDetail
