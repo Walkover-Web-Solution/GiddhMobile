@@ -32,6 +32,7 @@ import RNFetchBlob from 'react-native-blob-util'
 import TOAST from "@/components/Toast";
 import { CommonService } from '@/core/services/common/common.service';
 import { useTranslation } from 'react-i18next';
+import { BalanceSheetCacheData, getCache, getCacheScope, setCache } from '@/core/cache';
 
 const {height, width} = Dimensions.get('window');
 
@@ -117,13 +118,30 @@ const BalanceSheetScreen = () => {
 
   //  Api calls
   const fetchDetailedBalanceSheet = async (branchUniqueName: string) => {
-    setLoading(true);
     const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+    const resolvedBranch = branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '';
     setConsolidatedBranch(consolidateState ? consolidateState : ' ');
+
     try {
-      const response = await CommonService.fetchDetailedBalanceSheet(date?.startDate, date?.endDate, branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '')
+      const cacheKey = await getCacheScope('balance_sheet', {
+        branchUniqueName: resolvedBranch || ' ',
+        startDate: date?.startDate,
+        endDate: date?.endDate,
+      });
+      const cached = await getCache<BalanceSheetCacheData>(cacheKey);
+
+      if (cached?.groupDetails) {
+        setBalanceSheet(cached.groupDetails);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+
+      const response = await CommonService.fetchDetailedBalanceSheet(date?.startDate, date?.endDate, resolvedBranch)
       if (response?.body && response?.status == 'success') {
-        setBalanceSheet(response?.body?.groupDetails);
+        const groupDetails = response?.body?.groupDetails ?? [];
+        setBalanceSheet(groupDetails);
+        await setCache(cacheKey, { groupDetails } as BalanceSheetCacheData);
       }else{
         TOAST({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
       }
@@ -313,11 +331,14 @@ const renderCategory = (category, items) => {
 }
 
   useEffect(() => {
-    setTimeout(() => fetchDetailedBalanceSheet(consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : ''), 1500);
-    DeviceEventEmitter.addListener(APP_EVENTS.consolidateBranch, (payload) => {
+    fetchDetailedBalanceSheet(consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : '');
+    const consolidateListener = DeviceEventEmitter.addListener(APP_EVENTS.consolidateBranch, (payload) => {
       setConsolidatedBranch(payload?.activeBranch);
       setSelectedBranch({});
     });
+    return () => {
+      consolidateListener.remove();
+    };
   }, [date]);
 
 

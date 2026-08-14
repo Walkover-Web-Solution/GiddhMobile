@@ -3,7 +3,6 @@ import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import getSymbolFromCurrency from 'currency-symbol-map';
 import lodash from 'lodash.debounce';
 import { formatAmount } from "@/utils/helper";
 import { useSelector } from "react-redux";
@@ -14,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import Routes from "@/navigation/routes";
 import Loader from "@/components/Loader";
 import { useTranslation } from "react-i18next";
+import { BankAccountsCacheData, getCache, getCacheScope, setCache } from "@/core/cache";
 
 const BankAccountList = () => {
     const {styles, theme, voucherBackground} = useCustomTheme(makeStyles, 'Stock');
@@ -46,17 +46,50 @@ const BankAccountList = () => {
         }        
       }
 
-    const fetchBankAccounts = async (page:number)=> {
+    const applyBankAccountsCache = (cached: BankAccountsCacheData) => {
+        setBankAccounts(cached.results ?? []);
+        setDate({ startDate: cached.fromDate, endDate: cached.toDate });
+        setHasMore(Boolean(cached.hasMore));
+    };
+
+    const fetchBankAccounts = async (pageNumber: number)=> {
         try {
-            const response = await CommonService.fetchBankAccounts(date.startDate, date.endDate, page);
-            if(response?.status == "success"){
-                setBankAccounts(prevAccoutns => [...prevAccoutns, ...response?.body?.results]);
-                setDate({ startDate: response?.body?.fromDate, endDate: response?.body?.toDate });
-                if(page*50 < response?.body?.totalItems){
-                    setHasMore(true);
-                }else{
-                    setHasMore(false);
+            let requestStartDate = date.startDate;
+            let requestEndDate = date.endDate;
+
+            // Page 1: show cached data instantly, then refresh in background.
+            if (pageNumber === 1) {
+                const cacheKey = await getCacheScope('bank_accounts', { extra: 'page-1' });
+                const cached = await getCache<BankAccountsCacheData>(cacheKey);
+                if (cached) {
+                    applyBankAccountsCache(cached);
+                    requestStartDate = cached.fromDate;
+                    requestEndDate = cached.toDate;
                 }
+            }
+
+            const response = await CommonService.fetchBankAccounts(requestStartDate, requestEndDate, pageNumber);
+            if(response?.status == "success"){
+                const results = response?.body?.results ?? [];
+                const nextHasMore = pageNumber * 50 < response?.body?.totalItems;
+                const fromDate = response?.body?.fromDate;
+                const toDate = response?.body?.toDate;
+
+                if (pageNumber === 1) {
+                    setBankAccounts(results);
+                    const cacheKey = await getCacheScope('bank_accounts', { extra: 'page-1' });
+                    await setCache(cacheKey, {
+                        results,
+                        fromDate,
+                        toDate,
+                        hasMore: nextHasMore,
+                    } as BankAccountsCacheData);
+                } else {
+                    setBankAccounts(prevAccounts => [...prevAccounts, ...results]);
+                }
+
+                setDate({ startDate: fromDate, endDate: toDate });
+                setHasMore(nextHasMore);
             }
         } catch (error) {
             setDate({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
@@ -65,7 +98,7 @@ const BankAccountList = () => {
     }
 
     useEffect(() => {
-        setTimeout(()=>fetchBankAccounts(page),1500);
+        fetchBankAccounts(1);
     }, []);
 
     const loadMoreBankAccounts = () => {

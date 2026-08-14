@@ -96,7 +96,9 @@ class BaseContainer extends Component {
     if (this.listener) {
       this.listener.remove();
     }
-    this.logoutListner = undefined;
+    if (this.logoutListner) {
+      this.logoutListner.remove();
+    }
   }
 }
 function mapStateToProps(state) {

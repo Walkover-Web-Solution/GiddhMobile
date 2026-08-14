@@ -15,6 +15,7 @@ import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 // import LogRocket from '@logrocket/react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { useTranslation } from 'react-i18next';
+import { clearAllScreenCache } from '@/core/cache';
 
 
 interface Props {
@@ -100,6 +101,7 @@ export class ChangeCompany extends React.Component<Props & { t: any }> {
                     const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
                     if (item.uniqueName !== activeCompany.uniqueName) {
                       await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
+                      await clearAllScreenCache();
                       // this.addUserDeatilsToLogRocket(item.name, " ")
                     }
                     

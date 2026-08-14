@@ -1,27 +1,27 @@
 import useCustomTheme, { ThemeProps } from '@/utils/theme';
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Platform, DeviceEventEmitter, Keyboard, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, DeviceEventEmitter, Keyboard, TouchableOpacity, Dimensions } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import Loader from '@/components/Loader';
 import { formatAmount } from '@/utils/helper';
 import { Text as SvgText} from 'react-native-svg';
 import Toast from '@/components/Toast';
 import { useSelector } from 'react-redux';
-import { commonUrls } from '@/core/services/common/common.url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
-import MatButton from '@/components/OutlinedButton';
 import BottomSheet from '@/components/BottomSheet';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import { CommonService } from '@/core/services/common/common.service';
 import { useTranslation } from 'react-i18next';
+import { getCache, getCacheScope, setCache, ProfitLossCacheData } from '@/core/cache';
 
 const {height, width} = Dimensions.get('window');
 
 const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBranch, setSelectedBranch, selectedBranch}) => {
     const {styles, theme} = useCustomTheme(makeStyles, 'Stock');
     const { t } = useTranslation();
-    const [chartLoading, setChartLoading] = useState(true);
+    // Start false so a cache hit can paint instantly; only show loader on a real miss.
+    const [chartLoading, setChartLoading] = useState(false);
     const [totalExpense, setTotalExpense] = useState({});
     const [totalIncome, setTotalIncome] = useState({});
     const [netPL, setnetPL] = useState({});
@@ -42,17 +42,42 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         }
     };
 
+    const applyProfitLossData = (data: ProfitLossCacheData) => {
+      setTotalExpense({ ...data.totalExpenses });
+      setTotalIncome({ ...data.revenue });
+      setnetPL({ ...data.incomeBeforeTaxes });
+    };
+
     //api calls
     const fetchProfitLossDetails = async (branchUniqueName: string) => {
       try {
-        setChartLoading(true);
         const consolidateState = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
+        const resolvedBranch = branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '';
         setConsolidatedBranch(consolidateState ? consolidateState : ' ');
-        const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate, branchUniqueName ? branchUniqueName : consolidateState ? consolidateState : '');
+
+        const cacheKey = await getCacheScope('profit_loss', {
+          branchUniqueName: resolvedBranch || ' ',
+          startDate: date.startDate,
+          endDate: date.endDate,
+        });
+        const cached = await getCache<ProfitLossCacheData>(cacheKey);
+
+        if (cached) {
+          applyProfitLossData(cached);
+          setChartLoading(false);
+        } else {
+          setChartLoading(true);
+        }
+
+        const response = await CommonService.fetchProfitLossDetails(date.startDate, date.endDate, resolvedBranch);
         if(response?.body && response?.status == "success"){
-            setTotalExpense({...response?.body?.incomeStatement?.totalExpenses});
-            setTotalIncome({...response?.body?.incomeStatement?.revenue});
-            setnetPL({...response?.body?.incomeStatement?.incomeBeforeTaxes});
+            const freshData: ProfitLossCacheData = {
+              totalExpenses: response?.body?.incomeStatement?.totalExpenses ?? {},
+              revenue: response?.body?.incomeStatement?.revenue ?? {},
+              incomeBeforeTaxes: response?.body?.incomeStatement?.incomeBeforeTaxes ?? {},
+            };
+            applyProfitLossData(freshData);
+            await setCache(cacheKey, freshData);
         }else{
             Toast({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
         }
@@ -102,11 +127,14 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
       );
 
     useEffect(() => {
-        setTimeout(()=>fetchProfitLossDetails(consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : ''),1500);
-        DeviceEventEmitter.addListener(APP_EVENTS.consolidateBranch, (payload) => {
+        fetchProfitLossDetails(consolidatedBranch?.length == 1 ? selectedBranch?.uniqueName : '');
+        const consolidateListener = DeviceEventEmitter.addListener(APP_EVENTS.consolidateBranch, (payload) => {
             setConsolidatedBranch(payload?.activeBranch);
             setSelectedBranch({});
         });
+        return () => {
+          consolidateListener.remove();
+        };
     }, [date]);
 
 

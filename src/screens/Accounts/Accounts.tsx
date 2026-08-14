@@ -15,6 +15,8 @@ import Header from '@/components/Header';
 import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
 import { resetAccountSearch, updateAccountSearch } from '@/redux/CommonAction';
 import { useTranslation } from 'react-i18next';
+import { AccountsCacheData, getCache, getCacheScope, setCache } from '@/core/cache';
+import AccountsListSkeleton from './components/AccountsListSkeleton';
 
 
 type connectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
@@ -23,6 +25,8 @@ type Props = connectedProps & {
 }
 type State = {
   showLoader: Boolean,
+  hasFetchedAccounts: boolean,
+  accountsCacheMiss: boolean,
   accounts: any[],
   selectedGroup: { name: string, uniqueName: string },
   isSearchingModalVisible: boolean,
@@ -50,6 +54,8 @@ export class AccountScreen extends React.Component<Props & { t: any }, State> {
     this.focusRef = React.createRef();
     this.state = {
       showLoader: false,
+      hasFetchedAccounts: false,
+      accountsCacheMiss: false,
       startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
       endDate: moment().format('DD-MM-YYYY'),
       page: 1,
@@ -76,6 +82,8 @@ export class AccountScreen extends React.Component<Props & { t: any }, State> {
       this.setState(
         {
           showLoader: false,
+          hasFetchedAccounts: false,
+          accountsCacheMiss: false,
           startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'),
           endDate: moment().format('DD-MM-YYYY'),
           page: 1,
@@ -104,23 +112,56 @@ export class AccountScreen extends React.Component<Props & { t: any }, State> {
     this.getAccounts();
   }
   private async getAccounts() {
+    const groupUniqueName = this.state.selectedGroup.uniqueName;
+    this.setState({ accountsCacheMiss: false });
+
     try {
-      this.setState({
-        showLoader: true
+      const cacheKey = await getCacheScope('accounts', {
+        extra: `${groupUniqueName}|page-1`,
       });
-      const response = await AccountsService.getGroupAccounts(this.state.selectedGroup.uniqueName, this.state.page);
-      if (response?.body?.results) {
+      const cached = await getCache<AccountsCacheData>(cacheKey);
+
+      // Show cached page-1 instantly; only skeleton when there is no cache.
+      if (cached?.accounts?.length) {
         this.setState({
-          accounts: response.body.results,
+          accounts: cached.accounts,
           showLoader: false,
-          totalPages: response?.body?.totalPages
+          hasFetchedAccounts: true,
+          page: 1,
+          totalPages: cached.totalPages ?? 0,
+          loadingMore: false,
         });
       } else {
-        this.setState({ showLoader: false });
+        this.setState({
+          showLoader: true,
+          hasFetchedAccounts: false,
+          accountsCacheMiss: true,
+          accounts: [],
+          page: 1,
+          loadingMore: false,
+        });
+      }
+
+      // Always refresh page 1 in background (group list entry point).
+      const response = await AccountsService.getGroupAccounts(groupUniqueName, 1);
+      if (response?.body?.results) {
+        const accounts = response.body.results;
+        const totalPages = response?.body?.totalPages ?? 0;
+        this.setState({
+          accounts,
+          showLoader: false,
+          hasFetchedAccounts: true,
+          page: 1,
+          totalPages,
+        });
+        // Cache write must not delay hiding the skeleton.
+        void setCache(cacheKey, { accounts, totalPages } as AccountsCacheData);
+      } else {
+        this.setState({ showLoader: false, hasFetchedAccounts: true });
       }
     } catch (e) {
       console.log("Error in group accounts ", e);
-      this.setState({ showLoader: false });
+      this.setState({ showLoader: false, hasFetchedAccounts: true });
     }
   }
   searchGroupAccountsData = _.debounce(this.searchGroupAccounts, 500);
@@ -464,7 +505,10 @@ export class AccountScreen extends React.Component<Props & { t: any }, State> {
 
   render() {
     const { activeCompany, isFocused, t }: any = this.props;
-    
+    // Show the skeleton only after AsyncStorage confirms there is no usable cache.
+    const isInitialLoading = this.state.showLoader || !this.state.hasFetchedAccounts;
+    const showAccountsSkeleton = isInitialLoading && this.state.accountsCacheMiss;
+
     return (
       <View style={style.container}>
         <Header 
@@ -488,14 +532,8 @@ export class AccountScreen extends React.Component<Props & { t: any }, State> {
             </>
           }
         />
-        {this.state.showLoader
-          ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <LoaderKit
-                style={{ width: 45, height: 45 }}
-                name={'LineScale'}
-                color={colors.PRIMARY_NORMAL}
-            />
-          </View>
+        {isInitialLoading
+          ? (showAccountsSkeleton ? <AccountsListSkeleton /> : <View style={style.container} />)
           : <View style={style.container}>
             {this.state.accounts?.length == 0
               ? (

@@ -1,5 +1,4 @@
 import Header from '@/components/Header'
-import Loader from '@/components/Loader'
 import { CommonService } from '@/core/services/common/common.service'
 import useCustomTheme, { ThemeProps } from '@/utils/theme'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
@@ -28,6 +27,8 @@ import { createEndpoint } from '@/utils/helper'
 import { MoreActionBottomSheet } from './components/MoreActionModalize'
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils'
 import { useTranslation } from 'react-i18next'
+import { AllVouchersCacheData, getCache, getCacheScope, setCache } from '@/core/cache'
+import VoucherListSkeleton from './components/VoucherListSkeleton'
 
 const ListnerEvents = [
     APP_EVENTS.comapnyBranchChange,
@@ -57,6 +58,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const moreActionModalizeRef = useRef<any>(null);
     const confirmationBottomSheetRef = useRef<any>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [hasFetched, setHasFetched] = useState(false);
+    const [cacheMiss, setCacheMiss] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
@@ -69,6 +72,17 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const { branchList } = useSelector(state => state.commonReducer);
     const [isConsolidatedBranch, setIsConsolidatedBranch] = useState(false);
     const { t } = useTranslation();
+
+    const voucherTypeKey = (voucherName ?? '').toLocaleLowerCase();
+
+    const getVoucherCacheKey = useCallback(async () => {
+        return getCacheScope('all_vouchers', {
+            startDate: date.startDate,
+            endDate: date.endDate,
+            // voucher type must be in the key — bottom tabs are user-pinned (Sales/Purchase/etc.)
+            extra: `${voucherTypeKey}|v${companyVoucherVersion}|page-1`,
+        });
+    }, [date.startDate, date.endDate, voucherTypeKey, companyVoucherVersion]);
     
     const changeDate = (startDate: string, endDate: string) => {
         setDate({ startDate, endDate });
@@ -77,6 +91,16 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const _setActiveDateFilter = (activeDateFilter: string, dateMode: string) => {
         setActiveDateFilter(activeDateFilter);
         setDateMode(dateMode);
+    };
+
+    const applyVoucherCache = (cached: AllVouchersCacheData) => {
+        setVoucherData(cached.items ?? []);
+        setPageCount((prev) => ({
+            page: cached.hasMore ? 2 : -1,
+            count: prev.count,
+            totalItem: cached.totalItem ?? 0,
+        }));
+        setIsLoadingMore(Boolean(cached.hasMore));
     };
 
     const getAllVouchers = async (page: number) => {
@@ -88,18 +112,54 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
         console.log('-----GET ALL VOUCHERS-----', date.startDate, date.endDate)
         
         try {
-            const response = await CommonService.getAllVouchers(voucherName.toLocaleLowerCase(), date.startDate, date.endDate,  page  , pageCount.count, companyVoucherVersion, payload)
-            if (response?.status === 'success' && Array.isArray(response?.body?.items)) {
-                setVoucherData((prevVoucherData) => [...prevVoucherData, ...response?.body?.items])
-                setPageCount((prevPageCount) => ({ page: response?.body?.items?.length < 25 ? -1 : page + 1, count: prevPageCount.count, totalItem: response?.body?.totalItems }))
-                if (response?.body?.totalItems > 25) {
-                    setIsLoadingMore(true);
+            // Page 1: show cached list instantly, then refresh in background.
+            if (page === 1) {
+                const cacheKey = await getVoucherCacheKey();
+                const cached = await getCache<AllVouchersCacheData>(cacheKey);
+                if (cached?.items?.length) {
+                    applyVoucherCache(cached);
+                    setIsLoading(false);
+                } else {
+                    // Avoid flashing previous voucher-type/date rows while fetching.
+                    setCacheMiss(true);
+                    setVoucherData([]);
+                    setIsLoading(true);
                 }
+            }
+
+            const response = await CommonService.getAllVouchers(voucherTypeKey, date.startDate, date.endDate,  page  , pageCount.count, companyVoucherVersion, payload)
+            if (response?.status === 'success' && Array.isArray(response?.body?.items)) {
+                const items = response?.body?.items ?? [];
+                const totalItem = response?.body?.totalItems ?? 0;
+                const hasMore = items.length >= 25 && totalItem > 25;
+
+                if (page === 1) {
+                    setVoucherData(items);
+                    setIsLoading(false);
+                    setHasFetched(true);
+                    // Cache write must not delay hiding the loading state.
+                    const cacheKey = await getVoucherCacheKey();
+                    void setCache(cacheKey, {
+                        items,
+                        totalItem,
+                        hasMore,
+                    } as AllVouchersCacheData);
+                } else {
+                    setVoucherData((prevVoucherData) => [...prevVoucherData, ...items]);
+                }
+
+                setPageCount((prevPageCount) => ({
+                    page: items.length < 25 ? -1 : page + 1,
+                    count: prevPageCount.count,
+                    totalItem,
+                }));
+                setIsLoadingMore(hasMore);
             }
         } catch (error) {
             throw new Error(`----- Error in GetAllVouchers ${voucherName}: ${error} -----`);
         } finally {
             setIsLoading(false);
+            setHasFetched(true);
             return true;
         }
     }
@@ -126,8 +186,16 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
         );
     };
 
+    // A skeleton is needed only after AsyncStorage confirms there is no usable cache.
+    // Cache hits paint rows directly without an intermediate loading frame.
+    const isInitialLoading = isLoading || !hasFetched;
+    const showVoucherSkeleton = isInitialLoading && cacheMiss && voucherData?.length === 0;
+
     const ListEmptyComponent = useCallback(() => {
-        if (isLoading) return null;
+        if (showVoucherSkeleton) {
+            return <VoucherListSkeleton />;
+        }
+        if (isInitialLoading) return null;
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Image
@@ -137,7 +205,7 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                 <Text style={{ fontFamily: 'AvenirLTStd-Black', fontSize: 25, marginTop: 10 }}>{t('common.noTransactions')}</Text>
             </View>
         )
-    }, [isLoading])
+    }, [isInitialLoading, showVoucherSkeleton, t])
 
     const exportFile = async (uniqueName: string, voucherNumber: string) => {
         try {
@@ -399,7 +467,18 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
         try {
             const response = await CommonService.deleteVoucher(voucherToDelete.accountUniqueName, companyVoucherVersion, payload)
             if (response?.status === 'success') {
-                setVoucherData((prevVoucherData) => prevVoucherData?.filter(item => item?.uniqueName !== voucherToDelete.voucherUniqueName))
+                setVoucherData((prevVoucherData) => {
+                    const nextItems = prevVoucherData?.filter(item => item?.uniqueName !== voucherToDelete.voucherUniqueName) ?? [];
+                    // Keep page-1 cache in sync after local delete (no DeviceEventEmitter on delete).
+                    getVoucherCacheKey().then((cacheKey) => {
+                        setCache(cacheKey, {
+                            items: nextItems.slice(0, 25),
+                            totalItem: Math.max(0, (pageCount.totalItem || nextItems.length) - 1),
+                            hasMore: pageCount.page !== -1 || nextItems.length >= 25,
+                        } as AllVouchersCacheData);
+                    });
+                    return nextItems;
+                })
                 setVoucherToDelete({ accountUniqueName: '', voucherUniqueName: '', voucherType: '' })
             }
         } catch (error: any) {
@@ -411,9 +490,8 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     const refreshData = async () => {
         console.log('-------- Refresh Data -----------');
         setPageCount({ page: 1, count: 25, totalItem: 0 });
-        setIsLoading(true);
         setIsLoadingMore(false);
-        setVoucherData([]);
+        // Do not blank the list first — getAllVouchers(1) paints cache, then refreshes.
         getAllVouchers(1);
     }
 
@@ -452,6 +530,10 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
     }
 
     useEffect(() => {
+        // New voucher type / date range: treat it as a fresh load so the skeleton
+        // shows straight away instead of the previous state.
+        setHasFetched(false);
+        setCacheMiss(false);
         refreshData();
         consolidatedBranchSetter(branchList, setIsConsolidatedBranch);
         const listeners : Array<EmitterSubscription> = [];
@@ -479,28 +561,33 @@ const AllVoucherScreen: React.FC<Props> = ({ _voucherName, companyVoucherVersion
                     setActiveDateFilter={_setActiveDateFilter}
                 />
                 <View style={styles.container}>
-                    {voucherData?.length > 0 &&<StickyDay stickyDayRef={stickyDayRef} />}
-                    <FlatList
-                        data={voucherData}
-                        contentContainerStyle={styles.contentContainerStyle}
-                        renderItem={renderItem}
-                        onViewableItemsChanged={onViewableItemsChanged}
-                        onEndReached={onEndReached}
-                        keyExtractor={item => JSON.stringify(item)}
-                        refreshControl={ 
-                            <RefreshControl 
-                                progressBackgroundColor={colors.BACKGROUND}
-                                colors={[colors.PRIMARY_NORMAL]}
-                                refreshing={isRefreshing} 
-                                progressViewOffset={15}
-                                onRefresh={onRefresh} 
+                    {showVoucherSkeleton ? (
+                        <VoucherListSkeleton />
+                    ) : (
+                        <>
+                            {voucherData?.length > 0 && <StickyDay stickyDayRef={stickyDayRef} />}
+                            <FlatList
+                                data={voucherData}
+                                contentContainerStyle={styles.contentContainerStyle}
+                                renderItem={renderItem}
+                                onViewableItemsChanged={onViewableItemsChanged}
+                                onEndReached={onEndReached}
+                                keyExtractor={item => JSON.stringify(item)}
+                                refreshControl={
+                                    <RefreshControl
+                                        progressBackgroundColor={colors.BACKGROUND}
+                                        colors={[colors.PRIMARY_NORMAL]}
+                                        refreshing={isRefreshing}
+                                        progressViewOffset={15}
+                                        onRefresh={onRefresh}
+                                    />
+                                }
+                                ListFooterComponent={<ListFooterComponent />}
+                                ListEmptyComponent={<ListEmptyComponent />}
                             />
-                        }
-                        ListFooterComponent={<ListFooterComponent />}
-                        ListEmptyComponent={<ListEmptyComponent />}
-                    />
+                        </>
+                    )}
                 </View>
-                <Loader isLoading={isLoading} />
             </View>
 
             <ShareModal modalVisible={isSharing} />

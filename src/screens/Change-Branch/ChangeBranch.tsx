@@ -12,6 +12,7 @@ import color from '@/utils/colors';
 // import LogRocket from '@logrocket/react-native';
 import Loader from '@/components/Loader';
 import { useTranslation } from 'react-i18next';
+import { clearAllScreenCache } from '@/core/cache';
 
 interface Props {
   navigation: any;
@@ -80,6 +81,7 @@ export class ChangeBranch extends React.Component<Props & { t: any }> {
               onPress={async () => {
                 const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
                 await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, " ");
+                await clearAllScreenCache();
                 DeviceEventEmitter.emit(APP_EVENTS.comapnyBranchChange, {});
                 DeviceEventEmitter.emit(APP_EVENTS.consolidateBranch, {activeBranch : " "})
                 // this.props.getCompanyAndBranches();
@@ -103,6 +105,7 @@ export class ChangeBranch extends React.Component<Props & { t: any }> {
                 onPress={async () => {
                   const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
                   await AsyncStorage.setItem(STORAGE_KEYS.activeBranchUniqueName, item.uniqueName);
+                  await clearAllScreenCache();
                   const payload = {
                     body : {
                       companyUniqueName: activeCompany,

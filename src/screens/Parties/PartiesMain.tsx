@@ -22,11 +22,11 @@ import SortModal from '@/screens/Parties/components/sortModal';
 import { CommonService } from '@/core/services/common/common.service';
 import _ from 'lodash';
 // @ts-ignore
-import LoaderKit  from 'react-native-loader-kit';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
 
 import { Vendors } from './components/Vendors';
 import { Customers } from './components/Customers';
+import PartiesListSkeleton from './components/PartiesListSkeleton';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from '@/core/components/custom-icon/custom-icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,6 +34,7 @@ import colors from '@/utils/colors';
 import styles from './style'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { useTranslation } from 'react-i18next';
+import { getCache, getCacheScope, PartiesCacheData, setCache } from '@/core/cache';
 
 const { width } = Dimensions.get('window');
 
@@ -48,6 +49,8 @@ export class PartiesMainScreen extends React.Component {
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       showLoader: false,
+      hasFetchedParties: false,
+      partiesCacheMiss: false,
       searchQuery: '',
       vendorData: [],
       customerData: [],
@@ -118,7 +121,15 @@ export class PartiesMainScreen extends React.Component {
     const order = await AsyncStorage.getItem(STORAGE_KEYS.order);
     if (sortBy && order) {
       this.setState({ sortBy: sortBy, order: order });
+      return { sortBy, order };
     }
+    return { sortBy: this.state.sortBy, order: this.state.order };
+  };
+
+  getPartiesCacheKey = async (partyType: 'debtors' | 'creditors', sortBy: string, order: string) => {
+    return getCacheScope('parties', {
+      extra: `${partyType}|${sortBy}|${order}|page-1`,
+    });
   };
 
   handleCustomerRefresh = () => {
@@ -167,53 +178,35 @@ export class PartiesMainScreen extends React.Component {
   };
 
   apiCalls = async () => {
-    await this.defaultFilters();
-    if (this.state.customerData.length == 0 || this.state.vendorData.length == 0) {
-      this.setState({
-        showLoader: true
-      });
-    }
-    await this.getPartiesMainSundryDebtors(
-      this.state.searchQuery,
-      this.state.sortBy,
-      this.state.order,
-      this.state.count,
-      this.state.customerPage
-    );
-    await this.getPartiesMainSundryCreditors(
-      this.state.searchQuery,
-      this.state.sortBy,
-      this.state.order,
-      this.state.count,
-      this.state.VendorPage
-    );
-    // this.updateDB();
-    // this.setState({
-    //   dataLoadedTime: 'Updated!'
-    // }, () => {
-    //   setInterval(() => {
-    //     this.setState({
-    //       dataLoadedTime: ''
-    //     });
-    //   }, 3 * 1000);
-    // });
+    this.setState({ partiesCacheMiss: false });
+    const { sortBy, order } = await this.defaultFilters();
+    const query = this.state.searchQuery;
+    const count = this.state.count;
+
+    await Promise.all([
+      this.getPartiesMainSundryDebtors(query, sortBy, order, count, 1),
+      this.getPartiesMainSundryCreditors(query, sortBy, order, count, 1),
+    ]);
   };
 
   filterCalls = async () => {
-    await this.getPartiesMainSundryDebtors(
-      this.state.searchQuery,
-      this.state.sortBy,
-      this.state.order,
-      this.state.count,
-      this.state.customerPage
-    );
-    await this.getPartiesMainSundryCreditors(
-      this.state.searchQuery,
-      this.state.sortBy,
-      this.state.order,
-      this.state.count,
-      this.state.VendorPage
-    );
+    this.setState({ partiesCacheMiss: false });
+    await Promise.all([
+      this.getPartiesMainSundryDebtors(
+        this.state.searchQuery,
+        this.state.sortBy,
+        this.state.order,
+        this.state.count,
+        1
+      ),
+      this.getPartiesMainSundryCreditors(
+        this.state.searchQuery,
+        this.state.sortBy,
+        this.state.order,
+        this.state.count,
+        1
+      ),
+    ]);
   };
 
   searchCalls = _.debounce(this.apiCalls, 500);
@@ -338,34 +331,91 @@ export class PartiesMainScreen extends React.Component {
   }
 
   private async getPartiesMainSundryDebtors(query: any, sortBy: any, order: any, count: any, page: any) {
+    // Cache only the default list (no search) — page 1 customers.
+    const canUseCache = page === 1 && !query;
+
     try {
+      if (canUseCache) {
+        const cacheKey = await this.getPartiesCacheKey('debtors', sortBy, order);
+        const cached = await getCache<PartiesCacheData>(cacheKey);
+        if (cached?.results?.length) {
+          this.setState({
+            customerData: cached.results,
+            totalCustomerPages: cached.totalPages ?? 0,
+            customerPage: 1,
+            showLoader: false,
+            hasFetchedParties: true,
+          });
+        } else if (this.state.customerData.length === 0 && this.state.vendorData.length === 0) {
+          this.setState({ showLoader: true, partiesCacheMiss: true });
+        }
+      } else if (page === 1 && this.state.customerData.length === 0) {
+        this.setState({ showLoader: true, partiesCacheMiss: true });
+      }
+
       const debtors = await CommonService.getPartiesMainSundryDebtors(query, sortBy, order, count, page);
-      if(debtors?.body){  
+      if(debtors?.body){
+        const results = debtors.body.results ?? [];
+        const totalPages = debtors.body.totalPages ?? 0;
         this.setState(
           {
-            customerData: debtors.body.results,
-            totalCustomerPages: debtors.body.totalPages
+            customerData: results,
+            totalCustomerPages: totalPages,
+            customerPage: page === 1 ? 1 : this.state.customerPage,
           }
         );
+        if (canUseCache) {
+          const cacheKey = await this.getPartiesCacheKey('debtors', sortBy, order);
+          // Cache write must not delay hiding the skeleton.
+          void setCache(cacheKey, { results, totalPages } as PartiesCacheData);
+        }
       }
     } catch (e) {
-      this.setState({ customerData: [] });
+      if (!canUseCache || this.state.customerData.length === 0) {
+        this.setState({ customerData: [] });
+      }
       console.log('------ getPartiesMainSundryDebtors ------', e);
     }
   }
 
   private async getPartiesMainSundryCreditors(query: any, sortBy: any, order: any, count: any, page: any) {
+    const canUseCache = page === 1 && !query;
+
     try {
-      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
-      if(creditors?.body){  
-        this.setState({
-          vendorData: creditors.body.results,
-          totalVendorPages: creditors.body.totalPages
-        });
+      if (canUseCache) {
+        const cacheKey = await this.getPartiesCacheKey('creditors', sortBy, order);
+        const cached = await getCache<PartiesCacheData>(cacheKey);
+        if (cached?.results?.length) {
+          this.setState({
+            vendorData: cached.results,
+            totalVendorPages: cached.totalPages ?? 0,
+            VendorPage: 1,
+            showLoader: false,
+            hasFetchedParties: true,
+          });
+        } else if (this.state.customerData.length === 0 && this.state.vendorData.length === 0) {
+          this.setState({ showLoader: true, partiesCacheMiss: true });
+        }
       }
-      this.setState({ showLoader: false });
+
+      const creditors = await CommonService.getPartiesMainSundryCreditors(query, sortBy, order, count, page);
+      if(creditors?.body){
+        const results = creditors.body.results ?? [];
+        const totalPages = creditors.body.totalPages ?? 0;
+        this.setState({
+          vendorData: results,
+          totalVendorPages: totalPages,
+          VendorPage: page === 1 ? 1 : this.state.VendorPage,
+        });
+        if (canUseCache) {
+          const cacheKey = await this.getPartiesCacheKey('creditors', sortBy, order);
+          // Cache write must not delay hiding the skeleton.
+          void setCache(cacheKey, { results, totalPages } as PartiesCacheData);
+        }
+      }
+      this.setState({ showLoader: false, hasFetchedParties: true });
     } catch (e) {
-      this.setState({ showLoader: false });
+      this.setState({ showLoader: false, hasFetchedParties: true });
       console.log('------ getPartiesMainSundryCreditors ------', e);
     }
   }
@@ -401,6 +451,10 @@ export class PartiesMainScreen extends React.Component {
   }
 
   render() {
+    // Show the skeleton only after AsyncStorage confirms there is no usable cache.
+    const isInitialLoading = this.state.showLoader || !this.state.hasFetchedParties;
+    const showPartiesSkeleton = isInitialLoading && this.state.partiesCacheMiss;
+
     return (
       <View style={styles.container}>
         <View
@@ -545,15 +599,9 @@ export class PartiesMainScreen extends React.Component {
             this.setSliderPage(event);
           }}>
           <View style={{ height: '100%', width: this.state.screenWidth }}>
-            {this.state.showLoader
+            {isInitialLoading
               ? (
-                <View style={style.alignLoader}>
-                  <LoaderKit
-                      style={{ width: 45, height: 45 }}
-                      name={'LineScale'}
-                      color={color.PRIMARY_NORMAL}
-                  />
-                </View>
+                showPartiesSkeleton ? <PartiesListSkeleton /> : <View style={{ flex: 1 }} />
               )
               : (
                 <Customers
@@ -567,17 +615,9 @@ export class PartiesMainScreen extends React.Component {
               )}
           </View>
           <View style={{ height: '100%', width: this.state.screenWidth }}>
-            {this.state.showLoader
+            {isInitialLoading
               ? (
-                <View style={{ flex: 1 }}>
-                  <View style={style.alignLoader}>
-                    <LoaderKit
-                      style={{ width: 45, height: 45 }}
-                      name={'LineScale'}
-                      color={color.PRIMARY_NORMAL}
-                  />
-                  </View>
-                </View>
+                showPartiesSkeleton ? <PartiesListSkeleton /> : <View style={{ flex: 1 }} />
               )
               : (
                 <Vendors
