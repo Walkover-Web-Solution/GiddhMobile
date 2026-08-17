@@ -110,7 +110,7 @@ export class InvoiceService {
         (store?.getState()?.commonReducer?.companyVoucherVersion == 2 ? invoiceUrls.stockDetailService : invoiceUrlsForV1.stockDetailService)
           .replace(':sales_type', `${uniqueName}`)
           .replace('stockUniqueName=', `stockUniqueName=${stockUniqueName}`)
-          .replace('variantUniqueName=',  variantUniqueName ? `variantUniqueName=${variantUniqueName}` : ''),
+          .replace('variantUniqueName=', variantUniqueName ? `variantUniqueName=${variantUniqueName}` : ''),
         {}
       )
       .then((res) => {
@@ -142,7 +142,7 @@ export class InvoiceService {
     return httpInstance
       .get(
         (store?.getState()?.commonReducer?.companyVoucherVersion == 2 ? invoiceUrls.salesDetailService : invoiceUrlsForV1.salesDetailService)
-        .replace(':sales_type', `${serviceType}`), {})
+          .replace(':sales_type', `${serviceType}`), {})
       .then((res) => {
         return res.data;
       })
@@ -201,7 +201,7 @@ export class InvoiceService {
         return null;
       });
   }
-  
+
   // Becuase of version 2, Not using this function. Using common function for version 1 and 2 i.e; createVoucher.
   static createInvoice(payload: { account: { attentionTo: string; billingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string; mobileNumber: string; name: any; shippingDetails: { address: string[]; countryName: string; gstNumber: string; panNumber: string; state: { code: string; name: string; }; stateCode: string; stateName: string; pincode: string; }; uniqueName: any; customerName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; passportNumber: string; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; touristSchemeApplicable: boolean; type: string; updateAccountDetails: boolean; voucherAdjustments: { adjustments: never[]; }; }, accountUniqueName: any, invoiceType: string) {
     console.log(invoiceUrls.genrateInvoice.replace(':accountUniqueName', `${accountUniqueName}`));
@@ -256,7 +256,7 @@ export class InvoiceService {
       });
   }
   static createReceipt(payload: any, accountUniqueName: any, voucherVersion: any, lang: any) {
-console.log('services inside-=-',invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`))
+    console.log('services inside-=-', invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`))
     // console.log('invoice type', invoiceType);
     return httpInstance
       .post(invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), payload)
@@ -268,7 +268,7 @@ console.log('services inside-=-',invoiceUrls.generateReceipt.replace(':accountUn
       .catch((err) => {
         // console.log('In Catch createReceipt', invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), JSON.stringify(payload));
 
-        console.log('--- createReceipt --- Error ---',JSON.stringify(err.data));
+        console.log('--- createReceipt --- Error ---', JSON.stringify(err.data));
         Alert.alert('Error', err?.data?.message ?? err?.data?.error ?? 'Something Went Wrong', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });
@@ -276,7 +276,7 @@ console.log('services inside-=-',invoiceUrls.generateReceipt.replace(':accountUn
 
 
   static createPayment(payload: any, accountUniqueName: any, voucherVersion: any, lang: any) {
-console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`))
+    console.log('services inside-=-', invoiceUrls.generatePayment.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`))
     // console.log('invoice type', invoiceType);
     return httpInstance
       .post(invoiceUrls.generatePayment.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), payload)
@@ -288,7 +288,7 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       .catch((err) => {
         // console.log('In Catch createReceipt', invoiceUrls.generateReceipt.replace(':accountUniqueName', `${accountUniqueName}`).replace(':voucherVersion', `${voucherVersion}`).replace(':lang', `${lang}`), JSON.stringify(payload));
 
-        console.log('--- createPayment --- Error ---',JSON.stringify(err.data));
+        console.log('--- createPayment --- Error ---', JSON.stringify(err.data));
         Alert.alert('Error', err?.data?.message ?? err?.data?.error ?? 'Something Went Wrong', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });
@@ -369,7 +369,8 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       });
   }
 
-  static createVoucher(payload: { account: { attentionTo: string; billingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string | null; mobileNumber: string; name: any; shippingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; uniqueName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; type: string; updateAccountDetails: boolean; }, accountUniqueName: any, voucherVersion: any) {
+  static createVoucher(payload:
+    { account: { attentionTo: string; billingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; contactNumber: string; country: { countryName: string; countryCode: string; }; currency: { code: string; }; currencySymbol: string; email: string | null; mobileNumber: string; name: any; shippingDetails: { address: any[]; countryName: string; gstNumber: any; panNumber: string; state: { code: any; name: any; }; stateCode: any; stateName: any; pincode: any; }; uniqueName: any; }; date: string; dueDate: string; deposit: { type: string; accountUniqueName: string; amountForAccount: number; }; entries: { date: string; discounts: ({ calculationMethod: string; amount: { type: string; amountForAccount: any; }; discountValue: any; name: string; particular: string; } | { calculationMethod: string; amount: { type: string; amountForAccount: any; }; name: any; uniqueName: any; particular: any; })[] | { calculationMethod: string; amount: { type: string; amountForAccount: number; }; name: string; particular: string; }[]; hsnNumber: any; purchaseOrderItemMapping: { uniqueName: string; entryUniqueName: string; }; sacNumber: any; taxes: { uniqueName: any; calculationMethod: string; }[]; transactions: { account: { uniqueName: any; name: any; }; amount: { type: string; amountForAccount: number; }; stock: { quantity: any; sku: any; name: any; uniqueName: any; rate: { amountForAccount: number; }; stockUnit: { code: any; }; } | undefined; }[]; voucherNumber: string; voucherType: string; }[]; exchangeRate: number; templateDetails: { other: { shippingDate: string; shippedVia: null; trackingNumber: null; customField1: null; customField2: null; customField3: null; }; }; type: string; updateAccountDetails: boolean; }, accountUniqueName: any, voucherVersion: any) {
     console.log(
       invoiceUrls.generateVoucher.replace(':voucherVersion', `${voucherVersion}`).replace(':accountUniqueName', `${accountUniqueName}`));
     return httpInstance
@@ -380,12 +381,15 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
       })
       .catch((err) => {
         console.log(JSON.stringify(err));
+        if (err?.data?.status === 'einvoice-confirm' && err?.data?.code === 'NOT_PERMITTED') {
+          return err.data;
+        }
         Alert.alert('Error', err.data.message, [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });
   }
 
-  static fetchReceiverDetail(){
+  static fetchReceiverDetail() {
     return httpInstance.get(invoiceUrls.eWayBillUser)
       .then((res) => {
         return res.data;
@@ -407,7 +411,7 @@ console.log('services inside-=-',invoiceUrls.generatePayment.replace(':accountUn
 
   static addTransporter(payload) {
     return httpInstance
-    .post(invoiceUrls.fetchTransporterDetails, payload)
+      .post(invoiceUrls.fetchTransporterDetails, payload)
       .then((res) => {
         return res.data;
       }).catch((err) => {
