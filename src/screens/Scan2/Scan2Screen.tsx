@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialDesignIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 import _ from 'lodash';
@@ -40,6 +40,11 @@ import SearchFilterSheet, { SearchFilterKey } from './components/SearchFilterShe
 import DocumentActionSheet, { DocumentActionOption } from './components/DocumentActionSheet';
 import DocumentPreviewViewer from './components/DocumentPreviewViewer';
 import { isPdfSource } from './documentPreview.utils';
+import {
+  extractDocumentFailureReason,
+  isFailedDocumentStatus,
+  resolveStatusSearchValue,
+} from './scan2Status.utils';
 import { errorCodes, isErrorWithCode, keepLocalCopy, pick, types } from '@react-native-documents/picker';
 import { check, request, PERMISSIONS, RESULTS, Permission, openSettings, PermissionStatus, openPhotoPicker } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -240,9 +245,24 @@ const hasActiveFilters = (payload: DocumentFilterPayload) => {
   );
 };
 
+const resolveSearchFilterValue = (
+  field: SearchFilterKey,
+  value: string,
+  t: (key: string, options?: Record<string, unknown>) => string
+) => {
+  if (field === 'status') {
+    return resolveStatusSearchValue(t, value, 'file');
+  }
+  if (field === 'convertedStatus') {
+    return resolveStatusSearchValue(t, value, 'converted');
+  }
+  return value;
+};
+
 const buildSingleQueryFilter = (
   field: SearchFilterKey,
-  value: string | null
+  value: string | null,
+  t: (key: string, options?: Record<string, unknown>) => string
 ): DocumentFilterPayload => {
   const normalized = normalizeFilterValue(value);
   if (!normalized) {
@@ -251,7 +271,21 @@ const buildSingleQueryFilter = (
 
   return {
     ...DEFAULT_DOCUMENT_FILTERS,
-    [field]: normalized,
+    [field]: resolveSearchFilterValue(field, normalized, t),
+  };
+};
+
+const toApiFilterPayload = (
+  payload: DocumentFilterPayload,
+  t: (key: string, options?: Record<string, unknown>) => string
+): DocumentFilterPayload => {
+  const normalized = normalizeFilterPayload(payload);
+  return {
+    ...normalized,
+    status: normalized.status ? resolveStatusSearchValue(t, normalized.status, 'file') : null,
+    convertedStatus: normalized.convertedStatus
+      ? resolveStatusSearchValue(t, normalized.convertedStatus, 'converted')
+      : null,
   };
 };
 
@@ -291,6 +325,7 @@ const Scan2Screen = () => {
   const [previewUri, setPreviewUri] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [failurePopup, setFailurePopup] = useState<{ title: string; message: string } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -328,9 +363,11 @@ const Scan2Screen = () => {
   const pendingUploadSourceRef = useRef<UploadSource | null>(null);
   const uploadActionTokenRef = useRef(0);
   const pendingUploadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tRef = useRef(t);
+  tRef.current = t;
   const quickSearchDebounceRef = useRef(
     _.debounce((field: SearchFilterKey, value: string) => {
-      const nextFilters = buildSingleQueryFilter(field, value);
+      const nextFilters = buildSingleQueryFilter(field, value, tRef.current);
       setDraftFilters(nextFilters);
       setAppliedFilters(nextFilters);
     }, 450)
@@ -356,7 +393,7 @@ const Scan2Screen = () => {
         dateRange.startDate,
         dateRange.endDate,
         ocrType,
-        normalizeFilterPayload(filters)
+        toApiFilterPayload(filters, t)
       );
 
       if (response?.status === 'success') {
@@ -644,10 +681,17 @@ const Scan2Screen = () => {
           message = t('scan2.actionStatusProcessing', {
             defaultValue: 'Document is still processing. Please wait until status is Completed.',
           });
-        } else if (status === 'FAILED' || status === 'FAIL' || status === 'ERROR') {
-          message = t('scan2.actionStatusFailed', {
-            defaultValue: 'Document processing failed. Please upload again or try another file.',
+        } else if (isFailedDocumentStatus(status)) {
+          const reason = extractDocumentFailureReason(item);
+          setFailurePopup({
+            title: t('scan2.uploadFailedTitle', { defaultValue: 'Upload failed' }),
+            message:
+              reason ||
+              t('scan2.uploadFailedReasonFallback', {
+                defaultValue: 'Document processing failed. Please upload again or try another file.',
+              }),
           });
+          return;
         } else if (status === 'CANCELLED' || status === 'CANCEL') {
           message = t('scan2.actionStatusCancelled', {
             defaultValue: 'This document was cancelled and cannot be used.',
@@ -672,14 +716,17 @@ const Scan2Screen = () => {
           message = t('scan2.actionAlreadyConverted', {
             defaultValue: 'This document is already converted into a voucher.',
           });
-        } else if (
-          convertedStatus === 'FAILED' ||
-          convertedStatus === 'FAIL' ||
-          convertedStatus === 'ERROR'
-        ) {
-          message = t('scan2.actionConvertedFailed', {
-            defaultValue: 'Document conversion failed. Please try again with another file.',
+        } else if (isFailedDocumentStatus(convertedStatus)) {
+          const reason = extractDocumentFailureReason(item);
+          setFailurePopup({
+            title: t('scan2.conversionFailedTitle', { defaultValue: 'Conversion failed' }),
+            message:
+              reason ||
+              t('scan2.actionConvertedFailed', {
+                defaultValue: 'Document conversion failed. Please try again with another file.',
+              }),
           });
+          return;
         } else if (convertedStatus !== 'IN_PROGRESS') {
           message = t('scan2.actionConvertedNotInProgress', {
             defaultValue: 'Converted status must be In Progress to create a voucher.',
@@ -726,14 +773,10 @@ const Scan2Screen = () => {
           // Forces voucher screens to reset when opened again from Scan2
           refetchDataOnNavigation: Math.floor(Math.random() * 1000).toString().padStart(3, '0'),
         };
-        if (option.screen) {
-          navigation.navigate(option.navigateTo, {
-            screen: option.screen,
-            params,
-          });
-          return;
-        }
-        navigation.navigate(option.navigateTo, params);
+        // Keep Scan2 list state; push onto this stack so back returns here (not Home).
+        preserveStateOnNextFocusRef.current = true;
+        const routeParams = option.screen ? { screen: option.screen, params } : params;
+        navigation.dispatch(StackActions.push(option.navigateTo, routeParams));
       });
     },
     [navigation, ocrType, scanType, t]
@@ -1274,6 +1317,29 @@ const Scan2Screen = () => {
         </View>
       </Modal>
 
+      <Modal
+        visible={!!failurePopup}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setFailurePopup(null)}
+      >
+        <View style={styles.previewBackdrop}>
+          <View style={styles.failureCard}>
+            <Text style={styles.failureTitle}>{failurePopup?.title}</Text>
+            <Text style={styles.failureMessage}>{failurePopup?.message}</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.failureOkButton}
+              onPress={() => setFailurePopup(null)}
+            >
+              <Text style={styles.failureOkButtonText}>
+                {t('common.ok', { defaultValue: 'OK' })}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {isSearchMode ? (
         <Header backgroundColor={voucherBackground} statusBarColor={statusBar}>
           <View style={styles.searchHeaderRow}>
@@ -1594,6 +1660,41 @@ const getStyles = (theme: ThemeProps) =>
       color: '#374151',
     },
     uploadButtonText: {
+      fontFamily: theme.typography.fontFamily.semiBold,
+      fontSize: 15,
+      color: theme.colors.solids.white,
+    },
+    failureCard: {
+      width: '100%',
+      backgroundColor: theme.colors.solids.white,
+      borderRadius: 16,
+      paddingHorizontal: 20,
+      paddingTop: 22,
+      paddingBottom: 18,
+    },
+    failureTitle: {
+      fontFamily: theme.typography.fontFamily.bold,
+      fontSize: 18,
+      color: '#C5221F',
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    failureMessage: {
+      fontFamily: theme.typography.fontFamily.regular,
+      fontSize: 15,
+      lineHeight: 22,
+      color: '#4B5563',
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    failureOkButton: {
+      height: 48,
+      borderRadius: 10,
+      backgroundColor: colors.PRIMARY_NORMAL,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    failureOkButtonText: {
       fontFamily: theme.typography.fontFamily.semiBold,
       fontSize: 15,
       color: theme.colors.solids.white,

@@ -41,6 +41,7 @@ import {
   fetchScan2OcrData,
   getOcrMatchedAccount,
   markScan2DocumentComplete,
+  handleScan2AwareBack,
   navigateBackToScan2,
   resolveScan2VoucherVersion,
   shouldUseOcrPartyAddresses,
@@ -812,10 +813,10 @@ export class DebiteNote extends React.Component<Props, State> {
       const matched = getOcrMatchedAccount(body);
       if (matched) {
         await new Promise<void>((resolve) => {
-          this.setState({ partyName: matched }, () => resolve());
+          this.setState({ partyName: matched, searchPartyName: matched.name }, () => resolve());
         });
-        await this.searchAccount(true);
-        if (!this.state.partyDetails?.uniqueName) {
+        const partyDetails = await this.searchAccount(true);
+        if (!partyDetails) {
           await this.setState({
             partyName: undefined,
             searchPartyName: '',
@@ -827,9 +828,6 @@ export class DebiteNote extends React.Component<Props, State> {
           });
           return;
         }
-        await this.setState({
-          searchPartyName: this.state.partyDetails?.name ?? matched.name,
-        });
         await this.applyOcrBodyToState(body);
       } else {
         this.setState({ searchPartyName: '' });
@@ -907,7 +905,7 @@ export class DebiteNote extends React.Component<Props, State> {
           <TouchableOpacity
             style={{ padding: 10 }}
             onPress={() => {
-              this.props.navigation.goBack();
+              handleScan2AwareBack(this.props.navigation, this.props.route?.params);
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
@@ -1455,34 +1453,43 @@ export class DebiteNote extends React.Component<Props, State> {
   async searchAccount(isUpdateParty?: boolean) {
     this.setState({ isSearchingParty: true });
     try {
-      const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
+      const uniqueName = this.state.partyName?.uniqueName;
+      if (!uniqueName) {
+        this.setState({ isSearchingParty: false });
+        return null;
+      }
+      const results = await InvoiceService.getAccountDetails(uniqueName);
 
       if (results.body) {
+        const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
         if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return results.body.addresses.length < 1 ? [] : results.body.addresses
+          return addresses;
         }
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
         this.setDefaultAccountTax(results.body.applicableTaxes)
         this.setDefaultDiscount(results.body.applicableDiscounts)
-        await this.setState({
-          ...(!isUpdateParty && { addedItems: [] }),
-          partyDetails: results.body,
-          isSearchingParty: false,
-          searchError: '',
-          countryDeatils: results.body.country,
-          currency: results.body.currency,
-          currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses,
-          partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
+        await new Promise<void>((resolve) => {
+          this.setState({
+            ...(!isUpdateParty && { addedItems: [] }),
+            partyDetails: results.body,
+            isSearchingParty: false,
+            searchError: '',
+            countryDeatils: results.body.country,
+            currency: results.body.currency,
+            currencySymbol: results.body.currencySymbol,
+            addressArray: addresses,
+            partyBillingAddress: addresses[0],
+            partyShippingAddress: addresses[0],
+          }, () => resolve());
         });
+        return results.body;
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: 'No Results', isSearchingParty: false });
     }
-    return [];
+    return null;
   }
 
   resetState = () => {

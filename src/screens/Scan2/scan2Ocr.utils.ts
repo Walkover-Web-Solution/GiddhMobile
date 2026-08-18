@@ -99,7 +99,13 @@ export async function markScan2DocumentComplete(
 }
 
 export function navigateBackToScan2(
-  navigation: { navigate: (name: string, params?: object) => void },
+  navigation: {
+    navigate: (name: string, params?: object) => void;
+    popTo?: (name: string, params?: object) => void;
+    getParent?: () => any;
+    canGoBack?: () => boolean;
+    goBack?: () => void;
+  },
   scanParams: Scan2RouteParams | undefined
 ): boolean {
   if (!scanParams?.isFromScan2) {
@@ -109,10 +115,44 @@ export function navigateBackToScan2(
   const scan2Source =
     scanParams.scan2Source ??
     (scanParams.ocrType === 'expense' ? SCAN2_BILL_SOURCE : SCAN2_INVOICE_SOURCE);
+  const params = { name: scan2Source };
+
+  const tryPopTo = (nav?: any) => {
+    if (nav && typeof nav.popTo === 'function') {
+      try {
+        nav.popTo(Routes.Scan2Screen, params);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  };
+
+  if (tryPopTo(navigation.getParent?.()?.getParent?.()) || tryPopTo(navigation.getParent?.()) || tryPopTo(navigation)) {
+    return true;
+  }
 
   navigation.navigate(Routes.Scan2Screen, {
     screen: Routes.Scan2Screen,
-    params: { name: scan2Source },
+    params,
   });
   return true;
+}
+
+/** Header / system back: return to Scan2 when this voucher was opened from Scan2. */
+export function handleScan2AwareBack(
+  navigation: {
+    navigate: (name: string, params?: object) => void;
+    popTo?: (name: string, params?: object) => void;
+    getParent?: () => any;
+    canGoBack?: () => boolean;
+    goBack?: () => void;
+  },
+  scanParams: Scan2RouteParams | undefined
+) {
+  if (navigateBackToScan2(navigation, scanParams)) {
+    return;
+  }
+  navigation.goBack?.();
 }

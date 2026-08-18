@@ -42,6 +42,7 @@ import {
   fetchScan2OcrData,
   getOcrMatchedAccount,
   markScan2DocumentComplete,
+  handleScan2AwareBack,
   navigateBackToScan2,
   resolveScan2VoucherVersion,
 } from '@/screens/Scan2/scan2Ocr.utils';
@@ -480,7 +481,7 @@ export class Receipt extends React.Component<any> {
           <TouchableOpacity
             style={{padding: 10}}
             onPress={() => {
-              this.props.navigation.goBack();
+              handleScan2AwareBack(this.props.navigation, this.props.route?.params);
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
@@ -730,10 +731,10 @@ export class Receipt extends React.Component<any> {
       const matched = getOcrMatchedAccount(body);
       if (matched) {
         await new Promise((resolve) => {
-          this.setState({partyName: matched}, () => resolve());
+          this.setState({partyName: matched, searchPartyName: matched.name}, () => resolve());
         });
-        await this.searchAccount();
-        if (!this.state.partyDetails?.uniqueName) {
+        const partyDetails = await this.searchAccount();
+        if (!partyDetails) {
           await this.setState({
             partyName: '',
             searchPartyName: '',
@@ -745,9 +746,6 @@ export class Receipt extends React.Component<any> {
           });
           return;
         }
-        await this.setState({
-          searchPartyName: this.state.partyDetails?.name ?? matched.name,
-        });
         await this.applyOcrBodyToState(body);
         this.state.partyName ? this.handleInputFocus() : null;
       } else {
@@ -793,25 +791,34 @@ export class Receipt extends React.Component<any> {
   async searchAccount() {
     this.setState({isSearchingParty: true});
     try {
-      const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
+      const uniqueName = this.state.partyName?.uniqueName;
+      if (!uniqueName) {
+        this.setState({isSearchingParty: false});
+        return null;
+      }
+      const results = await InvoiceService.getAccountDetails(uniqueName);
       if (results.body) {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
         this.getAllInvoice();
-        await this.setState({
-          partyDetails: results.body,
-          isSearchingParty: false,
-          searchError: '',
-          countryDeatils: results.body.country,
-          currency: results.body.currency,
-          currencySymbol: results.body.currencySymbol,
-          selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
+        await new Promise((resolve) => {
+          this.setState({
+            partyDetails: results.body,
+            isSearchingParty: false,
+            searchError: '',
+            countryDeatils: results.body.country,
+            currency: results.body.currency,
+            currencySymbol: results.body.currencySymbol,
+            selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
+          }, () => resolve());
         });
+        return results.body;
       }
     } catch (e) {
       this.setState({searchResults: [], searchError: this.props.t('common.noResultsFound'), isSearchingParty: false});
     }
+    return null;
   }
 
   resetState = () => {
