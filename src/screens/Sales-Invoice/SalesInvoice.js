@@ -945,23 +945,28 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   /**
-   * Non-TDS/TCS taxes follow their own hierarchy:
-   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes.
-   * Only the first source that has a non-TDS/TCS tax is used (TDS/TCS in that source are ignored here).
+   * Non-TDS/TCS: stock taxes vs groupTaxes first, else line taxes vs groupTaxes.
+   * Same length → all groupTaxes; otherwise taxes minus groupTaxes. TDS/TCS are ignored here.
    */
   resolveHierarchicalNonTdsTcsNames(itemDetails) {
-    const sources = [];
-    if (itemDetails.stock) {
-      sources.push(itemDetails.stock.taxes);
-      sources.push(itemDetails.stock.groupTaxes);
+    const gstFromTaxesAndGroup = (taxes, groupTaxes) => {
+      const resolved = this.resolveTaxAndGroupTaxNames(taxes, groupTaxes);
+      return resolved.filter((name) => {
+        const row = this.getTaxDeatilsForUniqueName(name);
+        return row && !this.isTdsOrTcsTaxType(row.taxType);
+      });
+    };
+    const hasGst = (taxes, groupTaxes) => {
+      return (
+        this.getNonTdsTcsNamesFromSource(taxes).length > 0 ||
+        this.getNonTdsTcsNamesFromSource(groupTaxes).length > 0
+      );
+    };
+    if (itemDetails.stock && hasGst(itemDetails.stock.taxes, itemDetails.stock.groupTaxes)) {
+      return gstFromTaxesAndGroup(itemDetails.stock.taxes, itemDetails.stock.groupTaxes);
     }
-    sources.push(itemDetails.taxes);
-    sources.push(itemDetails.groupTaxes);
-    for (let i = 0; i < sources.length; i++) {
-      const nonTdsTcs = this.getNonTdsTcsNamesFromSource(sources[i]);
-      if (nonTdsTcs.length > 0) {
-        return nonTdsTcs;
-      }
+    if (hasGst(itemDetails.taxes, itemDetails.groupTaxes)) {
+      return gstFromTaxesAndGroup(itemDetails.taxes, itemDetails.groupTaxes);
     }
     return [];
   }
@@ -2186,8 +2191,7 @@ export class SalesInvoice extends React.Component<Props> {
     let discountDetailsArray = editItemDetails.percentDiscountArray ? [...editItemDetails.percentDiscountArray] : []
     let resolvedLinkedTaxNames = []
 
-    // Non-TDS/TCS taxes: hierarchical scan (stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes).
-    // First source that has a non-TDS/TCS tax wins; TDS/TCS are resolved separately below.
+    // Non-TDS/TCS: taxes vs groupTaxes (same length → groupTaxes, else extras). TDS/TCS resolved separately below.
     resolvedLinkedTaxNames = this.resolveHierarchicalNonTdsTcsNames(itemDetails);
     for (let i = 0; i < resolvedLinkedTaxNames.length; i++) {
       this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedLinkedTaxNames[i]);

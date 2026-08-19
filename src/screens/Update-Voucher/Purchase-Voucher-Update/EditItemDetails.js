@@ -165,18 +165,24 @@ class PurchaseItemEdit extends Component {
    * First source that has a non-TDS/TCS tax wins (TDS/TCS in that source are ignored here).
    */
   resolveHierarchicalNonTdsTcsNames(itemDetails) {
-    const sources = [];
-    if (itemDetails.stock) {
-      sources.push(itemDetails.stock.taxes);
-      sources.push(itemDetails.stock.groupTaxes);
+    const gstFromTaxesAndGroup = (taxes, groupTaxes) => {
+      const resolved = this.resolveTaxAndGroupTaxNames(taxes, groupTaxes);
+      return resolved.filter((name) => {
+        const row = this.getTaxDeatilsForUniqueName(name);
+        return row && !this.isTdsOrTcsTaxType(row.taxType);
+      });
+    };
+    const hasGst = (taxes, groupTaxes) => {
+      return (
+        this.getNonTdsTcsNamesFromSource(taxes).length > 0 ||
+        this.getNonTdsTcsNamesFromSource(groupTaxes).length > 0
+      );
+    };
+    if (itemDetails.stock && hasGst(itemDetails.stock.taxes, itemDetails.stock.groupTaxes)) {
+      return gstFromTaxesAndGroup(itemDetails.stock.taxes, itemDetails.stock.groupTaxes);
     }
-    sources.push(itemDetails.taxes);
-    sources.push(itemDetails.groupTaxes);
-    for (let i = 0; i < sources.length; i++) {
-      const nonTdsTcs = this.getNonTdsTcsNamesFromSource(sources[i]);
-      if (nonTdsTcs.length > 0) {
-        return nonTdsTcs;
-      }
+    if (hasGst(itemDetails.taxes, itemDetails.groupTaxes)) {
+      return gstFromTaxesAndGroup(itemDetails.taxes, itemDetails.groupTaxes);
     }
     return [];
   }
