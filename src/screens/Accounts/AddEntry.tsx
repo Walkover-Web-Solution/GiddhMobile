@@ -45,7 +45,7 @@ import { AccountsService } from '@/core/services/accounts/accounts.service';
 import { CommonService } from '@/core/services/common/common.service';
 import { localeData, voucherTypes, KEYBOARD_EVENTS, getAbbreviation } from './constants';
 import TOAST from 'react-native-root-toast';
-import {  formatAmount, giddhRoundOff } from '@/utils/helper';
+import {  formatAmount, giddhRoundOff, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { getInvoiceListRequest } from './accountHelper';
 const { SafeAreaOffsetHelper } = NativeModules;
@@ -1128,37 +1128,11 @@ export class AddEntry extends React.Component<Props> {
   resolveTaxAndGroupTaxNames(
     taxes: any,
     groupTaxes: any,
-    opts?: { whenBothNonEmpty?: 'intersection' | 'preferTaxes' }
+    opts?: { whenBothNonEmpty?: 'intersection' | 'preferTaxes'; taxArray?: any[] }
   ): string[] {
-    const whenBoth = opts?.whenBothNonEmpty ?? 'intersection';
-    const toNames = (arr: any): string[] => {
-      if (!Array.isArray(arr) || arr.length === 0) {
-        return [];
-      }
-      return arr
-        .map((entry: any) => (typeof entry === 'string' ? entry : entry?.uniqueName))
-        .filter((name: any): name is string => Boolean(name));
-    };
-    const t = toNames(taxes);
-    const g = toNames(groupTaxes);
-    if (t.length > 0 && g.length === 0) {
-      return t;
-    }
-    if (g.length > 0 && t.length === 0) {
-      return g;
-    }
-    if (t.length > 0 && g.length > 0) {
-      if (whenBoth === 'preferTaxes') {
-        return t;
-      }
-      const gSet = new Set(g);
-      const isSame = t.length === g.length && t.every((name) => gSet.has(name));
-      if (isSame) {
-        return t.slice();
-      }
-      return t.filter((name) => !gSet.has(name));
-    }
-    return [];
+    return resolveTaxAndGroupTaxUniqueNames(taxes, groupTaxes, {
+      taxArray: opts?.taxArray ?? this.state?.taxArray ?? [],
+    });
   }
 
   taxNamesFromArray(arr: any): string[] {

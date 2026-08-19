@@ -251,3 +251,100 @@ export const validateGST = (gstNumber: string) => {
 
   return { isValid: true, stateCode };
 }
+
+export const isTdsOrTcsTaxType = (taxType?: string | null): boolean => {
+  if (!taxType || typeof taxType !== 'string') {
+    return false;
+  }
+  const lower = taxType.toLowerCase();
+  return lower.includes('tds') || lower.includes('tcs');
+};
+
+const taxUniqueNamesFrom = (arr: any): string[] => {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return [];
+  }
+  return arr
+    .map((entry: any) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+    .filter((name: any): name is string => Boolean(name));
+};
+
+const partitionTdsAndOtherTaxes = (
+  names: string[],
+  isTdsOrTcsName: (uniqueName: string) => boolean
+) => {
+  const tds: string[] = [];
+  const other: string[] = [];
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i];
+    if (isTdsOrTcsName(name)) {
+      tds.push(name);
+    } else {
+      other.push(name);
+    }
+  }
+  return { tds, other };
+};
+
+const uniquePreserveOrder = (names: string[]): string[] => {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i];
+    if (!name || seen.has(name)) {
+      continue;
+    }
+    seen.add(name);
+    out.push(name);
+  }
+  return out;
+};
+
+/**
+ * GST/cess and other non-TDS/TCS taxes:
+ * - only taxes → use taxes
+ * - only groupTaxes → use groupTaxes
+ * - same length → use all groupTaxes
+ * - taxes longer → use taxes minus groupTaxes
+ * TDS/TCS are excluded from that compare and unioned from both lists.
+ */
+export const resolveTaxAndGroupTaxUniqueNames = (
+  taxes: any,
+  groupTaxes: any,
+  options?: {
+    taxArray?: any[];
+    isTdsOrTcsName?: (uniqueName: string) => boolean;
+  }
+): string[] => {
+  const taxNames = taxUniqueNamesFrom(taxes);
+  const groupNames = taxUniqueNamesFrom(groupTaxes);
+  const isTdsOrTcsName = (uniqueName: string): boolean => {
+    if (options?.isTdsOrTcsName) {
+      return options.isTdsOrTcsName(uniqueName);
+    }
+    const row = (options?.taxArray || []).find((item: any) => item && item.uniqueName === uniqueName);
+    return isTdsOrTcsTaxType(row?.taxType);
+  };
+
+  const taxParts = partitionTdsAndOtherTaxes(taxNames, isTdsOrTcsName);
+  const groupParts = partitionTdsAndOtherTaxes(groupNames, isTdsOrTcsName);
+
+  let otherResolved: string[] = [];
+  const otherTaxes = taxParts.other;
+  const otherGroupTaxes = groupParts.other;
+  if (otherTaxes.length > 0 && otherGroupTaxes.length === 0) {
+    otherResolved = otherTaxes;
+  } else if (otherGroupTaxes.length > 0 && otherTaxes.length === 0) {
+    otherResolved = otherGroupTaxes;
+  } else if (otherTaxes.length > 0 && otherGroupTaxes.length > 0) {
+    if (otherTaxes.length === otherGroupTaxes.length) {
+      otherResolved = otherGroupTaxes.slice();
+    } else {
+      const groupSet = new Set(otherGroupTaxes);
+      otherResolved = otherTaxes.filter((name) => !groupSet.has(name));
+    }
+  }
+
+  const tdsResolved = uniquePreserveOrder([...taxParts.tds, ...groupParts.tds]);
+  return [...otherResolved, ...tdsResolved];
+};

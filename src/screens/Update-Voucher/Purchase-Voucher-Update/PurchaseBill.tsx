@@ -40,7 +40,7 @@ import { FONT_FAMILY } from '@/utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
-import { createEndpoint, formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
@@ -637,35 +637,13 @@ export class PurchaseBill extends React.Component<Props, State> {
   }
 
   resolveTaxAndGroupTaxNames(taxes: any, groupTaxes: any, opts?: { whenBothNonEmpty?: string }) {
-    const whenBoth = (opts && opts.whenBothNonEmpty) || 'intersection';
-    const toNames = (arr: any) => {
-      if (!Array.isArray(arr) || arr.length === 0) {
-        return [];
+    return resolveTaxAndGroupTaxUniqueNames(taxes, groupTaxes, {
+      taxArray: this.state?.taxArray || [],
+      isTdsOrTcsName: (uniqueName: string) => {
+        const details = this.getTaxDeatilsForUniqueName(uniqueName);
+        return this.isTdsOrTcsTaxType(details && details.taxType);
       }
-      return arr
-        .map((entry: any) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
-        .filter((name: any) => Boolean(name));
-    };
-    const t = toNames(taxes);
-    const g = toNames(groupTaxes);
-    if (t.length > 0 && g.length === 0) {
-      return t;
-    }
-    if (g.length > 0 && t.length === 0) {
-      return g;
-    }
-    if (t.length > 0 && g.length > 0) {
-      if (whenBoth === 'preferTaxes') {
-        return t;
-      }
-      const gSet = new Set(g);
-      const isSame = t.length === g.length && t.every((name: string) => gSet.has(name));
-      if (isSame) {
-        return t.slice();
-      }
-      return t.filter((name: string) => !gSet.has(name));
-    }
-    return [];
+    });
   }
 
   shouldSkipTaxDueToTdsTcsConflict(selectedTaxArray: any[], taxDetails: any) {

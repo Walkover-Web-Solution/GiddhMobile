@@ -41,7 +41,7 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
-import { createEndpoint, formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
 import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
@@ -842,37 +842,15 @@ export class SalesInvoice extends React.Component<Props> {
     return undefined;
   }
 
-  /** Same as AddEntry: stock uses preferTaxes when both set; line uses taxes minus groupTaxes when both differ. */
+  /** Non-TDS/TCS: same length → groupTaxes; otherwise taxes minus groupTaxes. TDS/TCS are unioned separately. */
   resolveTaxAndGroupTaxNames(taxes, groupTaxes, opts) {
-    const whenBoth = (opts && opts.whenBothNonEmpty) || 'intersection';
-    const toNames = (arr) => {
-      if (!Array.isArray(arr) || arr.length === 0) {
-        return [];
+    return resolveTaxAndGroupTaxUniqueNames(taxes, groupTaxes, {
+      taxArray: (this.state && this.state.taxArray) || (this.props && this.props.taxArray) || [],
+      isTdsOrTcsName: (uniqueName) => {
+        const details = this.getTaxDeatilsForUniqueName(uniqueName);
+        return this.isTdsOrTcsTaxType(details && details.taxType);
       }
-      return arr
-        .map((entry) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
-        .filter((name) => Boolean(name));
-    };
-    const t = toNames(taxes);
-    const g = toNames(groupTaxes);
-    if (t.length > 0 && g.length === 0) {
-      return t;
-    }
-    if (g.length > 0 && t.length === 0) {
-      return g;
-    }
-    if (t.length > 0 && g.length > 0) {
-      if (whenBoth === 'preferTaxes') {
-        return t;
-      }
-      const gSet = new Set(g);
-      const isSame = t.length === g.length && t.every((name) => gSet.has(name));
-      if (isSame) {
-        return t.slice();
-      }
-      return t.filter((name) => !gSet.has(name));
-    }
-    return [];
+    });
   }
 
   shouldSkipTaxDueToTdsTcsConflict(selectedTaxArray, taxDetails) {
