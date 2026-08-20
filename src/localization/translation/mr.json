@@ -186,7 +186,7 @@
     "Service Inventory": "सेवा इन्व्हेंटरी",
     "E-Way Bill": "ई-वे बिल",
     "Scan2 Invoice": "स्कॅन 2 इनव्हॉइस",
-    "Scan2Bill": "स्कॅन 2 बिल",
+    "Scan2Bill": "स्कॅन2 बिल",
     "Sales Invoice": "विक्री पावती",
     "Credit Note": "क्रेडिट नोट",
     "Purchase Bill": "खरेदी बिल",
@@ -200,6 +200,8 @@
     "Vouchers": "व्हाउचर"
   },
   "scan2": {
+    "invoiceScreenTitle": "स्कॅन2 इनव्हॉइस",
+    "billScreenTitle": "स्कॅन2 बिल",
     "uploadedBy": "अपलोड केले",
     "uploadedByPlaceholder": "अपलोड करणाऱ्याने शोधा",
     "convertedStatus": "कन्व्हर्टेड स्थिती",
@@ -229,6 +231,7 @@
     "uploadFailed": "दस्तऐवज अपलोड अयशस्वी",
     "uploadSourceTitle": "दस्तऐवज अपलोड करा",
     "createVoucherTitle": "व्हाउचर तयार करा",
+    "tapUploadedFileToCreateVoucher": "व्हाउचर तयार करण्यासाठी अपलोड केलेल्या फाइलवर टॅप करा",
     "createInvoice": "इनव्हॉइस तयार करा",
     "createCreditNote": "क्रेडिट नोट तयार करा",
     "createReceipt": "पावती तयार करा",

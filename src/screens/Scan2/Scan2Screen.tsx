@@ -318,7 +318,10 @@ const Scan2Screen = () => {
   const { styles, voucherBackground, statusBar } = useCustomTheme(getStyles, 'PdfPreview');
 
   const scanType = route?.params?.name ?? route?.params?.params?.name ?? 'Scan2 Invoice';
-  const title = t(`AddButton.${scanType}`, { defaultValue: scanType });
+  const title =
+    scanType === 'Scan2Bill'
+      ? t('scan2.billScreenTitle', { defaultValue: 'Scan2Bill' })
+      : t('scan2.invoiceScreenTitle', { defaultValue: 'Scan2Invoice' });
   const ocrType: 'income' | 'expense' = scanType === 'Scan2Bill' ? 'expense' : 'income';
   const documentActions = ocrType === 'expense' ? BILL_DOCUMENT_ACTIONS : INVOICE_DOCUMENT_ACTIONS;
 
@@ -1427,6 +1430,15 @@ const Scan2Screen = () => {
             }}
           />
         )}
+        {documents?.length > 0 && (
+          <View style={styles.hintBanner}>
+            <Text style={styles.hintText}>
+              {t('scan2.tapUploadedFileToCreateVoucher', {
+                defaultValue: 'Tap a Uploaded file to create voucher',
+              })}
+            </Text>
+          </View>
+        )}
         <View style={styles.container}>
           {documents?.length > 0 && <StickyDay stickyDayRef={stickyDayRef} />}
           <FlatList
@@ -1527,6 +1539,18 @@ const getStyles = (theme: ThemeProps) =>
       fontFamily: 'AvenirLTStd-Black',
       fontSize: 25,
       marginTop: 10,
+    },
+    hintBanner: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      backgroundColor: '#EEF4FF',
+    },
+    hintText: {
+      fontFamily: FONT_FAMILY.regular,
+      fontSize: 13,
+      lineHeight: 18,
+      color: '#265BB5',
+      textAlign: 'center',
     },
     searchButton: {
       padding: 8,

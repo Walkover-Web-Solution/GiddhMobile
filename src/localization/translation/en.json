@@ -185,8 +185,8 @@
     "Service Group": "Service Group",
     "Service Inventory": "Service Inventory",
     "E-Way Bill": "E-Way Bill",
-    "Scan2 Invoice": "Scan 2 Invoice",
-    "Scan2Bill": "Scan 2 Bill",
+    "Scan2 Invoice": "Scan2 Invoice",
+    "Scan2Bill": "Scan2Bill",
     "Sales Invoice": "Sales Invoice",
     "Credit Note": "Credit Note",
     "Purchase Bill": "Purchase Bill",
@@ -200,6 +200,8 @@
     "Vouchers": "Vouchers"
   },
   "scan2": {
+    "invoiceScreenTitle": "Scan2Invoice",
+    "billScreenTitle": "Scan2Bill",
     "uploadedBy": "Uploaded by",
     "uploadedByPlaceholder": "Search by uploader",
     "convertedStatus": "Converted status",
@@ -227,6 +229,7 @@
     "uploadFailed": "Document upload failed",
     "uploadSourceTitle": "Upload document",
     "createVoucherTitle": "Create voucher",
+    "tapUploadedFileToCreateVoucher": "Tap a Uploaded file to create voucher",
     "createInvoice": "Create Invoice",
     "createCreditNote": "Create Credit Note",
     "createReceipt": "Create Receipt",
