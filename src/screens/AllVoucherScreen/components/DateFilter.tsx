@@ -5,6 +5,7 @@ import { TouchableOpacity } from 'react-native';
 import moment from 'moment';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Entypo from 'react-native-vector-icons/Entypo'
+import Foundation from 'react-native-vector-icons/Foundation'
 import colors from '@/utils/colors';
 
 type Props = {
@@ -15,9 +16,24 @@ type Props = {
     disabled: boolean
     changeDate: (startDate: string, endDate: string) => void
     setActiveDateFilter: (activeDateFilter: string, dateMode: string) => void
+    onPressAdvancedFilter?: () => void
+    showAdvancedFilterIndicator?: boolean
+    /** Called just before navigating to AppDatePicker (e.g. to preserve parent screen state). */
+    onBeforeOpenDatePicker?: () => void
 }
 
-const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode, activeDateFilter, disabled, setActiveDateFilter }) => {
+const DateFilter: React.FC<Props> = ({
+    startDate,
+    endDate,
+    changeDate,
+    dateMode,
+    activeDateFilter,
+    disabled,
+    setActiveDateFilter,
+    onPressAdvancedFilter,
+    showAdvancedFilterIndicator = false,
+    onBeforeOpenDatePicker,
+}) => {
     const navigation = useNavigation();
 
     const dateShift = (shiftTo: 'right' | 'left') => {
@@ -76,15 +92,16 @@ const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode,
                 activeOpacity={0.7}
                 disabled={disabled}
                 style={styles.dateContainer}
-                onPress={() =>
+                onPress={() => {
+                    onBeforeOpenDatePicker?.();
                     navigation.navigate('AppDatePicker', {
                         selectDate: changeDate,
                         startDate: startDate,
                         endDate: endDate,
                         activeDateFilter: activeDateFilter,
                         setActiveDateFilter: setActiveDateFilter,
-                    })
-                }>
+                    });
+                }}>
                 <MaterialCommunityIcons name="calendar-month" size={22} color={'#808080'} />
                 <Text style={{ fontFamily: 'AvenirLTStd-Book', marginLeft: 5 }}>
                     {moment(startDate, 'DD-MM-YYYY').format('DD MMM YY') +
@@ -92,23 +109,36 @@ const DateFilter: React.FC<Props> = ({ startDate, endDate, changeDate, dateMode,
                         moment(endDate, 'DD-MM-YYYY').format('DD MMM YY')}
                 </Text>
             </TouchableOpacity>
-            <View style={styles.dateShiftButtonWrapper}>
-                <TouchableOpacity
-                    activeOpacity={0.7}
-                    disabled={disabled}
-                    style={styles.dateShiftButton}
-                    onPress={() => dateShift('left')}
-                >
-                    <Entypo name="chevron-left" size={22} color={'#808080'} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    activeOpacity={0.7}
-                    disabled={disabled}
-                    style={styles.dateShiftButton}
-                    onPress={() => dateShift('right')}
-                >
-                    <Entypo name="chevron-right" size={22} color={'#808080'} />
-                </TouchableOpacity>
+            <View style={styles.rightControls}>
+                <View style={styles.dateShiftButtonWrapper}>
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        disabled={disabled}
+                        style={styles.dateShiftButton}
+                        onPress={() => dateShift('left')}
+                    >
+                        <Entypo name="chevron-left" size={22} color={'#808080'} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        disabled={disabled}
+                        style={styles.dateShiftButton}
+                        onPress={() => dateShift('right')}
+                    >
+                        <Entypo name="chevron-right" size={22} color={'#808080'} />
+                    </TouchableOpacity>
+                </View>
+                {!!onPressAdvancedFilter && (
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        disabled={disabled}
+                        style={styles.advancedFilterButton}
+                        onPress={onPressAdvancedFilter}
+                    >
+                        <Foundation name="filter" size={22} color={'#808080'} />
+                        {showAdvancedFilterIndicator && <View style={styles.filterIndicator} />}
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     )
@@ -135,13 +165,29 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
     },
-    dateShiftButtonWrapper: { 
-        flexDirection: 'row', 
-        width: '20%', 
-        justifyContent: 'space-between', 
-        marginRight: -8 
+    rightControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    dateShiftButtonWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginRight: 6
     },
     dateShiftButton: {
         padding: 5
+    },
+    advancedFilterButton: {
+        padding: 5,
+        position: 'relative'
+    },
+    filterIndicator: {
+        position: 'absolute',
+        right: 2,
+        top: 2,
+        height: 7,
+        width: 7,
+        borderRadius: 4,
+        backgroundColor: '#E53935',
     }
 })
