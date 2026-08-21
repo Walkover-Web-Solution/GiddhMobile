@@ -1,9 +1,13 @@
 buildscript {
     ext {
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "36.0.0"
         minSdkVersion = 25
-        compileSdkVersion = 35
-        targetSdkVersion = 35
+        compileSdkVersion = 36
+        targetSdkVersion = 36
+        // react-native-loader-kit defaults to SDK 30 unless these are set
+        LoaderKit_compileSdkVersion = compileSdkVersion
+        LoaderKit_targetSdkVersion = targetSdkVersion
+        LoaderKit_minSdkVersion = minSdkVersion
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.0.21"
         googlePlayServicesAuthVersion = "18.0.0" // Google Sign in

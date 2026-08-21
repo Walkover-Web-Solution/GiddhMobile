@@ -70,7 +70,13 @@ const MoreOptions: React.FC<Props> = ({ moreOptionsRef, selectedVouchersForBotto
                                 style={styles.buttonIcon}
                                 onPress={() => {
                                     setSelectedVouchers((prevVouchers) => {
-                                        return [...prevVouchers.slice(1), voucher]
+                                        // Keep exactly 2 pinned vouchers. Ignore re-taps on an
+                                        // already-selected voucher so we never end up with duplicates
+                                        // (e.g. [Purchase, Purchase] when Purchase was already pinned).
+                                        if (prevVouchers.includes(voucher)) {
+                                            return prevVouchers;
+                                        }
+                                        return [...prevVouchers.slice(1), voucher];
                                     })
                                 }}
                             >

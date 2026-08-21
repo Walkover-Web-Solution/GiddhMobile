@@ -528,7 +528,7 @@ export class AddEntry extends React.Component<Props> {
         totalTaxAmount: taxAmount.toFixed(2),
         selectedTaxUniqueNameList: uniquenameArray
       })
-      if(this.state.tdsOrTcsTaxObj){
+      if(this.hasSelectedTdsOrTcsTax()){
         this.calculateFinalTcsOrTdsToDisplay(this.state.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount', Number(taxAmount.toFixed(2)));
       }
     } else {
@@ -547,7 +547,7 @@ export class AddEntry extends React.Component<Props> {
         totalTaxAmount: totalTax,
         selectedTaxUniqueNameList: uniquenameArray
       })
-      if(this.state.tdsOrTcsTaxObj){
+      if(this.hasSelectedTdsOrTcsTax()){
         this.calculateFinalTcsOrTdsToDisplay(this.state.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount', Number(totalTax));
       }
     }
@@ -1057,9 +1057,55 @@ export class AddEntry extends React.Component<Props> {
       .filter((name: any): name is string => Boolean(name));
   }
 
+  isTdsOrTcsTaxType(taxType: string) {
+    return (
+      taxType === 'tdspay' ||
+      taxType === 'tcspay' ||
+      taxType === 'tcsrc' ||
+      taxType === 'tdsrc'
+    );
+  }
+
+  /** True when the currently selected taxes include a TDS/TCS tax (regardless of whether its amount was already computed). */
+  hasSelectedTdsOrTcsTax() {
+    const taxDetailsArray = this.state?.SelectedTaxData?.taxDetailsArray;
+    if (!Array.isArray(taxDetailsArray)) {
+      return false;
+    }
+    return taxDetailsArray.some(
+      (item: any) => item?.taxType && this.isTdsOrTcsTaxType(item.taxType)
+    );
+  }
+
+  /** From a taxes/groupTaxes source (of uniqueNames or objects), keep only the TDS/TCS-type names. */
+  getTdsTcsNamesFromSource(source: any, taxArr: any[]) {
+    return this.taxNamesFromArray(source).filter((name) => {
+      const row = taxArr.find((t: any) => t?.uniqueName === name);
+      return row && this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /** From a taxes/groupTaxes source (of uniqueNames or objects), keep only the non-TDS/TCS names. */
+  getNonTdsTcsNamesFromSource(source: any, taxArr: any[]) {
+    return this.taxNamesFromArray(source).filter((name) => {
+      const row = taxArr.find((t: any) => t?.uniqueName === name);
+      return row && !this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /**
+   * Resolve linked taxes using two independent, parallel hierarchies so that account-level
+   * TDS/TCS is applied even when the stock only carries non-TDS/TCS taxes (e.g. GST).
+   *
+   * Both hierarchies walk the same sources in order:
+   *   stock.taxes -> stock.groupTaxes -> account.taxes -> account.groupTaxes
+   * - Non-TDS/TCS: the first source that contains a non-TDS/TCS tax wins.
+   * - TDS/TCS: the first source that contains a TDS/TCS wins; if none, fall back to
+   *   account-level applicableTaxes.
+   * The two results are merged so both types coexist regardless of where they were found.
+   */
   calculateHierarchicalTaxes(payload: any, taxArrInput?: any[]) {
     const taxArr = taxArrInput ?? this.state?.taxArray ?? [];
-    const toNames = (arr: any) => this.taxNamesFromArray(arr);
 
     const rowForName = (name: string) => {
       const row = taxArr.find((t: any) => t?.uniqueName === name);
@@ -1085,40 +1131,57 @@ export class AddEntry extends React.Component<Props> {
       }
     };
 
-    const stock = payload?.stock;
-    const stockHasAny =
-      (Array.isArray(stock?.taxes) && stock.taxes.length > 0) ||
-      (Array.isArray(stock?.groupTaxes) && stock.groupTaxes.length > 0);
+    // Ordered hierarchy sources: stock level first, then account level.
+    const sources: any[] = [];
+    if (payload?.stock) {
+      sources.push(payload.stock.taxes);
+      sources.push(payload.stock.groupTaxes);
+    }
+    sources.push(payload?.taxes);
+    sources.push(payload?.groupTaxes);
 
-    if (stockHasAny) {
-      const stockTaxNames = this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, {
-        whenBothNonEmpty: 'preferTaxes',
-      });
-      pushNames(stockTaxNames);
-      return details;
+    // Non-TDS/TCS hierarchy: first source with a non-TDS/TCS tax wins.
+    let nonTdsTcsNames: string[] = [];
+    for (let i = 0; i < sources.length; i++) {
+      const names = this.getNonTdsTcsNamesFromSource(sources[i], taxArr);
+      if (names.length > 0) {
+        nonTdsTcsNames = names;
+        break;
+      }
     }
 
-    const accountTaxNames = this.resolveTaxAndGroupTaxNames(payload?.taxes, payload?.groupTaxes, {
-      whenBothNonEmpty: 'intersection',
-    });
-    pushNames(accountTaxNames);
-
-    const groupNames = toNames(payload?.groupTaxes);
-    const groupTdsNames = groupNames.filter((name) => {
-      const row = rowForName(name);
-      if (!row?.taxType) {
-        return false;
+    // TDS/TCS hierarchy (independent): first source with a TDS/TCS wins, else fall back to
+    // account-level applicableTaxes. For a stock payload the party account's TDS/TCS is not
+    // present on the stock response, so also fall back to the selected (party) account's
+    // applicableTaxes (mirrors the "default account tax" fallback used in the voucher screens).
+    let tdsTcsNames: string[] = [];
+    for (let i = 0; i < sources.length; i++) {
+      const names = this.getTdsTcsNamesFromSource(sources[i], taxArr);
+      if (names.length > 0) {
+        tdsTcsNames = names;
+        break;
       }
-      return row.taxType.includes('tds') || row.taxType.includes('tcs');
-    });
-    pushNames(groupTdsNames);
+    }
+    if (tdsTcsNames.length === 0) {
+      tdsTcsNames = this.getTdsTcsNamesFromSource(payload?.applicableTaxes, taxArr);
+    }
+    if (tdsTcsNames.length === 0) {
+      tdsTcsNames = this.getTdsTcsNamesFromSource(
+        this.state?.selectedAccountData?.applicableTaxes,
+        taxArr
+      );
+    }
 
+    pushNames(nonTdsTcsNames);
+    pushNames(tdsTcsNames);
+
+    // Nothing resolved anywhere: fall back to account applicable/plain taxes.
     if (details.length === 0) {
-      const applicable = toNames(payload?.applicableTaxes);
+      const applicable = this.taxNamesFromArray(payload?.applicableTaxes);
       if (applicable.length > 0) {
         pushNames(applicable);
       } else {
-        pushNames(toNames(payload?.taxes));
+        pushNames(this.taxNamesFromArray(payload?.taxes));
       }
     }
 

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import AppNavigator from '@/navigation/app.navigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
-import { logout, renewAccessToken, reset } from '../redux/CommonAction';
+import { getCompanyDetails, logout, renewAccessToken, reset } from '../redux/CommonAction';
 import SplashScreen from 'react-native-splash-screen';
 import { getExpireInTime } from '@/utils/helper';
 import { APP_EVENTS, STORAGE_KEYS } from '@/utils/constants';
@@ -83,6 +83,11 @@ class BaseContainer extends Component {
       let expirationTimeInMiliSecond = (expirationTime.getTime()) - new Date().getTime();
       await this.setLogoutTimer(expirationTimeInMiliSecond);
       await this.addUserDeatilsToLogRocket();
+      // Fetch company details only after a valid logged-in session
+      // so balanceDecimalPlaces / formatting settings are available app-wide.
+      if (this.props.isUserAuthenticated) {
+        this.props.getCompanyDetails();
+      }
     } else {
       console.log('----- Logging Out -----');
       await this.props.logout();
@@ -116,6 +121,9 @@ function mapDispatchToProps(dispatch) {
     },
     reset: () => {
       dispatch(reset())
+    },
+    getCompanyDetails: () => {
+      dispatch(getCompanyDetails());
     }
   };
 }

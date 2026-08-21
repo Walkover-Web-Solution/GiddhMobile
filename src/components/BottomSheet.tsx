@@ -12,6 +12,7 @@ type Props = {
   children?: React.ReactNode;
   headerText: string;
   headerTextColor?: string;
+  headerSubText?: string;
   searchable?: boolean;
   searchValue?: string;
   onSearchChange?: (text: string) => void;
@@ -25,6 +26,14 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
     paddingBottom: 10, 
     fontSize: GD_FONT_SIZE.large,
     lineHeight: getLineHeight(theme.typography.fontSize.large),
+  },
+  headerSubText: {
+    fontFamily: FONT_FAMILY.regular,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    fontSize: theme.typography.fontSize.small.size,
+    lineHeight: getLineHeight(theme.typography.fontSize.small),
+    color: '#808080',
   },
   divider: {
     borderTopWidth: 1, 
@@ -54,6 +63,7 @@ const getStyles = (theme: ThemeProps) => StyleSheet.create({
 type HeaderProps = {
   headerText: string;
   headerTextColor?: string;
+  headerSubText?: string;
   searchable?: boolean;
   searchValue?: string;
   onSearchChange?: (text: string) => void;
@@ -62,7 +72,8 @@ type HeaderProps = {
 
 const BottomSheetHeader = memo<HeaderProps>(({ 
   headerText, 
-  headerTextColor, 
+  headerTextColor,
+  headerSubText,
   searchable = false, 
   searchValue = '', 
   onSearchChange, 
@@ -71,9 +82,12 @@ const BottomSheetHeader = memo<HeaderProps>(({
   const { theme, styles } = useCustomTheme(getStyles);
   return (
     <View style={{ marginTop: 20 }}>
-      <Text style={[styles.headerText, { color: headerTextColor ?? '#000000'}]}>
+      <Text style={[styles.headerText, { color: headerTextColor ?? '#000000', paddingBottom: headerSubText ? 4 : 10 }]}>
         {headerText}
       </Text>
+      {headerSubText ? (
+        <Text style={styles.headerSubText}>{headerSubText}</Text>
+      ) : null}
       {searchable && (
         <View style={styles.searchContainer}>
           <TextInput
@@ -96,7 +110,7 @@ const BottomSheetHeader = memo<HeaderProps>(({
 });
 
 const BottomSheet: React.FC<Props> = ({
-  children, headerText, headerTextColor, bottomSheetRef, searchable = false, searchValue = '', onSearchChange, searchPlaceholder = 'Search...', ...props
+  children, headerText, headerTextColor, headerSubText, bottomSheetRef, searchable = false, searchValue = '', onSearchChange, searchPlaceholder = 'Search...', ...props
 }) => {
   const insets = useSafeAreaInsets();
   return (
@@ -109,6 +123,7 @@ const BottomSheet: React.FC<Props> = ({
           <BottomSheetHeader
             headerText={headerText}
             headerTextColor={headerTextColor}
+            headerSubText={headerSubText}
             searchable={searchable}
             searchValue={searchValue}
             onSearchChange={onSearchChange}

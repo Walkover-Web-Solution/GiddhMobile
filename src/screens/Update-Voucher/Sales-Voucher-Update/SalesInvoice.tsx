@@ -698,6 +698,90 @@ export class SalesInvoice extends React.Component<Props, State> {
     );
   }
 
+  /** From a taxes/groupTaxes array (of uniqueNames or objects), keep only the TDS/TCS-type names. */
+  getTdsTcsNamesFromSource(source: any) {
+    if (!Array.isArray(source) || source.length === 0) {
+      return [];
+    }
+    const names = source
+      .map((entry: any) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+      .filter(Boolean);
+    return names.filter((name: any) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /**
+   * TDS/TCS follow their own hierarchy, independent of the non-TDS/TCS resolution:
+   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes -> account default.
+   * Only the first source that has a TDS/TCS is used.
+   */
+  resolveHierarchicalTdsTcsNames(itemDetails: any) {
+    const sources = [];
+    if (itemDetails.stock) {
+      sources.push(itemDetails.stock.taxes);
+      sources.push(itemDetails.stock.groupTaxes);
+    }
+    sources.push(itemDetails.taxes);
+    sources.push(itemDetails.groupTaxes);
+    for (let i = 0; i < sources.length; i++) {
+      const tdsTcs = this.getTdsTcsNamesFromSource(sources[i]);
+      if (tdsTcs.length > 0) {
+        return tdsTcs;
+      }
+    }
+    return this.getTdsTcsNamesFromSource(this.state.defaultAccountTax);
+  }
+
+  /** From a taxes/groupTaxes array (of uniqueNames or objects), keep only the non-TDS/TCS names. */
+  getNonTdsTcsNamesFromSource(source: any) {
+    if (!Array.isArray(source) || source.length === 0) {
+      return [];
+    }
+    const names = source
+      .map((entry: any) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+      .filter(Boolean);
+    return names.filter((name: any) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && !this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /**
+   * Non-TDS/TCS taxes follow their own hierarchy:
+   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes.
+   * Only the first source that has a non-TDS/TCS tax is used (TDS/TCS in that source are ignored here).
+   */
+  resolveHierarchicalNonTdsTcsNames(itemDetails: any) {
+    const sources = [];
+    if (itemDetails.stock) {
+      sources.push(itemDetails.stock.taxes);
+      sources.push(itemDetails.stock.groupTaxes);
+    }
+    sources.push(itemDetails.taxes);
+    sources.push(itemDetails.groupTaxes);
+    for (let i = 0; i < sources.length; i++) {
+      const nonTdsTcs = this.getNonTdsTcsNamesFromSource(sources[i]);
+      if (nonTdsTcs.length > 0) {
+        return nonTdsTcs;
+      }
+    }
+    return [];
+  }
+
+  /** True when the item's own sources (stock/line taxes & groupTaxes) contain a TDS/TCS, ignoring account defaults. */
+  itemHasOwnTdsTcs(itemDetails: any) {
+    const sources = [];
+    if (itemDetails.stock) {
+      sources.push(itemDetails.stock.taxes);
+      sources.push(itemDetails.stock.groupTaxes);
+    }
+    sources.push(itemDetails.taxes);
+    sources.push(itemDetails.groupTaxes);
+    return sources.some((src) => this.getTdsTcsNamesFromSource(src).length > 0);
+  }
+
   lineHasTaxHierarchyLinkage(itemDetails: any) {
     if (!itemDetails) {
       return false;
@@ -753,22 +837,12 @@ export class SalesInvoice extends React.Component<Props, State> {
 
   getHierarchicalResolvedTaxRows(itemDetails: any) {
     const taxArr = this.state.taxArray || [];
-    let resolvedNames: string[] = [];
-    if (itemDetails.stock) {
-      const stock = itemDetails.stock;
-      const stockHasAny =
-        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
-        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
-      resolvedNames = stockHasAny
-        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
-        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-            whenBothNonEmpty: 'intersection'
-          });
-    } else {
-      resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-        whenBothNonEmpty: 'intersection'
-      });
-    }
+    // Non-TDS/TCS and TDS/TCS each follow their own hierarchical scan
+    // (stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes), matching DefaultStockAndAccountTax.
+    const resolvedNames: string[] = [
+      ...this.resolveHierarchicalNonTdsTcsNames(itemDetails),
+      ...this.resolveHierarchicalTdsTcsNames(itemDetails)
+    ];
     const rows: any[] = [];
     for (let i = 0; i < resolvedNames.length; i++) {
       const row = taxArr.find((t: any) => t && t.uniqueName === resolvedNames[i]);
@@ -798,6 +872,14 @@ export class SalesInvoice extends React.Component<Props, State> {
   }
 
   getCanonicalTaxRowsForLine(itemDetails: any) {
+    if (itemDetails.taxesUserCleared) {
+      return [];
+    }
+    // Existing voucher lines use the getVoucher snapshot; manually changed
+    // taxes use the user's selection. Untouched new lines use stock/account defaults.
+    if (itemDetails.isNew === false || itemDetails.taxesUserModified) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray || []);
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(hierarchicalRows.map((r: any) => r && r.uniqueName).filter(Boolean));
 
@@ -815,7 +897,7 @@ export class SalesInvoice extends React.Component<Props, State> {
       (row: any) =>
         row &&
         row.uniqueName &&
-        hSet.has(row.uniqueName)
+        (hSet.has(row.uniqueName) || this.isTdsOrTcsTaxType(row.taxType))
     );
 
     return fromDetails.length > 0 ? this.dedupeTaxDetailRows(fromDetails) : hierarchicalRows;
@@ -1207,6 +1289,11 @@ console.log('details', details);
           }
         })
 
+        // Entry taxes contain unique names only, so load the tax master before
+        // mapping them. This also avoids stock/account defaults winning a race.
+        if (!this.state.taxArray?.length) {
+          await this.getAllTaxes();
+        }
         const addedItems = await this.mapEntriesToUIData(response.body.entries);
         this.updateTCSAndTDSTaxAmount(addedItems);
         this.setState({ addedItems });
@@ -1480,7 +1567,16 @@ console.log('details', details);
         if (results.body.currency != this.state.companyCountryDetails?.currency?.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
-        this.setDefaultAccountTax(results.body.applicableTaxes)
+        const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
+        const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
+        let taxesToApply;
+        if (applicableTaxes.length === otherApplicableTaxes.length) {
+          taxesToApply = applicableTaxes;
+        } else {
+          const otherTaxUniqueNames = otherApplicableTaxes.map((tax: any) => tax.uniqueName);
+          taxesToApply = applicableTaxes.filter((tax: any) => !otherTaxUniqueNames.includes(tax.uniqueName));
+        }
+        this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(addresses)
         const emptyAddress = {
@@ -2474,44 +2570,17 @@ console.log('details', details);
       }
     }
 
-    await this.setState({ addedItems: [...this.state.addedItems, ...updateAmountToCurrentCurrency] });
+    const mergedAddedItems = [...this.state.addedItems, ...updateAmountToCurrentCurrency];
+    await this.setState({ addedItems: mergedAddedItems });
     await this.setState({
       totalAmountInINR: (Math.round(this.getTotalAmount() * this.state.exchangeRate * 100) / 100).toFixed(2)
     });
-    await this.updateTCSAndTDSTaxAmount(updateAmountToCurrentCurrency);
+    await this.updateTCSAndTDSTaxAmount(mergedAddedItems);
   };
 
   calculateTdsOrTcsAmountToDisplay = (itemDetails) => {
     try {
-      let totalTcsorTdsTax = 0;
-      let totalTcsorTdsTaxName = '';
-      const discountAmount = Number(itemDetails?.discountValue);
-      let totalTaxableAmount = 0;
-      let amt = Number(itemDetails.rate) * Number(itemDetails.quantityText);
-      amt = amt - (discountAmount ? discountAmount : 0) ;
-      if (itemDetails?.taxDetailsArray && itemDetails?.taxDetailsArray?.length > 0) {
-        for (let i = 0; i < itemDetails?.taxDetailsArray?.length; i++) {
-          const item = itemDetails?.taxDetailsArray[i];
-          const taxPercent = Number(item.taxDetail[0].taxValue);
-          if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
-            if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
-              totalTaxableAmount = amt;
-            }else if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
-              totalTaxableAmount = amt + (itemDetails?.taxText ? Number(itemDetails?.taxText) : 0);
-            }
-            const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
-            totalTcsorTdsTax = taxAmount;
-            totalTcsorTdsTaxName = item.taxType;
-            break;
-          }
-        }
-      }
-      if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
-        const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
-        itemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
-      } else {
-        itemDetails.tdsOrTcsTaxObj = null;
-      }
+      itemDetails.tdsOrTcsTaxObj = this.computeLineTdsTcs(itemDetails);
       return itemDetails
     } catch (error) {
       console.log("errr", error);
@@ -2538,28 +2607,11 @@ console.log('details', details);
     let discountDetailsArray = editItemDetails.percentDiscountArray ? [...editItemDetails.percentDiscountArray] : [];
     let resolvedLinkedTaxNames: string[] = [];
 
-    if (itemDetails.stock) {
-      const stock = itemDetails.stock;
-      const stockHasAny =
-        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
-        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
-      const resolvedStockOrAccountNames = stockHasAny
-        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
-        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-            whenBothNonEmpty: 'intersection'
-          });
-      resolvedLinkedTaxNames = resolvedStockOrAccountNames.slice();
-      for (let i = 0; i < resolvedStockOrAccountNames.length; i++) {
-        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedStockOrAccountNames[i]);
-      }
-    } else {
-      const resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-        whenBothNonEmpty: 'intersection'
-      });
-      resolvedLinkedTaxNames = resolvedNames.slice();
-      for (let i = 0; i < resolvedNames.length; i++) {
-        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedNames[i]);
-      }
+    // Non-TDS/TCS taxes: hierarchical scan (stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes).
+    // First source that has a non-TDS/TCS tax wins; TDS/TCS are resolved separately below.
+    resolvedLinkedTaxNames = this.resolveHierarchicalNonTdsTcsNames(itemDetails);
+    for (let i = 0; i < resolvedLinkedTaxNames.length; i++) {
+      this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedLinkedTaxNames[i]);
     }
 
     // hsnNumber
@@ -2575,17 +2627,35 @@ console.log('details', details);
       }
     }
 
-    const accountHasTaxHierarchy = !itemDetails.stock && this.lineHasTaxHierarchyLinkage(itemDetails);
-    if (this.state.defaultAccountTax && !accountHasTaxHierarchy) {
+    const lineHasTdsTcsTax = this.itemHasOwnTdsTcs(itemDetails);
+
+    let resolvedLinkedTaxNamesForFilter = resolvedLinkedTaxNames.slice();
+    // Non-TDS/TCS account default taxes keep the existing behavior (added when the line has no TDS/TCS).
+    if (this.state.defaultAccountTax && !lineHasTdsTcsTax) {
       for (var i = 0; i < this.state.defaultAccountTax.length; i++) {
         this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, this.state.defaultAccountTax[i]);
+        resolvedLinkedTaxNamesForFilter.push(this.state.defaultAccountTax[i]);
       }
+    }
+
+    // TDS/TCS use their own hierarchy (stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes -> account).
+    // Drop any TDS/TCS added above so the hierarchical resolution is the single source of truth.
+    for (let i = taxDetailsArray.length - 1; i >= 0; i--) {
+      if (this.isTdsOrTcsTaxType(taxDetailsArray[i].taxType)) {
+        taxDetailsArray.splice(i, 1);
+        selectedTaxArray.splice(i, 1);
+      }
+    }
+    const hierarchicalTdsTcsNames = this.resolveHierarchicalTdsTcsNames(itemDetails);
+    for (let i = 0; i < hierarchicalTdsTcsNames.length; i++) {
+      this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, hierarchicalTdsTcsNames[i]);
+      resolvedLinkedTaxNamesForFilter.push(hierarchicalTdsTcsNames[i]);
     }
 
     const filtered = this.filterTaxDetailsByApplicableAndLinked(
       taxDetailsArray,
       selectedTaxArray,
-      resolvedLinkedTaxNames,
+      resolvedLinkedTaxNamesForFilter,
       editItemDetails
     );
     taxDetailsArray = filtered.taxDetailsArray;
@@ -3004,57 +3074,44 @@ console.log('details', details);
     return Number(totalTax.toFixed(2));
   }
 
-  calculatedTdsOrTcsTaxAmount(itemDetails) {
-    let totalTcsorTdsTax = 0;
-    let totalTcsorTdsTaxName = '';
-    let totalTaxableAmount = 0;
-    const taxArr = this.state.taxArray;
-    let amt = this.getTaxableAmountForItem(itemDetails);
-    if (itemDetails.taxDetailsArray && itemDetails.taxDetailsArray.length > 0) {
-      for (let i = 0; i < itemDetails.taxDetailsArray.length; i++) {
-        const item = itemDetails.taxDetailsArray[i];
-        const taxPercent = Number(item.taxDetail[0].taxValue);
-        if (item.taxType == 'tdspay' || item.taxType == 'tcspay' || item.taxType == 'tcsrc' || item.taxType == 'tdsrc') {
-          if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
-            totalTaxableAmount = amt;
-          }else if(itemDetails.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
-            totalTaxableAmount = amt + (itemDetails?.tax ? Number(itemDetails?.tax) : 0);
-          }
-          const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
-          totalTcsorTdsTax = taxAmount;
-          totalTcsorTdsTaxName = item.taxType;
-          break;
-        }
+  /** The single TDS/TCS tax row selected on a line, or null. Same source as the regular tax calc. */
+  getLineTdsTcsRow(itemDetails: any) {
+    const rows = this.getTaxRowsForCalculation(itemDetails);
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (row && row.taxDetail && row.taxDetail[0] && this.isTdsOrTcsTaxType(row.taxType)) {
+        return row;
       }
     }
-    if (itemDetails.stock != null && Array.isArray(itemDetails.stock.taxes) && itemDetails.stock.taxes.length > 0) {
-      for (let i = 0; i < itemDetails.stock.taxes.length; i++) {
-        const item = itemDetails.stock.taxes[i];
-        for (let j = 0; j < taxArr.length; j++) {
-          if (item == taxArr[j].uniqueName) {
-            const taxPercent = Number(taxArr[j].taxDetail[0].taxValue);
-            if ((taxArr[j].taxType == 'tdspay' || taxArr[j].taxType == 'tcspay' || taxArr[j].taxType == 'tcsrc' || taxArr[j].taxType == 'tdsrc')) {
-              if(itemDetails?.tdsTcsTaxCalculationMethod == 'OnTaxableAmount'){
-                totalTaxableAmount = amt;
-              }else if(itemDetails?.tdsTcsTaxCalculationMethod == 'OnTotalAmount'){
-                totalTaxableAmount = amt + (itemDetails?.tax ? Number(itemDetails?.tax) : 0);
-              }
-              const taxAmount = (taxPercent * Number(totalTaxableAmount)) / 100;
-              totalTcsorTdsTax = taxAmount;
-              totalTcsorTdsTaxName = taxArr[j].taxType;
-            }
-            break;
-          }
-        }
-      }
-    }
-    console.log('TCS Or TDS Tax is ' + totalTcsorTdsTax);
-    if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
-      const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
-      return tdsOrTcsTaxObj;
-    } else {
+    return null;
+  }
+
+  /**
+   * TDS/TCS amount for a single line, kept fully separate from the regular (GST) tax calc.
+   * Uses the same taxable base and source rows so both stay consistent across any number of items.
+   * Returns { name, amount } (amount as a 2-decimal string) or null.
+   */
+  computeLineTdsTcs(itemDetails: any) {
+    const row = this.getLineTdsTcsRow(itemDetails);
+    if (!row) {
       return null;
     }
+    const taxableAmount = this.getTaxableAmountForItem(itemDetails);
+    let base = taxableAmount;
+    if (itemDetails.tdsTcsTaxCalculationMethod === 'OnTotalAmount') {
+      const regularTax = Number(this.calculatedTaxAmount(itemDetails, 'taxAmount'));
+      base = taxableAmount + (Number.isFinite(regularTax) ? regularTax : 0);
+    }
+    const taxPercent = Number(row.taxDetail[0].taxValue);
+    const amount = (taxPercent * base) / 100;
+    if (!Number.isFinite(amount) || amount === 0) {
+      return null;
+    }
+    return { name: row.taxType, amount: amount.toFixed(2) };
+  }
+
+  calculatedTdsOrTcsTaxAmount(itemDetails) {
+    return this.computeLineTdsTcs(itemDetails);
   }
 
   // calculatedTaxAmount(itemDetails) {
@@ -3563,7 +3620,11 @@ console.log('details', details);
     item.sacNumber = selectedCode == 'sac' ? details.sacNumber : '';
     item.warehouse = Number(details.warehouse);
     item.discountDetails = details.discountDetails ? details.discountDetails : undefined;
+    const previousTaxNames = (item.taxDetailsArray || []).map((tax: any) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    const updatedTaxNames = (details.taxDetailsArray || []).map((tax: any) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    item.taxesUserModified = item.taxesUserModified || previousTaxNames !== updatedTaxNames;
     item.taxDetailsArray = details.taxDetailsArray;
+    item.taxesUserCleared = !details.taxDetailsArray || details.taxDetailsArray.length === 0;
     item.percentDiscountArray = details.percentDiscountArray ? details.percentDiscountArray : [];
     item.fixedDiscount = details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 };
     item.fixedDiscountUniqueName = details.fixedDiscountUniqueName ? details.fixedDiscountUniqueName : '';

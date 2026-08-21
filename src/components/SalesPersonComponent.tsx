@@ -6,23 +6,17 @@ import { CommonService } from "@/core/services/common/common.service";
 import { useTranslation } from "react-i18next";
 import InputField from "./InputField";
 import Toast from "./Toast";
-import SalesPersonIcon from 'react-native-vector-icons/FontAwesome5';import { FONT_FAMILY } from "@/utils/constants";
+import SalesPersonIcon from 'react-native-vector-icons/FontAwesome5'; import { FONT_FAMILY } from "@/utils/constants";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import { validateEmail, validatePhoneNumberWithRegion } from "@/utils/helper";
 import CountryPicker from "react-native-country-picker-modal";
 ;
 
-const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, themecolor}: {setSelectedSalesPerson: (salesPerson: any) => void, selectedSalesPerson: any, themecolor: string}) => {
+const SalesPersonComponent = ({ setSelectedSalesPerson, selectedSalesPerson, themecolor }: { setSelectedSalesPerson: (salesPerson: any) => void, selectedSalesPerson: any, themecolor: string }) => {
     const modalRef = useRef<Modalize>(null);
     const addSalesPersonModalRef = useRef<Modalize>(null);
     const [salesPersonData, setSalesPersonData] = useState<any[]>([]);
-    const [newSalesPersonObj, setNewSalesPersonObj] = useState<any>({});
-    const [countryDetails, setCountryDetails] = useState<any>({
-        countryCode: 'IN',
-        countryName: 'India',
-        countryCallingCode: '91',
-        countryFlag: '🇮🇳'
-    });
+        
     const { t } = useTranslation();
     const styles = style(themecolor);
 
@@ -31,41 +25,141 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
         setSalesPersonData(response?.body?.results);
     }
 
-    const createSalesPerson = async () => {
-        if(!validateTextInput()) {
-            return;
-        }
-        const response = await CommonService.createSalesPerson(newSalesPersonObj?.name, newSalesPersonObj?.email ?? "", newSalesPersonObj?.mobileNumber ? ('+' + countryDetails?.countryCallingCode + newSalesPersonObj?.mobileNumber) : "");
-        if(response?.status === "success") {
-            fetchSalesPersonData();
-            addSalesPersonModalRef.current?.close();
+    
+    const Content = () => {
+        
+        const [countryDetails, setCountryDetails] = useState<any>({
+            countryCode: 'IN',
+            countryName: 'India',
+            countryCallingCode: '91',
+            countryFlag: '🇮🇳'
+        });
+        const [newSalesPersonObj, setNewSalesPersonObj] = useState<any>({});
+        const [formResetKey, setFormResetKey] = useState(0);
+        const clearSalesPersonForm = () => {
             setNewSalesPersonObj({});
+            setFormResetKey((prev) => prev + 1);
             setCountryDetails({
                 countryCode: 'IN',
                 countryName: 'India',
                 countryCallingCode: '91',
                 countryFlag: '🇮🇳'
             });
-        } else {
-            Toast({message: response?.message, position:'BOTTOM',duration:'LONG'});
-        }
-    }
+        };
 
-    const validateTextInput = () => {
-        if(!newSalesPersonObj?.name || newSalesPersonObj?.name?.length < 3) {
-            Toast({message: t('common.enterValidName'), position:'BOTTOM',duration:'LONG'});
-            return false;
+        const createSalesPerson = async () => {
+            if (!validateTextInput()) {
+                return;
+            }
+            const response = await CommonService.createSalesPerson(newSalesPersonObj?.name, newSalesPersonObj?.email ?? "", newSalesPersonObj?.mobileNumber ? ('+' + countryDetails?.countryCallingCode + newSalesPersonObj?.mobileNumber) : "");
+            if (response?.status === "success") {
+                fetchSalesPersonData();
+                addSalesPersonModalRef.current?.close();
+                clearSalesPersonForm();
+            } else {
+                Toast({ message: response?.message, position: 'BOTTOM', duration: 'LONG' });
+            }
         }
-        if(newSalesPersonObj?.email && !validateEmail(newSalesPersonObj?.email)) {
-                Toast({message: t('common.enterValidEmail'), position:'BOTTOM',duration:'LONG'});
+    
+        const validateTextInput = () => {
+            if (!newSalesPersonObj?.name || newSalesPersonObj?.name?.length < 3) {
+                Toast({ message: t('common.enterValidName'), position: 'BOTTOM', duration: 'LONG' });
                 return false;
             }
-        if(newSalesPersonObj?.mobileNumber && !validatePhoneNumberWithRegion(('+' + countryDetails?.countryCallingCode + newSalesPersonObj?.mobileNumber), countryDetails?.countryCode ?? 'IN')) {
-            Toast({message: t('common.enterValidPhoneNumber'), position:'BOTTOM',duration:'LONG'});
-            return false;
+            if (newSalesPersonObj?.email && !validateEmail(newSalesPersonObj?.email)) {
+                Toast({ message: t('common.enterValidEmail'), position: 'BOTTOM', duration: 'LONG' });
+                return false;
+            }
+            if (newSalesPersonObj?.mobileNumber && !validatePhoneNumberWithRegion(('+' + countryDetails?.countryCallingCode + newSalesPersonObj?.mobileNumber), countryDetails?.countryCode ?? 'IN')) {
+                Toast({ message: t('common.enterValidPhoneNumber'), position: 'BOTTOM', duration: 'LONG' });
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
+    
+
+
+        return (
+          <>
+              <View style={{ paddingHorizontal: 16, marginTop: 10 }}>
+                    <InputField
+                        lable={t('common.enterSalesPersonName')}
+                        containerStyle={{ marginVertical: 5 }}
+                        placeholder={t('common.enterSalesPersonName')}
+                        value={newSalesPersonObj?.name || ''}
+                        resetKey={formResetKey}
+                        onChangeText={(text) => {
+                            setNewSalesPersonObj({ ...newSalesPersonObj, name: text });
+                        }}
+                    />
+                    <InputField
+                        lable={t('common.enterSalesPersonEmail')}
+                        containerStyle={{ marginVertical: 5 }}
+                        keyboardType="email-address"
+                        placeholder={t('common.enterSalesPersonEmail')}
+                        value={newSalesPersonObj?.email || ''}
+                        resetKey={formResetKey}
+                        onChangeText={(text) => {
+                            setNewSalesPersonObj({ ...newSalesPersonObj, email: text });
+                        }}
+                        isRequired={false}
+                    />
+                    <InputField
+                        value={newSalesPersonObj?.mobileNumber || ''}
+                        lable={t('common.enterSalesPersonPhone')}
+                        placeholder={t('common.enterSalesPersonPhone')}
+                        resetKey={formResetKey}
+                        validate={(text) => validatePhoneNumberWithRegion(('+' + countryDetails?.countryCallingCode + text), countryDetails?.countryCode ?? 'IN')}
+                        customErrorMessage={t('common.enterValidMobileNumber')}
+                        errorStyle={styles.errorStyle}
+                        leftIcon={
+                            <CountryPicker
+                                onSelect={(country) => {
+                                    setCountryDetails({
+                                        countryCode: country?.cca2,
+                                        countryName: country?.name,
+                                        countryCallingCode: country?.callingCode,
+                                        countryFlag: country?.flag
+                                    });
+                                }}
+                                countryCode={countryDetails?.countryCode}
+                                withFilter
+                                withFlag
+                                withEmoji
+                                containerButtonStyle={{ paddingTop: 0, paddingLeft: 6 }}
+                                withCloseButton={false}
+                                // @ts-ignore
+                                flatListProps={{ style: { paddingHorizontal: 15 } }}
+                                filterProps={{ style: styles.pickerFilterStyle }}
+                            />
+                        }
+                        keyboardType={'numeric'}
+                        containerStyle={{ marginVertical: 5 }}
+                        onChangeText={(text: string) => {
+                            setNewSalesPersonObj({ ...newSalesPersonObj, mobileNumber: text });
+                        }}
+                        isRequired={false}
+                    />
+                </View>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        style={styles.clearButton}
+                        onPress={clearSalesPersonForm}>
+                        <Text style={styles.clearButtonText}>{t('common.clear')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        style={styles.clearButton}
+                        onPress={() => {
+                            createSalesPerson();
+                        }}>
+                        <Text style={styles.clearButtonText}>{t('common.create')}</Text>
+                    </TouchableOpacity>
+                </View>   
+          </>
+        )
+      }
 
     return (
         <>
@@ -92,7 +186,7 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                             setSelectedSalesPerson(item);
                             modalRef.current?.close();
                         }}
-                        style={styles.salesPersonItem}
+                            style={styles.salesPersonItem}
                         >
                             <Text style={styles.salesPersonItemText}>{item.name}</Text>
                         </TouchableOpacity>
@@ -104,9 +198,9 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                         return <TouchableOpacity onPress={() => {
                             addSalesPersonModalRef.current?.open();
                         }}
-                        activeOpacity={0.7}
+                            activeOpacity={0.7}
                         >
-                            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 18}}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 18 }}>
                                 <Text style={styles.createNewText}>{t('common.createNew')}</Text>
                                 <AntDesign name={'plus'} size={20} color={themecolor} />
                             </View>
@@ -114,6 +208,8 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                     }
                 }}
             />
+            
+            
             <BottomSheet
                 bottomSheetRef={addSalesPersonModalRef}
                 headerText={t('common.createNewSalesPerson')}
@@ -121,89 +217,11 @@ const SalesPersonComponent = ({setSelectedSalesPerson, selectedSalesPerson, them
                 scrollViewProps={{
                     keyboardShouldPersistTaps: 'handled'
                 }}
-                >
-                <View style={{paddingHorizontal: 16, marginTop: 10}}>
-                    <InputField
-                        lable={t('common.enterSalesPersonName')}
-                        containerStyle={{marginVertical:5}}
-                        placeholder={t('common.enterSalesPersonName')}
-                        value={newSalesPersonObj?.name || ''}
-                        onChangeText={(text) => {
-                            setNewSalesPersonObj({...newSalesPersonObj, name: text});
-                        }}
-                    />
-                    <InputField
-                        lable={t('common.enterSalesPersonEmail')}
-                        containerStyle={{marginVertical:5}}
-                        keyboardType="email-address"
-                        placeholder={t('common.enterSalesPersonEmail')}
-                        value={newSalesPersonObj?.email || ''}
-                        onChangeText={(text) => {
-                            setNewSalesPersonObj({...newSalesPersonObj, email: text});
-                        }}
-                        isRequired={false}
-                    />
-                    <InputField
-                        value={newSalesPersonObj?.mobileNumber || ''}
-                        lable={t('common.enterSalesPersonPhone')}
-                        placeholder={t('common.enterSalesPersonPhone')}
-                        validate={(text) => validatePhoneNumberWithRegion(('+' + countryDetails?.countryCallingCode + text), countryDetails?.countryCode ?? 'IN')}
-                        customErrorMessage={t('common.enterValidMobileNumber')}
-                        errorStyle={styles.errorStyle}
-                        leftIcon={
-                            <CountryPicker
-                                onSelect={(country) => {
-                                    setCountryDetails({
-                                        countryCode: country?.cca2,
-                                        countryName: country?.name,
-                                        countryCallingCode: country?.callingCode,
-                                        countryFlag: country?.flag
-                                    });
-                                }}
-                                countryCode={countryDetails?.countryCode}
-                                withFilter
-                                withFlag
-                                withEmoji
-                                containerButtonStyle={{ paddingTop: 0, paddingLeft: 6 }}
-                                withCloseButton={false}
-                                // @ts-ignore
-                                flatListProps={{style: {paddingHorizontal: 15}}}
-                                filterProps={{style: styles.pickerFilterStyle}}
-                            />
-                        }
-                        keyboardType={'numeric'}
-                        containerStyle={{marginVertical:5}}
-                        onChangeText={(text: string) => {
-                            setNewSalesPersonObj({...newSalesPersonObj, mobileNumber: text});
-                        }}
-                        isRequired={false}
-                    />
-                </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity 
-                    activeOpacity={0.7}
-                     style={styles.clearButton}
-                        onPress={() => {
-                        setNewSalesPersonObj({});
-                        setCountryDetails({
-                            countryCode: 'IN',
-                            countryName: 'India',
-                            countryCallingCode: '91',
-                            countryFlag: '🇮🇳'
-                        });
-                    }}>
-                        <Text style={styles.clearButtonText}>{t('common.clear')}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                    activeOpacity={0.7}
-                    style={styles.clearButton}
-                        onPress={() => {
-                        createSalesPerson();
-                    }}>
-                        <Text style={styles.clearButtonText}>{t('common.create')}</Text>
-                    </TouchableOpacity>
-                </View>
+            >
+                <Content />
             </BottomSheet>
+
+
         </>
     )
 }
@@ -248,7 +266,7 @@ const style = (themecolor: any) => StyleSheet.create({
         backgroundColor: themecolor,
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical:7
+        marginVertical: 7
     },
     clearButtonText: {
         fontFamily: FONT_FAMILY.bold,
@@ -259,7 +277,7 @@ const style = (themecolor: any) => StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 18,
-        alignItems:'center',
+        alignItems: 'center',
         marginTop: 10
     },
     emptyContainer: {

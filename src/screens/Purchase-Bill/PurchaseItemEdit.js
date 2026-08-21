@@ -76,17 +76,29 @@ class PurchaseItemEdit extends Component {
         taxText: this.props.itemDetails.tax ? this.props.itemDetails.tax : 0,
         warehouse: this.props.itemDetails.warehouse ? this.props.itemDetails.warehouse : '',
         total: this.props.itemDetails.total ? this.props.itemDetails.total : 0,
-        discountDetails: this.props.itemDetails.discountDetails ? this.props.itemDetails.discountDetails : {},
+        discountDetails: this.props.itemDetails.discountDetails
+          ? { ...this.props.itemDetails.discountDetails }
+          : {},
         taxDetailsArray: sanitizedTaxDetails,
+        // Clone discount state so Back without Done does not mutate the parent line item
         percentDiscountArray: this.props.itemDetails.percentDiscountArray
-          ? this.props.itemDetails.percentDiscountArray
+          ? this.props.itemDetails.percentDiscountArray.map((d) => ({ ...d }))
           : [],
-        fixedDiscount: this.props.itemDetails.fixedDiscount ? this.props.itemDetails.fixedDiscount : { discountValue: 0 },
+        fixedDiscount: this.props.itemDetails.fixedDiscount
+          ? {
+              ...this.props.itemDetails.fixedDiscount,
+              // TextInput is controlled and requires a string; copied vouchers often pass a number,
+              // which makes RN ignore `value` and only show the placeholder.
+              discountValue: String(this.props.itemDetails.fixedDiscount.discountValue ?? '')
+            }
+          : { discountValue: '' },
         fixedDiscountUniqueName: this.props.itemDetails.fixedDiscountUniqueName
           ? this.props.itemDetails.fixedDiscountUniqueName
           : '',
         tdsTcsTaxCalculationMethod: this.props.itemDetails?.tdsTcsTaxCalculationMethod ?? 'OnTaxableAmount',
-        tdsOrTcsTaxObj: this.props.itemDetails?.tdsOrTcsTaxObj ?? null
+        tdsOrTcsTaxObj: this.props.itemDetails?.tdsOrTcsTaxObj
+          ? { ...this.props.itemDetails.tdsOrTcsTaxObj }
+          : null
       }
     };
     this.keyboardMargin = new Animated.Value(0);
@@ -146,6 +158,78 @@ class PurchaseItemEdit extends Component {
     );
   }
 
+  /** From a taxes/groupTaxes array (of uniqueNames or objects), keep only the TDS/TCS-type names. */
+  getTdsTcsNamesFromSource(source) {
+    if (!Array.isArray(source) || source.length === 0) {
+      return [];
+    }
+    const names = source
+      .map((entry) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+      .filter(Boolean);
+    return names.filter((name) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /** From a taxes/groupTaxes array (of uniqueNames or objects), keep only the non-TDS/TCS names. */
+  getNonTdsTcsNamesFromSource(source) {
+    if (!Array.isArray(source) || source.length === 0) {
+      return [];
+    }
+    const names = source
+      .map((entry) => (typeof entry === 'string' ? entry : entry && entry.uniqueName))
+      .filter(Boolean);
+    return names.filter((name) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && !this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /**
+   * Non-TDS/TCS taxes follow their own hierarchy:
+   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes.
+   * First source that has a non-TDS/TCS tax wins (TDS/TCS in that source are ignored here).
+   */
+  resolveHierarchicalNonTdsTcsNames(itemDetails) {
+    const sources = [];
+    if (itemDetails.stock) {
+      sources.push(itemDetails.stock.taxes);
+      sources.push(itemDetails.stock.groupTaxes);
+    }
+    sources.push(itemDetails.taxes);
+    sources.push(itemDetails.groupTaxes);
+    for (let i = 0; i < sources.length; i++) {
+      const nonTdsTcs = this.getNonTdsTcsNamesFromSource(sources[i]);
+      if (nonTdsTcs.length > 0) {
+        return nonTdsTcs;
+      }
+    }
+    return [];
+  }
+
+  /**
+   * TDS/TCS follow their own hierarchy:
+   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes.
+   * First source that has a TDS/TCS wins.
+   */
+  resolveHierarchicalTdsTcsNames(itemDetails) {
+    const sources = [];
+    if (itemDetails.stock) {
+      sources.push(itemDetails.stock.taxes);
+      sources.push(itemDetails.stock.groupTaxes);
+    }
+    sources.push(itemDetails.taxes);
+    sources.push(itemDetails.groupTaxes);
+    for (let i = 0; i < sources.length; i++) {
+      const tdsTcs = this.getTdsTcsNamesFromSource(sources[i]);
+      if (tdsTcs.length > 0) {
+        return tdsTcs;
+      }
+    }
+    return [];
+  }
+
   lineHasTaxHierarchyLinkage(itemDetails) {
     if (!itemDetails) {
       return false;
@@ -165,22 +249,12 @@ class PurchaseItemEdit extends Component {
 
   getHierarchicalResolvedTaxRows(itemDetails) {
     const taxArr = this.props.taxArray || [];
-    let resolvedNames = [];
-    if (itemDetails.stock) {
-      const stock = itemDetails.stock;
-      const stockHasAny =
-        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
-        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
-      resolvedNames = stockHasAny
-        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
-        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-            whenBothNonEmpty: 'intersection',
-          });
-    } else {
-      resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-        whenBothNonEmpty: 'intersection',
-      });
-    }
+    // Non-TDS/TCS and TDS/TCS each follow their own hierarchical scan
+    // (stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes), matching PurchaseBill.
+    const resolvedNames = [
+      ...this.resolveHierarchicalNonTdsTcsNames(itemDetails),
+      ...this.resolveHierarchicalTdsTcsNames(itemDetails)
+    ];
     const rows = [];
     for (let i = 0; i < resolvedNames.length; i++) {
       const row = taxArr.find((t) => t && t.uniqueName === resolvedNames[i]);
@@ -210,6 +284,14 @@ class PurchaseItemEdit extends Component {
   }
 
   getCanonicalTaxRowsForLine(itemDetails) {
+    if (itemDetails.taxesUserCleared) {
+      return [];
+    }
+    // Keep copied-voucher and manually selected taxes instead of replacing
+    // them with current stock/account defaults.
+    if (itemDetails.isNew === false || itemDetails.taxesUserModified) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray || []);
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(hierarchicalRows.map((r) => r && r.uniqueName).filter(Boolean));
 
@@ -251,6 +333,9 @@ class PurchaseItemEdit extends Component {
   }
 
   sanitizeTaxDetailsForEdit(lineItem, taxDetailsArray) {
+    if (lineItem && lineItem.taxesUserCleared) {
+      return [];
+    }
     const arr = Array.isArray(taxDetailsArray) ? taxDetailsArray.slice() : [];
     if (arr.length === 0 && lineItem && Array.isArray(lineItem.taxDetailsArray) && lineItem.taxDetailsArray.length > 0) {
       return lineItem.taxDetailsArray.slice();
@@ -644,8 +729,10 @@ class PurchaseItemEdit extends Component {
           : 0
     );
     const discountValue = computedDiscount > 0 ? computedDiscount : Number.isFinite(storedDiscount) ? storedDiscount : 0;
-    const qtyRaw = e.quantityText != null && e.quantityText !== '' ? e.quantityText : base.quantity;
-    const rateRaw = e.rateText != null && e.rateText !== '' ? e.rateText : base.rate;
+    // A cleared field means zero. The saved line is only a fallback for state
+    // that has not been initialised yet.
+    const qtyRaw = e.quantityText === '' ? 0 : e.quantityText != null ? e.quantityText : base.quantity;
+    const rateRaw = e.rateText === '' ? 0 : e.rateText != null ? e.rateText : base.rate;
     return {
       ...base,
       quantityText: qtyRaw,
@@ -799,13 +886,13 @@ class PurchaseItemEdit extends Component {
     return finalAmt;
   }
 
-  calculateFinalTcsOrTdsToDisplay() {
-    const editItemDetails = this.state.editItemDetails;
+  calculateFinalTcsOrTdsToDisplay(editItemDetailsParam) {
+    const editItemDetails = editItemDetailsParam || this.state.editItemDetails;
     let totalTcsorTdsTax = 0;
     let totalTcsorTdsTaxName = '';
     const discountAmount = this.calculateDiscountedAmountToDisplayTotalAmount(editItemDetails);
     let totalTaxableAmount = 0;
-    let amt = Number(this.state.editItemDetails.rateText) * Number(editItemDetails.quantityText);
+    let amt = this.getLineQtyForItem(editItemDetails) * this.getLineRateForItem(editItemDetails);
     amt = amt - (discountAmount ? discountAmount : 0) ;
 
     if (editItemDetails.taxDetailsArray && editItemDetails.taxDetailsArray.length > 0) {
@@ -826,13 +913,14 @@ class PurchaseItemEdit extends Component {
       }
     }
     if (totalTcsorTdsTaxName != '' && totalTcsorTdsTax != 0) {
-      const tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
-      editItemDetails.tdsOrTcsTaxObj = tdsOrTcsTaxObj
-      this.setState({ editItemDetails: editItemDetails });
+      editItemDetails.tdsOrTcsTaxObj = { name: totalTcsorTdsTaxName, amount: totalTcsorTdsTax.toFixed(2) };
     } else {
       editItemDetails.tdsOrTcsTaxObj = null;
-      this.setState({ editItemDetails: editItemDetails});
     }
+    if (!editItemDetailsParam) {
+      this.setState({ editItemDetails });
+    }
+    return editItemDetails;
   }
 
   _renderDiscounts() {
@@ -859,23 +947,17 @@ class PurchaseItemEdit extends Component {
                         const itemDetails = this.state.editItemDetails;
                         itemDetails.fixedDiscount = { discountValue: 0 };
                         itemDetails.fixedDiscountUniqueName = '';
-                        const total = this.calculateFinalAmount(itemDetails);
-                        itemDetails.total = total;
+                        this.refreshLineAmounts(itemDetails);
+                        this.calculateFinalTcsOrTdsToDisplay(itemDetails);
                         this.setState({ fixedDiscountSelected: false, editItemDetails: itemDetails });
                       }
-                      console.log('didnt select');
                     } else {
                       const itemDetails = this.state.editItemDetails;
                       itemDetails.fixedDiscount = item;
                       itemDetails.fixedDiscountUniqueName = item.uniqueName;
-                      const total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      // itemDetails.discountType = item.discountType == 'FIX_AMOUNT' ? 'Fixed' : 'Percentage %';
-                      // let discount = this.calculateDiscountedAmount(itemDetails);
-                      // itemDetails.discountPercentageText = String(discount);
-                      // let total = this.calculateFinalAmount(itemDetails);
-                      // itemDetails.total = total;
-                      this.setState({ editItemDetails: itemDetails, fixedDiscountSelected: true }, () => { });
+                      this.refreshLineAmounts(itemDetails);
+                      this.calculateFinalTcsOrTdsToDisplay(itemDetails);
+                      this.setState({ editItemDetails: itemDetails, fixedDiscountSelected: true });
                     }
                   } else {
                     const selectedDiscountArray = this.state.editItemDetails.percentDiscountArray;
@@ -883,24 +965,22 @@ class PurchaseItemEdit extends Component {
                       if (o.uniqueName == item.uniqueName) return o;
                     });
                     if (filtered.length == 0) {
-                      // console.log('this should run');
                       const itemDetails = this.state.editItemDetails;
-                      itemDetails.percentDiscountArray.push(item);
-                      const total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      this.setState({ editItemDetails: itemDetails }, () => { });
+                      itemDetails.percentDiscountArray = [...itemDetails.percentDiscountArray, item];
+                      this.refreshLineAmounts(itemDetails);
+                      this.calculateFinalTcsOrTdsToDisplay(itemDetails);
+                      this.setState({ editItemDetails: itemDetails });
                     } else {
                       const newArr = _.filter(selectedDiscountArray, function (o) {
                         if (o.uniqueName !== item.uniqueName) return o;
                       });
                       const itemDetails = this.state.editItemDetails;
                       itemDetails.percentDiscountArray = newArr;
-                      const total = this.calculateFinalAmount(itemDetails);
-                      itemDetails.total = total;
-                      this.setState({ editItemDetails: itemDetails }, () => { });
+                      this.refreshLineAmounts(itemDetails);
+                      this.calculateFinalTcsOrTdsToDisplay(itemDetails);
+                      this.setState({ editItemDetails: itemDetails });
                     }
                   }
-                  this.calculateFinalAmount(this.state.editItemDetails);
                 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View
@@ -1050,7 +1130,7 @@ class PurchaseItemEdit extends Component {
               : this.state.editItemDetails.sacNumber
           }
           keyboardType={'number-pad'}
-          style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16 }}
+          style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1, width: '42%', marginRight: 16 }]}
           // editable={false}
           onChangeText={(text) => {
             const item = this.state.editItemDetails;
@@ -1163,19 +1243,19 @@ class PurchaseItemEdit extends Component {
         break;
     }
     this.refreshLineAmounts(editItemDetails);
-    this.calculateFinalTcsOrTdsToDisplay();
+    this.calculateFinalTcsOrTdsToDisplay(editItemDetails);
     this.setState({ editItemDetails: { ...editItemDetails } });
   }
 
   fixedDiscountValueChange = (text) => {
     const editItemDetails = { ...this.state.editItemDetails };
     editItemDetails.fixedDiscount = {
-      ...editItemDetails.fixedDiscount,
+      ...(editItemDetails.fixedDiscount || {}),
       discountValue: text,
     };
     this.refreshLineAmounts(editItemDetails);
-    this.calculateFinalTcsOrTdsToDisplay();
-    this.setState({ editItemDetails });
+    this.calculateFinalTcsOrTdsToDisplay(editItemDetails);
+    this.setState({ editItemDetails: { ...editItemDetails } });
   };
 
   _renderTwoFieldsTextInput(
@@ -1204,7 +1284,7 @@ class PurchaseItemEdit extends Component {
             keyboardType={keyboardType1}
             editable={editable1}
             returnKeyType={'done'}
-            style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+            style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1 }]}
             onChangeText={(text) => {
               this.onChangeTextBottomItemSheet(text, field1);
             }}
@@ -1238,7 +1318,7 @@ class PurchaseItemEdit extends Component {
                 placeholderTextColor={'#808080'}
                 value={field2Value}
                 keyboardType={keyboardType2}
-                style={{ borderColor: '#D9D9D9', borderBottomWidth: 1, color: 'black' }}
+                style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1, color: 'black' }]}
                 editable={false}
                 onChangeText={(text) => {
                   this.onChangeTextBottomItemSheet(text, field2);
@@ -1257,7 +1337,7 @@ class PurchaseItemEdit extends Component {
               placeholderTextColor={'#808080'}
               value={field2Value}
               keyboardType={keyboardType2}
-              style={{ borderColor: '#D9D9D9', borderBottomWidth: 1 }}
+              style={[style.itemFieldValue, { borderColor: '#D9D9D9', borderBottomWidth: 1 }]}
               editable={editable2}
               onChangeText={(text) => {
                 this.onChangeTextBottomItemSheet(text, field2);
@@ -1403,15 +1483,14 @@ class PurchaseItemEdit extends Component {
             <View style={{ flex: 1 }}>
               <Text>{this.props.t('purchaseItemEdit.fixedDiscount')}:</Text>
               <TextInput
-                placeholder={`${this.state.editItemDetails.fixedDiscount.discountValue}`}
+                placeholder={'0'}
                 keyboardType={'number-pad'}
                 placeholderTextColor={'#808080'}
-                style={{ paddingTop: 8, paddingBottom: 6, flex: 1 }}
-                value={this.state.editItemDetails.fixedDiscount.discountValue}
+                style={[style.itemFieldValue, { paddingTop: 8, paddingBottom: 6, flex: 1 }]}
+                value={String(this.state.editItemDetails.fixedDiscount?.discountValue ?? '')}
                 // returnKeyType={'done'}
                 onChangeText={(text) => {
-                  this.fixedDiscountValueChange(text)
-                  this.calculateFinalTcsOrTdsToDisplay(this.state.editItemDetails)
+                  this.fixedDiscountValueChange(text);
                 }}
               />
               {this._renderBottomSeprator(8)}
@@ -1468,7 +1547,7 @@ class PurchaseItemEdit extends Component {
           {this._renderBottomSeprator()}
         </View>
         <View style={{ marginHorizontal: 16, flex: 1, paddingTop: 16, paddingBottom: 8 }}>
-          <Text style={{ paddingTop: 16 }}>
+          <Text style={[style.itemFieldValue, { paddingTop: 16 }]}>
             {Number(this.state.editItemDetails.taxText || 0).toFixed(2)}
           </Text>
           {/* <TextInput
