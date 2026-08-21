@@ -304,14 +304,16 @@ const uniquePreserveOrder = (names: string[]): string[] => {
  * GST/cess and other non-TDS/TCS taxes:
  * - only taxes → use taxes
  * - only groupTaxes → use groupTaxes
- * - same length → use all groupTaxes
- * - taxes longer → use taxes minus groupTaxes
+ * - both non-empty + whenBothNonEmpty === 'preferTaxes' → use taxes (stock overrides group)
+ * - both non-empty (default/intersection):
+ *     same uniqueNames → taxes; otherwise taxes minus groupTaxes (account/line extras / overrides)
  * TDS/TCS are excluded from that compare and unioned from both lists.
  */
 export const resolveTaxAndGroupTaxUniqueNames = (
   taxes: any,
   groupTaxes: any,
   options?: {
+    whenBothNonEmpty?: 'intersection' | 'preferTaxes';
     taxArray?: any[];
     isTdsOrTcsName?: (uniqueName: string) => boolean;
   }
@@ -337,11 +339,18 @@ export const resolveTaxAndGroupTaxUniqueNames = (
   } else if (otherGroupTaxes.length > 0 && otherTaxes.length === 0) {
     otherResolved = otherGroupTaxes;
   } else if (otherTaxes.length > 0 && otherGroupTaxes.length > 0) {
-    if (otherTaxes.length === otherGroupTaxes.length) {
-      otherResolved = otherGroupTaxes.slice();
+    if (options?.whenBothNonEmpty === 'preferTaxes') {
+      otherResolved = otherTaxes;
     } else {
       const groupSet = new Set(otherGroupTaxes);
-      otherResolved = otherTaxes.filter((name) => !groupSet.has(name));
+      const isSameSet =
+        otherTaxes.length === otherGroupTaxes.length && otherTaxes.every((name) => groupSet.has(name));
+      if (isSameSet) {
+        otherResolved = otherTaxes.slice();
+      } else {
+        // Different GST of equal count (or taxes as superset): keep taxes not already in group.
+        otherResolved = otherTaxes.filter((name) => !groupSet.has(name));
+      }
     }
   }
 

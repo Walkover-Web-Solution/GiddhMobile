@@ -845,6 +845,7 @@ export class SalesInvoice extends React.Component<Props> {
   /** Non-TDS/TCS: same length → groupTaxes; otherwise taxes minus groupTaxes. TDS/TCS are unioned separately. */
   resolveTaxAndGroupTaxNames(taxes, groupTaxes, opts) {
     return resolveTaxAndGroupTaxUniqueNames(taxes, groupTaxes, {
+      whenBothNonEmpty: (opts && opts.whenBothNonEmpty) || undefined,
       taxArray: (this.state && this.state.taxArray) || (this.props && this.props.taxArray) || [],
       isTdsOrTcsName: (uniqueName) => {
         const details = this.getTaxDeatilsForUniqueName(uniqueName);
@@ -945,12 +946,12 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
   /**
-   * Non-TDS/TCS: stock taxes vs groupTaxes first, else line taxes vs groupTaxes.
-   * Same length → all groupTaxes; otherwise taxes minus groupTaxes. TDS/TCS are ignored here.
+   * Non-TDS/TCS: stock taxes vs groupTaxes first (preferTaxes), else line taxes vs groupTaxes.
+   * TDS/TCS are ignored here.
    */
   resolveHierarchicalNonTdsTcsNames(itemDetails) {
-    const gstFromTaxesAndGroup = (taxes, groupTaxes) => {
-      const resolved = this.resolveTaxAndGroupTaxNames(taxes, groupTaxes);
+    const gstFromTaxesAndGroup = (taxes, groupTaxes, whenBoth) => {
+      const resolved = this.resolveTaxAndGroupTaxNames(taxes, groupTaxes, { whenBothNonEmpty: whenBoth });
       return resolved.filter((name) => {
         const row = this.getTaxDeatilsForUniqueName(name);
         return row && !this.isTdsOrTcsTaxType(row.taxType);
@@ -963,10 +964,10 @@ export class SalesInvoice extends React.Component<Props> {
       );
     };
     if (itemDetails.stock && hasGst(itemDetails.stock.taxes, itemDetails.stock.groupTaxes)) {
-      return gstFromTaxesAndGroup(itemDetails.stock.taxes, itemDetails.stock.groupTaxes);
+      return gstFromTaxesAndGroup(itemDetails.stock.taxes, itemDetails.stock.groupTaxes, 'preferTaxes');
     }
     if (hasGst(itemDetails.taxes, itemDetails.groupTaxes)) {
-      return gstFromTaxesAndGroup(itemDetails.taxes, itemDetails.groupTaxes);
+      return gstFromTaxesAndGroup(itemDetails.taxes, itemDetails.groupTaxes, 'intersection');
     }
     return [];
   }

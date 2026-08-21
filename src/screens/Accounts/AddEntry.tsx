@@ -1131,6 +1131,7 @@ export class AddEntry extends React.Component<Props> {
     opts?: { whenBothNonEmpty?: 'intersection' | 'preferTaxes'; taxArray?: any[] }
   ): string[] {
     return resolveTaxAndGroupTaxUniqueNames(taxes, groupTaxes, {
+      whenBothNonEmpty: opts?.whenBothNonEmpty,
       taxArray: opts?.taxArray ?? this.state?.taxArray ?? [],
     });
   }
