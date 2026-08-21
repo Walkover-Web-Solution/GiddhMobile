@@ -33,7 +33,7 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import EditItemDetail from './EditItemDetails';
 import CheckBox from 'react-native-check-box';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { formatAmount, normalizeAccountAddress, normalizeAccountAddresses } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import { useTranslation } from 'react-i18next';
@@ -272,15 +272,16 @@ export class DebiteNote extends React.Component<Props, State> {
 
   selectBillingAddress = (address) => {
     console.log(address);
-    this.setState({ partyBillingAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ partyBillingAddress: normalizedAddress });
     if (this.state.billSameAsShip) {
-      this.setState({ partyShippingAddress: address });
+      this.setState({ partyShippingAddress: normalizedAddress });
     }
   };
 
   selectShippingAddress = (address) => {
     console.log('shipping add', address);
-    this.setState({ partyShippingAddress: address });
+    this.setState({ partyShippingAddress: normalizeAccountAddress(address) });
   };
 
   async getExchangeRateToINR(currency) {
@@ -1314,7 +1315,7 @@ export class DebiteNote extends React.Component<Props, State> {
 
       if (results.body) {
         if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return results.body.addresses.length < 1 ? [] : results.body.addresses
+          return normalizeAccountAddresses(results.body.addresses)
         }
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
@@ -1330,6 +1331,8 @@ export class DebiteNote extends React.Component<Props, State> {
         }
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
+        const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
+        const defaultAddress = normalizedAddresses[0];
         await this.setState({
           ...(!isUpdateParty && { addedItems: [] }),
           partyDetails: results.body,
@@ -1338,9 +1341,9 @@ export class DebiteNote extends React.Component<Props, State> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses,
-          partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
+          addressArray: normalizedAddresses,
+          partyBillingAddress: defaultAddress,
+          partyShippingAddress: defaultAddress,
         });
       }
     } catch (e) {

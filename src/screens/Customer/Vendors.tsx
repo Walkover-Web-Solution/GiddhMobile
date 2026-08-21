@@ -79,13 +79,13 @@ export class Vendors extends React.Component<Props> {
         savedAddress: {
           street_billing: vendorEntryResponse.addresses[0].address,
           gstin_billing: vendorEntryResponse.addresses[0].gstNumber,
-          state_billing: vendorEntryResponse.addresses[0].state,
+          state_billing: vendorEntryResponse.addresses[0].state ?? vendorEntryResponse.addresses[0].county,
           pincode: vendorEntryResponse.addresses[0].pincode ? vendorEntryResponse.addresses[0].pincode : '',
           isDefault: vendorEntryResponse.addresses[0].isDefault ? vendorEntryResponse.addresses[0].isDefault : false
         },
         street_billing: vendorEntryResponse.addresses[0].address,
         gstin_billing: vendorEntryResponse.addresses[0].gstNumber,
-        state_billing: vendorEntryResponse.addresses[0].state,
+        state_billing: vendorEntryResponse.addresses[0].state ?? vendorEntryResponse.addresses[0].county,
         radioBtn: vendorEntryResponse.openingBalanceType == 'DEBIT' ? 0 : 1,
         foreignOpeningBalance: vendorEntryResponse.foreignOpeningBalance,
         openingBalance: vendorEntryResponse.openingBalance,

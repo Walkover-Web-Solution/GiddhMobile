@@ -49,7 +49,7 @@ export class SelectAddress extends React.Component<any & WithTranslation, any> {
     if (this.state.addressList.length == 1) {
       let value = this.props.route.params.type == 'warehouse'
         ? (this.state.addressList[0].name ? this.state.addressList[0].name : this.state.addressList[0].address) :
-        (this.state.addressList[0].address ? this.state.addressList[0].address : this.state.addressList[0].stateName)
+        (this.state.addressList[0].address ? this.state.addressList[0].address : (this.state.addressList[0].stateName || this.state.addressList[0].county?.name))
       if (value == null || value == undefined || value == "") {
         this.setState({ dataPresent: false })
       }
@@ -59,10 +59,11 @@ export class SelectAddress extends React.Component<any & WithTranslation, any> {
   findActiveIndex() {
     if (this.props.route.params.activeAddress) {
       const activeAddress = this.props.route.params.activeAddress.address
-      const activeState = this.props.route.params.activeAddress.stateName
+      const activeState = this.props.route.params.activeAddress.stateName || this.props.route.params.activeAddress.county?.name
       console.log(JSON.stringify(activeAddress))
       for (let i = 0; i < this.state.addressList.length; i++) {
-        if (activeAddress == this.state.addressList[i].address && activeState == this.state.addressList[i].stateName) {
+        const listState = this.state.addressList[i].stateName || this.state.addressList[i].county?.name
+        if (activeAddress == this.state.addressList[i].address && activeState == listState) {
           this.changeactiveIndex(i)
           break
         }
@@ -148,7 +149,7 @@ export class SelectAddress extends React.Component<any & WithTranslation, any> {
             data={this.state.addressList}
             renderItem={({ item, index }) => {
               let address = this.props.route.params.type == 'warehouse'
-                ? (item.name ? item.name : item.address) : (item.address ? item.address : item.stateName)
+                ? (item.name ? item.name : item.address) : (item.address ? item.address : (item.stateName || item.county?.name))
               return (address != null && address != undefined && address !== "") ? <AddressItem
                 index={index}
                 type={this.props.route.params.type}
