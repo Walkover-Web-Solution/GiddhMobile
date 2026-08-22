@@ -207,7 +207,11 @@ class PurchaseItemEdit extends Component {
         return tdsTcs;
       }
     }
-    return [];
+    const fromApplicable = this.getTdsTcsNamesFromSource(itemDetails?.applicableTaxes);
+    if (fromApplicable.length > 0) {
+      return fromApplicable;
+    }
+    return this.getTdsTcsNamesFromSource(this.props.defaultAccountTax);
   }
 
   lineHasTaxHierarchyLinkage(itemDetails) {

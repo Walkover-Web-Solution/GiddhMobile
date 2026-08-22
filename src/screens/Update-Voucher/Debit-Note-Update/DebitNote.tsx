@@ -33,7 +33,7 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import EditItemDetail from './EditItemDetails';
 import CheckBox from 'react-native-check-box';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
+import {buildDefaultAccountTaxUniqueNames, formatAmount, resolveTaxAndGroupTaxUniqueNames} from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import { useTranslation } from 'react-i18next';
@@ -992,6 +992,10 @@ export class DebiteNote extends React.Component<Props, State> {
         return tdsTcs;
       }
     }
+    const fromApplicable = this.getTdsTcsNamesFromSource(itemDetails?.applicableTaxes);
+    if (fromApplicable.length > 0) {
+      return fromApplicable;
+    }
     return this.getTdsTcsNamesFromSource(this.state.defaultAccountTax);
   }
 
@@ -1089,6 +1093,12 @@ export class DebiteNote extends React.Component<Props, State> {
         }
       });
     }
+    // Keep hierarchically selected TDS/TCS even when stock GST already filled `linked`.
+    (taxDetailsArray || []).forEach((row) => {
+      if (row && row.uniqueName && this.isTdsOrTcsTaxType(row.taxType)) {
+        allowed.add(row.uniqueName);
+      }
+    });
 
     const next = taxDetailsArray.filter((row) => row && row.uniqueName && allowed.has(row.uniqueName));
     return {
@@ -1304,15 +1314,20 @@ export class DebiteNote extends React.Component<Props, State> {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
         }
-        const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
-        const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
-        let taxesToApply;
-        if (applicableTaxes.length === otherApplicableTaxes.length) {
-          taxesToApply = applicableTaxes;
-        } else {
-          const otherTaxUniqueNames = otherApplicableTaxes.map((tax: any) => tax.uniqueName);
-          taxesToApply = applicableTaxes.filter((tax: any) => !otherTaxUniqueNames.includes(tax.uniqueName));
+        if (!this.state.taxArray || this.state.taxArray.length === 0) {
+          await this.getAllTaxes();
         }
+        const taxesToApply = buildDefaultAccountTaxUniqueNames(
+          results.body.applicableTaxes,
+          results.body.otherApplicableTaxes,
+          {
+            taxArray: this.state.taxArray || [],
+            isTdsOrTcsName: (uniqueName) => {
+              const details = this.getTaxDeatilsForUniqueName(uniqueName);
+              return this.isTdsOrTcsTaxType(details && details.taxType);
+            }
+          }
+        ).map((uniqueName) => ({ uniqueName }));
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         await this.setState({
@@ -3261,6 +3276,7 @@ export class DebiteNote extends React.Component<Props, State> {
             }
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
+            defaultAccountTax={this.state.defaultAccountTax}
             goBack={() => {
               this.setState({ showItemDetails: false });
             }}

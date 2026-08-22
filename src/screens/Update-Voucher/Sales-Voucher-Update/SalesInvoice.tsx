@@ -39,7 +39,7 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
-import { createEndpoint, formatAmount, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
+import {buildDefaultAccountTaxUniqueNames, createEndpoint, formatAmount, resolveTaxAndGroupTaxUniqueNames} from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
@@ -663,6 +663,10 @@ export class SalesInvoice extends React.Component<Props, State> {
         return tdsTcs;
       }
     }
+    const fromApplicable = this.getTdsTcsNamesFromSource(itemDetails?.applicableTaxes);
+    if (fromApplicable.length > 0) {
+      return fromApplicable;
+    }
     return this.getTdsTcsNamesFromSource(this.state.defaultAccountTax);
   }
 
@@ -765,6 +769,12 @@ export class SalesInvoice extends React.Component<Props, State> {
         }
       });
     }
+    // Keep hierarchically selected TDS/TCS even when stock GST already filled `linked`.
+    (taxDetailsArray || []).forEach((row) => {
+      if (row && row.uniqueName && this.isTdsOrTcsTaxType(row.taxType)) {
+        allowed.add(row.uniqueName);
+      }
+    });
 
     const next = taxDetailsArray.filter((row) => row && row.uniqueName && allowed.has(row.uniqueName));
     return {
@@ -1307,15 +1317,20 @@ console.log('details', details);
           await this.getExchangeRateToINR(results.body.currency);
         }
         console.log(JSON.stringify(results.body))
-        const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
-        const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
-        let taxesToApply;
-        if (applicableTaxes.length === otherApplicableTaxes.length) {
-          taxesToApply = applicableTaxes;
-        } else {
-          const otherTaxUniqueNames = otherApplicableTaxes.map((tax: any) => tax.uniqueName);
-          taxesToApply = applicableTaxes.filter((tax: any) => !otherTaxUniqueNames.includes(tax.uniqueName));
+        if (!this.state.taxArray || this.state.taxArray.length === 0) {
+          await this.getAllTaxes();
         }
+        const taxesToApply = buildDefaultAccountTaxUniqueNames(
+          results.body.applicableTaxes,
+          results.body.otherApplicableTaxes,
+          {
+            taxArray: this.state.taxArray || [],
+            isTdsOrTcsName: (uniqueName) => {
+              const details = this.getTaxDeatilsForUniqueName(uniqueName);
+              return this.isTdsOrTcsTaxType(details && details.taxType);
+            }
+          }
+        ).map((uniqueName) => ({ uniqueName }));
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(results.body.addresses)
@@ -3471,6 +3486,7 @@ console.log('details', details);
             }
             discountArray={this.state.discountArray}
             taxArray={this.state.taxArray}
+            defaultAccountTax={this.state.defaultAccountTax}
             goBack={() => {
               this.setState({ showItemDetails: false });
             }}

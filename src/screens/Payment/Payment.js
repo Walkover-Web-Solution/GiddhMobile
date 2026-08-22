@@ -34,7 +34,7 @@ import {FONT_FAMILY} from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import { buildDefaultAccountTaxUniqueNames, formatAmount } from '@/utils/helper';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
 
 const {SafeAreaOffsetHelper} = NativeModules;
@@ -721,25 +721,22 @@ export class Payment extends React.Component {
           await this.getExchangeRateToINR(results.body.currency);
         }
         this.getAllInvoice();
-        const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
-        const otherApplicableTaxes = results.body.otherApplicableTaxes
-          ? results.body.otherApplicableTaxes
-          : [];
-        let taxesToApply;
-        if (applicableTaxes.length === otherApplicableTaxes.length) {
-          taxesToApply = applicableTaxes;
-        } else {
-          const otherTaxUniqueNames = otherApplicableTaxes.map((tax) => tax.uniqueName);
-          taxesToApply = applicableTaxes.filter(
-            (tax) => !otherTaxUniqueNames.includes(tax.uniqueName),
-          );
-        }
-
         // Ensure company tax list is loaded before resolving TDS/TCS rows.
         if (!this.state.taxArray || this.state.taxArray.length === 0) {
           await this.getAllTaxes();
         }
 
+        const taxesToApply = buildDefaultAccountTaxUniqueNames(
+          results.body.applicableTaxes,
+          results.body.otherApplicableTaxes,
+          {
+            taxArray: this.state.taxArray || [],
+            isTdsOrTcsName: (uniqueName) => {
+              const details = this.getTaxDeatilsForUniqueName(uniqueName);
+              return this.isTdsOrTcsTaxType(details && details.taxType);
+            }
+          }
+        ).map((uniqueName) => ({ uniqueName }));
         const accountDefaultTaxNames = this.setDefaultAccountTax(taxesToApply);
         await new Promise((resolve) => {
           this.setState(

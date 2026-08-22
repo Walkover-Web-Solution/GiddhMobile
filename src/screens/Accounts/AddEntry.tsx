@@ -1117,6 +1117,12 @@ export class AddEntry extends React.Component<Props> {
         }
       });
     }
+    // Keep hierarchically selected TDS/TCS even when stock GST already filled `linked`.
+    (taxDetailsArray || []).forEach((row) => {
+      if (row && row.uniqueName && this.isTdsOrTcsTaxType(row.taxType)) {
+        allowed.add(row.uniqueName);
+      }
+    });
 
     const next = taxDetailsArray.filter((row) => row && row.uniqueName && allowed.has(row.uniqueName));
     return {

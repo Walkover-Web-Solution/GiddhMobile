@@ -357,3 +357,49 @@ export const resolveTaxAndGroupTaxUniqueNames = (
   const tdsResolved = uniquePreserveOrder([...taxParts.tds, ...groupParts.tds]);
   return [...otherResolved, ...tdsResolved];
 };
+
+/**
+ * Party/account default tax uniqueNames for voucher lines.
+ * Keeps the existing applicableTaxes vs otherApplicableTaxes difference rule for GST/cess,
+ * but always preserves TDS/TCS from applicableTaxes so stock-without-TDS lines can still
+ * fall back to account TDS/TCS via the independent TDS hierarchy.
+ */
+export const buildDefaultAccountTaxUniqueNames = (
+  applicableTaxes: any,
+  otherApplicableTaxes: any,
+  options?: {
+    taxArray?: any[];
+    isTdsOrTcsName?: (uniqueName: string) => boolean;
+  }
+): string[] => {
+  const applicable = Array.isArray(applicableTaxes) ? applicableTaxes : [];
+  const other = Array.isArray(otherApplicableTaxes) ? otherApplicableTaxes : [];
+  const applicableNames = taxUniqueNamesFrom(applicable);
+  const otherNames = taxUniqueNamesFrom(other);
+  const isTdsOrTcsName = (uniqueName: string): boolean => {
+    if (options?.isTdsOrTcsName) {
+      return options.isTdsOrTcsName(uniqueName);
+    }
+    const fromApplicable = applicable.find(
+      (entry: any) => (typeof entry === 'string' ? entry : entry?.uniqueName) === uniqueName
+    );
+    const typeFromApplicable =
+      fromApplicable && typeof fromApplicable === 'object' ? fromApplicable.taxType : undefined;
+    if (isTdsOrTcsTaxType(typeFromApplicable)) {
+      return true;
+    }
+    const row = (options?.taxArray || []).find((item: any) => item && item.uniqueName === uniqueName);
+    return isTdsOrTcsTaxType(row?.taxType);
+  };
+
+  let base: string[];
+  if (applicable.length === other.length) {
+    base = applicableNames.slice();
+  } else {
+    const otherSet = new Set(otherNames);
+    base = applicableNames.filter((name) => !otherSet.has(name));
+  }
+
+  const tdsFromApplicable = applicableNames.filter((name) => isTdsOrTcsName(name));
+  return uniquePreserveOrder([...base, ...tdsFromApplicable]);
+};
