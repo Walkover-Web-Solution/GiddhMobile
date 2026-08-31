@@ -122,7 +122,8 @@
     "enterValidName": "कृपया वैध नाव प्रविष्ट करा",
     "enterValidEmail": "कृपया वैध ईमेल प्रविष्ट करा",
     "enterValidPhoneNumber": "कृपया वैध फोन नंबर प्रविष्ट करा",
-    "enterValidMobileNumber": "वैध मोबाइल नंबर प्रविष्ट करा"
+    "enterValidMobileNumber": "वैध मोबाइल नंबर प्रविष्ट करा",
+    "selectState": "राज्य निवडा"
   },
   "addItemScreen": {
     "searchProductService": "उत्पादन/सेवा शोधा",
@@ -330,7 +331,11 @@
     "pleaseAddStateShipping": "कृपया शिपिंगसाठी राज्य तपशील जोडा",
     "okay": "ठीक आहे",
     "invoiceUpdatedSuccessfully": "पावती यशस्वीरित्या अपडेट केली!",
-    "selectAccount": "खाते निवडा"
+    "selectAccount": "खाते निवडा",
+    "placeOfSupply": "पुरवठ्याचे स्थान",
+    "noStateExist": "कोणतेही राज्य अस्तित्वात नाही",
+    "selectState": "राज्य निवडा",
+    "pleaseSelectPlaceOfSupply": "कृपया पुरवठ्याचे स्थान निवडा"
   },
   "editItemDetails": {
     "noTaxExist": "कोणताही कर अस्तित्वात नाही",
@@ -851,7 +856,11 @@
     "emptyStateDetails": "रिक्त राज्य तपशील",
     "addStateDetailsBillingFrom": "कृपया बिलिंग कडून साठी राज्य तपशील जोडा",
     "addStateDetailsShippingFrom": "कृपया शिपिंग कडून साठी राज्य तपशील जोडा",
-    "invoiceUpdatedSuccessfully": "पावती यशस्वीरित्या अद्ययावत झाली!"
+    "invoiceUpdatedSuccessfully": "पावती यशस्वीरित्या अद्ययावत झाली!",
+    "sourceOfSupply": "पुरवठ्याचा स्रोत",
+    "destinationOfSupply": "पुरवठ्याचे गंतव्य",
+    "pleaseSelectSourceOfSupply": "कृपया पुरवठ्याचा स्रोत निवडा",
+    "pleaseSelectDestinationOfSupply": "कृपया पुरवठ्याचे गंतव्य निवडा"
   },
   "receipt": {
     "receiptCreatedSuccessfully": "पावती यशस्वीरित्या तयार झाली!"

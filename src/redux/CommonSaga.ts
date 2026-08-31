@@ -142,6 +142,20 @@ export function* getCompanyDetails() {
     const response = yield call(CommonService.getCompanyDetails);
     yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, response?.body?.subscription?.country?.countryCode ? response?.body?.subscription?.country?.countryCode : response?.body?.countryV2?.alpha2CountryCode);
     if(response.status === 'success' && response.body){
+      const addresses = response.body.addresses || [];
+      const companyAddress = addresses.find((address) =>
+        address.branches?.some((branch) => branch.isDefault && branch.isHeadQuarter)
+      ) || addresses[0];
+      const companyState = companyAddress?.state?.name || companyAddress?.state?.code
+        ? { name: companyAddress.state.name, code: companyAddress.state.code }
+        : (companyAddress?.stateName || companyAddress?.stateCode)
+          ? { name: companyAddress.stateName, code: companyAddress.stateCode }
+          : null;
+      if (companyState) {
+        yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyState, JSON.stringify(companyState));
+      } else {
+        yield AsyncStorage.removeItem(STORAGE_KEYS.activeCompanyState);
+      }
       yield put(CommonActions.setCompanyDetails(response.body));
     }
   } catch (e) {

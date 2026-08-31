@@ -25,6 +25,53 @@ export default StyleSheet.create({
     alignSelf: 'center',
     marginTop: -2
   },
+  selectFieldContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+    minHeight: 50,
+  },
+  selectFieldRow: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+  },
+  selectFieldHeading: {
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 14,
+    alignSelf: 'center',
+    marginTop: -2,
+    flexShrink: 0,
+  },
+  selectFieldContentRow: {
+    flexDirection: 'row',
+    flex: 1,
+    marginLeft: 15,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  selectFieldTouchable: {
+    flex: 1,
+    flexShrink: 1,
+  },
+  selectFieldValueText: {
+    color: '#808080',
+    fontSize: 14,
+    fontFamily: FONT_FAMILY.regular,
+    flexShrink: 1,
+  },
+  selectFieldClearWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
+    marginLeft: 8,
+  },
+  selectFieldClearButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -2,
+  },
   invoiceType: {
     justifyContent: 'center',
     color: 'white',
@@ -272,5 +319,18 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 16,
     marginBottom: 10
+  },
+  stateListEmptyContainer: {
+    height: Dimensions.get('window').height * 0.3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stateListItemTouchable: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  stateListItemText: {
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.regular,
   },
 });

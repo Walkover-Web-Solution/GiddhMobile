@@ -122,7 +122,8 @@
     "enterValidName": "Please enter valid name",
     "enterValidEmail": "Please enter valid email",
     "enterValidPhoneNumber": "Please enter valid phone number",
-    "enterValidMobileNumber": "Enter valid mobile number"
+    "enterValidMobileNumber": "Enter valid mobile number",
+    "selectState": "Select State"
   },
   "addItemScreen": {
     "searchProductService": "Search Product/Service",
@@ -330,7 +331,11 @@
     "pleaseAddStateShipping": "Please add state details for Shipping From",
     "okay": "Okay",
     "invoiceUpdatedSuccessfully": "Invoice updated successfully!",
-    "selectAccount": "Select Account"
+    "selectAccount": "Select Account",
+    "placeOfSupply": "Place of Supply",
+    "noStateExist": "No State Exist",
+    "selectState": "Select State",
+    "pleaseSelectPlaceOfSupply": "Please select Place of Supply"
   },
   "editItemDetails": {
     "noTaxExist": "No Tax Exist",
@@ -851,7 +856,11 @@
     "emptyStateDetails": "Empty state details",
     "addStateDetailsBillingFrom": "Please add state details for Billing From",
     "addStateDetailsShippingFrom": "Please add state details for Shipping From",
-    "invoiceUpdatedSuccessfully": "Invoice updated successfully!"
+    "invoiceUpdatedSuccessfully": "Invoice updated successfully!",
+    "sourceOfSupply": "Source of Supply",
+    "destinationOfSupply": "Destination of Supply",
+    "pleaseSelectSourceOfSupply": "Please select Source of Supply",
+    "pleaseSelectDestinationOfSupply": "Please select Destination of Supply"
   },
   "receipt": {
     "receiptCreatedSuccessfully": "Receipt created successfully!"
