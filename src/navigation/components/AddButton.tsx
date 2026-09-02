@@ -109,6 +109,20 @@ const taxButtons:any = {
         icon: <MaterialCommunityIcons name="truck-fast-outline" size={26} color={'#084EAD'} />, 
         color: DefaultTheme.colors.secondary,
         event : 'ListEWayBillsScreenRefresh'
+    },
+    item2 : {
+        name: 'Scan2 Invoice',
+        navigateTo: 'Scan2Screen',
+        icon: <MaterialCommunityIcons name="text-search" size={26} color={'#229F5F'} />,
+        color: DefaultTheme.colors.secondary,
+        event: ''
+    },
+    item3 : {
+        name: 'Scan2Bill',
+        navigateTo: 'Scan2Screen',
+        icon: <MaterialCommunityIcons name="text-search" size={26} color={'#FC8345'} />,
+        color: DefaultTheme.colors.secondary,
+        event: ''
     }
 }
 
@@ -164,8 +178,20 @@ class AddButtonOptions extends React.PureComponent<Props> {
                                         style={styles.button}
                                         onPress={() => {
                                             this?.props?.closeModal();
-                                            DeviceEventEmitter.emit(APP_EVENTS?.[item?.event]);
-                                            this.props.navigation.navigate(item.navigateTo, { params : { name : item.name } });
+                                            if (item?.event) {
+                                                DeviceEventEmitter.emit(APP_EVENTS?.[item?.event]);
+                                            }
+
+                                            if (item.navigateTo === 'Scan2Screen') {
+                                              this.props.navigation.navigate('Scan2Screen', {
+                                                screen: 'Scan2Screen',
+                                                params: { name: item.name },
+                                              });
+                                              return;
+                                            }
+
+                                            this.props.navigation.navigate(item.navigateTo, { name: item.name });
+                                            
                                         }}
                                     >
                                         <View style={styles.iconContainer}>

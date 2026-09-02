@@ -1185,6 +1185,11 @@ export class PurchaseBill extends React.Component {
     if (itemDetails.taxesUserCleared) {
       return [];
     }
+    // Copied voucher lines use their API tax snapshot; manually changed taxes
+    // use the user's selection. Untouched new lines use stock/account defaults.
+    if (itemDetails.isNew === false || itemDetails.taxesUserModified) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray || []);
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(
       hierarchicalRows.map((r) => r && r.uniqueName).filter(Boolean)
@@ -3444,6 +3449,8 @@ export class PurchaseBill extends React.Component {
       0,
     );
     const item = this.state.addedItems[index];
+    const previousTaxNames = (item.taxDetailsArray || []).map((tax) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    const updatedTaxNames = (details.taxDetailsArray || []).map((tax) => tax?.uniqueName).filter(Boolean).sort().join('|');
     const updatedItem = {
       ...item,
       quantity: Number(details.quantityText),
@@ -3464,6 +3471,7 @@ export class PurchaseBill extends React.Component {
       warehouse: Number(details.warehouse),
       discountDetails: details.discountDetails ? details.discountDetails : undefined,
       taxDetailsArray: details.taxDetailsArray,
+      taxesUserModified: item.taxesUserModified || previousTaxNames !== updatedTaxNames,
       taxesUserCleared: !details.taxDetailsArray || details.taxDetailsArray.length === 0,
       percentDiscountArray: details.percentDiscountArray ? details.percentDiscountArray : [],
       fixedDiscount: details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 },
