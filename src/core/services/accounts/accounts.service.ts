@@ -66,6 +66,9 @@ export class AccountsService {
       })
       .catch((err) => {
         console.log('---- ERROR in creating account entry ----', err);
+        if (err?.data?.status === 'einvoice-confirm' && err?.data?.code === 'NOT_PERMITTED') {
+          return err.data;
+        }
         Alert.alert('Error', err?.data?.message ?? err?.data?.error ?? 'Something Went Wrong', [{ style: 'destructive', onPress: () => console.log('alert destroyed') }]);
         return null;
       });;

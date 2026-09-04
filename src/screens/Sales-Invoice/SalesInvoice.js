@@ -41,6 +41,7 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
+import ConfirmationBottomSheet from '@/components/ConfirmationBottomSheet';
 import { createEndpoint, formatAmount, normalizeAccountAddress, normalizeAccountAddresses } from '@/utils/helper';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
@@ -70,11 +71,14 @@ export class SalesInvoice extends React.Component<Props> {
     super(props);
     this.paymentModeBottomSheetRef = React.createRef();
     this.copyVoucherBottomSheetRef = React.createRef();
+    this.eInvoiceConfirmBottomSheetRef = React.createRef();
+    this.pendingEInvoiceCreate = null;
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       searchNamesOnly: [],
       test: Dropdown,
       loading: false,
+      eInvoiceConfirmMessage: '',
       invoiceType: INVOICE_TYPE.credit,
       bottomOffset: 0,
       showInvoiceModal: false,
@@ -1660,61 +1664,125 @@ export class SalesInvoice extends React.Component<Props> {
         postBody,
         uniqueName,
         this.state.companyVersionNumber)
+      if (this.isEInvoiceConfirm(results)) {
+        this.setState({ loading: false });
+        this.showEInvoiceConfirmSheet(type, postBody, uniqueName, results);
+        return;
+      }
       if (type != 'share') {
         this.setState({ loading: false });
       }
-      if (results.body) {
-        // this.setState({loading: false});
-        alert(this.props.t('salesInvoice.invoiceCreatedSuccessfully'));
-        const partyDetails = this.state.partyDetails;
-        const invoiceType = this.state.invoiceType;
-        const partyUniqueName = this.state.partyDetails.uniqueName;
-        // Here for cash invoice party detail is empty {}
-        if (type == 'navigate') {
-          if (invoiceType == INVOICE_TYPE.cash) {
-            this.props.navigation.goBack();
-          } else {
-            this.props.navigation.navigate("Home", {
-              screen: routes.Parties, 
-              params : {
-                screen: 'PartiesTransactions',
-                initial: false,
-                params: {
-                  item: {
-                    name: partyDetails.name,
-                    uniqueName: partyDetails.uniqueName,
-                    country: { code: partyDetails.country.countryCode },
-                    mobileNo: partyDetails.mobileNo
-                  },
-                  type: 'Creditors'
-                }
-              }
-            });
-          }
-        }
-        else if (type == 'share') {
-          console.log('sharing');
-          this.setState({ loading: true });
-          this.downloadFile(
-            results.body?.uniqueName,
-            this.state.companyVersionNumber == 1 ? results.body.entries[0].voucherNumber : results.body.number,
-            partyUniqueName,
-            results.body?.type
-          );
-        }
-        this.resetState();
-        await this.setActiveCompanyCountry();
-        await this.getAllTaxes();
-        await this.getAllDiscounts();
-        await this.getAllWarehouse();
-        await this.getAllAccountsModes();
-        await this.getCompanyVersionNumber();
-        DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
+      if (results?.body) {
+        await this.handleInvoiceCreated(type, results);
       }
     } catch (e) {
       console.log('problem occured', e);
       this.setState({ isSearchingParty: false, loading: false });
     }
+  }
+
+  isEInvoiceConfirm(results) {
+    return results?.status === 'einvoice-confirm' && results?.code === 'NOT_PERMITTED';
+  }
+
+  showEInvoiceConfirmSheet(type, postBody, uniqueName, results) {
+    this.pendingEInvoiceCreate = { type, postBody, uniqueName };
+    this.setState(
+      {
+        eInvoiceConfirmMessage: results?.message || 'Do you want to create E-Invoice for the voucher ?'
+      },
+      () => {
+        this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, true);
+      }
+    );
+  }
+
+  onConfirmEInvoice = () => {
+    this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, false);
+    const pending = this.pendingEInvoiceCreate;
+    if (!pending) {
+      return;
+    }
+    this.pendingEInvoiceCreate = null;
+    this.retryCreateInvoice(pending.type, pending.postBody, pending.uniqueName, true);
+  }
+
+  onRejectEInvoice = () => {
+    this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, false);
+    const pending = this.pendingEInvoiceCreate;
+    if (!pending) {
+      return;
+    }
+    this.pendingEInvoiceCreate = null;
+    this.retryCreateInvoice(pending.type, pending.postBody, pending.uniqueName, false);
+  }
+
+  async retryCreateInvoice(type, postBody, uniqueName, generateEInvoice) {
+    this.setState({ loading: true });
+    try {
+      const results = await InvoiceService.createVoucher(
+        { ...postBody, generateEInvoice },
+        uniqueName,
+        this.state.companyVersionNumber
+      );
+      if (type != 'share') {
+        this.setState({ loading: false });
+      }
+      if (results?.body) {
+        await this.handleInvoiceCreated(type, results);
+      }
+    } catch (e) {
+      console.log('problem occured', e);
+      this.setState({ isSearchingParty: false, loading: false });
+    }
+  }
+
+  async handleInvoiceCreated(type, results) {
+    alert(this.props.t('salesInvoice.invoiceCreatedSuccessfully'));
+    const partyDetails = this.state.partyDetails;
+    const invoiceType = this.state.invoiceType;
+    const partyUniqueName = this.state.partyDetails.uniqueName;
+    // Here for cash invoice party detail is empty {}
+    if (type == 'navigate') {
+      if (invoiceType == INVOICE_TYPE.cash) {
+        this.props.navigation.goBack();
+      } else {
+        this.props.navigation.navigate("Home", {
+          screen: routes.Parties, 
+          params : {
+            screen: 'PartiesTransactions',
+            initial: false,
+            params: {
+              item: {
+                name: partyDetails.name,
+                uniqueName: partyDetails.uniqueName,
+                country: { code: partyDetails.country.countryCode },
+                mobileNo: partyDetails.mobileNo
+              },
+              type: 'Creditors'
+            }
+          }
+        });
+      }
+    }
+    else if (type == 'share') {
+      console.log('sharing');
+      this.setState({ loading: true });
+      this.downloadFile(
+        results.body?.uniqueName,
+        this.state.companyVersionNumber == 1 ? results.body.entries[0].voucherNumber : results.body.number,
+        partyUniqueName,
+        results.body?.type
+      );
+    }
+    this.resetState();
+    await this.setActiveCompanyCountry();
+    await this.getAllTaxes();
+    await this.getAllDiscounts();
+    await this.getAllWarehouse();
+    await this.getAllAccountsModes();
+    await this.getCompanyVersionNumber();
+    DeviceEventEmitter.emit(APP_EVENTS.InvoiceCreated, {});
   }
 
   renderAmount() {
@@ -3459,6 +3527,12 @@ export class SalesInvoice extends React.Component<Props> {
         {this._renderPaymentMode()}
         {this._renderCopyVoucherSheet()}
         {this._renderPdfPreviewModal()}
+        <ConfirmationBottomSheet
+          bottomSheetRef={this.eInvoiceConfirmBottomSheetRef}
+          rawMessage={this.state.eInvoiceConfirmMessage}
+          onConfirm={this.onConfirmEInvoice}
+          onReject={this.onRejectEInvoice}
+        />
       </View>
     );
   }

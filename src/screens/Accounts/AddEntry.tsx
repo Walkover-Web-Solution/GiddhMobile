@@ -41,6 +41,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useIsFocused } from '@react-navigation/native';
 import CheckBox from 'react-native-check-box';
 import BottomSheet from '@/components/BottomSheet';
+import ConfirmationBottomSheet from '@/components/ConfirmationBottomSheet';
 import { AccountsService } from '@/core/services/accounts/accounts.service';
 import { CommonService } from '@/core/services/common/common.service';
 import { localeData, voucherTypes, KEYBOARD_EVENTS, getAbbreviation } from './constants';
@@ -69,6 +70,8 @@ export class AddEntry extends React.Component<Props> {
     this.stockUnitRef = React.createRef();
     this.taxCalculationModalRef = React.createRef();
     this.otherTaxModalRef = React.createRef();
+    this.eInvoiceConfirmBottomSheetRef = React.createRef();
+    this.pendingEInvoiceCreate = null;
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       selectedAccountData: {},
@@ -78,6 +81,7 @@ export class AddEntry extends React.Component<Props> {
       searchAccountName: '',
       showMoreDetails: false,
       particularAccountStockData: {},
+      eInvoiceConfirmMessage: '',
       totalSearchPages: 0,
       searchPage: 1,
       amountForEntry: 0,
@@ -205,6 +209,7 @@ export class AddEntry extends React.Component<Props> {
       searchAccountName: '',
       showMoreDetails: false,
       particularAccountStockData: {},
+      eInvoiceConfirmMessage: '',
       totalSearchPages: 0,
       searchPage: 1,
       amountForEntry: 0,
@@ -1575,6 +1580,7 @@ export class AddEntry extends React.Component<Props> {
   }
   async createEntryRequest() {
     try {
+      this.setState({ loading: true });
       const postBody = await {
         voucherType: await getAbbreviation(this.state?.selectedVoucherType),
         entryDate: moment(this.state?.entryDate).format('DD-MM-YYYY'),
@@ -1675,15 +1681,83 @@ export class AddEntry extends React.Component<Props> {
 
       }
       console.log('postBody', JSON.stringify(postBody))
-      const createEntryResponse = await AccountsService.createAccountsEntry(this.state?.selectedAccountData?.uniqueName, this.state?.companyVersionNumber, postBody
+      const createEntryResponse = await AccountsService.createAccountsEntry(
+        this.state?.selectedAccountData?.uniqueName,
+        this.state?.companyVersionNumber,
+        postBody
       );
+      if (this.isEInvoiceConfirm(createEntryResponse)) {
+        this.setState({ loading: false });
+        this.showEInvoiceConfirmSheet(postBody, createEntryResponse);
+        return;
+      }
+      this.setState({ loading: false });
       if (createEntryResponse?.status == 'success') {
-        this.setState({ successDialog: true });
-        DeviceEventEmitter.emit(APP_EVENTS.NewEntryCreated, {});
+        this.handleEntryCreated();
       }
     } catch (e) {
       console.log('ERROR', e)
+      this.setState({ loading: false });
     }
+  }
+
+  isEInvoiceConfirm(results) {
+    return results?.status === 'einvoice-confirm' && results?.code === 'NOT_PERMITTED';
+  }
+
+  showEInvoiceConfirmSheet(postBody, results) {
+    this.pendingEInvoiceCreate = { postBody };
+    this.setState(
+      {
+        eInvoiceConfirmMessage: results?.message || 'Do you want to create E-Invoice for the voucher ?'
+      },
+      () => {
+        this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, true);
+      }
+    );
+  }
+
+  onConfirmEInvoice = () => {
+    this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, false);
+    const pending = this.pendingEInvoiceCreate;
+    if (!pending) {
+      return;
+    }
+    this.pendingEInvoiceCreate = null;
+    this.retryCreateEntry(pending.postBody, true);
+  }
+
+  onRejectEInvoice = () => {
+    this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, false);
+    const pending = this.pendingEInvoiceCreate;
+    if (!pending) {
+      return;
+    }
+    this.pendingEInvoiceCreate = null;
+    this.retryCreateEntry(pending.postBody, false);
+  }
+
+  async retryCreateEntry(postBody, generateEInvoice) {
+    this.setState({ loading: true });
+    try {
+      const createEntryResponse = await AccountsService.createAccountsEntry(
+        this.state?.selectedAccountData?.uniqueName,
+        this.state?.companyVersionNumber,
+        { ...postBody, generateEInvoice }
+      );
+      this.setState({ loading: false });
+      if (createEntryResponse?.status == 'success') {
+        this.handleEntryCreated();
+      }
+    } catch (e) {
+      console.log('ERROR', e);
+      this.setState({ loading: false });
+    }
+  }
+
+  handleEntryCreated() {
+    this.setState({ successDialog: true });
+    DeviceEventEmitter.emit(APP_EVENTS.NewEntryCreated, {});
   }
 
 
@@ -3630,6 +3704,12 @@ export class AddEntry extends React.Component<Props> {
         {this._renderVariantModal()}
         {this._renderWarehouseModal()}
         {this._renderReverseChargeConfirmation()}
+        <ConfirmationBottomSheet
+          bottomSheetRef={this.eInvoiceConfirmBottomSheetRef}
+          rawMessage={this.state.eInvoiceConfirmMessage}
+          onConfirm={this.onConfirmEInvoice}
+          onReject={this.onRejectEInvoice}
+        />
         {(this.state.particularAccountStockData?.name) && this._renderSaveButton()}
         {/* check for any other condition above*/}
         {this.state?.successDialog && this._renderSuccessDialogue()}
