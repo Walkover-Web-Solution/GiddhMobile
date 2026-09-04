@@ -45,7 +45,7 @@ export class AddressItem extends React.Component<any, any> {
         <Text style={{ fontFamily: 'AvenirLTStd-Book', fontSize: 16, marginLeft: 15 }} numberOfLines={4}>
           {this.props.type == 'warehouse'
             ? (this.props.item.name ? this.props.item.name : this.props.item.address)
-            : (this.props.item.address ? this.props.item.address : this.props.item.stateName)}
+            : (this.props.item.address ? this.props.item.address : (this.props.item.stateName || this.props.item.county?.name))}
         </Text>
       </TouchableOpacity>
     );

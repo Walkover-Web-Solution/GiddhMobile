@@ -42,7 +42,7 @@ import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
 import ConfirmationBottomSheet from '@/components/ConfirmationBottomSheet';
-import { createEndpoint, formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount, normalizeAccountAddress, normalizeAccountAddresses } from '@/utils/helper';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
 import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
@@ -546,15 +546,16 @@ export class SalesInvoice extends React.Component<Props> {
 
   selectBillingAddress = (address) => {
     console.log(address);
-    this.setState({ partyBillingAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ partyBillingAddress: normalizedAddress });
     if (this.state.billSameAsShip) {
-      this.setState({ partyShippingAddress: address });
+      this.setState({ partyShippingAddress: normalizedAddress });
     }
   };
 
   selectShippingAddress = (address) => {
     console.log('shipping add', address);
-    this.setState({ partyShippingAddress: address });
+    this.setState({ partyShippingAddress: normalizeAccountAddress(address) });
   };
 
   // func1 = async () => {
@@ -1101,6 +1102,11 @@ export class SalesInvoice extends React.Component<Props> {
     if (itemDetails.taxesUserCleared) {
       return [];
     }
+    // Copied voucher lines use their API tax snapshot; manually changed taxes
+    // use the user's selection. Untouched new lines use stock/account defaults.
+    if (itemDetails.isNew === false || itemDetails.taxesUserModified) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray || []);
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(
       hierarchicalRows.map((r) => r && r.uniqueName).filter(Boolean)
@@ -1309,6 +1315,19 @@ export class SalesInvoice extends React.Component<Props> {
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(results.body.addresses)
+        const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
+        const defaultAddress = normalizedAddresses.length < 1
+          ? {
+            address: '',
+            gstNumber: '',
+            state: {
+              code: '',
+              name: ''
+            },
+            stateCode: '',
+            stateName: ''
+          }
+          : normalizedAddresses[0];
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1317,33 +1336,9 @@ export class SalesInvoice extends React.Component<Props> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
-          partyBillingAddress:
-            results.body.addresses.length < 1
-              ? {
-                address: '',
-                gstNumber: '',
-                state: {
-                  code: '',
-                  name: ''
-                },
-                stateCode: '',
-                stateName: ''
-              }
-              : results.body.addresses[0],
-          partyShippingAddress:
-            results.body.addresses.length < 1
-              ? {
-                address: '',
-                gstNumber: '',
-                state: {
-                  code: '',
-                  name: ''
-                },
-                stateCode: '',
-                stateName: ''
-              }
-              : results.body.addresses[0],
+          addressArray: normalizedAddresses,
+          partyBillingAddress: defaultAddress,
+          partyShippingAddress: defaultAddress,
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
       }
@@ -3396,6 +3391,9 @@ export class SalesInvoice extends React.Component<Props> {
     item.sacNumber = selectedCode == 'sac' ? details.sacNumber : '';
     item.warehouse = Number(details.warehouse);
     item.discountDetails = details.discountDetails ? details.discountDetails : undefined;
+    const previousTaxNames = (item.taxDetailsArray || []).map((tax) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    const updatedTaxNames = (details.taxDetailsArray || []).map((tax) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    item.taxesUserModified = item.taxesUserModified || previousTaxNames !== updatedTaxNames;
     item.taxDetailsArray = details.taxDetailsArray;
     item.taxesUserCleared = !details.taxDetailsArray || details.taxDetailsArray.length === 0;
     item.percentDiscountArray = details.percentDiscountArray ? details.percentDiscountArray : [];

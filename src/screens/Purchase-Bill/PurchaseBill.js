@@ -42,7 +42,7 @@ import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
-import { createEndpoint, formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount, normalizeAccountAddress, normalizeAccountAddresses } from '@/utils/helper';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
 import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
 
@@ -635,33 +635,35 @@ export class PurchaseBill extends React.Component {
 
   selectBillToAddress = (address) => {
     console.log(address);
-    this.setState({ BillToAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ BillToAddress: normalizedAddress });
     if (this.state.billToSameAsShipTo) {
-      this.setState({ shipToAddress: address });
+      this.setState({ shipToAddress: normalizedAddress });
     }
   };
 
   selectBillFromAddress = (address) => {
     console.log('bill from', address);
-    this.setState({ BillFromAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ BillFromAddress: normalizedAddress });
     if (this.state.billFromSameAsShipFrom) {
-      this.setState({ shipFromAddress: address });
+      this.setState({ shipFromAddress: normalizedAddress });
     }
   };
 
   selectShipToAddress = (address) => {
     console.log('shipping to', address);
-    this.setState({ shipToAddress: address.addresses[0] });
+    this.setState({ shipToAddress: normalizeAccountAddress(address.addresses[0]) });
   };
 
   selectShipToAddressFromEditAddressScreen = (address) => {
     console.log('shipping to', address);
-    this.setState({ shipToAddress: address });
+    this.setState({ shipToAddress: normalizeAccountAddress(address) });
   };
 
   selectShipFromAddress = (address) => {
     console.log('shipping from', address);
-    this.setState({ shipFromAddress: address });
+    this.setState({ shipFromAddress: normalizeAccountAddress(address) });
   };
 
   async getExchangeRateToINR(currency) {
@@ -881,21 +883,38 @@ export class PurchaseBill extends React.Component {
   async getCompanyAddress() {
     const result = await InvoiceService.getCompanyBranchesDetails();
     if (result.body && result.status == 'success') {
-      await this.setState({ allBillingToAddresses: result.body.addresses });
-      for (let i = 0; i < result.body.addresses.length; i++) {
-        const adddressArray = await result.body.addresses[i];
+      const normalizedAddresses = normalizeAccountAddresses(result.body.addresses);
+      let selectedBillTo;
+      for (let i = 0; i < normalizedAddresses.length; i++) {
+        const adddressArray = normalizedAddresses[i];
         if (adddressArray.branches) {
           for (let j = 0; j < adddressArray.branches.length; j++) {
             const address = adddressArray.branches[j];
             if (address.isDefault && address.isHeadQuarter) {
               console.log('company address Array ' + JSON.stringify(adddressArray));
-              await this.setState({ BillToAddress: adddressArray });
-              (await this.state.billToSameAsShipTo) ? this.setState({ shipToAddress: adddressArray }) : null;
+              selectedBillTo = adddressArray;
               break;
             }
           }
         }
+        if (selectedBillTo) {
+          break;
+        }
       }
+      // Fallback: default/first company address (covers UK county addresses and non-HQ branches)
+      if (!selectedBillTo && normalizedAddresses.length > 0) {
+        selectedBillTo =
+          normalizedAddresses.find((item) => item.isDefault) || normalizedAddresses[0];
+      }
+      await this.setState({
+        allBillingToAddresses: normalizedAddresses,
+        ...(selectedBillTo
+          ? {
+              BillToAddress: selectedBillTo,
+              ...(this.state.billToSameAsShipTo ? { shipToAddress: selectedBillTo } : {}),
+            }
+          : {}),
+      });
     }
   }
 
@@ -906,9 +925,9 @@ export class PurchaseBill extends React.Component {
       console.log('Ware house Array ' + JSON.stringify(wareHouse));
       for (let i = 0; i < wareHouse.length; i++) {
         if (wareHouse[i].isDefault) {
-          const address = wareHouse[i].addresses[0];
+          const address = wareHouse[i].addresses?.[0];
           if (address) {
-            await this.setState({ shipToAddress: address });
+            await this.setState({ shipToAddress: normalizeAccountAddress(address) });
             break;
           }
         }
@@ -1166,6 +1185,11 @@ export class PurchaseBill extends React.Component {
     if (itemDetails.taxesUserCleared) {
       return [];
     }
+    // Copied voucher lines use their API tax snapshot; manually changed taxes
+    // use the user's selection. Untouched new lines use stock/account defaults.
+    if (itemDetails.isNew === false || itemDetails.taxesUserModified) {
+      return this.dedupeTaxDetailRows(itemDetails.taxDetailsArray || []);
+    }
     const hierarchicalRows = this.getHierarchicalResolvedTaxRows(itemDetails);
     const hSet = new Set(
       hierarchicalRows.map((r) => r && r.uniqueName).filter(Boolean)
@@ -1360,6 +1384,8 @@ export class PurchaseBill extends React.Component {
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(results.body.addresses)
         // console.log('address body', results.body);
+        const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
+        const defaultAddress = normalizedAddresses.length < 1 ? {} : normalizedAddresses[0];
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1368,10 +1394,10 @@ export class PurchaseBill extends React.Component {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses.length < 1 ? [] : results.body.addresses,
-          BillFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          addressArray: normalizedAddresses,
+          BillFromAddress: defaultAddress,
           // BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
-          shipFromAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+          shipFromAddress: defaultAddress,
           // shipToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
         });
@@ -3423,6 +3449,8 @@ export class PurchaseBill extends React.Component {
       0,
     );
     const item = this.state.addedItems[index];
+    const previousTaxNames = (item.taxDetailsArray || []).map((tax) => tax?.uniqueName).filter(Boolean).sort().join('|');
+    const updatedTaxNames = (details.taxDetailsArray || []).map((tax) => tax?.uniqueName).filter(Boolean).sort().join('|');
     const updatedItem = {
       ...item,
       quantity: Number(details.quantityText),
@@ -3443,6 +3471,7 @@ export class PurchaseBill extends React.Component {
       warehouse: Number(details.warehouse),
       discountDetails: details.discountDetails ? details.discountDetails : undefined,
       taxDetailsArray: details.taxDetailsArray,
+      taxesUserModified: item.taxesUserModified || previousTaxNames !== updatedTaxNames,
       taxesUserCleared: !details.taxDetailsArray || details.taxDetailsArray.length === 0,
       percentDiscountArray: details.percentDiscountArray ? details.percentDiscountArray : [],
       fixedDiscount: details.fixedDiscount ? details.fixedDiscount : { discountValue: 0 },
