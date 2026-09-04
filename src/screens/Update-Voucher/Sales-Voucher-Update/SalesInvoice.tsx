@@ -39,7 +39,7 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
-import { createEndpoint, formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount, normalizeAccountAddress, normalizeAccountAddresses } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
@@ -295,15 +295,16 @@ export class SalesInvoice extends React.Component<Props, State> {
 
   selectBillingAddress = (address) => {
     console.log(address);
-    this.setState({ partyBillingAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ partyBillingAddress: normalizedAddress });
     if (this.state.billSameAsShip) {
-      this.setState({ partyShippingAddress: address });
+      this.setState({ partyShippingAddress: normalizedAddress });
     }
   };
 
   selectShippingAddress = (address) => {
     console.log('shipping add', address);
-    this.setState({ partyShippingAddress: address });
+    this.setState({ partyShippingAddress: normalizeAccountAddress(address) });
   };
 
   // func1 = async () => {
@@ -1562,7 +1563,7 @@ console.log('details', details);
       if (results.body) {
         const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
         if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return addresses;
+          return normalizeAccountAddresses(addresses)
         }
         if (results.body.currency != this.state.companyCountryDetails?.currency?.code) {
           await this.getExchangeRateToINR(results.body.currency);
@@ -1579,16 +1580,19 @@ console.log('details', details);
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(addresses)
-        const emptyAddress = {
-          address: '',
-          gstNumber: '',
-          state: {
-            code: '',
-            name: ''
-          },
-          stateCode: '',
-          stateName: ''
-        };
+        const normalizedAddresses = normalizeAccountAddresses(addresses);
+        const defaultAddress = normalizedAddresses.length < 1
+          ? {
+            address: '',
+            gstNumber: '',
+            state: {
+              code: '',
+              name: ''
+            },
+            stateCode: '',
+            stateName: ''
+          }
+          : normalizedAddresses[0];
         await new Promise<void>((resolve) => {
           this.setState({
             ...(!isUpdateParty && { addedItems: [] }),
@@ -1598,9 +1602,9 @@ console.log('details', details);
             countryDeatils: results.body.country,
             currency: results.body.currency,
             currencySymbol: results.body.currencySymbol,
-            addressArray: addresses,
-            partyBillingAddress: addresses[0] ?? emptyAddress,
-            partyShippingAddress: addresses[0] ?? emptyAddress,
+            addressArray: normalizedAddresses,
+            partyBillingAddress: defaultAddress,
+            partyShippingAddress: defaultAddress,
           }, () => resolve());
         });
         return results.body;

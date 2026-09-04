@@ -40,7 +40,7 @@ import { FONT_FAMILY } from '@/utils/constants';
 import CheckBox from 'react-native-check-box';
 import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
-import { createEndpoint, formatAmount } from '@/utils/helper';
+import { createEndpoint, formatAmount, normalizeAccountAddress, normalizeAccountAddresses } from '@/utils/helper';
 import { CommonService } from '@/core/services/common/common.service';
 import Toast from '@/components/Toast';
 import OcrDocumentPreviewModal from '@/screens/Scan2/components/OcrDocumentPreviewModal';
@@ -357,33 +357,35 @@ export class PurchaseBill extends React.Component<Props, State> {
 
   selectBillToAddress = (address) => {
     console.log(address);
-    this.setState({ BillToAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ BillToAddress: normalizedAddress });
     if (this.state.billToSameAsShipTo) {
-      this.setState({ shipToAddress: address });
+      this.setState({ shipToAddress: normalizedAddress });
     }
   };
 
   selectBillFromAddress = (address) => {
     console.log('bill from', address);
-    this.setState({ BillFromAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ BillFromAddress: normalizedAddress });
     if (this.state.billFromSameAsShipFrom) {
-      this.setState({ shipFromAddress: address });
+      this.setState({ shipFromAddress: normalizedAddress });
     }
   };
 
   selectShipToAddress = (address) => {
     console.log('shipping to', address);
-    this.setState({ shipToAddress: address.addresses[0] });
+    this.setState({ shipToAddress: normalizeAccountAddress(address.addresses[0]) });
   };
 
   selectShipToAddressFromEditAddressScreen = (address) => {
     console.log('shipping to', address);
-    this.setState({ shipToAddress: address });
+    this.setState({ shipToAddress: normalizeAccountAddress(address) });
   };
 
   selectShipFromAddress = (address) => {
     console.log('shipping from', address);
-    this.setState({ shipFromAddress: address });
+    this.setState({ shipFromAddress: normalizeAccountAddress(address) });
   };
 
   async getExchangeRateToINR(currency) {
@@ -631,21 +633,38 @@ export class PurchaseBill extends React.Component<Props, State> {
   async getCompanyAddress() {
     const result = await InvoiceService.getCompanyBranchesDetails();
     if (result.body && result.status == 'success') {
-      await this.setState({ allBillingToAddresses: result.body.addresses });
-      for (let i = 0; i < result.body.addresses.length; i++) {
-        const adddressArray = await result.body.addresses[i];
+      const normalizedAddresses = normalizeAccountAddresses(result.body.addresses);
+      let selectedBillTo: any;
+      for (let i = 0; i < normalizedAddresses.length; i++) {
+        const adddressArray = normalizedAddresses[i];
         if (adddressArray.branches) {
           for (let j = 0; j < adddressArray.branches.length; j++) {
             const address = adddressArray.branches[j];
             if (address.isDefault && address.isHeadQuarter) {
               console.log('company address Array ' + JSON.stringify(adddressArray));
-              await this.setState({ BillToAddress: adddressArray });
-              (await this.state.billToSameAsShipTo) ? this.setState({ shipToAddress: adddressArray }) : null;
+              selectedBillTo = adddressArray;
               break;
             }
           }
         }
+        if (selectedBillTo) {
+          break;
+        }
       }
+      // Fallback: default/first company address (covers UK county addresses and non-HQ branches)
+      if (!selectedBillTo && normalizedAddresses.length > 0) {
+        selectedBillTo =
+          normalizedAddresses.find((item: any) => item.isDefault) || normalizedAddresses[0];
+      }
+      await this.setState({
+        allBillingToAddresses: normalizedAddresses,
+        ...(selectedBillTo
+          ? {
+              BillToAddress: selectedBillTo,
+              ...(this.state.billToSameAsShipTo ? { shipToAddress: selectedBillTo } : {}),
+            }
+          : {}),
+      });
     }
   }
 
@@ -656,9 +675,9 @@ export class PurchaseBill extends React.Component<Props, State> {
       console.log('Ware house Array ' + JSON.stringify(wareHouse));
       for (let i = 0; i < wareHouse.length; i++) {
         if (wareHouse[i].isDefault) {
-          const address = wareHouse[i].addresses[0];
+          const address = wareHouse[i].addresses?.[0];
           if (address) {
-            await this.setState({ shipToAddress: address });
+            await this.setState({ shipToAddress: normalizeAccountAddress(address) });
             break;
           }
         }
@@ -1600,7 +1619,7 @@ export class PurchaseBill extends React.Component<Props, State> {
       if (results.body) {
         const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
         if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return addresses;
+          return normalizeAccountAddresses(addresses)
         }
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
@@ -1617,6 +1636,8 @@ export class PurchaseBill extends React.Component<Props, State> {
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(addresses)
+        const normalizedAddresses = normalizeAccountAddresses(addresses);
+        const defaultAddress = normalizedAddresses.length < 1 ? {} : normalizedAddresses[0];
         await new Promise<void>((resolve) => {
           this.setState({
             ...(!isUpdateParty && { addedItems: [] }),
@@ -1626,9 +1647,9 @@ export class PurchaseBill extends React.Component<Props, State> {
             countryDeatils: results.body.country,
             currency: results.body.currency,
             currencySymbol: results.body.currencySymbol,
-            addressArray: addresses,
-            BillFromAddress: addresses[0] ?? {},
-            shipFromAddress: addresses[0] ?? {},
+            addressArray: normalizedAddresses,
+            BillFromAddress: defaultAddress,
+            shipFromAddress: defaultAddress,
           }, () => resolve());
         });
         await this.getBillToAndShipToAddress();
