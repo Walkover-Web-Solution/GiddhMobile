@@ -1,10 +1,11 @@
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import DateFilter from "./component/DateFilter";
 import ChartComponent from "./ChartComponent";
 import BankAccountList from "./BankAccountList";
 import moment from "moment";
+import { getCache, getCacheScope, setCache } from "@/core/cache";
 
 const ProfitLossScreen = () => {
     const {styles} = useCustomTheme(makeStyles, 'Stock');
@@ -14,11 +15,40 @@ const ProfitLossScreen = () => {
     const [date, setDate] = useState<{ startDate: string, endDate: string }>({ startDate: moment().subtract(30, 'd').format('DD-MM-YYYY'), endDate: moment().format('DD-MM-YYYY') });
     const [dateMode, setDateMode] = useState('defaultDates');
     const [activeDateFilter, setActiveDateFilter] = useState('');
+    const [datesReady, setDatesReady] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const optionModalizeRef = useRef(null);
     const branchListModalRef = useRef(null);
     const [consolidatedBranch, setConsolidatedBranch] = useState(' ');
     const [selectedBranch, setSelectedBranch] = useState({});
+
+    useEffect(() => {
+        (async () => {
+            const saved = await getCache<{ startDate: string, endDate: string, dateMode?: string, activeDateFilter?: string }>(
+                await getCacheScope('profit_loss', { extra: 'last-dates' })
+            );
+            if (saved?.startDate && saved?.endDate) {
+                setDate({ startDate: saved.startDate, endDate: saved.endDate });
+                if (saved.dateMode) setDateMode(saved.dateMode);
+                if (saved.activeDateFilter !== undefined) setActiveDateFilter(saved.activeDateFilter);
+            }
+            setDatesReady(true);
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (!datesReady) {
+            return;
+        }
+        void getCacheScope('profit_loss', { extra: 'last-dates' }).then((key) => {
+            void setCache(key, {
+                startDate: date.startDate,
+                endDate: date.endDate,
+                dateMode,
+                activeDateFilter,
+            });
+        });
+    }, [datesReady, date.startDate, date.endDate, dateMode, activeDateFilter]);
 
     const onRefresh = useCallback(() => { 
         setRefreshing(true); 
@@ -57,14 +87,16 @@ const ProfitLossScreen = () => {
           refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }
           >
             <View key={chartKey}>
-              <ChartComponent
-                date={date} 
-                modalRef={branchListModalRef} 
-                setConsolidatedBranch={setConsolidatedBranch}
-                consolidatedBranch={consolidatedBranch}
-                setSelectedBranch={setSelectedBranch}
-                selectedBranch={selectedBranch}
-              />
+              {datesReady ? (
+                <ChartComponent
+                  date={date} 
+                  modalRef={branchListModalRef} 
+                  setConsolidatedBranch={setConsolidatedBranch}
+                  consolidatedBranch={consolidatedBranch}
+                  setSelectedBranch={setSelectedBranch}
+                  selectedBranch={selectedBranch}
+                />
+              ) : null}
             </View>
             <View key={bankAccountKey}>
                 <BankAccountList />

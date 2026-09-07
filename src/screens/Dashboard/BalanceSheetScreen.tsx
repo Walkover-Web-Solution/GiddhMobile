@@ -134,6 +134,7 @@ const BalanceSheetScreen = () => {
         setBalanceSheet(cached.groupDetails);
         setLoading(false);
       } else {
+        setBalanceSheet([]);
         setLoading(true);
       }
 
@@ -142,7 +143,7 @@ const BalanceSheetScreen = () => {
         const groupDetails = response?.body?.groupDetails ?? [];
         setBalanceSheet(groupDetails);
         await setCache(cacheKey, { groupDetails } as BalanceSheetCacheData);
-      }else{
+      } else if (response?.data?.message) {
         TOAST({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
       }
       setLoading(false);

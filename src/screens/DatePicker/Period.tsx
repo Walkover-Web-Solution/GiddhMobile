@@ -7,6 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { CompanyService } from '@/core/services/company/company.service';
 import colors from '@/utils/colors';
 import { withTranslation } from 'react-i18next';
+import { getCache, getCacheScope, setCache } from '@/core/cache';
 
 export class Period extends React.Component {
   constructor(props) {
@@ -21,20 +22,29 @@ export class Period extends React.Component {
   async getFinancialYear () {
     this.setState({ isLoading: true })
     try {
+      const cacheKey = await getCacheScope('profit_loss', { extra: 'fy-start' });
+      const cached = await getCache<{ financialYearStarts: string }>(cacheKey);
+      if (cached?.financialYearStarts) {
+        this.setState({ currentFinancialYearStartDate: cached.financialYearStarts });
+      }
+
       const response = await CompanyService.getFinancialYear();
       if( response.status === 'success' && response?.body?.financialYears ) {
         let currentFinancialYearStartDate;
-        const todayDate = moment().startOf('day').format('DD-MM-YYYY');
+        const todayDate = moment().startOf('day');
 
         response?.body?.financialYears?.forEach((item: any) => {
-          if (moment(todayDate, 'DD-MM-YYYY').isAfter(moment(item?.financialYearStarts, 'DD-MM-YYYY')) && moment(todayDate, 'DD-MM-YYYY').isBefore(moment(item.financialYearEnds, 'DD-MM-YYYY'))) {
+          const starts = moment(item?.financialYearStarts, 'DD-MM-YYYY');
+          const ends = moment(item.financialYearEnds, 'DD-MM-YYYY');
+          if (todayDate.isSameOrAfter(starts, 'day') && todayDate.isSameOrBefore(ends, 'day')) {
             currentFinancialYearStartDate = item.financialYearStarts;
           }
         })
 
-        this.setState({
-          currentFinancialYearStartDate
-        })
+        if (currentFinancialYearStartDate) {
+          this.setState({ currentFinancialYearStartDate });
+          void setCache(cacheKey, { financialYearStarts: currentFinancialYearStartDate });
+        }
       }
     } catch (error) {
       console.error('------ getFinancialYear -----', error)
@@ -103,7 +113,7 @@ export class Period extends React.Component {
           disabled={this.state.isLoading}
           style={styles.periodButton}
           onPress={() => {
-            this.props.setActiveDateFilter('FY');
+            this.props.setActiveDateFilter('FY', 'FY');
             this.props.selectDate(
               moment(this.state.currentFinancialYearStartDate, 'DD-MM-YYYY').format('DD-MM-YYYY'),
               moment().format('DD-MM-YYYY')

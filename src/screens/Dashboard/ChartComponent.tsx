@@ -66,6 +66,9 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
           applyProfitLossData(cached);
           setChartLoading(false);
         } else {
+          // Never keep the previous date range on screen — that looked like
+          // "random" offline data when the user changed This Month → FYTD.
+          applyProfitLossData({ totalExpenses: {}, revenue: {}, incomeBeforeTaxes: {} });
           setChartLoading(true);
         }
 
@@ -78,7 +81,7 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
             };
             applyProfitLossData(freshData);
             await setCache(cacheKey, freshData);
-        }else{
+        } else if (response?.data?.message) {
             Toast({message: response?.data?.message, position:'BOTTOM',duration:'LONG'})
         }
         setChartLoading(false);
@@ -152,8 +155,6 @@ const ChartComponent = ({date, modalRef, setConsolidatedBranch, consolidatedBran
         text: t('chartComponent.expense')
     }
     ];
-console.log("pie data", pieData, totalExpense, totalIncome, netPL);
-
     return (
     <View style={styles.container}>
         { !chartLoading ? 

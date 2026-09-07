@@ -1879,6 +1879,13 @@ export class SalesInvoice extends React.Component<Props> {
   }
 
 
+  getCurrencySymbolForAddedItems() {
+    if (this.state.invoiceType == INVOICE_TYPE.cash) {
+      return this.state.companyCountryDetails?.currency?.symbol || this.state.currencySymbol || '';
+    }
+    return this.state.currencySymbol || '';
+  }
+
   renderAddItemButton() {
     return (
       <TouchableOpacity
@@ -1887,7 +1894,7 @@ export class SalesInvoice extends React.Component<Props> {
             this.props.navigation.navigate('AddInvoiceItemScreen', {
               updateAddedItems: (this.updateAddedItems).bind(this),
               addedItems: this.state.addedItems,
-              currencySymbol: this.state.invoiceType == INVOICE_TYPE.cash ? this.state.companyCountryDetails.currency.symbol : this.state.currencySymbol
+              currencySymbol: this.getCurrencySymbolForAddedItems()
             });
           } else {
             alert(this.props.t('purchaseBill.pleaseSelectParty'));
@@ -1932,7 +1939,7 @@ export class SalesInvoice extends React.Component<Props> {
               this.props.navigation.navigate('AddInvoiceItemScreen', {
                 updateAddedItems: (this.updateAddedItems).bind(this),
                 addedItems: this.state.addedItems,
-                currencySymbol: this.state.invoiceType == INVOICE_TYPE.cash ? this.state.companyCountryDetails.currency.symbol : this.state.currencySymbol
+                currencySymbol: this.getCurrencySymbolForAddedItems()
               });
             }}>
             <AntDesign name={'plus'} color={'#229F5F'} size={16}  />
