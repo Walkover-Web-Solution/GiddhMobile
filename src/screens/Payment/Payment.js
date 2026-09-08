@@ -36,6 +36,17 @@ import routes from '@/navigation/routes';
 import BottomSheet from '@/components/BottomSheet';
 import { formatAmount } from '@/utils/helper';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
+import { CommonService } from '@/core/services/common/common.service';
+import Toast from '@/components/Toast';
+import OcrDocumentPreviewModal from '@/screens/Scan2/components/OcrDocumentPreviewModal';
+import {
+  fetchScan2OcrData,
+  getOcrMatchedAccount,
+  markScan2DocumentComplete,
+  handleScan2AwareBack,
+  navigateBackToScan2,
+  resolveScan2VoucherVersion,
+} from '@/screens/Scan2/scan2Ocr.utils';
 
 const {SafeAreaOffsetHelper} = NativeModules;
 const INVOICE_TYPE = {
@@ -65,6 +76,8 @@ export class Payment extends React.Component {
     this.paymentModalRef = React.createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.focusRef = React.createRef();
+    this.ocrDataBody = null;
+    this.ocrFetchPromise = null;
     this.state = {
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
@@ -149,7 +162,9 @@ export class Payment extends React.Component {
         tdsOrTcsTaxAmount: 0,
       },
       isAmountFieldInFocus: false,
-      selectedSalesPerson: undefined
+      selectedSalesPerson: undefined,
+      ocrEncodedData: null,
+      showOcrPreview: false,
     };
     this.keyboardMargin = new Animated.Value(0);
   }
@@ -361,6 +376,11 @@ export class Payment extends React.Component {
         this.setState({loading: false});
       }
       if (results.body) {
+        const scanParams = this.props.route?.params;
+        await markScan2DocumentComplete(scanParams, this.state.companyVersionNumber, {
+          ocrType: 'expense',
+          voucherType: 'payment',
+        });
         alert(this.props.t('payment.paymentCreatedSuccessfully'));
         const partyDetails = this.state.partyDetails;
         const partyName = this.state.partyName;
@@ -370,6 +390,9 @@ export class Payment extends React.Component {
         this.getAllTaxes();
         this.getCompanyVersionNumber();
         DeviceEventEmitter.emit(APP_EVENTS.PaymentCreated, {});
+        if (navigateBackToScan2(this.props.navigation, scanParams)) {
+          return;
+        }
         if (type == 'navigate') {
           this.props.navigation.navigate("Home", {
             screen: routes.Parties,
@@ -393,6 +416,28 @@ export class Payment extends React.Component {
       this.setState({allVoucherInvoice: []});
     }
   }
+
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps?.route?.params?.refetchDataOnNavigation !==
+      this.props?.route?.params?.refetchDataOnNavigation
+    ) {
+      this.handleScan2VoucherRouteRefresh();
+    }
+  }
+
+  bootstrapScan2OcrFlow = async () => {
+    await this.getCompanyVersionNumber();
+    await this.initializeScan2OcrFlow();
+  };
+
+  handleScan2VoucherRouteRefresh = () => {
+    this.clearAll();
+    const scanParams = this.props.route?.params;
+    if (scanParams?.isFromScan2 && scanParams?.requestId) {
+      void this.bootstrapScan2OcrFlow();
+    }
+  };
 
   componentDidMount() {
     this.searchCalls();
@@ -424,6 +469,8 @@ export class Payment extends React.Component {
         this.setState({bottomOffset});
       });
     }
+
+    void this.bootstrapScan2OcrFlow();
   }
 
   getCompanyVersionNumber = async () => {
@@ -458,7 +505,7 @@ export class Payment extends React.Component {
           <TouchableOpacity
             style={{padding: 10}}
             onPress={() => {
-              this.props.navigation.goBack();
+              handleScan2AwareBack(this.props.navigation, this.props.route?.params);
             }}>
             <Icon name={'Backward-arrow'} size={18} color={'#FFFFFF'} />
           </TouchableOpacity>
@@ -466,6 +513,16 @@ export class Payment extends React.Component {
             <Text style={style.invoiceType}>{this.props.t('payment.payment')}</Text>
           </TouchableOpacity>
         </View>
+        {!!this.state.ocrEncodedData && (
+          <TouchableOpacity
+            style={{marginRight: 16, alignSelf: 'center'}}
+            onPress={() => this.setState({showOcrPreview: true})}
+          >
+            <Text style={{color: '#FFFFFF', fontFamily: 'AvenirLTStd-Book'}}>
+              {this.props.t('scan2.preview', {defaultValue: 'Preview'})}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
@@ -665,10 +722,11 @@ export class Payment extends React.Component {
                       searchError: '',
                       isSearchingParty: false,
                     },
-                    () => {
-                      this.searchAccount();
+                    async () => {
+                      await this.searchAccount();
                       Keyboard.dismiss();
                       this.state.partyName ? this.handleInputFocus() : null;
+                      await this.prefillFromOcrData();
                     },
                   );
                 } else {
@@ -712,10 +770,162 @@ export class Payment extends React.Component {
     }
   }
 
+  applyOcrBodyToState = async (body) => {
+    const encodedData = body?.encodedData ?? body?.encodedFile ?? null;
+    const amount =
+      body?.voucherTotal?.amountForAccount ??
+      body?.entries?.[0]?.voucherTotal?.amountForAccount ??
+      body?.entries?.[0]?.transactions?.[0]?.amount ??
+      '';
+
+    this.setState({
+      ocrEncodedData: encodedData,
+      date: body?.date ? moment(body.date, 'DD-MM-YYYY') : this.state.date,
+      amountForReceipt:
+        amount !== '' && amount != null
+          ? String(Math.round(Number(amount)))
+          : this.state.amountForReceipt,
+      amountPaidNowText:
+        amount !== '' && amount != null ? Number(amount) : this.state.amountPaidNowText,
+    });
+  };
+
+  loadScan2OcrBody = async () => {
+    if (this.ocrDataBody) {
+      return this.ocrDataBody;
+    }
+    if (this.ocrFetchPromise) {
+      return this.ocrFetchPromise;
+    }
+
+    this.ocrFetchPromise = (async () => {
+      const scanParams = this.props.route?.params;
+      if (!scanParams?.isFromScan2 || !scanParams?.requestId) {
+        return null;
+      }
+
+      try {
+        const voucherVersion = await resolveScan2VoucherVersion(
+          this.state.companyVersionNumber,
+          () => AsyncStorage.getItem(STORAGE_KEYS.companyVersionNumber)
+        );
+
+        const response = await fetchScan2OcrData(scanParams, voucherVersion, {
+          ocrType: 'expense',
+          voucherType: 'payment',
+        });
+
+        if (response?.status !== 'success' || !response?.body) {
+          Toast({
+            message: response?.message ?? 'Unable to load OCR data',
+            duration: 'LONG',
+            position: 'BOTTOM',
+          });
+          return null;
+        }
+
+        this.ocrDataBody = response.body;
+        return this.ocrDataBody;
+      } catch (e) {
+        console.warn('----- Error fetching Scan2 OCR data ------', e);
+        Toast({
+          message: e?.data?.message ?? e?.message ?? 'Unable to load OCR data',
+          duration: 'LONG',
+          position: 'BOTTOM',
+        });
+        return null;
+      }
+    })();
+
+    try {
+      return await this.ocrFetchPromise;
+    } finally {
+      this.ocrFetchPromise = null;
+    }
+  };
+
+  initializeScan2OcrFlow = async () => {
+    const scanParams = this.props.route?.params;
+    if (!scanParams?.isFromScan2 || !scanParams?.requestId) {
+      return;
+    }
+
+    this.setState({loading: true});
+    try {
+      const body = await this.loadScan2OcrBody();
+      if (!body) {
+        return;
+      }
+
+      const matched = getOcrMatchedAccount(body);
+      if (matched) {
+        await new Promise((resolve) => {
+          this.setState({partyName: matched, searchPartyName: matched.name}, () => resolve());
+        });
+        const partyDetails = await this.searchAccount();
+        if (!partyDetails) {
+          await this.setState({
+            partyName: '',
+            searchPartyName: '',
+          });
+          Toast({
+            message: 'Unable to load matched party. Please select an account.',
+            duration: 'LONG',
+            position: 'BOTTOM',
+          });
+          return;
+        }
+        await this.applyOcrBodyToState(body);
+        this.state.partyName ? this.handleInputFocus() : null;
+      } else {
+        this.setState({searchPartyName: ''});
+      }
+    } catch (e) {
+      console.warn('----- Error in Scan2 OCR init ------', e);
+      Toast({
+        message: e?.data?.message ?? e?.message ?? 'Error loading OCR data',
+        duration: 'LONG',
+        position: 'BOTTOM',
+      });
+    } finally {
+      this.setState({loading: false});
+    }
+  };
+
+  /**
+   * Scan2 OCR create flow only: after account selection, fetch OCR voucher data and prefill.
+   */
+  prefillFromOcrData = async () => {
+    const scanParams = this.props.route?.params;
+    if (!scanParams?.isFromScan2 || !scanParams?.requestId) {
+      return;
+    }
+
+    try {
+      const body = await this.loadScan2OcrBody();
+      if (!body) {
+        return;
+      }
+      await this.applyOcrBodyToState(body);
+    } catch (e) {
+      console.warn('----- Error in OCR Prefill ------', e);
+      Toast({
+        message: e?.data?.message ?? e?.message ?? 'Error loading OCR data',
+        duration: 'LONG',
+        position: 'BOTTOM',
+      });
+    }
+  };
+
   async searchAccount() {
     this.setState({isSearchingParty: true});
     try {
-      const results = await InvoiceService.getAccountDetails(this.state.partyName.uniqueName);
+      const uniqueName = this.state.partyName?.uniqueName;
+      if (!uniqueName) {
+        this.setState({isSearchingParty: false});
+        return null;
+      }
+      const results = await InvoiceService.getAccountDetails(uniqueName);
       if (results.body) {
         if (results.body.currency != this.state.companyCountryDetails.currency.code) {
           await this.getExchangeRateToINR(results.body.currency);
@@ -765,13 +975,17 @@ export class Payment extends React.Component {
         });
 
         this.applyPartyTdsTcsTaxes(results.body, accountDefaultTaxNames);
+        return results.body;
       }
     } catch (e) {
       this.setState({searchResults: [], searchError: 'No Results', isSearchingParty: false});
     }
+    return null;
   }
 
   resetState = () => {
+    this.ocrDataBody = null;
+    this.ocrFetchPromise = null;
     this.setState({
       loading: false,
       invoiceType: INVOICE_TYPE.credit,
@@ -885,7 +1099,9 @@ export class Payment extends React.Component {
         mainTaxAmount: 0,
         tdsOrTcsTaxAmount: 0,
       },
-      selectedSalesPerson: undefined
+      selectedSalesPerson: undefined,
+      ocrEncodedData: null,
+      showOcrPreview: false,
     });
   };
 
@@ -1889,6 +2105,11 @@ export class Payment extends React.Component {
               />
             </View>
           )}
+          <OcrDocumentPreviewModal
+            visible={this.state.showOcrPreview}
+            encodedData={this.state.ocrEncodedData}
+            onClose={() => this.setState({showOcrPreview: false})}
+          />
         </Animated.ScrollView>
         {this.state.amountForReceipt > 0 &&
           this.state.partyName.name &&

@@ -251,3 +251,37 @@ export const validateGST = (gstNumber: string) => {
 
   return { isValid: true, stateCode };
 }
+
+/**
+ * Normalize account/company address so India `state` and UK `county` both work
+ * with existing state/stateCode/stateName consumers.
+ * Company addresses may only have flat stateCode/stateName (India) or county (UK).
+ */
+export const normalizeAccountAddress = (address: any) => {
+  if (!address) {
+    return address;
+  }
+
+  const region =
+    address.state ??
+    address.county ??
+    ((address.stateCode || address.stateName)
+      ? { code: address.stateCode || '', name: address.stateName || '' }
+      : null);
+
+  if (!region || (!region.code && !region.name)) {
+    return address;
+  }
+
+  return {
+    ...address,
+    state: address.state ?? region,
+    county: address.county ?? region,
+    stateCode: address.stateCode || region.code || '',
+    stateName: address.stateName || region.name || '',
+    gstNumber: address.gstNumber || address.taxNumber || '',
+  };
+};
+
+export const normalizeAccountAddresses = (addresses: any[] = []) =>
+  (addresses || []).map(normalizeAccountAddress);

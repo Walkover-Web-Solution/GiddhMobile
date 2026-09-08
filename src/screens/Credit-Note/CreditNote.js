@@ -37,7 +37,8 @@ import EditItemDetail from './EditItemDetails';
 import { FONT_FAMILY } from '../../utils/constants';
 import CheckBox from 'react-native-check-box';
 import BottomSheet from '@/components/BottomSheet';
-import { formatAmount } from '@/utils/helper';
+import ConfirmationBottomSheet from '@/components/ConfirmationBottomSheet';
+import { formatAmount, normalizeAccountAddress, normalizeAccountAddresses } from '@/utils/helper';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
 import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
@@ -69,12 +70,15 @@ export class CreditNote extends React.Component<Props> {
     this.invoiceBottomSheetRef = createRef();
     this.stateBottomSheetRef = createRef();
     this.copyVoucherBottomSheetRef = createRef();
+    this.eInvoiceConfirmBottomSheetRef = createRef();
+    this.pendingEInvoiceCreate = null;
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
       placeOfSupply: null,
       stateList: [],
       invoiceType: INVOICE_TYPE.creditNote,
       loading: false,
+      eInvoiceConfirmMessage: '',
       bottomOffset: 0,
       showInvoiceModal: false,
       partyName: undefined,
@@ -626,15 +630,16 @@ export class CreditNote extends React.Component<Props> {
 
   selectBillingAddress = (address) => {
     console.log(address);
-    this.setState({ partyBillingAddress: address });
+    const normalizedAddress = normalizeAccountAddress(address);
+    this.setState({ partyBillingAddress: normalizedAddress });
     if (this.state.billSameAsShip) {
-      this.setState({ partyShippingAddress: address });
+      this.setState({ partyShippingAddress: normalizedAddress });
     }
   };
 
   selectShippingAddress = (address) => {
     console.log('shipping add', address);
-    this.setState({ partyShippingAddress: address });
+    this.setState({ partyShippingAddress: normalizeAccountAddress(address) });
   };
 
   // func1 = async () => {
@@ -1366,6 +1371,8 @@ export class CreditNote extends React.Component<Props> {
         }
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
+        const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
+        const defaultAddress = normalizedAddresses[0];
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1374,9 +1381,9 @@ export class CreditNote extends React.Component<Props> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses,
-          partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
+          addressArray: normalizedAddresses,
+          partyBillingAddress: defaultAddress,
+          partyShippingAddress: defaultAddress,
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
           placeOfSupply: results.body.addresses[0].state,
         });
@@ -1389,6 +1396,7 @@ export class CreditNote extends React.Component<Props> {
   resetState = () => {
     this.setState({
       loading: false,
+      eInvoiceConfirmMessage: '',
       invoiceType: INVOICE_TYPE.creditNote,
       bottomOffset: 0,
       showInvoiceModal: false,
@@ -1754,30 +1762,93 @@ export class CreditNote extends React.Component<Props> {
       }
 
       console.log('postBody is', JSON.stringify(postBody));
+      const uniqueName = this.state.partyName.uniqueName;
       const results = await InvoiceService.createVoucher(
         postBody,
-        this.state.partyName.uniqueName,
+        uniqueName,
         this.state.companyVersionNumber
       );
+      if (this.isEInvoiceConfirm(results)) {
+        this.setState({ loading: false });
+        this.showEInvoiceConfirmSheet(postBody, uniqueName, results);
+        return;
+      }
       this.setState({ loading: false });
       console.log(results);
-      if (results.body) {
-        // this.setState({loading: false});
-        alert(this.props.t('creditNote.creditNoteCreatedSuccessfully'));
-        this.resetState();
-        this.setActiveCompanyCountry();
-        this.getAllTaxes();
-        this.getAllDiscounts();
-        this.getAllWarehouse();
-        this.getAllAccountsModes();
-        this.getCompanyVersionNumber();
-        this.props.navigation.goBack();
-        DeviceEventEmitter.emit(APP_EVENTS.CreditNoteCreated, {});
+      if (results?.body) {
+        await this.handleCreditNoteCreated();
       }
     } catch (e) {
       console.log('problem occured', e);
       this.setState({ isSearchingParty: false, loading: false });
     }
+  }
+
+  isEInvoiceConfirm(results) {
+    return results?.status === 'einvoice-confirm' && results?.code === 'NOT_PERMITTED';
+  }
+
+  showEInvoiceConfirmSheet(postBody, uniqueName, results) {
+    this.pendingEInvoiceCreate = { postBody, uniqueName };
+    this.setState(
+      {
+        eInvoiceConfirmMessage: results?.message || 'Do you want to create E-Invoice for the voucher ?'
+      },
+      () => {
+        this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, true);
+      }
+    );
+  }
+
+  onConfirmEInvoice = () => {
+    this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, false);
+    const pending = this.pendingEInvoiceCreate;
+    if (!pending) {
+      return;
+    }
+    this.pendingEInvoiceCreate = null;
+    this.retryCreateCreditNote(pending.postBody, pending.uniqueName, true);
+  }
+
+  onRejectEInvoice = () => {
+    this.setBottomSheetVisible(this.eInvoiceConfirmBottomSheetRef, false);
+    const pending = this.pendingEInvoiceCreate;
+    if (!pending) {
+      return;
+    }
+    this.pendingEInvoiceCreate = null;
+    this.retryCreateCreditNote(pending.postBody, pending.uniqueName, false);
+  }
+
+  async retryCreateCreditNote(postBody, uniqueName, generateEInvoice) {
+    this.setState({ loading: true });
+    try {
+      const results = await InvoiceService.createVoucher(
+        { ...postBody, generateEInvoice },
+        uniqueName,
+        this.state.companyVersionNumber
+      );
+      this.setState({ loading: false });
+      if (results?.body) {
+        await this.handleCreditNoteCreated();
+      }
+    } catch (e) {
+      console.log('problem occured', e);
+      this.setState({ isSearchingParty: false, loading: false });
+    }
+  }
+
+  async handleCreditNoteCreated() {
+    alert(this.props.t('creditNote.creditNoteCreatedSuccessfully'));
+    this.resetState();
+    this.setActiveCompanyCountry();
+    this.getAllTaxes();
+    this.getAllDiscounts();
+    this.getAllWarehouse();
+    this.getAllAccountsModes();
+    this.getCompanyVersionNumber();
+    this.props.navigation.goBack();
+    DeviceEventEmitter.emit(APP_EVENTS.CreditNoteCreated, {});
   }
 
   renderAmount() {
@@ -3273,6 +3344,12 @@ export class CreditNote extends React.Component<Props> {
         {this.invoiceBottomSheet()}
         {this._renderCopyVoucherSheet()}
         {this._renderPdfPreviewModal()}
+        <ConfirmationBottomSheet
+          bottomSheetRef={this.eInvoiceConfirmBottomSheetRef}
+          rawMessage={this.state.eInvoiceConfirmMessage}
+          onConfirm={this.onConfirmEInvoice}
+          onReject={this.onRejectEInvoice}
+        />
       </View>
     );
   }

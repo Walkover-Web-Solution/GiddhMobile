@@ -33,4 +33,26 @@ export const commonUrls = {
   fetchEWayBills: (startDate, endDate, gstno, page: number) => createEndpoint(`company/:companyUniqueName/ewb?fromDate=${startDate}&toDate=${endDate}&gstin=${gstno}&page=${page}&count=20&branchUniqueName=:branchUniqueName&`),
   fetchSalesPersonData: (archive: boolean) => createEndpoint(`company/:companyUniqueName/salesperson?page=1&count=200&archive=${archive}&branchUniqueName=:branchUniqueName&lang=en`),
   createSalesPerson: createEndpoint('company/:companyUniqueName/salesperson?&branchUniqueName=:branchUniqueName&lang=en'),
+  getAllDocuments: (page: number, count: number, from: string, to: string, ocrType: string) =>
+    createEndpoint(
+      `company/:companyUniqueName/imports/all-document?branchUniqueName=:branchUniqueName&page=${page}&count=${count}&from=${from}&to=${to}&sort=desc&sortBy=DATE&ocrType=${ocrType}&lang=en`
+    ),
+  getDocumentSignedUrl: (fileName: string) =>
+    createEndpoint(
+      `company/:companyUniqueName/imports/signed-url?fileName=${encodeURIComponent(fileName)}&branchUniqueName=:branchUniqueName&lang=en`
+    ),
+  uploadDocument: (ocrType: string) =>
+    createEndpoint(
+      `company/:companyUniqueName/imports/document/upload?type=DOCUMENT_IMPORT&branchUniqueName=:branchUniqueName&ocrType=${ocrType}&lang=en`
+    ),
+  getOcrData: (params: {
+    requestId?: string;
+    nextToken?: string;
+    ocrType: string;
+    voucherType: string;
+    voucherVersion: string | number;
+  }) =>
+    createEndpoint(
+      `company/:companyUniqueName/ocr-data?currentToken=&nextToken=${encodeURIComponent(params.nextToken ?? '')}&voucherVersion=${params.voucherVersion}&voucherType=${encodeURIComponent(params.voucherType)}&requestId=${encodeURIComponent(params.requestId ?? '')}&ocrType=${params.ocrType}&branchUniqueName=:branchUniqueName&lang=en`
+    ),
 };

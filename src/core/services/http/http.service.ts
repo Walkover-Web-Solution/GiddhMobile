@@ -83,9 +83,9 @@ httpInstance.interceptors.request.use(async (reqConfig) => {
       reqConfig.url = reqConfig.url?.replace(':companyUniqueName', activeCompany);
     }
     const activeBranch = await AsyncStorage.getItem(STORAGE_KEYS.activeBranchUniqueName);
-    if (activeBranch) {
-      // replace company uniqueName in url with active company from storage
-      reqConfig.url = reqConfig.url?.replace(':branchUniqueName', activeBranch);
+    // Always replace placeholder; web APIs allow empty branchUniqueName
+    if (reqConfig.url?.includes(':branchUniqueName')) {
+      reqConfig.url = reqConfig.url.replace(':branchUniqueName', activeBranch ?? '');
     }
   }
   if (reqConfig?.url?.includes(':currency')) {
