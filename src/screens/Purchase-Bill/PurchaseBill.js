@@ -1392,7 +1392,10 @@ export class PurchaseBill extends React.Component {
         this.getPartyTypeFromAddress(results.body.addresses)
         // console.log('address body', results.body);
         const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
-        const defaultAddress = normalizedAddresses.length < 1 ? {} : normalizedAddresses[0];
+        const defaultAddress =
+          normalizedAddresses.find((item) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          {};
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1407,7 +1410,7 @@ export class PurchaseBill extends React.Component {
           shipFromAddress: defaultAddress,
           // shipToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
-          sourceOfSupply: results.body.addresses.length > 0 ? results.body.addresses[0].state : null,
+          sourceOfSupply: defaultAddress?.state || null,
         });
         await this.getBillToAndShipToAddress();
         let destinationOfSupply = null;

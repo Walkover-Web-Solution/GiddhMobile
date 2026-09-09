@@ -1373,7 +1373,10 @@ export class CreditNote extends React.Component<Props> {
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
-        const defaultAddress = normalizedAddresses[0];
+        const defaultAddress =
+          normalizedAddresses.find((item) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          {};
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1386,7 +1389,7 @@ export class CreditNote extends React.Component<Props> {
           partyBillingAddress: defaultAddress,
           partyShippingAddress: defaultAddress,
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
-          placeOfSupply: results.body.addresses[0].state,
+          placeOfSupply: defaultAddress?.state || null,
         });
       }
     } catch (e) {

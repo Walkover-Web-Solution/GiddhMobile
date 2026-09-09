@@ -1321,18 +1321,20 @@ export class SalesInvoice extends React.Component<Props> {
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(results.body.addresses)
         const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
-        const defaultAddress = normalizedAddresses.length < 1
-          ? {
-            address: '',
-            gstNumber: '',
-            state: {
-              code: '',
-              name: ''
-            },
-            stateCode: '',
-            stateName: ''
-          }
-          : normalizedAddresses[0];
+        const emptyAddress = {
+          address: '',
+          gstNumber: '',
+          state: {
+            code: '',
+            name: ''
+          },
+          stateCode: '',
+          stateName: ''
+        };
+        const defaultAddress =
+          normalizedAddresses.find((item) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          emptyAddress;
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1345,7 +1347,7 @@ export class SalesInvoice extends React.Component<Props> {
           partyBillingAddress: defaultAddress,
           partyShippingAddress: defaultAddress,
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
-          placeOfSupply: results.body.addresses.length > 0 ? results.body.addresses[0].state : null,
+          placeOfSupply: defaultAddress?.state || null,
         });
       }
     } catch (e) {

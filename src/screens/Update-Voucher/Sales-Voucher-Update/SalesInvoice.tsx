@@ -1593,18 +1593,20 @@ console.log('details', details);
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(addresses)
         const normalizedAddresses = normalizeAccountAddresses(addresses);
-        const defaultAddress = normalizedAddresses.length < 1
-          ? {
-            address: '',
-            gstNumber: '',
-            state: {
-              code: '',
-              name: ''
-            },
-            stateCode: '',
-            stateName: ''
-          }
-          : normalizedAddresses[0];
+        const emptyAddress = {
+          address: '',
+          gstNumber: '',
+          state: {
+            code: '',
+            name: ''
+          },
+          stateCode: '',
+          stateName: ''
+        };
+        const defaultAddress =
+          normalizedAddresses.find((item: any) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          emptyAddress;
         await new Promise<void>((resolve) => {
           this.setState({
             ...(!isUpdateParty && { addedItems: [] }),
@@ -1617,7 +1619,7 @@ console.log('details', details);
             addressArray: normalizedAddresses,
             partyBillingAddress: defaultAddress,
             partyShippingAddress: defaultAddress,
-            placeOfSupply: results.body.addresses.length > 0 ? results.body.addresses[0].state : null,
+            placeOfSupply: defaultAddress?.state || null,
           }, () => resolve());
 
         });

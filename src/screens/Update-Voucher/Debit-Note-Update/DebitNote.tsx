@@ -1591,6 +1591,11 @@ export class DebiteNote extends React.Component<Props, State> {
         }
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
+        const normalizedAddresses = normalizeAccountAddresses(addresses);
+        const defaultAddress =
+          normalizedAddresses.find((item: any) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          {};
         await this.setState({
           ...(!isUpdateParty && { addedItems: [] }),
           partyDetails: results.body,
@@ -1599,10 +1604,10 @@ export class DebiteNote extends React.Component<Props, State> {
           countryDeatils: results.body.country,
           currency: results.body.currency,
           currencySymbol: results.body.currencySymbol,
-          addressArray: results.body.addresses,
-          partyBillingAddress: results.body.addresses[0],
-          partyShippingAddress: results.body.addresses[0],
-          sourceOfSupply: results.body.addresses?.length > 0 ? results.body.addresses[0].state : null,
+          addressArray: normalizedAddresses,
+          partyBillingAddress: defaultAddress,
+          partyShippingAddress: defaultAddress,
+          sourceOfSupply: defaultAddress?.state || null,
         });
         let destinationOfSupply = null;
         try {
