@@ -413,8 +413,7 @@ class TransactionList extends React.Component<Props> {
                 </Text>
               </View>}
               <View style={styles.iconPlacingStyle}>
-                {this.props.transactionType == 'partyTransaction' &&
-                  this.props.item.voucherNo && (
+                {this.props.transactionType == 'partyTransaction' && (
                     <TouchableOpacity
                       delayPressIn={0}
                       hitSlop={{ right: 5, left: 5, top: 5, bottom: 5}}
@@ -427,8 +426,7 @@ class TransactionList extends React.Component<Props> {
                       {/* <GdSVGIcons.send style={styles.iconStyle} width={19} height={18} /> */}
                     </TouchableOpacity>
                   )}
-                {this.props.transactionType == 'partyTransaction' &&
-                  this.props.item.voucherNo && (
+                {this.props.transactionType == 'partyTransaction' && (
                   <>
                     <TouchableOpacity
                       delayPressIn={0}
@@ -448,7 +446,7 @@ class TransactionList extends React.Component<Props> {
                           companyVersionNumber:this.state.companyVersionNumber,
                           uniqueName:this.props.item.particular.uniqueName,
                           voucherInfo:{
-                            voucherNumber: [`${this.props.item.voucherNo}`],
+                            entryUniqueName : this.props.item.voucherUniqueName,
                             uniqueName: this.props.item.voucherUniqueName,
                             voucherType: `${this.props.item.voucherName}`,
                           }

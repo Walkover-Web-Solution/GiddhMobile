@@ -99,6 +99,7 @@ type State = {
   },
   placeOfSupply: any,
   stateList: Array<any>,
+  stateSearchTerm: string,
   currency: string,
   currencySymbol: string
   companyCountryDetails: any
@@ -170,6 +171,7 @@ export class SalesInvoice extends React.Component<Props, State> {
     this.state = {
       placeOfSupply: null,
       stateList: [],
+      stateSearchTerm: '',
       searchNamesOnly: [],
       test: Dropdown,
       loading: false,
@@ -3713,6 +3715,7 @@ console.log('details', details);
             <TouchableOpacity
               style={style.selectFieldTouchable}
               onPress={() => {
+                this.setState({ stateSearchTerm: '' });
                 this.setBottomSheetVisible(this.stateBottomSheetRef, true);
               }}
             >
@@ -3742,11 +3745,21 @@ console.log('details', details);
   }
 
   stateBottomSheet(){
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
     const ListEmptyComponent = () => {
       return (
         <View style={style.stateListEmptyContainer}>
           <Text style={style.regularText}>
-            {this.props.t('creditNote.noStateExist')}
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
           </Text>
         </View>
       )
@@ -3759,6 +3772,7 @@ console.log('details', details);
             this.state.stateList.length != 0
               ? this.setState({
                 placeOfSupply: item == null ? null : item,
+                stateSearchTerm: '',
               })
               : null;
             this.setBottomSheetVisible(this.stateBottomSheetRef, false);
@@ -3777,9 +3791,15 @@ console.log('details', details);
         bottomSheetRef={this.stateBottomSheetRef}
         headerText={this.props.t('creditNote.selectState')}
         headerTextColor='#229F5F'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
         flatListProps={{
-          data: this.state.stateList,
+          data: filteredStateList,
           renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
           ListEmptyComponent: <ListEmptyComponent/>
         }}
       />

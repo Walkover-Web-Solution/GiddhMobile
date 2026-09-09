@@ -144,6 +144,7 @@ export class DebiteNote extends React.Component<Props> {
       sourceOfSupply: null,
       destinationOfSupply: null,
       stateList: [],
+      stateSearchTerm: '',
       activeSupplyField: 'source',
       billSameAsShip: true,
       tdsOrTcsArray: [],
@@ -1496,6 +1497,7 @@ export class DebiteNote extends React.Component<Props> {
       sourceOfSupply: null,
       destinationOfSupply: null,
       stateList: [],
+      stateSearchTerm: '',
       activeSupplyField: 'source',
       selectedInvoice: '',
       billSameAsShip: true,
@@ -3171,6 +3173,7 @@ export class DebiteNote extends React.Component<Props> {
               style={style.selectFieldTouchable}
               onPress={() => {
                 this.setState({ activeSupplyField: field }, () => {
+                  this.setState({ stateSearchTerm: '' });
                   this.setBottomSheetVisible(this.stateBottomSheetRef, true);
                 });
               }}
@@ -3206,11 +3209,21 @@ export class DebiteNote extends React.Component<Props> {
   }
 
   stateBottomSheet() {
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
     const ListEmptyComponent = () => {
       return (
         <View style={style.stateListEmptyContainer}>
           <Text style={style.regularText}>
-            {this.props.t('creditNote.noStateExist')}
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
           </Text>
         </View>
       );
@@ -3222,8 +3235,8 @@ export class DebiteNote extends React.Component<Props> {
           onPress={() => {
             if (this.state.stateList.length != 0) {
               const update = this.state.activeSupplyField === 'source'
-                ? { sourceOfSupply: item == null ? null : item }
-                : { destinationOfSupply: item == null ? null : item };
+                ? { sourceOfSupply: item == null ? null : item, stateSearchTerm: '' }
+                : { destinationOfSupply: item == null ? null : item, stateSearchTerm: '' };
               this.setState(update);
             }
             this.setBottomSheetVisible(this.stateBottomSheetRef, false);
@@ -3240,9 +3253,15 @@ export class DebiteNote extends React.Component<Props> {
         bottomSheetRef={this.stateBottomSheetRef}
         headerText={this.props.t('creditNote.selectState')}
         headerTextColor='#ff6961'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
         flatListProps={{
-          data: this.state.stateList,
+          data: filteredStateList,
           renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
           ListEmptyComponent: <ListEmptyComponent />,
         }}
       />

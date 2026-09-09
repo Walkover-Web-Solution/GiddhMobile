@@ -76,6 +76,7 @@ export class CreditNote extends React.Component<Props> {
     this.state = {
       placeOfSupply: null,
       stateList: [],
+      stateSearchTerm: '',
       invoiceType: INVOICE_TYPE.creditNote,
       loading: false,
       eInvoiceConfirmMessage: '',
@@ -3183,6 +3184,7 @@ export class CreditNote extends React.Component<Props> {
             <TouchableOpacity
               style={style.selectFieldTouchable}
               onPress={() => {
+                this.setState({ stateSearchTerm: '' });
                 this.setBottomSheetVisible(this.stateBottomSheetRef, true);
               }}
             >
@@ -3212,11 +3214,21 @@ export class CreditNote extends React.Component<Props> {
   }
 
   stateBottomSheet(){
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
     const ListEmptyComponent = () => {
       return (
         <View style={style.stateListEmptyContainer}>
           <Text style={style.regularText}>
-            {this.props.t('creditNote.noStateExist')}
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
           </Text>
         </View>
       )
@@ -3229,6 +3241,7 @@ export class CreditNote extends React.Component<Props> {
             this.state.stateList.length != 0
               ? this.setState({
                 placeOfSupply: item == null ? null : item,
+                stateSearchTerm: '',
               })
               : null;
             this.setBottomSheetVisible(this.stateBottomSheetRef, false);
@@ -3249,9 +3262,15 @@ export class CreditNote extends React.Component<Props> {
         bottomSheetRef={this.stateBottomSheetRef}
         headerText={this.props.t('creditNote.selectState')}
         headerTextColor='#084EAD'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
         flatListProps={{
-          data: this.state.stateList,
+          data: filteredStateList,
           renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
           ListEmptyComponent: <ListEmptyComponent/>
         }}
       />

@@ -317,9 +317,13 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  stateList: {
+    maxHeight: 220,
+  },
   stateListItemTouchable: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    height: 44,
+    justifyContent: 'center',
   },
   stateListItemText: {
     color: '#1C1C1C',
