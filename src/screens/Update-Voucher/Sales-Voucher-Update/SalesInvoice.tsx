@@ -1147,6 +1147,7 @@ export class SalesInvoice extends React.Component<Props, State> {
         "amount": entry?.subTotal?.amountForAccount,
         "amountText": entry?.subTotal?.amountForAccount,
         "isNew": false,
+        "taxesUserCleared": taxDetailsArray.length === 0,
         "description": entry?.description,
         "unit": isStock ? entry.transactions[0].stock.quantity : '',
         "total": entry?.subTotal?.amountForAccount,
@@ -1231,21 +1232,23 @@ console.log('details', details);
         const results = await InvoiceService.search(name, 1, 'sundrydebtors', false);
         if (results.body && results.body.results) {
           const accountData = results.body.results.find((account: any) => account?.uniqueName === name);
-          this.setState({
-            partyName: accountData,
-            searchResults: [],
-            searchPartyName: accountData?.name,
-            searchError: '',
-            isSearchingParty: false,
-          },
-          () => {
-            // this.searchAccount();
-            this.getAllAccountsModes();
-            Keyboard.dismiss();
-          })
-  
-          // Get Addresses of the Accoount
-          addressArray = await this.searchAccount();
+          await new Promise<void>((resolve) => {
+            this.setState({
+              partyName: accountData,
+              searchResults: [],
+              searchPartyName: accountData?.name,
+              searchError: '',
+              isSearchingParty: false,
+            },
+            () => {
+              this.getAllAccountsModes();
+              Keyboard.dismiss();
+              resolve();
+            });
+          });
+
+          // Get Addresses and default taxes of the Account
+          addressArray = await this.searchAccount(false, accountData?.uniqueName);
         }
       }
 
@@ -1549,10 +1552,10 @@ console.log('details', details);
     console.log(JSON.stringify(this.state.partyType))
   }
 
-  async searchAccount(isUpdateParty?: boolean) {
+  async searchAccount(isUpdateParty?: boolean, accountUniqueName?: string) {
     this.setState({ isSearchingParty: true });
     try {
-      const uniqueName = this.state.partyName?.uniqueName;
+      const uniqueName = accountUniqueName || this.state.partyName?.uniqueName;
       if (!uniqueName) {
         this.setState({ isSearchingParty: false });
         return null;
@@ -1562,12 +1565,6 @@ console.log('details', details);
 
       if (results.body) {
         const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
-        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return normalizeAccountAddresses(addresses)
-        }
-        if (results.body.currency != this.state.companyCountryDetails?.currency?.code) {
-          await this.getExchangeRateToINR(results.body.currency);
-        }
         const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
         const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
         let taxesToApply;
@@ -1580,6 +1577,12 @@ console.log('details', details);
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(addresses)
+        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
+          return normalizeAccountAddresses(addresses)
+        }
+        if (results.body.currency != this.state.companyCountryDetails?.currency?.code) {
+          await this.getExchangeRateToINR(results.body.currency);
+        }
         const normalizedAddresses = normalizeAccountAddresses(addresses);
         const defaultAddress = normalizedAddresses.length < 1
           ? {
