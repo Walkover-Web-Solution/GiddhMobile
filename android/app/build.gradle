@@ -98,8 +98,8 @@ android {
         applicationId "com.app.Giddh"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 50023
-        versionName "5.5.1"
+        versionCode 50024
+        versionName "5.5.2"
         multiDexEnabled true
     }
     signingConfigs {
