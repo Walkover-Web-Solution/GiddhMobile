@@ -46,7 +46,7 @@ import { AccountsService } from '@/core/services/accounts/accounts.service';
 import { CommonService } from '@/core/services/common/common.service';
 import { localeData, voucherTypes, KEYBOARD_EVENTS, getAbbreviation } from './constants';
 import TOAST from 'react-native-root-toast';
-import {  formatAmount, giddhRoundOff, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
+import { formatAmount, giddhRoundOff, buildDefaultAccountTaxUniqueNames, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { getInvoiceListRequest } from './accountHelper';
 const { SafeAreaOffsetHelper } = NativeModules;
@@ -1026,7 +1026,59 @@ export class AddEntry extends React.Component<Props> {
         allDefaultTax.push(tax[j].uniqueName);
       }
     }
-    this.setState({ defaultAccountTax: allDefaultTax });
+    return new Promise<void>((resolve) => {
+      this.setState({ defaultAccountTax: allDefaultTax }, resolve);
+    });
+  }
+
+  /** Party accounts whose applicableTaxes drive defaults (same role as SalesInvoice party). */
+  isSundryPartyAccount(account: any) {
+    if (!account) {
+      return false;
+    }
+    const accountType = (account.accountType || '').toLowerCase();
+    if (accountType === 'debtors' || accountType === 'creditors') {
+      return true;
+    }
+    const parents = account.parentGroups || [];
+    return parents.some((parent: any) => {
+      const uniqueName = typeof parent === 'string' ? parent : parent?.uniqueName;
+      return uniqueName === 'sundrydebtors' || uniqueName === 'sundrycreditors';
+    });
+  }
+
+  /**
+   * SalesInvoice builds defaultAccountTax from the party (customer/vendor).
+   * On Add Entry that is the sundry ledger account, or the sundry particular when
+   * posting from sales/purchases — never the stock/Sales applicableTaxes list.
+   */
+  getPartyAccountForDefaultTaxes(particularBody?: any) {
+    const ledger = this.state.selectedAccountData;
+    if (this.isSundryPartyAccount(ledger)) {
+      return ledger;
+    }
+    if (particularBody && this.isSundryPartyAccount(particularBody)) {
+      return particularBody;
+    }
+    if (particularBody?.stock) {
+      return ledger;
+    }
+    return particularBody || ledger;
+  }
+
+  /** Same default-tax build as SalesInvoice (applicableTaxes vs otherApplicableTaxes + TDS preserve). */
+  buildDefaultAccountTaxesFromResponse(body: any, taxArray?: any[]) {
+    return buildDefaultAccountTaxUniqueNames(
+      body?.applicableTaxes,
+      body?.otherApplicableTaxes,
+      {
+        taxArray: taxArray ?? this.state.taxArray ?? [],
+        isTdsOrTcsName: (uniqueName) => {
+          const details = this.getTaxDeatilsForUniqueName(uniqueName);
+          return this.isTdsOrTcsTaxType(details && details.taxType);
+        },
+      }
+    ).map((uniqueName) => ({ uniqueName }));
   }
 
   getDefaultAccountTaxUniqueNames(itemDetails?: any): string[] {
@@ -1144,6 +1196,10 @@ export class AddEntry extends React.Component<Props> {
     return resolveTaxAndGroupTaxUniqueNames(taxes, groupTaxes, {
       whenBothNonEmpty: opts?.whenBothNonEmpty,
       taxArray: opts?.taxArray ?? this.state?.taxArray ?? [],
+      isTdsOrTcsName: (uniqueName) => {
+        const details = this.getTaxDeatilsForUniqueName(uniqueName);
+        return this.isTdsOrTcsTaxType(details && details.taxType);
+      },
     });
   }
 
@@ -1182,6 +1238,18 @@ export class AddEntry extends React.Component<Props> {
     });
   }
 
+  getNonTdsTcsNamesFromSource(source: any) {
+    return this.taxNamesFromArray(source).filter((name) => {
+      const row = this.getTaxDeatilsForUniqueName(name);
+      return row && !this.isTdsOrTcsTaxType(row.taxType);
+    });
+  }
+
+  /**
+   * TDS/TCS follow their own hierarchy, independent of the non-TDS/TCS resolution:
+   * stock.taxes -> stock.groupTaxes -> line.taxes -> line.groupTaxes -> account default.
+   * Only the first source that has a TDS/TCS is used.
+   */
   resolveHierarchicalTdsTcsNames(itemDetails: any) {
     const sources: any[] = [];
     if (itemDetails?.stock) {
@@ -1203,6 +1271,33 @@ export class AddEntry extends React.Component<Props> {
     return this.getTdsTcsNamesFromSource(this.getDefaultAccountTaxUniqueNames(itemDetails));
   }
 
+  /**
+   * Non-TDS/TCS: stock taxes vs groupTaxes first (preferTaxes), else line taxes vs groupTaxes.
+   * Matches SalesInvoice.resolveHierarchicalNonTdsTcsNames.
+   */
+  resolveHierarchicalNonTdsTcsNames(itemDetails: any) {
+    const gstFromTaxesAndGroup = (taxes: any, groupTaxes: any, whenBoth: 'preferTaxes' | 'intersection') => {
+      const resolved = this.resolveTaxAndGroupTaxNames(taxes, groupTaxes, { whenBothNonEmpty: whenBoth });
+      return resolved.filter((name) => {
+        const row = this.getTaxDeatilsForUniqueName(name);
+        return row && !this.isTdsOrTcsTaxType(row.taxType);
+      });
+    };
+    const hasGst = (taxes: any, groupTaxes: any) => {
+      return (
+        this.getNonTdsTcsNamesFromSource(taxes).length > 0 ||
+        this.getNonTdsTcsNamesFromSource(groupTaxes).length > 0
+      );
+    };
+    if (itemDetails?.stock && hasGst(itemDetails.stock.taxes, itemDetails.stock.groupTaxes)) {
+      return gstFromTaxesAndGroup(itemDetails.stock.taxes, itemDetails.stock.groupTaxes, 'preferTaxes');
+    }
+    if (hasGst(itemDetails?.taxes, itemDetails?.groupTaxes)) {
+      return gstFromTaxesAndGroup(itemDetails.taxes, itemDetails.groupTaxes, 'intersection');
+    }
+    return [];
+  }
+
   itemHasOwnTdsTcs(itemDetails: any) {
     const sources: any[] = [];
     if (itemDetails?.stock) {
@@ -1214,47 +1309,32 @@ export class AddEntry extends React.Component<Props> {
     return sources.some((src) => this.getTdsTcsNamesFromSource(src).length > 0);
   }
 
-  /** GST from voucher tax/groupTax resolution; TDS/TCS from an independent hierarchy. */
+  /**
+   * Same pre-apply hierarchy as SalesInvoice.DefaultStockAndAccountTax:
+   * GST via resolveHierarchicalNonTdsTcsNames, account defaults when line has no own TDS/TCS,
+   * then TDS/TCS via resolveHierarchicalTdsTcsNames.
+   */
   resolveLinkedTaxesForPayload(itemDetails: any) {
     let taxDetailsArray: any[] = [];
     let selectedTaxArray: any[] = [];
-    let resolvedLinkedTaxNames: string[] = [];
 
-    if (itemDetails?.stock) {
-      const stock = itemDetails.stock;
-      const stockHasAny =
-        (Array.isArray(stock.taxes) && stock.taxes.length > 0) ||
-        (Array.isArray(stock.groupTaxes) && stock.groupTaxes.length > 0);
-      const resolvedStockOrAccountNames = stockHasAny
-        ? this.resolveTaxAndGroupTaxNames(stock.taxes, stock.groupTaxes, { whenBothNonEmpty: 'preferTaxes' })
-        : this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-            whenBothNonEmpty: 'intersection',
-          });
-      resolvedLinkedTaxNames = resolvedStockOrAccountNames.slice();
-      for (let i = 0; i < resolvedStockOrAccountNames.length; i++) {
-        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedStockOrAccountNames[i]);
-      }
-    } else {
-      const resolvedNames = this.resolveTaxAndGroupTaxNames(itemDetails.taxes, itemDetails.groupTaxes, {
-        whenBothNonEmpty: 'intersection',
-      });
-      resolvedLinkedTaxNames = resolvedNames.slice();
-      for (let i = 0; i < resolvedNames.length; i++) {
-        this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedNames[i]);
-      }
+    const resolvedLinkedTaxNames = this.resolveHierarchicalNonTdsTcsNames(itemDetails);
+    for (let i = 0; i < resolvedLinkedTaxNames.length; i++) {
+      this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, resolvedLinkedTaxNames[i]);
     }
 
-    const accountHasTaxHierarchy = !itemDetails?.stock && this.lineHasTaxHierarchyLinkage(itemDetails);
     const lineHasTdsTcsTax = this.itemHasOwnTdsTcs(itemDetails);
     const defaultAccountTax = this.getDefaultAccountTaxUniqueNames(itemDetails);
     let resolvedLinkedTaxNamesForFilter = resolvedLinkedTaxNames.slice();
-    if (defaultAccountTax.length && !accountHasTaxHierarchy && !lineHasTdsTcsTax) {
+    // Non-TDS/TCS account default taxes keep the SalesInvoice behavior (added when the line has no TDS/TCS).
+    if (defaultAccountTax.length && !lineHasTdsTcsTax) {
       for (let i = 0; i < defaultAccountTax.length; i++) {
         this.pushLinkedTaxDetail(taxDetailsArray, selectedTaxArray, defaultAccountTax[i]);
         resolvedLinkedTaxNamesForFilter.push(defaultAccountTax[i]);
       }
     }
 
+    // TDS/TCS use their own hierarchy; drop any TDS/TCS added above so hierarchy is the source of truth.
     for (let i = taxDetailsArray.length - 1; i >= 0; i--) {
       if (this.isTdsOrTcsTaxType(taxDetailsArray[i].taxType)) {
         taxDetailsArray.splice(i, 1);
@@ -1359,7 +1439,11 @@ export class AddEntry extends React.Component<Props> {
         this.checkShowDiscountAndTaxField(response?.body);
         this.shouldShowRcmSection(response?.body);
         this.shouldShowTouristScheme(response?.body);
-        this.setDefaultAccountTax(response?.body?.applicableTaxes);
+        if (!this.state?.taxArray?.length) {
+          await this.getAllTaxes();
+        }
+        const partyForDefaults = this.getPartyAccountForDefaultTaxes(response?.body);
+        await this.setDefaultAccountTax(this.buildDefaultAccountTaxesFromResponse(partyForDefaults));
         this.setState({ particularAccountStockData: response?.body }, () => {
           if (!response?.body?.stock) {
             this.applyLinkedTaxesFromPayload(response?.body);
@@ -1391,13 +1475,15 @@ export class AddEntry extends React.Component<Props> {
         this.checkShowDiscountAndTaxField(response?.body)
         this.shouldShowRcmSection(response?.body);
         this.shouldShowTouristScheme(response?.body);
-        this.setDefaultAccountTax(response?.body?.applicableTaxes);
-        const newStockPrice = response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate;
-        const newStockQuantity = 1;
-        const newAmountForEntry = newStockQuantity * newStockPrice;
         if (!this.state?.taxArray?.length) {
           await this.getAllTaxes();
         }
+        // Stock/Sales applicableTaxes are NOT party defaults (SalesInvoice uses the party account).
+        const partyForDefaults = this.getPartyAccountForDefaultTaxes(response?.body);
+        await this.setDefaultAccountTax(this.buildDefaultAccountTaxesFromResponse(partyForDefaults));
+        const newStockPrice = response?.body?.stock?.variant?.unitRates[0]?.rate / this.state?.exchangeRate;
+        const newStockQuantity = 1;
+        const newAmountForEntry = newStockQuantity * newStockPrice;
         const linkedTaxDetails = this.resolveLinkedTaxesForPayload(response?.body);
 
         this.setState({
@@ -1610,7 +1696,9 @@ export class AddEntry extends React.Component<Props> {
       const results = await InvoiceService.getTaxes();
       console.log('results', results);
       if (results.body && results.status == 'success') {
-        this.setState({ taxArray: results.body });
+        await new Promise<void>((resolve) => {
+          this.setState({ taxArray: results.body }, resolve);
+        });
         return results.body;
       }
     } catch (e) {

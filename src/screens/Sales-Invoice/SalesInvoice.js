@@ -41,6 +41,7 @@ import Share from 'react-native-share';
 import CheckBox from 'react-native-check-box';
 import Dropdown from 'react-native-modal-dropdown';
 import BottomSheet from '@/components/BottomSheet';
+import ConfirmationBottomSheet from '@/components/ConfirmationBottomSheet';
 import { createEndpoint, formatAmount, normalizeAccountAddress, normalizeAccountAddresses, buildDefaultAccountTaxUniqueNames, resolveTaxAndGroupTaxUniqueNames } from '@/utils/helper';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 import SalesPersonComponent from '@/components/SalesPersonComponent';
