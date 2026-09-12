@@ -8,6 +8,30 @@ import { CompanyService } from '@/core/services/company/company.service';
 import colors from '@/utils/colors';
 import { withTranslation } from 'react-i18next';
 
+const getCompanyFYStartInCurrentYear = (financialYears: any[], activeFinancialYear?: any) => {
+  const referenceStart =
+    activeFinancialYear?.financialYearStarts ||
+    (Array.isArray(financialYears) && financialYears.length > 0
+      ? financialYears[0].financialYearStarts
+      : null);
+
+  if (!referenceStart) {
+    return moment().startOf('year').format('DD-MM-YYYY');
+  }
+
+  const companyStart = moment(referenceStart, 'DD-MM-YYYY');
+  if (!companyStart.isValid()) {
+    return moment().startOf('year').format('DD-MM-YYYY');
+  }
+
+  return moment()
+    .year(moment().year())
+    .month(companyStart.month())
+    .date(companyStart.date())
+    .startOf('day')
+    .format('DD-MM-YYYY');
+};
+
 export class Period extends React.Component {
   constructor(props) {
     super(props);
@@ -22,19 +46,26 @@ export class Period extends React.Component {
     this.setState({ isLoading: true })
     try {
       const response = await CompanyService.getFinancialYear();
-      if( response.status === 'success' && response?.body?.financialYears ) {
-        let currentFinancialYearStartDate;
-        const todayDate = moment().startOf('day').format('DD-MM-YYYY');
+      if (response.status === 'success' && response?.body?.financialYears) {
+        const financialYears = response.body.financialYears;
+        const activeFinancialYear = response.body.activeFinancialYear;
+        const today = moment().startOf('day');
+        let currentFinancialYearStartDate = getCompanyFYStartInCurrentYear(
+          financialYears,
+          activeFinancialYear
+        );
 
-        response?.body?.financialYears?.forEach((item: any) => {
-          if (moment(todayDate, 'DD-MM-YYYY').isAfter(moment(item?.financialYearStarts, 'DD-MM-YYYY')) && moment(todayDate, 'DD-MM-YYYY').isBefore(moment(item.financialYearEnds, 'DD-MM-YYYY'))) {
+        financialYears.forEach((item: any) => {
+          const starts = moment(item?.financialYearStarts, 'DD-MM-YYYY');
+          const ends = moment(item.financialYearEnds, 'DD-MM-YYYY');
+          if (today.isSameOrAfter(starts, 'day') && today.isSameOrBefore(ends, 'day')) {
             currentFinancialYearStartDate = item.financialYearStarts;
           }
-        })
+        });
 
         this.setState({
           currentFinancialYearStartDate
-        })
+        });
       }
     } catch (error) {
       console.error('------ getFinancialYear -----', error)

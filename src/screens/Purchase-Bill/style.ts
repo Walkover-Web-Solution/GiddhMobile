@@ -155,7 +155,7 @@ export default StyleSheet.create({
   bottomSheetSelectTaxText: {
     color: '#808080',
     fontFamily: FONT_FAMILY.regular,
-    fontSize: 13,
+    fontSize: 12,
     marginLeft: 22,
     marginTop: 4
     // backgroundColor: 'pink',
@@ -163,14 +163,20 @@ export default StyleSheet.create({
   TaxText: {
     color: '#000',
     fontFamily: FONT_FAMILY.regular,
-    fontSize: 15,
+    fontSize: 12,
     // marginLeft: 22,
     marginTop: 4
     // backgroundColor: 'pink',
   },
+  itemFieldValue: {
+    color: '#1C1C1C',
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 12,
+  },
   finalItemAmount: {
     color: '#1C1C1C',
-    fontFamily: FONT_FAMILY.bold
+    fontFamily: FONT_FAMILY.bold,
+    fontSize: 14
   },
   addItemMain: {
     fontFamily: FONT_FAMILY.bold,

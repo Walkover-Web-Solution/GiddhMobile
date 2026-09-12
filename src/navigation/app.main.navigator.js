@@ -29,6 +29,7 @@ import InventoryListScreen from '@/screens/InventoryList/InventoryListScreen';
 import { ContraStack } from './contra.navigator';
 import EWayBillScreen from '@/screens/EWayBill/EWayBillScreen';
 import { TaxStack } from './taxStack.navigator';
+import Scan2Stack from './scan2.navigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -61,6 +62,7 @@ export default function AppMainNav() {
       <Drawer.Screen name={'productGroupScreen'} component={ProductGroupScreen} />
       <Drawer.Screen name={'ServiceScreen'} component={ServiceStack} />
       <Drawer.Screen name={'TaxStack'} component={TaxStack} />
+      <Drawer.Screen name={Routes.Scan2Screen} component={Scan2Stack} />
       {/* <Drawer.Screen name={'SubscriptionStack'} component={SubscriptionStack} /> */}
       <Drawer.Screen name={'InventoryListScreen'} component={InventoryListScreen} />
       <Drawer.Screen name={'ContraScreens'} component={ContraStack} />

@@ -25,7 +25,7 @@ export const ConfirmationMessages = {
     }
 }
 
-const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', onConfirm, onReject, confirmText, rejectText }) => {
+const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', onConfirm, onReject, confirmText, rejectText, rawMessage }) => {
     const { t } = useTranslation();
     
     return (
@@ -36,7 +36,7 @@ const ConfirmationBottomSheet = ({ bottomSheetRef, message, description = '', on
         >
             <View style={styles.confirmationSheetView} >
                 <Text style={styles.boldText} >
-                    {t(message)}
+                    {rawMessage ? rawMessage : (message ? t(message) : '')}
                 </Text>
                 <Text style={styles.confirmationText} >
                     {description ? t(description) : ''}          
