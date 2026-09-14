@@ -1,7 +1,7 @@
-import { Dimensions, Platform, StatusBar, StyleSheet, ToastAndroid, View } from "react-native";
+import { Dimensions, Platform, StyleSheet, ToastAndroid, View } from "react-native";
 import Pdf from 'react-native-pdf';
 import LoaderKit  from 'react-native-loader-kit';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import colors from "@/utils/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/utils/constants";
@@ -20,13 +20,19 @@ const PdfPreviewScreen = ( props: any ) => {
     // 2. As an in-screen modal -> params (and onClose) are passed directly as props
     const params = props?.route?.params ?? props;
     const {companyVersionNumber,uniqueName,voucherInfo,onClose} = params;
+    const isFocused = useIsFocused();
+    const voucherInfoKey = JSON.stringify(voucherInfo);
     const [pdfBlobUri,setPdfBlobUri] = useState("");
+    const [pdfKey,setPdfKey] = useState(0);
     const [isLoading,setLoading] = useState(true);
-    const exportFile = async () => {
+
+    const exportFile = useCallback(async (isCancelled?: () => boolean) => {
         try {
+          setLoading(true);
+          setPdfBlobUri("");
           const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
           const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-          RNFetchBlob.fetch(
+          const res = await RNFetchBlob.fetch(
             'POST',
             companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf`):
               createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
@@ -34,44 +40,52 @@ const PdfPreviewScreen = ( props: any ) => {
               'session-id': `${token}`,
               'Content-Type': 'application/json'
             },
-            JSON.stringify(voucherInfo)
-          ).then(async (res) => {
-            if (res.respInfo.status != 200) {
-              if (Platform.OS == "ios") {
-                Toast.show(JSON.parse(res.data).message, {
-                  duration: Toast.durations.LONG,
-                  position: -200,
-                  hideOnPress: true,
-                  backgroundColor: "#1E90FF",
-                  textColor: "white",
-                  opacity: 1,
-                  shadow: false,
-                  animation: true,
-                  containerStyle: { borderRadius: 10 }
-                });
-              } else {
-                ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
-              }
-              return
+            voucherInfoKey
+          );
+          if (isCancelled?.()) return;
+          if (res.respInfo.status != 200) {
+            if (Platform.OS == "ios") {
+              Toast.show(JSON.parse(res.data).message, {
+                duration: Toast.durations.LONG,
+                position: -200,
+                hideOnPress: true,
+                backgroundColor: "#1E90FF",
+                textColor: "white",
+                opacity: 1,
+                shadow: false,
+                animation: true,
+                containerStyle: { borderRadius: 10 }
+              });
+            } else {
+              ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
             }
-            let base64Str = res.base64();
-            setPdfBlobUri("data:application/pdf;base64,"+base64Str);
             setLoading(false);
-          })
+            return
+          }
+          let base64Str = res.base64();
+          setPdfBlobUri("data:application/pdf;base64,"+base64Str);
+          setPdfKey((prev) => prev + 1);
+          setLoading(false);
         } catch (e) {
+            if (isCancelled?.()) return;
             ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
             setLoading(false);
             console.log(e);
         }
-      };
+      }, [companyVersionNumber, uniqueName, voucherInfoKey]);
 
+    // Refetch whenever preview is opened/focused so stale PDFs are never reused
+    // across voucher list, transactions, and create/update screens.
     useEffect(() => {
-        exportFile();
+        if (!isFocused) return;
+        let cancelled = false;
+        exportFile(() => cancelled);
         return (()=>{
+            cancelled = true;
             setLoading(true);
             setPdfBlobUri("");
         })
-    },[companyVersionNumber, uniqueName, JSON.stringify(voucherInfo)])
+    },[isFocused, exportFile])
     
     return ( 
         <View style={styles.container}>
@@ -79,6 +93,7 @@ const PdfPreviewScreen = ( props: any ) => {
             <View style={styles.container}>
                 {!isLoading ? <View style={styles.container}>
                     <Pdf
+                        key={pdfKey}
                         source={{uri:pdfBlobUri}}
                         renderActivityIndicator={()=>(<></>)}
                         trustAllCerts={false}
@@ -90,7 +105,6 @@ const PdfPreviewScreen = ( props: any ) => {
                         }}
                         onError={(error) => {
                             ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
-                            // setModalVisible(false);
                             setLoading(false);
                         }}
                         onPressLink={(uri) => {

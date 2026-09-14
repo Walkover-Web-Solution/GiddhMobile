@@ -143,9 +143,7 @@ export function* getCompanyDetails() {
     yield AsyncStorage.setItem(STORAGE_KEYS.activeCompanyCountryCode, response?.body?.subscription?.country?.countryCode ? response?.body?.subscription?.country?.countryCode : response?.body?.countryV2?.alpha2CountryCode);
     if(response.status === 'success' && response.body){
       const addresses = response.body.addresses || [];
-      const companyAddress = addresses.find((address) =>
-        address.branches?.some((branch) => branch.isDefault && branch.isHeadQuarter)
-      ) || addresses[0];
+      const companyAddress = addresses.find((address) => address.isDefault) || addresses[0];
       const companyState = companyAddress?.state?.name || companyAddress?.state?.code
         ? { name: companyAddress.state.name, code: companyAddress.state.code }
         : (companyAddress?.stateName || companyAddress?.stateCode)
