@@ -513,13 +513,13 @@ class PurchaseItemEdit extends Component {
                 style={{paddingHorizontal: 20}}
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
-                  if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                  if ((selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.some((o) => o && o.uniqueName == item.uniqueName)) ||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tcspay')||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tcspay')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdsrc')||
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcspay'))&& item.taxType == 'tcsrc')||
                   ((selectedTaxTypeArr.includes('tcspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdspay')
                 ){
-                    console.log('did not select');
+                    return;
                   } else {
                     const itemDetails = this.state.editItemDetails;
                     var filtered = _.filter(selectedTaxArray, function (o) {
