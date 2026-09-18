@@ -24,7 +24,20 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 type Props = WithTranslation & {
   item: any
   onPressDelete: (accountUniqueName: string, entryUniqueName: string) => void
-  navigation:any
+  navigation: any
+  downloadModal?: (visible: boolean) => void
+  transactionType?: string
+  phoneNo?: string
+  /** When provided (e.g. Parties ledger), open preview in a Modal like Sales/Purchase. */
+  onPreviewPdf?: (params: {
+    companyVersionNumber: any
+    uniqueName: string
+    voucherInfo: {
+      entryUniqueName?: string
+      uniqueName: string
+      voucherType: string
+    }
+  }) => void
 }
 class TransactionList extends React.Component<Props> {
   private swipeableRef: React.Ref<Swipeable>;
@@ -442,15 +455,21 @@ class TransactionList extends React.Component<Props> {
                       activeOpacity={0.7}
                       style={{paddingHorizontal: 8}}
                       onPress={() => {
-                        this.props.navigation.navigate('PdfPreviewScreen',{
-                          companyVersionNumber:this.state.companyVersionNumber,
-                          uniqueName:this.props.item.particular.uniqueName,
-                          voucherInfo:{
-                            entryUniqueName : this.props.item.voucherUniqueName,
+                        const previewParams = {
+                          companyVersionNumber: this.state.companyVersionNumber,
+                          uniqueName: this.props.item.particular.uniqueName,
+                          voucherInfo: {
+                            entryUniqueName: this.props.item.voucherUniqueName,
                             uniqueName: this.props.item.voucherUniqueName,
                             voucherType: `${this.props.item.voucherName}`,
-                          }
-                        })
+                          },
+                        };
+                        // Prefer in-screen Modal (Sales/Purchase pattern) when parent provides it.
+                        if (typeof this.props.onPreviewPdf === 'function') {
+                          this.props.onPreviewPdf(previewParams);
+                          return;
+                        }
+                        this.props.navigation.navigate('PdfPreviewScreen', previewParams);
                       }}>
                       <PreviewIcon name="file-eye-outline" size={17} color={'#000'} />
                     </TouchableOpacity>

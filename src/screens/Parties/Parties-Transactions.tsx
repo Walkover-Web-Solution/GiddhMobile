@@ -17,7 +17,8 @@ import {
   DeviceEventEmitter,
   TextInput,
   ToastAndroid,
-  Keyboard
+  Keyboard,
+  Modal
 } from 'react-native';
 import style from '@/screens/Transaction/style';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -61,6 +62,7 @@ import Notifee, { AndroidNotificationSetting } from '@notifee/react-native';
 import { attemptShare, checkStoragePermission } from '@/utils/shareUtils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useTranslation } from 'react-i18next';
+import PdfPreviewScreen from '@/screens/PdfPreviewScreen/PdfPreviewScreen';
 
 interface SMSMessage {
   receivedOtpMessage: string
@@ -134,10 +136,42 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
       disableResendButton: false,
       openingBalance: {},
       closingBalance: {},
-      selectedItems: []
+      selectedItems: [],
+      pdfPreviewVisible: false,
+      pdfPreviewParams: null,
     };
 
   }
+
+  // Same pattern as SalesInvoice / PurchaseBill: in-screen Modal preview
+  // (avoids drawer navigate → blur cleanup race that crashes pdfium).
+  openPdfPreview = (params) => {
+    if (!params?.voucherInfo?.uniqueName && !params?.voucherInfo?.entryUniqueName) return;
+    this.setState({
+      pdfPreviewVisible: true,
+      pdfPreviewParams: params,
+    });
+  };
+
+  closePdfPreview = () => {
+    this.setState({ pdfPreviewVisible: false, pdfPreviewParams: null });
+  };
+
+  _renderPdfPreviewModal = () => {
+    return (
+      <Modal
+        visible={this.state.pdfPreviewVisible}
+        animationType="slide"
+        onRequestClose={this.closePdfPreview}>
+        {this.state.pdfPreviewVisible && this.state.pdfPreviewParams ? (
+          <PdfPreviewScreen
+            {...this.state.pdfPreviewParams}
+            onClose={this.closePdfPreview}
+          />
+        ) : null}
+      </Modal>
+    );
+  };
 
   getActiveCompany = async () => {
     if (this.props.route?.params?.type == 'Vendors' && this.state.countryCode == "IN") {
@@ -1911,7 +1945,8 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
                         transactionType={item?.particular?.uniqueName == this.props.route?.params?.item?.uniqueName ? 'partyTransaction' : 'normalTransaction'}
                         phoneNo={this.props.route?.params?.item?.mobileNo}
                         onPressDelete={this.onPressDelete}
-                        navigation = {this.props.navigation}
+                        navigation={this.props.navigation}
+                        onPreviewPdf={this.openPdfPreview}
                       />
                     )}
                     keyExtractor={(item) => item.uniqueName}
@@ -1926,6 +1961,7 @@ class PartiesTransactionScreen extends React.Component<Props, State> {
 
           <DownloadModal modalVisible={this.state.DownloadModal} />
           <ShareModal modalVisible={this.state.ShareModal} />
+          {this._renderPdfPreviewModal()}
           <PDFModal
             bottomSheetRef={this.pdfBottomSheetRef}
             setBottomSheetVisible={this.setBottomSheetVisible}
