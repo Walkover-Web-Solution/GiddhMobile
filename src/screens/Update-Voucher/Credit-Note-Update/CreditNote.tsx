@@ -514,6 +514,7 @@ export class CreditNote extends React.Component<Props, State> {
         "amount": entry?.subTotal?.amountForAccount,
         "amountText": entry?.subTotal?.amountForAccount,
         "isNew": false,
+        "taxesUserCleared": taxDetailsArray.length === 0,
         "description": entry?.description,
         "unit": isStock ? entry.transactions[0].stock.quantity : '',
         "total": entry?.subTotal?.amountForAccount,
@@ -600,20 +601,23 @@ export class CreditNote extends React.Component<Props, State> {
             || account?.uniqueName?.toLocaleLowerCase() === accountUniqueName.toLocaleLowerCase()
         );
         if (accountData) {
-          this.setState({
-            partyName: accountData,
-            searchResults: [],
-            searchPartyName: accountData.name ?? preserveSearchPartyName,
-            searchError: '',
-            isSearchingParty: false,
-          },
-          () => {
-            this.getAllAccountsModes();
-            Keyboard.dismiss();
-          })
+          await new Promise<void>((resolve) => {
+            this.setState({
+              partyName: accountData,
+              searchResults: [],
+              searchPartyName: accountData.name ?? preserveSearchPartyName,
+              searchError: '',
+              isSearchingParty: false,
+            },
+            () => {
+              this.getAllAccountsModes();
+              Keyboard.dismiss();
+              resolve();
+            });
+          });
 
-          // Get Addresses of the Accoount
-          addressArray = await this.searchAccount();
+          // Get Addresses and default taxes of the Account
+          addressArray = await this.searchAccount(false, accountData?.uniqueName);
         }
       }
 
@@ -1536,10 +1540,10 @@ export class CreditNote extends React.Component<Props, State> {
     console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
   }
 
-  async searchAccount(isUpdateParty?: boolean) {
+  async searchAccount(isUpdateParty?: boolean, accountUniqueName?: string) {
     this.setState({ isSearchingParty: true });
     try {
-      const uniqueName = this.state.partyName?.uniqueName;
+      const uniqueName = accountUniqueName || this.state.partyName?.uniqueName;
       if (!uniqueName) {
         this.setState({ isSearchingParty: false });
         return null;
@@ -1547,12 +1551,6 @@ export class CreditNote extends React.Component<Props, State> {
       const results = await InvoiceService.getAccountDetails(uniqueName);
       if (results.body) {
         const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
-        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return normalizeAccountAddresses(addresses)
-        }
-        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
-          await this.getExchangeRateToINR(results.body.currency);
-        }
         const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
         const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
         let taxesToApply;
@@ -1564,6 +1562,12 @@ export class CreditNote extends React.Component<Props, State> {
         }
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
+        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
+          return normalizeAccountAddresses(addresses)
+        }
+        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
+          await this.getExchangeRateToINR(results.body.currency);
+        }
         const normalizedAddresses = normalizeAccountAddresses(addresses);
         const defaultAddress = normalizedAddresses[0];
         await new Promise<void>((resolve) => {
