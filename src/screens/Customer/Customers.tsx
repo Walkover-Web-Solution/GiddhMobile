@@ -140,6 +140,7 @@ export class Customers extends React.Component<Props> {
     selectedCallingCode: '91',
     successDialog: false,
     faliureDialog: false,
+    faliureMessage: '',
     selectedGroup: 'Sundry Debtors',
     selectedGroupUniqueName: 'sundrydebtors',
     pincode: '',
@@ -375,7 +376,7 @@ export class Customers extends React.Component<Props> {
         foreignOpeningBalance: this.state.foreignOpeningBalance,
         openingBalance: this.state.openingBalance,
         mobileNo: this.state.contactNumber,
-        mobileCode: '',
+        mobileCode: this.state.selectedCallingCode,
         email: this.state.emailId,
         companyName: '',
         attentionTo: '',
@@ -407,7 +408,7 @@ export class Customers extends React.Component<Props> {
       console.log('Create Customer postBody is', JSON.stringify(postBody));
       const results = await CustomerVendorService.createCustomer(this.state.selectedGroupUniqueName,postBody);
       console.log('rabbit' + JSON.stringify(results));
-      if (results.status == 'success') {
+      if (results && results.status == 'success') {
         await DeviceEventEmitter.emit(APP_EVENTS.CustomerCreated, {});
         await this.resetState();
         await this.setState({ successDialog: true });
@@ -421,12 +422,12 @@ export class Customers extends React.Component<Props> {
         });
         await this.setState({ loading: false });
       } else {
-        this.setState({ faliureDialog: true });
+        this.setState({ faliureDialog: true, faliureMessage: results?.message || '' });
         this.setState({ loading: false });
       }
     } catch (e) {
       console.log('problem occured', e);
-      this.setState({ faliureDialog: true });
+      this.setState({ faliureDialog: true, faliureMessage: '' });
       this.setState({ loading: false });
     }
     this.setState({ loading: false });
@@ -441,7 +442,7 @@ export class Customers extends React.Component<Props> {
       partyName: '',
       contactNumber: '',
       emailId: '',
-      partyType: 'not applicable',
+      partyType: 'NOT APPLICABLE',
       allPartyType: [],
       AllGroups: [],
       ref: RBSheet,
@@ -477,6 +478,7 @@ export class Customers extends React.Component<Props> {
       selectedCallingCode: '91',
       successDialog: false,
       faliureDialog: false,
+      faliureMessage: '',
       selectedGroup: 'Sundry Debtors',
       selectedGroupUniqueName: 'sundrydebtors',
       isGroupDD: false,
@@ -797,7 +799,7 @@ export class Customers extends React.Component<Props> {
               visible={this.state.faliureDialog} onBackdropPress={() => this.setState({ faliureDialog: false })} contentStyle={{ justifyContent: 'center', alignItems: 'center' }}>
               <Faliure />
               <Text style={{ color: '#F2596F', fontSize: 16, fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.errorTitle')}</Text>
-              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{this.props.t('customers.failedToImportEntries')}</Text>
+              <Text style={{ fontSize: 14, marginTop: 10, textAlign: 'center', fontFamily: 'AvenirLTStd-Book' }}>{this.state.faliureMessage != '' ? this.state.faliureMessage : this.props.t('customers.failedToImportEntries')}</Text>
               <TouchableOpacity
                 style={{
                   alignItems: 'center',
