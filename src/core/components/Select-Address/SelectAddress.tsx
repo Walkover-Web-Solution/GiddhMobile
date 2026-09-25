@@ -17,12 +17,14 @@ const { height } = Dimensions.get('window');
 export class SelectAddress extends React.Component<any & WithTranslation, any> {
   constructor(props: any) {
     super(props);
+    const addressArray = this.props.route.params.addressArray || [];
+    const warehouseArray = this.props.route.params.warehouseArray || [];
     this.state = {
       activeIndex: 0,
       editAddress: false,
       addressList: this.props.route.params.type == 'address'
-        ? (this.props.route.params.addressArray.length > 0 ? [...this.props.route.params.addressArray] : [])
-        : (this.props.route.params.warehouseArray.length > 0 ? [...this.props.route.params.warehouseArray] : []),
+        ? (addressArray.length > 0 ? [...addressArray] : [])
+        : (warehouseArray.length > 0 ? [...warehouseArray] : []),
       newList: [],
       // this.props.route.params.type == 'warehouse'
       //   ? this.props.route.params.warehouseArray

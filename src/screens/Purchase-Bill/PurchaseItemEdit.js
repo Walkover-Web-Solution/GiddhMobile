@@ -540,7 +540,7 @@ class PurchaseItemEdit extends Component {
                   ((selectedTaxTypeArr.includes('tdspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcspay'))&& item.taxType == 'tcsrc')||
                   ((selectedTaxTypeArr.includes('tcspay')|| selectedTaxTypeArr.includes('tdsrc')||selectedTaxTypeArr.includes('tcsrc'))&& item.taxType == 'tdspay')
                 ){
-                    console.log('did not select');
+                    return;
                   } else {
                     const itemDetails = this.state.editItemDetails;
                     var filtered = _.filter(selectedTaxArray, function (o) {

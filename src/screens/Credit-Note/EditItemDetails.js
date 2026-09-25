@@ -527,7 +527,7 @@ class EditItemDetails extends Component {
                 onFocus={() => this.onChangeText('')}
                 onPress={async () => {
                   if (
-                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.some((o) => o && o.uniqueName == item.uniqueName)) ||
                     ((selectedTaxTypeArr.includes('tdspay') ||
                       selectedTaxTypeArr.includes('tdsrc') ||
                       selectedTaxTypeArr.includes('tcsrc')) &&
@@ -545,7 +545,7 @@ class EditItemDetails extends Component {
                       selectedTaxTypeArr.includes('tcsrc')) &&
                       item.taxType == 'tdspay')
                   ) {
-                    console.log('did not select');
+                    return;
                   } else {
                     const itemDetails = this.state.editItemDetails;
                     var filtered = _.filter(selectedTaxArray, function (o) {

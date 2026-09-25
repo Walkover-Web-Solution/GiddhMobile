@@ -1231,7 +1231,8 @@ console.log('details', details);
   }
 
   async getPartyDataForUpdateVoucher(_name: string) {
-    const name = (_name ?? this.state.searchPartyName).toLocaleLowerCase()
+    const accountUniqueNameParam = this.props?.route?.params?.accountUniqueName ?? '';
+    const name = (_name ?? this.state.searchPartyName ?? accountUniqueNameParam).toLocaleLowerCase()
     this.setState({ isSearchingParty: true, loading: true });
     try {
       let addressArray : any = []
@@ -1241,24 +1242,29 @@ console.log('details', details);
 
         const results = await InvoiceService.search(name, 1, 'sundrydebtors', false);
         if (results.body && results.body.results) {
-          const accountData = results.body.results.find((account: any) => account?.uniqueName === name);
-          await new Promise<void>((resolve) => {
-            this.setState({
-              partyName: accountData,
-              searchResults: [],
-              searchPartyName: accountData?.name,
-              searchError: '',
-              isSearchingParty: false,
-            },
-            () => {
-              this.getAllAccountsModes();
-              Keyboard.dismiss();
-              resolve();
+          const accountData = results.body.results.find(
+            (account: any) => account?.uniqueName?.toLocaleLowerCase() === name
+              || account?.uniqueName?.toLocaleLowerCase() === accountUniqueNameParam.toLocaleLowerCase()
+          );
+          if (accountData) {
+            // Wait for partyName in state before searchAccount reads it
+            await new Promise<void>((resolve) => {
+              this.setState({
+                partyName: accountData,
+                searchResults: [],
+                searchPartyName: accountData?.name,
+                searchError: '',
+                isSearchingParty: false,
+              }, () => {
+                this.getAllAccountsModes();
+                Keyboard.dismiss();
+                resolve();
+              });
             });
-          });
 
-          // Get Addresses and default taxes of the Account
-          addressArray = await this.searchAccount(false, accountData?.uniqueName);
+            // Get Addresses and default taxes of the Account
+            addressArray = (await this.searchAccount(false, accountData?.uniqueName)) || [];
+          }
         }
       }
 

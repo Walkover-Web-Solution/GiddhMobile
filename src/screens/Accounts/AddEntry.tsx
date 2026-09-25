@@ -2304,7 +2304,7 @@ export class AddEntry extends React.Component<Props> {
                 onPress={async () => {
 
                   if (
-                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.some((o) => o && o.uniqueName == item.uniqueName)) ||
                     ((selectedTaxTypeArr.includes('tdspay') ||
                       selectedTaxTypeArr.includes('tdsrc') ||
                       selectedTaxTypeArr.includes('tcsrc')) &&
@@ -2322,7 +2322,7 @@ export class AddEntry extends React.Component<Props> {
                       selectedTaxTypeArr.includes('tcsrc')) &&
                       item.taxType == 'tdspay')
                   ) {
-                    console.log('did not select');
+                    return;
                   } else {
                     const itemDetails = this.state.SelectedTaxData;
                     var filtered = _.filter(selectedTaxArray, function (o) {
@@ -2428,7 +2428,7 @@ export class AddEntry extends React.Component<Props> {
                 onPress={async () => {
 
                   if (
-                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.includes(item)) ||
+                    (selectedTaxTypeArr.includes(item.taxType) && !selectedTaxArray.some((o) => o && o.uniqueName == item.uniqueName)) ||
                     ((selectedTaxTypeArr.includes('tdspay') ||
                       selectedTaxTypeArr.includes('tdsrc') ||
                       selectedTaxTypeArr.includes('tcsrc')) &&
@@ -2446,7 +2446,7 @@ export class AddEntry extends React.Component<Props> {
                       selectedTaxTypeArr.includes('tcsrc')) &&
                       item.taxType == 'tdspay')
                   ) {
-                    console.log('did not select');
+                    return;
                   } else {
                     const itemDetails = this.state.SelectedTaxData;
                     var filtered = _.filter(selectedTaxArray, function (o) {

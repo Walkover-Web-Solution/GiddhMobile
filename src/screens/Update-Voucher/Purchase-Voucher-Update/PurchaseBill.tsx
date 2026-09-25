@@ -386,7 +386,7 @@ export class PurchaseBill extends React.Component<Props, State> {
 
   selectShipToAddress = (address) => {
     console.log('shipping to', address);
-    this.setState({ shipToAddress: normalizeAccountAddress(address.addresses[0]) });
+    this.setState({ shipToAddress: normalizeAccountAddress(address) });
   };
 
   selectShipToAddressFromEditAddressScreen = (address) => {
@@ -673,7 +673,7 @@ export class PurchaseBill extends React.Component<Props, State> {
         ...(selectedBillTo
           ? {
               BillToAddress: selectedBillTo,
-              ...(this.state.billToSameAsShipTo ? { shipToAddress: selectedBillTo } : {}),
+              shipToAddress: selectedBillTo,
             }
           : {}),
       });
@@ -681,20 +681,8 @@ export class PurchaseBill extends React.Component<Props, State> {
   }
 
   async getBillToAndShipToAddress() {
+    // Both Billing To and Shipping To use company addresses
     await this.getCompanyAddress();
-    if (!this.state.billToSameAsShipTo) {
-      const wareHouse = await this.state.warehouseArray;
-      console.log('Ware house Array ' + JSON.stringify(wareHouse));
-      for (let i = 0; i < wareHouse.length; i++) {
-        if (wareHouse[i].isDefault) {
-          const address = wareHouse[i].addresses?.[0];
-          if (address) {
-            await this.setState({ shipToAddress: normalizeAccountAddress(address) });
-            break;
-          }
-        }
-      }
-    }
   }
 
   getTaxDeatilsForUniqueName(uniqueName) {
@@ -2835,7 +2823,7 @@ export class PurchaseBill extends React.Component<Props, State> {
                 } else {
                   this.props.navigation.navigate('SelectAddress', {
                     addressArray: this.state.allBillingToAddresses,
-                    activeWareHouse: this.state.BillToAddress,
+                    activeAddress: this.state.BillToAddress,
                     type: 'address',
                     selectAddress: this.selectBillToAddress.bind(this),
                     color: '#FC8345',
@@ -2875,7 +2863,7 @@ export class PurchaseBill extends React.Component<Props, State> {
               } else {
                 this.props.navigation.navigate('SelectAddress', {
                   addressArray: this.state.allBillingToAddresses,
-                  activeWareHouse: this.state.BillToAddress,
+                  activeAddress: this.state.BillToAddress,
                   type: 'address',
                   selectAddress: this.selectBillToAddress.bind(this),
                   color: '#FC8345',
@@ -2919,15 +2907,16 @@ export class PurchaseBill extends React.Component<Props, State> {
                 if (!this.state.partyName) {
                   alert(this.props.t('purchaseBill.pleaseSelectParty'));
                 } else {
-                  this.props.navigation.navigate('SelectAddress', {
-                    warehouseArray: this.state.warehouseArray,
-                    activeWareHouse: this.state.shipToAddress,
-                    type: 'warehouse',
-                    selectAddress: this.selectShipToAddress.bind(this),
-                    color: '#FC8345',
-                    statusBarColor: '#ef6c00',
-                    shippingTo: this.state.shipToAddress
-                  });
+                  !this.state.billToSameAsShipTo ?
+                    this.props.navigation.navigate('SelectAddress', {
+                      addressArray: this.state.allBillingToAddresses,
+                      activeAddress: this.state.shipToAddress,
+                      type: 'address',
+                      selectAddress: this.selectShipToAddress.bind(this),
+                      color: '#FC8345',
+                      statusBarColor: '#ef6c00',
+                      shippingTo: this.state.shipToAddress
+                    }) : null
                 }
               }}
               style={{ width: '90%' }}>
@@ -2960,15 +2949,16 @@ export class PurchaseBill extends React.Component<Props, State> {
               if (!this.state.partyName) {
                 alert(this.props.t('purchaseBill.pleaseSelectParty'));
               } else {
-                this.props.navigation.navigate('SelectAddress', {
-                  warehouseArray: this.state.warehouseArray,
-                  activeWareHouse: this.state.shipToAddress,
-                  type: 'warehouse',
-                  selectAddress: this.selectShipToAddress.bind(this),
-                  color: '#FC8345',
-                  statusBarColor: '#ef6c00',
-                  shippingTo: this.state.shipToAddress
-                });
+                !this.state.billToSameAsShipTo ?
+                  this.props.navigation.navigate('SelectAddress', {
+                    addressArray: this.state.allBillingToAddresses,
+                    activeAddress: this.state.shipToAddress,
+                    type: 'address',
+                    selectAddress: this.selectShipToAddress.bind(this),
+                    color: '#FC8345',
+                    statusBarColor: '#ef6c00',
+                    shippingTo: this.state.shipToAddress
+                  }) : null
               }
             }}>
             <Text numberOfLines={2} style={style.selectedAddressText}>

@@ -11,10 +11,12 @@ import Header from "@/components/Header";
 import { useIsFocused } from "@react-navigation/native";
 import useCustomTheme, { ThemeProps } from "@/utils/theme";
 import { createEndpoint } from "@/utils/helper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Screen_width = Dimensions.get('window').width;
 const PdfPreviewScreen = ( props: any ) => {
     const {styles, voucherBackground} = useCustomTheme(getStyles, 'PdfPreview');
+    const insets = useSafeAreaInsets();
     // Supports two usages:
     // 1. As a navigated screen -> params come from props.route.params
     // 2. As an in-screen modal -> params (and onClose) are passed directly as props
@@ -23,6 +25,8 @@ const PdfPreviewScreen = ( props: any ) => {
     const isFocused = useIsFocused();
     const isModal = typeof onClose === 'function';
     const voucherInfoKey = JSON.stringify(voucherInfo);
+    // RN Modal on iOS draws under the status bar; pad only in that modal presentation.
+    const modalTopInset = onClose && Platform.OS === 'ios' ? insets.top : 0;
     const [pdfBlobUri,setPdfBlobUri] = useState("");
     const [pdfKey,setPdfKey] = useState(0);
     const [isLoading,setLoading] = useState(true);
@@ -113,12 +117,14 @@ const PdfPreviewScreen = ( props: any ) => {
     
     return ( 
         <View style={styles.container}>
-            <Header
-                header={'Pdf Preview'}
-                isBackButtonVisible={true}
-                backgroundColor={voucherBackground}
-                onBackButtonPress={isModal ? handleBack : onClose}
-            />
+            <View style={{ paddingTop: modalTopInset, backgroundColor: voucherBackground }}>
+                <Header
+                    header={'Pdf Preview'}
+                    isBackButtonVisible={true}
+                    backgroundColor={voucherBackground}
+                    onBackButtonPress={isModal ? handleBack : onClose}
+                />
+            </View>
             <View style={styles.container}>
                 {!!pdfBlobUri ? (
                     <View style={styles.container} pointerEvents={isLoading ? 'none' : 'auto'}>
