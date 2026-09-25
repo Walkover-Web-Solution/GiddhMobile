@@ -92,6 +92,11 @@ type State = {
     countryName: string,
     countryCode: string
   },
+  sourceOfSupply: any,
+  destinationOfSupply: any,
+  stateList: Array<any>,
+  stateSearchTerm: string,
+  activeSupplyField: string,
   currency: string,
   currencySymbol: string
   companyCountryDetails: any
@@ -204,6 +209,7 @@ export class PurchaseBill extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.paymentModeBottomSheetRef = React.createRef();
+    this.stateBottomSheetRef = React.createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.searchCalls = this.searchCalls.bind(this);
     this.isVoucherUpdate = !!this.props.route?.params?.voucherUniqueName
@@ -325,6 +331,11 @@ export class PurchaseBill extends React.Component<Props, State> {
       exchangeRate: 1,
       totalAmountInINR: 0.0,
       companyCountryDetails: {},
+      sourceOfSupply: null,
+      destinationOfSupply: null,
+      stateList: [],
+      stateSearchTerm: '',
+      activeSupplyField: 'source',
       selectedInvoice: '',
       tdsOrTcsArray: [],
       partyType: undefined,
@@ -412,6 +423,7 @@ export class PurchaseBill extends React.Component<Props, State> {
       if (results.body && results.status == 'success') {
         await this.setState({
           companyCountryDetails: results.body.country,
+          stateList: results.body.stateList,
         });
       }
     } catch (e) {
@@ -1190,6 +1202,7 @@ export class PurchaseBill extends React.Component<Props, State> {
         "amount": entry?.subTotal?.amountForAccount,
         "amountText": entry?.subTotal?.amountForAccount,
         "isNew": false,
+        "taxesUserCleared": taxDetailsArray.length === 0,
         "description": entry?.description,
         "unit": isStock ? entry.transactions[0].stock.quantity : '',
         "total": entry?.subTotal?.amountForAccount,
@@ -1273,21 +1286,23 @@ export class PurchaseBill extends React.Component<Props, State> {
         const results = await InvoiceService.search(name, 1, 'sundrycreditors', false);
         if (results.body && results.body.results) {
           const accountData = results.body.results.find((account: any) => account?.uniqueName === name);
-          this.setState({
-            partyName: accountData,
-            searchResults: [],
-            searchPartyName: accountData?.name,
-            searchError: '',
-            isSearchingParty: false,
-          },
-          () => {
-            // this.searchAccount();
-            this.getAllAccountsModes();
-            Keyboard.dismiss();
-          })
-  
-          // Get Addresses of the Accoount
-          addressArray = await this.searchAccount();
+          await new Promise<void>((resolve) => {
+            this.setState({
+              partyName: accountData,
+              searchResults: [],
+              searchPartyName: accountData?.name,
+              searchError: '',
+              isSearchingParty: false,
+            },
+            () => {
+              this.getAllAccountsModes();
+              Keyboard.dismiss();
+              resolve();
+            });
+          });
+
+          // Get Addresses and default taxes of the Account
+          addressArray = await this.searchAccount(false, accountData?.uniqueName);
         }
       }
 
@@ -1306,6 +1321,14 @@ export class PurchaseBill extends React.Component<Props, State> {
         const { partyBillingAddress: BillFromAddress, partyShippingAddress: shipFromAddress } = this.mapAddressFromVoucherData(response?.body?.account?.billingDetails, response?.body?.account?.shippingDetails); 
         const { partyBillingAddress: BillToAddress, partyShippingAddress: shipToAddress } = this.mapAddressFromVoucherData(response?.body?.company?.billingDetails, response?.body?.company?.shippingDetails); 
         await this.getBillToAndShipToAddress();
+
+        let destinationOfSupply = response?.body?.account?.destinationOfSupply ?? null;
+        if (!destinationOfSupply) {
+          try {
+            const companyState = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyState);
+            destinationOfSupply = companyState ? JSON.parse(companyState) : null;
+          } catch (e) { }
+        }
 
         this.setState({
           countryDeatils: {
@@ -1328,6 +1351,8 @@ export class PurchaseBill extends React.Component<Props, State> {
           billToSameAsShipTo: BillToAddress.address === shipToAddress.address && BillToAddress.stateCode === shipToAddress.stateCode,
           addressArray,
           selectedInvoice: response?.body?.number,
+          sourceOfSupply: response?.body?.account?.sourceOfSupply ?? BillFromAddress?.state ?? null,
+          destinationOfSupply,
           otherDetails: {
             shipDate: response?.body?.templateDetails?.other?.shippingDate ?? '',
             shippedVia: response?.body?.templateDetails?.other?.shippedVia ?? null,
@@ -1595,10 +1620,10 @@ export class PurchaseBill extends React.Component<Props, State> {
   }
 
 
-  async searchAccount(isUpdateParty?: boolean) {
+  async searchAccount(isUpdateParty?: boolean, accountUniqueName?: string) {
     this.setState({ isSearchingParty: true });
     try {
-      const uniqueName = this.state.partyName?.uniqueName;
+      const uniqueName = accountUniqueName || this.state.partyName?.uniqueName;
       if (!uniqueName) {
         this.setState({ isSearchingParty: false });
         return null;
@@ -1606,12 +1631,6 @@ export class PurchaseBill extends React.Component<Props, State> {
       const results = await InvoiceService.getAccountDetails(uniqueName);
       if (results.body) {
         const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
-        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return normalizeAccountAddresses(addresses)
-        }
-        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
-          await this.getExchangeRateToINR(results.body.currency);
-        }
         const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
         const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
         let taxesToApply;
@@ -1624,8 +1643,17 @@ export class PurchaseBill extends React.Component<Props, State> {
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(addresses)
+        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
+          return normalizeAccountAddresses(addresses)
+        }
+        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
+          await this.getExchangeRateToINR(results.body.currency);
+        }
         const normalizedAddresses = normalizeAccountAddresses(addresses);
-        const defaultAddress = normalizedAddresses.length < 1 ? {} : normalizedAddresses[0];
+        const defaultAddress =
+          normalizedAddresses.find((item: any) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          {};
         await new Promise<void>((resolve) => {
           this.setState({
             ...(!isUpdateParty && { addedItems: [] }),
@@ -1638,9 +1666,18 @@ export class PurchaseBill extends React.Component<Props, State> {
             addressArray: normalizedAddresses,
             BillFromAddress: defaultAddress,
             shipFromAddress: defaultAddress,
+            // BillToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+            // shipToAddress: results.body.addresses.length < 1 ? {} : results.body.addresses[0],
+            sourceOfSupply: defaultAddress?.state || null,
           }, () => resolve());
         });
         await this.getBillToAndShipToAddress();
+        let destinationOfSupply = null;
+        try {
+          const companyState = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyState);
+          destinationOfSupply = companyState ? JSON.parse(companyState) : null;
+        } catch (e) { }
+        await this.setState({ destinationOfSupply });
         return results.body;
       }
     } catch (e) {
@@ -1726,6 +1763,11 @@ export class PurchaseBill extends React.Component<Props, State> {
       exchangeRate: 1,
       totalAmountInINR: 0.0,
       companyCountryDetails: {},
+      sourceOfSupply: null,
+      destinationOfSupply: null,
+      stateList: [],
+      stateSearchTerm: '',
+      activeSupplyField: 'source',
       selectedInvoice: '',
       allBillingToAddresses: [],
       billFromSameAsShipFrom: true,
@@ -1981,6 +2023,16 @@ export class PurchaseBill extends React.Component<Props, State> {
           pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
         },
         uniqueName: this.state.partyName.uniqueName,
+        ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+          sourceOfSupply: {
+            name: this.state.sourceOfSupply?.name,
+            code: this.state.sourceOfSupply?.code,
+          },
+          destinationOfSupply: {
+            name: this.state.destinationOfSupply?.name,
+            code: this.state.destinationOfSupply?.code,
+          },
+        }),
       },
       company: {
         billingDetails: {
@@ -2124,6 +2176,16 @@ export class PurchaseBill extends React.Component<Props, State> {
             pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+            sourceOfSupply: {
+              name: this.state.sourceOfSupply?.name,
+              code: this.state.sourceOfSupply?.code,
+            },
+            destinationOfSupply: {
+              name: this.state.destinationOfSupply?.name,
+              code: this.state.destinationOfSupply?.code,
+            },
+          }),
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         //dueDate: moment(this.state.date).format('DD-MM-YYYY'),
@@ -2245,6 +2307,16 @@ export class PurchaseBill extends React.Component<Props, State> {
             pincode: this.state.shipFromAddress.pincode ? this.state.shipFromAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+            sourceOfSupply: {
+              name: this.state.sourceOfSupply?.name,
+              code: this.state.sourceOfSupply?.code,
+            },
+            destinationOfSupply: {
+              name: this.state.destinationOfSupply?.name,
+              code: this.state.destinationOfSupply?.code,
+            },
+          }),
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: "",
@@ -3846,6 +3918,14 @@ export class PurchaseBill extends React.Component<Props, State> {
       Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateDetailsShippingFrom'), [
         { style: 'destructive', text: this.props.t('creditNote.okay') },
       ]);
+    } else if ((this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.state.sourceOfSupply == null) {
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.pleaseSelectSourceOfSupply'), [
+        { style: 'destructive', text: this.props.t('common.okay') },
+      ]);
+    } else if ((this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.state.destinationOfSupply == null) {
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.pleaseSelectDestinationOfSupply'), [
+        { style: 'destructive', text: this.props.t('common.okay') },
+      ]);
     } else {
       if(this.isVoucherUpdate){
         this.updateVoucher();
@@ -3945,6 +4025,112 @@ export class PurchaseBill extends React.Component<Props, State> {
     this.keyboardWillHideSub = undefined;
   }
 
+  renderSupplyField(field, headingKey) {
+    const value = field === 'source' ? this.state.sourceOfSupply : this.state.destinationOfSupply;
+    return (
+      <View style={style.selectFieldContainer}>
+        <View style={style.selectFieldRow}>
+          <Text style={style.selectFieldHeading}>{this.props.t(headingKey)}</Text>
+          <View style={style.selectFieldContentRow}>
+            <TouchableOpacity
+              style={style.selectFieldTouchable}
+              onPress={() => {
+                this.setState({ activeSupplyField: field }, () => {
+                  this.setState({ stateSearchTerm: '' });
+                  this.setBottomSheetVisible(this.stateBottomSheetRef, true);
+                });
+              }}
+            >
+              <Text style={style.selectFieldValueText}>
+                {value?.name != null ? value.name : this.props.t('common.selectState')}
+              </Text>
+            </TouchableOpacity>
+            {value != null ? (
+              <View style={style.selectFieldClearWrapper}>
+                <TouchableOpacity
+                  style={style.selectFieldClearButton}
+                  onPress={() => {
+                    this.setState(field === 'source' ? { sourceOfSupply: null } : { destinationOfSupply: null });
+                  }}>
+                  <AntDesign name="closecircleo" size={15} color={'grey'} />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  renderSupplyStates() {
+    return (
+      <>
+        {this.renderSupplyField('source', 'purchaseBill.sourceOfSupply')}
+        {this.renderSupplyField('destination', 'purchaseBill.destinationOfSupply')}
+      </>
+    );
+  }
+
+  stateBottomSheet() {
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
+    const ListEmptyComponent = () => {
+      return (
+        <View style={style.stateListEmptyContainer}>
+          <Text style={style.regularText}>
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
+          </Text>
+        </View>
+      );
+    };
+    const renderItem = ({ item }) => {
+      return (
+        <TouchableOpacity
+          style={style.stateListItemTouchable}
+          onPress={() => {
+            if (this.state.stateList.length != 0) {
+              const update = this.state.activeSupplyField === 'source'
+                ? { sourceOfSupply: item == null ? null : item, stateSearchTerm: '' }
+                : { destinationOfSupply: item == null ? null : item, stateSearchTerm: '' };
+              this.setState(update);
+            }
+            this.setBottomSheetVisible(this.stateBottomSheetRef, false);
+          }}
+        >
+          <Text style={style.stateListItemText}>
+            {item?.name == null ? this.props.t('creditNote.na') : item.name}
+          </Text>
+        </TouchableOpacity>
+      );
+    };
+    return (
+      <BottomSheet
+        bottomSheetRef={this.stateBottomSheetRef}
+        headerText={this.props.t('creditNote.selectState')}
+        headerTextColor='#FC8345'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
+        flatListProps={{
+          data: filteredStateList,
+          renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
+          ListEmptyComponent: <ListEmptyComponent />,
+        }}
+      />
+    );
+  }
+
   render() {
     return (
       //   <View style={{flex: 1, backgroundColor: 'lightBlue', justifyContent: 'center', alignItems: 'center'}}>
@@ -3969,6 +4155,7 @@ export class PurchaseBill extends React.Component<Props, State> {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {(this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.renderSupplyStates()}
             {this._renderSelectInvoice()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
@@ -4037,6 +4224,7 @@ export class PurchaseBill extends React.Component<Props, State> {
           />
         )}
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
+        {this.stateBottomSheet()}
         {this._renderPaymentMode()}
       </View>
     );

@@ -1,7 +1,7 @@
-import { Dimensions, Platform, StatusBar, StyleSheet, ToastAndroid, View } from "react-native";
+import { Dimensions, Platform, StyleSheet, ToastAndroid, View } from "react-native";
 import Pdf from 'react-native-pdf';
 import LoaderKit  from 'react-native-loader-kit';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import colors from "@/utils/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/utils/constants";
@@ -22,15 +22,31 @@ const PdfPreviewScreen = ( props: any ) => {
     // 2. As an in-screen modal -> params (and onClose) are passed directly as props
     const params = props?.route?.params ?? props;
     const {companyVersionNumber,uniqueName,voucherInfo,onClose} = params;
+    const isFocused = useIsFocused();
+    const isModal = typeof onClose === 'function';
+    const voucherInfoKey = JSON.stringify(voucherInfo);
     // RN Modal on iOS draws under the status bar; pad only in that modal presentation.
     const modalTopInset = onClose && Platform.OS === 'ios' ? insets.top : 0;
     const [pdfBlobUri,setPdfBlobUri] = useState("");
+    const [pdfKey,setPdfKey] = useState(0);
     const [isLoading,setLoading] = useState(true);
-    const exportFile = async () => {
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
+    const exportFile = useCallback(async (isCancelled?: () => boolean) => {
         try {
+          setLoading(true);
+          // Keep previous Pdf mounted until new bytes arrive (smoother reopen).
+          // Clearing URI here unmounts Pdf mid-flight and is harsher on Android pdfium.
           const activeCompany = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyUniqueName);
           const token = await AsyncStorage.getItem(STORAGE_KEYS.token);
-          RNFetchBlob.fetch(
+          const res = await RNFetchBlob.fetch(
             'POST',
             companyVersionNumber == 1 ? createEndpoint(`company/${activeCompany}/accounts/${uniqueName}/vouchers/download-file?fileType=pdf`):
               createEndpoint(`company/${activeCompany}/download-file?voucherVersion=${companyVersionNumber}&fileType=pdf&downloadOption=VOUCHER`),
@@ -38,81 +54,111 @@ const PdfPreviewScreen = ( props: any ) => {
               'session-id': `${token}`,
               'Content-Type': 'application/json'
             },
-            JSON.stringify(voucherInfo)
-          ).then(async (res) => {
-            if (res.respInfo.status != 200) {
-              if (Platform.OS == "ios") {
-                Toast.show(JSON.parse(res.data).message, {
-                  duration: Toast.durations.LONG,
-                  position: -200,
-                  hideOnPress: true,
-                  backgroundColor: "#1E90FF",
-                  textColor: "white",
-                  opacity: 1,
-                  shadow: false,
-                  animation: true,
-                  containerStyle: { borderRadius: 10 }
-                });
-              } else {
-                ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
-              }
-              return
+            voucherInfoKey
+          );
+          if (isCancelled?.() || !isMountedRef.current) return;
+          if (res.respInfo.status != 200) {
+            if (Platform.OS == "ios") {
+              Toast.show(JSON.parse(res.data).message, {
+                duration: Toast.durations.LONG,
+                position: -200,
+                hideOnPress: true,
+                backgroundColor: "#1E90FF",
+                textColor: "white",
+                opacity: 1,
+                shadow: false,
+                animation: true,
+                containerStyle: { borderRadius: 10 }
+              });
+            } else {
+              ToastAndroid.show(JSON.parse(res.data).message, ToastAndroid.LONG)
             }
-            let base64Str = res.base64();
-            setPdfBlobUri("data:application/pdf;base64,"+base64Str);
-            setLoading(false);
-          })
+            if (isMountedRef.current) setLoading(false);
+            return
+          }
+          let base64Str = res.base64();
+          if (isCancelled?.() || !isMountedRef.current) return;
+          setPdfBlobUri("data:application/pdf;base64,"+base64Str);
+          setPdfKey((prev) => prev + 1);
+          setLoading(false);
         } catch (e) {
+            if (isCancelled?.() || !isMountedRef.current) return;
             ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
             setLoading(false);
             console.log(e);
         }
-      };
+      }, [companyVersionNumber, uniqueName, voucherInfoKey]);
 
+    // Modal (Sales/Purchase/Parties): fetch once on mount — parent focus stays true,
+    // so don't key off useIsFocused (avoids blur cleanup tearing down Pdf).
+    // Navigated drawer screen: still refetch when focused.
     useEffect(() => {
-        exportFile();
+        if (!isModal && !isFocused) return;
+        let cancelled = false;
+        exportFile(() => cancelled);
         return (()=>{
-            setLoading(true);
-            setPdfBlobUri("");
+            cancelled = true;
+            // Only clear URI on navigated-screen blur. Modal close unmounts the
+            // whole tree via parent setState — avoid extra setState that unmounts
+            // Pdf while the native renderer may still be finishing.
+            if (!isModal && isMountedRef.current) {
+                setLoading(true);
+                setPdfBlobUri("");
+            }
         })
-    },[companyVersionNumber, uniqueName, JSON.stringify(voucherInfo)])
+    }, isModal ? [exportFile] : [isFocused, exportFile])
+
+    const handleBack = useCallback(() => {
+        if (typeof onClose === 'function') {
+            onClose();
+            return;
+        }
+    }, [onClose]);
     
     return ( 
         <View style={styles.container}>
             <View style={{ paddingTop: modalTopInset, backgroundColor: voucherBackground }}>
-                <Header header={'Pdf Preview'} isBackButtonVisible={true} backgroundColor={voucherBackground} onBackButtonPress={onClose} />
+                <Header
+                    header={'Pdf Preview'}
+                    isBackButtonVisible={true}
+                    backgroundColor={voucherBackground}
+                    onBackButtonPress={isModal ? handleBack : onClose}
+                />
             </View>
             <View style={styles.container}>
-                {!isLoading ? <View style={styles.container}>
-                    <Pdf
-                        source={{uri:pdfBlobUri}}
-                        renderActivityIndicator={()=>(<></>)}
-                        trustAllCerts={false}
-                        onLoadComplete={(numberOfPages,filePath) => {
-                            console.log(`Number of pages: ${numberOfPages}`);
-                        }}
-                        onPageChanged={(page,numberOfPages) => {
-                            console.log(`Current page: ${page}`);
-                        }}
-                        onError={(error) => {
-                            ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
-                            // setModalVisible(false);
-                            setLoading(false);
-                        }}
-                        onPressLink={(uri) => {
-                            console.log(`Link pressed: ${uri}`);
-                        }}
-                        style={styles.pdf}
-                    />
-                </View>
-                : 
+                {!!pdfBlobUri ? (
+                    <View style={styles.container} pointerEvents={isLoading ? 'none' : 'auto'}>
+                        <Pdf
+                            key={pdfKey}
+                            source={{uri:pdfBlobUri}}
+                            renderActivityIndicator={()=>(<></>)}
+                            trustAllCerts={false}
+                            onLoadComplete={(numberOfPages,filePath) => {
+                                console.log(`Number of pages: ${numberOfPages}`);
+                            }}
+                            onPageChanged={(page,numberOfPages) => {
+                                console.log(`Current page: ${page}`);
+                            }}
+                            onError={(error) => {
+                                ToastAndroid.show("Something went wrong!", ToastAndroid.LONG)
+                                if (isMountedRef.current) setLoading(false);
+                            }}
+                            onPressLink={(uri) => {
+                                console.log(`Link pressed: ${uri}`);
+                            }}
+                            style={styles.pdf}
+                        />
+                    </View>
+                ) : null}
+                {(isLoading || !pdfBlobUri) ? (
                 <View style={styles.loadContainer}>
                     <LoaderKit
                         style={{ width: 45, height: 45 }}
                         name={'LineScale'}
                         color={colors.PRIMARY_NORMAL}
                     />
-                </View>}
+                </View>
+                ) : null}
             </View>
         </View>
     );
@@ -138,6 +184,7 @@ const getStyles = (theme: ThemeProps)=> StyleSheet.create({
         right: 0,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.6)',
     },
     centeredView: {
         flexDirection: 'column',

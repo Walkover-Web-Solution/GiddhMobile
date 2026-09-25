@@ -92,7 +92,7 @@
     "react-native-gifted-charts": "^1.4.47",
     "react-native-image-picker": "^8.2.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
-    "react-native-keyboard-controller": "^1.17.2",
+    "react-native-keyboard-controller": "1.22.3",
     "react-native-loader-kit": "^2.0.8",
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-modal-datetime-picker": "^18.0.0",

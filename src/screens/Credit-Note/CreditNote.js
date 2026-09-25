@@ -68,11 +68,15 @@ export class CreditNote extends React.Component<Props> {
   constructor(props) {
     super(props);
     this.invoiceBottomSheetRef = createRef();
+    this.stateBottomSheetRef = createRef();
     this.copyVoucherBottomSheetRef = createRef();
     this.eInvoiceConfirmBottomSheetRef = createRef();
     this.pendingEInvoiceCreate = null;
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
+      placeOfSupply: null,
+      stateList: [],
+      stateSearchTerm: '',
       invoiceType: INVOICE_TYPE.creditNote,
       loading: false,
       eInvoiceConfirmMessage: '',
@@ -1236,6 +1240,7 @@ export class CreditNote extends React.Component<Props> {
       if (results.body && results.status == 'success') {
         await this.setState({
           companyCountryDetails: results.body.country,
+          stateList: results.body.stateList,
         });
       }
     } catch (e) { }
@@ -1368,7 +1373,10 @@ export class CreditNote extends React.Component<Props> {
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
-        const defaultAddress = normalizedAddresses[0];
+        const defaultAddress =
+          normalizedAddresses.find((item) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          {};
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1381,6 +1389,7 @@ export class CreditNote extends React.Component<Props> {
           partyBillingAddress: defaultAddress,
           partyShippingAddress: defaultAddress,
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
+          placeOfSupply: defaultAddress?.state || null,
         });
       }
     } catch (e) {
@@ -1607,6 +1616,12 @@ export class CreditNote extends React.Component<Props> {
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName :  this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' &&{
+            placeOfSupply: {
+                name: this.state.placeOfSupply?.name,
+                code: this.state.placeOfSupply?.code,
+              },
+            }),
           contactNumber: '',
           country: this.state.countryDeatils,
           currency: { code: this.state.currency },
@@ -1681,6 +1696,12 @@ export class CreditNote extends React.Component<Props> {
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' &&{
+          placeOfSupply: {
+              name: this.state.placeOfSupply?.name,
+              code: this.state.placeOfSupply?.code,
+            },
+          }),
           contactNumber: '',
           country: this.state.countryDeatils,
           currency: { code: this.state.currency, symbol: this.state.currencySymbol },
@@ -2015,41 +2036,35 @@ export class CreditNote extends React.Component<Props> {
 
   _renderSelectInvoice() {
     return (
-      <View style={style.dateView}>
-        <View style={{ flexDirection: 'row' }}>
-          {/* <Icon name={'Calendar'} color={'#ff6961'} size={16} /> */}
-          <Text style={style.InvoiceHeading}>{this.props.t('creditNote.invoiceHash')}</Text>
-          <View style={{ flexDirection: 'row', width: '80%', marginHorizontal: 15, justifyContent: 'space-between' }}>
+      <View style={style.selectFieldContainer}>
+        <View style={style.selectFieldRow}>
+          <Text style={style.selectFieldHeading}>{this.props.t('creditNote.invoiceHash')}</Text>
+          <View style={style.selectFieldContentRow}>
             <TouchableOpacity
-              style={{flex: 1}}
+              style={style.selectFieldTouchable}
               onPress={() => {
                 this.setBottomSheetVisible(this.invoiceBottomSheetRef, true);
               }}
             >
-              <Text style={{ color: '#808080', fontSize: 14, fontFamily: FONT_FAMILY.regular }}>
+              <Text style={style.selectFieldValueText}>
                 {
                   this.state.selectedInvoice != '' ? this.state.selectedInvoice : this.props.t('common.selectAccount')
                 }
               </Text>
             </TouchableOpacity>
             {this.state.selectedInvoice != '' ? (
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row',
-                  alignSelf: 'flex-end',
-                  alignItems: 'center',
-                  marginHorizontal: 15,
-                  marginTop: -2,
-                }}
-                onPress={() => {
-                    this.setState({
-                      selectedInvoice: '',
-                      linkedInvoices: '',
-                    });
-                }}>
-                <AntDesign name="closecircleo" size={15} color={'grey'} />
-                {/* <Text style={{marginLeft: 3}}>Close</Text> */}
-              </TouchableOpacity>
+              <View style={style.selectFieldClearWrapper}>
+                <TouchableOpacity
+                  style={style.selectFieldClearButton}
+                  onPress={() => {
+                      this.setState({
+                        selectedInvoice: '',
+                        linkedInvoices: '',
+                      });
+                  }}>
+                  <AntDesign name="closecircleo" size={15} color={'grey'} />
+                </TouchableOpacity>
+              </View>
             ) : null}
           </View>
         </View>
@@ -3065,7 +3080,14 @@ export class CreditNote extends React.Component<Props> {
         { style: 'destructive', text: this.props.t('creditNote.okay') },
         ,
       ]);
-    } else {
+    }
+    else if(this.state.placeOfSupply == null && (this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India')){
+      Alert.alert(this.props.t('creditNote.emptyStateDetails'), this.props.t('creditNote.pleaseSelectPlaceOfSupply'), [
+        { style: 'destructive', text: this.props.t('creditNote.okay') },
+        ,
+      ]);
+    }
+    else {
       this.createCreditNote();
     }
   }
@@ -3156,6 +3178,108 @@ export class CreditNote extends React.Component<Props> {
     this.keyboardWillHideSub = undefined;
   }
 
+  renderPlaceOfSupply() {
+    return (
+      <View style={style.selectFieldContainer}>
+        <View style={style.selectFieldRow}>
+          <Text style={style.selectFieldHeading}>{this.props.t('creditNote.placeOfSupply')}</Text>
+          <View style={style.selectFieldContentRow}>
+            <TouchableOpacity
+              style={style.selectFieldTouchable}
+              onPress={() => {
+                this.setState({ stateSearchTerm: '' });
+                this.setBottomSheetVisible(this.stateBottomSheetRef, true);
+              }}
+            >
+              <Text style={style.selectFieldValueText}>
+                {
+                  this.state.placeOfSupply?.name != null ? this.state.placeOfSupply?.name : this.props.t('common.selectState')
+                }
+              </Text>
+            </TouchableOpacity>
+            {this.state.placeOfSupply != null ? (
+              <View style={style.selectFieldClearWrapper}>
+                <TouchableOpacity
+                  style={style.selectFieldClearButton}
+                  onPress={() => {
+                      this.setState({
+                        placeOfSupply: null
+                      });
+                  }}>
+                  <AntDesign name="closecircleo" size={15} color={'grey'} />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  stateBottomSheet(){
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
+    const ListEmptyComponent = () => {
+      return (
+        <View style={style.stateListEmptyContainer}>
+          <Text style={style.regularText}>
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
+          </Text>
+        </View>
+      )
+    }
+    const renderItem = ({item}) => {
+      return (
+        <TouchableOpacity
+          style={style.stateListItemTouchable}
+          onPress={() => {
+            this.state.stateList.length != 0
+              ? this.setState({
+                placeOfSupply: item == null ? null : item,
+                stateSearchTerm: '',
+              })
+              : null;
+            this.setBottomSheetVisible(this.stateBottomSheetRef, false);
+          }}
+        >
+        <Text style={style.stateListItemText}>
+          {this.state.allVoucherInvoice.length == 0
+            ? item
+            : item.name == null
+              ? this.props.t('creditNote.na')
+              : item.name}
+        </Text>
+      </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.stateBottomSheetRef}
+        headerText={this.props.t('creditNote.selectState')}
+        headerTextColor='#084EAD'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
+        flatListProps={{
+          data: filteredStateList,
+          renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
+          ListEmptyComponent: <ListEmptyComponent/>
+        }}
+      />
+    )
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -3173,6 +3297,7 @@ export class CreditNote extends React.Component<Props> {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {(this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.renderPlaceOfSupply()}
             {this._renderSelectInvoice()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
@@ -3237,6 +3362,7 @@ export class CreditNote extends React.Component<Props> {
         )}
 
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
+        {this.stateBottomSheet()}
         {this.invoiceBottomSheet()}
         {this._renderCopyVoucherSheet()}
         {this._renderPdfPreviewModal()}

@@ -95,9 +95,14 @@ type State = {
   countryDeatils: {
     countryName: string,
     countryCode: string
+    code?: string
   },
+  placeOfSupply: any,
+  stateList: Array<any>,
+  stateSearchTerm: string,
   currency: string,
   currencySymbol: string
+  companyCountryDetails: any
   totalAmountInINR: number
   amountPaidNowText: number
   roundOffTotal: number
@@ -159,10 +164,14 @@ export class SalesInvoice extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.paymentModeBottomSheetRef = React.createRef();
+    this.stateBottomSheetRef = React.createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.searchCalls = this.searchCalls.bind(this);
     this.isVoucherUpdate = !!this.props.route?.params?.voucherUniqueName
     this.state = {
+      placeOfSupply: null,
+      stateList: [],
+      stateSearchTerm: '',
       searchNamesOnly: [],
       test: Dropdown,
       loading: false,
@@ -321,7 +330,8 @@ export class SalesInvoice extends React.Component<Props, State> {
       const results = await InvoiceService.getCountryDetails(activeCompanyCountryCode);
       if (results.body && results.status == 'success') {
         await this.setState({
-          companyCountryDetails: results.body.country
+          companyCountryDetails: results.body.country,
+          stateList: results.body.stateList,
         });
       }
     } catch (e) {
@@ -1147,6 +1157,7 @@ export class SalesInvoice extends React.Component<Props, State> {
         "amount": entry?.subTotal?.amountForAccount,
         "amountText": entry?.subTotal?.amountForAccount,
         "isNew": false,
+        "taxesUserCleared": taxDetailsArray.length === 0,
         "description": entry?.description,
         "unit": isStock ? entry.transactions[0].stock.quantity : '',
         "total": entry?.subTotal?.amountForAccount,
@@ -1251,8 +1262,8 @@ console.log('details', details);
               });
             });
 
-            // Get Addresses of the Account
-            addressArray = (await this.searchAccount()) || [];
+            // Get Addresses and default taxes of the Account
+            addressArray = (await this.searchAccount(false, accountData?.uniqueName)) || [];
           }
         }
       }
@@ -1274,7 +1285,8 @@ console.log('details', details);
         this.setState({
           countryDeatils: {
             countryName: response?.body?.account?.billingDetails?.country?.name,
-            countryCode: response?.body?.account?.billingDetails?.country?.code
+            countryCode: response?.body?.account?.billingDetails?.country?.code,
+            code: response?.body?.account?.billingDetails?.country?.code,
           },
           currency: response.body.account?.currency?.code,
           currencySymbol: response.body.account?.currency?.symbol,
@@ -1286,6 +1298,7 @@ console.log('details', details);
           adjustments: response?.body?.adjustments,
           partyBillingAddress,
           partyShippingAddress,
+          placeOfSupply: response?.body?.account?.placeOfSupply ?? partyBillingAddress?.state ?? null,
           billSameAsShip: partyBillingAddress.address === partyShippingAddress.address && partyBillingAddress.stateCode === partyShippingAddress.stateCode,
           addressArray,
           otherDetails: {
@@ -1557,10 +1570,10 @@ console.log('details', details);
     console.log(JSON.stringify(this.state.partyType))
   }
 
-  async searchAccount(isUpdateParty?: boolean) {
+  async searchAccount(isUpdateParty?: boolean, accountUniqueName?: string) {
     this.setState({ isSearchingParty: true });
     try {
-      const uniqueName = this.state.partyName?.uniqueName;
+      const uniqueName = accountUniqueName || this.state.partyName?.uniqueName;
       if (!uniqueName) {
         this.setState({ isSearchingParty: false });
         return null;
@@ -1570,12 +1583,6 @@ console.log('details', details);
 
       if (results.body) {
         const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
-        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return normalizeAccountAddresses(addresses)
-        }
-        if (results.body.currency != this.state.companyCountryDetails?.currency?.code) {
-          await this.getExchangeRateToINR(results.body.currency);
-        }
         const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
         const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
         let taxesToApply;
@@ -1588,19 +1595,27 @@ console.log('details', details);
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         this.getPartyTypeFromAddress(addresses)
+        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
+          return normalizeAccountAddresses(addresses)
+        }
+        if (results.body.currency != this.state.companyCountryDetails?.currency?.code) {
+          await this.getExchangeRateToINR(results.body.currency);
+        }
         const normalizedAddresses = normalizeAccountAddresses(addresses);
-        const defaultAddress = normalizedAddresses.length < 1
-          ? {
-            address: '',
-            gstNumber: '',
-            state: {
-              code: '',
-              name: ''
-            },
-            stateCode: '',
-            stateName: ''
-          }
-          : normalizedAddresses[0];
+        const emptyAddress = {
+          address: '',
+          gstNumber: '',
+          state: {
+            code: '',
+            name: ''
+          },
+          stateCode: '',
+          stateName: ''
+        };
+        const defaultAddress =
+          normalizedAddresses.find((item: any) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          emptyAddress;
         await new Promise<void>((resolve) => {
           this.setState({
             ...(!isUpdateParty && { addedItems: [] }),
@@ -1613,7 +1628,9 @@ console.log('details', details);
             addressArray: normalizedAddresses,
             partyBillingAddress: defaultAddress,
             partyShippingAddress: defaultAddress,
+            placeOfSupply: defaultAddress?.state || null,
           }, () => resolve());
+
         });
         return results.body;
       }
@@ -1869,6 +1886,12 @@ console.log('details', details);
           stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : this.state.partyBillingAddress?.state?.name,
           pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : ''
         },
+        ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+          placeOfSupply: {
+            name: this.state.placeOfSupply?.name,
+            code: this.state.placeOfSupply?.code,
+          },
+        }),
         contactNumber: '',
         country: this.state.countryDeatils,
         currency: { code: this.state.currency, symbol: this.state.currencySymbol },
@@ -1993,6 +2016,12 @@ console.log('details', details);
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : ''
           },
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+            placeOfSupply: {
+              name: this.state.placeOfSupply?.name,
+              code: this.state.placeOfSupply?.code,
+            },
+          }),
           contactNumber: '',
           country: this.state.countryDeatils,
           // currency: { code: this.state.currency },
@@ -3590,6 +3619,13 @@ console.log('details', details);
       Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.addStateDetailsShippingFrom'), [
         { style: 'destructive', text: this.props.t('common.ok') }
       ]);
+    } else if (
+      this.state.placeOfSupply == null &&
+      (this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India')
+    ) {
+      Alert.alert(this.props.t('creditNote.emptyStateDetails'), this.props.t('creditNote.pleaseSelectPlaceOfSupply'), [
+        { style: 'destructive', text: this.props.t('creditNote.okay') },
+      ]);
     } else {
       if(this.isVoucherUpdate){
         this.updateVoucher();
@@ -3681,6 +3717,106 @@ console.log('details', details);
     this.keyboardWillHideSub = undefined;
   }
 
+  renderPlaceOfSupply() {
+    return (
+      <View style={style.selectFieldContainer}>
+        <View style={style.selectFieldRow}>
+          <Text style={style.selectFieldHeading}>{this.props.t('creditNote.placeOfSupply')}</Text>
+          <View style={style.selectFieldContentRow}>
+            <TouchableOpacity
+              style={style.selectFieldTouchable}
+              onPress={() => {
+                this.setState({ stateSearchTerm: '' });
+                this.setBottomSheetVisible(this.stateBottomSheetRef, true);
+              }}
+            >
+              <Text style={style.selectFieldValueText}>
+                {
+                  this.state.placeOfSupply?.name != null ? this.state.placeOfSupply?.name : this.props.t('common.selectState')
+                }
+              </Text>
+            </TouchableOpacity>
+            {this.state.placeOfSupply != null ? (
+              <View style={style.selectFieldClearWrapper}>
+                <TouchableOpacity
+                  style={style.selectFieldClearButton}
+                  onPress={() => {
+                      this.setState({
+                        placeOfSupply: null
+                      });
+                  }}>
+                  <AntDesign name="closecircleo" size={15} color={'grey'} />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  stateBottomSheet(){
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
+    const ListEmptyComponent = () => {
+      return (
+        <View style={style.stateListEmptyContainer}>
+          <Text style={style.regularText}>
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
+          </Text>
+        </View>
+      )
+    }
+    const renderItem = ({item}) => {
+      return (
+        <TouchableOpacity
+          style={style.stateListItemTouchable}
+          onPress={() => {
+            this.state.stateList.length != 0
+              ? this.setState({
+                placeOfSupply: item == null ? null : item,
+                stateSearchTerm: '',
+              })
+              : null;
+            this.setBottomSheetVisible(this.stateBottomSheetRef, false);
+          }}
+        >
+        <Text style={style.stateListItemText}>
+          {item?.name == null
+            ? this.props.t('creditNote.na')
+            : item.name}
+        </Text>
+      </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.stateBottomSheetRef}
+        headerText={this.props.t('creditNote.selectState')}
+        headerTextColor='#229F5F'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
+        flatListProps={{
+          data: filteredStateList,
+          renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
+          ListEmptyComponent: <ListEmptyComponent/>
+        }}
+      />
+    )
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -3698,6 +3834,7 @@ console.log('details', details);
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {(this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.renderPlaceOfSupply()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
             {this.state.addedItems.length > 0 && this._renderTotalAmount()}
@@ -3771,6 +3908,7 @@ console.log('details', details);
           />
         )}
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
+        {this.stateBottomSheet()}
         {this._renderPaymentMode()}
       </View>
     );

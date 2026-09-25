@@ -87,8 +87,12 @@ type State = {
     countryName: string,
     countryCode: string
   },
+  placeOfSupply: any,
+  stateList: Array<any>,
+  stateSearchTerm: string,
   currency: string,
   currencySymbol: string
+  companyCountryDetails: any
   totalAmountInINR: number
   amountPaidNowText: number
   roundOffTotal: number
@@ -154,12 +158,17 @@ export class CreditNote extends React.Component<Props, State> {
   private ocrFetchPromise: Promise<any | null> | null = null
   private keyboardMargin: Animated.Value
   private invoiceBottomSheetRef: React.Ref<BottomSheet>;
+  private stateBottomSheetRef: React.Ref<BottomSheet>;
   constructor(props) {
     super(props);
     this.invoiceBottomSheetRef = createRef();
+    this.stateBottomSheetRef = createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.isVoucherUpdate = !!this.props.route?.params?.voucherUniqueName
     this.state = {
+      placeOfSupply: null,
+      stateList: [],
+      stateSearchTerm: '',
       invoiceType: INVOICE_TYPE.creditNote,
       loading: false,
       bottomOffset: 0,
@@ -514,6 +523,7 @@ export class CreditNote extends React.Component<Props, State> {
         "amount": entry?.subTotal?.amountForAccount,
         "amountText": entry?.subTotal?.amountForAccount,
         "isNew": false,
+        "taxesUserCleared": taxDetailsArray.length === 0,
         "description": entry?.description,
         "unit": isStock ? entry.transactions[0].stock.quantity : '',
         "total": entry?.subTotal?.amountForAccount,
@@ -600,20 +610,23 @@ export class CreditNote extends React.Component<Props, State> {
             || account?.uniqueName?.toLocaleLowerCase() === accountUniqueName.toLocaleLowerCase()
         );
         if (accountData) {
-          this.setState({
-            partyName: accountData,
-            searchResults: [],
-            searchPartyName: accountData.name ?? preserveSearchPartyName,
-            searchError: '',
-            isSearchingParty: false,
-          },
-          () => {
-            this.getAllAccountsModes();
-            Keyboard.dismiss();
-          })
+          await new Promise<void>((resolve) => {
+            this.setState({
+              partyName: accountData,
+              searchResults: [],
+              searchPartyName: accountData.name ?? preserveSearchPartyName,
+              searchError: '',
+              isSearchingParty: false,
+            },
+            () => {
+              this.getAllAccountsModes();
+              Keyboard.dismiss();
+              resolve();
+            });
+          });
 
-          // Get Addresses of the Accoount
-          addressArray = await this.searchAccount();
+          // Get Addresses and default taxes of the Account
+          addressArray = await this.searchAccount(false, accountData?.uniqueName);
         }
       }
 
@@ -657,6 +670,7 @@ export class CreditNote extends React.Component<Props, State> {
           // adjustments: response?.body?.adjustments,
           partyBillingAddress,
           partyShippingAddress,
+          placeOfSupply: voucherAccount?.placeOfSupply ?? partyBillingAddress?.state ?? null,
           billSameAsShip: partyBillingAddress.address === partyShippingAddress.address && partyBillingAddress.stateCode === partyShippingAddress.stateCode,
           addressArray,
           linkedInvoices: response?.body?.referenceVoucher ?? {},
@@ -1421,6 +1435,7 @@ export class CreditNote extends React.Component<Props, State> {
       if (results.body && results.status == 'success') {
         await this.setState({
           companyCountryDetails: results.body.country,
+          stateList: results.body.stateList,
         });
       }
     } catch (e) {
@@ -1536,10 +1551,10 @@ export class CreditNote extends React.Component<Props, State> {
     console.log("ALL Discount " + JSON.stringify(allDefaultDiscount))
   }
 
-  async searchAccount(isUpdateParty?: boolean) {
+  async searchAccount(isUpdateParty?: boolean, accountUniqueName?: string) {
     this.setState({ isSearchingParty: true });
     try {
-      const uniqueName = this.state.partyName?.uniqueName;
+      const uniqueName = accountUniqueName || this.state.partyName?.uniqueName;
       if (!uniqueName) {
         this.setState({ isSearchingParty: false });
         return null;
@@ -1547,12 +1562,6 @@ export class CreditNote extends React.Component<Props, State> {
       const results = await InvoiceService.getAccountDetails(uniqueName);
       if (results.body) {
         const addresses = Array.isArray(results.body.addresses) ? results.body.addresses : [];
-        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
-          return normalizeAccountAddresses(addresses)
-        }
-        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
-          await this.getExchangeRateToINR(results.body.currency);
-        }
         const applicableTaxes = results.body.applicableTaxes ? results.body.applicableTaxes : [];
         const otherApplicableTaxes = results.body.otherApplicableTaxes ? results.body.otherApplicableTaxes : [];
         let taxesToApply;
@@ -1564,23 +1573,30 @@ export class CreditNote extends React.Component<Props, State> {
         }
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
+        if(this.isVoucherUpdate && !isUpdateParty){ // Return addresses of customer to update, when not updating the party.
+          return normalizeAccountAddresses(addresses)
+        }
+        if (results.body.currency != this.state.companyCountryDetails.currency.code) {
+          await this.getExchangeRateToINR(results.body.currency);
+        }
         const normalizedAddresses = normalizeAccountAddresses(addresses);
-        const defaultAddress = normalizedAddresses[0];
-        await new Promise<void>((resolve) => {
-          this.setState({
-            ...(!isUpdateParty && { addedItems: [] }),
-            partyDetails: results.body,
-            isSearchingParty: false,
-            searchError: '',
-            countryDeatils: results.body.country,
-            currency: results.body.currency,
-            currencySymbol: results.body.currencySymbol,
-            addressArray: normalizedAddresses,
-            partyBillingAddress: defaultAddress,
-            partyShippingAddress: defaultAddress,
-          }, () => resolve());
+        const defaultAddress =
+          normalizedAddresses.find((item: any) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          {};
+        await this.setState({
+          ...(!isUpdateParty && { addedItems: [] }),
+          partyDetails: results.body,
+          isSearchingParty: false,
+          searchError: '',
+          countryDeatils: results.body.country,
+          currency: results.body.currency,
+          currencySymbol: results.body.currencySymbol,
+          addressArray: normalizedAddresses,
+          partyBillingAddress: defaultAddress,
+          partyShippingAddress: defaultAddress,
+          placeOfSupply: defaultAddress?.state || null,
         });
-        return results.body;
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: this.props.t('common.noResultsFound'), isSearchingParty: false });
@@ -1669,8 +1685,6 @@ export class CreditNote extends React.Component<Props, State> {
       defaultAccountDiscount: [],
       companyVersionNumber: 1,
       selectedSalesPerson: undefined,
-      ocrEncodedData: null,
-      showOcrPreview: false,
       ...(this.isVoucherUpdate && {
         partyName: { name: this.props.route?.params?.accountUniqueName, uniqueName: 'cash' },
         searchPartyName: this.props.route?.params?.accountUniqueName
@@ -1807,6 +1821,12 @@ export class CreditNote extends React.Component<Props, State> {
           stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : this.state.partyBillingAddress?.state?.name,
           pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : ''
         },
+        ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+          placeOfSupply: {
+            name: this.state.placeOfSupply?.name,
+            code: this.state.placeOfSupply?.code,
+          },
+        }),
         contactNumber: '',
         country: this.state.countryDeatils,
         currency: { code: this.state.currency, symbol: this.state.currencySymbol },
@@ -1920,6 +1940,12 @@ export class CreditNote extends React.Component<Props, State> {
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName :  this.state.partyBillingAddress?.state?.name,
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+            placeOfSupply: {
+              name: this.state.placeOfSupply?.name,
+              code: this.state.placeOfSupply?.code,
+            },
+          }),
           contactNumber: '',
           country: this.state.countryDeatils,
           currency: { code: this.state.currency },
@@ -1993,6 +2019,12 @@ export class CreditNote extends React.Component<Props, State> {
             stateName: this.state.partyBillingAddress.stateName ? this.state.partyBillingAddress.stateName : '',
             pincode: this.state.partyBillingAddress.pincode ? this.state.partyBillingAddress.pincode : '',
           },
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+            placeOfSupply: {
+              name: this.state.placeOfSupply?.name,
+              code: this.state.placeOfSupply?.code,
+            },
+          }),
           contactNumber: '',
           country: this.state.countryDeatils,
           currency: { code: this.state.currency, symbol: this.state.currencySymbol },
@@ -3355,6 +3387,14 @@ export class CreditNote extends React.Component<Props, State> {
         { style: 'destructive', text: this.props.t('common.okay') },
         ,
       ]);
+    } else if (
+      this.state.placeOfSupply == null &&
+      (this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India')
+    ) {
+      Alert.alert(this.props.t('creditNote.emptyStateDetails'), this.props.t('creditNote.pleaseSelectPlaceOfSupply'), [
+        { style: 'destructive', text: this.props.t('creditNote.okay') },
+        ,
+      ]);
     } else {
       if(this.isVoucherUpdate){
         this.updateVoucher();
@@ -3451,6 +3491,106 @@ export class CreditNote extends React.Component<Props, State> {
     this.keyboardWillHideSub = undefined;
   }
 
+  renderPlaceOfSupply() {
+    return (
+      <View style={style.selectFieldContainer}>
+        <View style={style.selectFieldRow}>
+          <Text style={style.selectFieldHeading}>{this.props.t('creditNote.placeOfSupply')}</Text>
+          <View style={style.selectFieldContentRow}>
+            <TouchableOpacity
+              style={style.selectFieldTouchable}
+              onPress={() => {
+                this.setState({ stateSearchTerm: '' });
+                this.setBottomSheetVisible(this.stateBottomSheetRef, true);
+              }}
+            >
+              <Text style={style.selectFieldValueText}>
+                {
+                  this.state.placeOfSupply?.name != null ? this.state.placeOfSupply?.name : this.props.t('common.selectState')
+                }
+              </Text>
+            </TouchableOpacity>
+            {this.state.placeOfSupply != null ? (
+              <View style={style.selectFieldClearWrapper}>
+                <TouchableOpacity
+                  style={style.selectFieldClearButton}
+                  onPress={() => {
+                      this.setState({
+                        placeOfSupply: null
+                      });
+                  }}>
+                  <AntDesign name="closecircleo" size={15} color={'grey'} />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  stateBottomSheet(){
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
+    const ListEmptyComponent = () => {
+      return (
+        <View style={style.stateListEmptyContainer}>
+          <Text style={style.regularText}>
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
+          </Text>
+        </View>
+      )
+    }
+    const renderItem = ({item}) => {
+      return (
+        <TouchableOpacity
+          style={style.stateListItemTouchable}
+          onPress={() => {
+            this.state.stateList.length != 0
+              ? this.setState({
+                placeOfSupply: item == null ? null : item,
+                stateSearchTerm: '',
+              })
+              : null;
+            this.setBottomSheetVisible(this.stateBottomSheetRef, false);
+          }}
+        >
+        <Text style={style.stateListItemText}>
+          {item?.name == null
+            ? this.props.t('creditNote.na')
+            : item.name}
+        </Text>
+      </TouchableOpacity>
+      )
+    }
+    return(
+      <BottomSheet
+        bottomSheetRef={this.stateBottomSheetRef}
+        headerText={this.props.t('creditNote.selectState')}
+        headerTextColor='#084EAD'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
+        flatListProps={{
+          data: filteredStateList,
+          renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
+          ListEmptyComponent: <ListEmptyComponent/>
+        }}
+      />
+    )
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -3473,6 +3613,7 @@ export class CreditNote extends React.Component<Props, State> {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {(this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.renderPlaceOfSupply()}
             {this._renderSelectInvoice()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
@@ -3542,6 +3683,7 @@ export class CreditNote extends React.Component<Props, State> {
         )}
 
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
+        {this.stateBottomSheet()}
         {this.invoiceBottomSheet()}
       </View>
     );

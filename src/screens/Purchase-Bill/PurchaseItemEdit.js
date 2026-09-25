@@ -337,6 +337,9 @@ class PurchaseItemEdit extends Component {
       return [];
     }
     const arr = Array.isArray(taxDetailsArray) ? taxDetailsArray.slice() : [];
+    if (lineItem && lineItem.isNew === false) {
+      return arr;
+    }
     if (arr.length === 0 && lineItem && Array.isArray(lineItem.taxDetailsArray) && lineItem.taxDetailsArray.length > 0) {
       return lineItem.taxDetailsArray.slice();
     }
@@ -367,8 +370,11 @@ class PurchaseItemEdit extends Component {
     this.keyboardWillHideSub = Keyboard.addListener(KEYBOARD_EVENTS.IOS_ONLY.KEYBOARD_WILL_HIDE, this.keyboardWillHide);
 
     const line = this.props.itemDetails;
+    const useSavedTaxesOnly = line.isNew === false || line.taxesUserCleared;
     let raw;
-    if (line.taxDetailsArray && line.taxDetailsArray.length > 0) {
+    if (useSavedTaxesOnly) {
+      raw = line.taxDetailsArray && line.taxDetailsArray.length > 0 ? [...line.taxDetailsArray] : [];
+    } else if (line.taxDetailsArray && line.taxDetailsArray.length > 0) {
       raw = [...line.taxDetailsArray];
     } else if (!line.stock && this.lineHasTaxHierarchyLinkage(line)) {
       raw = this.getHierarchicalResolvedTaxRows(line);
