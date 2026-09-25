@@ -90,15 +90,29 @@ export class PartiesMainScreen extends React.Component {
   };
 
   setSliderPage = (event: any) => {
-    const { currentPage } = this.state;
+    const { currentPage, screenWidth } = this.state;
     const { x } = event.nativeEvent.contentOffset;
-    const indexOfNextScreen = Math.round(x / this.state.screenWidth);
+    const indexOfNextScreen = Math.min(1, Math.max(0, Math.round(x / screenWidth)));
 
     if (indexOfNextScreen !== currentPage) {
       this.setState({
         currentPage: indexOfNextScreen
       });
     }
+  };
+
+  /** Switch Customers/Vendors tab + page content together (no lag between pill and list). */
+  switchPartyTab = (pageIndex: 0 | 1) => {
+    if (this.state.currentPage === pageIndex) return;
+    const x = pageIndex * this.state.screenWidth;
+    // Update tab highlight immediately, then jump the pager in the same press.
+    this.setState({ currentPage: pageIndex }, () => {
+      this.scrollRef?.current?.scrollTo({
+        x,
+        y: 0,
+        animated: false,
+      });
+    });
   };
 
   activeFilter = () => {
@@ -489,13 +503,7 @@ export class PartiesMainScreen extends React.Component {
               paddingVertical: 7,
               borderWidth: 1
             }}
-            onPress={() =>
-              this.scrollRef.current.scrollTo({
-                animated: true,
-                y: 0,
-                x: this.state.screenWidth * -1
-              })
-            }>
+            onPress={() => this.switchPartyTab(0)}>
             <Text
               numberOfLines={1}
               style={{
@@ -517,13 +525,7 @@ export class PartiesMainScreen extends React.Component {
               paddingVertical: 2,
               borderWidth: 1
             }}
-            onPress={() =>
-              this.scrollRef.current.scrollTo({
-                animated: true,
-                y: 0,
-                x: this.state.screenWidth * 2
-              })
-            }>
+            onPress={() => this.switchPartyTab(1)}>
             <Text
               numberOfLines={1}
               style={{
@@ -541,7 +543,11 @@ export class PartiesMainScreen extends React.Component {
           scrollEventThrottle={16}
           pagingEnabled={true}
           showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(event) => {
+            this.setSliderPage(event);
+          }}
           onScroll={(event) => {
+            // Keep swipe gesture in sync without waiting for animation end alone.
             this.setSliderPage(event);
           }}>
           <View style={{ height: '100%', width: this.state.screenWidth }}>

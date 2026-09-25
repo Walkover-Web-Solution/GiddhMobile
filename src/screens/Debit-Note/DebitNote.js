@@ -66,6 +66,7 @@ export class DebiteNote extends React.Component<Props> {
   constructor(props) {
     super(props);
     this.invoiceBottomSheetRef = createRef();
+    this.stateBottomSheetRef = createRef();
     this.copyVoucherBottomSheetRef = createRef();
     this.setBottomSheetVisible = this.setBottomSheetVisible.bind(this);
     this.state = {
@@ -140,6 +141,11 @@ export class DebiteNote extends React.Component<Props> {
       totalAmountInINR: 0.0,
       selectedInvoice: '',
       companyCountryDetails: '',
+      sourceOfSupply: null,
+      destinationOfSupply: null,
+      stateList: [],
+      stateSearchTerm: '',
+      activeSupplyField: 'source',
       billSameAsShip: true,
       tdsOrTcsArray: [],
       defaultAccountTax: [],
@@ -666,6 +672,7 @@ export class DebiteNote extends React.Component<Props> {
       if (results.body && results.status == 'success') {
         await this.setState({
           companyCountryDetails: results.body.country,
+          stateList: results.body.stateList,
         });
       }
     } catch (e) { }
@@ -1388,7 +1395,10 @@ export class DebiteNote extends React.Component<Props> {
         this.setDefaultAccountTax(taxesToApply)
         this.setDefaultDiscount(results.body.applicableDiscounts)
         const normalizedAddresses = normalizeAccountAddresses(results.body.addresses);
-        const defaultAddress = normalizedAddresses[0];
+        const defaultAddress =
+          normalizedAddresses.find((item) => item.isDefault) ||
+          normalizedAddresses[0] ||
+          {};
         await this.setState({
           addedItems: [],
           partyDetails: results.body,
@@ -1401,7 +1411,14 @@ export class DebiteNote extends React.Component<Props> {
           partyBillingAddress: defaultAddress,
           partyShippingAddress: defaultAddress,
           selectedSalesPerson: results.body.salesPerson ? results.body.salesPerson : undefined,
+          sourceOfSupply: defaultAddress?.state || null,
         });
+        let destinationOfSupply = null;
+        try {
+          const companyState = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyState);
+          destinationOfSupply = companyState ? JSON.parse(companyState) : null;
+        } catch (e) { }
+        await this.setState({ destinationOfSupply });
       }
     } catch (e) {
       this.setState({ searchResults: [], searchError: this.props.t('addItemScreen.noResults'), isSearchingParty: false });
@@ -1480,6 +1497,11 @@ export class DebiteNote extends React.Component<Props> {
       exchangeRate: 1,
       totalAmountInINR: 0.0,
       companyCountryDetails: '',
+      sourceOfSupply: null,
+      destinationOfSupply: null,
+      stateList: [],
+      stateSearchTerm: '',
+      activeSupplyField: 'source',
       selectedInvoice: '',
       billSameAsShip: true,
       tdsOrTcsArray: [],
@@ -1652,6 +1674,16 @@ export class DebiteNote extends React.Component<Props> {
             pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
           },
           uniqueName: this.state.partyName.uniqueName,
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+            sourceOfSupply: {
+              name: this.state.sourceOfSupply?.name,
+              code: this.state.sourceOfSupply?.code,
+            },
+            destinationOfSupply: {
+              name: this.state.destinationOfSupply?.name,
+              code: this.state.destinationOfSupply?.code,
+            },
+          }),
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         // dueDate: moment(this.state.date).format('DD-MM-YYYY'),
@@ -1730,6 +1762,16 @@ export class DebiteNote extends React.Component<Props> {
             stateName: this.state.partyShippingAddress.stateName ? this.state.partyShippingAddress.stateName : this.state.partyShippingAddress?.state?.name,
             pincode: this.state.partyShippingAddress.pincode ? this.state.partyShippingAddress.pincode : '',
           },
+          ...(this.state.companyCountryDetails.countryName == 'India' && this.state.countryDeatils.countryCode == 'IN' && {
+            sourceOfSupply: {
+              name: this.state.sourceOfSupply?.name,
+              code: this.state.sourceOfSupply?.code,
+            },
+            destinationOfSupply: {
+              name: this.state.destinationOfSupply?.name,
+              code: this.state.destinationOfSupply?.code,
+            },
+          }),
         },
         date: moment(this.state.date).format('DD-MM-YYYY'),
         dueDate: "",
@@ -3024,6 +3066,14 @@ export class DebiteNote extends React.Component<Props> {
         { style: 'destructive', text: this.props.t('creditNote.okay') },
         ,
       ]);
+    } else if ((this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.state.sourceOfSupply == null) {
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.pleaseSelectSourceOfSupply'), [
+        { style: 'destructive', text: this.props.t('common.okay') },
+      ]);
+    } else if ((this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.state.destinationOfSupply == null) {
+      Alert.alert(this.props.t('purchaseBill.emptyStateDetails'), this.props.t('purchaseBill.pleaseSelectDestinationOfSupply'), [
+        { style: 'destructive', text: this.props.t('common.okay') },
+      ]);
     } else {
       this.createInvoice();
     }
@@ -3115,6 +3165,112 @@ export class DebiteNote extends React.Component<Props> {
     this.keyboardWillHideSub = undefined;
   }
 
+  renderSupplyField(field, headingKey) {
+    const value = field === 'source' ? this.state.sourceOfSupply : this.state.destinationOfSupply;
+    return (
+      <View style={style.selectFieldContainer}>
+        <View style={style.selectFieldRow}>
+          <Text style={style.selectFieldHeading}>{this.props.t(headingKey)}</Text>
+          <View style={style.selectFieldContentRow}>
+            <TouchableOpacity
+              style={style.selectFieldTouchable}
+              onPress={() => {
+                this.setState({ activeSupplyField: field }, () => {
+                  this.setState({ stateSearchTerm: '' });
+                  this.setBottomSheetVisible(this.stateBottomSheetRef, true);
+                });
+              }}
+            >
+              <Text style={style.selectFieldValueText}>
+                {value?.name != null ? value.name : this.props.t('common.selectState')}
+              </Text>
+            </TouchableOpacity>
+            {value != null ? (
+              <View style={style.selectFieldClearWrapper}>
+                <TouchableOpacity
+                  style={style.selectFieldClearButton}
+                  onPress={() => {
+                    this.setState(field === 'source' ? { sourceOfSupply: null } : { destinationOfSupply: null });
+                  }}>
+                  <AntDesign name="closecircleo" size={15} color={'grey'} />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  renderSupplyStates() {
+    return (
+      <>
+        {this.renderSupplyField('source', 'purchaseBill.sourceOfSupply')}
+        {this.renderSupplyField('destination', 'purchaseBill.destinationOfSupply')}
+      </>
+    );
+  }
+
+  stateBottomSheet() {
+    const searchTerm = (this.state.stateSearchTerm || '').trim().toLowerCase();
+    const filteredStateList = !searchTerm
+      ? this.state.stateList
+      : this.state.stateList.filter((state) => {
+          const name = (state?.name || '').toString().toLowerCase();
+          const code = (state?.code || '').toString().toLowerCase();
+          return name.includes(searchTerm) || code.includes(searchTerm);
+        });
+    const ListEmptyComponent = () => {
+      return (
+        <View style={style.stateListEmptyContainer}>
+          <Text style={style.regularText}>
+            {searchTerm
+              ? this.props.t('common.noResultsFound')
+              : this.props.t('creditNote.noStateExist')}
+          </Text>
+        </View>
+      );
+    };
+    const renderItem = ({ item }) => {
+      return (
+        <TouchableOpacity
+          style={style.stateListItemTouchable}
+          onPress={() => {
+            if (this.state.stateList.length != 0) {
+              const update = this.state.activeSupplyField === 'source'
+                ? { sourceOfSupply: item == null ? null : item, stateSearchTerm: '' }
+                : { destinationOfSupply: item == null ? null : item, stateSearchTerm: '' };
+              this.setState(update);
+            }
+            this.setBottomSheetVisible(this.stateBottomSheetRef, false);
+          }}
+        >
+          <Text style={style.stateListItemText}>
+            {item?.name == null ? this.props.t('creditNote.na') : item.name}
+          </Text>
+        </TouchableOpacity>
+      );
+    };
+    return (
+      <BottomSheet
+        bottomSheetRef={this.stateBottomSheetRef}
+        headerText={this.props.t('creditNote.selectState')}
+        headerTextColor='#ff6961'
+        searchable={true}
+        searchValue={this.state.stateSearchTerm}
+        onSearchChange={(text) => this.setState({ stateSearchTerm: text })}
+        searchPlaceholder={this.props.t('common.searchStates')}
+        flatListProps={{
+          data: filteredStateList,
+          renderItem: renderItem,
+          style: style.stateList,
+          keyboardShouldPersistTaps: 'handled',
+          ListEmptyComponent: <ListEmptyComponent />,
+        }}
+      />
+    );
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
@@ -3131,6 +3287,7 @@ export class DebiteNote extends React.Component<Props> {
             </View>
             {this._renderDateView()}
             {this._renderAddress()}
+            {(this.state.countryDeatils.countryCode == 'IN' && this.state.companyCountryDetails.countryName == 'India') && this.renderSupplyStates()}
             {this._renderSelectInvoice()}
             {this._renderOtherDetails()}
             {this.state.addedItems.length > 0 ? this._renderSelectedStock() : this.renderAddItemButton()}
@@ -3194,6 +3351,7 @@ export class DebiteNote extends React.Component<Props> {
           />
         )}
         {this.state.addedItems.length > 0 && !this.state.showItemDetails && this._renderSaveButton()}
+        {this.stateBottomSheet()}
         {this.invoiceBottomSheet()}
         {this._renderCopyVoucherSheet()}
         {this._renderPdfPreviewModal()}
