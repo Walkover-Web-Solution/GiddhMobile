@@ -237,6 +237,90 @@ export const validatePhoneNumberWithRegion = (phoneNumber: string, regionCode: s
   }
 };
 
+/** True when national number is longer than this region's mobile allows. */
+export const isPhoneNumberTooLongForRegion = (
+  phoneNumber: string,
+  regionCode: string = 'IN'
+): boolean => {
+  const raw = String(phoneNumber ?? '').trim();
+  if (!raw) {
+    return false;
+  }
+
+  const normalized = raw.replace(/[\s\-().]/g, '');
+  const region = String(regionCode || 'IN').toUpperCase();
+
+  try {
+    const pn = normalized.startsWith('+')
+      ? new PhoneNumber(normalized)
+      : new PhoneNumber(normalized, region);
+
+    const info = pn.toJSON?.() as
+      | {
+          possibility?: string;
+          number?: { significant?: string };
+        }
+      | undefined;
+
+    if (info?.possibility === 'too-long') {
+      return true;
+    }
+
+    const significant = String(info?.number?.significant ?? normalized.replace(/^\+/, '')).replace(
+      /\D/g,
+      ''
+    );
+    const example = PhoneNumber.getExample(region, 'mobile');
+    const maxLen = example?.getNumber?.('significant')?.length ?? 0;
+
+    return maxLen > 0 && significant.length > maxLen;
+  } catch {
+    return false;
+  }
+};
+
+/** True when national number is shorter than this region's mobile allows (still typing). */
+export const isPhoneNumberTooShortForRegion = (
+  phoneNumber: string,
+  regionCode: string = 'IN'
+): boolean => {
+  const raw = String(phoneNumber ?? '').trim();
+  if (!raw) {
+    return true;
+  }
+
+  const normalized = raw.replace(/[\s\-().]/g, '');
+  const region = String(regionCode || 'IN').toUpperCase();
+
+  try {
+    const pn = normalized.startsWith('+')
+      ? new PhoneNumber(normalized)
+      : new PhoneNumber(normalized, region);
+
+    const info = pn.toJSON?.() as
+      | {
+          possibility?: string;
+          number?: { significant?: string };
+        }
+      | undefined;
+
+    if (info?.possibility === 'too-short') {
+      return true;
+    }
+
+    const significant = String(info?.number?.significant ?? normalized.replace(/^\+/, '')).replace(
+      /\D/g,
+      ''
+    );
+    const example = PhoneNumber.getExample(region, 'mobile');
+    const expectedLen = example?.getNumber?.('significant')?.length ?? 0;
+
+    return expectedLen > 0 && significant.length < expectedLen;
+  } catch {
+    return true;
+  }
+};
+
 export const validateGST = (gstNumber: string) => {
   // Regular expression to validate the GST number format
   const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/;

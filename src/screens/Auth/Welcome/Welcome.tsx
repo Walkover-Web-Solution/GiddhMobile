@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, Dimensions, ScrollView, Image, StatusBar, Platform } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { View, Text, Dimensions, ScrollView, Image } from 'react-native';
 import style from './style';
+import loginStyle from '@/screens/Auth/Login/style';
 import routes from '@/navigation/routes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '@/utils/constants';
+import LoginButton from '@/core/components/login-button/login-button.component';
+import { ButtonSize } from '@/models/enums/button';
 
-const { width, height } = Dimensions.get('window');
 class Welcome extends React.Component<any, any> {
   func1 = async () => {
     // AsyncStorage.clear();
@@ -85,12 +86,6 @@ class Welcome extends React.Component<any, any> {
     );
   };
 
-  // const setSliderState = ()=>{
-  //     this.setState(sliderState:{
-  //         ...sliderState,
-  //         currentPage: indexOfNextScreen
-  //       })
-  // }
   componentDidMount() {
     this.timer = setInterval(() => {
       this.setState(
@@ -101,7 +96,6 @@ class Welcome extends React.Component<any, any> {
             y: 0,
             x: this.state.screenWidth * this.state.currentPage
           });
-          // console.log('current page', this.state.currentPage);
         }
       );
     }, 2000);
@@ -131,12 +125,9 @@ class Welcome extends React.Component<any, any> {
     const indexOfNextScreen = Math.round(x / this.state.screenWidth);
 
     if (indexOfNextScreen !== currentPage) {
-      this.setState(
-        {
-          currentPage: indexOfNextScreen
-        }
-        // () => console.log('index of next scnreen', indexOfNextScreen),
-      );
+      this.setState({
+        currentPage: indexOfNextScreen
+      });
     }
   };
 
@@ -150,59 +141,56 @@ class Welcome extends React.Component<any, any> {
             style={{ flex: 1 }}
             horizontal={true}
             scrollEventThrottle={16}
-            // onScroll={(prop) => {
-            //   if (this.state.currentPage == 3 && Math.floor(prop.nativeEvent.contentOffset.x) > Math.floor(this.state.screenWidth * this.state.currentPage)) {
-            //     this.setState({pageIndex:0,currentPage:0})
-            //     this.state.scrollRef.scrollTo({
-            //       animated: true,
-            //       x: this.state.screenWidth * 0,
-            //       y: 0
-            //     });
-            //   }
-            // }}
             pagingEnabled={true}
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={(event) => {
               this.setSliderPage(event);
             }}
             onTouchStart={() => clearInterval(this.timer)}
-
-          // onScroll={(event) => {
-          //   this.setSliderPage(event);
-          // }}
           >
             {this.Slide1()}
             {this.Slide2()}
             {this.Slide3()}
             {this.Slide4()}
-            {/* {this.Slide1()}
-            {this.Slide2()}
-            {this.Slide3()} */}
           </ScrollView>
           <View style={[style.paginationWrapper, { top: this.state.screenHeight * 0.6 }]}>
             {Array.from(Array(4).keys()).map((key, index) => (
               <View style={[style.paginationDots, { opacity: pageIndex === index ? 1 : 0.2 }]} key={index} />
             ))}
           </View>
-
         </View>
 
         <View style={style.buttonContainer}>
-          {/* <TouchableOpacity style={style.createAccountButton} delayPressIn={0} onPress={this.func1}>
-            <Text style={style.createAccount}>Create Account</Text>
-          </TouchableOpacity> */}
-          <TouchableOpacity
-            style={[style.loginButton, { width: this.state.screenWidth * 0.9 }]}
-            delayPressIn={0}
-            onPress={() => this.props.navigation.navigate(routes.Login)}>
-            <Text style={style.login}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[style.loginButton, { width: this.state.screenWidth * 0.9 }]}
-            delayPressIn={0}
-            onPress={() => this.props.navigation.navigate(routes.Signup)}>
-            <Text style={style.login}>Sign Up</Text>
-          </TouchableOpacity>
+          <View style={loginStyle.authInner}>
+            <View style={loginStyle.authStack}>
+              <View style={loginStyle.authButtonWrap}>
+                <LoginButton
+                  size={ButtonSize.medium}
+                  label="Login"
+                  style={[
+                    loginStyle.authButton,
+                    loginStyle.googleAuthButton,
+                    style.noShadow
+                  ]}
+                  labelStyle={loginStyle.googleAuthLabel}
+                  onPress={() => this.props.navigation.navigate(routes.Login)}
+                />
+              </View>
+              <View style={loginStyle.authButtonWrap}>
+                <LoginButton
+                  size={ButtonSize.medium}
+                  label="Sign Up"
+                  style={[
+                    loginStyle.authButton,
+                    loginStyle.googleAuthButton,
+                    style.noShadow
+                  ]}
+                  labelStyle={loginStyle.googleAuthLabel}
+                  onPress={() => this.props.navigation.navigate(routes.Signup)}
+                />
+              </View>
+            </View>
+          </View>
         </View>
       </View>
     );

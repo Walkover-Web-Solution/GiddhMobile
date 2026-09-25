@@ -195,6 +195,27 @@ export default (state = initialState, action: Action) => {
         error: action.payload,
         isUserAuthenticated: false
       };
+    case ActionConstants.USER_REGISTER_MSG91:
+      return {
+        ...state,
+        isAuthenticatingUser: true,
+        error: ''
+      };
+    case ActionConstants.USER_REGISTER_MSG91_SUCCESS:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: '',
+        token: action.payload.token,
+        isUserAuthenticated: true
+      };
+    case ActionConstants.USER_REGISTER_MSG91_FAILURE:
+      return {
+        ...state,
+        isAuthenticatingUser: false,
+        error: action.payload,
+        isUserAuthenticated: false
+      };
     case ActionConstants.TOGGLE_BIOMETRIC_AUTHENTICATION:
       return {
         ...state,

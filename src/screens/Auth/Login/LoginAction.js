@@ -122,6 +122,28 @@ export function verifySignupOTP(payload) {
     payload: payload
   }
 }
+
+export function registerWithMsg91(payload) {
+  return {
+    type: Actions.USER_REGISTER_MSG91,
+    payload: payload
+  }
+}
+
+export function registerWithMsg91Success(payload) {
+  return {
+    type: Actions.USER_REGISTER_MSG91_SUCCESS,
+    payload: payload
+  }
+}
+
+export function registerWithMsg91Failure(error) {
+  return {
+    type: Actions.USER_REGISTER_MSG91_FAILURE,
+    payload: error
+  }
+}
+
 export function loginUserSuccess(payload) {
   return {
     type: Actions.USER_EMAIL_LOGIN_SUCCESS,

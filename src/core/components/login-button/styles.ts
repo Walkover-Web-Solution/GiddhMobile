@@ -1,6 +1,12 @@
 import { StyleSheet } from 'react-native';
 import colors from '@/utils/colors';
-import { GD_BUTTON_SIZE, GD_FONT_SIZE, GD_ICON_SIZE, GD_RADIUS } from '@/utils/constants';
+import {
+  FONT_FAMILY,
+  GD_BUTTON_SIZE,
+  GD_FONT_SIZE,
+  GD_ICON_SIZE,
+  GD_RADIUS
+} from '@/utils/constants';
 
 export default StyleSheet.create({
   button: {
@@ -20,7 +26,7 @@ export default StyleSheet.create({
     textAlign: 'center',
     fontSize: GD_FONT_SIZE.normal,
     borderStyle: 'solid',
-    fontFamily: 'AvenirLTStd-Book'
+    fontFamily: FONT_FAMILY.bold
   },
   iconSize: {
     height: GD_ICON_SIZE.input_icon,
@@ -28,9 +34,9 @@ export default StyleSheet.create({
   },
   seperatorStyle: {
     height: 15,
-    width: 1,
-    backgroundColor: '#ffffff',
-    marginLeft: 8,
-    marginRight: 8
+    width: 10,
+    backgroundColor: 'transparent',
+    marginLeft: 0,
+    marginRight: 0
   }
 });

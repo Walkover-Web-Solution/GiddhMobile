@@ -1,78 +1,153 @@
 import React from 'react';
-import { Text } from '@ui-kitten/components';
 import { connect } from 'react-redux';
 
-import { Image, View, Keyboard, Platform, ScrollView, ToastAndroid, TouchableOpacity, Dimensions } from 'react-native';
-import { GDButton } from '@/core/components/button/button.component';
+import {
+  Image,
+  View,
+  Platform,
+  ToastAndroid,
+  TouchableOpacity,
+  Text as RNText
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import LoginButton from '@/core/components/login-button/login-button.component';
 import style from '@/screens/Auth/Login/style';
-import { GDRoundedInput } from '@/core/components/input/rounded-input.component';
-// google sign in
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { ButtonSize } from '@/models/enums/button';
 import { GdImages } from '@/utils/icons-pack';
 import { WEBCLIENT_ID } from '@/env.json';
 // @ts-ignore
-import LoaderKit  from 'react-native-loader-kit';
-import { googleLogin, appleLogin, userEmailSignup, verifySignupOTP } from '../Login/LoginAction';
+import LoaderKit from 'react-native-loader-kit';
+import { googleLogin, appleLogin, registerWithMsg91 } from '../Login/LoginAction';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import Messages from '@/utils/messages';
-import OTPInputView from '@twotalltotems/react-native-otp-input';
 import colors from '@/utils/colors';
 import { STORAGE_KEYS } from '@/utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Routes from '@/navigation/routes';
+import Toast from 'react-native-root-toast';
+import { OTPWidget } from '@msg91comm/sendotp-react-native';
+import {
+  MSG91_TOKEN_AUTH,
+  MSG91_WIDGET_ID,
+  Msg91WidgetConfig,
+  parseMsg91WidgetProcess
+} from '@/screens/Auth/Login/msg91Otp';
+import SignupMsg91Form from './SignupMsg91Form';
+import GoogleColorIcon from '@/assets/images/icons/google-official.svg';
 
 class Signup extends React.Component<any, any> {
+  registerStartedRef = false;
+
   constructor(props: any) {
     super(props);
     this.state = {
       showLoader: false,
       keyboard: false,
-      username: '',
-      password: '',
-      otpSent: false,
-      code: ""
+      widgetConfig: null as Msg91WidgetConfig | null
     };
   }
 
   componentDidMount() {
-    // initial google sign in configuration
     GoogleSignin.configure({
       webClientId: `${WEBCLIENT_ID}`
     });
+    OTPWidget.initializeWidget(MSG91_WIDGET_ID, MSG91_TOKEN_AUTH);
+    this._loadWidgetConfig();
   }
 
-  componentDidUpdate(prevProps) {
-    // if (!prevProps.startTFA && this.props.startTFA) {
-    //   this.setState({ showLoader: false });
-    //   console.log('going to otp');
-    //   this.props.navigation.navigate('Otp');
-    // }
-  }
+  _getFallbackWidgetConfig = (): Msg91WidgetConfig => ({
+    otpLength: 4,
+    retryAfterSeconds: 15,
+    maxRetryAttempts: 2,
+    retryChannels: ['sms', 'call', 'whatsapp', 'email'],
+    invisible: true,
+    defaultCountryCode: 'IN',
+    defaultCallingCode: '91'
+  });
+
+  _loadWidgetConfig = async (): Promise<Msg91WidgetConfig> => {
+    const fallback = this._getFallbackWidgetConfig();
+    try {
+      await OTPWidget.initializeWidget(MSG91_WIDGET_ID, MSG91_TOKEN_AUTH);
+      const response = await Promise.race([
+        OTPWidget.getWidgetProcess(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('getWidgetProcess timed out')), 12000)
+        )
+      ]);
+      console.log('[MSG91] signup getWidgetProcess:', response);
+
+      if (!response || response?.hasError || response?.status === 'error') {
+        this.setState({ widgetConfig: fallback });
+        return fallback;
+      }
+
+      const config = {
+        ...parseMsg91WidgetProcess(response),
+        // Signup always enables invisible OTP + phone hint on Android
+        invisible: true
+      };
+      this.setState({ widgetConfig: config });
+      return config;
+    } catch (error: any) {
+      console.error('[MSG91] signup getWidgetProcess error:', error);
+      this.setState({ widgetConfig: fallback });
+      return fallback;
+    }
+  };
+
+  _showToast = (message: string) => {
+    if (!message) {
+      return;
+    }
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(message, ToastAndroid.LONG);
+    } else {
+      Toast.show(message, {
+        duration: Toast.durations.LONG,
+        position: -70,
+        hideOnPress: true,
+        backgroundColor: '#1E90FF',
+        textColor: 'white',
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      });
+    }
+  };
 
   async onAppleButtonPress() {
-    // performs login request
     try {
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
         requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME]
       });
-      // get current authentication state for user
-      // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
-      const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+      const credentialState = await appleAuth.getCredentialStateForUser(
+        appleAuthRequestResponse.user
+      );
       if (appleAuthRequestResponse.email != null) {
-        await AsyncStorage.setItem(STORAGE_KEYS.APPLELOGINRESPONSE, JSON.stringify(appleAuthRequestResponse))
+        await AsyncStorage.setItem(
+          STORAGE_KEYS.APPLELOGINRESPONSE,
+          JSON.stringify(appleAuthRequestResponse)
+        );
       } else {
-        let appleLoginOldResponse = await AsyncStorage.getItem(STORAGE_KEYS.APPLELOGINRESPONSE)
-        if (appleLoginOldResponse != null && JSON.parse(appleLoginOldResponse).user == appleAuthRequestResponse.user) {
-          appleAuthRequestResponse.email = JSON.parse(appleLoginOldResponse).email
-          appleAuthRequestResponse.fullName = JSON.parse(appleLoginOldResponse).fullName
+        let appleLoginOldResponse = await AsyncStorage.getItem(
+          STORAGE_KEYS.APPLELOGINRESPONSE
+        );
+        if (
+          appleLoginOldResponse != null &&
+          JSON.parse(appleLoginOldResponse).user == appleAuthRequestResponse.user
+        ) {
+          appleAuthRequestResponse.email = JSON.parse(appleLoginOldResponse).email;
+          appleAuthRequestResponse.fullName = JSON.parse(
+            appleLoginOldResponse
+          ).fullName;
         }
       }
-      // use credentialState response to ensure the user is authenticated
       if (credentialState === appleAuth.State.AUTHORIZED) {
-        // user is authenticated
         this.props.appleLogin(appleAuthRequestResponse);
       }
     } catch (err) {
@@ -81,12 +156,10 @@ class Signup extends React.Component<any, any> {
   }
 
   _googleSignIn = async () => {
-    // Prompts a modal to let the user sign in into your application.
     try {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true
       });
-      // await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
       await GoogleSignin.signIn();
       this.setState({ showLoader: true });
@@ -103,7 +176,7 @@ class Signup extends React.Component<any, any> {
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         console.log('Play Services Not Available or Outdated');
       } else {
-        if (Platform.OS == "ios") {
+        if (Platform.OS == 'ios') {
           alert(Messages.internetNotAvailable);
         } else {
           ToastAndroid.show(Messages.internetNotAvailable, ToastAndroid.LONG);
@@ -113,190 +186,117 @@ class Signup extends React.Component<any, any> {
     }
   };
 
-  async signUpWithUsernamePassword() {
-    Keyboard.dismiss();
-    await this.props.userSignupSentOTP({ email: this.state.username, password: this.state.password });
-    // Send otp
-    setTimeout(() => {
-      if (this.props.signUpOTPSent) {
-        this.setState({ otpSent: true });
-      }
-    }, 1000)
-  }
-
-  async verifyOTP() {
-    if (this.state.code.length !== 8) {
-      alert("Please enter valid verification code");
-      return
+  _onSignupComplete = (payload: {
+    emailId: string;
+    emailIdAccessToken: string;
+    mobileNo: string;
+    mobileNoAccessToken: string;
+  }) => {
+    if (this.registerStartedRef || this.props.isAuthenticatingUser) {
+      return;
     }
-    await this.props.verifySignupOTP({ email: this.state.username, verificationCode: this.state.code })
-  }
-
-  _googleSignOut = async () => {
-    // Remove user session from the device.
-    try {
-      await GoogleSignin.revokeAccess();
-      await GoogleSignin.signOut();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  _keyboardDidShow = () => {
-    this.setState({ keyboard: true });
-  };
-
-  _keyboardDidHide = () => {
-    this.setState({ keyboard: false });
+    this.registerStartedRef = true;
+    this.props.registerWithMsg91({
+      emailId: payload.emailId,
+      emailIdAccessToken: payload.emailIdAccessToken,
+      emailIdAuthType: 'giddh',
+      mobileNo: payload.mobileNo,
+      mobileNoAccessToken: payload.mobileNoAccessToken
+    });
   };
 
   render() {
-    // if (this.state.showLoader) {
-    //   return (
-    //     <GDContainer>
-    //       <StatusBarComponent backgroundColor={color.SECONDARY} barStyle="light-content" />
-    //       <View style={style.alignLoader}>
-    //         <Bars size={15} color={color.PRIMARY_NORMAL} />
-    //       </View>
-    //     </GDContainer>
-    //   );
-    // } else {
+    const config = this.state.widgetConfig || this._getFallbackWidgetConfig();
+
     return (
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        style={style.loginContainer}
-        contentContainerStyle={style.verticalCenter}
-      >
-        <View style={[style.socialLoginContainer, { marginTop: this.state.keyboard ? 10 : 50 }]}>
-          <View style={style.titleContainer}>
-            <Text style={style.loginTextStyle}>Signup to </Text>
-            <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
-            <Image style={style.logoTwo} source={require('@/assets/images/books.png')} />
-          </View>
+      <SafeAreaView style={style.loginContainer} edges={['top', 'bottom']}>
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={style.authScreenContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          bottomOffset={28}
+          extraKeyboardSpace={12}
+          disableScrollOnKeyboardHide
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          overScrollMode="never"
+        >
+          <View style={style.authInner}>
+            <View style={style.authMain}>
+              <View style={style.heroBlock}>
+                <View style={style.blobSoft} pointerEvents="none" />
+                <View style={style.blobAccent} pointerEvents="none" />
+                <View style={style.blobDot} pointerEvents="none" />
+                <View style={style.logoBubble}>
+                  <View style={style.titleContainer}>
+                    <Image style={style.logoStyle} source={GdImages.icons.logoSmall} />
+                    <Image
+                      style={style.logoTwo}
+                      source={require('@/assets/images/books.png')}
+                    />
+                  </View>
+                </View>
+                <RNText style={style.welcomeTitle}>Create account</RNText>
+                <RNText style={style.subtitle}>Sign up to continue</RNText>
+              </View>
 
-          <LoginButton
-            size={ButtonSize.medium}
-            label={'Signup with Google'}
-            style={[style.gmailButton, { marginTop: this.state.keyboard ? 15 : 30 }]}
-            onPress={this._googleSignIn}
-            icon="gmail"
-          />
+              <View style={style.authStack}>
+                <View style={style.authButtonWrap}>
+                  <LoginButton
+                    size={ButtonSize.medium}
+                    label={'Continue with Google'}
+                    style={[style.authButton, style.googleAuthButton]}
+                    labelStyle={style.googleAuthLabel}
+                    onPress={this._googleSignIn}
+                    iconElement={<GoogleColorIcon width={20} height={20} />}
+                  />
+                </View>
 
-          {Platform.OS == 'ios' && (
-            <LoginButton
-              size={ButtonSize.medium}
-              label={'Signup with Apple'}
-              style={style.appleButton}
-              icon="apple"
-              onPress={() => this.onAppleButtonPress()}
-            />
-          )}
-        </View>
+                {Platform.OS == 'ios' && (
+                  <View style={style.authButtonWrap}>
+                    <LoginButton
+                      size={ButtonSize.medium}
+                      label={'Continue with Apple'}
+                      style={[style.authButton, style.appleAuthButton]}
+                      icon="apple"
+                      onPress={() => this.onAppleButtonPress()}
+                    />
+                  </View>
+                )}
 
-        <View style={style.seperator}>
-          <Text style={style.forgotStyle}>or</Text>
-          <View style={style.horizontalRule} />
-        </View>
+                <View style={style.orRow}>
+                  <View style={style.orLine} />
+                  <View style={style.orPill}>
+                    <RNText style={style.orText}>or</RNText>
+                  </View>
+                  <View style={style.orLine} />
+                </View>
 
-        {!this.state.otpSent ? <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>
-          <View>
-            <Text style={style.registerStyle}>Email ID</Text>
-          </View>
+                <SignupMsg91Form
+                  config={config}
+                  busy={Boolean(this.props.isAuthenticatingUser)}
+                  onErrorMessage={this._showToast}
+                  onComplete={this._onSignupComplete}
+                />
+              </View>
+            </View>
 
-          <View style={style.formInput}>
-            <View style={{ height: 10 }}></View>
-            <GDRoundedInput
-              icon="email"
-              label="Company Name"
-              value={this.state.username}
-              placeholder="sampleaddress@mail.com"
-              onChange={(value) => this.setState({ username: value })}
-            />
-            <View style={{ height: 10 }}></View>
-            <GDRoundedInput
-              secureTextEntry={true}
-              style={{ marginTop: 6 }}
-              icon="lock"
-              label="Company Name"
-              value={this.state.password}
-              placeholder="********"
-              onChange={(value) => this.setState({ password: value })}
-            />
-          </View>
-
-          <View style={[style.loginButtonContainer, { flexDirection: "row", justifyContent: "space-between" }]}>
-            <GDButton
-              size={ButtonSize.medium}
-              style={style.loginButtonStyle}
-              label={'Signup'}
-              onPress={() => this.signUpWithUsernamePassword()}
-            />
-            {/* <TouchableOpacity style={{ justifyContent: "flex-start", alignItems: "flex-start", width: "40%" }} onPress={() => {
-              this.signUpWithUsernamePassword();
-            }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'AvenirLTStd-Book',
-                  color: colors.PRIMARY_NORMAL,
-                }}>Resend Code</Text>
-            </TouchableOpacity> */}
-          </View>
-        </View> :
-          <View style={[style.loginFormContainer, { marginTop: this.state.keyboard ? 10 : 30 }]}>
-            <Text style={style.registerStyle}>Verify Email ID</Text>
-            <OTPInputView
-              style={{ width: '100%', height: Dimensions.get('screen').height * 0.13 }}
-              pinCount={8}
-              color={'red'}
-              placeholderCharacter={'*'}
-              codeInputFieldStyle={'red'}
-              placeholderTextColor={colors.PRIMARY_NORMAL}
-              code={this.state.code} // You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
-              onCodeChanged={code => {
-                this.setState({ code })
-              }}
-              autoFocusOnLoad
-              codeInputFieldStyle={style.underlineStyleBase}
-              codeInputHighlightStyle={style.underlineStyleHighLighted}
-              onCodeFilled={(code) => {
-                this.setState({ code })
-                console.log(`Code is ${code}, you are good to go!`);
-              }}
-            />
-            <View style={[style.loginButtonContainer, { flexDirection: "row", justifyContent: "space-between" }]}>
-              <GDButton
-                size={ButtonSize.medium}
-                style={style.loginButtonStyle}
-                label={'Verify Email '}
-                onPress={() => this.verifyOTP()}
-              />
-              <TouchableOpacity style={{ justifyContent: "flex-start", alignItems: "flex-start", width: "40%" }} onPress={() => {
-                this.signUpWithUsernamePassword()
-              }}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'AvenirLTStd-Book',
-                    color: colors.PRIMARY_NORMAL,
-                  }}>Resend Code</Text>
+            <View style={[style.signupBlock, style.authFooter]}>
+              <RNText style={style.signupHint}>Already have an account? </RNText>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => {
+                  this.props.navigation.replace(Routes.Login);
+                }}
+                hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+              >
+                <RNText style={style.signupLink}>Login</RNText>
               </TouchableOpacity>
             </View>
-          </View>}
-        <View style={[style.loginButtonContainer, { flexDirection: "row", marginTop: 40, justifyContent: "flex-start" }]}>
-          <Text style={{ fontFamily: 'AvenirLTStd-Book' }}>Already have an account?  </Text>
-          <TouchableOpacity style={{}} onPress={() => {
-            this.props.navigation.navigate(Routes.Login);
-          }}>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'AvenirLTStd-Book',
-                color: colors.PRIMARY_NORMAL,
-                textDecorationLine: 'underline',
-              }}>Login</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        </KeyboardAwareScrollView>
+
         {this.props.isAuthenticatingUser && (
           <View
             style={{
@@ -308,17 +308,17 @@ class Signup extends React.Component<any, any> {
               right: 0,
               bottom: 0,
               top: 0
-            }}>
+            }}
+          >
             <LoaderKit
-                style={{ width: 45, height: 45 }}
-                name={'LineScale'}
-                color={colors.PRIMARY_NORMAL}
+              style={{ width: 45, height: 45 }}
+              name={'LineScale'}
+              color={colors.PRIMARY_NORMAL}
             />
           </View>
         )}
-      </ScrollView>
+      </SafeAreaView>
     );
-    // }
   }
 }
 
@@ -326,7 +326,6 @@ const mapStateToProps = (state: RootState) => {
   const { LoginReducer } = state;
   return {
     isLoginInProcess: state.LoginReducer.isAuthenticatingUser,
-    signUpOTPSent: state.LoginReducer.signUpOTPSent,
     ...LoginReducer
   };
 };
@@ -339,11 +338,8 @@ function mapDispatchToProps(dispatch) {
     appleLogin: (payload) => {
       dispatch(appleLogin(payload));
     },
-    userSignupSentOTP: (payload) => {
-      dispatch(userEmailSignup(payload));
-    },
-    verifySignupOTP: (payload) => {
-      dispatch(verifySignupOTP(payload));
+    registerWithMsg91: (payload) => {
+      dispatch(registerWithMsg91(payload));
     }
   };
 }

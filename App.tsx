@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {EvaIconsPack} from '@ui-kitten/eva-icons';
 import * as material from '@eva-design/material';
-import {SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ApplicationProvider, IconRegistry} from '@ui-kitten/components';
 import {GdIconsPack} from '@/utils/icons-pack';
 import {Provider, useSelector} from 'react-redux';
@@ -24,7 +24,7 @@ import { injectStore } from '@/utils/helper';
 import { injectStoreToInvoiceUrls } from '@/core/services/invoice/invoice.service'
 import { injectStoreToHttpInstance } from '@/core/services/http/http.service';
 import AppLock from '@/AppLock/AppLock';
-import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-controller";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import '@/localization/i18n';
 
 injectStore(store); // Provides store to formateAmount function
@@ -140,12 +140,10 @@ export default class App extends React.Component<any> {
 const InnerApp = () => {
   const {toggleBiometric} = useSelector((state: any) => state.LoginReducer);  
   const [unlocked, setUnlocked] = useState(false);
-  const insets = useSafeAreaInsets();
   
   return (
     
-      <KeyboardProvider>
-        <KeyboardAvoidingView style={{flex:1}} behavior={"padding"} keyboardVerticalOffset={-(insets.bottom)}>
+      <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
           <IconRegistry icons={[EvaIconsPack, GdIconsPack]} />
           <ApplicationProvider customMapping={mapping as any} {...material} theme={material.light}>
             <GestureHandlerRootView style={{ flex: 1 }}>
@@ -155,7 +153,6 @@ const InnerApp = () => {
               </RootSiblingParent>
             </GestureHandlerRootView>
           </ApplicationProvider>
-        </KeyboardAvoidingView>
       </KeyboardProvider>
     
   )

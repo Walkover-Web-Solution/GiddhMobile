@@ -1,15 +1,25 @@
 import * as React from 'react';
-import { Component } from 'react';
-import { GestureResponderEvent, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Component, ReactNode } from 'react';
+import {
+  GestureResponderEvent,
+  StyleProp,
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle
+} from 'react-native';
 import { ButtonSize } from '@/models/enums/button';
 import styles from '@/core/components/login-button/styles';
 import { Icon } from '@ui-kitten/components';
 
 type LoginButtonProps = {
   label: string;
-  icon: string;
+  icon?: string;
+  iconElement?: ReactNode;
   size: number;
   style?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
   onPress?: (event?: GestureResponderEvent) => void;
 };
 
@@ -22,16 +32,23 @@ class LoginButton extends Component<LoginButtonProps, LoginButtonStat> {
   }
 
   render () {
-    // Button style pushed into style based on condition
-
-    const btnStyle: StyleProp<ViewStyle>[] = [this.props.style, styles.button];
+    const btnStyle: StyleProp<ViewStyle>[] = [styles.button, this.props.style];
+    const hasIcon = Boolean(this.props.iconElement || this.props.icon);
 
     return (
-      <View>
-        <TouchableOpacity onPress={this.props.onPress} style={btnStyle}>
-          <Icon pack="Gd" name={this.props.icon} />
-          <View style={styles.seperatorStyle} />
-          <Text style={styles.labelStyle}>{this.props.label}</Text>
+      <View style={{ width: '100%' }}>
+        <TouchableOpacity
+          onPress={this.props.onPress}
+          style={btnStyle}
+          activeOpacity={0.7}
+        >
+          {this.props.iconElement
+            ? this.props.iconElement
+            : this.props.icon
+              ? <Icon pack="Gd" name={this.props.icon} />
+              : null}
+          {hasIcon ? <View style={styles.seperatorStyle} /> : null}
+          <Text style={[styles.labelStyle, this.props.labelStyle]}>{this.props.label}</Text>
         </TouchableOpacity>
       </View>
     );

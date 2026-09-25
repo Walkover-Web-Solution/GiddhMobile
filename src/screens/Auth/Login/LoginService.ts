@@ -93,6 +93,23 @@ export async function verifySignupOTP(payload: any) {
   }
 }
 
+export async function registerWithMsg91(payload: {
+  emailId: string;
+  emailIdAccessToken: string;
+  mobileNo: string;
+  mobileNoAccessToken: string;
+  emailIdAuthType?: string;
+}) {
+  try {
+    const response = await AuthService.registerWithMsg91(payload);
+    console.log('the register response is ', response);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
 /**
  * set apple login action
  * @returns {Promise<void>}

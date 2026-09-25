@@ -89,6 +89,29 @@ export class AuthService {
   }
 
   /**
+   * Web-matching MSG91 signup register after email + mobile OTP verify.
+   */
+  static registerWithMsg91(payload: {
+    emailId: string;
+    emailIdAccessToken: string;
+    mobileNo: string;
+    mobileNoAccessToken: string;
+    emailIdAuthType?: string;
+  }): Promise<BaseResponse<LoginResponse>> {
+    return httpInstance
+      .post(AccountUrls.register, {
+        emailId: payload.emailId,
+        emailIdAccessToken: payload.emailIdAccessToken,
+        emailIdAuthType: payload.emailIdAuthType || 'giddh',
+        mobileNo: payload.mobileNo,
+        mobileNoAccessToken: payload.mobileNoAccessToken
+      })
+      .then((res) => {
+        return res.data;
+      });
+  }
+
+  /**
    * get response from server
    * @returns {Promise<BaseResponse<LoginResponse>>}
    */

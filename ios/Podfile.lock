@@ -1573,7 +1573,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-keyboard-controller (1.22.3):
+  - react-native-keyboard-controller (1.17.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1588,7 +1588,7 @@ PODS:
     - React-hermes
     - React-ImageManager
     - React-jsi
-    - react-native-keyboard-controller/common (= 1.22.3)
+    - react-native-keyboard-controller/common (= 1.17.5)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1598,7 +1598,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-keyboard-controller/common (1.22.3):
+  - react-native-keyboard-controller/common (1.17.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2530,7 +2530,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - sendotp-react-native (2.0.2):
+  - sendotp-react-native (3.0.0):
     - React-Core
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
@@ -2974,7 +2974,7 @@ SPEC CHECKSUMS:
   react-native-blob-util: 5916380210f9a7b0164e3ed638e320baf5ac0baa
   react-native-document-picker: 52817f2ac5174b08fb218dedb00440787e315936
   react-native-image-picker: db0b3e3c7ae57680876318d4f42e7dbedd72244a
-  react-native-keyboard-controller: d28f64fe84f1a2df657f66063f042858566002c2
+  react-native-keyboard-controller: 46ff1d24f868d895763d2043dac37909bc07c6fa
   react-native-loader-kit: 46b54fe8b8a21fe8c4d4f5d635faedf187d5ba09
   react-native-netinfo: 43057b69879ec4dc01fa62d34bf958506a9ec0be
   react-native-pager-view: f79b095ad2f207028f17626dd7aaf8411c42accc
@@ -3036,7 +3036,7 @@ SPEC CHECKSUMS:
   RNShare: 3f6f18e00a073202649091f966e0f45e0492c019
   RNSVG: 7f5a3429d6fdf2dda10f28111ef332b5261451b6
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
-  sendotp-react-native: a4d9e18b8e5496b8b7bc38fe49693f793adbba7c
+  sendotp-react-native: 063fbf89a6856697422e6f0f131ffb00fc9066ea
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 9663a18d096f7f7e17a535cf00849db756709955
 

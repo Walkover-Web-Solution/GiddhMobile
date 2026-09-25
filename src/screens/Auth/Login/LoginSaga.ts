@@ -22,6 +22,7 @@ export default function* watcherSaga() {
   yield takeLatest(ActionConstants.RESET_PASSWORD, resetPassword);
   yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP, signupUsingEmailPassword);
   yield takeLatest(ActionConstants.USER_EMAIL_SIGNUP_VERIFY_OTP, verifySignupOTP);
+  yield takeLatest(ActionConstants.USER_REGISTER_MSG91, registerWithMsg91);
   yield takeLatest(ActionConstants.SET_NEW_PASSWORD, setNewPassword);
 }
 
@@ -309,7 +310,84 @@ export function* verifySignupOTP(action) {
   }
 }
 
-
+export function* registerWithMsg91(action) {
+  const response = yield call(LoginService.registerWithMsg91, action.payload);
+  if (response && response.body && response.body.session && response.body.session.id) {
+    yield addUserDeatilsToLogRocket(
+      response.body.user.uniqueName,
+      response.body.user.name,
+      response.body.user.email
+    );
+    yield AsyncStorage.setItem(STORAGE_KEYS.token, response.body ? response.body.session.id : '');
+    yield AsyncStorage.setItem(
+      STORAGE_KEYS.sessionStart,
+      response.body ? response.body.session.createdAt : ''
+    );
+    yield AsyncStorage.setItem(
+      STORAGE_KEYS.sessionEnd,
+      response.body ? response.body.session.expiresAt : ''
+    );
+    yield AsyncStorage.setItem(
+      STORAGE_KEYS.googleEmail,
+      response.body.user.email ? response.body.user.email : ''
+    );
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+    const activeCompany = yield call(CommonService.getLastStateDetails);
+    const { companyUniqueName, branchUniqueName } = activeCompany;
+    yield AsyncStorage.setItem(
+      STORAGE_KEYS.activeCompanyUniqueName,
+      companyUniqueName ? companyUniqueName : ''
+    );
+    yield AsyncStorage.setItem(
+      STORAGE_KEYS.activeBranchUniqueName,
+      branchUniqueName ? branchUniqueName : ''
+    );
+    yield call(getCompanyAndBranchesSaga);
+    yield put(
+      LoginAction.registerWithMsg91Success({
+        token: response.body.session.id,
+        createdAt: response.body.session.createdAt,
+        expiresAt: response.body.session.expiresAt
+      })
+    );
+  } else if (
+    response &&
+    response.status == 'success' &&
+    response.body &&
+    response.body.statusCode == 'AUTHENTICATE_TWO_WAY'
+  ) {
+    yield addUserDeatilsToLogRocket(
+      response.body.user.uniqueName,
+      response.body.user.name,
+      response.body.user.email
+    );
+    yield AsyncStorage.setItem(
+      STORAGE_KEYS.googleEmail,
+      response.body.user.email ? response.body.user.email : ''
+    );
+    yield AsyncStorage.setItem(STORAGE_KEYS.userName, response.body ? response.body.user.name : '');
+    yield put(LoginAction.twoFactorAuthenticationStarted(response.body));
+  } else {
+    const message =
+      response?.data?.message || response?.message || 'Failed to register';
+    if (Platform.OS == 'android') {
+      ToastAndroid.show(message, ToastAndroid.LONG);
+    } else {
+      TOAST.show(message, {
+        duration: TOAST.durations.LONG,
+        position: -70,
+        hideOnPress: true,
+        backgroundColor: '#1E90FF',
+        textColor: 'white',
+        opacity: 1,
+        shadow: false,
+        animation: true,
+        containerStyle: { borderRadius: 10 }
+      });
+    }
+    yield put(LoginAction.registerWithMsg91Failure(message));
+  }
+}
 
 export function* googleLogin(action) {
   console.log('googleLogin  -----');

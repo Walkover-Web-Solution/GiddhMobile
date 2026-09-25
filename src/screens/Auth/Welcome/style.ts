@@ -1,40 +1,24 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 import colors from '@/utils/colors';
+import { AUTH_LAYOUT } from '@/screens/Auth/Login/authLayout';
 
-const { width, height } = Dimensions.get('window');
 export default StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'white' },
+  container: { flex: 1, backgroundColor: colors.BACKGROUND },
   buttonContainer: {
     position: 'absolute',
-    bottom: 10,
-    alignSelf: 'center',
-    padding: 5
-  },
-  createAccount: {
-    fontSize: 20,
-    color: 'white'
-  },
-  login: {
-    fontSize: 18,
-    color: colors.PRIMARY_BASIC,
-    fontFamily: 'AvenirLTStd-Medium'
-  },
-  createAccountButton: {
-    height: 50,
-    width: width * 0.9,
-    backgroundColor: colors.PRIMARY_BASIC,
-    borderRadius: 25,
+    bottom: 16,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    justifyContent: 'center'
+    width: '100%',
+    paddingHorizontal: AUTH_LAYOUT.horizontalPadding
   },
-  loginButton: {
-    height: 50,
-    marginTop: 10,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.PRIMARY_BASIC
+  noShadow: {
+    shadowColor: 'transparent',
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 0
   },
   paginationWrapper: {
     position: 'absolute',
