@@ -86,11 +86,20 @@ export class Customers extends React.Component<Props> {
       console.log('Active company country code', activeCompanyCountryCode);
       console.log('results', results);
       if (results.body && results.status == 'success') {
+        const companyStateRaw = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyState);
+        const companyState = companyStateRaw ? JSON.parse(companyStateRaw) : null;
+        const shouldAutoFillState = !this.state.savedAddress?.state_billing || this.state.savedAddress.state_billing === '';
         await this.setState({
           activeCompanyCountryCode: activeCompanyCountryCode,
           selectedCountry: results.body.country,
           selectedCallingCode: results.body.country.callingCode,
-          selectedCurrency: results.body.country.currency.code
+          selectedCurrency: results.body.country.currency.code,
+          ...(shouldAutoFillState && companyState
+            ? {
+                savedAddress: { ...this.state.savedAddress, state_billing: companyState },
+                state_billing: companyState,
+              }
+            : {}),
         })
       }
     } catch (e) { }

@@ -132,9 +132,18 @@ export class Vendors extends React.Component<Props> {
       const activeCompanyCountryCode = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyCountryCode);
       const results = await InvoiceService.getCountryDetails(this.state.countryFromProps != '' ? this.state.countryFromProps.countryCode : activeCompanyCountryCode);
       if (results.body && results.status == 'success') {
+        const companyStateRaw = await AsyncStorage.getItem(STORAGE_KEYS.activeCompanyState);
+        const companyState = companyStateRaw ? JSON.parse(companyStateRaw) : null;
+        const shouldAutoFillState = !this.state.savedAddress?.state_billing || this.state.savedAddress.state_billing === '';
         await this.setState({
           activeCompanyCountryCode: activeCompanyCountryCode,
           selectedCountry: results.body.country,
+          ...(shouldAutoFillState && companyState
+            ? {
+                savedAddress: { ...this.state.savedAddress, state_billing: companyState },
+                state_billing: companyState,
+              }
+            : {}),
         })
         if (this.state.selectedCallingCode == "" || this.state.countryFromProps == '') {
           await this.setState({

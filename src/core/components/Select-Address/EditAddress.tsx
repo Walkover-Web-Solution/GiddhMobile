@@ -2606,7 +2606,9 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
             this.props.route.params.address.stateName != null && this.props.route.params.address.stateName != ''
                ? this.props.route.params.address.stateName
                : '',
-         stateCode: this.props.route.params.address.stateCode ? this.props.route.params.address.stateCode : '',
+         stateCode: this.props.route.params.address.stateCode
+            ? this.props.route.params.address.stateCode
+            : (this.props.route.params.address.stateName?.code || ''),
          gstNo: this.props.route.params.address.gstNumber != null ? this.props.route.params.address.gstNumber : '',
          pinCode: this.props.route.params.address.pincode != null ? this.props.route.params.address.pincode : '',
          loading: false,
@@ -2647,9 +2649,27 @@ export class EditAddress extends React.Component<any & WithTranslation, any> {
       ? this.props.route.params.address?.selectedCountry?.countryCode : this.props.route.params.address?.selectedCountry?.alpha2CountryCode != null
       ? this.props.route.params.address?.selectedCountry?.alpha2CountryCode : activeCompanyCountryCode;
       const allStateName = await CustomerVendorService.getAllStateName(countryAlpha2Code);
+      const statesList = countryAlpha2Code == "GB" ? allStateName.body.countyList : allStateName.body.stateList;
+      let matchedState = null;
+      const existingState = this.state.state_billing;
+      if (existingState && statesList?.length) {
+         matchedState = statesList.find((s: any) =>
+            (existingState.code && s.code === existingState.code) ||
+            (existingState.name && s.name === existingState.name) ||
+            (typeof existingState === 'string' && s.name === existingState) ||
+            (this.state.stateCode && s.code === this.state.stateCode)
+         ) || null;
+      }
       await this.setState({
-         allStates: countryAlpha2Code == "GB" ? allStateName.body.countyList : allStateName.body.stateList,
-         filteredStates: countryAlpha2Code == "GB" ? allStateName.body.countyList : allStateName.body.stateList
+         allStates: statesList,
+         filteredStates: statesList,
+         ...(matchedState
+            ? {
+               state_billing: matchedState,
+               stateCode: matchedState.code,
+               selectedState: matchedState.name,
+            }
+            : {}),
       });
       await this.setState({ loading: false });
    };
